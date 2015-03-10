@@ -61,9 +61,6 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 
-/**
- * A QueueControlTest
- */
 public class JMSServerControl2Test extends ManagementTestBase
 {
    private static final long CONNECTION_TTL = 1000;

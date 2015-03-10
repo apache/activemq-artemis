@@ -30,9 +30,6 @@ import org.apache.activemq.utils.DataConstants;
 import org.apache.activemq.utils.MemorySize;
 import org.apache.activemq.utils.TypedProperties;
 
-/**
- * A ServerMessageImpl
- */
 public class ServerMessageImpl extends MessageImpl implements ServerMessage
 {
 

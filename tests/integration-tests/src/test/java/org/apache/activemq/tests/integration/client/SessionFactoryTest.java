@@ -39,9 +39,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-/**
- * A ClientSessionFactoryTest
- */
 public class SessionFactoryTest extends ServiceTestBase
 {
    private final DiscoveryGroupConfiguration groupConfiguration = new DiscoveryGroupConfiguration()

@@ -19,9 +19,6 @@ package org.apache.activemq.core.server;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.core.filter.Filter;
 
-/**
- * A Divert
- */
 public interface Divert extends Bindable
 {
    Filter getFilter();

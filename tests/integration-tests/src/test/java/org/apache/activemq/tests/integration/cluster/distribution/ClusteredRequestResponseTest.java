@@ -20,9 +20,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 
-/**
- * A ClusteredRequestResponseTest
- */
 public class ClusteredRequestResponseTest extends ClusterTestBase
 {
 

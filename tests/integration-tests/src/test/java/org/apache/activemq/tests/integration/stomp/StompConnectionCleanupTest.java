@@ -26,9 +26,6 @@ import org.junit.Assert;
 import org.apache.activemq.core.protocol.stomp.Stomp;
 import org.apache.activemq.jms.server.JMSServerManager;
 
-/**
- * A StompConnectionCleanupTest
- */
 public class StompConnectionCleanupTest extends StompTestBase
 {
    private static final long CONNECTION_TTL = 2000;

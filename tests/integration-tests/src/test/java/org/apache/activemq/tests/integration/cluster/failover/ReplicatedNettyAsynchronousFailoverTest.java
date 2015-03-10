@@ -16,9 +16,6 @@
  */
 package org.apache.activemq.tests.integration.cluster.failover;
 
-/**
- * A ReplicatedNettyAsynchronousFailoverTest
- */
 public class ReplicatedNettyAsynchronousFailoverTest extends NettyAsynchronousFailoverTest
 {
 

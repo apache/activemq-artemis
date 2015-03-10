@@ -20,9 +20,6 @@ import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.core.filter.Filter;
 import org.apache.activemq.core.server.ServerMessage;
 
-/**
- * A FakeFilter
- */
 public class FakeFilter implements Filter
 {
    private String headerName;

@@ -21,9 +21,6 @@ import java.util.List;
 import org.apache.activemq.api.core.Interceptor;
 import org.apache.activemq.core.server.ActiveMQServer;
 
-/**
- * A ProtocolManagerFactory
- */
 public interface ProtocolManagerFactory
 {
    ProtocolManager createProtocolManager(ActiveMQServer server, List<Interceptor> incomingInterceptors, List<Interceptor> outgoingInterceptors);

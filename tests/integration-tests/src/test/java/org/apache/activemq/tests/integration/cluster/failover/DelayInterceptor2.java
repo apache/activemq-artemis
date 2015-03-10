@@ -25,9 +25,6 @@ import org.apache.activemq.core.protocol.core.Packet;
 import org.apache.activemq.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.spi.core.protocol.RemotingConnection;
 
-/**
- * A DelayInterceptor2
- */
 public class DelayInterceptor2 implements Interceptor
 {
    private volatile boolean loseResponse = true;

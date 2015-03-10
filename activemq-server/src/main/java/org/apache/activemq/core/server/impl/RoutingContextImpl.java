@@ -27,9 +27,6 @@ import org.apache.activemq.core.server.RouteContextList;
 import org.apache.activemq.core.server.RoutingContext;
 import org.apache.activemq.core.transaction.Transaction;
 
-/**
- * A RoutingContextImpl
- */
 public final class RoutingContextImpl implements RoutingContext
 {
 

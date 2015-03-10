@@ -18,9 +18,6 @@ package org.apache.activemq.core.postoffice;
 
 import org.apache.activemq.core.server.ActiveMQMessageBundle;
 
-/**
- * A BindingType
- */
 public enum BindingType
 {
    LOCAL_QUEUE, REMOTE_QUEUE, DIVERT;

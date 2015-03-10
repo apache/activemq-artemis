@@ -18,9 +18,6 @@ package org.apache.activemq.jms.bridge;
 
 import org.apache.activemq.api.core.management.ActiveMQComponentControl;
 
-/**
- * A JMSBridgeControl
- */
 public interface JMSBridgeControl extends ActiveMQComponentControl
 {
    void pause() throws Exception;

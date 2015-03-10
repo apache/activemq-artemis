@@ -20,9 +20,6 @@ import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.core.server.ActiveMQComponent;
 import org.apache.activemq.core.server.management.NotificationService;
 
-/**
- * A BroadcastGroup
- */
 public interface BroadcastGroup extends ActiveMQComponent
 {
    void setNotificationService(NotificationService notificationService);

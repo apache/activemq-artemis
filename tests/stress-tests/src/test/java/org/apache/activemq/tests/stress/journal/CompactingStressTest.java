@@ -38,9 +38,6 @@ import org.apache.activemq.core.server.JournalType;
 import org.apache.activemq.tests.util.ServiceTestBase;
 import org.apache.activemq.tests.util.UnitTestCase;
 
-/**
- * A CompactingTest
- */
 public class CompactingStressTest extends ServiceTestBase
 {
 

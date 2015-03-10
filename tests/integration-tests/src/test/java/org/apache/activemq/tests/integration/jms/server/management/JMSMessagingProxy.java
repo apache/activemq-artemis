@@ -24,9 +24,6 @@ import javax.jms.Session;
 
 import org.apache.activemq.api.jms.management.JMSManagementHelper;
 
-/**
- * A MBeanUsingCoreMessage
- */
 public class JMSMessagingProxy
 {
 

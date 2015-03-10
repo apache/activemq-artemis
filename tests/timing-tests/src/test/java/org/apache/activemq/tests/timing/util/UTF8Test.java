@@ -26,9 +26,6 @@ import org.junit.Assert;
 import org.apache.activemq.tests.util.UnitTestCase;
 import org.apache.activemq.utils.UTF8Util;
 
-/**
- * A UTF8Test
- */
 public class UTF8Test extends UnitTestCase
 {
 

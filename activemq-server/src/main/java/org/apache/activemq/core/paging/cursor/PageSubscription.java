@@ -25,9 +25,6 @@ import org.apache.activemq.core.server.Queue;
 import org.apache.activemq.core.transaction.Transaction;
 import org.apache.activemq.utils.LinkedListIterator;
 
-/**
- * A PageCursor
- */
 public interface PageSubscription
 {
 

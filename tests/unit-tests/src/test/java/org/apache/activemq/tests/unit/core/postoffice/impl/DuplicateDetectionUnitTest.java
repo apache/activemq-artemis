@@ -45,9 +45,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-/**
- * A DuplicateDetectionUnitTest
- */
 public class DuplicateDetectionUnitTest extends ServiceTestBase
 {
    // Constants -----------------------------------------------------

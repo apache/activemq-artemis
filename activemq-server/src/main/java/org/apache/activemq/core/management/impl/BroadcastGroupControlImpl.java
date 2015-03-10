@@ -25,9 +25,6 @@ import org.apache.activemq.core.persistence.StorageManager;
 import org.apache.activemq.core.server.cluster.BroadcastGroup;
 import org.apache.activemq.utils.json.JSONArray;
 
-/**
- * A BroadcastGroupControl
- */
 public class BroadcastGroupControlImpl extends AbstractControl implements BroadcastGroupControl
 {
 

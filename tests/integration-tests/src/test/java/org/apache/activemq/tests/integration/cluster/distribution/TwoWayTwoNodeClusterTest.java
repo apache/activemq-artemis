@@ -20,9 +20,6 @@ import org.apache.activemq.tests.integration.IntegrationTestLogger;
 import org.junit.Before;
 import org.junit.Test;
 
-/**
- * A OnewayTwoNodeClusterTest
- */
 public class TwoWayTwoNodeClusterTest extends ClusterTestBase
 {
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;

@@ -93,9 +93,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-/**
- * A ReplicationTest
- */
 public final class ReplicationTest extends ServiceTestBase
 {
 

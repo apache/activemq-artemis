@@ -40,9 +40,6 @@ import org.apache.activemq.core.protocol.core.impl.wireformat.ActiveMQExceptionM
 import org.apache.activemq.core.protocol.core.impl.wireformat.PacketsConfirmedMessage;
 import org.apache.activemq.spi.core.protocol.RemotingConnection;
 
-/**
- * A ChannelImpl
- */
 public final class ChannelImpl implements Channel
 {
    public enum CHANNEL_ID

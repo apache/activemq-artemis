@@ -23,9 +23,6 @@ import org.apache.activemq.api.core.ActiveMQBuffer;
 
 import static org.apache.activemq.core.protocol.stomp.ActiveMQStompProtocolMessageBundle.BUNDLE;
 
-/**
- * A StompDecoder
- */
 public class StompDecoder
 {
    public static final boolean TRIM_LEADING_HEADER_VALUE_WHITESPACE = true;

@@ -20,9 +20,6 @@ import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.core.journal.EncodingSupport;
 
-/**
- * A ConfiguredRoles
- */
 public class PersistedRoles implements EncodingSupport
 {
 

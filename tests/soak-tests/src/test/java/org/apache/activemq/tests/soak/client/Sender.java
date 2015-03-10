@@ -20,9 +20,6 @@ import org.apache.activemq.api.core.client.ClientMessage;
 import org.apache.activemq.api.core.client.ClientProducer;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
 
-/**
- * A Sender
- */
 public class Sender extends ClientAbstract
 {
 

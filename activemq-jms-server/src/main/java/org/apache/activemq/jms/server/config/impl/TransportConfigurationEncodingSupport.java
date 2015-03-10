@@ -28,9 +28,6 @@ import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.utils.BufferHelper;
 import org.apache.activemq.utils.DataConstants;
 
-/**
- * A TransportConfigurationEncodingSupport
- */
 public class TransportConfigurationEncodingSupport
 {
    public static List<Pair<TransportConfiguration, TransportConfiguration>> decodeConfigs(ActiveMQBuffer buffer)

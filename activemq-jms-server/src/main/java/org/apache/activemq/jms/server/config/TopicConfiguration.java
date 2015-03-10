@@ -16,9 +16,6 @@
  */
 package org.apache.activemq.jms.server.config;
 
-/**
- * A TopicConfiguration
- */
 public interface TopicConfiguration
 {
    String getName();

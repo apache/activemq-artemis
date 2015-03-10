@@ -23,9 +23,6 @@ import org.apache.activemq.core.client.impl.QueueQueryImpl;
 import org.apache.activemq.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.core.server.QueueQueryResult;
 
-/**
- * A SessionQueueQueryResponseMessage
- */
 public class SessionQueueQueryResponseMessage extends PacketImpl
 {
    protected SimpleString name;

@@ -21,9 +21,6 @@ import org.apache.activemq.core.server.ActiveMQMessageBundle;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-/**
- * A InVMRegistry
- */
 public final class InVMRegistry
 {
    public static final InVMRegistry instance = new InVMRegistry();

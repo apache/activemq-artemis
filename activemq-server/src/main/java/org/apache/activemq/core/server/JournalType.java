@@ -16,9 +16,6 @@
  */
 package org.apache.activemq.core.server;
 
-/**
- * A JournalType
- */
 public enum JournalType
 {
    NIO, ASYNCIO;

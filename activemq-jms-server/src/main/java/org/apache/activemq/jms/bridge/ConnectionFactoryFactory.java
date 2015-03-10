@@ -16,9 +16,6 @@
  */
 package org.apache.activemq.jms.bridge;
 
-/**
- * A ConnectionFactoryFactory
- */
 public interface ConnectionFactoryFactory
 {
    Object createConnectionFactory() throws Exception;

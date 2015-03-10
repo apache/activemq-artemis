@@ -71,9 +71,6 @@ import org.apache.activemq.utils.ExecutorFactory;
 import org.apache.activemq.utils.FutureLatch;
 import org.apache.activemq.utils.TypedProperties;
 
-/**
- * A ClusterConnectionImpl
- */
 public final class ClusterConnectionImpl implements ClusterConnection, AfterConnectInternalListener
 {
    private static final boolean isTrace = ActiveMQServerLogger.LOGGER.isTraceEnabled();

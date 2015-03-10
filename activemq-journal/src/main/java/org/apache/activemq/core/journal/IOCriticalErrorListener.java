@@ -16,9 +16,6 @@
  */
 package org.apache.activemq.core.journal;
 
-/**
- * A IOCriticalErrorListener
- */
 public interface IOCriticalErrorListener
 {
    void onIOException(Exception code, String message, SequentialFile file);

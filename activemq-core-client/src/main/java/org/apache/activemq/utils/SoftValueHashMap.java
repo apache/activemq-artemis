@@ -30,9 +30,6 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.activemq.core.client.ActiveMQClientLogger;
 
-/**
- * A SoftValueHashMap
- */
 public class SoftValueHashMap<K, V extends SoftValueHashMap.ValueCache> implements Map<K, V>
 {
    private final boolean isTrace = ActiveMQClientLogger.LOGGER.isTraceEnabled();

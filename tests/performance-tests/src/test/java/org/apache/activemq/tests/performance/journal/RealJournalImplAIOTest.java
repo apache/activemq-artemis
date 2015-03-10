@@ -23,9 +23,6 @@ import org.apache.activemq.tests.unit.UnitTestLogger;
 import org.junit.Before;
 import org.junit.BeforeClass;
 
-/**
- * A RealJournalImplTest
- */
 public class RealJournalImplAIOTest extends JournalImplTestUnit
 {
    private static final UnitTestLogger log = UnitTestLogger.LOGGER;

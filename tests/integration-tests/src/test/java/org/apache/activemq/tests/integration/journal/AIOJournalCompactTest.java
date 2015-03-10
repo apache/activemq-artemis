@@ -23,9 +23,6 @@ import org.apache.activemq.core.journal.impl.AIOSequentialFileFactory;
 import org.apache.activemq.core.journal.impl.JournalConstants;
 import org.junit.BeforeClass;
 
-/**
- * A AIOJournalCompactTest
- */
 public class AIOJournalCompactTest extends NIOJournalCompactTest
 {
    @BeforeClass

@@ -26,9 +26,6 @@ import org.apache.activemq.core.server.impl.AIOFileLockNodeManager;
 import org.apache.activemq.core.server.impl.FileLockNodeManager;
 import org.apache.activemq.tests.util.UnitTestCase;
 
-/**
- * A FileLockTest
- */
 public class FileLockTest extends UnitTestCase
 {
 

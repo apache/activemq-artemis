@@ -25,9 +25,6 @@ import org.apache.activemq.jms.persistence.config.PersistedDestination;
 import org.apache.activemq.jms.persistence.config.PersistedBindings;
 import org.apache.activemq.jms.persistence.config.PersistedType;
 
-/**
- * A NullJMSStorageManagerImpl
- */
 public class NullJMSStorageManagerImpl implements JMSStorageManager
 {
 

@@ -36,9 +36,6 @@ import org.apache.activemq.spi.core.remoting.ConnectionLifeCycleListener;
 import org.apache.activemq.utils.ConfigurationHelper;
 import org.apache.activemq.utils.OrderedExecutorFactory;
 
-/**
- * A InVMConnector
- */
 public class InVMConnector extends AbstractConnector
 {
    public static final Map<String, Object> DEFAULT_CONFIG;

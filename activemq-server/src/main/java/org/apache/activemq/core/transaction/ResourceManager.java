@@ -23,9 +23,6 @@ import javax.transaction.xa.Xid;
 
 import org.apache.activemq.core.server.ActiveMQComponent;
 
-/**
- * A ResourceManager
- */
 public interface ResourceManager extends ActiveMQComponent
 {
    boolean putTransaction(Xid xid, Transaction tx);

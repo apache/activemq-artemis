@@ -23,9 +23,6 @@ import javax.management.StandardMBean;
 
 import org.apache.activemq.core.persistence.StorageManager;
 
-/**
- * A AbstractControl
- */
 public abstract class AbstractControl extends StandardMBean
 {
 

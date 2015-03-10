@@ -42,9 +42,6 @@ import org.apache.activemq.jms.persistence.config.PersistedBindings;
 import org.apache.activemq.jms.persistence.config.PersistedType;
 import org.apache.activemq.utils.IDGenerator;
 
-/**
- * A JournalJMSStorageManagerImpl
- */
 public final class JMSJournalStorageManagerImpl implements JMSStorageManager
 {
 

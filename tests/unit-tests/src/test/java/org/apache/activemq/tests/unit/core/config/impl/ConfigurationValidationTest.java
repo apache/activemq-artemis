@@ -26,9 +26,6 @@ import org.apache.activemq.tests.util.UnitTestCase;
 import org.apache.activemq.utils.XMLUtil;
 import org.w3c.dom.Element;
 
-/**
- * A ConfigurationValidationTr
- */
 public class ConfigurationValidationTest extends UnitTestCase
 {
 

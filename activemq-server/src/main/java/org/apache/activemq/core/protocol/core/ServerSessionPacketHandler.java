@@ -113,9 +113,6 @@ import org.apache.activemq.core.server.ServerMessage;
 import org.apache.activemq.core.server.ServerSession;
 import org.apache.activemq.spi.core.remoting.Connection;
 
-/**
- * A ServerSessionPacketHandler
- */
 public class ServerSessionPacketHandler implements ChannelHandler
 {
    private final ServerSession session;

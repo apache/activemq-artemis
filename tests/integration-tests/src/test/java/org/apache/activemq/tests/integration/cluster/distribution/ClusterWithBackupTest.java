@@ -22,9 +22,6 @@ import org.junit.Test;
 
 import org.apache.activemq.tests.integration.IntegrationTestLogger;
 
-/**
- * A ClusterWithBackupTest
- */
 public class ClusterWithBackupTest extends ClusterTestBase
 {
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;

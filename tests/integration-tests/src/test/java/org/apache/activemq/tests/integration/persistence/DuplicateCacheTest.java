@@ -23,9 +23,6 @@ import org.apache.activemq.core.transaction.impl.TransactionImpl;
 import org.apache.activemq.tests.util.RandomUtil;
 import org.junit.Test;
 
-/**
- * A DuplicateCacheTest
- */
 public class DuplicateCacheTest extends StorageManagerTestBase
 {
 

@@ -25,9 +25,6 @@ import org.apache.activemq.api.core.client.ClientMessage;
 import org.apache.activemq.api.core.client.MessageHandler;
 import org.apache.activemq.api.jms.ActiveMQJMSConstants;
 
-/**
- * A JMSMessageListenerWrapper
- */
 public class JMSMessageListenerWrapper implements MessageHandler
 {
    private final ActiveMQConnection connection;

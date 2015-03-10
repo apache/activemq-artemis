@@ -16,9 +16,6 @@
  */
 package org.apache.activemq.tests.integration.cluster.failover;
 
-/**
- * A ReplicatedPagingFailoverTest
- */
 public class ReplicatedPagingFailoverTest extends PagingFailoverTest
 {
 

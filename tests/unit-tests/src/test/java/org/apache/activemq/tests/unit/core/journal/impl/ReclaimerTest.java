@@ -32,9 +32,6 @@ import org.apache.activemq.core.journal.impl.JournalImpl;
 import org.apache.activemq.core.journal.impl.Reclaimer;
 import org.apache.activemq.tests.util.UnitTestCase;
 
-/**
- * A ReclaimerTest
- */
 public class ReclaimerTest extends UnitTestCase
 {
    private JournalFile[] files;

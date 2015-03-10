@@ -21,9 +21,6 @@ import java.util.Arrays;
 import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.core.protocol.core.impl.PacketImpl;
 
-/**
- * A ReplicationLargeMessageWriteMessage
- */
 public final class ReplicationLargeMessageWriteMessage extends PacketImpl
 {
 

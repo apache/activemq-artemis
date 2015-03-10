@@ -16,9 +16,6 @@
  */
 package org.apache.activemq.tests.integration.cluster.failover;
 
-/**
- * A NettyFileStorageClusterWithBackupFailoverTest
- */
 public class NettyFileStorageStaticClusterWithBackupFailoverTest extends StaticClusterWithBackupFailoverTest
 {
    @Override

@@ -29,9 +29,6 @@ import org.apache.activemq.tests.util.UnitTestCase;
 import org.apache.activemq.utils.DefaultSensitiveStringCodec;
 import org.junit.Test;
 
-/**
- * A FileConfigurationParserTest
- */
 public class FileConfigurationParserTest extends UnitTestCase
 {
    /**

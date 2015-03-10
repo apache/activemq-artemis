@@ -25,9 +25,6 @@ import org.apache.activemq.tests.unit.core.postoffice.impl.FakeQueue;
 import org.apache.activemq.tests.util.RandomUtil;
 import org.apache.activemq.tests.util.UnitTestCase;
 
-/**
- * A RemoteQueueBindImplTest
- */
 public class RemoteQueueBindImplTest extends UnitTestCase
 {
 

@@ -48,9 +48,6 @@ import org.apache.activemq.tests.integration.SimpleNotificationService;
 import org.apache.activemq.tests.util.RandomUtil;
 import org.apache.activemq.utils.json.JSONArray;
 
-/**
- * A BridgeControlTest
- */
 public class ClusterConnectionControlTest extends ManagementTestBase
 {
 

@@ -48,9 +48,6 @@ import org.apache.activemq.utils.DataConstants;
 import org.apache.activemq.utils.DeflaterReader;
 import org.junit.Assert;
 
-/**
- * A LargeMessageTestBase
- */
 public abstract class LargeMessageTestBase extends ServiceTestBase
 {
 

@@ -30,9 +30,6 @@ import org.apache.activemq.api.core.client.ClientProducer;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.core.settings.impl.AddressSettings;
 
-/**
- * A MessageRedistributionWithDiscoveryTest
- */
 public class MessageRedistributionWithDiscoveryTest extends ClusterTestBase
 {
    protected final String groupAddress = getUDPDiscoveryAddress();

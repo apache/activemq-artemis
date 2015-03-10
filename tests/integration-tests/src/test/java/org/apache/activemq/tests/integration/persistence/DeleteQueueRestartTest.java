@@ -31,9 +31,6 @@ import org.apache.activemq.tests.util.ServiceTestBase;
 import org.junit.Assert;
 import org.junit.Test;
 
-/**
- * A DeleteMessagesRestartTest
- */
 public class DeleteQueueRestartTest extends ServiceTestBase
 {
 

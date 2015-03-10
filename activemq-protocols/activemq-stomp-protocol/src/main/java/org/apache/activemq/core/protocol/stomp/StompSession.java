@@ -47,9 +47,6 @@ import org.apache.activemq.utils.UUIDGenerator;
 
 import static org.apache.activemq.core.protocol.stomp.ActiveMQStompProtocolMessageBundle.BUNDLE;
 
-/**
- * A StompSession
- */
 public class StompSession implements SessionCallback
 {
    private final StompProtocolManager manager;

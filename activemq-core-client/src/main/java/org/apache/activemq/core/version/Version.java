@@ -16,9 +16,6 @@
  */
 package org.apache.activemq.core.version;
 
-/**
- * A VersionImpl
- */
 public interface Version
 {
    String getFullVersion();

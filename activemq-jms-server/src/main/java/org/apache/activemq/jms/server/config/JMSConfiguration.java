@@ -18,9 +18,6 @@ package org.apache.activemq.jms.server.config;
 
 import java.util.List;
 
-/**
- * A JMSConfiguration
- */
 public interface JMSConfiguration
 {
    List<JMSQueueConfiguration> getQueueConfigurations();

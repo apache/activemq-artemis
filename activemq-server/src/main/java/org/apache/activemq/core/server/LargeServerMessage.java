@@ -21,9 +21,6 @@ import org.apache.activemq.core.journal.SequentialFile;
 import org.apache.activemq.core.replication.ReplicatedLargeMessage;
 
 
-/**
- * A LargeMessage
- */
 public interface LargeServerMessage extends ServerMessage, ReplicatedLargeMessage
 {
    void addBytes(byte[] bytes) throws Exception;

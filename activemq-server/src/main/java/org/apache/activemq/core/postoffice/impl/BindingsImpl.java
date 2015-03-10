@@ -43,9 +43,6 @@ import org.apache.activemq.core.server.group.GroupingHandler;
 import org.apache.activemq.core.server.group.impl.Proposal;
 import org.apache.activemq.core.server.group.impl.Response;
 
-/**
- * A BindingsImpl
- */
 public final class BindingsImpl implements Bindings
 {
    // This is public as we use on test assertions

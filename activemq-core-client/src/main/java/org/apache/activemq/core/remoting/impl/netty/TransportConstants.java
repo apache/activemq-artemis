@@ -23,9 +23,6 @@ import java.util.Set;
 import io.netty.util.Version;
 import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
 
-/**
- * A TransportConstants
- */
 public class TransportConstants
 {
    public static final String SSL_ENABLED_PROP_NAME = "sslEnabled";

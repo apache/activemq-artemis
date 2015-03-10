@@ -27,9 +27,6 @@ import org.apache.activemq.tests.util.UnitTestCase;
 import org.junit.After;
 import org.junit.Before;
 
-/**
- * A DivertControlUsingCoreTest
- */
 public class DivertControlUsingCoreTest extends DivertControlTest
 {
 

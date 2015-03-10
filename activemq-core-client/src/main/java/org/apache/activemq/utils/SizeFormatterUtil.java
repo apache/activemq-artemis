@@ -16,9 +16,6 @@
  */
 package org.apache.activemq.utils;
 
-/**
- * A SizeFormatterUtil
- */
 public class SizeFormatterUtil
 {
 

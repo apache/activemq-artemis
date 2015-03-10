@@ -16,9 +16,6 @@
  */
 package org.apache.activemq.core.asyncio;
 
-/**
- * A IOExceptionListener
- */
 public interface IOExceptionListener
 {
    void onIOException(Exception exception, String message);

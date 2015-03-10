@@ -22,9 +22,6 @@ import org.apache.activemq.core.journal.EncodingSupport;
 import org.apache.activemq.utils.BufferHelper;
 import org.apache.activemq.utils.DataConstants;
 
-/**
- * A PersistedDestination
- */
 public class PersistedDestination implements EncodingSupport
 {
 

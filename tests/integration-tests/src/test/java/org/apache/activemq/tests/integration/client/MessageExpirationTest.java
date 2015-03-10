@@ -35,9 +35,6 @@ import org.apache.activemq.core.settings.impl.AddressSettings;
 import org.apache.activemq.tests.util.RandomUtil;
 import org.apache.activemq.tests.util.ServiceTestBase;
 
-/**
- * A MessageExpirationTest
- */
 public class MessageExpirationTest extends ServiceTestBase
 {
 

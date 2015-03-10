@@ -18,9 +18,6 @@ package org.apache.activemq.core.journal.impl;
 
 import org.apache.activemq.core.journal.SequentialFile;
 
-/**
- * A JournalFile
- */
 public interface JournalFile
 {
    int getNegCount(JournalFile file);

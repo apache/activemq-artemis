@@ -20,9 +20,6 @@ import java.util.List;
 
 import org.apache.activemq.core.filter.Filter;
 
-/**
- * A ClientConsumer
- */
 public interface Consumer
 {
    /**

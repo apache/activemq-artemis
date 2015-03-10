@@ -36,9 +36,6 @@ import org.apache.activemq.utils.ExecutorFactory;
 import org.junit.Before;
 import org.junit.Test;
 
-/**
- * A DeleteMessagesRestartTest
- */
 public class RestartSMTest extends ServiceTestBase
 {
 

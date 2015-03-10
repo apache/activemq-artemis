@@ -25,9 +25,6 @@ import org.apache.activemq.api.core.client.ClientConsumer;
 import org.apache.activemq.api.core.client.ClientMessage;
 import org.apache.activemq.api.core.client.ClientSession;
 
-/**
- * A TemporaryQueueClusterTest
- */
 public class TemporaryQueueClusterTest extends ClusterTestBase
 {
 

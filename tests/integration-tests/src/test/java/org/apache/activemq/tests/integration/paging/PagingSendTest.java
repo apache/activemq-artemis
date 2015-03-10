@@ -46,9 +46,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-/**
- * A SendTest
- */
 public class PagingSendTest extends ServiceTestBase
 {
    public static final SimpleString ADDRESS = new SimpleString("SimpleAddress");

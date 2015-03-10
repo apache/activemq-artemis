@@ -52,9 +52,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-/**
- * A LargeMessageBufferUnitTest
- */
 public class LargeMessageBufferTest extends UnitTestCase
 {
 

@@ -16,9 +16,6 @@
  */
 package org.apache.activemq.tests.integration.paging;
 
-/**
- * A NettyPagingSendTest
- */
 public class NettyPagingSendTest extends PagingSendTest
 {
    @Override

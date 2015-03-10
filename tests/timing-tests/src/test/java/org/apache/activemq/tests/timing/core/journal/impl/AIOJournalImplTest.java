@@ -21,9 +21,6 @@ import org.apache.activemq.core.journal.SequentialFileFactory;
 import org.apache.activemq.core.journal.impl.AIOSequentialFileFactory;
 import org.junit.BeforeClass;
 
-/**
- * A RealJournalImplTest
- */
 public class AIOJournalImplTest extends JournalImplTestUnit
 {
    @BeforeClass

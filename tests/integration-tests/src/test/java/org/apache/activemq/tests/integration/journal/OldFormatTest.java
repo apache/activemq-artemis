@@ -27,9 +27,6 @@ import org.apache.activemq.tests.unit.core.journal.impl.JournalImplTestBase;
 import org.apache.activemq.utils.DataConstants;
 import org.junit.Test;
 
-/**
- * A OldFormatTest
- */
 public class OldFormatTest extends JournalImplTestBase
 {
 

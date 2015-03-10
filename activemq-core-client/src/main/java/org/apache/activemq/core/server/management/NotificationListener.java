@@ -17,9 +17,6 @@
 package org.apache.activemq.core.server.management;
 
 
-/**
- * A NotificationListener
- */
 public interface NotificationListener
 {
    void onNotification(Notification notification);

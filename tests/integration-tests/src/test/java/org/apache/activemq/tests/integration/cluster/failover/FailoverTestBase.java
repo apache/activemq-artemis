@@ -54,9 +54,6 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 
-/**
- * A FailoverTestBase
- */
 public abstract class FailoverTestBase extends ServiceTestBase
 {
    // Constants -----------------------------------------------------

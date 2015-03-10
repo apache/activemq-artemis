@@ -24,9 +24,6 @@ import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.core.journal.impl.TimedBuffer;
 
-/**
- * A SequentialFile
- */
 public interface SequentialFile
 {
    /*

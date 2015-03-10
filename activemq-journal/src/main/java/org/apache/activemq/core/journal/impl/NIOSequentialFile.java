@@ -35,9 +35,6 @@ import org.apache.activemq.core.journal.SequentialFileFactory;
 import org.apache.activemq.journal.ActiveMQJournalBundle;
 import org.apache.activemq.journal.ActiveMQJournalLogger;
 
-/**
- * A NIOSequentialFile
- */
 public final class NIOSequentialFile extends AbstractSequentialFile
 {
    private FileChannel channel;

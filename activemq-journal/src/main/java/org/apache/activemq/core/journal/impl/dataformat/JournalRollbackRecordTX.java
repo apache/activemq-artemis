@@ -19,9 +19,6 @@ package org.apache.activemq.core.journal.impl.dataformat;
 import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.core.journal.impl.JournalImpl;
 
-/**
- * A JournalRollbackRecordTX
- */
 public class JournalRollbackRecordTX extends JournalInternalRecord
 {
    private final long txID;

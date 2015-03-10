@@ -25,9 +25,6 @@ import org.apache.activemq.core.server.Queue;
 import org.apache.activemq.core.server.RoutingContext;
 import org.apache.activemq.core.server.ServerMessage;
 
-/**
- * A LocalQueueBinding
- */
 public class LocalQueueBinding implements QueueBinding
 {
    private final SimpleString address;

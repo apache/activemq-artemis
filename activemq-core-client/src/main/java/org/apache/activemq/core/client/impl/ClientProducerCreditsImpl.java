@@ -25,9 +25,6 @@ import org.apache.activemq.spi.core.remoting.SessionContext;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
-/**
- * A ClientProducerCreditsImpl
- */
 public class ClientProducerCreditsImpl implements ClientProducerCredits
 {
    private final Semaphore semaphore;

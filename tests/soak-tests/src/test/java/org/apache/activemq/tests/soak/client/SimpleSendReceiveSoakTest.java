@@ -33,9 +33,6 @@ import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.settings.impl.AddressSettings;
 import org.apache.activemq.tests.util.ServiceTestBase;
 
-/**
- * A ClientSoakTest
- */
 public class SimpleSendReceiveSoakTest extends ServiceTestBase
 {
 

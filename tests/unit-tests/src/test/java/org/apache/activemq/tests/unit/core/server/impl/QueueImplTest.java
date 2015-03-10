@@ -54,9 +54,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-/**
- * A QueueTest
- */
 public class QueueImplTest extends UnitTestCase
 {
    // The tests ----------------------------------------------------------------

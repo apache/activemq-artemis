@@ -16,9 +16,6 @@
  */
 package org.apache.activemq.tests.integration.client;
 
-/**
- * A NettyProducerFlowControlTest
- */
 public class NettyProducerFlowControlTest extends ProducerFlowControlTest
 {
    @Override

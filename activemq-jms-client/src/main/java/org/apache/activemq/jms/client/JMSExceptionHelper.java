@@ -23,9 +23,6 @@ import javax.jms.JMSSecurityException;
 
 import org.apache.activemq.api.core.ActiveMQException;
 
-/**
- * A JMSExceptionHelper
- */
 public final class JMSExceptionHelper
 {
 

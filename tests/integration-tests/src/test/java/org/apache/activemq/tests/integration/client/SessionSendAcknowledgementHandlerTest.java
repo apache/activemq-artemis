@@ -33,9 +33,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-/**
- * A SendAcknowledgementsTest
- */
 public class SessionSendAcknowledgementHandlerTest extends ServiceTestBase
 {
    private ActiveMQServer server;

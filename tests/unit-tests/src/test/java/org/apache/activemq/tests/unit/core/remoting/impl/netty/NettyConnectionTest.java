@@ -34,9 +34,6 @@ import org.apache.activemq.tests.util.UnitTestCase;
 import org.junit.Assert;
 import org.junit.Test;
 
-/**
- * A NettyConnectionTest
- */
 public class NettyConnectionTest extends UnitTestCase
 {
    private static final Map<String, Object> emptyMap = Collections.emptyMap();

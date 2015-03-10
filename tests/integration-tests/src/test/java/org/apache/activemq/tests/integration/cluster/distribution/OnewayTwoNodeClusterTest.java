@@ -25,9 +25,6 @@ import org.junit.Assert;
 import org.apache.activemq.tests.integration.IntegrationTestLogger;
 
 
-/**
- * A OnewayTwoNodeClusterTest
- */
 public class OnewayTwoNodeClusterTest extends ClusterTestBase
 {
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;

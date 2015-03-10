@@ -34,9 +34,6 @@ import org.apache.activemq.core.server.impl.ServerMessageImpl;
 import org.apache.activemq.utils.DataConstants;
 import org.apache.activemq.utils.TypedProperties;
 
-/**
- * A LargeServerMessageImpl
- */
 public final class LargeServerMessageImpl extends ServerMessageImpl implements LargeServerMessage
 {
    // Constants -----------------------------------------------------

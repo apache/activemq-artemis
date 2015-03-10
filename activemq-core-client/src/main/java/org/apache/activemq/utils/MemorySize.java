@@ -21,9 +21,6 @@ import org.apache.activemq.core.client.ActiveMQClientLogger;
 import java.lang.ref.WeakReference;
 
 
-/**
- * A MemorySize
- */
 public class MemorySize
 {
    private static final int numberOfObjects = 10000;

@@ -18,9 +18,6 @@ package org.apache.activemq.core.exception;
 
 import javax.transaction.xa.XAException;
 
-/**
- * A ActiveMQXAException
- */
 public class ActiveMQXAException extends XAException
 {
    private static final long serialVersionUID = 6535914602965015803L;

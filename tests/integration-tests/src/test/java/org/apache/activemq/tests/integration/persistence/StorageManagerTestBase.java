@@ -35,9 +35,6 @@ import org.apache.activemq.utils.TimeAndCounterIDGenerator;
 import org.junit.After;
 import org.junit.Before;
 
-/**
- * A StorageManagerTestBase
- */
 public abstract class StorageManagerTestBase extends ServiceTestBase
 {
 

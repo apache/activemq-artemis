@@ -18,9 +18,6 @@ package org.apache.activemq.core.server.cluster;
 
 import org.apache.activemq.api.core.client.MessageHandler;
 
-/**
- * A MessageFlowRecord
- */
 public interface MessageFlowRecord extends MessageHandler
 {
    String getAddress();

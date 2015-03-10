@@ -20,9 +20,6 @@ import java.util.List;
 
 import org.apache.activemq.api.core.SimpleString;
 
-/**
- * A BindingQueryResult
- */
 public class BindingQueryResult
 {
    private boolean exists;

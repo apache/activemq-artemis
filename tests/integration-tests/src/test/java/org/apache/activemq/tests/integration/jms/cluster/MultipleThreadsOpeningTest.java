@@ -27,9 +27,6 @@ import org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory;
 import org.apache.activemq.tests.util.JMSClusteredTestBase;
 import org.junit.Test;
 
-/**
- * A MultipleThreadsOpeningTest
- */
 public class MultipleThreadsOpeningTest extends JMSClusteredTestBase
 {
 

@@ -38,9 +38,6 @@ import org.apache.activemq.tests.util.ServiceTestBase;
 import org.junit.Assert;
 import org.junit.Test;
 
-/**
- * A NetworkAddressTest
- */
 public abstract class NetworkAddressTestBase extends ServiceTestBase
 {
 

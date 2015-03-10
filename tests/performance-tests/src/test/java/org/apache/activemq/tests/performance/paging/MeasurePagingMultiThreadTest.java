@@ -32,9 +32,6 @@ import org.apache.activemq.tests.util.ServiceTestBase;
 import org.apache.activemq.tests.util.UnitTestCase;
 import org.junit.Test;
 
-/**
- * A MeasurePagingMultiThreadTest
- */
 public class MeasurePagingMultiThreadTest extends ServiceTestBase
 {
 

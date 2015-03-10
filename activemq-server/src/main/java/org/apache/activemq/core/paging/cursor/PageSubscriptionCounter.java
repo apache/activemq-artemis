@@ -19,9 +19,6 @@ package org.apache.activemq.core.paging.cursor;
 import org.apache.activemq.core.paging.impl.Page;
 import org.apache.activemq.core.transaction.Transaction;
 
-/**
- * A PagingSubscriptionCounterInterface
- */
 public interface PageSubscriptionCounter
 {
 

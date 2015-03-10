@@ -41,9 +41,6 @@ import org.apache.activemq.core.server.Queue;
 import org.apache.activemq.core.server.impl.QueueImpl;
 import org.apache.activemq.tests.util.ServiceTestBase;
 
-/**
- * A DirectDeliverTest
- */
 public class DirectDeliverTest extends ServiceTestBase
 {
 

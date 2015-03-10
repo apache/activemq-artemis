@@ -32,9 +32,6 @@ import org.junit.Test;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
-/**
- * A DeliveryOrderTest
- */
 public class DeliveryOrderTest extends JMSTestCase
 {
 

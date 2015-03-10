@@ -27,9 +27,6 @@ import org.apache.activemq.tests.CoreUnitTestCase;
 import org.apache.activemq.utils.ConcurrentHashSet;
 import org.apache.activemq.utils.TimeAndCounterIDGenerator;
 
-/**
- * A TimeAndCounterIDGeneratorTest
- */
 public class TimeAndCounterIDGeneratorTest extends Assert
 {
 

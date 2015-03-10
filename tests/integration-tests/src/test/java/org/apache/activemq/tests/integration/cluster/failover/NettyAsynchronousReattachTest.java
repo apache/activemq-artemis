@@ -21,9 +21,6 @@ import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.core.client.impl.ClientSessionInternal;
 import org.apache.activemq.tests.integration.IntegrationTestLogger;
 
-/**
- * A NettyAsynchronousReattachTest
- */
 public class NettyAsynchronousReattachTest extends NettyAsynchronousFailoverTest
 {
 

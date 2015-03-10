@@ -28,9 +28,6 @@ import org.apache.activemq.tests.integration.management.ManagementControlHelper;
 import org.apache.activemq.tests.util.JMSTestBase;
 import org.junit.Test;
 
-/**
- * A MessageTest
- */
 public class ExpiryMessageTest extends JMSTestBase
 {
    // Constants -----------------------------------------------------

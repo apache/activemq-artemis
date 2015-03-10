@@ -16,9 +16,6 @@
  */
 package org.apache.activemq.spi.core.remoting;
 
-/**
- * A ReadyListener
- */
 public interface ReadyListener
 {
    void readyForWriting(boolean ready);

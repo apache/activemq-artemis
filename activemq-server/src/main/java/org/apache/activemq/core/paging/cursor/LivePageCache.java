@@ -18,9 +18,6 @@ package org.apache.activemq.core.paging.cursor;
 
 import org.apache.activemq.core.paging.PagedMessage;
 
-/**
- * A LivePageCache
- */
 public interface LivePageCache extends PageCache
 {
 

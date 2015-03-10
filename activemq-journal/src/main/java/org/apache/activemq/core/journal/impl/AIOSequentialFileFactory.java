@@ -33,9 +33,6 @@ import org.apache.activemq.core.libaio.Native;
 import org.apache.activemq.journal.ActiveMQJournalLogger;
 import org.apache.activemq.utils.ActiveMQThreadFactory;
 
-/**
- * A AIOSequentialFileFactory
- */
 public final class AIOSequentialFileFactory extends AbstractSequentialFileFactory
 {
    private static final boolean trace = ActiveMQJournalLogger.LOGGER.isTraceEnabled();

@@ -18,9 +18,6 @@ package org.apache.activemq.tests.stress.failover;
 
 import org.apache.activemq.tests.integration.cluster.reattach.RandomReattachTest;
 
-/**
- * A RandomFailoverStressTest
- */
 public class RandomReattachStressTest extends RandomReattachTest
 {
 

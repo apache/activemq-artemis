@@ -30,9 +30,6 @@ import javax.naming.InitialContext;
 import org.apache.activemq.utils.TokenBucketLimiter;
 import org.apache.activemq.utils.TokenBucketLimiterImpl;
 
-/**
- * A PerfBase
- */
 public abstract class PerfBase
 {
    private static final Logger log = Logger.getLogger(PerfSender.class.getName());

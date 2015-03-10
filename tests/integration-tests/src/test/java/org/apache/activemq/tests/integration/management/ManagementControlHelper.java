@@ -37,9 +37,6 @@ import org.apache.activemq.api.jms.management.JMSQueueControl;
 import org.apache.activemq.api.jms.management.JMSServerControl;
 import org.apache.activemq.api.jms.management.TopicControl;
 
-/**
- * A ManagementControlHelper
- */
 public class ManagementControlHelper
 {
 

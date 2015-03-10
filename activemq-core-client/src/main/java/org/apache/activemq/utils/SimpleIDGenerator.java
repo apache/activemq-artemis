@@ -16,9 +16,6 @@
  */
 package org.apache.activemq.utils;
 
-/**
- * A SimpleIDGenerator
- */
 public class SimpleIDGenerator implements IDGenerator
 {
    private long idSequence;

@@ -16,9 +16,6 @@
  */
 package org.apache.activemq.core.journal;
 
-/**
- * A RecordInfo
- */
 public class RecordInfo
 {
    public RecordInfo(final long id, final byte userRecordType, final byte[] data, final boolean isUpdate, final short compactCount)

@@ -29,9 +29,6 @@ import javax.jms.Session;
 
 import org.junit.Test;
 
-/**
- * A AutoAckMesageListenerTest
- */
 public class AutoAckMesageListenerTest extends JMSTestCase
 {
 

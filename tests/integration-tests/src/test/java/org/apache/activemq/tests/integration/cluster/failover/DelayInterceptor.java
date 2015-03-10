@@ -22,9 +22,6 @@ import org.apache.activemq.core.protocol.core.Packet;
 import org.apache.activemq.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.spi.core.protocol.RemotingConnection;
 
-/**
- * A DelayInterceptor
- */
 public class DelayInterceptor implements Interceptor
 {
    public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException

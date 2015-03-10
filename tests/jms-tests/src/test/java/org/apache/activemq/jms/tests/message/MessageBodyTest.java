@@ -33,9 +33,6 @@ import org.apache.activemq.jms.tests.util.ProxyAssertSupport;
 import org.junit.Assert;
 import org.junit.Test;
 
-/**
- * A MessageBodyTest
- */
 public class MessageBodyTest extends MessageBodyTestCase
 {
 

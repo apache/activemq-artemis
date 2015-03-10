@@ -35,9 +35,6 @@ import org.apache.activemq.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.tests.util.ServiceTestBase;
 
-/**
- * A BatchDelayTest
- */
 public class BatchDelayTest extends ServiceTestBase
 {
 

@@ -32,9 +32,6 @@ import org.apache.activemq.tests.unit.UnitTestLogger;
 import org.apache.activemq.tests.unit.core.journal.impl.JournalImplTestBase;
 import org.apache.activemq.tests.unit.core.journal.impl.fakes.SimpleEncoding;
 
-/**
- * A RealJournalImplTest
- */
 public abstract class JournalImplTestUnit extends JournalImplTestBase
 {
    private static final UnitTestLogger log = UnitTestLogger.LOGGER;

@@ -23,9 +23,6 @@ import org.apache.activemq.core.journal.impl.NIOSequentialFileFactory;
 import org.apache.activemq.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.tests.unit.core.journal.impl.JournalImplTestUnit;
 
-/**
- * A RealJournalImplTest
- */
 public class NIONoBufferJournalImplTest extends JournalImplTestUnit
 {
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;

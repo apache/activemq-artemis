@@ -25,9 +25,6 @@ import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.core.message.BodyEncoder;
 import org.apache.activemq.utils.TypedProperties;
 
-/**
- * A MessageInternal
- */
 public interface MessageInternal extends Message
 {
    void decodeFromBuffer(ActiveMQBuffer buffer);

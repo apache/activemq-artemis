@@ -27,9 +27,6 @@ import org.apache.activemq.tests.util.ServiceTestBase;
 import org.junit.Assert;
 import org.junit.Test;
 
-/**
- * A BlockingSendTest
- */
 public class BlockingSendTest extends ServiceTestBase
 {
 

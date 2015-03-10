@@ -18,9 +18,6 @@ package org.apache.activemq.core.journal.impl;
 
 import org.apache.activemq.journal.ActiveMQJournalLogger;
 
-/**
- * A DummyCallback
- */
 class DummyCallback extends SyncIOCompletion
 {
    private static final DummyCallback instance = new DummyCallback();

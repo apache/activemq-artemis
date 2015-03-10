@@ -18,9 +18,6 @@ package org.apache.activemq.core.journal.impl;
 
 import org.apache.activemq.core.journal.RecordInfo;
 
-/**
- * A JournalReader
- */
 public interface JournalReaderCallback
 {
    void onReadAddRecord(RecordInfo info) throws Exception;

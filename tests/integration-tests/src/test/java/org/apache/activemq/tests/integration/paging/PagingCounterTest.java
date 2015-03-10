@@ -36,9 +36,6 @@ import org.apache.activemq.tests.util.ServiceTestBase;
 import org.junit.Before;
 import org.junit.Test;
 
-/**
- * A PagingCounterTest
- */
 public class PagingCounterTest extends ServiceTestBase
 {
 

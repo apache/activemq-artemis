@@ -16,9 +16,6 @@
  */
 package org.apache.activemq.core.server;
 
-/**
- * A Bindable
- */
 public interface Bindable
 {
    void route(ServerMessage message, RoutingContext context) throws Exception;

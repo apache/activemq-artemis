@@ -21,9 +21,6 @@ import java.util.List;
 import org.apache.activemq.api.core.Pair;
 import org.apache.activemq.core.transaction.Transaction;
 
-/**
- * A DuplicateIDCache
- */
 public interface DuplicateIDCache
 {
    boolean contains(byte[] duplicateID);

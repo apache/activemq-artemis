@@ -43,9 +43,6 @@ import org.apache.activemq.tests.util.ServiceTestBase;
 import org.junit.Assert;
 import org.junit.Test;
 
-/**
- * A ResourceAdapterTest
- */
 public class ResourceAdapterTest extends ServiceTestBase
 {
 

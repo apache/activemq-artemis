@@ -23,9 +23,6 @@ import java.util.List;
 import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.api.core.client.ActiveMQClient;
 
-/**
- * A ClusterConnectionConfiguration
- */
 public final class ClusterConnectionConfiguration implements Serializable
 {
    private static final long serialVersionUID = 8948303813427795935L;

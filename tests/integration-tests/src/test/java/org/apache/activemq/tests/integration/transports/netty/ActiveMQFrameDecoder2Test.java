@@ -30,9 +30,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-/**
- * A ActiveMQFrameDecoder2Test
- */
 public class ActiveMQFrameDecoder2Test extends UnitTestCase
 {
    private static final int MSG_CNT = 10000;

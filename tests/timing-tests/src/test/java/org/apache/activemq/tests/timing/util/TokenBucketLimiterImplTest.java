@@ -26,9 +26,6 @@ import org.apache.activemq.utils.TokenBucketLimiterImpl;
 import org.junit.Assert;
 import org.junit.Test;
 
-/**
- * A TokenBucketLimiterImplTest
- */
 public class TokenBucketLimiterImplTest extends UnitTestCase
 {
    private static final UnitTestLogger log = UnitTestLogger.LOGGER;

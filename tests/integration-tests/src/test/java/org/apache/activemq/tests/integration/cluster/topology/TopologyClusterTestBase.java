@@ -47,9 +47,6 @@ import org.junit.Test;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 
-/**
- * A TopologyClusterTestBase
- */
 public abstract class TopologyClusterTestBase extends ClusterTestBase
 {
 

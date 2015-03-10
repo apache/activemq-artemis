@@ -39,9 +39,6 @@ import org.apache.activemq.tests.util.SpawnedVMSupport;
 import org.junit.Assert;
 import org.objectweb.jtests.jms.admin.Admin;
 
-/**
- * A ActiveMQAdmin
- */
 public class ActiveMQAdmin implements Admin
 {
 

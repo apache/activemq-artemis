@@ -19,9 +19,6 @@ package org.apache.activemq.core.protocol.core.impl.wireformat;
 import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.utils.DataConstants;
 
-/**
- * A SessionSendContinuationMessage
- */
 public class SessionReceiveContinuationMessage extends SessionContinuationMessage
 {
 

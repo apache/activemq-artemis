@@ -19,9 +19,6 @@ package org.apache.activemq.core.filter;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.core.server.ServerMessage;
 
-/**
- * A Filter
- */
 public interface Filter
 {
    boolean match(ServerMessage message);

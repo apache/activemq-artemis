@@ -24,9 +24,6 @@ import org.apache.activemq.jms.persistence.config.PersistedDestination;
 import org.apache.activemq.jms.persistence.config.PersistedBindings;
 import org.apache.activemq.jms.persistence.config.PersistedType;
 
-/**
- * A JMSPersistence
- */
 public interface JMSStorageManager extends ActiveMQComponent
 {
 

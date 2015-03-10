@@ -18,9 +18,6 @@ package org.apache.activemq.tests.integration.cluster.distribution;
 
 
 
-/**
- * A NettyOneWayChainClusterTest
- */
 public class NettyOneWayChainClusterTest extends OneWayChainClusterTest
 {
    @Override

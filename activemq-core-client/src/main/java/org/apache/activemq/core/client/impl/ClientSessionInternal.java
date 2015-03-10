@@ -25,9 +25,6 @@ import org.apache.activemq.api.core.client.SendAcknowledgementHandler;
 import org.apache.activemq.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.spi.core.remoting.ConsumerContext;
 
-/**
- * A ClientSessionInternal
- */
 public interface ClientSessionInternal extends ClientSession
 {
    String getName();

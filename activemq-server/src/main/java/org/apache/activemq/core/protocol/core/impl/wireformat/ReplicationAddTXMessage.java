@@ -23,9 +23,6 @@ import org.apache.activemq.core.journal.EncodingSupport;
 import org.apache.activemq.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.core.replication.ReplicationManager.ADD_OPERATION_TYPE;
 
-/**
- * A ReplicationAddMessage
- */
 public class ReplicationAddTXMessage extends PacketImpl
 {
 

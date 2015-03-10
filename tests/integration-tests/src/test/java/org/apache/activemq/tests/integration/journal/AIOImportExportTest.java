@@ -22,9 +22,6 @@ import org.apache.activemq.core.journal.SequentialFileFactory;
 import org.apache.activemq.core.journal.impl.AIOSequentialFileFactory;
 import org.junit.BeforeClass;
 
-/**
- * A AIOImportExportTest
- */
 public class AIOImportExportTest extends NIOImportExportTest
 {
    @BeforeClass

@@ -16,9 +16,6 @@
  */
 package org.apache.activemq.api.jms;
 
-/**
- * A JMSFactoryType
- */
 // XXX no javadocs
 public enum JMSFactoryType
 {

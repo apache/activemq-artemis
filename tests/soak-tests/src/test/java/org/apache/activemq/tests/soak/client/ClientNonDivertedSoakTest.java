@@ -32,9 +32,6 @@ import org.apache.activemq.tests.util.ServiceTestBase;
 import org.junit.Before;
 import org.junit.Test;
 
-/**
- * A ClientSoakTest
- */
 public class ClientNonDivertedSoakTest extends ServiceTestBase
 {
 

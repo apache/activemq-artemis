@@ -18,9 +18,6 @@ package org.apache.activemq.core.server.cluster;
 
 import org.apache.activemq.core.server.ServerMessage;
 
-/**
- * A Transformer
- */
 public interface Transformer
 {
    ServerMessage transform(ServerMessage message);

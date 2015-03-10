@@ -16,9 +16,6 @@
  */
 package org.apache.activemq.tests.integration.cluster.distribution;
 
-/**
- * A NettyFileStorageSymmetricClusterWithBackupTest
- */
 public class NettyFileStorageSymmetricClusterWithBackupTest extends SymmetricClusterWithBackupTest
 {
    @Override

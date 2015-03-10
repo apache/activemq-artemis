@@ -16,9 +16,6 @@
  */
 package org.apache.activemq.tests.integration.cluster.failover;
 
-/**
- * A SharedStoreReplicatedDistributionTest
- */
 public class SharedStoreDistributionTest extends ReplicatedDistributionTest
 {
    @Override

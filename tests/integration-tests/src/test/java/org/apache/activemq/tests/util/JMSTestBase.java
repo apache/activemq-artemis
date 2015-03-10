@@ -51,9 +51,6 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 
-/**
- * A JMSBaseTest
- */
 public class JMSTestBase extends ServiceTestBase
 {
    protected ActiveMQServer server;

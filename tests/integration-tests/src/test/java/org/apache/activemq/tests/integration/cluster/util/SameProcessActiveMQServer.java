@@ -26,9 +26,6 @@ import org.junit.Assert;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-/**
- * A SameProcessActiveMQServer
- */
 public class SameProcessActiveMQServer implements TestableServer
 {
    private final ActiveMQServer server;

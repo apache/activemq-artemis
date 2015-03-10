@@ -45,9 +45,6 @@ import java.util.Collection;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-/**
- * A BindingsClusterTest
- */
 @RunWith(value = Parameterized.class)
 public class BindingsClusterTest extends JMSClusteredTestBase
 {

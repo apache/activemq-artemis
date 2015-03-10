@@ -18,9 +18,6 @@ package org.apache.activemq.core.journal.impl;
 
 import org.apache.activemq.core.journal.RecordInfo;
 
-/**
- * A JournalReaderCallbackAbstract
- */
 public class JournalReaderCallbackAbstract implements JournalReaderCallback
 {
 

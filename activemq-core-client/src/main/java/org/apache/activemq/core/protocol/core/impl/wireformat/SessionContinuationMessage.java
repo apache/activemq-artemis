@@ -22,9 +22,6 @@ import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.utils.DataConstants;
 
-/**
- * A SessionContinuationMessage
- */
 public abstract class SessionContinuationMessage extends PacketImpl
 {
 

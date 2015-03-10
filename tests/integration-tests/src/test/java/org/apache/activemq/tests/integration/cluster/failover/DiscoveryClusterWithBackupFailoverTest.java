@@ -17,9 +17,6 @@
 package org.apache.activemq.tests.integration.cluster.failover;
 
 
-/**
- * A DiscoveryClusterWithBackupFailoverTest
- */
 public class DiscoveryClusterWithBackupFailoverTest extends ClusterWithBackupFailoverTestBase
 {
 

@@ -33,9 +33,6 @@ import org.apache.activemq.core.config.Configuration;
 import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.tests.util.ServiceTestBase;
 
-/**
- * A TransactionDurabilityTest
- */
 public class TransactionDurabilityTest extends ServiceTestBase
 {
 

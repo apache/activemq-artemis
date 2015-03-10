@@ -23,9 +23,6 @@ import org.apache.activemq.core.server.management.Notification;
 import org.apache.activemq.core.server.management.NotificationListener;
 import org.apache.activemq.core.server.management.NotificationService;
 
-/**
- * A SimpleNotificationService
- */
 public class SimpleNotificationService implements NotificationService
 {
 

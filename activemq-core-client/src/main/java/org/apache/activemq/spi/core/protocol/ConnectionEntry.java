@@ -19,9 +19,6 @@ package org.apache.activemq.spi.core.protocol;
 import java.util.concurrent.Executor;
 
 
-/**
- * A ConnectionEntry
- */
 public class ConnectionEntry
 {
    public final RemotingConnection connection;

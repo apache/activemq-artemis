@@ -44,9 +44,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
-/**
- * A BridgeStartTest
- */
 @RunWith(value = Parameterized.class)
 public class BridgeStartTest extends ServiceTestBase
 {

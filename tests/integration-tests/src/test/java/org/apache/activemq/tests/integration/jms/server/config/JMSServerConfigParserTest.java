@@ -26,9 +26,6 @@ import org.apache.activemq.jms.server.config.JMSQueueConfiguration;
 import org.apache.activemq.jms.server.config.TopicConfiguration;
 import org.apache.activemq.tests.util.ServiceTestBase;
 
-/**
- * A JMSServerConfigParserTest
- */
 public class JMSServerConfigParserTest extends ServiceTestBase
 {
 

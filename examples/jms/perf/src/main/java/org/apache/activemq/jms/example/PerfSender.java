@@ -19,9 +19,6 @@ package org.apache.activemq.jms.example;
 import java.util.Properties;
 import java.util.logging.Logger;
 
-/**
- * A PerfSender
- */
 public class PerfSender extends PerfBase
 {
    private static final Logger log = Logger.getLogger(PerfSender.class.getName());

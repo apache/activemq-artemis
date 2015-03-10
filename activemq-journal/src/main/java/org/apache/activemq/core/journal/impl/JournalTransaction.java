@@ -27,9 +27,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.activemq.api.core.ActiveMQExceptionType;
 import org.apache.activemq.core.journal.impl.dataformat.JournalInternalRecord;
 
-/**
- * A JournalTransaction
- */
 public class JournalTransaction
 {
 

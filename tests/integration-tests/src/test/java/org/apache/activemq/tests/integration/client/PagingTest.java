@@ -80,9 +80,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-/**
- * A PagingTest
- */
 public class PagingTest extends ServiceTestBase
 {
    private ServerLocator locator;

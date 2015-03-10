@@ -27,9 +27,6 @@ import org.apache.activemq.tests.integration.cluster.util.TestableServer;
 import org.junit.Before;
 import org.junit.Test;
 
-/**
- * A ClusterWithBackupFailoverTest
- */
 public abstract class ClusterWithBackupFailoverTestBase extends ClusterTestBase
 {
    protected static final String QUEUE_NAME = "queue0";

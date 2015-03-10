@@ -26,9 +26,6 @@ import org.apache.activemq.core.client.impl.Topology;
 import org.apache.activemq.core.server.ActiveMQComponent;
 import org.apache.activemq.core.server.ActiveMQServer;
 
-/**
- * A ClusterConnection
- */
 public interface ClusterConnection extends ActiveMQComponent, ClusterTopologyListener
 {
    SimpleString getName();

@@ -16,9 +16,6 @@
  */
 package org.apache.activemq.core.server;
 
-/**
- * A ActivateCallback
- */
 public interface ActivateCallback
 {
    /*

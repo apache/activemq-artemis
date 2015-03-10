@@ -19,9 +19,6 @@ package org.apache.activemq.core.journal.impl.dataformat;
 import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.core.journal.EncodingSupport;
 
-/**
- * A InternalEncoder
- */
 public abstract class JournalInternalRecord implements EncodingSupport
 {
 

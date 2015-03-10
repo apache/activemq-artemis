@@ -18,9 +18,6 @@ package org.apache.activemq.tests.stress.failover;
 
 import org.apache.activemq.tests.integration.cluster.reattach.MultiThreadRandomReattachTest;
 
-/**
- * A MultiThreadRandomFailoverStressTest
- */
 public class MultiThreadRandomReattachStressTest extends MultiThreadRandomReattachTest
 {
    @Override

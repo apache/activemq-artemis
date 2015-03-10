@@ -45,9 +45,6 @@ import org.junit.Test;
 
 import static org.apache.activemq.tests.util.RandomUtil.randomString;
 
-/**
- * A QueueControlTest
- */
 public class AddressControlTest extends ManagementTestBase
 {
 

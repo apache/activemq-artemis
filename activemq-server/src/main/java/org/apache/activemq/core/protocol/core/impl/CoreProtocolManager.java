@@ -57,9 +57,6 @@ import org.apache.activemq.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.spi.core.remoting.Acceptor;
 import org.apache.activemq.spi.core.remoting.Connection;
 
-/**
- * A CoreProtocolManager
- */
 class CoreProtocolManager implements ProtocolManager
 {
    private static final boolean isTrace = ActiveMQServerLogger.LOGGER.isTraceEnabled();

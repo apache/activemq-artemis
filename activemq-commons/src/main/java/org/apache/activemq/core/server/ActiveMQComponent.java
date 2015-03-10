@@ -16,9 +16,6 @@
  */
 package org.apache.activemq.core.server;
 
-/**
- * A ActiveMQComponent
- */
 public interface ActiveMQComponent
 {
    void start() throws Exception;

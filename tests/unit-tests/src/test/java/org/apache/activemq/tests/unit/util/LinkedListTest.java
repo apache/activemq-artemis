@@ -28,9 +28,6 @@ import org.apache.activemq.utils.LinkedListIterator;
 import org.junit.Before;
 import org.junit.Test;
 
-/**
- * A LinkedListTest
- */
 public class LinkedListTest extends UnitTestCase
 {
    private LinkedListImpl<Integer> list;

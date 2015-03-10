@@ -23,9 +23,6 @@ import org.apache.activemq.core.config.BridgeConfiguration;
 import org.apache.activemq.core.persistence.StorageManager;
 import org.apache.activemq.core.server.cluster.Bridge;
 
-/**
- * A BridgeControl
- */
 public class BridgeControlImpl extends AbstractControl implements BridgeControl
 {
 

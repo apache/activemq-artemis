@@ -30,9 +30,6 @@ import org.apache.activemq.core.server.ActiveMQServers;
 import org.apache.activemq.tests.util.ServiceTestBase;
 import org.junit.Test;
 
-/**
- * A GracefulShutdownTest
- */
 public class GracefulShutdownTest extends ServiceTestBase
 {
    @Test

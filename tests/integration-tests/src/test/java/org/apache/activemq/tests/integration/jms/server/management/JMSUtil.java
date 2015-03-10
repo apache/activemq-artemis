@@ -56,9 +56,6 @@ import org.apache.activemq.jms.client.ActiveMQJMSConnectionFactory;
 import org.apache.activemq.tests.integration.cluster.failover.FailoverTestBase;
 import org.apache.activemq.tests.util.RandomUtil;
 
-/**
- * A JMSUtil
- */
 public class JMSUtil
 {
 

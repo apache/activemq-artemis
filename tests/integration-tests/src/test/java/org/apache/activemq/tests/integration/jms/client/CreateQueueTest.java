@@ -27,9 +27,6 @@ import org.apache.activemq.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.tests.util.JMSTestBase;
 import org.junit.Test;
 
-/**
- * A CreateQueueTest
- */
 public class CreateQueueTest extends JMSTestBase
 {
    // Constants -----------------------------------------------------

@@ -76,9 +76,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-/**
- * A JMSServerControlTest
- */
 public class JMSServerControlTest extends ManagementTestBase
 {
    // Attributes ----------------------------------------------------

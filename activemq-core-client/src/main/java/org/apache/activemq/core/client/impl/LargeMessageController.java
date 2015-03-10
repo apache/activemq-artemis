@@ -21,9 +21,6 @@ import java.io.OutputStream;
 import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.api.core.ActiveMQException;
 
-/**
- * A LargeMessageBufferInternal
- */
 public interface LargeMessageController extends ActiveMQBuffer
 {
    /**

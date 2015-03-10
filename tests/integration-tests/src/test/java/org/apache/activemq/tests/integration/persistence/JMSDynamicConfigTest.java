@@ -27,9 +27,6 @@ import org.apache.activemq.jms.server.config.ConnectionFactoryConfiguration;
 import org.apache.activemq.jms.server.config.impl.ConnectionFactoryConfigurationImpl;
 import org.apache.activemq.tests.util.JMSTestBase;
 
-/**
- * A JMSDynamicConfigTest
- */
 public class JMSDynamicConfigTest extends JMSTestBase
 {
 

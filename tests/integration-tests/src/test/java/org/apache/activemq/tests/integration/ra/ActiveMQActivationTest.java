@@ -22,9 +22,6 @@ import org.junit.Test;
 import org.apache.activemq.ra.ActiveMQResourceAdapter;
 import org.apache.activemq.tests.util.ServiceTestBase;
 
-/**
- * A ActiveMQActivationTest
- */
 public class ActiveMQActivationTest extends ServiceTestBase
 {
 

@@ -16,9 +16,6 @@
  */
 package org.apache.activemq.core.journal;
 
-/**
- * A IOCompletion
- */
 public interface IOCompletion extends IOAsyncTask
 {
    void storeLineUp();

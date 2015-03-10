@@ -34,9 +34,6 @@ import org.apache.activemq.core.client.impl.ClientSessionInternal;
 import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.tests.util.ServiceTestBase;
 
-/**
- * A ReconnectSimpleTest
- */
 public class ReconnectTest extends ServiceTestBase
 {
 

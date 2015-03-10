@@ -16,9 +16,6 @@
  */
 package org.apache.activemq.tests.stress.journal;
 
-/**
- * A NIORandomCompactTest
- */
 public class AllPossibilitiesCompactWithAddDeleteStressTest extends MixupCompactorTestBase
 {
 

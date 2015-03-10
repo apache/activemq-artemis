@@ -38,9 +38,6 @@ import org.apache.activemq.tests.util.SpawnedVMSupport;
 import org.junit.Assert;
 import org.junit.Test;
 
-/**
- * A JournalCrashTest
- */
 public class JournalCrashTest extends ServiceTestBase
 {
    private static final int FIRST_RUN = 4;

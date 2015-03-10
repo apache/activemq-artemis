@@ -18,9 +18,6 @@ package org.apache.activemq.core.postoffice;
 
 import org.apache.activemq.core.server.Queue;
 
-/**
- * A QueueBinding
- */
 public interface QueueBinding extends Binding
 {
    int consumerCount();

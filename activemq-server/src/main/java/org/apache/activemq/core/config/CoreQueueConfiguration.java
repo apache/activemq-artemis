@@ -18,9 +18,6 @@ package org.apache.activemq.core.config;
 
 import java.io.Serializable;
 
-/**
- * A QueueConfiguration
- */
 public class CoreQueueConfiguration implements Serializable
 {
    private static final long serialVersionUID = 650404974977490254L;

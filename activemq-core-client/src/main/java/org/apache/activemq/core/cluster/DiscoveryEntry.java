@@ -18,9 +18,6 @@ package org.apache.activemq.core.cluster;
 
 import org.apache.activemq.api.core.TransportConfiguration;
 
-/**
- * A DiscoveryEntry
- */
 public class DiscoveryEntry
 {
    private final String nodeID;

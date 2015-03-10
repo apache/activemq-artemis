@@ -24,9 +24,6 @@ import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.spi.core.protocol.ProtocolManager;
 import org.apache.activemq.spi.core.protocol.ProtocolManagerFactory;
 
-/**
- * A CoreProtocolManagerFactory
- */
 public class CoreProtocolManagerFactory implements ProtocolManagerFactory
 {
    private static String[] SUPPORTED_PROTOCOLS = {ActiveMQClient.DEFAULT_CORE_PROTOCOL};

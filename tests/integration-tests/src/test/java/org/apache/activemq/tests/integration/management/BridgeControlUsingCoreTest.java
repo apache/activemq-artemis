@@ -45,9 +45,6 @@ import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.server.ActiveMQServers;
 import org.apache.activemq.tests.util.RandomUtil;
 
-/**
- * A BridgeControlTest
- */
 public class BridgeControlUsingCoreTest extends ManagementTestBase
 {
 

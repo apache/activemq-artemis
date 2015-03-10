@@ -19,9 +19,6 @@ package org.apache.activemq.tests.integration.cluster.distribution;
 
 import org.apache.activemq.tests.integration.IntegrationTestLogger;
 
-/**
- * A SymmetricClusterWithDiscoveryTest
- */
 public class SymmetricClusterWithDiscoveryTest extends SymmetricClusterTest
 {
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;

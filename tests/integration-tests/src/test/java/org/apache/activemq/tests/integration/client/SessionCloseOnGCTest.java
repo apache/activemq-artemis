@@ -29,9 +29,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-/**
- * A SessionCloseOnGCTest
- */
 public class SessionCloseOnGCTest extends ServiceTestBase
 {
    private ActiveMQServer server;

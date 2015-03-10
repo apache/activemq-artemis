@@ -41,9 +41,6 @@ import org.apache.activemq.core.security.Role;
 import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.tests.util.RandomUtil;
 
-/**
- * A AddressControlUsingCoreTest
- */
 public class AddressControlUsingCoreTest extends ManagementTestBase
 {
 

@@ -37,9 +37,6 @@ import org.apache.activemq.spi.core.remoting.ConnectionLifeCycleListener;
 import org.apache.activemq.spi.core.remoting.ReadyListener;
 import org.apache.activemq.utils.UUIDGenerator;
 
-/**
- * A InVMConnection
- */
 public class InVMConnection implements Connection
 {
    private static final boolean isTrace = ActiveMQServerLogger.LOGGER.isTraceEnabled();

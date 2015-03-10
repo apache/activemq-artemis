@@ -35,9 +35,6 @@ import org.apache.activemq.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.jms.client.ActiveMQQueue;
 import org.apache.activemq.jms.client.ActiveMQQueueConnectionFactory;
 
-/**
- * A JMSServerControlUsingCoreTest
- */
 public class JMSServerControlUsingJMSTest extends JMSServerControlTest
 {
 

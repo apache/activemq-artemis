@@ -21,9 +21,6 @@ import javax.jms.XATopicSession;
 
 import org.apache.activemq.api.core.client.ClientSession;
 
-/**
- * A ActiveMQXASession
- */
 public class ActiveMQXASession extends ActiveMQSession implements XAQueueSession, XATopicSession
 {
 

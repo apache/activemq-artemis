@@ -16,9 +16,6 @@
  */
 package org.apache.activemq.utils;
 
-/**
- * A DataConstants
- */
 public final class DataConstants
 {
    public static final int SIZE_INT = 4;

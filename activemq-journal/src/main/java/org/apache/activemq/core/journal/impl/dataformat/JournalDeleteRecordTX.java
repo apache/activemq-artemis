@@ -20,9 +20,6 @@ import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.core.journal.EncodingSupport;
 import org.apache.activemq.core.journal.impl.JournalImpl;
 
-/**
- * A JournalDeleteRecordTX
- */
 public class JournalDeleteRecordTX extends JournalInternalRecord
 {
 

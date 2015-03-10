@@ -23,9 +23,6 @@ import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.spi.core.protocol.ProtocolManager;
 import org.apache.activemq.spi.core.protocol.ProtocolManagerFactory;
 
-/**
- * A OpenWireProtocolManagerFactory
- */
 public class OpenWireProtocolManagerFactory implements ProtocolManagerFactory
 {
    public static final String OPENWIRE_PROTOCOL_NAME = "OPENWIRE";

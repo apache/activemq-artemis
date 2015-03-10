@@ -25,9 +25,6 @@ import org.apache.activemq.api.core.client.ClientMessage;
 import org.apache.activemq.api.core.client.ClientSessionFactory;
 import org.apache.activemq.utils.ReusableLatch;
 
-/**
- * A Receiver
- */
 public class Receiver extends ClientAbstract
 {
 

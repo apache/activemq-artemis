@@ -26,9 +26,6 @@ import org.junit.Assert;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.utils.DataConstants;
 
-/**
- * A SimpleStringTest
- */
 public class SimpleStringTest extends Assert
 {
    /**

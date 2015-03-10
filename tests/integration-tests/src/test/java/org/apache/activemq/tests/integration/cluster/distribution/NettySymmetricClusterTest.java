@@ -16,9 +16,6 @@
  */
 package org.apache.activemq.tests.integration.cluster.distribution;
 
-/**
- * A NettySymmetricClusterTest
- */
 public class NettySymmetricClusterTest extends SymmetricClusterTest
 {
    @Override

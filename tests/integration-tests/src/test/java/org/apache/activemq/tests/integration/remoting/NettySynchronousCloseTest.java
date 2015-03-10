@@ -16,9 +16,6 @@
  */
 package org.apache.activemq.tests.integration.remoting;
 
-/**
- * A NettySynchronousCloseTest
- */
 public class NettySynchronousCloseTest extends SynchronousCloseTest
 {
    @Override

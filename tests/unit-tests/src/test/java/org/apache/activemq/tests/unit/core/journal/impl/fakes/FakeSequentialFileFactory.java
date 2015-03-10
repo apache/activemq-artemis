@@ -34,9 +34,6 @@ import org.apache.activemq.core.journal.SequentialFile;
 import org.apache.activemq.core.journal.SequentialFileFactory;
 import org.apache.activemq.core.journal.impl.TimedBuffer;
 
-/**
- * A FakeSequentialFileFactory
- */
 public class FakeSequentialFileFactory implements SequentialFileFactory
 {
 

@@ -20,9 +20,6 @@ import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.core.message.impl.MessageInternal;
 import org.apache.activemq.core.protocol.core.impl.PacketImpl;
 
-/**
- * A SessionReceiveLargeMessage
- */
 public class SessionReceiveLargeMessage extends PacketImpl
 {
    private final MessageInternal message;

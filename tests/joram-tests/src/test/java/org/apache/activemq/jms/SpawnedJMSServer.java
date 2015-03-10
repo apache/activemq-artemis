@@ -29,9 +29,6 @@ import org.apache.activemq.core.server.ActiveMQServers;
 import org.apache.activemq.jms.server.JMSServerManager;
 import org.apache.activemq.jms.server.impl.JMSServerManagerImpl;
 
-/**
- * A SpawnedServer
- */
 public class SpawnedJMSServer
 {
 

@@ -31,9 +31,6 @@ import org.apache.activemq.tests.util.ServiceTestBase;
 import org.junit.Before;
 import org.junit.Test;
 
-/**
- * A ExpireTestOnRestartTest
- */
 public class ExpireTestOnRestartTest extends ServiceTestBase
 {
 

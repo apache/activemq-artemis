@@ -37,9 +37,6 @@ import org.apache.activemq.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.tests.util.ServiceTestBase;
 import org.apache.activemq.tests.util.UnitTestCase;
 
-/**
- * A MultiThreadFailoverSupport
- */
 public abstract class MultiThreadReattachSupportTestBase extends ServiceTestBase
 {
 

@@ -44,9 +44,6 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 
-/**
- * A JMSServerStartStopTest
- */
 public class JMSServerStartStopTest extends UnitTestCase
 {
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;

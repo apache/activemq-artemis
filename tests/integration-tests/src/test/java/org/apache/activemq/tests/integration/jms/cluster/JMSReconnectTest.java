@@ -54,9 +54,6 @@ import org.apache.activemq.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.tests.util.RandomUtil;
 import org.apache.activemq.tests.util.UnitTestCase;
 
-/**
- * A JMSReconnectTest
- */
 public class JMSReconnectTest extends UnitTestCase
 {
 

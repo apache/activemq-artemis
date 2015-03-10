@@ -45,9 +45,6 @@ import static org.apache.activemq.api.core.management.CoreNotificationType.BINDI
 import static org.apache.activemq.api.core.management.CoreNotificationType.CONSUMER_CLOSED;
 import static org.apache.activemq.api.core.management.CoreNotificationType.CONSUMER_CREATED;
 
-/**
- * A NotificationTest
- */
 public class NotificationTest extends UnitTestCase
 {
 

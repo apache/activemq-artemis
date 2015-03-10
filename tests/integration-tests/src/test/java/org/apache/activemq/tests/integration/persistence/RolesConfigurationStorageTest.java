@@ -26,9 +26,6 @@ import java.util.Map;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.core.persistence.config.PersistedRoles;
 
-/**
- * A ConfigurationStorageTest
- */
 public class RolesConfigurationStorageTest extends StorageManagerTestBase
 {
 

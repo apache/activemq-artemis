@@ -29,9 +29,6 @@ import org.apache.activemq.core.server.impl.InVMNodeManager;
 import org.apache.activemq.spi.core.security.ActiveMQSecurityManagerImpl;
 import org.apache.activemq.tests.integration.cluster.util.TestableServer;
 
-/**
- * A SecurityFailoverTest
- */
 public class SecurityFailoverTest extends FailoverTest
 {
 

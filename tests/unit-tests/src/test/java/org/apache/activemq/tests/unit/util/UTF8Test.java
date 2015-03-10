@@ -35,9 +35,6 @@ import org.apache.activemq.utils.DataConstants;
 import org.apache.activemq.utils.Random;
 import org.apache.activemq.utils.UTF8Util;
 
-/**
- * A UTF8Test
- */
 public class UTF8Test extends UnitTestCase
 {
 

@@ -18,9 +18,6 @@ package org.apache.activemq.tests.integration.cluster.distribution;
 
 
 
-/**
- * A NettyOneWayTwoNodeClusterTest
- */
 public class NettyOneWayTwoNodeClusterTest extends OnewayTwoNodeClusterTest
 {
 

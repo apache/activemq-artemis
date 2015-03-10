@@ -26,9 +26,6 @@ import org.apache.activemq.jms.server.config.JMSQueueConfiguration;
 import org.apache.activemq.jms.server.config.TopicConfiguration;
 
 
-/**
- * A JMSConfigurationImpl
- */
 public class JMSConfigurationImpl implements JMSConfiguration
 {
    private List<ConnectionFactoryConfiguration> connectionFactoryConfigurations = new ArrayList<ConnectionFactoryConfiguration>();

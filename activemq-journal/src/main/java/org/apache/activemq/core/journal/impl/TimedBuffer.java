@@ -33,9 +33,6 @@ import org.apache.activemq.core.journal.IOAsyncTask;
 import org.apache.activemq.core.journal.impl.dataformat.ByteArrayEncoding;
 import org.apache.activemq.journal.ActiveMQJournalLogger;
 
-/**
- * A TimedBuffer
- */
 public class TimedBuffer
 {
    // Constants -----------------------------------------------------

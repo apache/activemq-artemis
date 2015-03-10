@@ -16,9 +16,6 @@
  */
 package org.apache.activemq.tests.integration.cluster.failover;
 
-/**
- * A ReplicatedAsynchronousFailoverTest
- */
 public class ReplicatedAsynchronousFailoverTest extends AsynchronousFailoverTest
 {
    @Override

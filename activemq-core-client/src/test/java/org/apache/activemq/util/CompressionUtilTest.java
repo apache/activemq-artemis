@@ -31,9 +31,6 @@ import org.apache.activemq.utils.DeflaterReader;
 import org.apache.activemq.utils.InflaterReader;
 import org.apache.activemq.utils.InflaterWriter;
 
-/**
- * A CompressionUtilTest
- */
 public class CompressionUtilTest extends Assert
 {
 

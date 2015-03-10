@@ -23,9 +23,6 @@ import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.ActiveMQExceptionType;
 import org.apache.activemq.journal.ActiveMQJournalLogger;
 
-/**
- * A SimpleWaitIOCallback
- */
 public final class SimpleWaitIOCallback extends SyncIOCompletion
 {
    private final CountDownLatch latch = new CountDownLatch(1);

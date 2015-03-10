@@ -16,9 +16,6 @@
  */
 package org.apache.activemq.core.protocol.stomp;
 
-/**
- * A StompSubscription
- */
 public class StompSubscription
 {
    // Constants -----------------------------------------------------

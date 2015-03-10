@@ -23,9 +23,6 @@ import org.apache.activemq.core.server.RoutingContext;
 import org.apache.activemq.core.server.ServerMessage;
 import org.apache.activemq.core.server.group.UnproposalListener;
 
-/**
- * A Bindings
- */
 public interface Bindings extends UnproposalListener
 {
    Collection<Binding> getBindings();

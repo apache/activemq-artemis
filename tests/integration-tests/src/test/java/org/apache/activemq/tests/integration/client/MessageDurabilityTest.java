@@ -33,9 +33,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-/**
- * A MessagDurabilityTest
- */
 public class MessageDurabilityTest extends ServiceTestBase
 {
 

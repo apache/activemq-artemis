@@ -18,9 +18,6 @@ package org.apache.activemq.jms.client;
 
 import javax.jms.TemporaryTopic;
 
-/**
- * A ActiveMQTemporaryTopic
- */
 public class ActiveMQTemporaryTopic extends ActiveMQTopic implements TemporaryTopic
 {
 

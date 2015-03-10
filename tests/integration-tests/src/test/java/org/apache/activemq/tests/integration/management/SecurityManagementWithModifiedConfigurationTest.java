@@ -25,9 +25,6 @@ import org.apache.activemq.core.remoting.impl.invm.InVMAcceptorFactory;
 import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.server.ActiveMQServers;
 
-/**
- * A SecurityManagementTest
- */
 public class SecurityManagementWithModifiedConfigurationTest extends SecurityManagementTestBase
 {
 

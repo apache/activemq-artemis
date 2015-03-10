@@ -19,9 +19,6 @@ import org.apache.activemq.core.journal.SequentialFileFactory;
 import org.apache.activemq.core.journal.impl.NIOSequentialFileFactory;
 import org.apache.activemq.tests.unit.core.journal.impl.SequentialFileFactoryTestBase;
 
-/**
- * A NIOSequentialFileFactoryTest
- */
 public class NIONonBufferedSequentialFileFactoryTest extends SequentialFileFactoryTestBase
 {
 

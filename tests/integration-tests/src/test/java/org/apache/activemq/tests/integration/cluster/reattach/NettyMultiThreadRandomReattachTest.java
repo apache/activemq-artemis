@@ -20,9 +20,6 @@ import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.core.config.Configuration;
 
-/**
- * A NettyMultiThreadRandomReattachTest
- */
 public class NettyMultiThreadRandomReattachTest extends MultiThreadRandomReattachTest
 {
    @Override

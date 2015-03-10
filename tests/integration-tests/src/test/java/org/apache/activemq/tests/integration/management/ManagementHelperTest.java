@@ -27,9 +27,6 @@ import org.apache.activemq.tests.util.RandomUtil;
 import org.junit.Assert;
 import org.junit.Test;
 
-/**
- * A ManagementHelperTest
- */
 public class ManagementHelperTest extends Assert
 {
 

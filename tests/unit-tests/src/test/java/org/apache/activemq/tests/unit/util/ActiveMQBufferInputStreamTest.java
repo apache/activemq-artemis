@@ -22,9 +22,6 @@ import org.apache.activemq.tests.util.UnitTestCase;
 import org.apache.activemq.utils.ActiveMQBufferInputStream;
 import org.junit.Test;
 
-/**
- * A ActiveMQInputStreamTest
- */
 public class ActiveMQBufferInputStreamTest extends UnitTestCase
 {
 

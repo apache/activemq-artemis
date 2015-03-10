@@ -34,9 +34,6 @@ import org.apache.activemq.core.journal.impl.TimedBuffer;
 import org.apache.activemq.core.journal.impl.TimedBufferObserver;
 import org.apache.activemq.tests.util.UnitTestCase;
 
-/**
- * A TimedBufferTest
- */
 public class TimedBufferTest extends UnitTestCase
 {
 

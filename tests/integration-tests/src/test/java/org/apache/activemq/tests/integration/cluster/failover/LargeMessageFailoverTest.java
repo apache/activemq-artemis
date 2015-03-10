@@ -21,9 +21,6 @@ import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.core.client.impl.ServerLocatorInternal;
 import org.junit.Test;
 
-/**
- * A LargeMessageFailoverTest
- */
 public class LargeMessageFailoverTest extends FailoverTest
 {
 

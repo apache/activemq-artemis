@@ -16,9 +16,6 @@
  */
 package org.apache.activemq.utils;
 
-/**
- * A LinkedList
- */
 public interface LinkedList<E>
 {
    void addHead(E e);

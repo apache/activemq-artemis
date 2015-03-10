@@ -21,9 +21,6 @@ import org.apache.activemq.core.journal.EncodingSupport;
 import org.apache.activemq.jms.server.config.ConnectionFactoryConfiguration;
 import org.apache.activemq.jms.server.config.impl.ConnectionFactoryConfigurationImpl;
 
-/**
- * A PersistedConnectionFactory
- */
 public class PersistedConnectionFactory implements EncodingSupport
 {
 

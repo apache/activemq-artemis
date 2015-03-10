@@ -26,9 +26,6 @@ import org.apache.activemq.core.server.MessageReference;
 import org.apache.activemq.core.server.Queue;
 import org.apache.activemq.core.server.ServerMessage;
 
-/**
- * A InternalReference
- */
 public class PagedReferenceImpl implements PagedReference
 {
    private static final boolean isTrace = ActiveMQServerLogger.LOGGER.isTraceEnabled();

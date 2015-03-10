@@ -65,9 +65,6 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 
-/**
- * A BridgeTestBase
- */
 public abstract class BridgeTestBase extends UnitTestCase
 {
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;

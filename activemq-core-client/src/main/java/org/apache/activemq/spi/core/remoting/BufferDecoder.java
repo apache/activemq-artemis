@@ -18,9 +18,6 @@ package org.apache.activemq.spi.core.remoting;
 
 import org.apache.activemq.api.core.ActiveMQBuffer;
 
-/**
- * A BufferDecoder
- */
 public interface BufferDecoder
 {
    /**

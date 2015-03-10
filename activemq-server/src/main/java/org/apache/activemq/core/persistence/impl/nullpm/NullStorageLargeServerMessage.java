@@ -21,9 +21,6 @@ import org.apache.activemq.core.journal.SequentialFile;
 import org.apache.activemq.core.server.LargeServerMessage;
 import org.apache.activemq.core.server.impl.ServerMessageImpl;
 
-/**
- * A NullStorageLargeServerMessage
- */
 class NullStorageLargeServerMessage extends ServerMessageImpl implements LargeServerMessage
 {
 

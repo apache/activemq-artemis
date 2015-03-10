@@ -20,9 +20,6 @@ import org.apache.activemq.core.journal.impl.AIOSequentialFileFactory;
 import org.apache.activemq.core.server.JournalType;
 import org.junit.BeforeClass;
 
-/**
- * A AIOMultiThreadCompactorStressTest
- */
 public class AIOMultiThreadCompactorStressTest extends NIOMultiThreadCompactorStressTest
 {
 

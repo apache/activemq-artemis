@@ -16,9 +16,6 @@
  */
 package org.apache.activemq.core.server.management;
 
-/**
- * A NotificationService
- */
 public interface NotificationService
 {
    /**

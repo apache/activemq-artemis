@@ -37,9 +37,6 @@ import org.apache.activemq.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.tests.util.TransportConfigurationUtils;
 
-/**
- * A FailoverOnFlowControlTest
- */
 public class FailoverOnFlowControlTest extends FailoverTestBase
 {
 

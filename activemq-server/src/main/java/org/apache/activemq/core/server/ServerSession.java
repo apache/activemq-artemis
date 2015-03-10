@@ -27,9 +27,6 @@ import org.apache.activemq.core.transaction.Transaction;
 import org.apache.activemq.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.utils.json.JSONArray;
 
-/**
- * A ServerSession
- */
 public interface ServerSession
 {
    String getName();

@@ -16,9 +16,6 @@
  */
 package org.apache.activemq.jms.server.config;
 
-/**
- * A QeueConfiguration
- */
 public interface JMSQueueConfiguration
 {
    String getName();

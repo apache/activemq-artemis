@@ -25,9 +25,6 @@ import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.ActiveMQExceptionType;
 import org.apache.activemq.logs.ActiveMQUtilBundle;
 
-/**
- * A PasswordMarkingUtil
- */
 public class PasswordMaskingUtil
 {
    /*

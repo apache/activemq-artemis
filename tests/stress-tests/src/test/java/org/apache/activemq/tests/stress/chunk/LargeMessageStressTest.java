@@ -20,9 +20,6 @@ import org.junit.Test;
 
 import org.apache.activemq.tests.integration.largemessage.LargeMessageTestBase;
 
-/**
- * A MessageChunkSoakTest
- */
 public class LargeMessageStressTest extends LargeMessageTestBase
 {
 

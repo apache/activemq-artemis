@@ -29,9 +29,6 @@ import org.apache.activemq.tests.util.UnitTestCase;
 import org.junit.After;
 import org.junit.Before;
 
-/**
- * A ClusterConnectionControlUsingCoreTest
- */
 public class ClusterConnectionControlUsingCoreTest extends ClusterConnectionControlTest
 {
 

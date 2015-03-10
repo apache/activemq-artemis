@@ -23,9 +23,6 @@ import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.core.server.ActiveMQComponent;
 import org.apache.activemq.core.server.ActiveMQServer;
 
-/**
- * A TestServer
- */
 public interface TestableServer extends ActiveMQComponent
 {
    ActiveMQServer getServer();

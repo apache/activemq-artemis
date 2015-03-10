@@ -21,9 +21,6 @@ import java.util.Arrays;
 
 import org.apache.activemq.core.version.Version;
 
-/**
- * A VersionImpl
- */
 public class VersionImpl implements Version, Serializable
 {
    private static final long serialVersionUID = -5271227256591080403L;

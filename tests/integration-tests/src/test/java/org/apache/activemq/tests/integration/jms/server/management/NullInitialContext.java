@@ -20,9 +20,6 @@ import javax.naming.InitialContext;
 import javax.naming.Name;
 import javax.naming.NamingException;
 
-/**
- * A NullInitialContext
- */
 public class NullInitialContext extends InitialContext
 {
 

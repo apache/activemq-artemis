@@ -21,9 +21,6 @@ import java.util.List;
 
 import org.apache.activemq.core.journal.IOAsyncTask;
 
-/**
- * A TimedBufferObserver
- */
 public interface TimedBufferObserver
 {
 

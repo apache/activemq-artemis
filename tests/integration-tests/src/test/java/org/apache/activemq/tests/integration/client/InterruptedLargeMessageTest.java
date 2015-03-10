@@ -59,9 +59,6 @@ import org.apache.activemq.utils.ExecutorFactory;
 import org.junit.Before;
 import org.junit.Test;
 
-/**
- * A LargeMessageTest
- */
 public class InterruptedLargeMessageTest extends LargeMessageTestBase
 {
    // Constants -----------------------------------------------------

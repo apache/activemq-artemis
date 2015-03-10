@@ -19,9 +19,6 @@ package org.apache.activemq.core.client.impl;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.spi.core.remoting.SessionContext;
 
-/**
- * A ClientProducerCreditManager
- */
 public interface ClientProducerCreditManager
 {
    ClientProducerCredits getCredits(SimpleString address, boolean anon, SessionContext context);

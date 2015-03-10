@@ -21,9 +21,6 @@ import java.io.File;
 import org.apache.activemq.core.journal.SequentialFileFactory;
 import org.apache.activemq.core.journal.impl.NIOSequentialFileFactory;
 
-/**
- * A NIOBufferedJournalCompactTest
- */
 public class NIOBufferedJournalCompactTest extends NIOJournalCompactTest
 {
 

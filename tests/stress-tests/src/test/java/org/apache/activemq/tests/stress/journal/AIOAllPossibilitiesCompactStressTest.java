@@ -22,9 +22,6 @@ import org.apache.activemq.core.journal.SequentialFileFactory;
 import org.apache.activemq.core.journal.impl.AIOSequentialFileFactory;
 import org.apache.activemq.core.journal.impl.JournalConstants;
 
-/**
- * A NIOAllPossibilitiesCompactStressTest
- */
 public class AIOAllPossibilitiesCompactStressTest extends AllPossibilitiesCompactStressTest
 {
 

@@ -32,9 +32,6 @@ import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.core.client.impl.ClientSessionFactoryInternal;
 import org.apache.activemq.core.remoting.impl.netty.TransportConstants;
 
-/**
- * A NettyFailoverTest
- */
 public class NettyFailoverTest extends FailoverTest
 {
    @Override

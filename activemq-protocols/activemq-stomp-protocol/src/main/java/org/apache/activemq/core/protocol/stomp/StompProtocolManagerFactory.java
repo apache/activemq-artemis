@@ -23,9 +23,6 @@ import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.spi.core.protocol.ProtocolManager;
 import org.apache.activemq.spi.core.protocol.ProtocolManagerFactory;
 
-/**
- * A StompProtocolManagerFactory
- */
 public class StompProtocolManagerFactory implements ProtocolManagerFactory
 {
    public static final String STOMP_PROTOCOL_NAME = "STOMP";

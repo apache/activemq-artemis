@@ -72,9 +72,6 @@ import org.apache.activemq.utils.DefaultSensitiveStringCodec;
 import org.apache.activemq.utils.PasswordMaskingUtil;
 import org.apache.activemq.utils.SensitiveDataCodec;
 
-/**
- * A JMSBridge
- */
 public final class JMSBridgeImpl implements JMSBridge
 {
    private static final String[] RESOURCE_RECOVERY_CLASS_NAMES = new String[]{"org.jboss.as.messaging.jms.AS7RecoveryRegistry"};

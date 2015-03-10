@@ -45,9 +45,6 @@ import org.apache.activemq.jms.client.ActiveMQTextMessage;
 import org.apache.activemq.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.tests.util.RandomUtil;
 
-/**
- * A MultiThreadRandomReattachTestBase
- */
 public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReattachSupportTestBase
 {
    private final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;

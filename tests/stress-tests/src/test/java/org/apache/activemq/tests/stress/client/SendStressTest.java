@@ -27,9 +27,6 @@ import org.apache.activemq.tests.util.ServiceTestBase;
 import org.junit.Assert;
 import org.junit.Test;
 
-/**
- * A SendStressTest
- */
 public class SendStressTest extends ServiceTestBase
 {
 

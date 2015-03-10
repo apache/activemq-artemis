@@ -26,9 +26,6 @@ import org.apache.activemq.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.tests.util.JMSTestBase;
 import org.junit.Test;
 
-/**
- * A SessionTest
- */
 public class SessionTest extends JMSTestBase
 {
 

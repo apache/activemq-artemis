@@ -20,9 +20,6 @@ import org.junit.Test;
 
 import org.apache.activemq.tests.util.UnitTestCase;
 
-/**
- * A PagePositionTest
- */
 public class PagePositionTest extends UnitTestCase
 {
 

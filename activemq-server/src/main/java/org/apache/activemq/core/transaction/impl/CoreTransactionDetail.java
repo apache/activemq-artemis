@@ -25,9 +25,6 @@ import org.apache.activemq.core.server.ServerMessage;
 import org.apache.activemq.core.transaction.Transaction;
 import org.apache.activemq.core.transaction.TransactionDetail;
 
-/**
- * A CoreTransactionDetail
- */
 public class CoreTransactionDetail extends TransactionDetail
 {
    public CoreTransactionDetail(Xid xid, Transaction tx, Long creation) throws Exception

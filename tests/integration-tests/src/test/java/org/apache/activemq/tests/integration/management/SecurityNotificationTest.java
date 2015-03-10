@@ -49,9 +49,6 @@ import org.apache.activemq.core.server.ActiveMQServers;
 import org.apache.activemq.tests.util.RandomUtil;
 import org.apache.activemq.tests.util.UnitTestCase;
 
-/**
- * A SecurityNotificationTest
- */
 public class SecurityNotificationTest extends UnitTestCase
 {
 

@@ -19,9 +19,6 @@ package org.apache.activemq.tests.integration.cluster.distribution;
 
 import org.apache.activemq.tests.integration.IntegrationTestLogger;
 
-/**
- * A NettyFileStorageSymmetricClusterTest
- */
 public class NettyFileStorageSymmetricClusterTest extends SymmetricClusterTest
 {
    IntegrationTestLogger log = IntegrationTestLogger.LOGGER;

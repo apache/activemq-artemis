@@ -37,9 +37,6 @@ import org.apache.activemq.core.transaction.Transaction;
 import org.apache.activemq.core.transaction.impl.TransactionImpl;
 import org.apache.activemq.utils.ReusableLatch;
 
-/**
- * A Redistributor
- */
 public class Redistributor implements Consumer
 {
    private boolean active;

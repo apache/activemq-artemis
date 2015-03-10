@@ -22,9 +22,6 @@ import org.apache.activemq.api.core.client.ServerLocator;
 import org.apache.activemq.api.core.management.BroadcastGroupControl;
 import org.apache.activemq.api.core.management.ResourceNames;
 
-/**
- * A BroadcastGroupControlUsingCoreTest
- */
 public class BroadcastGroupControlUsingCoreTest extends BroadcastGroupControlTest
 {
 

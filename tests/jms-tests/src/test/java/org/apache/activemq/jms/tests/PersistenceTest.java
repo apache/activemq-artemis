@@ -26,9 +26,6 @@ import javax.jms.TextMessage;
 import org.apache.activemq.jms.tests.util.ProxyAssertSupport;
 import org.junit.Test;
 
-/**
- * A PersistenceTest
- */
 public class PersistenceTest extends JMSTestCase
 {
    /**

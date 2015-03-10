@@ -52,9 +52,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-/**
- * A BridgeReconnectTest
- */
 public class BridgeReconnectTest extends BridgeTestBase
 {
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;

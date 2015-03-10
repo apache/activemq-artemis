@@ -18,9 +18,6 @@ package org.apache.activemq.core.journal;
 
 import org.apache.activemq.core.journal.impl.JournalFile;
 
-/**
- * A TestableJournal
- */
 public interface TestableJournal extends Journal
 {
    int getDataFilesCount();

@@ -41,9 +41,6 @@ import org.apache.activemq.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.tests.integration.jms.server.management.NullInitialContext;
 import org.apache.activemq.tests.util.ServiceTestBase;
 
-/**
- * A FailureDeadlockTest
- */
 public class FailureDeadlockTest extends ServiceTestBase
 {
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;

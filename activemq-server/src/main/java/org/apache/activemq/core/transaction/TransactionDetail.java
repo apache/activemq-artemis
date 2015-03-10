@@ -29,9 +29,6 @@ import org.apache.activemq.core.transaction.impl.XidImpl;
 import org.apache.activemq.utils.json.JSONArray;
 import org.apache.activemq.utils.json.JSONObject;
 
-/**
- * A TransactionDetail
- */
 public abstract class TransactionDetail
 {
    public static final String KEY_CREATION_TIME = "creation_time";

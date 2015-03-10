@@ -16,9 +16,6 @@
  */
 package org.apache.activemq.tests.integration.client;
 
-/**
- * A InVMPersistentMessageBufferTest
- */
 public class InVMPersistentMessageBufferTest extends InVMNonPersistentMessageBufferTest
 {
    @Override

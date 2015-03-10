@@ -42,9 +42,6 @@ import org.apache.activemq.core.transaction.Transaction;
 import org.apache.activemq.core.transaction.TransactionOperation;
 import org.apache.activemq.tests.util.UnitTestCase;
 
-/**
- * A BindingImplTest
- */
 public class BindingsImplTest extends UnitTestCase
 {
    // Constants -----------------------------------------------------

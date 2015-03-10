@@ -25,9 +25,6 @@ import org.apache.activemq.api.core.management.AcceptorControl;
 import org.apache.activemq.core.persistence.StorageManager;
 import org.apache.activemq.spi.core.remoting.Acceptor;
 
-/**
- * A AcceptorControl
- */
 public class AcceptorControlImpl extends AbstractControl implements AcceptorControl
 {
 

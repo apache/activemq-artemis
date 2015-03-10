@@ -23,9 +23,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.core.journal.SequentialFile;
 
-/**
- * A JournalFileImpl
- */
 public class JournalFileImpl implements JournalFile
 {
    private final SequentialFile file;

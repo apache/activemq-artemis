@@ -18,9 +18,6 @@ package org.apache.activemq.core.persistence;
 
 import org.apache.activemq.api.core.SimpleString;
 
-/**
- * A QueueBindingInfo
- */
 public interface QueueBindingInfo
 {
    long getId();

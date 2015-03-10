@@ -21,9 +21,6 @@ import java.util.Hashtable;
 import org.apache.activemq.jms.bridge.ConnectionFactoryFactory;
 
 
-/**
- * A JNDIConnectionFactoryFactory
- */
 public class JNDIConnectionFactoryFactory extends JNDIFactorySupport implements ConnectionFactoryFactory
 {
    public JNDIConnectionFactoryFactory(final Hashtable jndiProperties, final String lookup)

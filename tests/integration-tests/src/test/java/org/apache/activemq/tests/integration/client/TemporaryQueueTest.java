@@ -56,9 +56,6 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 
-/**
- * A TemporaryQueueTest
- */
 public class TemporaryQueueTest extends SingleServerTestBase
 {
    // Constants -----------------------------------------------------

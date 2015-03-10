@@ -47,9 +47,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-/**
- * A InterceptorTest
- */
 public class InterceptorTest extends ServiceTestBase
 {
    private ActiveMQServer server;

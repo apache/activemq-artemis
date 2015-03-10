@@ -23,9 +23,6 @@ import org.apache.activemq.core.config.Configuration;
 import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.tests.util.ServiceTestBase;
 
-/**
- * A ClientTestBase
- */
 public abstract class ClientTestBase extends ServiceTestBase
 {
 

@@ -57,9 +57,6 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 
-/**
- * A JournalImplTestBase
- */
 public class NIOJournalCompactTest extends JournalImplTestBase
 {
    private static final int NUMBER_OF_RECORDS = 1000;

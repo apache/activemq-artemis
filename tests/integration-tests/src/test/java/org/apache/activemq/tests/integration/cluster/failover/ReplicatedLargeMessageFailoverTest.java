@@ -20,9 +20,6 @@ package org.apache.activemq.tests.integration.cluster.failover;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.core.client.impl.ClientSessionInternal;
 
-/**
- * A ReplicatedLargeMessageFailoverTest
- */
 public class ReplicatedLargeMessageFailoverTest extends LargeMessageFailoverTest
 {
 

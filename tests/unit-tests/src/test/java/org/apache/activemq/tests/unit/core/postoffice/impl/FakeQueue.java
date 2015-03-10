@@ -33,9 +33,6 @@ import org.apache.activemq.core.transaction.Transaction;
 import org.apache.activemq.utils.LinkedListIterator;
 import org.apache.activemq.utils.ReferenceCounter;
 
-/**
- * A FakeQueue
- */
 public class FakeQueue implements Queue
 {
 

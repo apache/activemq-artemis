@@ -16,9 +16,6 @@
  */
 package org.apache.activemq.core.settings.impl;
 
-/**
- * A SlowConsumerPolicy
- */
 public enum SlowConsumerPolicy
 {
    KILL, NOTIFY;

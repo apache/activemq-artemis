@@ -36,9 +36,6 @@ import org.apache.activemq.core.server.management.Notification;
 import org.apache.activemq.tests.integration.SimpleNotificationService;
 import org.apache.activemq.tests.util.RandomUtil;
 
-/**
- * A AcceptorControlTest
- */
 public class AcceptorControlTest extends ManagementTestBase
 {
    // Static --------------------------------------------------------

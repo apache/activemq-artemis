@@ -29,9 +29,6 @@ import org.apache.activemq.api.core.management.AcceptorControl;
 import org.apache.activemq.api.core.management.ResourceNames;
 import org.apache.activemq.tests.util.UnitTestCase;
 
-/**
- * A AcceptorControlUsingCoreTest
- */
 public class AcceptorControlUsingCoreTest extends AcceptorControlTest
 {
 

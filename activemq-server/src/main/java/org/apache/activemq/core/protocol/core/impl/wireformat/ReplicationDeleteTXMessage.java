@@ -22,9 +22,6 @@ import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.core.journal.EncodingSupport;
 import org.apache.activemq.core.protocol.core.impl.PacketImpl;
 
-/**
- * A ReplicationAddMessage
- */
 public class ReplicationDeleteTXMessage extends PacketImpl
 {
 

@@ -31,9 +31,6 @@ import org.apache.activemq.tests.util.JMSTestBase;
 import org.junit.Assert;
 import org.junit.Test;
 
-/**
- * A MessageTest
- */
 public class MessageTest extends JMSTestBase
 {
    // Constants -----------------------------------------------------

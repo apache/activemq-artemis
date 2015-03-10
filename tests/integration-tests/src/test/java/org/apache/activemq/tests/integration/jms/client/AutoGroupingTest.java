@@ -24,9 +24,6 @@ import org.apache.activemq.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.api.jms.JMSFactoryType;
 import org.apache.activemq.jms.client.ActiveMQJMSConnectionFactory;
 
-/**
- * A AutoGroupingTest
- */
 public class AutoGroupingTest extends GroupingTest
 {
 

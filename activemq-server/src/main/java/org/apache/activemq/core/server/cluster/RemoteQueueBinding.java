@@ -19,9 +19,6 @@ package org.apache.activemq.core.server.cluster;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.core.postoffice.QueueBinding;
 
-/**
- * A RemoteQueueBinding
- */
 public interface RemoteQueueBinding extends QueueBinding
 {
    void addConsumer(SimpleString filterString) throws Exception;

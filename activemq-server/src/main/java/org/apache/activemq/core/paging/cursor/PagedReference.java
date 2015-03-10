@@ -19,9 +19,6 @@ package org.apache.activemq.core.paging.cursor;
 import org.apache.activemq.core.paging.PagedMessage;
 import org.apache.activemq.core.server.MessageReference;
 
-/**
- * A PagedReference
- */
 public interface PagedReference extends MessageReference
 {
    PagePosition getPosition();

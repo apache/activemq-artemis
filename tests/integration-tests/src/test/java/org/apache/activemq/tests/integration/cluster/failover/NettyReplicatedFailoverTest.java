@@ -21,9 +21,6 @@ import org.apache.activemq.core.config.Configuration;
 import org.apache.activemq.tests.integration.cluster.util.SameProcessActiveMQServer;
 import org.apache.activemq.tests.integration.cluster.util.TestableServer;
 
-/**
- * A NettyReplicatedFailoverTest
- */
 public class NettyReplicatedFailoverTest extends NettyFailoverTest
 {
 

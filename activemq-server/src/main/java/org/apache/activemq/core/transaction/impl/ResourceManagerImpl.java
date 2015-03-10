@@ -35,9 +35,6 @@ import org.apache.activemq.core.server.ActiveMQServerLogger;
 import org.apache.activemq.core.transaction.ResourceManager;
 import org.apache.activemq.core.transaction.Transaction;
 
-/**
- * A ResourceManagerImpl
- */
 public class ResourceManagerImpl implements ResourceManager
 {
    private final ConcurrentMap<Xid, Transaction> transactions = new ConcurrentHashMap<Xid, Transaction>();

@@ -18,9 +18,6 @@ package org.apache.activemq.core.example;
 
 import java.util.logging.Logger;
 
-/**
- * A PerfSender
- */
 public class PerfSender extends PerfBase
 {
    private static final Logger log = Logger.getLogger(PerfSender.class.getName());

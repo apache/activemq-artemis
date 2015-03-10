@@ -34,9 +34,6 @@ import org.apache.activemq.tests.util.UnitTestCase;
 import org.junit.Assert;
 import org.junit.Test;
 
-/**
- * A NettyAcceptorFactoryTest
- */
 public class NettyAcceptorFactoryTest extends UnitTestCase
 {
    @Test

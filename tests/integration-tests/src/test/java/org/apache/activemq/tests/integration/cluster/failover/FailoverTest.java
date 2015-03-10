@@ -63,9 +63,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-/**
- * A FailoverTest
- */
 public class FailoverTest extends FailoverTestBase
 {
 

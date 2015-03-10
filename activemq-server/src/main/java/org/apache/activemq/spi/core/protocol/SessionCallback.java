@@ -21,9 +21,6 @@ import org.apache.activemq.core.server.ServerConsumer;
 import org.apache.activemq.core.server.ServerMessage;
 import org.apache.activemq.spi.core.remoting.ReadyListener;
 
-/**
- * A SessionCallback
- */
 public interface SessionCallback
 {
    /** This one gives a chance for Proton to have its own flow control. */

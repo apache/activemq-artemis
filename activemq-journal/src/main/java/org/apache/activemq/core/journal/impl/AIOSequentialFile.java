@@ -30,9 +30,6 @@ import org.apache.activemq.core.journal.IOAsyncTask;
 import org.apache.activemq.core.journal.SequentialFile;
 import org.apache.activemq.core.journal.SequentialFileFactory;
 
-/**
- * A AIOSequentialFile
- */
 public class AIOSequentialFile extends AbstractSequentialFile implements IOExceptionListener
 {
    private boolean opened = false;

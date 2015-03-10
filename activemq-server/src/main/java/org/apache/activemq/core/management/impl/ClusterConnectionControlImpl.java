@@ -26,9 +26,6 @@ import org.apache.activemq.core.persistence.StorageManager;
 import org.apache.activemq.core.server.cluster.ClusterConnection;
 import org.apache.activemq.utils.json.JSONArray;
 
-/**
- * A ClusterConnectionControl
- */
 public class ClusterConnectionControlImpl extends AbstractControl implements ClusterConnectionControl
 {
 

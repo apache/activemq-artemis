@@ -32,9 +32,6 @@ import org.apache.activemq.tests.unit.core.postoffice.impl.FakeQueue;
 import org.apache.activemq.tests.unit.core.server.impl.fakes.FakePostOffice;
 import org.junit.Test;
 
-/**
- * A DeleteMessagesOnStartupTest
- */
 public class DeleteMessagesOnStartupTest extends StorageManagerTestBase
 {
 

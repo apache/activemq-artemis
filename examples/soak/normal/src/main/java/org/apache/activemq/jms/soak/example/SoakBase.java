@@ -22,9 +22,6 @@ import java.util.Properties;
 import java.util.Random;
 import java.util.logging.Logger;
 
-/**
- * A SoakBase
- */
 public class SoakBase
 {
    private static final Logger log = Logger.getLogger(SoakBase.class.getName());

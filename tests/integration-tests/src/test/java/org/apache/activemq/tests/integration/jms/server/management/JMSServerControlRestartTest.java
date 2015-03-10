@@ -48,9 +48,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-/**
- * A JMSServerControlRestartTest
- */
 public class JMSServerControlRestartTest extends ManagementTestBase
 {
 

@@ -103,9 +103,6 @@ import org.apache.activemq.utils.FutureLatch;
 
 import static org.apache.activemq.utils.Base64.encodeBytes;
 
-/**
- * A NettyConnector
- */
 public class NettyConnector extends AbstractConnector
 {
    // Constants -----------------------------------------------------

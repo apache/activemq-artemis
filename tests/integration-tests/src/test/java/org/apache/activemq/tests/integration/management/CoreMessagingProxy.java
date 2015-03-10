@@ -22,9 +22,6 @@ import org.apache.activemq.api.core.client.ClientRequestor;
 import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.management.ManagementHelper;
 
-/**
- * A MBeanUsingCoreMessage
- */
 public class CoreMessagingProxy
 {
 

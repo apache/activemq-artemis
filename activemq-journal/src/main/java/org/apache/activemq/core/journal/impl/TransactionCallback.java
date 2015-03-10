@@ -21,9 +21,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.activemq.core.journal.IOAsyncTask;
 import org.apache.activemq.utils.ReusableLatch;
 
-/**
- * A TransactionCallback
- */
 public class TransactionCallback implements IOAsyncTask
 {
    private final ReusableLatch countLatch = new ReusableLatch();

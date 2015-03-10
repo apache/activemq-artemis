@@ -42,9 +42,6 @@ import org.apache.activemq.jms.client.ActiveMQTextMessage;
 import org.apache.activemq.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.tests.util.ServiceTestBase;
 
-/**
- * A OrderReattachTest
- */
 public class OrderReattachTest extends ServiceTestBase
 {
    // Constants -----------------------------------------------------

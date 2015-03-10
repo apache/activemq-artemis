@@ -28,9 +28,6 @@ import org.apache.activemq.core.transaction.Transaction;
 import org.apache.activemq.utils.LinkedListIterator;
 import org.apache.activemq.utils.ReferenceCounter;
 
-/**
- * A Queue
- */
 public interface Queue extends Bindable
 {
    SimpleString getName();

@@ -18,9 +18,6 @@ package org.apache.activemq.utils;
 
 import java.util.concurrent.Executor;
 
-/**
- * A ExecutorFactory
- */
 public interface ExecutorFactory
 {
    Executor getExecutor();

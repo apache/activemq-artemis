@@ -36,9 +36,6 @@ import org.apache.activemq.tests.util.ServiceTestBase;
 import org.junit.Assert;
 import org.junit.Test;
 
-/**
- * A DivertTest
- */
 public class DivertTest extends ServiceTestBase
 {
    private static final int TIMEOUT = 500;

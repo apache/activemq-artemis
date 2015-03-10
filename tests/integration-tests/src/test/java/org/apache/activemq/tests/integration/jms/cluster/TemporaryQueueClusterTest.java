@@ -29,9 +29,6 @@ import javax.jms.TextMessage;
 
 import org.apache.activemq.tests.util.JMSClusteredTestBase;
 
-/**
- * A TopicClusterTest
- */
 public class TemporaryQueueClusterTest extends JMSClusteredTestBase
 {
 

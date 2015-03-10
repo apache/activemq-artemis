@@ -36,9 +36,6 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 
-/**
- * A ConnectionTest
- */
 public class ConnectionTest extends JMSTestBase
 {
 

@@ -32,9 +32,6 @@ import org.apache.activemq.tests.integration.cluster.failover.FailoverTestBase;
 import org.apache.activemq.tests.util.RandomUtil;
 import org.apache.activemq.tests.util.TransportConfigurationUtils;
 
-/**
- * A ReplicationOrderTest
- */
 public class ReplicationOrderTest extends FailoverTestBase
 {
 

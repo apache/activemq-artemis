@@ -20,9 +20,6 @@ import org.apache.activemq.tests.util.UnitTestCase;
 import org.apache.activemq.utils.SoftValueHashMap;
 import org.junit.Test;
 
-/**
- * A SoftValueMapTest
- */
 public class SoftValueMapTest extends UnitTestCase
 {
 

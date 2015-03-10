@@ -27,9 +27,6 @@ import org.apache.activemq.api.core.management.QueueControl;
 import org.apache.activemq.api.core.management.ResourceNames;
 import org.junit.Before;
 
-/**
- * A QueueControlTest
- */
 public class QueueControlUsingCoreTest extends QueueControlTest
 {
 

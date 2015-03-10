@@ -29,9 +29,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-/**
- * A TopicClusterTest
- */
 public class TopicClusterTest extends JMSClusteredTestBase
 {
 

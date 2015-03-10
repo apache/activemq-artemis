@@ -22,9 +22,6 @@ import java.nio.channels.FileLock;
 
 import org.apache.activemq.core.libaio.Native;
 
-/**
- * A ActiveMQFileLock
- */
 public class ActiveMQFileLock extends FileLock
 {
 

@@ -16,9 +16,6 @@
  */
 package org.apache.activemq.jms.persistence.config;
 
-/**
- * A PersistedType
- */
 public enum PersistedType
 {
    ConnectionFactory, Topic, Queue;

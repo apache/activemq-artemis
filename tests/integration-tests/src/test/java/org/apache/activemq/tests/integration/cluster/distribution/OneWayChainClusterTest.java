@@ -27,9 +27,6 @@ import org.apache.activemq.tests.integration.IntegrationTestLogger;
 import java.util.Map;
 import java.util.Set;
 
-/**
- * A OneWayChainClusterTest
- */
 public class OneWayChainClusterTest extends ClusterTestBase
 {
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;

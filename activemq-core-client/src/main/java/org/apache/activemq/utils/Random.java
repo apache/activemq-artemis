@@ -18,9 +18,6 @@ package org.apache.activemq.utils;
 
 import java.io.Serializable;
 
-/**
- * A Random
- */
 public class Random implements Serializable
 {
    private static int extraSeed;

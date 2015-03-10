@@ -18,9 +18,6 @@ package org.apache.activemq.core.server;
 
 import org.apache.activemq.api.core.SimpleString;
 
-/**
- * A QueueQueryResult
- */
 public class QueueQueryResult
 {
    private SimpleString name;

@@ -23,9 +23,6 @@ import org.apache.activemq.jms.server.config.JMSQueueConfiguration;
 import org.apache.activemq.jms.server.config.TopicConfiguration;
 import org.w3c.dom.Node;
 
-/**
- * A JMSServerConfigParser
- */
 public interface JMSServerConfigParser
 {
    /**

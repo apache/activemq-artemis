@@ -19,9 +19,6 @@ package org.apache.activemq.core.protocol.core.impl.wireformat;
 import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.core.protocol.core.impl.PacketImpl;
 
-/**
- * A ReplicationAddMessage
- */
 public final class ReplicationCommitMessage extends PacketImpl
 {
 

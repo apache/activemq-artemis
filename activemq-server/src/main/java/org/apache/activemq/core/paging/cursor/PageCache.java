@@ -19,9 +19,6 @@ package org.apache.activemq.core.paging.cursor;
 import org.apache.activemq.core.paging.PagedMessage;
 import org.apache.activemq.utils.SoftValueHashMap;
 
-/**
- * A PageCache
- */
 public interface PageCache extends SoftValueHashMap.ValueCache
 {
    long getPageId();

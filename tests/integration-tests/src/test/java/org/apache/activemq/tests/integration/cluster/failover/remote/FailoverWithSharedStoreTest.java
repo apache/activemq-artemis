@@ -25,9 +25,6 @@ import org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory;
 import org.apache.activemq.tests.integration.cluster.distribution.ClusterTestBase;
 import org.junit.Test;
 
-/**
- * A ServerTest
- */
 public class FailoverWithSharedStoreTest extends ClusterTestBase
 {
 

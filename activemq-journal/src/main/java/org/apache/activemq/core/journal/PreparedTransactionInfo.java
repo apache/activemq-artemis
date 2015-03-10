@@ -19,9 +19,6 @@ package org.apache.activemq.core.journal;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * A PreparedTransactionInfo
- */
 public class PreparedTransactionInfo
 {
    public final long id;

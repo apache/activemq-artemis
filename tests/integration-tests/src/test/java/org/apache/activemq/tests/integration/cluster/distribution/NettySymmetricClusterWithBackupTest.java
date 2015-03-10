@@ -17,9 +17,6 @@
 package org.apache.activemq.tests.integration.cluster.distribution;
 
 
-/**
- * A NettySymmetricClusterWithBackupTest
- */
 public class NettySymmetricClusterWithBackupTest extends SymmetricClusterWithBackupTest
 {
 

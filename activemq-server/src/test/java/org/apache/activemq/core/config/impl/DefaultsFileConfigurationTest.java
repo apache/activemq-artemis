@@ -28,9 +28,6 @@ import org.junit.Assert;
 import org.apache.activemq.core.config.Configuration;
 import org.apache.activemq.core.journal.impl.JournalConstants;
 
-/**
- * A DefaultsFileConfigurationTest
- */
 public class DefaultsFileConfigurationTest extends ConfigurationImplTest
 {
    @Override

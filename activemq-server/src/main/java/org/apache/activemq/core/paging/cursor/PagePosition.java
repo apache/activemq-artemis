@@ -18,9 +18,6 @@ package org.apache.activemq.core.paging.cursor;
 
 
 
-/**
- * A PagePosition
- */
 public interface PagePosition extends Comparable<PagePosition>
 {
 

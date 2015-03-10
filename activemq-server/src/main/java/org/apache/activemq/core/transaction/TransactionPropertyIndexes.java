@@ -16,9 +16,6 @@
  */
 package org.apache.activemq.core.transaction;
 
-/**
- * A TransactionPropertyIndexes
- */
 public class TransactionPropertyIndexes
 {
 

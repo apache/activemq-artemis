@@ -49,9 +49,6 @@ import org.junit.Test;
 
 import static org.apache.activemq.tests.util.RandomUtil.randomString;
 
-/**
- * A IncompatibleVersionTest
- */
 public class IncompatibleVersionTest extends ServiceTestBase
 {
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;

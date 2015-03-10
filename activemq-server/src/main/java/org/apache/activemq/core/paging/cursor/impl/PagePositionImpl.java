@@ -18,9 +18,6 @@ package org.apache.activemq.core.paging.cursor.impl;
 
 import org.apache.activemq.core.paging.cursor.PagePosition;
 
-/**
- * A PagePosition
- */
 public class PagePositionImpl implements PagePosition
 {
    private long pageNr;

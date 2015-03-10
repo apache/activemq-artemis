@@ -16,9 +16,6 @@
  */
 package org.apache.activemq.tests.integration.client;
 
-/**
- * A NettyNonPersistentMessageBufferTest
- */
 public class NettyNonPersistentMessageBufferTest extends InVMNonPersistentMessageBufferTest
 {
    @Override

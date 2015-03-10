@@ -18,9 +18,6 @@ package org.apache.activemq.tests.soak.failover;
 
 import org.apache.activemq.tests.integration.cluster.reattach.RandomReattachTest;
 
-/**
- * A RandomFailoverSoakTest
- */
 public class RandomFailoverSoakTest extends RandomReattachTest
 {
 

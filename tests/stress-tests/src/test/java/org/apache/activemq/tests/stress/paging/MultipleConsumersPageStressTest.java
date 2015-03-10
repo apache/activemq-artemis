@@ -41,9 +41,6 @@ import org.apache.activemq.core.settings.impl.AddressSettings;
 import org.apache.activemq.tests.unit.UnitTestLogger;
 import org.apache.activemq.tests.util.ServiceTestBase;
 
-/**
- * A MultipleConsumersPageStressTest
- */
 public class MultipleConsumersPageStressTest extends ServiceTestBase
 {
 

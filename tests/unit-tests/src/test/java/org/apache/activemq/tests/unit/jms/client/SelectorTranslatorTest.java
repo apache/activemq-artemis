@@ -23,9 +23,6 @@ import org.junit.Assert;
 import org.apache.activemq.jms.client.SelectorTranslator;
 import org.apache.activemq.tests.util.UnitTestCase;
 
-/**
- * A SelectorTranslatorTest
- */
 public class SelectorTranslatorTest extends UnitTestCase
 {
    @Test

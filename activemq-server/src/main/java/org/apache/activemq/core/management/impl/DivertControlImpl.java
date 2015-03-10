@@ -23,9 +23,6 @@ import org.apache.activemq.core.config.DivertConfiguration;
 import org.apache.activemq.core.persistence.StorageManager;
 import org.apache.activemq.core.server.Divert;
 
-/**
- * A DivertControl
- */
 public class DivertControlImpl extends AbstractControl implements DivertControl
 {
 

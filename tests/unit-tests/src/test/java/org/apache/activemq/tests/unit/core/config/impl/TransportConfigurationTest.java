@@ -23,9 +23,6 @@ import org.junit.Assert;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.tests.util.UnitTestCase;
 
-/**
- * A TransportConfigurationTest
- */
 public class TransportConfigurationTest extends UnitTestCase
 {
 

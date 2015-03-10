@@ -46,9 +46,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-/**
- * A XATestBase
- */
 public class XATest extends JMSTestBase
 {
    // Constants -----------------------------------------------------

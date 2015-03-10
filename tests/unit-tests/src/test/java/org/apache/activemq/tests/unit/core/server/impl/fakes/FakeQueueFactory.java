@@ -28,9 +28,6 @@ import org.apache.activemq.core.server.Queue;
 import org.apache.activemq.core.server.QueueFactory;
 import org.apache.activemq.core.server.impl.QueueImpl;
 
-/**
- * A FakeQueueFactory
- */
 public class FakeQueueFactory implements QueueFactory
 {
    private final ScheduledExecutorService scheduledExecutor = Executors.newSingleThreadScheduledExecutor();
