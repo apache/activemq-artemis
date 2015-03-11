@@ -78,10 +78,12 @@
          <groupId>junit</groupId>
          <artifactId>junit</artifactId>
       </dependency>
-       <dependency>
-           <groupId>org.jboss.logging</groupId>
-           <artifactId>jboss-logging-processor</artifactId>
-       </dependency>
+      <dependency>
+         <groupId>org.jboss.logging</groupId>
+         <artifactId>jboss-logging-processor</artifactId>
+         <scope>provided</scope>
+         <optional>true</optional>
+      </dependency>
        <!--
            JBoss Logging
        -->

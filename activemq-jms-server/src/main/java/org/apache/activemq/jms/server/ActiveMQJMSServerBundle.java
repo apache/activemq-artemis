@@ -40,16 +40,10 @@ public interface ActiveMQJMSServerBundle
    @Message(id = 129000, value =  "Connection Factory {0} does not exist" , format = Message.Format.MESSAGE_FORMAT)
    ActiveMQInternalErrorException cfDoesntExist(String name);
 
-   @Message(id = 129001, value =  "Invalid signature {0} parsing Connection Factory" , format = Message.Format.MESSAGE_FORMAT)
-   ActiveMQInternalErrorException invalidSignatureParsingCF(String sig);
-
-   @Message(id = 129002, value = "Invalid node {0} parsing Connection Factory", format = Message.Format.MESSAGE_FORMAT)
-   ActiveMQInternalErrorException invalidNodeParsingCF(String name);
-
    @Message(id = 129003, value = "Discovery Group ''{0}'' does not exist on main config", format = Message.Format.MESSAGE_FORMAT)
    ActiveMQIllegalStateException discoveryGroupDoesntExist(String name);
 
-   @Message(id = 129004, value = "No Connector name configured on create ConnectionFactory", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 129004, value = "No Connector name configured on create ConnectionFactory")
    ActiveMQIllegalStateException noConnectorNameOnCF();
 
    @Message(id = 129005, value = "Connector ''{0}'' not found on the main configuration file" , format = Message.Format.MESSAGE_FORMAT)
@@ -58,6 +52,6 @@ public interface ActiveMQJMSServerBundle
    @Message(id = 129006, value =  "Binding {0} is already being used by another connection factory", format = Message.Format.MESSAGE_FORMAT)
    ActiveMQAddressExistsException cfBindingsExists(String name);
 
-   @Message(id = 129007, value = "Error decoding password using codec instance", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 129007, value = "Error decoding password using codec instance")
    ActiveMQIllegalStateException errorDecodingPassword(@Cause Exception e);
 }

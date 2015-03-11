@@ -23,7 +23,6 @@ import org.jboss.logging.annotations.Message;
 import org.jboss.logging.annotations.MessageBundle;
 import org.jboss.logging.Messages;
 
-import javax.jms.JMSException;
 import javax.jms.JMSRuntimeException;
 import javax.resource.NotSupportedException;
 
@@ -42,30 +41,24 @@ public interface ActiveMQRABundle
 
    ActiveMQRABundle BUNDLE = Messages.getBundle(ActiveMQRABundle.class);
 
-   @Message(id = 159000, value = "Error decoding password using codec instance", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 159000, value = "Error decoding password using codec instance")
    ActiveMQIllegalStateException errorDecodingPassword(@Cause Exception e);
 
-   @Message(id = 159001, value = "MDB cannot be deployed as it has no Activation Spec. Please provide an Activation!", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 159001, value = "MDB cannot be deployed as it has no Activation Spec. Please provide an Activation!")
    NotSupportedException noActivationSpec();
 
-   @Message(id = 159002, value = "Please provide a destination for the MDB", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 159002, value = "Please provide a destination for the MDB")
    IllegalArgumentException noDestinationName();
 
-   @Message(id = 159003, value = ISE, format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 159003, value = ISE)
    JMSRuntimeException illegalJEEMethod();
 
-   @Message(id = 159004, value = "Invalid Session Mode SESSION_TRANSACTED", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 159004, value = "Invalid Session Mode SESSION_TRANSACTED")
    JMSRuntimeException invalidSessionTransactedModeRuntime();
 
-   @Message(id = 159005, value = "Invalid Session Mode CLIENT_ACKNOWLEDGE", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 159005, value = "Invalid Session Mode CLIENT_ACKNOWLEDGE")
    JMSRuntimeException invalidClientAcknowledgeModeRuntime();
 
    @Message(id = 159006, value = "Invalid Session Mode {0}", format = Message.Format.MESSAGE_FORMAT)
    JMSRuntimeException invalidAcknowledgeMode(int sessionMode);
-
-   @Message(id = 159007, value = "Invalid Session Mode SESSION_TRANSACTED", format = Message.Format.MESSAGE_FORMAT)
-   JMSException invalidSessionTransactedMode();
-
-   @Message(id = 159008, value = "Invalid Session Mode CLIENT_ACKNOWLEDGE", format = Message.Format.MESSAGE_FORMAT)
-   JMSException invalidClientAcknowledgeMode();
 }

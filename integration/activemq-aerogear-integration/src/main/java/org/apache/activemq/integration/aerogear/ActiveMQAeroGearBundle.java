@@ -33,13 +33,13 @@ public interface ActiveMQAeroGearBundle
 {
    ActiveMQAeroGearBundle BUNDLE = Messages.getBundle(ActiveMQAeroGearBundle.class);
 
-   @Message(id = 239000, value = "endpoint can not be null", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 239000, value = "endpoint can not be null")
    ActiveMQIllegalStateException endpointNull();
 
-   @Message(id = 239001, value = "application-id can not be null", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 239001, value = "application-id can not be null")
    ActiveMQIllegalStateException applicationIdNull();
 
-   @Message(id = 239002, value = "master-secret can not be null", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 239002, value = "master-secret can not be null")
    ActiveMQIllegalStateException masterSecretNull();
 
    @Message(id = 239003, value = "{0}: queue {1} not found", format = Message.Format.MESSAGE_FORMAT)
