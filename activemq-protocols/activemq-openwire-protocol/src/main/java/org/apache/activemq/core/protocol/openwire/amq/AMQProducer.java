@@ -17,6 +17,7 @@
 package org.apache.activemq.core.protocol.openwire.amq;
 
 import org.apache.activemq.command.ProducerInfo;
+import org.apache.activemq.core.protocol.openwire.OpenWireUtil;
 
 public class AMQProducer
 {
@@ -29,9 +30,8 @@ public class AMQProducer
       this.info = info;
    }
 
-   public void init()
+   public void init() throws Exception
    {
-      //activemq doesn't have producer at server.
+      OpenWireUtil.validateDestination(info.getDestination(), amqSession);
    }
-
 }

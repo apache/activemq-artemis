@@ -18,6 +18,8 @@ package org.apache.activemq.tests.integration.openwire;
 
 import javax.jms.Connection;
 import javax.jms.Destination;
+import javax.jms.InvalidDestinationException;
+import javax.jms.JMSException;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Queue;
@@ -25,15 +27,21 @@ import javax.jms.Session;
 import javax.jms.TemporaryQueue;
 import javax.jms.TemporaryTopic;
 import javax.jms.TextMessage;
+import javax.jms.Topic;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.command.ActiveMQQueue;
 import org.apache.activemq.command.ActiveMQTopic;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 public class SimpleOpenWireTest extends BasicOpenWireTest
 {
+   @Rule
+   public ExpectedException thrown= ExpectedException.none();
+
    @Override
    @Before
    public void setUp() throws Exception
@@ -217,6 +225,31 @@ public class SimpleOpenWireTest extends BasicOpenWireTest
       }
 
       assertNull(consumer1.receive(500));
+      session.close();
+   }
+
+   @Test
+   public void testInvalidDestinationExceptionWhenNoQueueExistsOnCreateProducer() throws Exception
+   {
+      connection.start();
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      Queue queue = session.createQueue("fake.queue");
+
+      thrown.expect(InvalidDestinationException.class);
+      thrown.expect(JMSException.class);
+      session.createProducer(queue);
+      session.close();
+   }
+
+   @Test
+   public void testInvalidDestinationExceptionWhenNoTopicExistsOnCreateProducer() throws Exception
+   {
+      connection.start();
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      Destination destination = session.createTopic("fake.queue");
+
+      thrown.expect(InvalidDestinationException.class);
+      session.createProducer(destination);
       session.close();
    }
 
