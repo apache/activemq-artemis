@@ -61,13 +61,6 @@
          <type>test-jar</type>
       </dependency>
       <dependency>
-         <groupId>org.apache.activemq.tests</groupId>
-         <artifactId>jms-tests</artifactId>
-         <version>${project.version}</version>
-         <scope>test</scope>
-         <type>test-jar</type>
-      </dependency>
-      <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>activemq-jms-client</artifactId>
          <version>${project.version}</version>

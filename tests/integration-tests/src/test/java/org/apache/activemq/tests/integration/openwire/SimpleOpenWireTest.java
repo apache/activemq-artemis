@@ -27,7 +27,6 @@ import javax.jms.Session;
 import javax.jms.TemporaryQueue;
 import javax.jms.TemporaryTopic;
 import javax.jms.TextMessage;
-import javax.jms.Topic;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.command.ActiveMQQueue;
@@ -40,7 +39,7 @@ import org.junit.rules.ExpectedException;
 public class SimpleOpenWireTest extends BasicOpenWireTest
 {
    @Rule
-   public ExpectedException thrown= ExpectedException.none();
+   public ExpectedException thrown = ExpectedException.none();
 
    @Override
    @Before
@@ -255,6 +254,7 @@ public class SimpleOpenWireTest extends BasicOpenWireTest
 
    /**
     * This is the example shipped with the distribution
+    *
     * @throws Exception
     */
    @Test

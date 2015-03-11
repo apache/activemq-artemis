@@ -29,7 +29,6 @@ import javax.jms.Topic;
 import javax.jms.TopicConnectionFactory;
 import javax.jms.XAConnectionFactory;
 import javax.naming.InitialContext;
-import javax.transaction.TransactionManager;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -37,7 +36,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionManagerImple;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.jms.JMSFactoryType;
 import org.apache.activemq.core.postoffice.Binding;
@@ -360,21 +358,6 @@ public abstract class ActiveMQServerTestCase
    public XAConnectionFactory getXAConnectionFactory() throws Exception
    {
       return (XAConnectionFactory) getInitialContext().lookup("/CF_XA_TRUE");
-   }
-
-   public InitialContext getInitialContext(final int serverid) throws Exception
-   {
-      return new InitialContext(ServerManagement.getJNDIEnvironment(serverid));
-   }
-
-   protected TransactionManager getTransactionManager()
-   {
-      return new TransactionManagerImple();
-   }
-
-   public void configureSecurityForDestination(final String destName, final boolean isQueue, final HashSet<Role> roles) throws Exception
-   {
-      ActiveMQServerTestCase.servers.get(0).configureSecurityForDestination(destName, isQueue, roles);
    }
 
    public void createQueue(final String name) throws Exception
