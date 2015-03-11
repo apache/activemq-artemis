@@ -21,6 +21,7 @@ import org.apache.activemq.core.server.ActiveMQMessageBundle;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -37,6 +38,28 @@ public class SecurityConfiguration
     */
    protected final Map<String, List<String>> roles = new HashMap<String, List<String>>();
 
+   public SecurityConfiguration()
+   {
+   }
+
+   public SecurityConfiguration(Map<String, String> users, Map<String, List<String>> roles)
+   {
+      Iterator<Map.Entry<String, String>> iter = users.entrySet().iterator();
+      while (iter.hasNext())
+      {
+         Map.Entry<String, String> entry = iter.next();
+         addUser(entry.getKey(), entry.getValue());
+      }
+      Iterator<Map.Entry<String, List<String>>> iter1 = roles.entrySet().iterator();
+      while (iter1.hasNext())
+      {
+         Map.Entry<String, List<String>> entry = iter1.next();
+         for (String role : entry.getValue())
+         {
+            addRole(entry.getKey(), role);
+         }
+      }
+   }
 
    public void addUser(final String user, final String password)
    {
