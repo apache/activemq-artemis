@@ -29,8 +29,10 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 
 import org.apache.activemq.common.example.ActiveMQExample;
+import org.apache.activemq.core.config.impl.SecurityConfiguration;
 import org.apache.activemq.jms.server.embedded.EmbeddedJMS;
 import org.apache.activemq.jms.server.JMSServerManager;
+import org.apache.activemq.spi.core.security.ActiveMQSecurityManagerImpl;
 import org.apache.activemq.api.jms.JMSFactoryType;
 
 /**
@@ -50,6 +52,13 @@ public class EmbeddedExample extends ActiveMQExample
       try
       {
          EmbeddedJMS jmsServer = new EmbeddedJMS();
+
+         SecurityConfiguration securityConfig = new SecurityConfiguration();
+         securityConfig.addUser("guest", "guest");
+         securityConfig.addRole("guest", "guest");
+         securityConfig.setDefaultUser("guest");
+         jmsServer.setSecurityManager(new ActiveMQSecurityManagerImpl(securityConfig));
+
          jmsServer.start();
          System.out.println("Started Embedded JMS Server");
 
@@ -57,6 +66,8 @@ public class EmbeddedExample extends ActiveMQExample
          List<String> connectors = new ArrayList<String>();
          connectors.add("in-vm");
          jmsServerManager.createConnectionFactory("ConnectionFactory", false, JMSFactoryType.CF, connectors, "ConnectionFactory");
+         jmsServerManager.createQueue(false, "exampleQueue", null, false, "queue/exampleQueue");
+
          ConnectionFactory cf = (ConnectionFactory)jmsServer.lookup("ConnectionFactory");
          Queue queue = (Queue)jmsServer.lookup("queue/exampleQueue");
 

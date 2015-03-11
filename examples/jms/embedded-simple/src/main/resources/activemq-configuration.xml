@@ -22,14 +22,13 @@ under the License.
                xmlns="urn:activemq"
                xsi:schemaLocation="urn:activemq /schema/activemq-server.xsd">
 
-   <jms xmlns="urn:activemq:jms">
-      <!--the queue used by the example-->
-      <queue name="exampleQueue"/>
-   </jms>
-
    <core xmlns="urn:activemq:core">
 
       <persistence-enabled>false</persistence-enabled>
+
+      <connectors>
+         <connector name="in-vm">vm://0</connector>
+      </connectors>
 
       <acceptors>
          <acceptor name="in-vm">vm://0</acceptor>

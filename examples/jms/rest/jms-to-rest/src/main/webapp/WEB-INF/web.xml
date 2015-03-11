@@ -29,7 +29,7 @@ under the License.
 
 
     <listener>
-        <listener-class>org.apache.activemq.rest.integration.HornetqBootstrapListener</listener-class>
+        <listener-class>org.apache.activemq.rest.integration.ActiveMQBootstrapListener</listener-class>
     </listener>
 
     <listener>

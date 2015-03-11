@@ -90,12 +90,16 @@ under the License.
                         </goals>
                         <configuration>
                            <clientClass>org.apache.activemq.jms.example.ScaleDownExample</clientClass>
-                            <systemProperties>
-                                <property>
-                                    <name>exampleConfigDir</name>
-                                    <value>${basedir}/target/classes/activemq</value>
-                                </property>
-                            </systemProperties>
+                           <args>
+                              <param>tcp://localhost:61616</param>
+                              <param>tcp://localhost:61617</param>
+                           </args>
+                           <systemProperties>
+                              <property>
+                                 <name>exampleConfigDir</name>
+                                 <value>${basedir}/target/classes/activemq</value>
+                              </property>
+                           </systemProperties>
                         </configuration>
                      </execution>
                      <execution>
