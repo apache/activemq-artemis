@@ -877,6 +877,7 @@
                   <exclude>**/filter/impl/RegExp.java</exclude>
                   <exclude>**/utils/UUID*.java</exclude>
                   <exclude>**/org/apache/activemq/selector/**</exclude>
+                  <exclude>**/org/apache/activemq/utils/json/**</exclude>
                </excludes>
                <useDefaultExcludes>true</useDefaultExcludes>
                <strictCheck>true</strictCheck>
@@ -917,6 +918,7 @@
                   <exclude>**/*.iml</exclude>
                   <exclude>**/*.jceks</exclude>
                   <exclude>**/*.jks</exclude>
+                  <exclude>**/org/apache/activemq/utils/json/**</exclude>
                </excludes>
             </configuration>
             <executions>
