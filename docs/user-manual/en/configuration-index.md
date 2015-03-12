@@ -36,7 +36,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     <tbody>
     <tr>
         <td>
-            <a href="configuring-transports.md"
+            <a href="configuring-transports.html"
                title="16.1. Understanding Acceptors">acceptors</a>
         </td>
         <td>Sequence of &lt;acceptor/&gt;</td>
@@ -45,7 +45,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="configuring-transports.md"
+            <a href="configuring-transports.html"
                title="16.1. Understanding Acceptors">acceptors.acceptor</a>
         </td>
         <td>Complex element</td>
@@ -54,7 +54,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="configuring-transports.md"
+            <a href="configuring-transports.html"
                title="16.1. Understanding Acceptors">acceptors.acceptor.name (attribute)</a>
         </td>
         <td>xsd:string</td>
@@ -63,7 +63,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="configuring-transports.md"
+            <a href="configuring-transports.html"
                title="16.1. Understanding Acceptors">acceptors.acceptor.factory-class</a>
         </td>
         <td>xsd:string</td>
@@ -72,7 +72,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="configuring-transports.md"
+            <a href="configuring-transports.html"
                title="16.1. Understanding Acceptors">acceptors.acceptor.param</a>
         </td>
         <td>Complex element</td>
@@ -81,7 +81,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="configuring-transports.md"
+            <a href="configuring-transports.html"
                title="16.1. Understanding Acceptors">acceptors.acceptor.param.key (required attribute)</a>
         </td>
         <td>xsd:string</td>
@@ -90,7 +90,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="configuring-transports.md"
+            <a href="configuring-transports.html"
                title="16.1. Understanding Acceptors">acceptors.acceptor.param.value (required attribute)</a>
         </td>
         <td>xsd:string</td>
@@ -99,7 +99,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="queue-attributes.md"
+            <a href="queue-attributes.html"
                title="25.3. Configuring Queues Via Address Settings">address-settings</a>
         </td>
         <td>Sequence of &lt;address-setting/&gt;</td>
@@ -108,7 +108,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="queue-attributes.md"
+            <a href="queue-attributes.html"
                title="25.3. Configuring Queues Via Address Settings">address-settings.address-setting</a>
         </td>
         <td>Complex element</td>
@@ -117,7 +117,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="queue-attributes.md"
+            <a href="queue-attributes.html"
                title="25.3. Configuring Queues Via Address Settings">address-settings.address-setting.match (required
                 attribute)</a>
         </td>
@@ -127,7 +127,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="undelivered-messages.md"
+            <a href="undelivered-messages.html"
                title="21.2.1. Configuring Dead Letter Addresses">address-settings.address-setting.dead-letter-address</a>
         </td>
         <td>xsd:string</td>
@@ -136,7 +136,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="message-expiry.md"
+            <a href="message-expiry.html"
                title="22.2. Configuring Expiry Addresses">address-settings.address-setting.expiry-address</a>
         </td>
         <td>xsd:string</td>
@@ -145,7 +145,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="queue-attributes.md"
+            <a href="queue-attributes.html"
                title="25.3. Configuring Queues Via Address Settings">address-settings.address-setting.expiry-delay</a>
         </td>
         <td>xsd:long</td>
@@ -156,7 +156,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="undelivered-messages.md"
+            <a href="undelivered-messages.html"
                title="21.1.1. Configuring Delayed Redelivery">address-settings.address-setting.redelivery-delay</a>
         </td>
         <td>xsd:long</td>
@@ -165,7 +165,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="queue-attributes.md"
+            <a href="queue-attributes.html"
                title="25.3. Configuring Queues Via Address Settings">address-settings.address-setting.redelivery-delay-multiplier</a>
         </td>
         <td>xsd:double</td>
@@ -174,7 +174,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="queue-attributes.md"
+            <a href="queue-attributes.html"
                title="25.3. Configuring Queues Via Address Settings">address-settings.address-setting.max-redelivery-delay</a>
         </td>
         <td>xsd:long</td>
@@ -183,7 +183,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="undelivered-messages.md"
+            <a href="undelivered-messages.html"
                title="21.2.1. Configuring Dead Letter Addresses">address-settings.address-setting.max-delivery-attempts</a>
         </td>
         <td>xsd:int</td>
@@ -192,7 +192,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="paging.md" title="Chapter 24. Paging">address-settings.address-setting.max-size-bytes</a>
+            <a href="paging.html" title="Chapter 24. Paging">address-settings.address-setting.max-size-bytes</a>
         </td>
         <td>xsd:long</td>
         <td>the maximum size (in bytes) to use in paging for an address (-1 means no limits)</td>
@@ -200,7 +200,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="paging.md" title="Chapter 24. Paging">address-settings.address-setting.page-size-bytes</a>
+            <a href="paging.html" title="Chapter 24. Paging">address-settings.address-setting.page-size-bytes</a>
         </td>
         <td>xsd:long</td>
         <td>the page size (in bytes) to use for an address</td>
@@ -208,7 +208,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="paging.md" title="Chapter 24. Paging">address-settings.address-setting.page-max-cache-size</a>
+            <a href="paging.html" title="Chapter 24. Paging">address-settings.address-setting.page-max-cache-size</a>
         </td>
         <td>xsd:int</td>
         <td>Number of paging files to cache in memory to avoid IO during paging navigation</td>
@@ -216,7 +216,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="queue-attributes.md"
+            <a href="queue-attributes.html"
                title="25.3. Configuring Queues Via Address Settings">address-settings.address-setting.address-full-policy</a>
         </td>
         <td>DROP|FAIL|PAGE|BLOCK</td>
@@ -225,7 +225,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="queue-attributes.md"
+            <a href="queue-attributes.html"
                title="25.3. Configuring Queues Via Address Settings">address-settings.address-setting.message-counter-history-day-limit</a>
         </td>
         <td>xsd:int</td>
@@ -234,7 +234,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="last-value-queues.md" title="Chapter 27. Last-Value Queues">address-settings.address-setting.last-value-queue</a>
+            <a href="last-value-queues.html" title="Chapter 27. Last-Value Queues">address-settings.address-setting.last-value-queue</a>
         </td>
         <td>xsd:boolean</td>
         <td>whether to treat the queue as a last value queue</td>
@@ -242,7 +242,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="clusters.md" title="Chapter 38. Clusters">address-settings.address-setting.redistribution-delay</a>
+            <a href="clusters.html" title="Chapter 38. Clusters">address-settings.address-setting.redistribution-delay</a>
         </td>
         <td>xsd:long</td>
         <td>how long (in ms) to wait after the last consumer is closed on a queue before redistributing messages.</td>
@@ -250,7 +250,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="queue-attributes.md"
+            <a href="queue-attributes.html"
                title="25.3. Configuring Queues Via Address Settings">address-settings.address-setting.send-to-dla-on-no-route</a>
         </td>
         <td>xsd:boolean</td>
@@ -261,7 +261,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="ha.md"
+            <a href="ha.html"
                title="39.1.4. Failing Back to live Server">allow-failback</a>
         </td>
         <td>xsd:boolean</td>
@@ -273,7 +273,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="connection-ttl.md"
+            <a href="connection-ttl.html"
                title="17.3. Configuring Asynchronous Connection Execution">async-connection-execution-enabled</a>
         </td>
         <td>xsd:boolean</td>
@@ -284,7 +284,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="persistence.md"
+            <a href="persistence.html"
                title="15.1. Configuring the bindings journal">bindings-directory</a>
         </td>
         <td>xsd:string</td>
@@ -293,7 +293,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="core-bridges.md" title="Chapter 36. Core Bridges">bridges</a>
+            <a href="core-bridges.html" title="Chapter 36. Core Bridges">bridges</a>
         </td>
         <td>Sequence of &lt;bridge/&gt;</td>
         <td>a list of bridges to create</td>
@@ -301,7 +301,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="core-bridges.md" title="Chapter 36. Core Bridges">bridges.bridge</a>
+            <a href="core-bridges.html" title="Chapter 36. Core Bridges">bridges.bridge</a>
         </td>
         <td>Complex element</td>
         <td></td>
@@ -309,7 +309,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="core-bridges.md" title="Chapter 36. Core Bridges">bridges.bridge.name (required
+            <a href="core-bridges.html" title="Chapter 36. Core Bridges">bridges.bridge.name (required
                 attribute)</a>
         </td>
         <td>xsd:ID</td>
@@ -318,7 +318,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="core-bridges.md" title="Chapter 36. Core Bridges">bridges.bridge.queue-name</a>
+            <a href="core-bridges.html" title="Chapter 36. Core Bridges">bridges.bridge.queue-name</a>
         </td>
         <td>xsd:IDREF</td>
         <td>name of queue that this bridge consumes from</td>
@@ -326,7 +326,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="core-bridges.md"
+            <a href="core-bridges.html"
                title="Chapter 36. Core Bridges">bridges.bridge.forwarding-address</a>
         </td>
         <td>xsd:string</td>
@@ -335,7 +335,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="core-bridges.md" title="Chapter 36. Core Bridges">bridges.bridge.ha</a>
+            <a href="core-bridges.html" title="Chapter 36. Core Bridges">bridges.bridge.ha</a>
         </td>
         <td>xsd:boolean</td>
         <td>whether this bridge supports fail-over</td>
@@ -343,7 +343,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="core-bridges.md" title="Chapter 36. Core Bridges">bridges.bridge.filter</a>
+            <a href="core-bridges.html" title="Chapter 36. Core Bridges">bridges.bridge.filter</a>
         </td>
         <td>Complex element</td>
         <td></td>
@@ -351,7 +351,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="core-bridges.md" title="Chapter 36. Core Bridges">bridges.bridge.filter.string
+            <a href="core-bridges.html" title="Chapter 36. Core Bridges">bridges.bridge.filter.string
                 (required attribute)</a>
         </td>
         <td>xsd:string</td>
@@ -360,7 +360,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="core-bridges.md" title="Chapter 36. Core Bridges">bridges.bridge.transformer-class-name</a>
+            <a href="core-bridges.html" title="Chapter 36. Core Bridges">bridges.bridge.transformer-class-name</a>
         </td>
         <td>xsd:string</td>
         <td>optional name of transformer class</td>
@@ -368,7 +368,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="core-bridges.md" title="Chapter 36. Core Bridges">bridges.bridge.min-large-message-size</a>
+            <a href="core-bridges.html" title="Chapter 36. Core Bridges">bridges.bridge.min-large-message-size</a>
         </td>
         <td>xsd:int</td>
         <td>Any message larger than this size is considered a large message (to be sent in chunks)</td>
@@ -376,7 +376,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="connection-ttl.md" title="Chapter 17. Detecting Dead Connections">bridges.bridge.check-period</a>
+            <a href="connection-ttl.html" title="Chapter 17. Detecting Dead Connections">bridges.bridge.check-period</a>
         </td>
         <td>xsd:long</td>
         <td>The period (in milliseconds) a bridge's client will check if it failed to receive a ping from the server. -1
@@ -386,7 +386,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="connection-ttl.md" title="Chapter 17. Detecting Dead Connections">bridges.bridge.connection-ttl</a>
+            <a href="connection-ttl.html" title="Chapter 17. Detecting Dead Connections">bridges.bridge.connection-ttl</a>
         </td>
         <td>xsd:long</td>
         <td>how long to keep a connection alive in the absence of any data arriving from the client. This should be
@@ -396,7 +396,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="core-bridges.md" title="Chapter 36. Core Bridges">bridges.bridge.retry-interval</a>
+            <a href="core-bridges.html" title="Chapter 36. Core Bridges">bridges.bridge.retry-interval</a>
         </td>
         <td>xsd:long</td>
         <td>period (in ms) between successive retries</td>
@@ -404,7 +404,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="core-bridges.md" title="Chapter 36. Core Bridges">bridges.bridge.retry-interval-multiplier</a>
+            <a href="core-bridges.html" title="Chapter 36. Core Bridges">bridges.bridge.retry-interval-multiplier</a>
         </td>
         <td>xsd:double</td>
         <td>multiplier to apply to successive retry intervals</td>
@@ -412,7 +412,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="core-bridges.md"
+            <a href="core-bridges.html"
                title="Chapter 36. Core Bridges">bridges.bridge.max-retry-interval</a>
         </td>
         <td>xsd:long</td>
@@ -421,7 +421,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="core-bridges.md"
+            <a href="core-bridges.html"
                title="Chapter 36. Core Bridges">bridges.bridge.reconnect-attempts</a>
         </td>
         <td>xsd:int</td>
@@ -430,7 +430,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="core-bridges.md" title="Chapter 36. Core Bridges">bridges.bridge.use-duplicate-detection</a>
+            <a href="core-bridges.html" title="Chapter 36. Core Bridges">bridges.bridge.use-duplicate-detection</a>
         </td>
         <td>xsd:boolean</td>
         <td>should duplicate detection headers be inserted in forwarded messages?</td>
@@ -438,7 +438,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="core-bridges.md" title="Chapter 36. Core Bridges">bridges.bridge.confirmation-window-size</a>
+            <a href="core-bridges.html" title="Chapter 36. Core Bridges">bridges.bridge.confirmation-window-size</a>
         </td>
         <td>xsd:int</td>
         <td>Once the bridge has received this many bytes, it sends a confirmation</td>
@@ -446,7 +446,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="core-bridges.md" title="Chapter 36. Core Bridges">bridges.bridge.user</a>
+            <a href="core-bridges.html" title="Chapter 36. Core Bridges">bridges.bridge.user</a>
         </td>
         <td>xsd:string</td>
         <td>username, if unspecified the cluster-user is used</td>
@@ -454,7 +454,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="core-bridges.md" title="Chapter 36. Core Bridges">bridges.bridge.password</a>
+            <a href="core-bridges.html" title="Chapter 36. Core Bridges">bridges.bridge.password</a>
         </td>
         <td>xsd:string</td>
         <td>password, if unspecified the cluster-password is used</td>
@@ -462,7 +462,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="core-bridges.md" title="Chapter 36. Core Bridges">bridges.bridge.reconnect-attempts-same-node</a>
+            <a href="core-bridges.html" title="Chapter 36. Core Bridges">bridges.bridge.reconnect-attempts-same-node</a>
         </td>
         <td>xsd:int</td>
         <td>Upon reconnection this configures the number of time the same node on the topology will be retried before
@@ -472,7 +472,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="clusters.md" title="Chapter 38. Clusters">broadcast-groups</a>
+            <a href="clusters.html" title="Chapter 38. Clusters">broadcast-groups</a>
         </td>
         <td>Sequence of &lt;broadcast-group/&gt;</td>
         <td>a list of broadcast groups to create</td>
@@ -480,7 +480,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="clusters.md" title="Chapter 38. Clusters">broadcast-groups.broadcast-group</a>
+            <a href="clusters.html" title="Chapter 38. Clusters">broadcast-groups.broadcast-group</a>
         </td>
         <td>Complex element</td>
         <td></td>
@@ -488,7 +488,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="clusters.md" title="Chapter 38. Clusters">broadcast-groups.broadcast-group.name
+            <a href="clusters.html" title="Chapter 38. Clusters">broadcast-groups.broadcast-group.name
                 (required attribute)</a>
         </td>
         <td>xsd:ID</td>
@@ -497,7 +497,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="clusters.md" title="Chapter 38. Clusters">broadcast-groups.broadcast-group.local-bind-address</a>
+            <a href="clusters.html" title="Chapter 38. Clusters">broadcast-groups.broadcast-group.local-bind-address</a>
         </td>
         <td>xsd:string</td>
         <td>local bind address that the datagram socket is bound to</td>
@@ -505,7 +505,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="clusters.md" title="Chapter 38. Clusters">broadcast-groups.broadcast-group.local-bind-port</a>
+            <a href="clusters.html" title="Chapter 38. Clusters">broadcast-groups.broadcast-group.local-bind-port</a>
         </td>
         <td>xsd:int</td>
         <td>local port to which the datagram socket is bound to</td>
@@ -513,7 +513,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="clusters.md" title="Chapter 38. Clusters">broadcast-groups.broadcast-group.group-address</a>
+            <a href="clusters.html" title="Chapter 38. Clusters">broadcast-groups.broadcast-group.group-address</a>
         </td>
         <td>xsd:string</td>
         <td>multicast address to which the data will be broadcast</td>
@@ -521,7 +521,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="clusters.md" title="Chapter 38. Clusters">broadcast-groups.broadcast-group.group-port</a>
+            <a href="clusters.html" title="Chapter 38. Clusters">broadcast-groups.broadcast-group.group-port</a>
         </td>
         <td>xsd:int</td>
         <td>UDP port number used for broadcasting</td>
@@ -529,7 +529,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="clusters.md" title="Chapter 38. Clusters">broadcast-groups.broadcast-group.broadcast-period</a>
+            <a href="clusters.html" title="Chapter 38. Clusters">broadcast-groups.broadcast-group.broadcast-period</a>
         </td>
         <td>xsd:long</td>
         <td>period in milliseconds between consecutive broadcasts</td>
@@ -537,7 +537,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="clusters.md">broadcast-groups.broadcast-group.jgroups-file</a>
+            <a href="clusters.html">broadcast-groups.broadcast-group.jgroups-file</a>
         </td>
         <td>xsd:string</td>
         <td>Name of JGroups configuration file. If specified, the server uses JGroups for broadcasting.</td>
@@ -545,7 +545,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="clusters.md">broadcast-groups.broadcast-group.jgroups-channel</a>
+            <a href="clusters.html">broadcast-groups.broadcast-group.jgroups-channel</a>
         </td>
         <td>xsd:string</td>
         <td>Name of JGroups Channel. If specified, the server uses the named channel for broadcasting.</td>
@@ -553,7 +553,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="clusters.md" title="Chapter 38. Clusters">broadcast-groups.broadcast-group.connector-ref</a>
+            <a href="clusters.html" title="Chapter 38. Clusters">broadcast-groups.broadcast-group.connector-ref</a>
         </td>
         <td>xsd:string</td>
         <td></td>
@@ -561,7 +561,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="ha.md">check-for-live-server</a>
+            <a href="ha.html">check-for-live-server</a>
         </td>
         <td>xsd:boolean</td>
         <td>Whether to check the cluster for a (live) server using our own server ID when starting up. This option is
@@ -572,7 +572,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="clusters.md" title="Chapter 38. Clusters">cluster-connections</a>
+            <a href="clusters.html" title="Chapter 38. Clusters">cluster-connections</a>
         </td>
         <td>Sequence of &lt;cluster-connection/&gt;</td>
         <td>a list of cluster connections</td>
@@ -580,7 +580,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="clusters.md" title="Chapter 38. Clusters">cluster-connections.cluster-connection</a>
+            <a href="clusters.html" title="Chapter 38. Clusters">cluster-connections.cluster-connection</a>
         </td>
         <td>Complex element</td>
         <td></td>
@@ -588,7 +588,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="clusters.md" title="Chapter 38. Clusters">cluster-connections.cluster-connection.name
+            <a href="clusters.html" title="Chapter 38. Clusters">cluster-connections.cluster-connection.name
                 (required attribute)</a>
         </td>
         <td>xsd:ID</td>
@@ -597,7 +597,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="clusters.md" title="Chapter 38. Clusters">cluster-connections.cluster-connection.address</a>
+            <a href="clusters.html" title="Chapter 38. Clusters">cluster-connections.cluster-connection.address</a>
         </td>
         <td>xsd:string</td>
         <td>name of the address this cluster connection applies to</td>
@@ -605,7 +605,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="clusters.md" title="Chapter 38. Clusters">cluster-connections.cluster-connection.connector-ref</a>
+            <a href="clusters.html" title="Chapter 38. Clusters">cluster-connections.cluster-connection.connector-ref</a>
         </td>
         <td>xsd:string</td>
         <td>Name of the connector reference to use.</td>
@@ -613,7 +613,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="connection-ttl.md" title="Chapter 17. Detecting Dead Connections">cluster-connections.cluster-connection.check-period</a>
+            <a href="connection-ttl.html" title="Chapter 17. Detecting Dead Connections">cluster-connections.cluster-connection.check-period</a>
         </td>
         <td>xsd:long</td>
         <td>The period (in milliseconds) used to check if the cluster connection has failed to receive pings from
@@ -623,7 +623,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="connection-ttl.md" title="Chapter 17. Detecting Dead Connections">cluster-connections.cluster-connection.connection-ttl</a>
+            <a href="connection-ttl.html" title="Chapter 17. Detecting Dead Connections">cluster-connections.cluster-connection.connection-ttl</a>
         </td>
         <td>xsd:long</td>
         <td>how long to keep a connection alive in the absence of any data arriving from the client</td>
@@ -631,7 +631,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="large-messages.md" title="Chapter 23. Large Messages">cluster-connections.cluster-connection.min-large-message-size</a>
+            <a href="large-messages.html" title="Chapter 23. Large Messages">cluster-connections.cluster-connection.min-large-message-size</a>
         </td>
         <td>xsd:int</td>
         <td>Messages larger than this are considered large-messages</td>
@@ -639,7 +639,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="clusters.md" title="Chapter 38. Clusters">cluster-connections.cluster-connection.call-timeout</a>
+            <a href="clusters.html" title="Chapter 38. Clusters">cluster-connections.cluster-connection.call-timeout</a>
         </td>
         <td>xsd:long</td>
         <td>How long to wait for a reply</td>
@@ -647,7 +647,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="clusters.md" title="Chapter 38. Clusters">cluster-connections.cluster-connection.retry-interval</a>
+            <a href="clusters.html" title="Chapter 38. Clusters">cluster-connections.cluster-connection.retry-interval</a>
         </td>
         <td>xsd:long</td>
         <td>period (in ms) between successive retries</td>
@@ -655,7 +655,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="clusters.md" title="Chapter 38. Clusters">cluster-connections.cluster-connection.retry-interval-multiplier</a>
+            <a href="clusters.html" title="Chapter 38. Clusters">cluster-connections.cluster-connection.retry-interval-multiplier</a>
         </td>
         <td>xsd:double</td>
         <td>multiplier to apply to the retry-interval</td>
@@ -663,7 +663,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="clusters.md" title="Chapter 38. Clusters">cluster-connections.cluster-connection.max-retry-interval</a>
+            <a href="clusters.html" title="Chapter 38. Clusters">cluster-connections.cluster-connection.max-retry-interval</a>
         </td>
         <td>xsd:long</td>
         <td>Maximum value for retry-interval</td>
@@ -671,7 +671,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="clusters.md" title="Chapter 38. Clusters">cluster-connections.cluster-connection.reconnect-attempts</a>
+            <a href="clusters.html" title="Chapter 38. Clusters">cluster-connections.cluster-connection.reconnect-attempts</a>
         </td>
         <td>xsd:int</td>
         <td>How many attempts should be made to reconnect after failure</td>
@@ -679,7 +679,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="clusters.md" title="Chapter 38. Clusters">cluster-connections.cluster-connection.use-duplicate-detection</a>
+            <a href="clusters.html" title="Chapter 38. Clusters">cluster-connections.cluster-connection.use-duplicate-detection</a>
         </td>
         <td>xsd:boolean</td>
         <td>should duplicate detection headers be inserted in forwarded messages?</td>
@@ -687,7 +687,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="clusters.md" title="Chapter 38. Clusters">cluster-connections.cluster-connection.forward-when-no-consumers</a>
+            <a href="clusters.html" title="Chapter 38. Clusters">cluster-connections.cluster-connection.forward-when-no-consumers</a>
         </td>
         <td>xsd:boolean</td>
         <td>should messages be load balanced if there are no matching consumers on target?</td>
@@ -695,7 +695,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="clusters.md" title="Chapter 38. Clusters">cluster-connections.cluster-connection.max-hops</a>
+            <a href="clusters.html" title="Chapter 38. Clusters">cluster-connections.cluster-connection.max-hops</a>
         </td>
         <td>xsd:int</td>
         <td>maximum number of hops cluster topology is propagated</td>
@@ -703,7 +703,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="client-reconnection.md"
+            <a href="client-reconnection.html"
                title="Chapter 34. Client Reconnection and Session Reattachment">cluster-connections.cluster-connection.confirmation-window-size</a>
         </td>
         <td>xsd:int</td>
@@ -712,7 +712,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="clusters.md"
+            <a href="clusters.html"
                title="38.3.1. Configuring Cluster Connections">cluster-connections.cluster-connection.call-failover-timeout</a>
         </td>
         <td>xsd:long</td>
@@ -721,7 +721,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="clusters.md" title="Chapter 38. Clusters">cluster-connections.cluster-connection.notification-interval</a>
+            <a href="clusters.html" title="Chapter 38. Clusters">cluster-connections.cluster-connection.notification-interval</a>
         </td>
         <td>xsd:long</td>
         <td>how often the cluster connection will notify the cluster of its existence right after joining the cluster
@@ -730,7 +730,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="clusters.md" title="Chapter 38. Clusters">cluster-connections.cluster-connection.notification-attempts</a>
+            <a href="clusters.html" title="Chapter 38. Clusters">cluster-connections.cluster-connection.notification-attempts</a>
         </td>
         <td>xsd:int</td>
         <td>how many times this cluster connection will notify the cluster of its existence right after joining the
@@ -740,7 +740,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="clusters.md" title="Chapter 38. Clusters">clustered</a>
+            <a href="clusters.html" title="Chapter 38. Clusters">clustered</a>
         </td>
         <td>xsd:boolean</td>
         <td>DEPRECATED. This option is deprecated and its value will be ignored (HQ221038). A HornetQ server will be
@@ -750,7 +750,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="clusters.md" title="Chapter 38. Clusters">cluster-password</a>
+            <a href="clusters.html" title="Chapter 38. Clusters">cluster-password</a>
         </td>
         <td>xsd:string</td>
         <td>Cluster password. It applies to all cluster configurations.</td>
@@ -758,7 +758,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="clusters.md" title="Chapter 38. Clusters">cluster-user</a>
+            <a href="clusters.html" title="Chapter 38. Clusters">cluster-user</a>
         </td>
         <td>xsd:string</td>
         <td>Cluster username. It applies to all cluster configurations.</td>
@@ -766,7 +766,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="connection-ttl.md">connection-ttl-override</a>
+            <a href="connection-ttl.html">connection-ttl-override</a>
         </td>
         <td>xsd:long</td>
         <td>if set, this will override how long (in ms) to keep a connection alive without receiving a ping. -1 disables
@@ -776,7 +776,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="configuring-transports.md"
+            <a href="configuring-transports.html"
                title="16.2. Understanding Connectors">connectors</a>
         </td>
         <td>Sequence of &lt;connector/&gt;</td>
@@ -785,7 +785,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="configuring-transports.md"
+            <a href="configuring-transports.html"
                title="16.2. Understanding Connectors">connectors.connector</a>
         </td>
         <td>Complex element</td>
@@ -794,7 +794,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="configuring-transports.md"
+            <a href="configuring-transports.html"
                title="16.2. Understanding Connectors">connectors.connector.name (required attribute)</a>
         </td>
         <td>xsd:ID</td>
@@ -803,7 +803,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="configuring-transports.md"
+            <a href="configuring-transports.html"
                title="16.2. Understanding Connectors">connectors.connector.factory-class</a>
         </td>
         <td>xsd:string</td>
@@ -812,7 +812,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="configuring-transports.md"
+            <a href="configuring-transports.html"
                title="16.2. Understanding Connectors">connectors.connector.param</a>
         </td>
         <td>Complex element</td>
@@ -821,7 +821,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="configuring-transports.md"
+            <a href="configuring-transports.html"
                title="16.2. Understanding Connectors">connectors.connector.param.key (required attribute)</a>
         </td>
         <td>xsd:string</td>
@@ -830,7 +830,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="configuring-transports.md"
+            <a href="configuring-transports.html"
                title="16.2. Understanding Connectors">connectors.connector.param.value (required attribute)</a>
         </td>
         <td>xsd:string</td>
@@ -895,7 +895,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="persistence.md"
+            <a href="persistence.html"
                title="15.1. Configuring the bindings journal">create-bindings-dir</a>
         </td>
         <td>xsd:boolean</td>
@@ -905,7 +905,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     <tr>
         <td>
             <a class="link"
-               href="persistence.md">create-journal-dir</a>
+               href="persistence.html">create-journal-dir</a>
         </td>
         <td>xsd:boolean</td>
         <td>true means that the journal directory will be created</td>
@@ -913,7 +913,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="clusters.md" title="Chapter 38. Clusters">discovery-groups</a>
+            <a href="clusters.html" title="Chapter 38. Clusters">discovery-groups</a>
         </td>
         <td>Sequence of &lt;discovery-group/&gt;</td>
         <td>a list of discovery groups to create</td>
@@ -921,7 +921,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="clusters.md" title="Chapter 38. Clusters">discovery-groups.discovery-group</a>
+            <a href="clusters.html" title="Chapter 38. Clusters">discovery-groups.discovery-group</a>
         </td>
         <td>Complex element</td>
         <td></td>
@@ -929,7 +929,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="clusters.md" title="Chapter 38. Clusters">discovery-groups.discovery-group.name
+            <a href="clusters.html" title="Chapter 38. Clusters">discovery-groups.discovery-group.name
                 (required attribute)</a>
         </td>
         <td>xsd:ID</td>
@@ -938,7 +938,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="clusters.md" title="Chapter 38. Clusters">discovery-groups.discovery-group.group-address</a>
+            <a href="clusters.html" title="Chapter 38. Clusters">discovery-groups.discovery-group.group-address</a>
         </td>
         <td>xsd:string</td>
         <td>Multicast IP address of the group to listen on</td>
@@ -946,7 +946,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="clusters.md" title="Chapter 38. Clusters">discovery-groups.discovery-group.group-port</a>
+            <a href="clusters.html" title="Chapter 38. Clusters">discovery-groups.discovery-group.group-port</a>
         </td>
         <td>xsd:int</td>
         <td>UDP port number of the multi cast group</td>
@@ -954,7 +954,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="clusters.md">discovery-groups.discovery-group.jgroups-file</a>
+            <a href="clusters.html">discovery-groups.discovery-group.jgroups-file</a>
         </td>
         <td>xsd:string</td>
         <td>Name of a JGroups configuration file. If specified, the server uses JGroups for discovery.</td>
@@ -962,7 +962,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="clusters.md">discovery-groups.discovery-group.jgroups-channel</a>
+            <a href="clusters.html">discovery-groups.discovery-group.jgroups-channel</a>
         </td>
         <td>xsd:string</td>
         <td>Name of a JGroups Channel. If specified, the server uses the named channel for discovery.</td>
@@ -980,7 +980,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="clusters.md" title="Chapter 38. Clusters">discovery-groups.discovery-group.local-bind-address</a>
+            <a href="clusters.html" title="Chapter 38. Clusters">discovery-groups.discovery-group.local-bind-address</a>
         </td>
         <td>xsd:string</td>
         <td>local bind address that the datagram socket is bound to</td>
@@ -988,7 +988,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="clusters.md" title="Chapter 38. Clusters">discovery-groups.discovery-group.local-bind-port</a>
+            <a href="clusters.html" title="Chapter 38. Clusters">discovery-groups.discovery-group.local-bind-port</a>
         </td>
         <td>xsd:int</td>
         <td>local port to which the datagram socket is bound to</td>
@@ -1004,7 +1004,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="diverts.md" title="Chapter 35. Diverting and Splitting Message Flows">diverts</a>
+            <a href="diverts.html" title="Chapter 35. Diverting and Splitting Message Flows">diverts</a>
         </td>
         <td>Sequence of &lt;divert/&gt;</td>
         <td>a list of diverts to use</td>
@@ -1012,7 +1012,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="diverts.md"
+            <a href="diverts.html"
                title="Chapter 35. Diverting and Splitting Message Flows">diverts.divert</a>
         </td>
         <td>Complex element</td>
@@ -1021,7 +1021,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="diverts.md" title="Chapter 35. Diverting and Splitting Message Flows">diverts.divert.name
+            <a href="diverts.html" title="Chapter 35. Diverting and Splitting Message Flows">diverts.divert.name
                 (required attribute)</a>
         </td>
         <td>xsd:ID</td>
@@ -1030,7 +1030,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="diverts.md" title="Chapter 35. Diverting and Splitting Message Flows">diverts.divert.transformer-class-name</a>
+            <a href="diverts.html" title="Chapter 35. Diverting and Splitting Message Flows">diverts.divert.transformer-class-name</a>
         </td>
         <td>xsd:string</td>
         <td>an optional class name of a transformer</td>
@@ -1038,7 +1038,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="diverts.md" title="Chapter 35. Diverting and Splitting Message Flows">diverts.divert.exclusive</a>
+            <a href="diverts.html" title="Chapter 35. Diverting and Splitting Message Flows">diverts.divert.exclusive</a>
         </td>
         <td>xsd:boolean</td>
         <td>whether this is an exclusive divert</td>
@@ -1046,7 +1046,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="diverts.md" title="Chapter 35. Diverting and Splitting Message Flows">diverts.divert.routing-name</a>
+            <a href="diverts.html" title="Chapter 35. Diverting and Splitting Message Flows">diverts.divert.routing-name</a>
         </td>
         <td>xsd:string</td>
         <td>the routing name for the divert</td>
@@ -1054,7 +1054,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="diverts.md" title="Chapter 35. Diverting and Splitting Message Flows">diverts.divert.address</a>
+            <a href="diverts.html" title="Chapter 35. Diverting and Splitting Message Flows">diverts.divert.address</a>
         </td>
         <td>xsd:string</td>
         <td>the address this divert will divert from</td>
@@ -1062,7 +1062,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="diverts.md" title="Chapter 35. Diverting and Splitting Message Flows">diverts.divert.forwarding-address</a>
+            <a href="diverts.html" title="Chapter 35. Diverting and Splitting Message Flows">diverts.divert.forwarding-address</a>
         </td>
         <td>xsd:string</td>
         <td>the forwarding address for the divert</td>
@@ -1070,7 +1070,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="diverts.md" title="Chapter 35. Diverting and Splitting Message Flows">diverts.divert.filter</a>
+            <a href="diverts.html" title="Chapter 35. Diverting and Splitting Message Flows">diverts.divert.filter</a>
         </td>
         <td>Complex element</td>
         <td></td>
@@ -1078,7 +1078,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="diverts.md" title="Chapter 35. Diverting and Splitting Message Flows">diverts.divert.filter.string
+            <a href="diverts.html" title="Chapter 35. Diverting and Splitting Message Flows">diverts.divert.filter.string
                 (required attribute)</a>
         </td>
         <td>xsd:string</td>
@@ -1087,7 +1087,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="graceful-shutdown.md" title="Graceful Server Shutdown">graceful-shutdown-enabled</a>
+            <a href="graceful-shutdown.html" title="Graceful Server Shutdown">graceful-shutdown-enabled</a>
         </td>
         <td>xsd:boolean</td>
         <td>true means that graceful shutdown is enabled</td>
@@ -1095,7 +1095,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="graceful-shutdown.md" title="Graceful Server Shutdown">graceful-shutdown-timeout</a>
+            <a href="graceful-shutdown.html" title="Graceful Server Shutdown">graceful-shutdown-timeout</a>
         </td>
         <td>xsd:long</td>
         <td>how long (in ms) to wait for all clients to disconnect before forcefully disconnecting the clients and proceeding with the shutdown process (-1 means no timeout)</td>
@@ -1103,7 +1103,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="message-grouping.md" title="Chapter 28. Message Grouping">grouping-handler</a>
+            <a href="message-grouping.html" title="Chapter 28. Message Grouping">grouping-handler</a>
         </td>
         <td>Complex element</td>
         <td>Message Group configuration</td>
@@ -1111,7 +1111,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="message-grouping.md" title="Chapter 28. Message Grouping">grouping-handler.name
+            <a href="message-grouping.html" title="Chapter 28. Message Grouping">grouping-handler.name
                 (required attribute)</a>
         </td>
         <td>xsd:string</td>
@@ -1120,7 +1120,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="message-grouping.md">grouping-handler.type</a>
+            <a href="message-grouping.html">grouping-handler.type</a>
         </td>
         <td>LOCAL|REMOTE</td>
         <td>Each cluster should choose 1 node to have a LOCAL grouping handler and all the other nodes should have
@@ -1130,7 +1130,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="message-grouping.md">grouping-handler.address</a>
+            <a href="message-grouping.html">grouping-handler.address</a>
         </td>
         <td>xsd:string</td>
         <td>A reference to a cluster connection address</td>
@@ -1138,7 +1138,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="message-grouping.md"
+            <a href="message-grouping.html"
                title="Chapter 28. Message Grouping">grouping-handler.timeout</a>
         </td>
         <td>xsd:int</td>
@@ -1147,7 +1147,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="message-grouping.md" title="Chapter 28. Message Grouping">grouping-handler.group-timeout</a>
+            <a href="message-grouping.html" title="Chapter 28. Message Grouping">grouping-handler.group-timeout</a>
         </td>
         <td>xsd:int</td>
         <td>How long a group binding will be used, -1 means for ever. Bindings are removed after this wait elapses. Only
@@ -1157,7 +1157,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="message-grouping.md" title="Chapter 28. Message Grouping">grouping-handler.reaper-period</a>
+            <a href="message-grouping.html" title="Chapter 28. Message Grouping">grouping-handler.reaper-period</a>
         </td>
         <td>xsd:long</td>
         <td>How often the reaper will be run to check for timed out group bindings. Only valid for LOCAL handlers</td>
@@ -1165,7 +1165,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="duplicate-detection.md"
+            <a href="duplicate-detection.html"
                title="37.2. Configuring the Duplicate ID Cache">id-cache-size</a>
         </td>
         <td>xsd:int</td>
@@ -1174,7 +1174,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="management.md" title="30.2.1. Configuring JMX">jmx-domain</a>
+            <a href="management.html" title="30.2.1. Configuring JMX">jmx-domain</a>
         </td>
         <td>xsd:string</td>
         <td>the JMX domain used to registered HornetQ MBeans in the MBeanServer</td>
@@ -1182,7 +1182,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="management.md" title="30.2.1. Configuring JMX">jmx-management-enabled</a>
+            <a href="management.html" title="30.2.1. Configuring JMX">jmx-management-enabled</a>
         </td>
         <td>xsd:boolean</td>
         <td>true means that the management API is available via JMX</td>
@@ -1191,7 +1191,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     <tr>
         <td>
             <a class="link"
-               href="persistence.md">journal-buffer-size</a>
+               href="persistence.html">journal-buffer-size</a>
         </td>
         <td>xsd:long</td>
         <td>The size of the internal buffer on the journal in KiB.</td>
@@ -1199,7 +1199,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="persistence.md">journal-buffer-timeout</a>
+            <a href="persistence.html">journal-buffer-timeout</a>
         </td>
         <td>xsd:long</td>
         <td>The timeout (in nanoseconds) used to flush internal buffers on the journal. The exact default value depend
@@ -1209,7 +1209,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="persistence.md">journal-compact-min-files</a>
+            <a href="persistence.html">journal-compact-min-files</a>
         </td>
         <td>xsd:int</td>
         <td>The minimal number of data files before we can start compacting</td>
@@ -1217,7 +1217,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="persistence.md">journal-compact-percentage</a>
+            <a href="persistence.html">journal-compact-percentage</a>
         </td>
         <td>xsd:int</td>
         <td>The percentage of live data on which we consider compacting the journal</td>
@@ -1225,7 +1225,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="persistence.md">journal-directory</a>
+            <a href="persistence.html">journal-directory</a>
         </td>
         <td>xsd:string</td>
         <td>the directory to store the journal files in</td>
@@ -1233,7 +1233,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="persistence.md">journal-file-size</a>
+            <a href="persistence.html">journal-file-size</a>
         </td>
         <td>xsd:int</td>
         <td>the size (in bytes) of each journal file</td>
@@ -1241,7 +1241,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="persistence.md#configuring.message.journal.journal-max-io">journal-max-io</a>
+            <a href="persistence.html#configuring.message.journal.journal-max-io">journal-max-io</a>
         </td>
         <td>xsd:int</td>
         <td>the maximum number of write requests that can be in the AIO queue at any one time. Default is 500 for AIO
@@ -1251,7 +1251,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="persistence.md#configuring.message.journal.journal-min-files">journal-min-files</a>
+            <a href="persistence.html#configuring.message.journal.journal-min-files">journal-min-files</a>
         </td>
         <td>xsd:int</td>
         <td>how many journal files to pre-create</td>
@@ -1259,7 +1259,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="persistence.md">journal-sync-non-transactional</a>
+            <a href="persistence.html">journal-sync-non-transactional</a>
         </td>
         <td>xsd:boolean</td>
         <td>if true wait for non transaction data to be synced to the journal before returning response to client.</td>
@@ -1267,7 +1267,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="persistence.md">journal-sync-transactional</a>
+            <a href="persistence.html">journal-sync-transactional</a>
         </td>
         <td>xsd:boolean</td>
         <td>if true wait for transaction data to be synchronized to the journal before returning response to client</td>
@@ -1275,7 +1275,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="persistence.md">journal-type</a>
+            <a href="persistence.html">journal-type</a>
         </td>
         <td>ASYNCIO|NIO</td>
         <td>the type of journal to use</td>
@@ -1283,7 +1283,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="large-messages.md" title="23.1. Configuring the server">large-messages-directory</a>
+            <a href="large-messages.html" title="23.1. Configuring the server">large-messages-directory</a>
         </td>
         <td>xsd:string</td>
         <td>the directory to store large messages</td>
@@ -1307,7 +1307,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="management.md"
+            <a href="management.html"
                title="30.3.1. Configuring Core Management">management-address</a>
         </td>
         <td>xsd:string</td>
@@ -1318,7 +1318,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="management.md"
+            <a href="management.html"
                title="30.5.2.1. Configuring The Core Management Notification Address">management-notification-address</a>
         </td>
         <td>xsd:string</td>
@@ -1327,7 +1327,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="configuration-index.md"
+            <a href="configuration-index.html"
                title="50.1.3. Using Masked Passwords in Configuration Files">mask-password</a>
         </td>
         <td>xsd:boolean</td>
@@ -1348,7 +1348,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="perf-tuning.md">memory-measure-interval</a>
+            <a href="perf-tuning.html">memory-measure-interval</a>
         </td>
         <td>xsd:long</td>
         <td>frequency to sample JVM memory in ms (or -1 to disable memory sampling)</td>
@@ -1356,7 +1356,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="perf-tuning.md">memory-warning-threshold</a>
+            <a href="perf-tuning.html">memory-warning-threshold</a>
         </td>
         <td>xsd:int</td>
         <td>Percentage of available memory which will trigger a warning log</td>
@@ -1364,7 +1364,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="management.md"
+            <a href="management.html"
                title="30.6.1. Configuring Message Counters">message-counter-enabled</a>
         </td>
         <td>xsd:boolean</td>
@@ -1373,7 +1373,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="management.md"
+            <a href="management.html"
                title="30.6.1. Configuring Message Counters">message-counter-max-day-history</a>
         </td>
         <td>xsd:int</td>
@@ -1382,7 +1382,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="management.md"
+            <a href="management.html"
                title="30.6.1. Configuring Message Counters">message-counter-sample-period</a>
         </td>
         <td>xsd:long</td>
@@ -1391,7 +1391,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="message-expiry.md"
+            <a href="message-expiry.html"
                title="22.3. Configuring The Expiry Reaper Thread">message-expiry-scan-period</a>
         </td>
         <td>xsd:long</td>
@@ -1400,7 +1400,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="message-expiry.md"
+            <a href="message-expiry.html"
                title="22.3. Configuring The Expiry Reaper Thread">message-expiry-thread-priority</a>
         </td>
         <td>xsd:int</td>
@@ -1417,7 +1417,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="paging.md" title="24.3. Paging Mode">page-max-concurrent-io</a>
+            <a href="paging.html" title="24.3. Paging Mode">page-max-concurrent-io</a>
         </td>
         <td>xsd:int</td>
         <td>The max number of concurrent reads allowed on paging</td>
@@ -1425,7 +1425,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="paging.md" title="24.2. Configuration">paging-directory</a>
+            <a href="paging.html" title="24.2. Configuration">paging-directory</a>
         </td>
         <td>xsd:string</td>
         <td>the directory to store paged messages in</td>
@@ -1433,7 +1433,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="configuration-index.md"
+            <a href="configuration-index.html"
                title="50.1.3. Using Masked Passwords in Configuration Files">password-codec</a>
         </td>
         <td>xsd:string</td>
@@ -1452,7 +1452,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="undelivered-messages.md"
+            <a href="undelivered-messages.html"
                title="21.3. Delivery Count Persistence">persist-delivery-count-before-delivery</a>
         </td>
         <td>xsd:boolean</td>
@@ -1463,7 +1463,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="persistence.md"
+            <a href="persistence.html"
                title="15.6. Configuring HornetQ for Zero Persistence">persistence-enabled</a>
         </td>
         <td>xsd:boolean</td>
@@ -1472,7 +1472,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="duplicate-detection.md"
+            <a href="duplicate-detection.html"
                title="37.2. Configuring the Duplicate ID Cache">persist-id-cache</a>
         </td>
         <td>xsd:boolean</td>
@@ -1481,7 +1481,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="queue-attributes.md" title="25.1. Predefined Queues">queues</a>
+            <a href="queue-attributes.html" title="25.1. Predefined Queues">queues</a>
         </td>
         <td>Sequence of &lt;queue/&gt;</td>
         <td>a list of pre configured queues to create</td>
@@ -1489,7 +1489,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="queue-attributes.md"
+            <a href="queue-attributes.html"
                title="25.1. Predefined Queues">queues.queue</a>
         </td>
         <td>Complex element</td>
@@ -1498,7 +1498,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="queue-attributes.md" title="25.1. Predefined Queues">queues.queue.name
+            <a href="queue-attributes.html" title="25.1. Predefined Queues">queues.queue.name
                 (required attribute)</a>
         </td>
         <td>xsd:ID</td>
@@ -1507,7 +1507,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="queue-attributes.md" title="25.1. Predefined Queues">queues.queue.address</a>
+            <a href="queue-attributes.html" title="25.1. Predefined Queues">queues.queue.address</a>
         </td>
         <td>xsd:string</td>
         <td>address for the queue</td>
@@ -1515,7 +1515,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="queue-attributes.md" title="25.1. Predefined Queues">queues.queue.filter</a>
+            <a href="queue-attributes.html" title="25.1. Predefined Queues">queues.queue.filter</a>
         </td>
         <td>Complex element</td>
         <td></td>
@@ -1523,7 +1523,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="queue-attributes.md" title="25.1. Predefined Queues">queues.queue.filter.string
+            <a href="queue-attributes.html" title="25.1. Predefined Queues">queues.queue.filter.string
                 (required attribute)</a>
         </td>
         <td>xsd:string</td>
@@ -1532,7 +1532,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="queue-attributes.md" title="25.1. Predefined Queues">queues.queue.durable</a>
+            <a href="queue-attributes.html" title="25.1. Predefined Queues">queues.queue.durable</a>
         </td>
         <td>xsd:boolean</td>
         <td>whether the queue is durable (persistent)</td>
@@ -1540,7 +1540,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="intercepting-operations.md" title="Chapter 47. Intercepting Operations">remoting-incoming-interceptors</a>
+            <a href="intercepting-operations.html" title="Chapter 47. Intercepting Operations">remoting-incoming-interceptors</a>
         </td>
         <td>Complex element</td>
         <td>a list of &lt;class-name/&gt; elements with the names of classes to use for interceptor incoming remoting
@@ -1549,7 +1549,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="intercepting-operations.md" title="Chapter 47. Intercepting Operations">remoting-incoming-interceptors.class-name</a>
+            <a href="intercepting-operations.html" title="Chapter 47. Intercepting Operations">remoting-incoming-interceptors.class-name</a>
         </td>
         <td>xsd:string</td>
         <td>the fully qualified name of the interceptor class</td>
@@ -1557,7 +1557,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="intercepting-operations.md" title="Chapter 47. Intercepting Operations">remoting-interceptors</a>
+            <a href="intercepting-operations.html" title="Chapter 47. Intercepting Operations">remoting-interceptors</a>
         </td>
         <td>Complex element</td>
         <td>DEPRECATED. This option is deprecated, but it will still be honored. Any interceptor specified here will be
@@ -1567,7 +1567,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="intercepting-operations.md" title="Chapter 47. Intercepting Operations">remoting-interceptors.class-name</a>
+            <a href="intercepting-operations.html" title="Chapter 47. Intercepting Operations">remoting-interceptors.class-name</a>
         </td>
         <td>xsd:string</td>
         <td>the fully qualified name of the interceptor class</td>
@@ -1575,7 +1575,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="intercepting-operations.md" title="Chapter 47. Intercepting Operations">remoting-outgoing-interceptors</a>
+            <a href="intercepting-operations.html" title="Chapter 47. Intercepting Operations">remoting-outgoing-interceptors</a>
         </td>
         <td>Complex element</td>
         <td>a list of &lt;class-name/&gt; elements with the names of classes to use for interceptor outcoming remoting
@@ -1584,7 +1584,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="intercepting-operations.md" title="Chapter 47. Intercepting Operations">remoting-outgoing-interceptors.class-name</a>
+            <a href="intercepting-operations.html" title="Chapter 47. Intercepting Operations">remoting-outgoing-interceptors.class-name</a>
         </td>
         <td>xsd:string</td>
         <td>the fully qualified name of the interceptor class</td>
@@ -1611,7 +1611,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="thread-pooling.md#server.scheduled.thread.pool"
+            <a href="thread-pooling.html#server.scheduled.thread.pool"
                title="41.1.1. Server Scheduled Thread Pool">scheduled-thread-pool-max-size</a>
         </td>
         <td>xsd:int</td>
@@ -1620,7 +1620,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="security.md" title="Chapter 31. Security">security-enabled</a>
+            <a href="security.html" title="Chapter 31. Security">security-enabled</a>
         </td>
         <td>xsd:boolean</td>
         <td>true means that security is enabled</td>
@@ -1628,7 +1628,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="security.md" title="Chapter 31. Security">security-invalidation-interval</a>
+            <a href="security.html" title="Chapter 31. Security">security-invalidation-interval</a>
         </td>
         <td>xsd:long</td>
         <td>how long (in ms) to wait before invalidating the security cache</td>
@@ -1636,7 +1636,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="security.md"
+            <a href="security.html"
                title="31.1. Role based security for addresses">security-settings</a>
         </td>
         <td>Sequence of &lt;security-setting/&gt;</td>
@@ -1645,7 +1645,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="security.md"
+            <a href="security.html"
                title="31.1. Role based security for addresses">security-settings.security-setting</a>
         </td>
         <td>Sequence of &lt;permission/&gt;</td>
@@ -1654,7 +1654,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="security.md"
+            <a href="security.html"
                title="31.1. Role based security for addresses">security-settings.security-setting.match (required
                 attribute)</a>
         </td>
@@ -1664,7 +1664,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="security.md"
+            <a href="security.html"
                title="31.1. Role based security for addresses">security-settings.security-setting.permission</a>
         </td>
         <td>Complex element</td>
@@ -1673,7 +1673,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="security.md"
+            <a href="security.html"
                title="31.1. Role based security for addresses">security-settings.security-setting.permission.type
                 (required attribute)</a>
         </td>
@@ -1683,7 +1683,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="security.md"
+            <a href="security.html"
                title="31.1. Role based security for addresses">security-settings.security-setting.permission.roles
                 (required attribute)</a>
         </td>
@@ -1701,7 +1701,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="thread-pooling.md"
+            <a href="thread-pooling.html"
                title="41.1.1. Server Scheduled Thread Pool">thread-pool-max-size</a>
         </td>
         <td>xsd:int</td>
@@ -1710,7 +1710,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="transaction-config.md" title="Chapter 18. Resource Manager Configuration">transaction-timeout</a>
+            <a href="transaction-config.html" title="Chapter 18. Resource Manager Configuration">transaction-timeout</a>
         </td>
         <td>xsd:long</td>
         <td>how long (in ms) before a transaction can be removed from the resource manager after create time</td>
@@ -1718,7 +1718,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="transaction-config.md" title="Chapter 18. Resource Manager Configuration">transaction-timeout-scan-period</a>
+            <a href="transaction-config.html" title="Chapter 18. Resource Manager Configuration">transaction-timeout-scan-period</a>
         </td>
         <td>xsd:long</td>
         <td>how often (in ms) to scan for timeout transactions</td>
@@ -1726,7 +1726,7 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     <tr>
         <td>
-            <a href="wildcard-routing.md" title="Chapter 12. Routing Messages With Wild Cards">wild-card-routing-enabled</a>
+            <a href="wildcard-routing.html" title="Chapter 12. Routing Messages With Wild Cards">wild-card-routing-enabled</a>
         </td>
         <td>xsd:boolean</td>
         <td>true means that the server supports wild card routing</td>
@@ -1754,42 +1754,42 @@ element is used by the server side JMS service to load JMS Queues, Topics
     </tr>
     </thead>
     <tr>
-        <td><a href="using-jms.md" title="7.2. JMS Server Configuration">queue</a>
+        <td><a href="using-jms.html" title="7.2. JMS Server Configuration">queue</a>
         </td>
         <td>Queue</td>
         <td>a queue to create</td>
         <td></td>
     </tr>
     <tr>
-        <td><a href="using-jms.md" title="7.2. JMS Server Configuration">queue.name
+        <td><a href="using-jms.html" title="7.2. JMS Server Configuration">queue.name
             (attribute)</a></td>
         <td>String</td>
         <td>unique name of the queue</td>
         <td></td>
     </tr>
     <tr>
-        <td><a href="using-jms.md" title="7.2. JMS Server Configuration">queue.durable</a>
+        <td><a href="using-jms.html" title="7.2. JMS Server Configuration">queue.durable</a>
         </td>
         <td>Boolean</td>
         <td>is the queue durable?</td>
         <td>true</td>
     </tr>
     <tr>
-        <td><a href="using-jms.md" title="7.2. JMS Server Configuration">queue.filter</a>
+        <td><a href="using-jms.html" title="7.2. JMS Server Configuration">queue.filter</a>
         </td>
         <td>String</td>
         <td>optional filter expression for the queue</td>
         <td></td>
     </tr>
     <tr>
-        <td><a href="using-jms.md" title="7.2. JMS Server Configuration">topic</a>
+        <td><a href="using-jms.html" title="7.2. JMS Server Configuration">topic</a>
         </td>
         <td>Topic</td>
         <td>a topic to create</td>
         <td></td>
     </tr>
     <tr>
-        <td><a href="using-jms.md" title="7.2. JMS Server Configuration">topic.name
+        <td><a href="using-jms.html" title="7.2. JMS Server Configuration">topic.name
             (attribute)</a></td>
         <td>String</td>
         <td>unique name of the topic</td>

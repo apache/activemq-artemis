@@ -149,4 +149,4 @@ The stand-alone server architecture is shown in figure 3.3 below:
 
 ![ActiveMQ architecture3](images/architecture3.jpg)
 
-For more information on server configuration files see [Server Configuration](server-configuration.md)
+For more information on server configuration files see [Server Configuration](configuration-index.md)
