@@ -136,6 +136,7 @@
             <exclude>**/target/**</exclude>
             <exclude>**/**/*.iml</exclude>
             <exclude>**/**/*.dat</exclude>
+            <exclude>**/licenses/**</exclude>
          </excludes>
       </fileSet>
       <!-- chmod to 755 on linux executables -->
@@ -160,6 +161,12 @@
             <exclude>**/**/*.iml</exclude>
             <exclude>**/**/*.dat</exclude>
          </excludes>
+      </fileSet>
+      <!-- Include license and notice files -->
+      <fileSet>
+         <directory>${activemq.basedir}/distribution/activemq/src/main/resources/licenses/bin</directory>
+         <outputDirectory>/</outputDirectory>
+         <useDefaultExcludes>true</useDefaultExcludes>
       </fileSet>
    </fileSets>
 </assembly>
