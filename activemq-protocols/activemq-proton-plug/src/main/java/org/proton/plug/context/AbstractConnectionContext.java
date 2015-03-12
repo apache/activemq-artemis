@@ -255,7 +255,11 @@ public abstract class AbstractConnectionContext extends ProtonInitializable impl
       public void onRemoteClose(Link link) throws Exception
       {
          link.close();
-         ((ProtonDeliveryHandler) link.getContext()).close();
+         ProtonDeliveryHandler linkContext = (ProtonDeliveryHandler) link.getContext();
+         if (linkContext != null)
+         {
+            linkContext.close();
+         }
       }
 
 
