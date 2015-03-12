@@ -47,12 +47,13 @@ public abstract class AbstractConnectionContext extends ProtonInitializable impl
 
    private final Map<Session, AbstractProtonSessionContext> sessions = new ConcurrentHashMap<>();
 
+   protected LocalListener listener = new LocalListener();
 
    public AbstractConnectionContext(AMQPConnectionCallback connectionCallback)
    {
       this.connectionCallback = connectionCallback;
       connectionCallback.setConnection(this);
-      handler.addEventHandler(new LocalListener());
+      handler.addEventHandler(listener);
    }
 
    public SASLResult getSASLResult()
