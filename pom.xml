@@ -919,6 +919,7 @@
                   <exclude>**/*.jceks</exclude>
                   <exclude>**/*.jks</exclude>
                   <exclude>**/org/apache/activemq/utils/json/**</exclude>
+                  <exclude>**/src/main/resources/META-INF/LICENSE</exclude>
                </excludes>
             </configuration>
             <executions>
