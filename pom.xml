@@ -200,9 +200,17 @@
          <dependency>
             <groupId>org.jboss.logging</groupId>
             <artifactId>jboss-logging-processor</artifactId>
-            <version>1.2.1.Final</version>
-            <scope>compile</scope>
+            <version>2.0.0.Alpha1</version>
+            <optional>true</optional>
             <!-- License: LGPL-->
+         </dependency>
+         <dependency>
+            <groupId>org.jboss.logging</groupId>
+            <artifactId>jboss-logging-annotations</artifactId>
+            <version>2.0.0.Alpha1</version>
+            <scope>provided</scope>
+            <optional>true</optional>
+            <!-- License: Apache 2.0-->
          </dependency>
          <!--needed to compile the logging jar-->
          <dependency>
@@ -594,7 +602,7 @@
          <plugins>
             <plugin>
                <groupId>org.codehaus.mojo</groupId>
-               <artifactId>javacc-maven-plugin</artifactId>
+                  <artifactId>javacc-maven-plugin</artifactId>
                <version>2.6</version>
                <executions>
                   <execution>

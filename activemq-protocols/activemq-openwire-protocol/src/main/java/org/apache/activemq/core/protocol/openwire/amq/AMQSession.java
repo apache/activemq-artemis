@@ -245,7 +245,7 @@ public class AMQSession implements SessionCallback
       AMQConsumer consumer = consumers.remove(nativeId);
    }
 
-   public void createProducer(ProducerInfo info)
+   public void createProducer(ProducerInfo info) throws Exception
    {
       AMQProducer producer = new AMQProducer(this, info);
       producer.init();

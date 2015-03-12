@@ -46,28 +46,28 @@ public interface ActiveMQStompProtocolMessageBundle
    @Message(id = 339002, value = "Stomp versions not supported: {0}", format = Message.Format.MESSAGE_FORMAT)
    ActiveMQStompException versionNotSupported(String acceptVersion);
 
-   @Message(id = 339003, value = "Header host is null", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 339003, value = "Header host is null")
    ActiveMQStompException nullHostHeader();
 
-   @Message(id = 339004, value = "Cannot accept null as host", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 339004, value = "Cannot accept null as host")
    String hostCannotBeNull();
 
-   @Message(id = 339005, value = "Header host does not match server host", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 339005, value = "Header host does not match server host")
    ActiveMQStompException hostNotMatch();
 
    @Message(id = 339006, value = "host {0} does not match server host name", format = Message.Format.MESSAGE_FORMAT)
    String hostNotMatchDetails(String host);
 
-   @Message(id = 339007, value = "Connection was destroyed.", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 339007, value = "Connection was destroyed.")
    ActiveMQStompException connectionDestroyed();
 
-   @Message(id = 339008, value = "Connection has not been established.", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 339008, value = "Connection has not been established.")
    ActiveMQStompException connectionNotEstablished();
 
-   @Message(id = 339009, value = "Exception getting session", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 339009, value = "Exception getting session")
    ActiveMQStompException errorGetSession(@Cause Exception e);
 
-   @Message(id = 339010, value = "Connection is not valid.", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 339010, value = "Connection is not valid.")
    ActiveMQStompException invalidConnection();
 
    @Message(id = 339011, value = "Error sending message {0}", format = Message.Format.MESSAGE_FORMAT)
@@ -82,7 +82,7 @@ public interface ActiveMQStompProtocolMessageBundle
    @Message(id = 339014, value = "Error aborting {0}", format = Message.Format.MESSAGE_FORMAT)
    ActiveMQStompException errorAbortTx(String txID, @Cause Exception e);
 
-   @Message(id = 339015, value = "Client must set destination or id header to a SUBSCRIBE command", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 339015, value = "Client must set destination or id header to a SUBSCRIBE command")
    ActiveMQStompException noDestination();
 
    @Message(id = 339016, value = "Error creating subscription {0}", format = Message.Format.MESSAGE_FORMAT)
@@ -94,10 +94,10 @@ public interface ActiveMQStompProtocolMessageBundle
    @Message(id = 339018, value = "Error acknowledging message {0}", format = Message.Format.MESSAGE_FORMAT)
    ActiveMQStompException errorAck(String messageID, @Cause Exception e);
 
-   @Message(id = 339019, value = "Invalid char sequence: two consecutive CRs.", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 339019, value = "Invalid char sequence: two consecutive CRs.")
    ActiveMQStompException invalidTwoCRs();
 
-   @Message(id = 339020, value = "Invalid char sequence: There is a CR not followed by an LF", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 339020, value = "Invalid char sequence: There is a CR not followed by an LF")
    ActiveMQStompException badCRs();
 
    @Message(id = 339021, value = "Expect new line char but is {0}", format = Message.Format.MESSAGE_FORMAT)
@@ -118,36 +118,36 @@ public interface ActiveMQStompProtocolMessageBundle
    @Message(id = 339026, value = "subscription id {0} does not match {1}", format = Message.Format.MESSAGE_FORMAT)
    ActiveMQStompException subscriptionIDMismatch(String subscriptionID, String actualID);
 
-   @Message(id = 339027, value = "Cannot create a subscriber on the durable subscription if the client-id of the connection is not set", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 339027, value = "Cannot create a subscriber on the durable subscription if the client-id of the connection is not set")
    IllegalStateException missingClientID();
 
-   @Message(id = 339028, value = "Message header too big, increase minLargeMessageSize please.", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 339028, value = "Message header too big, increase minLargeMessageSize please.")
    Exception headerTooBig();
 
    @Message(id = 339029, value = "Unsupported command: {0}", format = Message.Format.MESSAGE_FORMAT)
    ActiveMQStompException unknownCommand(String command);
 
-   @Message(id = 339030, value = "transaction header is mandatory to COMMIT a transaction", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 339030, value = "transaction header is mandatory to COMMIT a transaction")
    ActiveMQStompException needTxIDHeader();
 
-   @Message(id = 339031, value = "Error handling send", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 339031, value = "Error handling send")
    ActiveMQStompException errorHandleSend(@Cause Exception e);
 
-   @Message(id = 339032, value = "Need a transaction id to begin", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 339032, value = "Need a transaction id to begin")
    ActiveMQStompException beginTxNoID();
 
-   @Message(id = 339033, value = "transaction header is mandatory to ABORT a transaction", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 339033, value = "transaction header is mandatory to ABORT a transaction")
    ActiveMQStompException abortTxNoID();
 
-   @Message(id = 339034, value = "This method should not be called", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 339034, value = "This method should not be called")
    IllegalStateException invalidCall();
 
-   @Message(id = 339035, value = "Must specify the subscription''s id or the destination you are unsubscribing from", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 339035, value = "Must specify the subscription''s id or the destination you are unsubscribing from")
    ActiveMQStompException needIDorDestination();
 
-   @Message(id = 339037, value = "Must specify the subscription''s id", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 339037, value = "Must specify the subscription''s id")
    ActiveMQStompException needSubscriptionID();
 
-   @Message(id = 339039, value = "No id header in ACK/NACK frame.", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 339039, value = "No id header in ACK/NACK frame.")
    ActiveMQStompException noIDInAck();
 }

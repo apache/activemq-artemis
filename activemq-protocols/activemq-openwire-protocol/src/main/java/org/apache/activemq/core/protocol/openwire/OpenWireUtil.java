@@ -20,6 +20,10 @@ package org.apache.activemq.core.protocol.openwire;
 import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.api.core.ActiveMQBuffers;
 import org.apache.activemq.command.ActiveMQDestination;
+import org.apache.activemq.core.protocol.openwire.amq.AMQServerSession;
+import org.apache.activemq.core.protocol.openwire.amq.AMQSession;
+import org.apache.activemq.core.server.ActiveMQMessageBundle;
+import org.apache.activemq.core.server.BindingQueryResult;
 import org.apache.activemq.util.ByteSequence;
 import org.apache.activemq.api.core.SimpleString;
 
@@ -44,6 +48,22 @@ public class OpenWireUtil
       else
       {
          return new SimpleString("jms.topic." + dest.getPhysicalName());
+      }
+   }
+
+   /**
+    * Checks to see if this destination exists.  If it does not throw an invalid destination exception.
+    * @param destination
+    * @param amqSession
+    */
+   public static void validateDestination(ActiveMQDestination destination, AMQSession amqSession) throws Exception
+   {
+      AMQServerSession coreSession = amqSession.getCoreSession();
+      SimpleString physicalName = OpenWireUtil.toCoreAddress(destination);
+      BindingQueryResult result = coreSession.executeBindingQuery(physicalName);
+      if (!result.isExists())
+      {
+         throw ActiveMQMessageBundle.BUNDLE.noSuchQueue(physicalName);
       }
    }
 

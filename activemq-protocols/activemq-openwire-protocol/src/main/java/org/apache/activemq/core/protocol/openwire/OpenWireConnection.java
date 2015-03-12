@@ -31,12 +31,14 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import javax.jms.InvalidDestinationException;
 import javax.jms.JMSSecurityException;
 import javax.jms.ResourceAllocationException;
 
 import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.api.core.ActiveMQBuffers;
 import org.apache.activemq.api.core.ActiveMQException;
+import org.apache.activemq.api.core.ActiveMQNonExistentQueueException;
 import org.apache.activemq.api.core.ActiveMQSecurityException;
 import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.command.ActiveMQMessage;
@@ -1242,8 +1244,27 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor
    @Override
    public Response processAddProducer(ProducerInfo info) throws Exception
    {
-      protocolManager.addProducer(this, info);
-      return null;
+      Response resp = null;
+      try
+      {
+         protocolManager.addProducer(this, info);
+      }
+      catch (Exception e)
+      {
+         if (e instanceof ActiveMQSecurityException)
+         {
+            resp = new ExceptionResponse(new JMSSecurityException(e.getMessage()));
+         }
+         else if (e instanceof ActiveMQNonExistentQueueException)
+         {
+            resp = new ExceptionResponse(new InvalidDestinationException(e.getMessage()));
+         }
+         else
+         {
+            resp = new ExceptionResponse(e);
+         }
+      }
+      return resp;
    }
 
    @Override

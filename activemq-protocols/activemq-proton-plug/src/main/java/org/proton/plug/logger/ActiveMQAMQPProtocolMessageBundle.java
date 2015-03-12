@@ -38,20 +38,17 @@ public interface ActiveMQAMQPProtocolMessageBundle
    ActiveMQAMQPProtocolMessageBundle BUNDLE = Messages.getBundle(ActiveMQAMQPProtocolMessageBundle.class);
 
 
-   @Message(id = 219000, value = "target address not set", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 219000, value = "target address not set")
    ActiveMQAMQPInvalidFieldException targetAddressNotSet();
 
    @Message(id = 219001, value = "error creating temporary queue, {0}", format = Message.Format.MESSAGE_FORMAT)
    ActiveMQAMQPInternalErrorException errorCreatingTemporaryQueue(String message);
 
-   @Message(id = 219002, value = "target address does not exist", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 219002, value = "target address does not exist")
    ActiveMQAMQPIllegalStateException addressDoesntExist();
 
    @Message(id = 219003, value = "error finding temporary queue, {0}", format = Message.Format.MESSAGE_FORMAT)
    ActiveMQAMQPInternalErrorException errorFindingTemporaryQueue(String message);
-
-   @Message(id = 219004, value = "error creating ActiveMQ Session, {0}", format = Message.Format.MESSAGE_FORMAT)
-   ActiveMQAMQPInternalErrorException errorCreatingActiveMQSession(String message);
 
    @Message(id = 219005, value = "error creating ActiveMQ Consumer, {0}", format = Message.Format.MESSAGE_FORMAT)
    ActiveMQAMQPInternalErrorException errorCreatingActiveMQConsumer(String message);
@@ -65,13 +62,10 @@ public interface ActiveMQAMQPProtocolMessageBundle
    @Message(id = 219008, value = "error cancelling message {0}, {1}", format = Message.Format.MESSAGE_FORMAT)
    ActiveMQAMQPIllegalStateException errorCancellingMessage(String messageID, String message);
 
-   @Message(id = 219009, value = "error closing consumer {0}, {1}", format = Message.Format.MESSAGE_FORMAT)
-   ActiveMQAMQPIllegalStateException errorClosingConsumer(long consumerID, String message);
-
-   @Message(id = 219010, value = "source address does not exist", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 219010, value = "source address does not exist")
    ActiveMQAMQPInvalidFieldException sourceAddressDoesntExist();
 
-   @Message(id = 219011, value = "source address not set", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 219011, value = "source address not set")
    ActiveMQAMQPInvalidFieldException sourceAddressNotSet();
 
    @Message(id = 219012, value = "error rolling back coordinator: {0}", format = Message.Format.MESSAGE_FORMAT)
@@ -80,6 +74,4 @@ public interface ActiveMQAMQPProtocolMessageBundle
    @Message(id = 219013, value = "error committing coordinator: {0}", format = Message.Format.MESSAGE_FORMAT)
    ActiveMQAMQPIllegalStateException errorCommittingCoordinator(String message);
 
-   @Message(id = 219015, value = "error decoding AMQP frame", format = Message.Format.MESSAGE_FORMAT)
-   String decodeError();
 }

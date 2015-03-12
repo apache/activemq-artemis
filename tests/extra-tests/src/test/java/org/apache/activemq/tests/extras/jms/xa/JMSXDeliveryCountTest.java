@@ -14,16 +14,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.jms.tests.message;
+package org.apache.activemq.tests.extras.jms.xa;
 
 import javax.jms.Connection;
 import javax.jms.DeliveryMode;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
+import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+import javax.jms.Topic;
 import javax.jms.XAConnection;
+import javax.jms.XAConnectionFactory;
 import javax.jms.XASession;
 import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
@@ -31,27 +34,53 @@ import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 
+import com.arjuna.ats.arjuna.coordinator.TransactionReaper;
+import com.arjuna.ats.arjuna.coordinator.TxControl;
 import com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionManagerImple;
 
-import org.apache.activemq.jms.tests.ActiveMQServerTestCase;
-import org.apache.activemq.jms.tests.util.ProxyAssertSupport;
+import org.apache.activemq.api.jms.ActiveMQJMSClient;
+import org.apache.activemq.tests.util.JMSTestBase;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 /**
  *
  * A JMSXDeliveryCountTest
  */
-public class JMSXDeliveryCountTest extends ActiveMQServerTestCase
+public class JMSXDeliveryCountTest extends JMSTestBase
 {
-   // Constants ------------------------------------------------------------------------------------
+   Queue queue1;
+   Topic topic1;
 
-   // Static ---------------------------------------------------------------------------------------
+   protected XAConnectionFactory xacf;
 
-   // Attributes -----------------------------------------------------------------------------------
+   @Override
+   @Before
+   public void setUp() throws Exception
+   {
+      super.setUp();
 
-   // Constructors ---------------------------------------------------------------------------------
+      xacf = ActiveMQJMSClient.createConnectionFactory("tcp://localhost:61616", "test");
 
-   // Public ---------------------------------------------------------------------------------------
+      queue1 = createQueue("queue1");
+      topic1 = createTopic("topic1");
+
+      TxControl.enable();
+   }
+
+   @Override
+   @After
+   public void tearDown() throws Exception
+   {
+      TxControl.disable(true);
+
+      TransactionReaper.terminate(false);
+
+      super.tearDown();
+
+   }
 
    @Test
    public void testSimpleJMSXDeliveryCount() throws Exception
@@ -60,7 +89,7 @@ public class JMSXDeliveryCountTest extends ActiveMQServerTestCase
 
       try
       {
-         conn = getConnectionFactory().createConnection();
+         conn = cf.createConnection();
          Session s = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
          MessageProducer p = s.createProducer(queue1);
          p.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
@@ -76,19 +105,19 @@ public class JMSXDeliveryCountTest extends ActiveMQServerTestCase
 
          TextMessage tm = (TextMessage)c.receive(1000);
 
-         ProxyAssertSupport.assertEquals("xoxo", tm.getText());
-         ProxyAssertSupport.assertTrue("JMSXDeliveryCount is supposed to exist as a property",
+         Assert.assertEquals("xoxo", tm.getText());
+         Assert.assertTrue("JMSXDeliveryCount is supposed to exist as a property",
                                        tm.propertyExists("JMSXDeliveryCount"));
-         ProxyAssertSupport.assertEquals(1, tm.getIntProperty("JMSXDeliveryCount"));
+         Assert.assertEquals(1, tm.getIntProperty("JMSXDeliveryCount"));
 
          s.recover();
 
          tm = (TextMessage)c.receive(1000);
 
-         ProxyAssertSupport.assertEquals("xoxo", tm.getText());
-         ProxyAssertSupport.assertTrue("JMSXDeliveryCount is supposed to exist as a property",
+         Assert.assertEquals("xoxo", tm.getText());
+         Assert.assertTrue("JMSXDeliveryCount is supposed to exist as a property",
                                        tm.propertyExists("JMSXDeliveryCount"));
-         ProxyAssertSupport.assertEquals(2, tm.getIntProperty("JMSXDeliveryCount"));
+         Assert.assertEquals(2, tm.getIntProperty("JMSXDeliveryCount"));
 
          tm.acknowledge();
 
@@ -110,7 +139,7 @@ public class JMSXDeliveryCountTest extends ActiveMQServerTestCase
 
       try
       {
-         conn = getConnectionFactory().createConnection();
+         conn = cf.createConnection();
 
          Session s = conn.createSession(false, Session.CLIENT_ACKNOWLEDGE);
 
@@ -128,9 +157,9 @@ public class JMSXDeliveryCountTest extends ActiveMQServerTestCase
 
          TextMessage tm = (TextMessage)c.receive(1000);
 
-         ProxyAssertSupport.assertEquals("message1", tm.getText());
-         ProxyAssertSupport.assertFalse(tm.getJMSRedelivered());
-         ProxyAssertSupport.assertEquals(1, tm.getIntProperty("JMSXDeliveryCount"));
+         Assert.assertEquals("message1", tm.getText());
+         Assert.assertFalse(tm.getJMSRedelivered());
+         Assert.assertEquals(1, tm.getIntProperty("JMSXDeliveryCount"));
 
          s.close();
 
@@ -140,33 +169,33 @@ public class JMSXDeliveryCountTest extends ActiveMQServerTestCase
 
          tm = (TextMessage)c.receive(1000);
 
-         ProxyAssertSupport.assertEquals("message1", tm.getText());
-         ProxyAssertSupport.assertTrue(tm.getJMSRedelivered());
-         ProxyAssertSupport.assertEquals(2, tm.getIntProperty("JMSXDeliveryCount"));
+         Assert.assertEquals("message1", tm.getText());
+         Assert.assertTrue(tm.getJMSRedelivered());
+         Assert.assertEquals(2, tm.getIntProperty("JMSXDeliveryCount"));
 
          tm = (TextMessage)c.receive(1000);
 
-         ProxyAssertSupport.assertEquals("message2", tm.getText());
-         ProxyAssertSupport.assertFalse(tm.getJMSRedelivered());
-         ProxyAssertSupport.assertEquals(1, tm.getIntProperty("JMSXDeliveryCount"));
+         Assert.assertEquals("message2", tm.getText());
+         Assert.assertFalse(tm.getJMSRedelivered());
+         Assert.assertEquals(1, tm.getIntProperty("JMSXDeliveryCount"));
 
          tm = (TextMessage)c.receive(1000);
 
-         ProxyAssertSupport.assertEquals("message3", tm.getText());
-         ProxyAssertSupport.assertFalse(tm.getJMSRedelivered());
-         ProxyAssertSupport.assertEquals(1, tm.getIntProperty("JMSXDeliveryCount"));
+         Assert.assertEquals("message3", tm.getText());
+         Assert.assertFalse(tm.getJMSRedelivered());
+         Assert.assertEquals(1, tm.getIntProperty("JMSXDeliveryCount"));
 
          tm = (TextMessage)c.receive(1000);
 
-         ProxyAssertSupport.assertEquals("message4", tm.getText());
-         ProxyAssertSupport.assertFalse(tm.getJMSRedelivered());
-         ProxyAssertSupport.assertEquals(1, tm.getIntProperty("JMSXDeliveryCount"));
+         Assert.assertEquals("message4", tm.getText());
+         Assert.assertFalse(tm.getJMSRedelivered());
+         Assert.assertEquals(1, tm.getIntProperty("JMSXDeliveryCount"));
 
          tm = (TextMessage)c.receive(1000);
 
-         ProxyAssertSupport.assertEquals("message5", tm.getText());
-         ProxyAssertSupport.assertFalse(tm.getJMSRedelivered());
-         ProxyAssertSupport.assertEquals(1, tm.getIntProperty("JMSXDeliveryCount"));
+         Assert.assertEquals("message5", tm.getText());
+         Assert.assertFalse(tm.getJMSRedelivered());
+         Assert.assertEquals(1, tm.getIntProperty("JMSXDeliveryCount"));
 
          tm.acknowledge();
       }
@@ -186,7 +215,7 @@ public class JMSXDeliveryCountTest extends ActiveMQServerTestCase
 
       try
       {
-         conn = getConnectionFactory().createConnection();
+         conn = cf.createConnection();
 
          Session sess1 = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
@@ -218,11 +247,11 @@ public class JMSXDeliveryCountTest extends ActiveMQServerTestCase
             for (int i = 0; i < NUM_MESSAGES; i++)
             {
                tm = (TextMessage)cons.receive(3000);
-               ProxyAssertSupport.assertNotNull(tm);
-               ProxyAssertSupport.assertEquals("testing" + i, tm.getText());
-               ProxyAssertSupport.assertTrue("JMSXDeliveryCount is supposed to exist as a property",
+               Assert.assertNotNull(tm);
+               Assert.assertEquals("testing" + i, tm.getText());
+               Assert.assertTrue("JMSXDeliveryCount is supposed to exist as a property",
                                              tm.propertyExists("JMSXDeliveryCount"));
-               ProxyAssertSupport.assertEquals(j + 1, tm.getIntProperty("JMSXDeliveryCount"));
+               Assert.assertEquals(j + 1, tm.getIntProperty("JMSXDeliveryCount"));
             }
             if (j != NUM_RECOVERIES - 1)
             {
@@ -248,7 +277,7 @@ public class JMSXDeliveryCountTest extends ActiveMQServerTestCase
 
       try
       {
-         conn = getConnectionFactory().createConnection();
+         conn = cf.createConnection();
 
          conn.setClientID("myclientid");
 
@@ -256,9 +285,9 @@ public class JMSXDeliveryCountTest extends ActiveMQServerTestCase
          Session sess2 = conn.createSession(false, Session.CLIENT_ACKNOWLEDGE);
          Session sess3 = conn.createSession(false, Session.CLIENT_ACKNOWLEDGE);
 
-         MessageConsumer cons1 = sess1.createConsumer(ActiveMQServerTestCase.topic1);
-         MessageConsumer cons2 = sess2.createConsumer(ActiveMQServerTestCase.topic1);
-         MessageConsumer cons3 = sess3.createDurableSubscriber(ActiveMQServerTestCase.topic1, "subxyz");
+         MessageConsumer cons1 = sess1.createConsumer(topic1);
+         MessageConsumer cons2 = sess2.createConsumer(topic1);
+         MessageConsumer cons3 = sess3.createDurableSubscriber(topic1, "subxyz");
 
          conn.start();
 
@@ -278,7 +307,7 @@ public class JMSXDeliveryCountTest extends ActiveMQServerTestCase
          t3.start();
 
          Session sessSend = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-         MessageProducer prod = sessSend.createProducer(ActiveMQServerTestCase.topic1);
+         MessageProducer prod = sessSend.createProducer(topic1);
          prod.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
 
          for (int i = 0; i < NUM_MESSAGES; i++)
@@ -291,9 +320,9 @@ public class JMSXDeliveryCountTest extends ActiveMQServerTestCase
          t2.join();
          t3.join();
 
-         ProxyAssertSupport.assertFalse(r1.failed);
-         ProxyAssertSupport.assertFalse(r2.failed);
-         ProxyAssertSupport.assertFalse(r3.failed);
+         Assert.assertFalse(r1.failed);
+         Assert.assertFalse(r2.failed);
+         Assert.assertFalse(r3.failed);
 
          cons3.close();
 
@@ -315,7 +344,7 @@ public class JMSXDeliveryCountTest extends ActiveMQServerTestCase
 
       try
       {
-         conn = getConnectionFactory().createConnection();
+         conn = cf.createConnection();
 
          Session producerSess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
          MessageProducer producer = producerSess.createProducer(queue1);
@@ -330,39 +359,39 @@ public class JMSXDeliveryCountTest extends ActiveMQServerTestCase
 
          TextMessage rm = (TextMessage)consumer.receive(1000);
 
-         ProxyAssertSupport.assertNotNull(rm);
+         Assert.assertNotNull(rm);
 
-         ProxyAssertSupport.assertEquals(tm.getText(), rm.getText());
+         Assert.assertEquals(tm.getText(), rm.getText());
 
-         ProxyAssertSupport.assertTrue("JMSXDeliveryCount is supposed to exist as a property",
+         Assert.assertTrue("JMSXDeliveryCount is supposed to exist as a property",
                                        tm.propertyExists("JMSXDeliveryCount"));
-         ProxyAssertSupport.assertEquals(1, rm.getIntProperty("JMSXDeliveryCount"));
+         Assert.assertEquals(1, rm.getIntProperty("JMSXDeliveryCount"));
 
-         ProxyAssertSupport.assertFalse(rm.getJMSRedelivered());
-
-         consumerSess.rollback();
-
-         rm = (TextMessage)consumer.receive(1000);
-
-         ProxyAssertSupport.assertNotNull(rm);
-
-         ProxyAssertSupport.assertEquals(tm.getText(), rm.getText());
-
-         ProxyAssertSupport.assertEquals(2, rm.getIntProperty("JMSXDeliveryCount"));
-
-         ProxyAssertSupport.assertTrue(rm.getJMSRedelivered());
+         Assert.assertFalse(rm.getJMSRedelivered());
 
          consumerSess.rollback();
 
          rm = (TextMessage)consumer.receive(1000);
 
-         ProxyAssertSupport.assertNotNull(rm);
+         Assert.assertNotNull(rm);
 
-         ProxyAssertSupport.assertEquals(tm.getText(), rm.getText());
+         Assert.assertEquals(tm.getText(), rm.getText());
 
-         ProxyAssertSupport.assertEquals(3, rm.getIntProperty("JMSXDeliveryCount"));
+         Assert.assertEquals(2, rm.getIntProperty("JMSXDeliveryCount"));
 
-         ProxyAssertSupport.assertTrue(rm.getJMSRedelivered());
+         Assert.assertTrue(rm.getJMSRedelivered());
+
+         consumerSess.rollback();
+
+         rm = (TextMessage)consumer.receive(1000);
+
+         Assert.assertNotNull(rm);
+
+         Assert.assertEquals(tm.getText(), rm.getText());
+
+         Assert.assertEquals(3, rm.getIntProperty("JMSXDeliveryCount"));
+
+         Assert.assertTrue(rm.getJMSRedelivered());
 
          // Now close the session without committing
 
@@ -374,13 +403,13 @@ public class JMSXDeliveryCountTest extends ActiveMQServerTestCase
 
          rm = (TextMessage)consumer.receive(1000);
 
-         ProxyAssertSupport.assertNotNull(rm);
+         Assert.assertNotNull(rm);
 
-         ProxyAssertSupport.assertEquals(tm.getText(), rm.getText());
+         Assert.assertEquals(tm.getText(), rm.getText());
 
-         ProxyAssertSupport.assertEquals(4, rm.getIntProperty("JMSXDeliveryCount"));
+         Assert.assertEquals(4, rm.getIntProperty("JMSXDeliveryCount"));
 
-         ProxyAssertSupport.assertTrue(rm.getJMSRedelivered());
+         Assert.assertTrue(rm.getJMSRedelivered());
 
          consumerSess.commit();
       }
@@ -400,7 +429,7 @@ public class JMSXDeliveryCountTest extends ActiveMQServerTestCase
 
       try
       {
-         conn = getConnectionFactory().createConnection();
+         conn = cf.createConnection();
 
          Session producerSess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
          MessageProducer producer = producerSess.createProducer(queue1);
@@ -415,37 +444,37 @@ public class JMSXDeliveryCountTest extends ActiveMQServerTestCase
 
          TextMessage rm = (TextMessage)consumer.receive(1000);
 
-         ProxyAssertSupport.assertNotNull(rm);
+         Assert.assertNotNull(rm);
 
-         ProxyAssertSupport.assertEquals(tm.getText(), rm.getText());
+         Assert.assertEquals(tm.getText(), rm.getText());
 
-         ProxyAssertSupport.assertEquals(1, rm.getIntProperty("JMSXDeliveryCount"));
+         Assert.assertEquals(1, rm.getIntProperty("JMSXDeliveryCount"));
 
-         ProxyAssertSupport.assertFalse(rm.getJMSRedelivered());
-
-         consumerSess.recover();
-
-         rm = (TextMessage)consumer.receive(1000);
-
-         ProxyAssertSupport.assertNotNull(rm);
-
-         ProxyAssertSupport.assertEquals(tm.getText(), rm.getText());
-
-         ProxyAssertSupport.assertEquals(2, rm.getIntProperty("JMSXDeliveryCount"));
-
-         ProxyAssertSupport.assertTrue(rm.getJMSRedelivered());
+         Assert.assertFalse(rm.getJMSRedelivered());
 
          consumerSess.recover();
 
          rm = (TextMessage)consumer.receive(1000);
 
-         ProxyAssertSupport.assertNotNull(rm);
+         Assert.assertNotNull(rm);
 
-         ProxyAssertSupport.assertEquals(tm.getText(), rm.getText());
+         Assert.assertEquals(tm.getText(), rm.getText());
 
-         ProxyAssertSupport.assertEquals(3, rm.getIntProperty("JMSXDeliveryCount"));
+         Assert.assertEquals(2, rm.getIntProperty("JMSXDeliveryCount"));
 
-         ProxyAssertSupport.assertTrue(rm.getJMSRedelivered());
+         Assert.assertTrue(rm.getJMSRedelivered());
+
+         consumerSess.recover();
+
+         rm = (TextMessage)consumer.receive(1000);
+
+         Assert.assertNotNull(rm);
+
+         Assert.assertEquals(tm.getText(), rm.getText());
+
+         Assert.assertEquals(3, rm.getIntProperty("JMSXDeliveryCount"));
+
+         Assert.assertTrue(rm.getJMSRedelivered());
 
          // Now close the session without committing
 
@@ -457,13 +486,13 @@ public class JMSXDeliveryCountTest extends ActiveMQServerTestCase
 
          rm = (TextMessage)consumer.receive(1000);
 
-         ProxyAssertSupport.assertNotNull(rm);
+         Assert.assertNotNull(rm);
 
-         ProxyAssertSupport.assertEquals(tm.getText(), rm.getText());
+         Assert.assertEquals(tm.getText(), rm.getText());
 
-         ProxyAssertSupport.assertEquals(4, rm.getIntProperty("JMSXDeliveryCount"));
+         Assert.assertEquals(4, rm.getIntProperty("JMSXDeliveryCount"));
 
-         ProxyAssertSupport.assertTrue(rm.getJMSRedelivered());
+         Assert.assertTrue(rm.getJMSRedelivered());
 
          rm.acknowledge();
       }
@@ -492,7 +521,7 @@ public class JMSXDeliveryCountTest extends ActiveMQServerTestCase
       {
          toResume = mgr.suspend();
 
-         conn = getConnectionFactory().createConnection();
+         conn = cf.createConnection();
 
          // Send a message
 
@@ -503,7 +532,7 @@ public class JMSXDeliveryCountTest extends ActiveMQServerTestCase
 
          producer.send(tm);
 
-         xaConn = getXAConnectionFactory().createXAConnection();
+         xaConn = xacf.createXAConnection();
 
          XASession consumerSess = xaConn.createXASession();
          MessageConsumer consumer = consumerSess.createConsumer(queue1);
@@ -521,37 +550,13 @@ public class JMSXDeliveryCountTest extends ActiveMQServerTestCase
 
          TextMessage rm = (TextMessage)consumer.receive(1000);
 
-         ProxyAssertSupport.assertNotNull(rm);
+         Assert.assertNotNull(rm);
 
-         ProxyAssertSupport.assertEquals(tm.getText(), rm.getText());
+         Assert.assertEquals(tm.getText(), rm.getText());
 
-         ProxyAssertSupport.assertEquals(1, rm.getIntProperty("JMSXDeliveryCount"));
+         Assert.assertEquals(1, rm.getIntProperty("JMSXDeliveryCount"));
 
-         ProxyAssertSupport.assertFalse(rm.getJMSRedelivered());
-
-         tx.delistResource(res, XAResource.TMSUCCESS);
-
-         tx.delistResource(consumerSess.getXAResource(), XAResource.TMSUCCESS);
-
-         mgr.rollback();
-
-         mgr.begin();
-
-         tx = mgr.getTransaction();
-
-         tx.enlistResource(res);
-
-         tx.enlistResource(consumerSess.getXAResource());
-
-         rm = (TextMessage)consumer.receive(1000);
-
-         ProxyAssertSupport.assertNotNull(rm);
-
-         ProxyAssertSupport.assertEquals(tm.getText(), rm.getText());
-
-         ProxyAssertSupport.assertEquals(2, rm.getIntProperty("JMSXDeliveryCount"));
-
-         ProxyAssertSupport.assertTrue(rm.getJMSRedelivered());
+         Assert.assertFalse(rm.getJMSRedelivered());
 
          tx.delistResource(res, XAResource.TMSUCCESS);
 
@@ -569,13 +574,37 @@ public class JMSXDeliveryCountTest extends ActiveMQServerTestCase
 
          rm = (TextMessage)consumer.receive(1000);
 
-         ProxyAssertSupport.assertNotNull(rm);
+         Assert.assertNotNull(rm);
 
-         ProxyAssertSupport.assertEquals(tm.getText(), rm.getText());
+         Assert.assertEquals(tm.getText(), rm.getText());
 
-         ProxyAssertSupport.assertEquals(3, rm.getIntProperty("JMSXDeliveryCount"));
+         Assert.assertEquals(2, rm.getIntProperty("JMSXDeliveryCount"));
 
-         ProxyAssertSupport.assertTrue(rm.getJMSRedelivered());
+         Assert.assertTrue(rm.getJMSRedelivered());
+
+         tx.delistResource(res, XAResource.TMSUCCESS);
+
+         tx.delistResource(consumerSess.getXAResource(), XAResource.TMSUCCESS);
+
+         mgr.rollback();
+
+         mgr.begin();
+
+         tx = mgr.getTransaction();
+
+         tx.enlistResource(res);
+
+         tx.enlistResource(consumerSess.getXAResource());
+
+         rm = (TextMessage)consumer.receive(1000);
+
+         Assert.assertNotNull(rm);
+
+         Assert.assertEquals(tm.getText(), rm.getText());
+
+         Assert.assertEquals(3, rm.getIntProperty("JMSXDeliveryCount"));
+
+         Assert.assertTrue(rm.getJMSRedelivered());
 
          tx.delistResource(res, XAResource.TMSUCCESS);
 
@@ -603,13 +632,13 @@ public class JMSXDeliveryCountTest extends ActiveMQServerTestCase
 
          rm = (TextMessage)consumer.receive(1000);
 
-         ProxyAssertSupport.assertNotNull(rm);
+         Assert.assertNotNull(rm);
 
-         ProxyAssertSupport.assertEquals(tm.getText(), rm.getText());
+         Assert.assertEquals(tm.getText(), rm.getText());
 
-         ProxyAssertSupport.assertEquals(4, rm.getIntProperty("JMSXDeliveryCount"));
+         Assert.assertEquals(4, rm.getIntProperty("JMSXDeliveryCount"));
 
-         ProxyAssertSupport.assertTrue(rm.getJMSRedelivered());
+         Assert.assertTrue(rm.getJMSRedelivered());
 
          tx.delistResource(res, XAResource.TMSUCCESS);
 
@@ -697,15 +726,11 @@ public class JMSXDeliveryCountTest extends ActiveMQServerTestCase
 
                   if (!tm.getText().equals("testing" + i))
                   {
-                     log.error("Out of order!!");
                      failed = true;
                   }
 
                   if (tm.getIntProperty("JMSXDeliveryCount") != j + 1)
                   {
-                     log.error("DeliveryImpl count not expected value:" + (j + 1) +
-                               " actual:" +
-                               tm.getIntProperty("JMSXDeliveryCount"));
                      failed = true;
                   }
                }

@@ -440,7 +440,7 @@ public class OpenWireProtocolManager implements ProtocolManager
       return false;
    }
 
-   public void addProducer(OpenWireConnection theConn, ProducerInfo info)
+   public void addProducer(OpenWireConnection theConn, ProducerInfo info) throws Exception
    {
       SessionId sessionId = info.getProducerId().getParentId();
       ConnectionId connectionId = sessionId.getParentId();
