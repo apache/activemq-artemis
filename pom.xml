@@ -197,6 +197,9 @@
          <!-- ## End Test Dependencies ## -->
 
          <!-- ### Build Time Dependencies ### -->
+         <!-- This is a build dependency of this project, but is not needed at compile or runtime by other
+         projects that depend on this project. This should be in the compiler plugin but can't because of a bug,
+         see https://jira.codehaus.org/browse/MCOMPILER-203-->
          <dependency>
             <groupId>org.jboss.logging</groupId>
             <artifactId>jboss-logging-processor</artifactId>
