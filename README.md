@@ -67,7 +67,7 @@ After you installed brew you can install npm by:
 It is possible to build a distribution with out the manuals and javadocs if you dont have or want gitbook installed, 
 simply run
 
-```% mvn -Prelease distro```
+```% mvn package```
 
 ## Tests
 

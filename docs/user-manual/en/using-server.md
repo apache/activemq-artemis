@@ -102,8 +102,8 @@ The configuration file used to bootstrap the server (e.g.
 files.
 
 -   `activemq-configuration.xml`. This is the main ActiveMQ
-    configuration file. All the parameters in this file are described in
-    ?. Please see ? for more information on this file.
+    configuration file. All the parameters in this file are
+    described [here](configuration-index.md)
 
 It is also possible to use system property substitution in all the
 configuration files. by replacing a value with the name of a system
