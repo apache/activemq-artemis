@@ -1385,48 +1385,17 @@ role your own security by specifying security constraints with your
 web.xml for every path of every queue and topic you have deployed. Here
 is a list of URI patterns:
 
-<table>
-   <tr>
-      <td>/queues </td>
-      <td>secure the POST operation to secure queue creation</td>
-   </tr>
-   <tr>
-      <td>/queues/{queue-name}</td>
-      <td>secure the GET HEAD operation to getting information about the queue.</td>
-   </tr>
-   <tr>
-      <td>/queues/{queue-name}/create/\* </td>
-      <td>secure this URL pattern for producing messages. </td>
-   </tr>
-   <tr>
-      <td>/queues/{queue-name}/pull-consumers/\*</td>
-      <td>secure this URL pattern for pushing messages.</td>
-   </tr>
-   <tr>
-      <td>/queues/{queue-name}/push-consumers/\*</td>
-      <td>secure the POST operation to secure topic creation</td>
-   </tr>
-   <tr>
-      <td>/topics</td>
-      <td>secure the POST operation to secure topic creation</td>
-   </tr>
-   <tr>
-      <td>/topics/{topic-name}</td>
-      <td>secure the GET HEAD operation to getting information about the topic.</td>
-   </tr>
-   <tr>
-      <td>/topics/{topic-name}/create/\*</td>
-      <td>secure this URL pattern for producing messages.</td>
-   </tr>
-   <tr>
-      <td>/topics/{topic-name}/pull-subscriptions/\*</td>
-      <td>secure this URL pattern for pulling messages.</td>
-   </tr>
-   <tr>
-      <td>/topics/{topic-name}/push-subscriptions/\*</td>
-      <td>secure this URL pattern for pushing messages.</td>
-   </tr>
-</table>
+Post | Description
+ --- | ---
+ /queues | secure the POST operation to secure queue creation
+ /queues/{queue-name}/create/ | secure this URL pattern for producing messages.
+ /queues/{queue-name}/pull-consumers/ | secure this URL pattern for pushing messages.
+ /queues/{queue-name}/push-consumers/ | secure the POST operation to secure topic creation
+ /topics | secure the POST operation to secure topic creation
+ /topics/{topic-name} | secure the GET HEAD operation to getting information about the topic.
+ /topics/{topic-name}/create/ | secure this URL pattern for producing messages
+ /topics/{topic-name}/pull-subscriptions/ | secure this URL pattern for pulling messages
+ /topics/{topic-name}/push-subscriptions/ | secure this URL pattern for pushing messages
 
 ## Mixing JMS and REST
 
@@ -1463,10 +1432,12 @@ If you have a REST client producing messages and a JMS consumer,
 Apache ActiveMQ REST has a simple helper class for you to transform the HTTP
 body to a Java object. Here's some example code:
 
-    public void onMessage(Message message)
-    {
-       MyType obj = org.apache.activemq.rest.Jms.getEntity(message, MyType.class);
-    }
+```java
+public void onMessage(Message message)
+{
+   MyType obj = org.apache.activemq.rest.Jms.getEntity(message, MyType.class);
+}
+```
 
 The way the `getEntity()` method works is that if the message is an
 ObjectMessage, it will try to extract the desired type from it like any

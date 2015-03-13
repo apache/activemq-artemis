@@ -12,7 +12,9 @@ by eliminating the need so specify a classpath. These tools are:
     the bindings and message journals are stored, respectively. For
     example:
 
-        java -jar activemq-tools-<version>-jar-with-dependencies.jar print-data /home/user/activemq/data/bindings /home/user/activemq/data/journal
+```sh
+java -jar activemq-tools-<version>-jar-with-dependencies.jar print-data /home/user/activemq/data/bindings /home/user/activemq/data/journal
+```
 
 -   **`print-pages`**. Used for low-level inspection of paged message
     data. It takes two parameters - `paging-directory` and
@@ -20,7 +22,9 @@ by eliminating the need so specify a classpath. These tools are:
     paged messages and the message journals are stored, respectively.
     For example:
 
-        java -jar activemq-tools-<version>-jar-with-dependencies.jar print-pages /home/user/activemq/data/paging-directory /home/user/activemq/data/journal
+```sh
+java -jar activemq-tools-<version>-jar-with-dependencies.jar print-pages /home/user/activemq/data/paging-directory /home/user/activemq/data/journal
+```
 
 -   **`export`**. Used for exporting all binding and message data
     (including paged and large messages) as well as JMS destinations and
@@ -39,8 +43,9 @@ by eliminating the need so specify a classpath. These tools are:
         directory.
 
     Here's an example:
-
-        java -jar activemq-tools-<version>-jar-with-dependencies.jar export /home/user/activemq/data/bindings-directory /home/user/activemq/data/journal-directory /home/user/activemq/data/paging-directory /home/user/activemq/data/large-messages
+```
+java -jar activemq-tools-<version>-jar-with-dependencies.jar export /home/user/activemq/data/bindings-directory /home/user/activemq/data/journal-directory /home/user/activemq/data/paging-directory /home/user/activemq/data/large-messages
+```
 
     This tool will export directly to standard out so if the data needs
     to be stored in a file please redirect as appropriate for the
@@ -78,7 +83,9 @@ by eliminating the need so specify a classpath. These tools are:
 
     Here's an example:
 
-        java -jar activemq-tools-<version>-jar-with-dependencies.jar import /home/user/exportData.xml 127.0.0.1 61616 false false
+    ```sh
+    java -jar activemq-tools-<version>-jar-with-dependencies.jar import /home/user/exportData.xml 127.0.0.1 61616 false false
+    ```
 
     Like the `export` tool the `import` tool is single threaded so
     depending on the size of the XML file it may take awhile for the

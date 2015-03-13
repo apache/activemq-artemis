@@ -124,7 +124,7 @@ situations. This is discussed in [Paging](paging.md).
 
 If no persistence is required at all, Apache ActiveMQ can also be configured
 not to persist any data at all to storage as discussed in the Configuring
-HornetQ for Zero Persistence section.
+the broker for Zero Persistence section.
 
 ## Configuring the bindings journal
 
