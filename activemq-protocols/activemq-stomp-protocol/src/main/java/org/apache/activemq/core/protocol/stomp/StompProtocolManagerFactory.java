@@ -31,7 +31,7 @@ public class StompProtocolManagerFactory implements ProtocolManagerFactory
 
    public ProtocolManager createProtocolManager(final ActiveMQServer server, final List<Interceptor> incomingInterceptors, List<Interceptor> outgoingInterceptors)
    {
-      return new StompProtocolManager(server, incomingInterceptors);
+      return new StompProtocolManager(server, incomingInterceptors, outgoingInterceptors);
    }
 
    @Override
