@@ -49,21 +49,11 @@
       <dependency>
          <groupId>org.jboss.resteasy</groupId>
          <artifactId>resteasy-jaxrs</artifactId>
-         <exclusions>
-            <exclusion>
-               <groupId>org.jboss.spec.javax.annotation</groupId>
-               <artifactId>jboss-annotations-api_1.1_spec</artifactId>
-            </exclusion>
-        </exclusions>
       </dependency>
       <dependency>
          <groupId>org.jboss.resteasy</groupId>
          <artifactId>resteasy-jaxb-provider</artifactId>
          <exclusions>
-            <exclusion>
-               <groupId>org.jboss.spec.javax.annotation</groupId>
-               <artifactId>jboss-annotations-api_1.1_spec</artifactId>
-            </exclusion>
             <exclusion>
                <groupId>com.sun.xml.bind</groupId>
                <artifactId>jaxb-impl</artifactId>
@@ -77,32 +67,14 @@
       <dependency>
          <groupId>org.jboss.resteasy</groupId>
          <artifactId>resteasy-jackson-provider</artifactId>
-         <exclusions>
-            <exclusion>
-               <groupId>org.jboss.spec.javax.annotation</groupId>
-               <artifactId>jboss-annotations-api_1.1_spec</artifactId>
-            </exclusion>
-         </exclusions>
       </dependency>
       <dependency>
          <groupId>org.jboss.resteasy</groupId>
          <artifactId>resteasy-atom-provider</artifactId>
-         <exclusions>
-            <exclusion>
-               <groupId>org.jboss.spec.javax.annotation</groupId>
-               <artifactId>jboss-annotations-api_1.1_spec</artifactId>
-            </exclusion>
-         </exclusions>
       </dependency>
       <dependency>
          <groupId>org.jboss.resteasy</groupId>
          <artifactId>tjws</artifactId>
-         <exclusions>
-            <exclusion>
-               <groupId>org.jboss.spec.javax.annotation</groupId>
-               <artifactId>jboss-annotations-api_1.1_spec</artifactId>
-            </exclusion>
-         </exclusions>
       </dependency>
       <dependency>
          <groupId>io.netty</groupId>
@@ -123,10 +95,8 @@
          <artifactId>geronimo-jms_2.0_spec</artifactId>
       </dependency>
       <dependency>
-         <groupId>org.jboss.spec.javax.annotation</groupId>
-         <artifactId>jboss-annotations-api_1.1_spec</artifactId>
-         <version>1.0.1.Final</version>
-         <scope>test</scope>
+         <groupId>org.apache.geronimo.specs</groupId>
+         <artifactId>geronimo-annotation_1.1_spec</artifactId>
       </dependency>
       <dependency>
          <groupId>junit</groupId>

@@ -157,22 +157,10 @@ under the License.
       <dependency>
          <groupId>org.jboss.resteasy</groupId>
          <artifactId>resteasy-jaxrs</artifactId>
-         <exclusions>
-            <exclusion>
-               <groupId>org.jboss.spec.javax.annotation</groupId>
-               <artifactId>jboss-annotations-api_1.1_spec</artifactId>
-            </exclusion>
-         </exclusions>
       </dependency>
       <dependency>
          <groupId>org.jboss.resteasy</groupId>
          <artifactId>resteasy-jaxb-provider</artifactId>
-         <exclusions>
-            <exclusion>
-               <groupId>org.jboss.spec.javax.annotation</groupId>
-               <artifactId>jboss-annotations-api_1.1_spec</artifactId>
-            </exclusion>
-         </exclusions>
       </dependency>
       <dependency>
          <groupId>junit</groupId>
