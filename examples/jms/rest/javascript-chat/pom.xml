@@ -23,7 +23,7 @@ under the License.
    <parent>
       <groupId>org.apache.activemq.examples.rest</groupId>
       <artifactId>activemq-rest-examples-pom</artifactId>
-      <version>6.0.0</version>
+      <version>6.0.1-SNAPSHOT</version>
    </parent>
    <artifactId>javascript-chat</artifactId>
    <packaging>war</packaging>
