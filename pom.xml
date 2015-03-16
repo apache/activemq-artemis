@@ -921,6 +921,7 @@
                   <exclude>**/utils/UUID*.java</exclude>
                   <exclude>**/org/apache/activemq/selector/**</exclude>
                   <exclude>**/org/apache/activemq/utils/json/**</exclude>
+                  <exclude>**/org/apache/activemq/utils/Base64.java</exclude>
                </excludes>
                <useDefaultExcludes>true</useDefaultExcludes>
                <strictCheck>true</strictCheck>
@@ -963,6 +964,7 @@
                   <exclude>**/*.jks</exclude>
                   <exclude>**/org/apache/activemq/utils/json/**</exclude>
                   <exclude>**/src/main/resources/META-INF/LICENSE</exclude>
+                  <exclude>**/org/apache/activemq/utils/Base64.java</exclude>
                </excludes>
             </configuration>
             <executions>
