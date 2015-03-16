@@ -33,31 +33,14 @@ under the License.
 
    <dependencies>
       <dependency>
-         <groupId>org.apache.activemq</groupId>
-         <artifactId>activemq-core-client</artifactId>
+         <groupId>org.apache.activemq.examples.jms</groupId>
+         <artifactId>activemq-jms-examples-common</artifactId>
          <version>${project.version}</version>
-      </dependency>
-      <dependency>
-         <groupId>org.apache.activemq</groupId>
-         <artifactId>activemq-commons</artifactId>
-         <version>${project.version}</version>
-      </dependency>
-      <dependency>
-         <groupId>io.netty</groupId>
-         <artifactId>netty-all</artifactId>
-         <version>${netty.version}</version>
       </dependency>
       <dependency>
          <groupId>org.apache.geronimo.specs</groupId>
          <artifactId>geronimo-jms_2.0_spec</artifactId>
-         <version>${geronimo.jms.2.spec.version}</version>
       </dependency>
-      <dependency>
-         <groupId>org.apache.activemq</groupId>
-         <artifactId>activemq-amqp-protocol</artifactId>
-         <version>${project.version}</version>
-      </dependency>
-
    </dependencies>
 
    <profiles>
@@ -68,6 +51,7 @@ under the License.
                <plugin>
                   <groupId>org.apache.activemq</groupId>
                   <artifactId>activemq-maven-plugin</artifactId>
+                  <version>${project.version}</version>
                   <executions>
                      <execution>
                         <id>start</id>
@@ -75,8 +59,6 @@ under the License.
                            <goal>start</goal>
                         </goals>
                         <configuration>
-                           <waitOnStart>true</waitOnStart>
-                           <configurationDir>${basedir}/target/classes/activemq/server0</configurationDir>
                            <systemProperties>
                               <property>
                                  <name>data.dir</name>
@@ -85,12 +67,28 @@ under the License.
                            </systemProperties>
                         </configuration>
                      </execution>
+                     <execution>
+                        <id>runClient</id>
+                        <goals>
+                           <goal>runClient</goal>
+                        </goals>
+                        <configuration>
+                           <clientClass>org.apache.activemq.jms.example.ProtonCPPExample</clientClass>
+                        </configuration>
+                     </execution>
+                     <execution>
+                        <id>stop</id>
+                        <goals>
+                           <goal>stop</goal>
+                        </goals>
+                     </execution>
                   </executions>
-                  <configuration>
-                     <waitOnStart>false</waitOnStart>
-                     <configurationDir>${basedir}/target/classes/activemq/server0</configurationDir>
-                  </configuration>
                   <dependencies>
+                     <dependency>
+                        <groupId>org.apache.activemq.examples.jms</groupId>
+                        <artifactId>activemq-jms-protoncpp</artifactId>
+                        <version>${project.version}</version>
+                     </dependency>
                      <dependency>
                         <groupId>org.apache.activemq</groupId>
                         <artifactId>activemq-core-client</artifactId>
@@ -122,15 +120,19 @@ under the License.
                         <version>${netty.version}</version>
                      </dependency>
                      <dependency>
-                         <groupId>org.apache.geronimo.specs</groupId>
-                         <artifactId>geronimo-jms_2.0_spec</artifactId>
+                        <groupId>org.apache.geronimo.specs</groupId>
+                        <artifactId>geronimo-jms_2.0_spec</artifactId>
+                        <version>${geronimo.jms.2.spec.version}</version>
                      </dependency>
                   </dependencies>
+                  <configuration>
+                     <waitOnStart>false</waitOnStart>
+                     <configurationDir>${basedir}/target/classes/activemq/server0</configurationDir>
+                  </configuration>
                </plugin>
             </plugins>
          </build>
       </profile>
    </profiles>
-
 
 </project>
