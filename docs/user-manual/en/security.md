@@ -67,7 +67,7 @@ Let's take a simple example, here's a security block from
 
 The '`#`' character signifies "any sequence of words". Words are
 delimited by the '`.`' character. For a full description of the wildcard
-syntax please see [Understanding the HornetQ Wildcard Syntax](wildcard-syntax.md).
+syntax please see [Understanding the Wildcard Syntax](wildcard-syntax.md).
 The above security block applies to any address
 that starts with the string "globalqueues.europe.":
 

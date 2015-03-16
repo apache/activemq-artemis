@@ -186,36 +186,15 @@ This can be changed by setting the type like so
 In this example it is still set to the default, below shows a list of types that can be set.
 
 #### Configuration for Connection Factory Types
-<table>
-  <tr>
-    <th>type</th>
-    <th>interface</th>
-  </tr>
-  <tr>
-    <td>CF (default)</td>
-    <td>javax.jms.ConnectionFactory</td>
-  </tr>
-  <tr>
-    <td>XA_CF</td>
-    <td>javax.jms.XAConnectionFactory</td>
-  </tr>
-  <tr>
-    <td>QUEUE_CF</td>
-    <td>javax.jms.QueueConnectionFactory</td>
-  </tr>
-  <tr>
-    <td>QUEUE_XA_CF</td>
-    <td>javax.jms.XAQueueConnectionFactory</td>
-  </tr>
-  <tr>
-    <td>TOPIC_CF</td>
-    <td>javax.jms.TopicConnectionFactory</td>
-  </tr>
-  <tr>
-    <td>TOPIC_XA_CF</td>
-    <td>javax.jms.XATopicConnectionFactory</td>
-  </tr>
-</table>
+
+type | interface
+--- |---
+CF (default) | javax.jms.ConnectionFactory
+XA_CF | javax.jms.XAConnectionFactory
+QUEUE_CF | javax.jms.QueueConnectionFactory
+QUEUE_XA_CF | javax.jms.XAQueueConnectionFactory
+TOPIC_CF | javax.jms.TopicConnectionFactory
+TOPIC_XA_CF | javax.jms.XATopicConnectionFactory
 
 ### Destination JNDI
 

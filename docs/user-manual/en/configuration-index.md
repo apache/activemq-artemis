@@ -17,1785 +17,226 @@ element is used by the server side JMS service to load JMS Queues, Topics
 
 # The core configuration
 
+This describes the root of the XML configuration. You will see here also multiple sub-types listed.
+For example on the main config you will have bridges and at the [list of bridge](#bridge) type we will describe the properties for that configuration.
 
-<table summary="Server Configuration" border="1">
-    <colgroup>
-        <col/>
-        <col/>
-        <col/>
-        <col/>
-    </colgroup>
-    <thead>
-    <tr>
-        <th>Element Name</th>
-        <th>Element Type</th>
-        <th>Description</th>
-        <th>Default</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr>
-        <td>
-            <a href="configuring-transports.html"
-               title="16.1. Understanding Acceptors">acceptors</a>
-        </td>
-        <td>Sequence of &lt;acceptor/&gt;</td>
-        <td>a list of remoting acceptors to create</td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>
-            <a href="configuring-transports.html"
-               title="16.1. Understanding Acceptors">acceptors.acceptor</a>
-        </td>
-        <td>Complex element</td>
-        <td></td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>
-            <a href="configuring-transports.html"
-               title="16.1. Understanding Acceptors">acceptors.acceptor.name (attribute)</a>
-        </td>
-        <td>xsd:string</td>
-        <td>Name of the acceptor</td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>
-            <a href="configuring-transports.html"
-               title="16.1. Understanding Acceptors">acceptors.acceptor.factory-class</a>
-        </td>
-        <td>xsd:string</td>
-        <td>Name of the AcceptorFactory implementation</td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>
-            <a href="configuring-transports.html"
-               title="16.1. Understanding Acceptors">acceptors.acceptor.param</a>
-        </td>
-        <td>Complex element</td>
-        <td>A key-value pair used to configure the acceptor. An acceptor can have many param</td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>
-            <a href="configuring-transports.html"
-               title="16.1. Understanding Acceptors">acceptors.acceptor.param.key (required attribute)</a>
-        </td>
-        <td>xsd:string</td>
-        <td>Key of a configuration parameter</td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>
-            <a href="configuring-transports.html"
-               title="16.1. Understanding Acceptors">acceptors.acceptor.param.value (required attribute)</a>
-        </td>
-        <td>xsd:string</td>
-        <td>Value of a configuration parameter</td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>
-            <a href="queue-attributes.html"
-               title="25.3. Configuring Queues Via Address Settings">address-settings</a>
-        </td>
-        <td>Sequence of &lt;address-setting/&gt;</td>
-        <td>a list of address settings</td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>
-            <a href="queue-attributes.html"
-               title="25.3. Configuring Queues Via Address Settings">address-settings.address-setting</a>
-        </td>
-        <td>Complex element</td>
-        <td></td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>
-            <a href="queue-attributes.html"
-               title="25.3. Configuring Queues Via Address Settings">address-settings.address-setting.match (required
-                attribute)</a>
-        </td>
-        <td>xsd:string</td>
-        <td>XXX</td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>
-            <a href="undelivered-messages.html"
-               title="21.2.1. Configuring Dead Letter Addresses">address-settings.address-setting.dead-letter-address</a>
-        </td>
-        <td>xsd:string</td>
-        <td>the address to send dead messages to</td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>
-            <a href="message-expiry.html"
-               title="22.2. Configuring Expiry Addresses">address-settings.address-setting.expiry-address</a>
-        </td>
-        <td>xsd:string</td>
-        <td>the address to send expired messages to</td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>
-            <a href="queue-attributes.html"
-               title="25.3. Configuring Queues Via Address Settings">address-settings.address-setting.expiry-delay</a>
-        </td>
-        <td>xsd:long</td>
-        <td>Overrides the expiration time for messages using the default value for expiration time. "-1" disables this
-            setting.
-        </td>
-        <td>-1</td>
-    </tr>
-    <tr>
-        <td>
-            <a href="undelivered-messages.html"
-               title="21.1.1. Configuring Delayed Redelivery">address-settings.address-setting.redelivery-delay</a>
-        </td>
-        <td>xsd:long</td>
-        <td>the time (in ms) to wait before redelivering a cancelled message.</td>
-        <td>0</td>
-    </tr>
-    <tr>
-        <td>
-            <a href="queue-attributes.html"
-               title="25.3. Configuring Queues Via Address Settings">address-settings.address-setting.redelivery-delay-multiplier</a>
-        </td>
-        <td>xsd:double</td>
-        <td>multipler to apply to the "redelivery-delay"</td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>
-            <a href="queue-attributes.html"
-               title="25.3. Configuring Queues Via Address Settings">address-settings.address-setting.max-redelivery-delay</a>
-        </td>
-        <td>xsd:long</td>
-        <td>Maximum value for the redelivery-delay</td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>
-            <a href="undelivered-messages.html"
-               title="21.2.1. Configuring Dead Letter Addresses">address-settings.address-setting.max-delivery-attempts</a>
-        </td>
-        <td>xsd:int</td>
-        <td>how many times to attempt to deliver a message before sending to dead letter address</td>
-        <td>10</td>
-    </tr>
-    <tr>
-        <td>
-            <a href="paging.html" title="Chapter 24. Paging">address-settings.address-setting.max-size-bytes</a>
-        </td>
-        <td>xsd:long</td>
-        <td>the maximum size (in bytes) to use in paging for an address (-1 means no limits)</td>
-        <td>-1</td>
-    </tr>
-    <tr>
-        <td>
-            <a href="paging.html" title="Chapter 24. Paging">address-settings.address-setting.page-size-bytes</a>
-        </td>
-        <td>xsd:long</td>
-        <td>the page size (in bytes) to use for an address</td>
-        <td>10485760 (10 * 1024 * 1024)</td>
-    </tr>
-    <tr>
-        <td>
-            <a href="paging.html" title="Chapter 24. Paging">address-settings.address-setting.page-max-cache-size</a>
-        </td>
-        <td>xsd:int</td>
-        <td>Number of paging files to cache in memory to avoid IO during paging navigation</td>
-        <td>5</td>
-    </tr>
-    <tr>
-        <td>
-            <a href="queue-attributes.html"
-               title="25.3. Configuring Queues Via Address Settings">address-settings.address-setting.address-full-policy</a>
-        </td>
-        <td>DROP|FAIL|PAGE|BLOCK</td>
-        <td>what happens when an address where "max-size-bytes" is specified becomes full</td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>
-            <a href="queue-attributes.html"
-               title="25.3. Configuring Queues Via Address Settings">address-settings.address-setting.message-counter-history-day-limit</a>
-        </td>
-        <td>xsd:int</td>
-        <td>how many days to keep message counter history for this address</td>
-        <td>0 (days)</td>
-    </tr>
-    <tr>
-        <td>
-            <a href="last-value-queues.html" title="Chapter 27. Last-Value Queues">address-settings.address-setting.last-value-queue</a>
-        </td>
-        <td>xsd:boolean</td>
-        <td>whether to treat the queue as a last value queue</td>
-        <td>false</td>
-    </tr>
-    <tr>
-        <td>
-            <a href="clusters.html" title="Chapter 38. Clusters">address-settings.address-setting.redistribution-delay</a>
-        </td>
-        <td>xsd:long</td>
-        <td>how long (in ms) to wait after the last consumer is closed on a queue before redistributing messages.</td>
-        <td>-1</td>
-    </tr>
-    <tr>
-        <td>
-            <a href="queue-attributes.html"
-               title="25.3. Configuring Queues Via Address Settings">address-settings.address-setting.send-to-dla-on-no-route</a>
-        </td>
-        <td>xsd:boolean</td>
-        <td>if there are no queues matching this address, whether to forward message to DLA (if it exists for this
-            address)
-        </td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>
-            <a href="ha.html"
-               title="39.1.4. Failing Back to live Server">allow-failback</a>
-        </td>
-        <td>xsd:boolean</td>
-        <td>Whether a server will automatically stop when a another places a request to take over its place. The use
-            case is when a regular server stops and its backup takes over its duties, later the main server restarts and
-            requests the server (the former backup) to stop operating.
-        </td>
-        <td>true</td>
-    </tr>
-    <tr>
-        <td>
-            <a href="connection-ttl.html"
-               title="17.3. Configuring Asynchronous Connection Execution">async-connection-execution-enabled</a>
-        </td>
-        <td>xsd:boolean</td>
-        <td>Should incoming packets on the server be handed off to a thread from the thread pool for processing or
-            should they be handled on the remoting thread?
-        </td>
-        <td>true</td>
-    </tr>
-    <tr>
-        <td>
-            <a href="persistence.html"
-               title="15.1. Configuring the bindings journal">bindings-directory</a>
-        </td>
-        <td>xsd:string</td>
-        <td>the directory to store the persisted bindings to</td>
-        <td>data/bindings</td>
-    </tr>
-    <tr>
-        <td>
-            <a href="core-bridges.html" title="Chapter 36. Core Bridges">bridges</a>
-        </td>
-        <td>Sequence of &lt;bridge/&gt;</td>
-        <td>a list of bridges to create</td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>
-            <a href="core-bridges.html" title="Chapter 36. Core Bridges">bridges.bridge</a>
-        </td>
-        <td>Complex element</td>
-        <td></td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>
-            <a href="core-bridges.html" title="Chapter 36. Core Bridges">bridges.bridge.name (required
-                attribute)</a>
-        </td>
-        <td>xsd:ID</td>
-        <td>unique name for this bridge</td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>
-            <a href="core-bridges.html" title="Chapter 36. Core Bridges">bridges.bridge.queue-name</a>
-        </td>
-        <td>xsd:IDREF</td>
-        <td>name of queue that this bridge consumes from</td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>
-            <a href="core-bridges.html"
-               title="Chapter 36. Core Bridges">bridges.bridge.forwarding-address</a>
-        </td>
-        <td>xsd:string</td>
-        <td>address to forward to. If omitted original address is used</td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>
-            <a href="core-bridges.html" title="Chapter 36. Core Bridges">bridges.bridge.ha</a>
-        </td>
-        <td>xsd:boolean</td>
-        <td>whether this bridge supports fail-over</td>
-        <td>false</td>
-    </tr>
-    <tr>
-        <td>
-            <a href="core-bridges.html" title="Chapter 36. Core Bridges">bridges.bridge.filter</a>
-        </td>
-        <td>Complex element</td>
-        <td></td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>
-            <a href="core-bridges.html" title="Chapter 36. Core Bridges">bridges.bridge.filter.string
-                (required attribute)</a>
-        </td>
-        <td>xsd:string</td>
-        <td>optional core filter expression</td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>
-            <a href="core-bridges.html" title="Chapter 36. Core Bridges">bridges.bridge.transformer-class-name</a>
-        </td>
-        <td>xsd:string</td>
-        <td>optional name of transformer class</td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>
-            <a href="core-bridges.html" title="Chapter 36. Core Bridges">bridges.bridge.min-large-message-size</a>
-        </td>
-        <td>xsd:int</td>
-        <td>Any message larger than this size is considered a large message (to be sent in chunks)</td>
-        <td>102400 (bytes)</td>
-    </tr>
-    <tr>
-        <td>
-            <a href="connection-ttl.html" title="Chapter 17. Detecting Dead Connections">bridges.bridge.check-period</a>
-        </td>
-        <td>xsd:long</td>
-        <td>The period (in milliseconds) a bridge's client will check if it failed to receive a ping from the server. -1
-            disables this check.
-        </td>
-        <td>30000 (ms)</td>
-    </tr>
-    <tr>
-        <td>
-            <a href="connection-ttl.html" title="Chapter 17. Detecting Dead Connections">bridges.bridge.connection-ttl</a>
-        </td>
-        <td>xsd:long</td>
-        <td>how long to keep a connection alive in the absence of any data arriving from the client. This should be
-            greater than the ping period.
-        </td>
-        <td>60000 (ms)</td>
-    </tr>
-    <tr>
-        <td>
-            <a href="core-bridges.html" title="Chapter 36. Core Bridges">bridges.bridge.retry-interval</a>
-        </td>
-        <td>xsd:long</td>
-        <td>period (in ms) between successive retries</td>
-        <td>2000 (in milliseconds)</td>
-    </tr>
-    <tr>
-        <td>
-            <a href="core-bridges.html" title="Chapter 36. Core Bridges">bridges.bridge.retry-interval-multiplier</a>
-        </td>
-        <td>xsd:double</td>
-        <td>multiplier to apply to successive retry intervals</td>
-        <td>1</td>
-    </tr>
-    <tr>
-        <td>
-            <a href="core-bridges.html"
-               title="Chapter 36. Core Bridges">bridges.bridge.max-retry-interval</a>
-        </td>
-        <td>xsd:long</td>
-        <td>Limit to the retry-interval growth (due to retry-interval-multiplier)</td>
-        <td>2000</td>
-    </tr>
-    <tr>
-        <td>
-            <a href="core-bridges.html"
-               title="Chapter 36. Core Bridges">bridges.bridge.reconnect-attempts</a>
-        </td>
-        <td>xsd:int</td>
-        <td>maximum number of retry attempts, -1 means 'no limits'</td>
-        <td>-1</td>
-    </tr>
-    <tr>
-        <td>
-            <a href="core-bridges.html" title="Chapter 36. Core Bridges">bridges.bridge.use-duplicate-detection</a>
-        </td>
-        <td>xsd:boolean</td>
-        <td>should duplicate detection headers be inserted in forwarded messages?</td>
-        <td>true</td>
-    </tr>
-    <tr>
-        <td>
-            <a href="core-bridges.html" title="Chapter 36. Core Bridges">bridges.bridge.confirmation-window-size</a>
-        </td>
-        <td>xsd:int</td>
-        <td>Once the bridge has received this many bytes, it sends a confirmation</td>
-        <td>(bytes, 1024 * 1024)</td>
-    </tr>
-    <tr>
-        <td>
-            <a href="core-bridges.html" title="Chapter 36. Core Bridges">bridges.bridge.user</a>
-        </td>
-        <td>xsd:string</td>
-        <td>username, if unspecified the cluster-user is used</td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>
-            <a href="core-bridges.html" title="Chapter 36. Core Bridges">bridges.bridge.password</a>
-        </td>
-        <td>xsd:string</td>
-        <td>password, if unspecified the cluster-password is used</td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>
-            <a href="core-bridges.html" title="Chapter 36. Core Bridges">bridges.bridge.reconnect-attempts-same-node</a>
-        </td>
-        <td>xsd:int</td>
-        <td>Upon reconnection this configures the number of time the same node on the topology will be retried before
-            reseting the server locator and using the initial connectors
-        </td>
-        <td>10 (int, 10)</td>
-    </tr>
-    <tr>
-        <td>
-            <a href="clusters.html" title="Chapter 38. Clusters">broadcast-groups</a>
-        </td>
-        <td>Sequence of &lt;broadcast-group/&gt;</td>
-        <td>a list of broadcast groups to create</td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>
-            <a href="clusters.html" title="Chapter 38. Clusters">broadcast-groups.broadcast-group</a>
-        </td>
-        <td>Complex element</td>
-        <td></td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>
-            <a href="clusters.html" title="Chapter 38. Clusters">broadcast-groups.broadcast-group.name
-                (required attribute)</a>
-        </td>
-        <td>xsd:ID</td>
-        <td>a unique name for the broadcast group</td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>
-            <a href="clusters.html" title="Chapter 38. Clusters">broadcast-groups.broadcast-group.local-bind-address</a>
-        </td>
-        <td>xsd:string</td>
-        <td>local bind address that the datagram socket is bound to</td>
-        <td>wildcard IP address chosen by the kernel</td>
-    </tr>
-    <tr>
-        <td>
-            <a href="clusters.html" title="Chapter 38. Clusters">broadcast-groups.broadcast-group.local-bind-port</a>
-        </td>
-        <td>xsd:int</td>
-        <td>local port to which the datagram socket is bound to</td>
-        <td>-1 (anonymous port)</td>
-    </tr>
-    <tr>
-        <td>
-            <a href="clusters.html" title="Chapter 38. Clusters">broadcast-groups.broadcast-group.group-address</a>
-        </td>
-        <td>xsd:string</td>
-        <td>multicast address to which the data will be broadcast</td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>
-            <a href="clusters.html" title="Chapter 38. Clusters">broadcast-groups.broadcast-group.group-port</a>
-        </td>
-        <td>xsd:int</td>
-        <td>UDP port number used for broadcasting</td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>
-            <a href="clusters.html" title="Chapter 38. Clusters">broadcast-groups.broadcast-group.broadcast-period</a>
-        </td>
-        <td>xsd:long</td>
-        <td>period in milliseconds between consecutive broadcasts</td>
-        <td>2000 (in milliseconds)</td>
-    </tr>
-    <tr>
-        <td>
-            <a href="clusters.html">broadcast-groups.broadcast-group.jgroups-file</a>
-        </td>
-        <td>xsd:string</td>
-        <td>Name of JGroups configuration file. If specified, the server uses JGroups for broadcasting.</td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>
-            <a href="clusters.html">broadcast-groups.broadcast-group.jgroups-channel</a>
-        </td>
-        <td>xsd:string</td>
-        <td>Name of JGroups Channel. If specified, the server uses the named channel for broadcasting.</td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>
-            <a href="clusters.html" title="Chapter 38. Clusters">broadcast-groups.broadcast-group.connector-ref</a>
-        </td>
-        <td>xsd:string</td>
-        <td></td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>
-            <a href="ha.html">check-for-live-server</a>
-        </td>
-        <td>xsd:boolean</td>
-        <td>Whether to check the cluster for a (live) server using our own server ID when starting up. This option is
-            only necessary for performing 'fail-back' on replicating servers. Strictly speaking this setting only
-            applies to live servers and not to backups.
-        </td>
-        <td>false</td>
-    </tr>
-    <tr>
-        <td>
-            <a href="clusters.html" title="Chapter 38. Clusters">cluster-connections</a>
-        </td>
-        <td>Sequence of &lt;cluster-connection/&gt;</td>
-        <td>a list of cluster connections</td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>
-            <a href="clusters.html" title="Chapter 38. Clusters">cluster-connections.cluster-connection</a>
-        </td>
-        <td>Complex element</td>
-        <td></td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>
-            <a href="clusters.html" title="Chapter 38. Clusters">cluster-connections.cluster-connection.name
-                (required attribute)</a>
-        </td>
-        <td>xsd:ID</td>
-        <td>unique name for this cluster connection</td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>
-            <a href="clusters.html" title="Chapter 38. Clusters">cluster-connections.cluster-connection.address</a>
-        </td>
-        <td>xsd:string</td>
-        <td>name of the address this cluster connection applies to</td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>
-            <a href="clusters.html" title="Chapter 38. Clusters">cluster-connections.cluster-connection.connector-ref</a>
-        </td>
-        <td>xsd:string</td>
-        <td>Name of the connector reference to use.</td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>
-            <a href="connection-ttl.html" title="Chapter 17. Detecting Dead Connections">cluster-connections.cluster-connection.check-period</a>
-        </td>
-        <td>xsd:long</td>
-        <td>The period (in milliseconds) used to check if the cluster connection has failed to receive pings from
-            another server
-        </td>
-        <td>30000 (ms)</td>
-    </tr>
-    <tr>
-        <td>
-            <a href="connection-ttl.html" title="Chapter 17. Detecting Dead Connections">cluster-connections.cluster-connection.connection-ttl</a>
-        </td>
-        <td>xsd:long</td>
-        <td>how long to keep a connection alive in the absence of any data arriving from the client</td>
-        <td>60000 (ms)</td>
-    </tr>
-    <tr>
-        <td>
-            <a href="large-messages.html" title="Chapter 23. Large Messages">cluster-connections.cluster-connection.min-large-message-size</a>
-        </td>
-        <td>xsd:int</td>
-        <td>Messages larger than this are considered large-messages</td>
-        <td>(bytes)</td>
-    </tr>
-    <tr>
-        <td>
-            <a href="clusters.html" title="Chapter 38. Clusters">cluster-connections.cluster-connection.call-timeout</a>
-        </td>
-        <td>xsd:long</td>
-        <td>How long to wait for a reply</td>
-        <td>30000 (ms)</td>
-    </tr>
-    <tr>
-        <td>
-            <a href="clusters.html" title="Chapter 38. Clusters">cluster-connections.cluster-connection.retry-interval</a>
-        </td>
-        <td>xsd:long</td>
-        <td>period (in ms) between successive retries</td>
-        <td>500</td>
-    </tr>
-    <tr>
-        <td>
-            <a href="clusters.html" title="Chapter 38. Clusters">cluster-connections.cluster-connection.retry-interval-multiplier</a>
-        </td>
-        <td>xsd:double</td>
-        <td>multiplier to apply to the retry-interval</td>
-        <td>1</td>
-    </tr>
-    <tr>
-        <td>
-            <a href="clusters.html" title="Chapter 38. Clusters">cluster-connections.cluster-connection.max-retry-interval</a>
-        </td>
-        <td>xsd:long</td>
-        <td>Maximum value for retry-interval</td>
-        <td>2000</td>
-    </tr>
-    <tr>
-        <td>
-            <a href="clusters.html" title="Chapter 38. Clusters">cluster-connections.cluster-connection.reconnect-attempts</a>
-        </td>
-        <td>xsd:int</td>
-        <td>How many attempts should be made to reconnect after failure</td>
-        <td>-1</td>
-    </tr>
-    <tr>
-        <td>
-            <a href="clusters.html" title="Chapter 38. Clusters">cluster-connections.cluster-connection.use-duplicate-detection</a>
-        </td>
-        <td>xsd:boolean</td>
-        <td>should duplicate detection headers be inserted in forwarded messages?</td>
-        <td>true</td>
-    </tr>
-    <tr>
-        <td>
-            <a href="clusters.html" title="Chapter 38. Clusters">cluster-connections.cluster-connection.forward-when-no-consumers</a>
-        </td>
-        <td>xsd:boolean</td>
-        <td>should messages be load balanced if there are no matching consumers on target?</td>
-        <td>false</td>
-    </tr>
-    <tr>
-        <td>
-            <a href="clusters.html" title="Chapter 38. Clusters">cluster-connections.cluster-connection.max-hops</a>
-        </td>
-        <td>xsd:int</td>
-        <td>maximum number of hops cluster topology is propagated</td>
-        <td>1</td>
-    </tr>
-    <tr>
-        <td>
-            <a href="client-reconnection.html"
-               title="Chapter 34. Client Reconnection and Session Reattachment">cluster-connections.cluster-connection.confirmation-window-size</a>
-        </td>
-        <td>xsd:int</td>
-        <td>The size (in bytes) of the window used for confirming data from the server connected to.</td>
-        <td>1048576</td>
-    </tr>
-    <tr>
-        <td>
-            <a href="clusters.html"
-               title="38.3.1. Configuring Cluster Connections">cluster-connections.cluster-connection.call-failover-timeout</a>
-        </td>
-        <td>xsd:long</td>
-        <td>How long to wait for a reply if in the middle of a fail-over. -1 means wait forever.</td>
-        <td>-1 (ms)</td>
-    </tr>
-    <tr>
-        <td>
-            <a href="clusters.html" title="Chapter 38. Clusters">cluster-connections.cluster-connection.notification-interval</a>
-        </td>
-        <td>xsd:long</td>
-        <td>how often the cluster connection will notify the cluster of its existence right after joining the cluster
-        </td>
-        <td>1000 (ms)</td>
-    </tr>
-    <tr>
-        <td>
-            <a href="clusters.html" title="Chapter 38. Clusters">cluster-connections.cluster-connection.notification-attempts</a>
-        </td>
-        <td>xsd:int</td>
-        <td>how many times this cluster connection will notify the cluster of its existence right after joining the
-            cluster
-        </td>
-        <td>2</td>
-    </tr>
-    <tr>
-        <td>
-            <a href="clusters.html" title="Chapter 38. Clusters">clustered</a>
-        </td>
-        <td>xsd:boolean</td>
-        <td>DEPRECATED. This option is deprecated and its value will be ignored (HQ221038). A HornetQ server will be
-            "clustered" when its configuration contain a cluster-configuration.
-        </td>
-        <td>false</td>
-    </tr>
-    <tr>
-        <td>
-            <a href="clusters.html" title="Chapter 38. Clusters">cluster-password</a>
-        </td>
-        <td>xsd:string</td>
-        <td>Cluster password. It applies to all cluster configurations.</td>
-        <td>CHANGE ME!!</td>
-    </tr>
-    <tr>
-        <td>
-            <a href="clusters.html" title="Chapter 38. Clusters">cluster-user</a>
-        </td>
-        <td>xsd:string</td>
-        <td>Cluster username. It applies to all cluster configurations.</td>
-        <td>HORNETQ.CLUSTER.ADMIN.USER</td>
-    </tr>
-    <tr>
-        <td>
-            <a href="connection-ttl.html">connection-ttl-override</a>
-        </td>
-        <td>xsd:long</td>
-        <td>if set, this will override how long (in ms) to keep a connection alive without receiving a ping. -1 disables
-            this setting.
-        </td>
-        <td>-1</td>
-    </tr>
-    <tr>
-        <td>
-            <a href="configuring-transports.html"
-               title="16.2. Understanding Connectors">connectors</a>
-        </td>
-        <td>Sequence of &lt;connector/&gt;</td>
-        <td>a list of remoting connectors configurations to create</td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>
-            <a href="configuring-transports.html"
-               title="16.2. Understanding Connectors">connectors.connector</a>
-        </td>
-        <td>Complex element</td>
-        <td></td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>
-            <a href="configuring-transports.html"
-               title="16.2. Understanding Connectors">connectors.connector.name (required attribute)</a>
-        </td>
-        <td>xsd:ID</td>
-        <td>Name of the connector</td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>
-            <a href="configuring-transports.html"
-               title="16.2. Understanding Connectors">connectors.connector.factory-class</a>
-        </td>
-        <td>xsd:string</td>
-        <td>Name of the ConnectorFactory implementation</td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>
-            <a href="configuring-transports.html"
-               title="16.2. Understanding Connectors">connectors.connector.param</a>
-        </td>
-        <td>Complex element</td>
-        <td>A key-value pair used to configure the connector. A connector can have many param's</td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>
-            <a href="configuring-transports.html"
-               title="16.2. Understanding Connectors">connectors.connector.param.key (required attribute)</a>
-        </td>
-        <td>xsd:string</td>
-        <td>Key of a configuration parameter</td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>
-            <a href="configuring-transports.html"
-               title="16.2. Understanding Connectors">connectors.connector.param.value (required attribute)</a>
-        </td>
-        <td>xsd:string</td>
-        <td>Value of a configuration parameter</td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>
-            <a href="">connector-services</a>
-        </td>
-        <td>Sequence of &lt;connector-service/&gt;</td>
-        <td></td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>
-            <a href="">connector-services.connector-service</a>
-        </td>
-        <td>Complex element</td>
-        <td></td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>
-            <a href="">connector-services.connector-service.name (attribute)</a>
-        </td>
-        <td>xsd:string</td>
-        <td>name of the connector service</td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>
-            <a href="">connector-services.connector-service.factory-class</a>
-        </td>
-        <td>xsd:string</td>
-        <td>Name of the factory class of the ConnectorService</td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>
-            <a href="">connector-services.connector-service.param</a>
-        </td>
-        <td>Complex element</td>
-        <td></td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>
-            <a href="">connector-services.connector-service.param.key (required attribute)</a>
-        </td>
-        <td>xsd:string</td>
-        <td>Key of a configuration parameter</td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>
-            <a href="">connector-services.connector-service.param.value (required attribute)</a>
-        </td>
-        <td>xsd:string</td>
-        <td>Value of a configuration parameter</td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>
-            <a href="persistence.html"
-               title="15.1. Configuring the bindings journal">create-bindings-dir</a>
-        </td>
-        <td>xsd:boolean</td>
-        <td>true means that the server will create the bindings directory on start up</td>
-        <td>true</td>
-    </tr>
-    <tr>
-        <td>
-            <a class="link"
-               href="persistence.html">create-journal-dir</a>
-        </td>
-        <td>xsd:boolean</td>
-        <td>true means that the journal directory will be created</td>
-        <td>true</td>
-    </tr>
-    <tr>
-        <td>
-            <a href="clusters.html" title="Chapter 38. Clusters">discovery-groups</a>
-        </td>
-        <td>Sequence of &lt;discovery-group/&gt;</td>
-        <td>a list of discovery groups to create</td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>
-            <a href="clusters.html" title="Chapter 38. Clusters">discovery-groups.discovery-group</a>
-        </td>
-        <td>Complex element</td>
-        <td></td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>
-            <a href="clusters.html" title="Chapter 38. Clusters">discovery-groups.discovery-group.name
-                (required attribute)</a>
-        </td>
-        <td>xsd:ID</td>
-        <td>a unique name for the discovery group</td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>
-            <a href="clusters.html" title="Chapter 38. Clusters">discovery-groups.discovery-group.group-address</a>
-        </td>
-        <td>xsd:string</td>
-        <td>Multicast IP address of the group to listen on</td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>
-            <a href="clusters.html" title="Chapter 38. Clusters">discovery-groups.discovery-group.group-port</a>
-        </td>
-        <td>xsd:int</td>
-        <td>UDP port number of the multi cast group</td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>
-            <a href="clusters.html">discovery-groups.discovery-group.jgroups-file</a>
-        </td>
-        <td>xsd:string</td>
-        <td>Name of a JGroups configuration file. If specified, the server uses JGroups for discovery.</td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>
-            <a href="clusters.html">discovery-groups.discovery-group.jgroups-channel</a>
-        </td>
-        <td>xsd:string</td>
-        <td>Name of a JGroups Channel. If specified, the server uses the named channel for discovery.</td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>
-            <a href="">discovery-groups.discovery-group.refresh-timeout</a>
-        </td>
-        <td>xsd:int</td>
-        <td>Period the discovery group waits after receiving the last broadcast from a particular server before removing
-            that servers connector pair entry from its list.
-        </td>
-        <td>10000 (in milliseconds)</td>
-    </tr>
-    <tr>
-        <td>
-            <a href="clusters.html" title="Chapter 38. Clusters">discovery-groups.discovery-group.local-bind-address</a>
-        </td>
-        <td>xsd:string</td>
-        <td>local bind address that the datagram socket is bound to</td>
-        <td>wildcard IP address chosen by the kernel</td>
-    </tr>
-    <tr>
-        <td>
-            <a href="clusters.html" title="Chapter 38. Clusters">discovery-groups.discovery-group.local-bind-port</a>
-        </td>
-        <td>xsd:int</td>
-        <td>local port to which the datagram socket is bound to</td>
-        <td>-1 (anonymous port)</td>
-    </tr>
-    <tr>
-        <td>
-            <a href="">discovery-groups.discovery-group.initial-wait-timeout</a>
-        </td>
-        <td>xsd:int</td>
-        <td>time to wait for an initial broadcast to give us at least one node in the cluster</td>
-        <td>10000 (milliseconds)</td>
-    </tr>
-    <tr>
-        <td>
-            <a href="diverts.html" title="Chapter 35. Diverting and Splitting Message Flows">diverts</a>
-        </td>
-        <td>Sequence of &lt;divert/&gt;</td>
-        <td>a list of diverts to use</td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>
-            <a href="diverts.html"
-               title="Chapter 35. Diverting and Splitting Message Flows">diverts.divert</a>
-        </td>
-        <td>Complex element</td>
-        <td></td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>
-            <a href="diverts.html" title="Chapter 35. Diverting and Splitting Message Flows">diverts.divert.name
-                (required attribute)</a>
-        </td>
-        <td>xsd:ID</td>
-        <td>a unique name for the divert</td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>
-            <a href="diverts.html" title="Chapter 35. Diverting and Splitting Message Flows">diverts.divert.transformer-class-name</a>
-        </td>
-        <td>xsd:string</td>
-        <td>an optional class name of a transformer</td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>
-            <a href="diverts.html" title="Chapter 35. Diverting and Splitting Message Flows">diverts.divert.exclusive</a>
-        </td>
-        <td>xsd:boolean</td>
-        <td>whether this is an exclusive divert</td>
-        <td>false</td>
-    </tr>
-    <tr>
-        <td>
-            <a href="diverts.html" title="Chapter 35. Diverting and Splitting Message Flows">diverts.divert.routing-name</a>
-        </td>
-        <td>xsd:string</td>
-        <td>the routing name for the divert</td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>
-            <a href="diverts.html" title="Chapter 35. Diverting and Splitting Message Flows">diverts.divert.address</a>
-        </td>
-        <td>xsd:string</td>
-        <td>the address this divert will divert from</td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>
-            <a href="diverts.html" title="Chapter 35. Diverting and Splitting Message Flows">diverts.divert.forwarding-address</a>
-        </td>
-        <td>xsd:string</td>
-        <td>the forwarding address for the divert</td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>
-            <a href="diverts.html" title="Chapter 35. Diverting and Splitting Message Flows">diverts.divert.filter</a>
-        </td>
-        <td>Complex element</td>
-        <td></td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>
-            <a href="diverts.html" title="Chapter 35. Diverting and Splitting Message Flows">diverts.divert.filter.string
-                (required attribute)</a>
-        </td>
-        <td>xsd:string</td>
-        <td>optional core filter expression</td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>
-            <a href="graceful-shutdown.html" title="Graceful Server Shutdown">graceful-shutdown-enabled</a>
-        </td>
-        <td>xsd:boolean</td>
-        <td>true means that graceful shutdown is enabled</td>
-        <td>true</td>
-    </tr>
-    <tr>
-        <td>
-            <a href="graceful-shutdown.html" title="Graceful Server Shutdown">graceful-shutdown-timeout</a>
-        </td>
-        <td>xsd:long</td>
-        <td>how long (in ms) to wait for all clients to disconnect before forcefully disconnecting the clients and proceeding with the shutdown process (-1 means no timeout)</td>
-        <td>-1</td>
-    </tr>
-    <tr>
-        <td>
-            <a href="message-grouping.html" title="Chapter 28. Message Grouping">grouping-handler</a>
-        </td>
-        <td>Complex element</td>
-        <td>Message Group configuration</td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>
-            <a href="message-grouping.html" title="Chapter 28. Message Grouping">grouping-handler.name
-                (required attribute)</a>
-        </td>
-        <td>xsd:string</td>
-        <td>A name identifying this grouping-handler</td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>
-            <a href="message-grouping.html">grouping-handler.type</a>
-        </td>
-        <td>LOCAL|REMOTE</td>
-        <td>Each cluster should choose 1 node to have a LOCAL grouping handler and all the other nodes should have
-            REMOTE handlers
-        </td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>
-            <a href="message-grouping.html">grouping-handler.address</a>
-        </td>
-        <td>xsd:string</td>
-        <td>A reference to a cluster connection address</td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>
-            <a href="message-grouping.html"
-               title="Chapter 28. Message Grouping">grouping-handler.timeout</a>
-        </td>
-        <td>xsd:int</td>
-        <td>How long to wait for a decision</td>
-        <td>5000 (ms)</td>
-    </tr>
-    <tr>
-        <td>
-            <a href="message-grouping.html" title="Chapter 28. Message Grouping">grouping-handler.group-timeout</a>
-        </td>
-        <td>xsd:int</td>
-        <td>How long a group binding will be used, -1 means for ever. Bindings are removed after this wait elapses. Only
-            valid for LOCAL handlers
-        </td>
-        <td>-1 (ms)</td>
-    </tr>
-    <tr>
-        <td>
-            <a href="message-grouping.html" title="Chapter 28. Message Grouping">grouping-handler.reaper-period</a>
-        </td>
-        <td>xsd:long</td>
-        <td>How often the reaper will be run to check for timed out group bindings. Only valid for LOCAL handlers</td>
-        <td>30000 (ms)</td>
-    </tr>
-    <tr>
-        <td>
-            <a href="duplicate-detection.html"
-               title="37.2. Configuring the Duplicate ID Cache">id-cache-size</a>
-        </td>
-        <td>xsd:int</td>
-        <td>the size of the cache for pre-creating message ID's</td>
-        <td>20000</td>
-    </tr>
-    <tr>
-        <td>
-            <a href="management.html" title="30.2.1. Configuring JMX">jmx-domain</a>
-        </td>
-        <td>xsd:string</td>
-        <td>the JMX domain used to registered HornetQ MBeans in the MBeanServer</td>
-        <td>org.hornetq</td>
-    </tr>
-    <tr>
-        <td>
-            <a href="management.html" title="30.2.1. Configuring JMX">jmx-management-enabled</a>
-        </td>
-        <td>xsd:boolean</td>
-        <td>true means that the management API is available via JMX</td>
-        <td>true</td>
-    </tr>
-    <tr>
-        <td>
-            <a class="link"
-               href="persistence.html">journal-buffer-size</a>
-        </td>
-        <td>xsd:long</td>
-        <td>The size of the internal buffer on the journal in KiB.</td>
-        <td>501760 (490 KiB)</td>
-    </tr>
-    <tr>
-        <td>
-            <a href="persistence.html">journal-buffer-timeout</a>
-        </td>
-        <td>xsd:long</td>
-        <td>The timeout (in nanoseconds) used to flush internal buffers on the journal. The exact default value depend
-            on whether the journal is ASYNCIO or NIO.
-        </td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>
-            <a href="persistence.html">journal-compact-min-files</a>
-        </td>
-        <td>xsd:int</td>
-        <td>The minimal number of data files before we can start compacting</td>
-        <td>10</td>
-    </tr>
-    <tr>
-        <td>
-            <a href="persistence.html">journal-compact-percentage</a>
-        </td>
-        <td>xsd:int</td>
-        <td>The percentage of live data on which we consider compacting the journal</td>
-        <td>30</td>
-    </tr>
-    <tr>
-        <td>
-            <a href="persistence.html">journal-directory</a>
-        </td>
-        <td>xsd:string</td>
-        <td>the directory to store the journal files in</td>
-        <td>data/journal</td>
-    </tr>
-    <tr>
-        <td>
-            <a href="persistence.html">journal-file-size</a>
-        </td>
-        <td>xsd:int</td>
-        <td>the size (in bytes) of each journal file</td>
-        <td>10485760 (10 * 1024 * 1024 - 10 MiB)</td>
-    </tr>
-    <tr>
-        <td>
-            <a href="persistence.html#configuring.message.journal.journal-max-io">journal-max-io</a>
-        </td>
-        <td>xsd:int</td>
-        <td>the maximum number of write requests that can be in the AIO queue at any one time. Default is 500 for AIO
-            and 1 for NIO.
-        </td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>
-            <a href="persistence.html#configuring.message.journal.journal-min-files">journal-min-files</a>
-        </td>
-        <td>xsd:int</td>
-        <td>how many journal files to pre-create</td>
-        <td>2</td>
-    </tr>
-    <tr>
-        <td>
-            <a href="persistence.html">journal-sync-non-transactional</a>
-        </td>
-        <td>xsd:boolean</td>
-        <td>if true wait for non transaction data to be synced to the journal before returning response to client.</td>
-        <td>true</td>
-    </tr>
-    <tr>
-        <td>
-            <a href="persistence.html">journal-sync-transactional</a>
-        </td>
-        <td>xsd:boolean</td>
-        <td>if true wait for transaction data to be synchronized to the journal before returning response to client</td>
-        <td>true</td>
-    </tr>
-    <tr>
-        <td>
-            <a href="persistence.html">journal-type</a>
-        </td>
-        <td>ASYNCIO|NIO</td>
-        <td>the type of journal to use</td>
-        <td>ASYNCIO</td>
-    </tr>
-    <tr>
-        <td>
-            <a href="large-messages.html" title="23.1. Configuring the server">large-messages-directory</a>
-        </td>
-        <td>xsd:string</td>
-        <td>the directory to store large messages</td>
-        <td>data/largemessages</td>
-    </tr>
-    <tr>
-        <td>
-            <a href="">log-delegate-factory-class-name</a>
-        </td>
-        <td>xsd:string</td>
-        <td>XXX</td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>
-            <a href="">log-journal-write-rate</a>
-        </td>
-        <td>xsd:boolean</td>
-        <td>Whether to log messages about the journal write rate</td>
-        <td>false</td>
-    </tr>
-    <tr>
-        <td>
-            <a href="management.html"
-               title="30.3.1. Configuring Core Management">management-address</a>
-        </td>
-        <td>xsd:string</td>
-        <td>the name of the management address to send management messages to. It is prefixed with "jms.queue" so that
-            JMS clients can send messages to it.
-        </td>
-        <td>jms.queue.hornetq.management</td>
-    </tr>
-    <tr>
-        <td>
-            <a href="management.html"
-               title="30.5.2.1. Configuring The Core Management Notification Address">management-notification-address</a>
-        </td>
-        <td>xsd:string</td>
-        <td>the name of the address that consumers bind to receive management notifications</td>
-        <td>hornetq.notifications</td>
-    </tr>
-    <tr>
-        <td>
-            <a href="configuration-index.html"
-               title="50.1.3. Using Masked Passwords in Configuration Files">mask-password</a>
-        </td>
-        <td>xsd:boolean</td>
-        <td>This option controls whether passwords in server configuration need be masked. If set to "true" the
-            passwords are masked.
-        </td>
-        <td>false</td>
-    </tr>
-    <tr>
-        <td>
-            <a href="">max-saved-replicated-journals-size</a>
-        </td>
-        <td>xsd:int</td>
-        <td>This specifies how many times a replicated backup server can restart after moving its files on start. Once
-            there are this number of backup journal files the server will stop permanently after if fails back.
-        </td>
-        <td>2</td>
-    </tr>
-    <tr>
-        <td>
-            <a href="perf-tuning.html">memory-measure-interval</a>
-        </td>
-        <td>xsd:long</td>
-        <td>frequency to sample JVM memory in ms (or -1 to disable memory sampling)</td>
-        <td>-1 (ms)</td>
-    </tr>
-    <tr>
-        <td>
-            <a href="perf-tuning.html">memory-warning-threshold</a>
-        </td>
-        <td>xsd:int</td>
-        <td>Percentage of available memory which will trigger a warning log</td>
-        <td>25</td>
-    </tr>
-    <tr>
-        <td>
-            <a href="management.html"
-               title="30.6.1. Configuring Message Counters">message-counter-enabled</a>
-        </td>
-        <td>xsd:boolean</td>
-        <td>true means that message counters are enabled</td>
-        <td>false</td>
-    </tr>
-    <tr>
-        <td>
-            <a href="management.html"
-               title="30.6.1. Configuring Message Counters">message-counter-max-day-history</a>
-        </td>
-        <td>xsd:int</td>
-        <td>how many days to keep message counter history</td>
-        <td>10 (days)</td>
-    </tr>
-    <tr>
-        <td>
-            <a href="management.html"
-               title="30.6.1. Configuring Message Counters">message-counter-sample-period</a>
-        </td>
-        <td>xsd:long</td>
-        <td>the sample period (in ms) to use for message counters</td>
-        <td>10000</td>
-    </tr>
-    <tr>
-        <td>
-            <a href="message-expiry.html"
-               title="22.3. Configuring The Expiry Reaper Thread">message-expiry-scan-period</a>
-        </td>
-        <td>xsd:long</td>
-        <td>how often (in ms) to scan for expired messages</td>
-        <td>30000</td>
-    </tr>
-    <tr>
-        <td>
-            <a href="message-expiry.html"
-               title="22.3. Configuring The Expiry Reaper Thread">message-expiry-thread-priority</a>
-        </td>
-        <td>xsd:int</td>
-        <td>the priority of the thread expiring messages</td>
-        <td>3</td>
-    </tr>
-    <tr>
-        <td>
-            <a href="">name</a>
-        </td>
-        <td>xsd:string</td>
-        <td>Node name. If set, it will be used in topology notifications.</td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>
-            <a href="paging.html" title="24.3. Paging Mode">page-max-concurrent-io</a>
-        </td>
-        <td>xsd:int</td>
-        <td>The max number of concurrent reads allowed on paging</td>
-        <td>5</td>
-    </tr>
-    <tr>
-        <td>
-            <a href="paging.html" title="24.2. Configuration">paging-directory</a>
-        </td>
-        <td>xsd:string</td>
-        <td>the directory to store paged messages in</td>
-        <td>data/paging</td>
-    </tr>
-    <tr>
-        <td>
-            <a href="configuration-index.html"
-               title="50.1.3. Using Masked Passwords in Configuration Files">password-codec</a>
-        </td>
-        <td>xsd:string</td>
-        <td>Class name and its parameters for the Decoder used to decode the masked password. Ignored if mask-password
-            is false. The format of this property is a full qualified class name optionally followed by key/value pairs.
-        </td>
-        <td>org.hornetq.utils.DefaultSensitiveStringCodec</td>
-    </tr>
-    <tr>
-        <td>
-            <a href="">perf-blast-pages</a>
-        </td>
-        <td>xsd:int</td>
-        <td>XXX Only meant to be used by project developers</td>
-        <td>-1</td>
-    </tr>
-    <tr>
-        <td>
-            <a href="undelivered-messages.html"
-               title="21.3. Delivery Count Persistence">persist-delivery-count-before-delivery</a>
-        </td>
-        <td>xsd:boolean</td>
-        <td>True means that the delivery count is persisted before delivery. False means that this only happens after a
-            message has been cancelled.
-        </td>
-        <td>false</td>
-    </tr>
-    <tr>
-        <td>
-            <a href="persistence.html"
-               title="15.6. Configuring HornetQ for Zero Persistence">persistence-enabled</a>
-        </td>
-        <td>xsd:boolean</td>
-        <td>true means that the server will use the file based journal for persistence.</td>
-        <td>true</td>
-    </tr>
-    <tr>
-        <td>
-            <a href="duplicate-detection.html"
-               title="37.2. Configuring the Duplicate ID Cache">persist-id-cache</a>
-        </td>
-        <td>xsd:boolean</td>
-        <td>true means that ID's are persisted to the journal</td>
-        <td>true</td>
-    </tr>
-    <tr>
-        <td>
-            <a href="queue-attributes.html" title="25.1. Predefined Queues">queues</a>
-        </td>
-        <td>Sequence of &lt;queue/&gt;</td>
-        <td>a list of pre configured queues to create</td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>
-            <a href="queue-attributes.html"
-               title="25.1. Predefined Queues">queues.queue</a>
-        </td>
-        <td>Complex element</td>
-        <td></td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>
-            <a href="queue-attributes.html" title="25.1. Predefined Queues">queues.queue.name
-                (required attribute)</a>
-        </td>
-        <td>xsd:ID</td>
-        <td>unique name of this queue</td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>
-            <a href="queue-attributes.html" title="25.1. Predefined Queues">queues.queue.address</a>
-        </td>
-        <td>xsd:string</td>
-        <td>address for the queue</td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>
-            <a href="queue-attributes.html" title="25.1. Predefined Queues">queues.queue.filter</a>
-        </td>
-        <td>Complex element</td>
-        <td></td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>
-            <a href="queue-attributes.html" title="25.1. Predefined Queues">queues.queue.filter.string
-                (required attribute)</a>
-        </td>
-        <td>xsd:string</td>
-        <td>optional core filter expression</td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>
-            <a href="queue-attributes.html" title="25.1. Predefined Queues">queues.queue.durable</a>
-        </td>
-        <td>xsd:boolean</td>
-        <td>whether the queue is durable (persistent)</td>
-        <td>true</td>
-    </tr>
-    <tr>
-        <td>
-            <a href="intercepting-operations.html" title="Chapter 47. Intercepting Operations">remoting-incoming-interceptors</a>
-        </td>
-        <td>Complex element</td>
-        <td>a list of &lt;class-name/&gt; elements with the names of classes to use for interceptor incoming remoting
-            packetsunlimited sequence of &lt;class-name/&gt;</td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>
-            <a href="intercepting-operations.html" title="Chapter 47. Intercepting Operations">remoting-incoming-interceptors.class-name</a>
-        </td>
-        <td>xsd:string</td>
-        <td>the fully qualified name of the interceptor class</td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>
-            <a href="intercepting-operations.html" title="Chapter 47. Intercepting Operations">remoting-interceptors</a>
-        </td>
-        <td>Complex element</td>
-        <td>DEPRECATED. This option is deprecated, but it will still be honored. Any interceptor specified here will be
-            considered an "incoming" interceptor. See &lt;remoting-incoming-interceptors&gt; and &lt;remoting-outgoing-interceptors&gt;.unlimited
-            sequence of &lt;class-name/&gt;</td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>
-            <a href="intercepting-operations.html" title="Chapter 47. Intercepting Operations">remoting-interceptors.class-name</a>
-        </td>
-        <td>xsd:string</td>
-        <td>the fully qualified name of the interceptor class</td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>
-            <a href="intercepting-operations.html" title="Chapter 47. Intercepting Operations">remoting-outgoing-interceptors</a>
-        </td>
-        <td>Complex element</td>
-        <td>a list of &lt;class-name/&gt; elements with the names of classes to use for interceptor outcoming remoting
-            packetsunlimited sequence of &lt;class-name/&gt;</td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>
-            <a href="intercepting-operations.html" title="Chapter 47. Intercepting Operations">remoting-outgoing-interceptors.class-name</a>
-        </td>
-        <td>xsd:string</td>
-        <td>the fully qualified name of the interceptor class</td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>
-            <a href="">resolveProtocols</a>
-        </td>
-        <td>xsd:boolean</td>
-        <td>If true then the HornetQ Server will make use of any Protocol Managers that are in available on the
-            classpath. If false then only the core protocol will be available, unless in Embedded mode where users can
-            inject their own Protocol Managers.
-        </td>
-        <td>true</td>
-    </tr>
-    <tr>
-        <td>
-            <a href="">run-sync-speed-test</a>
-        </td>
-        <td>xsd:boolean</td>
-        <td>XXX Only meant to be used by project developers</td>
-        <td>false</td>
-    </tr>
-    <tr>
-        <td>
-            <a href="thread-pooling.html#server.scheduled.thread.pool"
-               title="41.1.1. Server Scheduled Thread Pool">scheduled-thread-pool-max-size</a>
-        </td>
-        <td>xsd:int</td>
-        <td>Maximum number of threads to use for the scheduled thread pool</td>
-        <td>5</td>
-    </tr>
-    <tr>
-        <td>
-            <a href="security.html" title="Chapter 31. Security">security-enabled</a>
-        </td>
-        <td>xsd:boolean</td>
-        <td>true means that security is enabled</td>
-        <td>true</td>
-    </tr>
-    <tr>
-        <td>
-            <a href="security.html" title="Chapter 31. Security">security-invalidation-interval</a>
-        </td>
-        <td>xsd:long</td>
-        <td>how long (in ms) to wait before invalidating the security cache</td>
-        <td>10000</td>
-    </tr>
-    <tr>
-        <td>
-            <a href="security.html"
-               title="31.1. Role based security for addresses">security-settings</a>
-        </td>
-        <td>Sequence of &lt;security-setting/&gt;</td>
-        <td>a list of security settings</td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>
-            <a href="security.html"
-               title="31.1. Role based security for addresses">security-settings.security-setting</a>
-        </td>
-        <td>Sequence of &lt;permission/&gt;</td>
-        <td></td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>
-            <a href="security.html"
-               title="31.1. Role based security for addresses">security-settings.security-setting.match (required
-                attribute)</a>
-        </td>
-        <td>xsd:string</td>
-        <td>regular expression for matching security roles against addresses</td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>
-            <a href="security.html"
-               title="31.1. Role based security for addresses">security-settings.security-setting.permission</a>
-        </td>
-        <td>Complex element</td>
-        <td></td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>
-            <a href="security.html"
-               title="31.1. Role based security for addresses">security-settings.security-setting.permission.type
-                (required attribute)</a>
-        </td>
-        <td>xsd:string</td>
-        <td>the type of permission</td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>
-            <a href="security.html"
-               title="31.1. Role based security for addresses">security-settings.security-setting.permission.roles
-                (required attribute)</a>
-        </td>
-        <td>xsd:string</td>
-        <td>a comma-separated list of roles to apply the permission to</td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>
-            <a href="">server-dump-interval</a>
-        </td>
-        <td>xsd:long</td>
-        <td>Interval to log server specific information (e.g. memory usage etc)</td>
-        <td>-1 (ms)</td>
-    </tr>
-    <tr>
-        <td>
-            <a href="thread-pooling.html"
-               title="41.1.1. Server Scheduled Thread Pool">thread-pool-max-size</a>
-        </td>
-        <td>xsd:int</td>
-        <td>Maximum number of threads to use for the thread pool. -1 means 'no limits'.</td>
-        <td>30</td>
-    </tr>
-    <tr>
-        <td>
-            <a href="transaction-config.html" title="Chapter 18. Resource Manager Configuration">transaction-timeout</a>
-        </td>
-        <td>xsd:long</td>
-        <td>how long (in ms) before a transaction can be removed from the resource manager after create time</td>
-        <td>300000</td>
-    </tr>
-    <tr>
-        <td>
-            <a href="transaction-config.html" title="Chapter 18. Resource Manager Configuration">transaction-timeout-scan-period</a>
-        </td>
-        <td>xsd:long</td>
-        <td>how often (in ms) to scan for timeout transactions</td>
-        <td>1000</td>
-    </tr>
-    <tr>
-        <td>
-            <a href="wildcard-routing.html" title="Chapter 12. Routing Messages With Wild Cards">wild-card-routing-enabled</a>
-        </td>
-        <td>xsd:boolean</td>
-        <td>true means that the server supports wild card routing</td>
-        <td>true</td>
-    </tr>
-    </tbody>
-</table>
+Name | Description
+:--- | :---
+[acceptors](configuring-transports.md "16.1. Understanding Acceptors") | a list of remoting acceptors
+[acceptors.acceptor](configuring-transports.md "16.1. Understanding Acceptors") | Each acceptor is composed for just an URL
+[address-settings](queue-attributes.md "25.3. Configuring Queues Via Address Settings")                                                    |  [a list of address-setting](#adset)
+[allow-failback](ha.md "39.1.4. Failing Back to live Server")                                                                              |  Should stop backup on live restart. default true
+[async-connection-execution-enabled](connection-ttl.md "17.3. Configuring Asynchronous Connection Execution")  | If False delivery would be always asynchronous. default true
+[bindings-directory](persistence.md "15.1. Configuring the bindings journal")  | The folder in use for the bindings folder
+[bridges](core-bridges.md "Chapter 36. Core Bridges")  | [a list of bridge](#bridge)
+[broadcast-groups](clusters.md "Chapter 38. Clusters")                                            | [a list of broadcast-group](#broadcast)
+[check-for-live-server](ha.md)   |  Used for a live server to verify if there are other nodes with the same ID on the topology
+[cluster-connections](clusters.md "Chapter 38. Clusters") |  [a list of cluster-connection](#clusterconn)
+[cluster-password](clusters.md "Chapter 38. Clusters")                                                                                              |   Cluster password. It applies to all cluster configurations.
+[cluster-user](clusters.md "Chapter 38. Clusters")                                                                                                  |   Cluster username. It applies to all cluster configurations.
+[connection-ttl-override](connection-ttl.md)                                                                                                        |   if set, this will override how long (in ms) to keep a connection alive without receiving a ping. -1 disables this setting. Default -1
+[connectors.connector](configuring-transports.md "16.2. Understanding Connectors") | The URL for the connector. This is a list
+[create-bindings-dir](persistence.md "15.1. Configuring the bindings journal") |  true means that the server will create the bindings directory on start up. Default=true
+[create-journal-dir](persistence.md)                                             |  true means that the journal directory will be created. Default=true
+[discovery-groups](clusters.md "Chapter 38. Clusters")                           |  [a list of discovery-group](#discgroup)
+[diverts](diverts.md "Chapter 35. Diverting and Splitting Message Flows")        |  [a list of diverts to use](#divert)
+[graceful-shutdown-enabled](graceful-shutdown.md "Graceful Server Shutdown")      |  true means that graceful shutdown is enabled. Default=true
+[graceful-shutdown-timeout](graceful-shutdown.md "Graceful Server Shutdown")      |  Timeout on waitin for clients to disconnect before server shutdown. Default=-1
+[grouping-handler](message-grouping.md "Chapter 28. Message Grouping")             |  Message Group configuration
+[id-cache-size](duplicate-detection.md "37.2. Configuring the Duplicate ID Cache")  |  The duplicate detection circular cache size. Default=20000
+[jmx-domain](management.md "30.2.1. Configuring JMX")                               |  the JMX domain used to registered MBeans in the MBeanServer. Default=org.apache.activemq
+[jmx-management-enabled](management.md "30.2.1. Configuring JMX")                   |  true means that the management API is available via JMX. Default=true
+[journal-buffer-size](persistence.md)                                               |  The size of the internal buffer on the journal in KB. Default=490 KiB
+[journal-buffer-timeout](persistence.md)                                            |  The Flush timeout for the journal buffer
+[journal-compact-min-files](persistence.md)                                         |  The minimal number of data files before we can start compacting. Default=10
+[journal-compact-percentage](persistence.md)                                        |  The percentage of live data on which we consider compacting the journal. Default=30
+[journal-directory](persistence.md)                                                 |  the directory to store the journal files in. Default=data/journal
+[journal-file-size](persistence.md)                                                 |  the size (in bytes) of each journal file. Default=10485760 (10 MB)
+[journal-max-io](persistence.md#configuring.message.journal.journal-max-io)           |  the maximum number of write requests that can be in the AIO queue at any one time. Default is 500 for AIO and 1 for NIO.
+[journal-min-files](persistence.md#configuring.message.journal.journal-min-files)     |  how many journal files to pre-create. Default=2
+[journal-sync-non-transactional](persistence.md)                                      |  if true wait for non transaction data to be synced to the journal before returning response to client. Default=true
+[journal-sync-transactional](persistence.md)                                          |  if true wait for transaction data to be synchronized to the journal before returning response to client. Default=true
+[journal-type](persistence.md)                                                        |  the type of journal to use. Default=ASYNCIO
+[large-messages-directory](large-messages.md "23.1. Configuring the server")          |  the directory to store large messages. Default=data/largemessages
+[management-address](management.md "30.3.1. Configuring Core Management")   |  the name of the management address to send management messages to. It is prefixed with "jms.queue" so that JMS clients can send messages to it. Default=jms.queue.activemq.management
+[management-notification-address](management.md "30.5.2.1. Configuring The Core Management Notification Address") |  the name of the address that consumers bind to receive management notifications. Default=activemq.notifications
+[mask-password](configuration-index.md "50.1.3. Using Masked Passwords in Configuration Files")  |  This option controls whether passwords in server configuration need be masked. If set to "true" the passwords are masked. Default=false
+[max-saved-replicated-journals-size]()                                                                |    This specifies how many times a replicated backup server can restart after moving its files on start. Once there are this number of backup journal files the server will stop permanently after if fails back. Default=2
+[memory-measure-interval](perf-tuning.md)                                                             |  frequency to sample JVM memory in ms (or -1 to disable memory sampling). Default=-1
+[memory-warning-threshold](perf-tuning.md)                                                            |  Percentage of available memory which will trigger a warning log. Default=25
+[message-counter-enabled](management.md "30.6.1. Configuring Message Counters")                       |  true means that message counters are enabled. Default=false
+[message-counter-max-day-history](management.md "30.6.1. Configuring Message Counters")               |  how many days to keep message counter history. Default=10 (days)
+[message-counter-sample-period](management.md "30.6.1. Configuring Message Counters")                 |  the sample period (in ms) to use for message counters. Default=10000
+[message-expiry-scan-period](message-expiry.md "22.3. Configuring The Expiry Reaper Thread")          |  how often (in ms) to scan for expired messages. Default=30000
+[message-expiry-thread-priority](message-expiry.md "22.3. Configuring The Expiry Reaper Thread")      |  the priority of the thread expiring messages. Default=3
+[page-max-concurrent-io](paging.md "24.3. Paging Mode")                                               |  The max number of concurrent reads allowed on paging. Default=5
+[paging-directory](paging.md "24.2. Configuration")                                                   |  the directory to store paged messages in. Default=data/paging
+[persist-delivery-count-before-delivery](undelivered-messages.md "21.3. Delivery Count Persistence")  |  True means that the delivery count is persisted before delivery. False means that this only happens after a message has been cancelled. Default=false
+[persistence-enabled](persistence.md "15.6. Configuring ActiveMQ for Zero Persistence")               |  true means that the server will use the file based journal for persistence. Default=true
+[persist-id-cache](duplicate-detection.md "37.2. Configuring the Duplicate ID Cache")                 |  true means that ID's are persisted to the journal. Default=true
+[queues](queue-attributes.md "25.1. Predefined Queues")       |  [a list of queue to be created](#queue)
+[remoting-incoming-interceptors](intercepting-operations.md "Chapter 47. Intercepting Operations")                                                   |  A list of interceptor
+[resolveProtocols]()  |  Use [ServiceLoader](http://docs.oracle.com/javase/tutorial/ext/basics/spi.html) to load protocol modules. Default=true
+[scheduled-thread-pool-max-size](thread-pooling.md#server.scheduled.thread.pool "41.1.1. Server Scheduled Thread Pool")|  Maximum number of threads to use for the scheduled thread pool. Default=5
+[security-enabled](security.md "Chapter 31. Security")  |  true means that security is enabled. Default=true
+[security-invalidation-interval](security.md "Chapter 31. Security")                                   |  how long (in ms) to wait before invalidating the security cache. Default=10000
+[security-settings](security.md "31.1. Role based security for addresses")                             |  [a list of security-setting](#secset)
+[thread-pool-max-size](thread-pooling.md "41.1.1. Server Scheduled Thread Pool")                       |  Maximum number of threads to use for the thread pool. -1 means 'no limits'.. Default=30
+[transaction-timeout](transaction-config.md "Chapter 18. Resource Manager Configuration")              |  how long (in ms) before a transaction can be removed from the resource manager after create time. Default=300000
+[transaction-timeout-scan-period](transaction-config.md "Chapter 18. Resource Manager Configuration")  |  how often (in ms) to scan for timeout transactions. Default=1000
+[wild-card-routing-enabled](wildcard-routing.md "Chapter 12. Routing Messages With Wild Cards")        |  true means that the server supports wild card routing. Default=true
+
+<a name="adset"/>
+#address-setting configuration type
+
+Name | Description
+:--- | :---
+[match ](queue-attributes.md "25.3. Configuring Queues Via Address Settings")         | The filter to apply to the setting
+[dead-letter-address](undelivered-messages.md "21.2.1. Configuring Dead Letter Addresses")                |  dead letter address
+[expiry-address](message-expiry.md "22.2. Configuring Expiry Addresses")                                  |  expired messages address
+[expiry-delay](queue-attributes.md "25.3. Configuring Queues Via Address Settings")                       |  expiration time override, -1 don't override with default=-1
+[redelivery-delay](undelivered-messages.md "21.1.1. Configuring Delayed Redelivery")                      |  time to redeliver a message (in ms) with default=0
+[redelivery-delay-multiplier](queue-attributes.md "25.3. Configuring Queues Via Address Settings")        |  multiplier to apply to the "redelivery-delay"
+[max-redelivery-delay](queue-attributes.md "25.3. Configuring Queues Via Address Settings")               |  Max value for the redelivery-delay
+[max-delivery-attempts](undelivered-messages.md "21.2.1. Configuring Dead Letter Addresses")              |  Number of retries before dead letter address, default=10
+[max-size-bytes](paging.md "Chapter 24. Paging")                                                          |  Limit before paging. -1 = infinite
+[page-size-bytes](paging.md "Chapter 24. Paging")                                                         |  Size of each file on page, default=10485760
+[page-max-cache-size](paging.md "Chapter 24. Paging")                                                     |  Maximum number of files cached from paging default=5
+[address-full-policy](queue-attributes.md "25.3. Configuring Queues Via Address Settings")                |  Model to chose after queue full
+[message-counter-history-day-limit](queue-attributes.md "25.3. Configuring Queues Via Address Settings")  |  Days to keep in history
+[last-value-queue](last-value-queues.md "Chapter 27. Last-Value Queues")                                  |  Queue is a last value queue, default=false
+[redistribution-delay](clusters.md "Chapter 38. Clusters")                                                |  Timeout before redistributing values after no consumers. default=-1
+[send-to-dla-on-no-route](queue-attributes.md "25.3. Configuring Queues Via Address Settings")            |  Forward messages to DLA when no queues subscribing. default=false
+
+
+<a name="bridge"/>
+#bridge configuration type
+
+Name | Description
+:--- | :---
+[name ](core-bridges.md "Chapter 36. Core Bridges")          |  unique name
+[queue-name](core-bridges.md "Chapter 36. Core Bridges")                         |  name of queue that this bridge consumes from
+[forwarding-address](core-bridges.md "Chapter 36. Core Bridges")                 |  address to forward to. If omitted original address is used
+[ha](core-bridges.md "Chapter 36. Core Bridges")                                 |  whether this bridge supports fail-over
+[filter](core-bridges.md "Chapter 36. Core Bridges")         |  optional core filter expression                    |
+[transformer-class-name](core-bridges.md "Chapter 36. Core Bridges")             |  optional name of transformer class
+[min-large-message-size](core-bridges.md "Chapter 36. Core Bridges")             |  Limit before message is considered large. default 100KB
+[check-period](connection-ttl.md "Chapter 17. Detecting Dead Connections")       |  [TTL](http://en.wikipedia.org/wiki/Time_to_live "Time to Live") check period for the bridge. -1 means disabled. default 30000 (ms)
+[connection-ttl](connection-ttl.md "Chapter 17. Detecting Dead Connections")     |  [TTL](http://en.wikipedia.org/wiki/Time_to_live "Time to Live") for the Bridge. This should be greater than the ping period. default 60000 (ms)
+[retry-interval](core-bridges.md "Chapter 36. Core Bridges")                     |  period (in ms) between successive retries. default 2000
+[retry-interval-multiplier](core-bridges.md "Chapter 36. Core Bridges")          |  multiplier to apply to successive retry intervals. default 1
+[max-retry-interval](core-bridges.md "Chapter 36. Core Bridges")                 |  Limit to the retry-interval growth. default 2000
+[reconnect-attempts](core-bridges.md "Chapter 36. Core Bridges")                 |  maximum number of retry attempts, -1 means 'no limits'. default -1
+[use-duplicate-detection](core-bridges.md "Chapter 36. Core Bridges")            |  forward duplicate detection headers?. default true
+[confirmation-window-size](core-bridges.md "Chapter 36. Core Bridges")           |  number of bytes before confirmations are sent. default 1MB
+[user](core-bridges.md "Chapter 36. Core Bridges")                               |  Username for the bridge, the default is the cluster username
+[password](core-bridges.md "Chapter 36. Core Bridges")                           |  Password for the bridge, default is the cluster password
+[reconnect-attempts-same-node](core-bridges.md "Chapter 36. Core Bridges")       |  Number of retries before trying another node. default 10
+
+<a name="broadcast"/>
+# broadcast-group configuration type
+
+Name | Type
+:--- | :---
+[name ](clusters.md "Chapter 38. Clusters")   | unique name
+[local-bind-address](clusters.md "Chapter 38. Clusters")          | local bind address that the datagram socket is bound to
+[local-bind-port](clusters.md "Chapter 38. Clusters")             | local port to which the datagram socket is bound to
+[group-address](clusters.md "Chapter 38. Clusters")               | multicast address to which the data will be broadcast
+[group-port](clusters.md "Chapter 38. Clusters")                  | UDP port number used for broadcasting
+[broadcast-period](clusters.md "Chapter 38. Clusters")            | period in milliseconds between consecutive broadcasts. default 2000
+[jgroups-file](clusters.md)                                       | Name of JGroups configuration file
+[jgroups-channel](clusters.md)                                    | Name of JGroups Channel
+[connector-ref](clusters.md "Chapter 38. Clusters")              |
+
+
+<a name="clusterconn"/>
+#cluster-connection configuration type
+
+Name | Description
+:--- | :---
+[name](clusters.md "Chapter 38. Clusters")                                              |   unique name
+[address](clusters.md "Chapter 38. Clusters")                                                                |   name of the address this cluster connection applies to
+[connector-ref](clusters.md "Chapter 38. Clusters")                                                          |   Name of the connector reference to use.
+[check-period](connection-ttl.md "Chapter 17. Detecting Dead Connections")                                   |   The period (in milliseconds) used to check if the cluster connection has failed to receive pings from another server with default = 30000
+[connection-ttl](connection-ttl.md "Chapter 17. Detecting Dead Connections")                                 |   Timeout for TTL. Default 60000
+[min-large-message-size](large-messages.md "Chapter 23. Large Messages")                                     |   Messages larger than this are considered large-messages, default=100KB
+[call-timeout](clusters.md "Chapter 38. Clusters")                                                           |   Time(ms) before giving up on blocked calls. Default=30000
+[retry-interval](clusters.md "Chapter 38. Clusters")                                                         |   period (in ms) between successive retries. Default=500
+[retry-interval-multiplier](clusters.md "Chapter 38. Clusters")                                              |   multiplier to apply to the retry-interval. Default=1
+[max-retry-interval](clusters.md "Chapter 38. Clusters")                                                     |   Maximum value for retry-interval. Default=2000
+[reconnect-attempts](clusters.md "Chapter 38. Clusters")                                                     |   How many attempts should be made to reconnect after failure. Default=-1
+[use-duplicate-detection](clusters.md "Chapter 38. Clusters")                                                |   should duplicate detection headers be inserted in forwarded messages?. Default=true
+[forward-when-no-consumers](clusters.md "Chapter 38. Clusters")                                              |   should messages be load balanced if there are no matching consumers on target? Default=false
+[max-hops](clusters.md "Chapter 38. Clusters")                                                               |   maximum number of hops cluster topology is propagated. Default=1
+[confirmation-window-size](client-reconnection.md "Chapter 34. Client Reconnection and Session Reattachment")|   The size (in bytes) of the window used for confirming data from the server connected to. Default 1048576
+[call-failover-timeout](clusters.md "38.3.1. Configuring Cluster Connections")                               |   How long to wait for a reply if in the middle of a fail-over. -1 means wait forever. Default -1
+[notification-interval](clusters.md "Chapter 38. Clusters")                                                  |   how often the cluster connection will notify the cluster of its existence right after joining the cluster. Default 1000
+[notification-attempts](clusters.md "Chapter 38. Clusters")                                                  |   how many times this cluster connection will notify the cluster of its existence right after joining the cluster Default 2
+
+
+<a name="discgroup"/>
+#discovery-group configuration type
+
+Name | Description
+:--- | :---
+[name](clusters.md "Chapter 38. Clusters") |  unique name
+[group-address](clusters.md "Chapter 38. Clusters")                                                                 |  Multicast IP address of the group to listen on
+[group-port](clusters.md "Chapter 38. Clusters")                                                                    |  UDP port number of the multi cast group
+[jgroups-file](clusters.md)                                                                                         |  Name of a JGroups configuration file. If specified, the server uses JGroups for discovery.
+[jgroups-channel](clusters.md)                                                                                      |  Name of a JGroups Channel. If specified, the server uses the named channel for discovery.
+[refresh-timeout]()                                                                                                 |    Period the discovery group waits after receiving the last broadcast from a particular server before removing that servers connector pair entry from its list. Default=10000
+[local-bind-address](clusters.md "Chapter 38. Clusters")                                                            |  local bind address that the datagram socket is bound to
+[local-bind-port](clusters.md "Chapter 38. Clusters")                                                               |  local port to which the datagram socket is bound to. Default=-1
+[initial-wait-timeout]()                                                                                            |    time to wait for an initial broadcast to give us at least one node in the cluster. Default=10000
+
+<a name="divert"/>
+#divert configuration type
+
+Name | Description
+:--- | :---
+[name](diverts.md "Chapter 35. Diverting and Splitting Message Flows")                                           |  unique name
+[transformer-class-name](diverts.md "Chapter 35. Diverting and Splitting Message Flows")                                               |  an optional class name of a transformer
+[exclusive](diverts.md "Chapter 35. Diverting and Splitting Message Flows")                                                            |  whether this is an exclusive divert. Default=false
+[routing-name](diverts.md "Chapter 35. Diverting and Splitting Message Flows")                                                         |  the routing name for the divert
+[address](diverts.md "Chapter 35. Diverting and Splitting Message Flows")                                                              |  the address this divert will divert from
+[forwarding-address](diverts.md "Chapter 35. Diverting and Splitting Message Flows")                                                   |  the forwarding address for the divert
+[filter](diverts.md "Chapter 35. Diverting and Splitting Message Flows")| optional core filter expression
+
+
+<a name="queue"/>
+#queue configuration type
+
+Name | Description
+:--- | :---
+[name ](queue-attributes.md "25.1. Predefined Queues")                                                              |  unique name
+[address](queue-attributes.md "25.1. Predefined Queues")                                                                                |  address for the queue
+[filter](queue-attributes.md "25.1. Predefined Queues")                                                                                 | optional core filter expression
+[durable](queue-attributes.md "25.1. Predefined Queues")                                                                                |  whether the queue is durable (persistent). Default=true
+
+
+<a name="secset"/>
+#security-setting configuration type
+
+Name | Description
+:--- | :---
+[match ](security.md "31.1. Role based security for addresses")                               |  [address expression](wildcard-syntax.md)
+[permission](security.md "31.1. Role based security for addresses")                           |
+[permission.type ](security.md "31.1. Role based security for addresses")                     |  the type of permission
+[permission.roles ](security.md "31.1. Role based security for addresses")                    |  a comma-separated list of roles to apply the permission to
+
+----------------------------
 
 ##The jms configuration
 
+Name | Type | Description
+:--- | :--- | :---
+[queue](using-jms.md "7.2. JMS Server Configuration")                  | Queue     |   a queue
+[queue.name (attribute)](using-jms.md "7.2. JMS Server Configuration") | String    |   unique name of the queue
+[queue.durable](using-jms.md "7.2. JMS Server Configuration")          | Boolean   |   is the queue durable?. Default=true
+[queue.filter](using-jms.md "7.2. JMS Server Configuration")           | String    |   optional filter expression for the queue
+[topic](using-jms.md "7.2. JMS Server Configuration")                  | Topic     |   a topic
+[topic.name (attribute)](using-jms.md "7.2. JMS Server Configuration") | String    |   unique name of the topic
 
-<table summary="JMS Server Configuration" border="1">
-    <colgroup>
-        <col/>
-        <col/>
-        <col/>
-        <col/>
-    </colgroup>
-    <thead>
-    <tr>
-        <th>Element Name</th>
-        <th>Element Type</th>
-        <th>Description</th>
-        <th>Default</th>
-    </tr>
-    </thead>
-    <tr>
-        <td><a href="using-jms.html" title="7.2. JMS Server Configuration">queue</a>
-        </td>
-        <td>Queue</td>
-        <td>a queue to create</td>
-        <td></td>
-    </tr>
-    <tr>
-        <td><a href="using-jms.html" title="7.2. JMS Server Configuration">queue.name
-            (attribute)</a></td>
-        <td>String</td>
-        <td>unique name of the queue</td>
-        <td></td>
-    </tr>
-    <tr>
-        <td><a href="using-jms.html" title="7.2. JMS Server Configuration">queue.durable</a>
-        </td>
-        <td>Boolean</td>
-        <td>is the queue durable?</td>
-        <td>true</td>
-    </tr>
-    <tr>
-        <td><a href="using-jms.html" title="7.2. JMS Server Configuration">queue.filter</a>
-        </td>
-        <td>String</td>
-        <td>optional filter expression for the queue</td>
-        <td></td>
-    </tr>
-    <tr>
-        <td><a href="using-jms.html" title="7.2. JMS Server Configuration">topic</a>
-        </td>
-        <td>Topic</td>
-        <td>a topic to create</td>
-        <td></td>
-    </tr>
-    <tr>
-        <td><a href="using-jms.html" title="7.2. JMS Server Configuration">topic.name
-            (attribute)</a></td>
-        <td>String</td>
-        <td>unique name of the topic</td>
-        <td></td>
-    </tr>
-</table>
 
 Using Masked Passwords in Configuration Files
 ---------------------------------------------
@@ -1863,11 +304,11 @@ masking of its 'password' properties follows the same rules as that of
 The following table summarizes the relations among the above-mentioned
 properties
 
-  mask-password   cluster-password   acceptor/connector passwords   bridge password
-  --------------- ------------------ ------------------------------ -----------------
-  absent          plain text         plain text                     plain text
-  false           plain text         plain text                     plain text
-  true            masked             masked                         masked
+  mask-password  | cluster-password  | acceptor/connector passwords |  bridge password
+  :------------- | :---------------- | :--------------------------- | :---------------
+  absent   |       plain text     |    plain text       |              plain text
+  false    |       plain text     |    plain text       |              plain text
+  true     |       masked         |    masked           |              masked
 
 Examples
 
@@ -1876,14 +317,18 @@ absent, it means they are not specified in the configure file.
 
 example 1
 
-    <cluster-password>bbc</cluster-password>
+```xml
+<cluster-password>bbc</cluster-password>
+```
 
 This indicates the cluster password is a plain text value ("bbc").
 
 example 2
 
-    <mask-password>true</mask-password>
-    <cluster-password>80cf731af62c290</cluster-password>
+```xml
+<mask-password>true</mask-password>
+<cluster-password>80cf731af62c290</cluster-password>
+```
 
 This indicates the cluster password is a masked value and Apache ActiveMQ will
 use its built-in decoder to decode it. All other passwords in the
@@ -1906,9 +351,11 @@ decode the masked password. Ignored if `useMaskedPassword` is false. The
 format of this property is a full qualified class name optionally
 followed by key/value pairs, separated by semi-colons. For example:
 
-\<property name="useMaskedPassword"\>true\</property\>
-\<property
-name="passwordCodec"\>com.foo.FooDecoder;key=value\</property\>
+```xml
+<property name="useMaskedPassword">true</property>
+<property name="passwordCodec">com.foo.FooDecoder;key=value</property>
+```
+
 Apache ActiveMQ will load this property and initialize the class with a
 parameter map containing the "key"-\>"value" pair. If `passwordCodec` is
 not specified, the built-in decoder is used.
@@ -1928,16 +375,18 @@ format of this property is a full qualified class name optionally
 followed by key/value pairs. It is the same format as that for JMS
 Bridges. Example:
 
-    <config-property>
-      <config-property-name>UseMaskedPassword</config-property-name>
-      <config-property-type>boolean</config-property-type>
-      <config-property-value>true</config-property-value>
-    </config-property>
-    <config-property>
-      <config-property-name>PasswordCodec</config-property-name>
-      <config-property-type>java.lang.String</config-property-type>
-      <config-property-value>com.foo.ADecoder;key=helloworld</config-property-value>
-    </config-property>
+```xml
+<config-property>
+  <config-property-name>UseMaskedPassword</config-property-name>
+  <config-property-type>boolean</config-property-type>
+  <config-property-value>true</config-property-value>
+</config-property>
+<config-property>
+  <config-property-name>PasswordCodec</config-property-name>
+  <config-property-type>java.lang.String</config-property-type>
+  <config-property-value>com.foo.ADecoder;key=helloworld</config-property-value>
+</config-property>
+```
 
 With this configuration, both passwords in ra.xml and all of its MDBs
 will have to be in masked form.
@@ -1958,8 +407,10 @@ format of this property is a full qualified class name optionally
 followed by key/value pairs. It is the same format as that for JMS
 Bridges. Example:
 
-    <mask-password>true</mask-password>
-    <password-codec>org.apache.activemq.utils.DefaultSensitiveStringCodec;key=hello world</password-codec>
+```xml
+<mask-password>true</mask-password>
+<password-codec>org.apache.activemq.utils.DefaultSensitiveStringCodec;key=hello world</password-codec>
+```
 
 When so configured, the Apache ActiveMQ security manager will initialize a
 DefaultSensitiveStringCodec with the parameters "key"-\>"hello world",
@@ -1987,11 +438,15 @@ to encrypt (encode) a plaintext password and decrypt a mask string using
 same algorithm. Using this decoder/encoder is pretty straightforward. To
 get a mask for a password, just run the following in command line:
 
+```sh
     java org.apache.activemq.utils.DefaultSensitiveStringCodec "your plaintext password"
+```
 
 Make sure the classpath is correct. You'll get something like
 
+```
     Encoded password: 80cf731af62c290
+```
 
 Just copy "80cf731af62c290" and replace your plaintext password with it.
 
@@ -2001,18 +456,24 @@ It is possible to use a different decoder rather than the built-in one.
 Simply make sure the decoder is in Apache ActiveMQ's classpath and configure
 the server to use it as follows:
 
+```xml
     <password-codec>com.foo.SomeDecoder;key1=value1;key2=value2</password-codec>
+```
 
 If your decoder needs params passed to it you can do this via key/value
 pairs when configuring. For instance if your decoder needs say a
 "key-location" parameter, you can define like so:
 
+```xml
     <password-codec>com.foo.NewDecoder;key-location=/some/url/to/keyfile</password-codec>
+```
 
 Then configure your cluster-password like this:
 
+```xml
     <mask-password>true</mask-password>
     <cluster-password>masked_password</cluster-password>
+```
 
 When Apache ActiveMQ reads the cluster-password it will initialize the
 NewDecoder and use it to decode "mask\_password". It also process all
@@ -2025,29 +486,33 @@ from existing libraries or you implement it yourself. All decoders must
 implement the `org.apache.activemq.utils.SensitiveDataCodec<T>`
 interface:
 
-    public interface SensitiveDataCodec<T>
-    {
-       T decode(Object mask) throws Exception;
+``` java
+public interface SensitiveDataCodec<T>
+{
+   T decode(Object mask) throws Exception;
 
-       void init(Map<String, String> params);
-    }
+   void init(Map<String, String> params);
+}
+```
 
 This is a generic type interface but normally for a password you just
 need String type. So a new decoder would be defined like
 
-    public class MyNewDecoder implements SensitiveDataCodec<String>
-    {
-       public String decode(Object mask) throws Exception
-       {
-          //decode the mask into clear text password
-          return "the password";
-       }
+```java
+public class MyNewDecoder implements SensitiveDataCodec<String>
+{
+   public String decode(Object mask) throws Exception
+   {
+      //decode the mask into clear text password
+      return "the password";
+   }
 
-       public void init(Map<String, String> params)
-       {
-          //initialization done here. It is called right after the decoder has been created.
-       }
-    }
+   public void init(Map<String, String> params)
+   {
+      //initialization done here. It is called right after the decoder has been created.
+   }
+}
+```
 
 Last but not least, once you get your own decoder, please add it to the
 classpath. Otherwise Apache ActiveMQ will fail to load it!

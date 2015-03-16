@@ -73,7 +73,7 @@ Example:
     6. Wait Delay Period: 15000                   // (10000 * 2) > max-delay-period:  Use max-delay-delivery
 
 Address wildcards can be used to configure redelivery delay for a set of
-addresses (see [Understanding the HornetQ Wildcard Syntax](wildcard-syntax.md)), so you don't have to specify redelivery delay
+addresses (see [Understanding the Wildcard Syntax](wildcard-syntax.md)), so you don't have to specify redelivery delay
 individually for each address.
 
 ### Example
@@ -120,7 +120,7 @@ addresses and you can set `max-delivery-attempts` to -1 for a specific
 address setting to allow infinite redeliveries only for this address.
 
 Address wildcards can be used to configure dead letter settings for a
-set of addresses (see [Understanding the HornetQ Wildcard Syntax](wildcard-syntax.md)).
+set of addresses (see [Understanding the Wildcard Syntax](wildcard-syntax.md)).
 
 ### Dead Letter Properties
 

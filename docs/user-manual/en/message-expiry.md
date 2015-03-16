@@ -53,7 +53,7 @@ Expiry address are defined in the address-setting configuration:
 
 If messages are expired and no expiry address is specified, messages are
 simply removed from the queue and dropped. Address wildcards can be used
-to configure expiry address for a set of addresses (see [Understanding the HornetQ Wildcard Syntax](wildcard-syntax.md)).
+to configure expiry address for a set of addresses (see [Understanding the Wildcard Syntax](wildcard-syntax.md)).
 
 ## Configuring The Expiry Reaper Thread
 
