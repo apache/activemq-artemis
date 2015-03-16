@@ -17,7 +17,6 @@
 package org.apache.activemq.api.core;
 
 import org.apache.activemq.core.protocol.core.Packet;
-import org.apache.activemq.spi.core.protocol.RemotingConnection;
 
 /**
  * This is class is a simple way to intercepting calls on ActiveMQ client and servers.
@@ -26,16 +25,6 @@ import org.apache.activemq.spi.core.protocol.RemotingConnection;
  * {@literal activemq-configuration.xml}.<br>
  * To add it to a client, use {@link org.apache.activemq.api.core.client.ServerLocator#addIncomingInterceptor(Interceptor)}
  */
-public interface Interceptor
+public interface Interceptor extends BaseInterceptor<Packet>
 {
-   /**
-    * Intercepts a packet which is received before it is sent to the channel
-    *
-    * @param packet     the packet being received
-    * @param connection the connection the packet was received on
-    * @return {@code true} to process the next interceptor and handle the packet,
-    * {@code false} to abort processing of the packet
-    * @throws ActiveMQException
-    */
-   boolean intercept(Packet packet, RemotingConnection connection) throws ActiveMQException;
 }

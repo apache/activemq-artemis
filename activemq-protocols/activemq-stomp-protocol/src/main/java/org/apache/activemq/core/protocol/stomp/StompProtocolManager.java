@@ -26,10 +26,9 @@ import java.util.Set;
 import java.util.concurrent.Executor;
 
 import io.netty.channel.ChannelPipeline;
-
 import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.api.core.ActiveMQExceptionType;
-import org.apache.activemq.api.core.Interceptor;
+import org.apache.activemq.api.core.BaseInterceptor;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.api.core.management.CoreNotificationType;
@@ -49,6 +48,7 @@ import org.apache.activemq.core.server.management.NotificationListener;
 import org.apache.activemq.spi.core.protocol.ConnectionEntry;
 import org.apache.activemq.spi.core.protocol.MessageConverter;
 import org.apache.activemq.spi.core.protocol.ProtocolManager;
+import org.apache.activemq.spi.core.protocol.ProtocolManagerFactory;
 import org.apache.activemq.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.spi.core.remoting.Acceptor;
 import org.apache.activemq.spi.core.remoting.Connection;
@@ -62,13 +62,15 @@ import static org.apache.activemq.core.protocol.stomp.ActiveMQStompProtocolMessa
 /**
  * StompProtocolManager
  */
-class StompProtocolManager implements ProtocolManager, NotificationListener
+class StompProtocolManager implements ProtocolManager<StompFrameInterceptor>, NotificationListener
 {
    // Constants -----------------------------------------------------
 
    // Attributes ----------------------------------------------------
 
    private final ActiveMQServer server;
+
+   private final StompProtocolManagerFactory factory;
 
    private final Executor executor;
 
@@ -79,15 +81,16 @@ class StompProtocolManager implements ProtocolManager, NotificationListener
 
    private final Set<String> destinations = new ConcurrentHashSet<String>();
 
-   private final List<Interceptor> incomingInterceptors;
-   private final List<Interceptor> outgoingInterceptors;
+   private final List<StompFrameInterceptor> incomingInterceptors;
+   private final List<StompFrameInterceptor> outgoingInterceptors;
 
    // Static --------------------------------------------------------
 
    // Constructors --------------------------------------------------
 
-   public StompProtocolManager(final ActiveMQServer server, final List<Interceptor> incomingInterceptors, final List<Interceptor> outgoingInterceptors)
+   public StompProtocolManager(final StompProtocolManagerFactory factory, final ActiveMQServer server, final List<StompFrameInterceptor> incomingInterceptors, final List<StompFrameInterceptor> outgoingInterceptors)
    {
+      this.factory = factory;
       this.server = server;
       this.executor = server.getExecutorFactory().getExecutor();
       ManagementService service = server.getManagementService();
@@ -99,6 +102,22 @@ class StompProtocolManager implements ProtocolManager, NotificationListener
       }
       this.incomingInterceptors = incomingInterceptors;
       this.outgoingInterceptors = outgoingInterceptors;
+   }
+
+   @Override
+   public ProtocolManagerFactory<StompFrameInterceptor> getFactory()
+   {
+      return factory;
+   }
+
+   @Override
+   public void updateInterceptors(List<BaseInterceptor> incoming, List<BaseInterceptor> outgoing)
+   {
+      this.incomingInterceptors.clear();
+      this.incomingInterceptors.addAll(getFactory().filterInterceptors(incoming));
+
+      this.outgoingInterceptors.clear();
+      this.outgoingInterceptors.addAll(getFactory().filterInterceptors(outgoing));
    }
 
    @Override
@@ -345,7 +364,7 @@ class StompProtocolManager implements ProtocolManager, NotificationListener
             ActiveMQServerLogger.LOGGER.errorProcessingIOCallback(errorCode, errorMessage);
 
             ActiveMQStompException e = new ActiveMQStompException("Error sending reply",
-                                                                ActiveMQExceptionType.createException(errorCode, errorMessage));
+                                                                  ActiveMQExceptionType.createException(errorCode, errorMessage));
 
             StompFrame error = e.getFrame();
             send(connection, error);
@@ -419,7 +438,7 @@ class StompProtocolManager implements ProtocolManager, NotificationListener
       if (stompSession.containsSubscription(subscriptionID))
       {
          throw new ActiveMQStompException("There already is a subscription for: " + subscriptionID +
-                                            ". Either use unique subscription IDs or do not create multiple subscriptions for the same destination");
+                                             ". Either use unique subscription IDs or do not create multiple subscriptions for the same destination");
       }
       long consumerID = server.getStorageManager().generateID();
       String clientID = (connection.getClientID() != null) ? connection.getClientID() : null;
@@ -514,25 +533,22 @@ class StompProtocolManager implements ProtocolManager, NotificationListener
       return server;
    }
 
-   private void invokeInterceptors(List<Interceptor> interceptors, final StompFrame frame, final StompConnection connection)
+   private void invokeInterceptors(List<StompFrameInterceptor> interceptors, final StompFrame frame, final StompConnection connection)
    {
       if (interceptors != null && !interceptors.isEmpty())
       {
-         for (Interceptor interceptor : interceptors)
+         for (StompFrameInterceptor interceptor : interceptors)
          {
-            if (interceptor instanceof StompFrameInterceptor)
+            try
             {
-               try
+               if (!interceptor.intercept(frame, connection))
                {
-                  if (!((StompFrameInterceptor)interceptor).intercept(frame, connection))
-                  {
-                     break;
-                  }
+                  break;
                }
-               catch (Exception e)
-               {
-                  ActiveMQServerLogger.LOGGER.error(e);
-               }
+            }
+            catch (Exception e)
+            {
+               ActiveMQServerLogger.LOGGER.error(e);
             }
          }
       }

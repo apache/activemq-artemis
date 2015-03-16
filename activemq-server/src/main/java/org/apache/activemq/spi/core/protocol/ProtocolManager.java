@@ -16,14 +16,27 @@
  */
 package org.apache.activemq.spi.core.protocol;
 
+import java.util.List;
+
 import io.netty.channel.ChannelPipeline;
 import org.apache.activemq.api.core.ActiveMQBuffer;
+import org.apache.activemq.api.core.BaseInterceptor;
 import org.apache.activemq.core.remoting.impl.netty.NettyServerConnection;
 import org.apache.activemq.spi.core.remoting.Acceptor;
 import org.apache.activemq.spi.core.remoting.Connection;
 
-public interface ProtocolManager
+public interface ProtocolManager<P extends BaseInterceptor>
 {
+   ProtocolManagerFactory<P> getFactory();
+
+   /**
+    * This method will receive all the interceptors on the system and you should filter them out *
+    *
+    * @param incomingInterceptors
+    * @param outgoingInterceptors
+    */
+   void updateInterceptors(List<BaseInterceptor> incomingInterceptors, List<BaseInterceptor> outgoingInterceptors);
+
    ConnectionEntry createConnectionEntry(Acceptor acceptorUsed, Connection connection);
 
    void removeHandler(final String name);
@@ -37,6 +50,7 @@ public interface ProtocolManager
    /**
     * Gets the Message Converter towards ActiveMQ.
     * Notice this being null means no need to convert
+    *
     * @return
     */
    MessageConverter getConverter();

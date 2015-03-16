@@ -25,11 +25,12 @@ import java.util.concurrent.RejectedExecutionException;
 
 import io.netty.channel.ChannelPipeline;
 import org.apache.activemq.api.core.ActiveMQBuffer;
+import org.apache.activemq.api.core.BaseInterceptor;
 import org.apache.activemq.api.core.Interceptor;
 import org.apache.activemq.api.core.Pair;
 import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.core.client.ClusterTopologyListener;
 import org.apache.activemq.api.core.client.ActiveMQClient;
+import org.apache.activemq.api.core.client.ClusterTopologyListener;
 import org.apache.activemq.api.core.client.TopologyMember;
 import org.apache.activemq.core.config.Configuration;
 import org.apache.activemq.core.protocol.ServerPacketDecoder;
@@ -53,11 +54,12 @@ import org.apache.activemq.core.server.ActiveMQServerLogger;
 import org.apache.activemq.spi.core.protocol.ConnectionEntry;
 import org.apache.activemq.spi.core.protocol.MessageConverter;
 import org.apache.activemq.spi.core.protocol.ProtocolManager;
+import org.apache.activemq.spi.core.protocol.ProtocolManagerFactory;
 import org.apache.activemq.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.spi.core.remoting.Acceptor;
 import org.apache.activemq.spi.core.remoting.Connection;
 
-class CoreProtocolManager implements ProtocolManager
+class CoreProtocolManager implements ProtocolManager<Interceptor>
 {
    private static final boolean isTrace = ActiveMQServerLogger.LOGGER.isTraceEnabled();
 
@@ -67,8 +69,12 @@ class CoreProtocolManager implements ProtocolManager
 
    private final List<Interceptor> outgoingInterceptors;
 
-   CoreProtocolManager(final ActiveMQServer server, final List<Interceptor> incomingInterceptors, List<Interceptor> outgoingInterceptors)
+   private final CoreProtocolManagerFactory protocolManagerFactory;
+
+   CoreProtocolManager(final CoreProtocolManagerFactory factory, final ActiveMQServer server, final List<Interceptor> incomingInterceptors, List<Interceptor> outgoingInterceptors)
    {
+      this.protocolManagerFactory = factory;
+
       this.server = server;
 
       this.incomingInterceptors = incomingInterceptors;
@@ -76,8 +82,26 @@ class CoreProtocolManager implements ProtocolManager
       this.outgoingInterceptors = outgoingInterceptors;
    }
 
+
+   @Override
+   public ProtocolManagerFactory<Interceptor> getFactory()
+   {
+      return protocolManagerFactory;
+   }
+
+   @Override
+   public void updateInterceptors(List<BaseInterceptor> incoming, List<BaseInterceptor> outgoing)
+   {
+      this.incomingInterceptors.clear();
+      this.incomingInterceptors.addAll(getFactory().filterInterceptors(incoming));
+
+      this.outgoingInterceptors.clear();
+      this.outgoingInterceptors.addAll(getFactory().filterInterceptors(outgoing));
+   }
+
    /**
     * no need to implement this now
+    *
     * @return
     */
    @Override

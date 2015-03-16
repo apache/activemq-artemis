@@ -16,14 +16,16 @@
  */
 package org.apache.activemq.core.protocol.proton;
 
+import org.apache.activemq.api.core.BaseInterceptor;
 import org.apache.activemq.api.core.Interceptor;
 import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.spi.core.protocol.AbstractProtocolManagerFactory;
 import org.apache.activemq.spi.core.protocol.ProtocolManager;
-import org.apache.activemq.spi.core.protocol.ProtocolManagerFactory;
 
+import java.util.Collections;
 import java.util.List;
 
-public class ProtonProtocolManagerFactory implements ProtocolManagerFactory
+public class ProtonProtocolManagerFactory extends AbstractProtocolManagerFactory<Interceptor>
 {
    private static final String AMQP_PROTOCOL_NAME = "AMQP";
 
@@ -32,7 +34,14 @@ public class ProtonProtocolManagerFactory implements ProtocolManagerFactory
    @Override
    public ProtocolManager createProtocolManager(ActiveMQServer server, List<Interceptor> incomingInterceptors, List<Interceptor> outgoingInterceptors)
    {
-      return new ProtonProtocolManager(server);
+      return new ProtonProtocolManager(this, server);
+   }
+
+   @Override
+   public List<Interceptor> filterInterceptors(List<BaseInterceptor> interceptors)
+   {
+      // no interceptors on Proton
+      return Collections.emptyList();
    }
 
    @Override

@@ -18,20 +18,26 @@ package org.apache.activemq.core.protocol.stomp;
 
 import java.util.List;
 
-import org.apache.activemq.api.core.Interceptor;
+import org.apache.activemq.api.core.BaseInterceptor;
 import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.spi.core.protocol.AbstractProtocolManagerFactory;
 import org.apache.activemq.spi.core.protocol.ProtocolManager;
-import org.apache.activemq.spi.core.protocol.ProtocolManagerFactory;
 
-public class StompProtocolManagerFactory implements ProtocolManagerFactory
+public class StompProtocolManagerFactory extends AbstractProtocolManagerFactory<StompFrameInterceptor>
 {
    public static final String STOMP_PROTOCOL_NAME = "STOMP";
 
    private static String[] SUPPORTED_PROTOCOLS = {STOMP_PROTOCOL_NAME};
 
-   public ProtocolManager createProtocolManager(final ActiveMQServer server, final List<Interceptor> incomingInterceptors, List<Interceptor> outgoingInterceptors)
+   public ProtocolManager createProtocolManager(final ActiveMQServer server, final List<StompFrameInterceptor> incomingInterceptors, List<StompFrameInterceptor> outgoingInterceptors)
    {
-      return new StompProtocolManager(server, incomingInterceptors, outgoingInterceptors);
+      return new StompProtocolManager(this, server, incomingInterceptors, outgoingInterceptors);
+   }
+
+   @Override
+   public List<StompFrameInterceptor> filterInterceptors(List<BaseInterceptor> interceptors)
+   {
+      return filterInterceptors(StompFrameInterceptor.class, interceptors);
    }
 
    @Override

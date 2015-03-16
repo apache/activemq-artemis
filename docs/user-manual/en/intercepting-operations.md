@@ -20,12 +20,12 @@ public interface Interceptor
 }
 ```
 
-For stomp protocol an interceptor must extend the `StompFrameInterceptor class`:
+For stomp protocol an interceptor must implement the `StompFrameInterceptor class`:
 
 ``` java
 package org.apache.activemq.core.protocol.stomp;
 
-public abstract class StompFrameInterceptor
+public interface StompFrameInterceptor
 {
    public abstract boolean intercept(StompFrame stompFrame, RemotingConnection connection);
 }
