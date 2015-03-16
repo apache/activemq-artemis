@@ -20,6 +20,7 @@ require 'qpid_proton'
 
 messenger = Qpid::Proton::Messenger.new()
 messenger.incoming_window = 10
+messenger.timeout = 10000
 
 begin
   messenger.start
@@ -39,7 +40,7 @@ end
 msg = Qpid::Proton::Message.new
 
   begin
-    messenger.receive(10)
+    messenger.receive(1)
   rescue Qpid::Proton::ProtonError => error
     puts "ERROR: #{error.message}"
     exit
@@ -49,14 +50,14 @@ msg = Qpid::Proton::Message.new
     begin
       messenger.get(msg)
       # for 0.5:
-      messenger.accept()
+      # messenger.accept()
 
       # for 0.4:
       #messenger.accept(messenger.incoming_tracker, 0)#1 would mean cumulative
 
       # optional and the same in both versions (messenger will
       # settle itself when tracker passes out the window)
-      messenger.settle(messenger.incoming_tracker, 0)
+      # messenger.settle(messenger.incoming_tracker)
 
 
     rescue Qpid::Proton::Error => error
@@ -66,7 +67,7 @@ msg = Qpid::Proton::Message.new
 
     puts "Address: #{msg.address}"
     puts "Subject: #{msg.subject}"
-    puts "Content: #{msg.content}"
+    puts "Content: #{msg.body}"
     puts "Message ID: #{msg.id}"
   end
 
