@@ -77,5 +77,5 @@ and invoked.
 
 ## Example
 
-See the examples for an example which shows how to use interceptors to add
+See [the examples chapter](examples.md) for an example which shows how to use interceptors to add
 properties to a message on the server.

@@ -3,7 +3,7 @@
 * [Introduction](README.md)
 * [Legal Notice](notice.md)
 * [Preface](preface.md)
-* [Project Info](project-info/project-info.md)
+* [Project Info](project-info.md)
 * [Messaging Concepts](messaging-concepts.md)
 * [Architecture](architecture.md)
 * [Using the Server](using-server.md)
