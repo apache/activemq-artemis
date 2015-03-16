@@ -35,7 +35,7 @@ Apache ActiveMQ supports two different strategies for backing up a server
     <ha-policy>
       <replication/>
     </ha-policy>
-               
+
 
 or
 

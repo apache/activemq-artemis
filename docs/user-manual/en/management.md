@@ -245,10 +245,9 @@ transactions). These resources are:
 
     They can be started or stopped using the `start()` or. `stop()`
     method on the `AcceptorControl` class (with the ObjectName
-    `org.apache.activemq:module=Core,type=Acceptor,name="<the acceptor
-                            name>"` or the resource name
-    `core.acceptor.<the
-                            address name>`). The acceptors parameters
+    `org.apache.activemq:module=Core,type=Acceptor,name="<the acceptor name>"`
+    or the resource name
+    `core.acceptor.<the address name>`). The acceptors parameters
     can be retrieved using the `AcceptorControl` attributes (see [Understanding Acceptors](configuring-transports.md))
 
 -   Diverts
@@ -264,18 +263,16 @@ transactions). These resources are:
 
     They can be started or stopped using the `start()` (resp. `stop()`)
     method on the `BridgeControl` class (with the ObjectName
-    `org.apache.activemq:module=Core,type=Bridge,name="<the bridge
-                            name>"` or the resource name
-    `core.bridge.<the bridge
-                            name>`). Bridges parameters can be retrieved
+    `org.apache.activemq:module=Core,type=Bridge,name="<the bridge name>"`
+    or the resource name
+    `core.bridge.<the bridge name>`). Bridges parameters can be retrieved
     using the `BridgeControl` attributes (see [Core bridges](core-bridges.md))
 
 -   Broadcast groups
 
     They can be started or stopped using the `start()` or `stop()`
     method on the `BroadcastGroupControl` class (with the ObjectName
-    `org.apache.activemq:module=Core,type=BroadcastGroup,name="<the broadcast group
-                            name>"` or the resource name
+    `org.apache.activemq:module=Core,type=BroadcastGroup,name="<the broadcast group name>"` or the resource name
     `core.broadcastgroup.<the broadcast group name>`). Broadcast groups
     parameters can be retrieved using the `BroadcastGroupControl`
     attributes (see [Clusters](clusters.md))
@@ -284,10 +281,8 @@ transactions). These resources are:
 
     They can be started or stopped using the `start()` or `stop()`
     method on the `DiscoveryGroupControl` class (with the ObjectName
-    `org.apache.activemq:module=Core,type=DiscoveryGroup,name="<the discovery group
-                            name>"` or the resource name
-    `core.discovery.<the
-                            discovery group name>`). Discovery groups
+    `org.apache.activemq:module=Core,type=DiscoveryGroup,name="<the discovery group name>"` or the resource name
+    `core.discovery.<the discovery group name>`). Discovery groups
     parameters can be retrieved using the `DiscoveryGroupControl`
     attributes (see [Clusters](clusters.md))
 
@@ -295,8 +290,7 @@ transactions). These resources are:
 
     They can be started or stopped using the `start()` or `stop()`
     method on the `ClusterConnectionControl` class (with the ObjectName
-    `org.apache.activemq:module=Core,type=ClusterConnection,name="<the cluster
-                            connection name>"` or the resource name
+    `org.apache.activemq:module=Core,type=ClusterConnection,name="<the cluster connection name>"` or the resource name
     `core.clusterconnection.<the cluster connection name>`). Cluster
     connections parameters can be retrieved using the
     `ClusterConnectionControl` attributes (see [Clusters](clusters.md))

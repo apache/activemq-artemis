@@ -270,7 +270,7 @@ the maximum desired message consumption rate specified in units of
 messages per second. Setting this to `-1` disables rate limited flow
 control. The default value is `-1`.
 
-Please see the ? for a working example of limiting producer rate.
+Please see [the examples chapter](examples.md) for a working example of limiting producer rate.
 
 #### Using Core API
 
