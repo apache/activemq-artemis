@@ -26,7 +26,7 @@ messenger.start
 msg = Qpid::Proton::Message.new
 msg.address = address
 msg.subject = "The time is #{Time.new}"
-msg.content = "Hello world!"
+msg.body = "Hello world!"
 msg.correlation_id = "554545"
 
 begin
@@ -44,6 +44,6 @@ rescue Qpid::Proton::ProtonError => error
     exit
 end
 
-puts "SENT: " + msg.content
+puts "SENT: " + msg.body
 
 messenger.stop
