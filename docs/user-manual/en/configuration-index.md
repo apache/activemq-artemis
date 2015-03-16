@@ -18,28 +18,28 @@ element is used by the server side JMS service to load JMS Queues, Topics
 # The core configuration
 
 This describes the root of the XML configuration. You will see here also multiple sub-types listed.
-For example on the main config you will have bridges and at the [list of bridge](#bridge) type we will describe the properties for that configuration.
+For example on the main config you will have bridges and at the [list of bridge](#bridge-type) type we will describe the properties for that configuration.
 
 Name | Description
 :--- | :---
 [acceptors](configuring-transports.md "16.1. Understanding Acceptors") | a list of remoting acceptors
 [acceptors.acceptor](configuring-transports.md "16.1. Understanding Acceptors") | Each acceptor is composed for just an URL
-[address-settings](queue-attributes.md "25.3. Configuring Queues Via Address Settings")                                                    |  [a list of address-setting](#adset)
+[address-settings](queue-attributes.md "25.3. Configuring Queues Via Address Settings")                                                    |  [a list of address-setting](#address-setting-type)
 [allow-failback](ha.md "39.1.4. Failing Back to live Server")                                                                              |  Should stop backup on live restart. default true
 [async-connection-execution-enabled](connection-ttl.md "17.3. Configuring Asynchronous Connection Execution")  | If False delivery would be always asynchronous. default true
 [bindings-directory](persistence.md "15.1. Configuring the bindings journal")  | The folder in use for the bindings folder
-[bridges](core-bridges.md "Chapter 36. Core Bridges")  | [a list of bridge](#bridge)
-[broadcast-groups](clusters.md "Chapter 38. Clusters")                                            | [a list of broadcast-group](#broadcast)
+[bridges](core-bridges.md "Chapter 36. Core Bridges")  | [a list of bridge](#bridge-type)
+[broadcast-groups](clusters.md "Chapter 38. Clusters")                                            | [a list of broadcast-group](#broadcast-group-type)
 [check-for-live-server](ha.md)   |  Used for a live server to verify if there are other nodes with the same ID on the topology
-[cluster-connections](clusters.md "Chapter 38. Clusters") |  [a list of cluster-connection](#clusterconn)
+[cluster-connections](clusters.md "Chapter 38. Clusters") |  [a list of cluster-connection](#cluster-connection-type)
 [cluster-password](clusters.md "Chapter 38. Clusters")                                                                                              |   Cluster password. It applies to all cluster configurations.
 [cluster-user](clusters.md "Chapter 38. Clusters")                                                                                                  |   Cluster username. It applies to all cluster configurations.
 [connection-ttl-override](connection-ttl.md)                                                                                                        |   if set, this will override how long (in ms) to keep a connection alive without receiving a ping. -1 disables this setting. Default -1
 [connectors.connector](configuring-transports.md "16.2. Understanding Connectors") | The URL for the connector. This is a list
 [create-bindings-dir](persistence.md "15.1. Configuring the bindings journal") |  true means that the server will create the bindings directory on start up. Default=true
 [create-journal-dir](persistence.md)                                             |  true means that the journal directory will be created. Default=true
-[discovery-groups](clusters.md "Chapter 38. Clusters")                           |  [a list of discovery-group](#discgroup)
-[diverts](diverts.md "Chapter 35. Diverting and Splitting Message Flows")        |  [a list of diverts to use](#divert)
+[discovery-groups](clusters.md "Chapter 38. Clusters")                           |  [a list of discovery-group](#discovery-group-type)
+[diverts](diverts.md "Chapter 35. Diverting and Splitting Message Flows")        |  [a list of diverts to use](#divert-type)
 [graceful-shutdown-enabled](graceful-shutdown.md "Graceful Server Shutdown")      |  true means that graceful shutdown is enabled. Default=true
 [graceful-shutdown-timeout](graceful-shutdown.md "Graceful Server Shutdown")      |  Timeout on waitin for clients to disconnect before server shutdown. Default=-1
 [grouping-handler](message-grouping.md "Chapter 28. Message Grouping")             |  Message Group configuration
@@ -74,20 +74,19 @@ Name | Description
 [persist-delivery-count-before-delivery](undelivered-messages.md "21.3. Delivery Count Persistence")  |  True means that the delivery count is persisted before delivery. False means that this only happens after a message has been cancelled. Default=false
 [persistence-enabled](persistence.md "15.6. Configuring ActiveMQ for Zero Persistence")               |  true means that the server will use the file based journal for persistence. Default=true
 [persist-id-cache](duplicate-detection.md "37.2. Configuring the Duplicate ID Cache")                 |  true means that ID's are persisted to the journal. Default=true
-[queues](queue-attributes.md "25.1. Predefined Queues")       |  [a list of queue to be created](#queue)
+[queues](queue-attributes.md "25.1. Predefined Queues")       |  [a list of queue to be created](#queue-type)
 [remoting-incoming-interceptors](intercepting-operations.md "Chapter 47. Intercepting Operations")                                                   |  A list of interceptor
 [resolveProtocols]()  |  Use [ServiceLoader](http://docs.oracle.com/javase/tutorial/ext/basics/spi.html) to load protocol modules. Default=true
 [scheduled-thread-pool-max-size](thread-pooling.md#server.scheduled.thread.pool "41.1.1. Server Scheduled Thread Pool")|  Maximum number of threads to use for the scheduled thread pool. Default=5
 [security-enabled](security.md "Chapter 31. Security")  |  true means that security is enabled. Default=true
 [security-invalidation-interval](security.md "Chapter 31. Security")                                   |  how long (in ms) to wait before invalidating the security cache. Default=10000
-[security-settings](security.md "31.1. Role based security for addresses")                             |  [a list of security-setting](#secset)
+[security-settings](security.md "31.1. Role based security for addresses")                             |  [a list of security-setting](#security-setting-type)
 [thread-pool-max-size](thread-pooling.md "41.1.1. Server Scheduled Thread Pool")                       |  Maximum number of threads to use for the thread pool. -1 means 'no limits'.. Default=30
 [transaction-timeout](transaction-config.md "Chapter 18. Resource Manager Configuration")              |  how long (in ms) before a transaction can be removed from the resource manager after create time. Default=300000
 [transaction-timeout-scan-period](transaction-config.md "Chapter 18. Resource Manager Configuration")  |  how often (in ms) to scan for timeout transactions. Default=1000
 [wild-card-routing-enabled](wildcard-routing.md "Chapter 12. Routing Messages With Wild Cards")        |  true means that the server supports wild card routing. Default=true
 
-<a name="adset"/>
-#address-setting configuration type
+#address-setting type
 
 Name | Description
 :--- | :---
@@ -109,8 +108,7 @@ Name | Description
 [send-to-dla-on-no-route](queue-attributes.md "25.3. Configuring Queues Via Address Settings")            |  Forward messages to DLA when no queues subscribing. default=false
 
 
-<a name="bridge"/>
-#bridge configuration type
+#bridge type
 
 Name | Description
 :--- | :---
@@ -133,8 +131,7 @@ Name | Description
 [password](core-bridges.md "Chapter 36. Core Bridges")                           |  Password for the bridge, default is the cluster password
 [reconnect-attempts-same-node](core-bridges.md "Chapter 36. Core Bridges")       |  Number of retries before trying another node. default 10
 
-<a name="broadcast"/>
-# broadcast-group configuration type
+# broadcast-group type
 
 Name | Type
 :--- | :---
@@ -149,8 +146,7 @@ Name | Type
 [connector-ref](clusters.md "Chapter 38. Clusters")              |
 
 
-<a name="clusterconn"/>
-#cluster-connection configuration type
+#cluster-connection type
 
 Name | Description
 :--- | :---
@@ -174,8 +170,7 @@ Name | Description
 [notification-attempts](clusters.md "Chapter 38. Clusters")                                                  |   how many times this cluster connection will notify the cluster of its existence right after joining the cluster Default 2
 
 
-<a name="discgroup"/>
-#discovery-group configuration type
+#discovery-group type
 
 Name | Description
 :--- | :---
@@ -189,8 +184,7 @@ Name | Description
 [local-bind-port](clusters.md "Chapter 38. Clusters")                                                               |  local port to which the datagram socket is bound to. Default=-1
 [initial-wait-timeout]()                                                                                            |    time to wait for an initial broadcast to give us at least one node in the cluster. Default=10000
 
-<a name="divert"/>
-#divert configuration type
+#divert type
 
 Name | Description
 :--- | :---
@@ -203,8 +197,7 @@ Name | Description
 [filter](diverts.md "Chapter 35. Diverting and Splitting Message Flows")| optional core filter expression
 
 
-<a name="queue"/>
-#queue configuration type
+#queue type
 
 Name | Description
 :--- | :---
@@ -214,8 +207,7 @@ Name | Description
 [durable](queue-attributes.md "25.1. Predefined Queues")                                                                                |  whether the queue is durable (persistent). Default=true
 
 
-<a name="secset"/>
-#security-setting configuration type
+#security-setting type
 
 Name | Description
 :--- | :---
