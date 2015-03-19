@@ -428,13 +428,15 @@ org.apache.activemq.utils.DefaultSensitiveStringCodec. It has both
 encoding and decoding capabilities. It uses java.crypto.Cipher utilities
 to encrypt (encode) a plaintext password and decrypt a mask string using
 same algorithm. Using this decoder/encoder is pretty straightforward. To
-get a mask for a password, just run the following in command line:
+get a mask for a password, just run the main class at org.apache.activemq.utils.DefaultSensitiveStringCodec.
+
+An easy way to do it is through activemq-tools-<VERSION>-jar-with-dependencies.jar since it has all the dependencies:
 
 ```sh
-    java org.apache.activemq.utils.DefaultSensitiveStringCodec "your plaintext password"
+    java -cp activemq-tools-6.0.0-jar-with-dependencies.jar org.apache.activemq.utils.DefaultSensitiveStringCodec "your plaintext password"
 ```
 
-Make sure the classpath is correct. You'll get something like
+If you don't want to use the jar-with-dependencies, make sure the classpath is correct. You'll get something like
 
 ```
     Encoded password: 80cf731af62c290

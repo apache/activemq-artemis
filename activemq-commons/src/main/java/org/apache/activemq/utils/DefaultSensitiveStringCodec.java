@@ -98,6 +98,24 @@ public class DefaultSensitiveStringCodec implements SensitiveDataCodec<String>
       }
    }
 
+   /**
+    * This main class is as documented on configuration-index.md, where the user can mask the password here. *
+    * @param args
+    * @throws Exception
+    */
+   public static void main(String[] args) throws Exception
+   {
+      if (args.length != 1)
+      {
+         System.err.println("Use: java -cp <classPath> org.apache.activemq.utils.DefaultSensitiveStringCodec password-to-encode");
+         System.err.println("Error: no password on the args");
+         System.exit(-1);
+      }
+      DefaultSensitiveStringCodec codec = new DefaultSensitiveStringCodec();
+      Object encode = codec.encode(args[0]);
+      System.out.println("Encoded password (without quotes): \"" + encode + "\"");
+   }
+
    private void updateKey(String key)
    {
       this.internalKey = key.getBytes();
