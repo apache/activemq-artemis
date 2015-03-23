@@ -944,6 +944,9 @@
             <version>0.11</version>
             <configuration>
                <excludes>
+                  <exclude>**/*.bin</exclude>
+                  <exclude>**/*.log</exclude>
+                  <exclude>**/*.txt</exclude>
                   <exclude>**/src/main/resources/licenses/</exclude>
                   <exclude>**/*.md</exclude>
                   <exclude>**/banner.txt</exclude>
