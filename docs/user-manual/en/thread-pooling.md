@@ -90,7 +90,7 @@ A single thread is also used on the server side to scan for expired
 messages in queues. We cannot use either of the thread pools for this
 since this thread needs to run at its own configurable priority.
 
-For more information on configuring the reaper, please see ?.
+For more information on configuring the reaper, please see [message expiry](message-expiry.md).
 
 ### Asynchronous IO
 

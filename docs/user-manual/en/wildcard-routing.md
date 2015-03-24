@@ -16,5 +16,5 @@ To enable this functionality set the property
 `wild-card-routing-enabled` in the `activemq-configuration.xml` file to
 `true`. This is `true` by default.
 
-For more information on the wild card syntax take a look at ? chapter,
-also see ?.
+For more information on the wild card syntax take a look at [wildcard syntax](wildcard-syntax.md) chapter,
+also see the topic hierarchy example in the [examples](examples.md).

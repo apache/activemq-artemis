@@ -32,4 +32,4 @@ detection enabled will cause a new entry in the internal
 are a high number of queues and the `slow-consumer-check-period` is
 relatively low then there may be delays in executing some of the checks.
 However, this will not impact the accuracy of the calculations used by
-the detection algorithm. See ? for more details about this pool.
+the detection algorithm. See [thread pooling](thread-pooling.md) for more details about this pool.
