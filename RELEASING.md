@@ -12,7 +12,7 @@ Things to do before issuing a new release:
 
 * Bump the version numbers in example and test poms to the next release version. e.g. 6.0.0
 
-* Build the release locally: mvn clean install -Prelease
+* Build the release locally: mvn clean install -DskipLicenseCheck=false -Prelease
 
 * Test the standalone release (this should be done on windows as well as linux):
 1. Unpack the distribution zip or tar.gz
