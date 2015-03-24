@@ -17,7 +17,7 @@ Last-value queues are defined in the address-setting configuration:
     </address-setting>
 
 By default, `last-value-queue` is false. Address wildcards can be used
-to configure Last-Value queues for a set of addresses (see ?).
+to configure Last-Value queues for a set of addresses (see [here](wildcard-syntax.md)).
 
 ## Using Last-Value Property
 

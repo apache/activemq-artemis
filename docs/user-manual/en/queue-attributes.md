@@ -172,12 +172,12 @@ value must be greater than 0.
 detected. `KILL` will kill the consumer's connection (which will
 obviously impact any other client threads using that same connection).
 `NOTIFY` will send a CONSUMER\_SLOW management notification which an
-application could receive and take action with. See ? for more details
+application could receive and take action with. See [slow consumers](slow-consumers.md) for more details
 on this notification.
 
 `slow-consumer-check-period`. How often to check for slow consumers on a
-particular queue. Measured in minutes. Default is 5. See ? for more
-information about slow consumer detection.
+particular queue. Measured in minutes. Default is 5. See [slow consumers](slow-consumers.md)
+for more information about slow consumer detection.
 
 `auto-create-jms-queues`. Whether or not the broker should automatically
 create a JMS queue when a JMS message is sent to a queue whose name fits

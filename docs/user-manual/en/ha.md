@@ -853,7 +853,7 @@ try only once. Once the number of attempts has been made an exception
 will be thrown.
 
 For examples of automatic failover with transacted and non-transacted
-JMS sessions, please see ? and ?.
+JMS sessions, please see [the examples](examples.md) chapter.
 
 #### A Note on Server Replication
 
@@ -941,7 +941,7 @@ the session - it is already rolled back. The user can then just retry
 the transactional operations again on the same session.
 
 Apache ActiveMQ ships with a fully functioning example demonstrating how to do
-this, please see ?
+this, please see [the examples](examples.md) chapter.
 
 If failover occurs when a commit call is being executed, the server, as
 previously described, will unblock the call to prevent a hang, since no
@@ -1042,7 +1042,7 @@ connection failure is detected. In your `ExceptionListener`, you would
 close your old JMS connections, potentially look up new connection
 factory instances from JNDI and creating new connections.
 
-For a working example of application-level failover, please see ?.
+For a working example of application-level failover, please see [the examples](examples.md) chapter.
 
 If you are using the core API, then the procedure is very similar: you
 would set a `FailureListener` on the core `ClientSession` instances.
