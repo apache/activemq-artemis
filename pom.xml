@@ -97,7 +97,7 @@
          -Djava.net.preferIPv4Stack=true
       </activemq-surefire-argline>
       <activemq.basedir>${project.basedir}</activemq.basedir>
-      <skipLicenseCheck>false</skipLicenseCheck>
+      <skipLicenseCheck>true</skipLicenseCheck>
       <skipStyleCheck>false</skipStyleCheck>
       <geronimo.jms.2.spec.version>1.0-alpha-1</geronimo.jms.2.spec.version>
    </properties>
@@ -902,47 +902,11 @@
             </configuration>
          </plugin>
          <plugin>
-            <groupId>com.mycila</groupId>
-            <artifactId>license-maven-plugin</artifactId>
-            <version>2.6</version>
-            <configuration>
-               <skip>${skipLicenseCheck}</skip>
-               <basedir>${activemq.basedir}</basedir>
-               <header>etc/license-header.txt</header>
-               <quiet>false</quiet>
-               <failIfMissing>true</failIfMissing>
-               <includes>
-                  <include>**/*.java</include>
-               </includes>
-               <excludes>
-                  <exclude>**/filter/impl/Identifier.java</exclude>
-                  <exclude>**/filter/impl/Operator.java</exclude>
-                  <exclude>**/filter/impl/RegExp.java</exclude>
-                  <exclude>**/utils/UUID*.java</exclude>
-                  <exclude>**/org/apache/activemq/selector/**</exclude>
-                  <exclude>**/org/apache/activemq/utils/json/**</exclude>
-                  <exclude>**/org/apache/activemq/utils/Base64.java</exclude>
-               </excludes>
-               <useDefaultExcludes>true</useDefaultExcludes>
-               <strictCheck>true</strictCheck>
-               <mapping>
-                  <java>JAVADOC_STYLE</java>
-               </mapping>
-            </configuration>
-            <executions>
-               <execution>
-                  <phase>compile</phase>
-                  <goals>
-                     <goal>check</goal>
-                  </goals>
-               </execution>
-            </executions>
-         </plugin>
-         <plugin>
             <groupId>org.apache.rat</groupId>
             <artifactId>apache-rat-plugin</artifactId>
             <version>0.11</version>
             <configuration>
+               <skip>${skipLicenseCheck}</skip>
                <excludes>
                   <exclude>**/*.bin</exclude>
                   <exclude>**/*.log</exclude>
