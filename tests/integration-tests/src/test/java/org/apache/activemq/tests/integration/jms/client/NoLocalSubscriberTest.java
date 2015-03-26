@@ -185,7 +185,7 @@ public class NoLocalSubscriberTest extends JMSTestBase
 
          // now drain the subscription
          // we should not receive message M3, but we should receive message M4
-         // However for some reason HornetMQ doesn't receive either
+         // However for some reason ActiveMQ-6 doesn't receive either
          TextMessage textMessage = (TextMessage)topicSubscriber.receive(1000);
          assertNotNull(textMessage);
 
@@ -254,7 +254,7 @@ public class NoLocalSubscriberTest extends JMSTestBase
 
          // now drain the subscription
          // we should not receive message M3, but we should receive message M4
-         // However for some reason HornetMQ doesn't receive either
+         // However for some reason ActiveMQ-6 doesn't receive either
          TextMessage textMessage = (TextMessage)topicSubscriber.receive(1000);
          assertNotNull(textMessage);
 
