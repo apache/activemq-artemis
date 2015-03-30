@@ -149,6 +149,8 @@ public abstract class SessionContext
 
    public abstract int sendLargeMessageChunk(MessageInternal msgI, long messageBodySize, boolean sendBlocking, boolean lastChunk, byte[] chunk, SendAcknowledgementHandler messageHandler) throws ActiveMQException;
 
+   public abstract int sendServerLargeMessageChunk(MessageInternal msgI, long messageBodySize, boolean sendBlocking, boolean lastChunk, byte[] chunk, SendAcknowledgementHandler messageHandler) throws ActiveMQException;
+
 
    public abstract void setSendAcknowledgementHandler(final SendAcknowledgementHandler handler);
 

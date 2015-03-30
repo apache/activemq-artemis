@@ -16,6 +16,12 @@
  */
 package org.apache.activemq.tests.integration.cluster.bridge;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -1751,6 +1757,234 @@ public class BridgeTest extends ServiceTestBase
       }
 
       assertEquals(0, loadQueues(server0).size());
+   }
+
+   @Test
+   public void testBridgeWithVeryLargeMessage() throws Exception
+   {
+      ActiveMQServer server0 = null;
+      ActiveMQServer server1 = null;
+
+      final int PAGE_MAX = 1024 * 1024;
+
+      final int PAGE_SIZE = 10 * 1024;
+      ServerLocator locator = null;
+      try
+      {
+
+         Map<String, Object> server0Params = new HashMap<String, Object>();
+         server0 = createClusteredServerWithParams(isNetty(), 0, true, PAGE_SIZE, PAGE_MAX, server0Params);
+
+         Map<String, Object> server1Params = new HashMap<String, Object>();
+         addTargetParameters(server1Params);
+         server1 = createClusteredServerWithParams(isNetty(), 1, true, server1Params);
+
+         final String testAddress = "testAddress";
+         final String queueName0 = "queue0";
+         final String forwardAddress = "forwardAddress";
+         final String queueName1 = "queue1";
+
+         Map<String, TransportConfiguration> connectors = new HashMap<String, TransportConfiguration>();
+         TransportConfiguration server0tc = new TransportConfiguration(getConnector(), server0Params);
+
+         TransportConfiguration server1tc = new TransportConfiguration(getConnector(), server1Params);
+         connectors.put(server1tc.getName(), server1tc);
+
+         server0.getConfiguration().setConnectorConfigurations(connectors);
+
+         ArrayList<String> staticConnectors = new ArrayList<String>();
+         staticConnectors.add(server1tc.getName());
+
+         int minLargeMessageSize = 50 * 1024 * 1024; //50M
+
+         BridgeConfiguration bridgeConfiguration = new BridgeConfiguration()
+                 .setName("bridge1")
+                 .setQueueName(queueName0)
+                 .setForwardingAddress(forwardAddress)
+                 .setRetryInterval(1000)
+                 .setReconnectAttemptsOnSameNode(-1)
+                 .setUseDuplicateDetection(false)
+                 .setConfirmationWindowSize(1024)
+                 .setStaticConnectors(staticConnectors)
+                 .setMinLargeMessageSize(minLargeMessageSize);
+
+         List<BridgeConfiguration> bridgeConfigs = new ArrayList<BridgeConfiguration>();
+         bridgeConfigs.add(bridgeConfiguration);
+         server0.getConfiguration().setBridgeConfigurations(bridgeConfigs);
+
+         CoreQueueConfiguration queueConfig0 = new CoreQueueConfiguration()
+                 .setAddress(testAddress)
+                 .setName(queueName0);
+         List<CoreQueueConfiguration> queueConfigs0 = new ArrayList<CoreQueueConfiguration>();
+         queueConfigs0.add(queueConfig0);
+         server0.getConfiguration().setQueueConfigurations(queueConfigs0);
+
+
+         CoreQueueConfiguration queueConfig1 = new CoreQueueConfiguration()
+                 .setAddress(forwardAddress)
+                 .setName(queueName1);
+         List<CoreQueueConfiguration> queueConfigs1 = new ArrayList<CoreQueueConfiguration>();
+         queueConfigs1.add(queueConfig1);
+         server1.getConfiguration().setQueueConfigurations(queueConfigs1);
+
+         server1.start();
+         server0.start();
+
+         locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(server0tc, server1tc));
+
+         ClientSessionFactory sf0 = locator.createSessionFactory(server0tc);
+
+         ClientSessionFactory sf1 = locator.createSessionFactory(server1tc);
+
+         ClientSession session0 = sf0.createSession(false, true, true);
+
+         ClientSession session1 = sf1.createSession(false, true, true);
+
+         ClientProducer producer0 = session0.createProducer(new SimpleString(testAddress));
+
+         ClientConsumer consumer1 = session1.createConsumer(queueName1);
+
+         session1.start();
+
+         //create a large message bigger than Integer.MAX_VALUE
+         final long largeMessageSize = 3L * 1024L * 1024L * 1024L;
+
+         File destDir = createDestDir("testBridgeWithVeryLargeMessage");
+         ClientMessage largeMessage = createLargeMessage(session0, largeMessageSize, destDir);
+
+         producer0.send(largeMessage);
+
+         session0.commit();
+
+         //check target queue for large message arriving
+         ClientSession.QueueQuery query = session1.queueQuery(new SimpleString(queueName1));
+         long messageCount = query.getMessageCount();
+         int count = 0;
+         //wait for 300 sec max
+         while (messageCount == 0 && count < 300)
+         {
+            count++;
+            Thread.sleep(1000);
+            query = session1.queueQuery(new SimpleString(queueName1));
+            messageCount = query.getMessageCount();
+         }
+
+         if (messageCount == 0)
+         {
+            fail("large message didn't arrived after 5 min!");
+         }
+
+         //receive the message
+         ClientMessage message = consumer1.receive(5000);
+         message.acknowledge();
+
+         File outputFile = new File(destDir, "huge_message_received.dat");
+
+         System.out.println("-----message save to: " + outputFile.getAbsolutePath());
+         FileOutputStream fileOutputStream = new FileOutputStream(outputFile);
+
+         BufferedOutputStream bufferedOutput = new BufferedOutputStream(fileOutputStream);
+
+         message.setOutputStream(bufferedOutput);
+
+         if (!message.waitOutputStreamCompletion(5 * 60 * 1000))
+         {
+            fail("message didn't get received to disk in 5 min. Is the machine slow?");
+         }
+         session1.commit();
+
+         Assert.assertNull(consumer1.receiveImmediate());
+
+         session0.close();
+
+         session1.close();
+
+         sf0.close();
+
+         sf1.close();
+
+      }
+      finally
+      {
+         if (locator != null)
+         {
+            locator.close();
+         }
+         try
+         {
+            server0.stop();
+         }
+         catch (Throwable ignored)
+         {
+         }
+
+         try
+         {
+            server1.stop();
+         }
+         catch (Throwable ignored)
+         {
+         }
+      }
+
+      assertEquals(0, loadQueues(server0).size());
+   }
+
+   private File createDestDir(String dirName)
+   {
+      File clientDir = new File(getClientLargeMessagesDir());
+      if (!clientDir.exists())
+      {
+         if (!clientDir.mkdirs())
+         {
+            throw new IllegalStateException("Can't create dir " + clientDir.getAbsolutePath());
+         }
+      }
+
+      File destDir = new File(clientDir, dirName);
+      if (!destDir.mkdir())
+      {
+         throw new IllegalStateException("Can't create dir " + destDir.getAbsolutePath());
+      }
+      return destDir;
+   }
+
+
+   private ClientMessage createLargeMessage(ClientSession session, long largeMessageSize, File destDir) throws Exception
+   {
+
+      File fileInput = new File(destDir, "huge_message_to_send.dat");
+
+      createFile(fileInput, largeMessageSize);
+
+      System.out.println("File created at: " + fileInput.getAbsolutePath());
+
+      ClientMessage message = session.createMessage(ClientMessage.BYTES_TYPE, true);
+
+      FileInputStream fileInputStream = new FileInputStream(fileInput);
+      BufferedInputStream bufferedInput = new BufferedInputStream(fileInputStream);
+
+      message.setBodyInputStream(bufferedInput);
+
+      return message;
+   }
+
+   private static void createFile(final File file, final long fileSize) throws IOException
+   {
+      if (file.exists())
+      {
+         System.out.println("---file already there " + file.length());
+         return;
+      }
+      FileOutputStream fileOut = new FileOutputStream(file);
+      BufferedOutputStream buffOut = new BufferedOutputStream(fileOut);
+      byte[] outBuffer = new byte[1024 * 1024];
+      System.out.println(" --- creating file, size: " + fileSize);
+      for (long i = 0; i < fileSize; i += outBuffer.length)
+      {
+         buffOut.write(outBuffer);
+      }
+      buffOut.close();
    }
 
    @Test

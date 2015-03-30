@@ -376,6 +376,12 @@ public class BackupSyncDelay implements Interceptor
       }
 
       @Override
+      public boolean largeServerCheck(long timeout)
+      {
+         return true;
+      }
+
+      @Override
       public boolean supports(byte packetID)
       {
          return true;

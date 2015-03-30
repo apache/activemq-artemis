@@ -109,6 +109,7 @@ import static org.apache.activemq.core.protocol.core.impl.PacketImpl.SESS_RECEIV
 
 public class ActiveMQSessionContext extends SessionContext
 {
+   private static final long MAX_RESENDCACHE_WAITING_TIME = 10000L;//10 sec
    private final Channel sessionChannel;
    private final int serverVersion;
    private int confirmationWindow;
@@ -428,6 +429,27 @@ public class ActiveMQSessionContext extends SessionContext
    {
       final boolean requiresResponse = lastChunk && sendBlocking;
       final SessionSendContinuationMessage chunkPacket =
+              new SessionSendContinuationMessage(msgI, chunk, !lastChunk,
+                      requiresResponse, messageBodySize, messageHandler);
+
+      if (requiresResponse)
+      {
+         // When sending it blocking, only the last chunk will be blocking.
+         sessionChannel.sendBlocking(chunkPacket, PacketImpl.NULL_RESPONSE);
+      }
+      else
+      {
+         sessionChannel.send(chunkPacket);
+      }
+
+      return chunkPacket.getPacketSize();
+   }
+
+   @Override
+   public int sendServerLargeMessageChunk(MessageInternal msgI, long messageBodySize, boolean sendBlocking, boolean lastChunk, byte[] chunk, SendAcknowledgementHandler messageHandler) throws ActiveMQException
+   {
+      final boolean requiresResponse = lastChunk && sendBlocking;
+      final SessionSendContinuationMessage chunkPacket =
          new SessionSendContinuationMessage(msgI, chunk, !lastChunk,
                                             requiresResponse, messageBodySize, messageHandler);
 
@@ -439,6 +461,14 @@ public class ActiveMQSessionContext extends SessionContext
       else
       {
          sessionChannel.send(chunkPacket);
+         if (!sessionChannel.largeServerCheck(MAX_RESENDCACHE_WAITING_TIME))
+         {
+            ActiveMQClientLogger.LOGGER.warn("Bridge detected that the target server is slow to " +
+                    " send back chunk confirmations. It 's possible the bridge may take more memory" +
+                    " during sending of a large message. It may be a temporary situation if this warning" +
+                    " occasionally shows up.");
+         }
+
       }
 
       return chunkPacket.getPacketSize();

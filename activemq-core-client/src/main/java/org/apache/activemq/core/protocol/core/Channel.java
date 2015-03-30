@@ -201,4 +201,15 @@ public interface Channel
     * @param transferring whether the channel is transferring
     */
    void setTransferring(boolean transferring);
+
+   /**
+    * for large message server send, each entry in resend cache will hold a reference to
+    * a chunk of bytes which can cause OOM if the cache quickly build up. This method
+    * make sure the resent cache size can't be more than one by blocking the call.
+    *
+    * @param timeout max waiting time for the resend cache
+    *
+    * @return true if the resend cache gets cleared
+    */
+   boolean largeServerCheck(long timeout);
 }

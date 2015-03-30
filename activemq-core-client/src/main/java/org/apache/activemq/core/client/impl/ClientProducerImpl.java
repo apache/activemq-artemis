@@ -415,11 +415,11 @@ public class ClientProducerImpl implements ClientProducerInternal
       try
       {
 
-         for (int pos = 0; pos < bodySize; )
+         for (long pos = 0; pos < bodySize; )
          {
             final boolean lastChunk;
 
-            final int chunkLength = Math.min((int) (bodySize - pos), minLargeMessageSize);
+            final int chunkLength = (int)Math.min((bodySize - pos), (long)minLargeMessageSize);
 
             final ActiveMQBuffer bodyBuffer = ActiveMQBuffers.fixedBuffer(chunkLength);
 
@@ -430,7 +430,7 @@ public class ClientProducerImpl implements ClientProducerInternal
             lastChunk = pos >= bodySize;
             SendAcknowledgementHandler messageHandler = lastChunk ? handler : null;
 
-            int creditsUsed = sessionContext.sendLargeMessageChunk(msgI, -1, sendBlocking, lastChunk, bodyBuffer.toByteBuffer().array(), messageHandler);
+            int creditsUsed = sessionContext.sendServerLargeMessageChunk(msgI, -1, sendBlocking, lastChunk, bodyBuffer.toByteBuffer().array(), messageHandler);
 
             try
             {

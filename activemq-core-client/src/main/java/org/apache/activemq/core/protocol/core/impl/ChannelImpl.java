@@ -226,6 +226,27 @@ public final class ChannelImpl implements Channel
       this.transferring = transferring;
    }
 
+   @Override
+   public boolean largeServerCheck(long timeout)
+   {
+      if (resendCache == null) return true;
+
+      synchronized (resendCache)
+      {
+         if (resendCache.size() >= 1)
+         {
+            try
+            {
+               resendCache.wait(timeout);
+            }
+            catch (InterruptedException e)
+            {
+            }
+         }
+      }
+      return resendCache.size() == 0;
+   }
+
    // This must never called by more than one thread concurrently
    public boolean send(final Packet packet, final boolean flush, final boolean batch)
    {
@@ -607,7 +628,12 @@ public final class ChannelImpl implements Channel
 
          firstStoredCommandID = 0;
 
-         resendCache.clear();
+         synchronized (resendCache)
+         {
+            resendCache.clear();
+            resendCache.notifyAll();
+         }
+
       }
    }
 
@@ -672,28 +698,38 @@ public final class ChannelImpl implements Channel
 
       int sizeToFree = 0;
 
-      for (int i = 0; i < numberToClear; i++)
+      try
       {
-         final Packet packet = resendCache.poll();
-
-         if (packet == null)
+         for (int i = 0; i < numberToClear; i++)
          {
-            if (lastReceivedCommandID > 0)
+            final Packet packet = resendCache.poll();
+
+            if (packet == null)
             {
-               ActiveMQClientLogger.LOGGER.cannotFindPacketToClear(lastReceivedCommandID, firstStoredCommandID);
+               if (lastReceivedCommandID > 0)
+               {
+                  ActiveMQClientLogger.LOGGER.cannotFindPacketToClear(lastReceivedCommandID, firstStoredCommandID);
+               }
+               firstStoredCommandID = lastReceivedCommandID + 1;
+               return;
             }
-            firstStoredCommandID = lastReceivedCommandID + 1;
-            return;
-         }
 
-         if (packet.getType() != PacketImpl.PACKETS_CONFIRMED)
-         {
-            sizeToFree += packet.getPacketSize();
-         }
+            if (packet.getType() != PacketImpl.PACKETS_CONFIRMED)
+            {
+               sizeToFree += packet.getPacketSize();
+            }
 
-         if (commandConfirmationHandler != null)
+            if (commandConfirmationHandler != null)
+            {
+               commandConfirmationHandler.commandConfirmed(packet);
+            }
+         }
+      }
+      finally
+      {
+         synchronized (resendCache)
          {
-            commandConfirmationHandler.commandConfirmed(packet);
+            resendCache.notifyAll();
          }
       }
 
