@@ -38,6 +38,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.ActiveMQInterruptedException;
+import org.apache.activemq.api.core.BaseInterceptor;
 import org.apache.activemq.api.core.Interceptor;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.core.config.Configuration;
@@ -53,8 +54,8 @@ import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.server.ActiveMQServerLogger;
 import org.apache.activemq.core.server.cluster.ClusterConnection;
 import org.apache.activemq.core.server.cluster.ClusterManager;
-import org.apache.activemq.core.server.impl.ServiceRegistry;
 import org.apache.activemq.core.server.impl.ServerSessionImpl;
+import org.apache.activemq.core.server.impl.ServiceRegistry;
 import org.apache.activemq.core.server.management.ManagementService;
 import org.apache.activemq.spi.core.protocol.ConnectionEntry;
 import org.apache.activemq.spi.core.protocol.ProtocolManager;
@@ -65,9 +66,9 @@ import org.apache.activemq.spi.core.remoting.AcceptorFactory;
 import org.apache.activemq.spi.core.remoting.BufferHandler;
 import org.apache.activemq.spi.core.remoting.Connection;
 import org.apache.activemq.spi.core.remoting.ConnectionLifeCycleListener;
+import org.apache.activemq.utils.ActiveMQThreadFactory;
 import org.apache.activemq.utils.ClassloadingUtil;
 import org.apache.activemq.utils.ConfigurationHelper;
-import org.apache.activemq.utils.ActiveMQThreadFactory;
 import org.apache.activemq.utils.ReusableLatch;
 
 public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycleListener
@@ -84,9 +85,9 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
 
    private final Set<TransportConfiguration> acceptorsConfig;
 
-   private final List<Interceptor> incomingInterceptors = new CopyOnWriteArrayList<Interceptor>();
+   private final List<BaseInterceptor> incomingInterceptors = new CopyOnWriteArrayList<>();
 
-   private final List<Interceptor> outgoingInterceptors = new CopyOnWriteArrayList<Interceptor>();
+   private final List<BaseInterceptor> outgoingInterceptors = new CopyOnWriteArrayList<>();
 
    private final Map<String, Acceptor> acceptors = new HashMap<String, Acceptor>();
 
@@ -147,7 +148,8 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
 
       ActiveMQServerLogger.LOGGER.addingProtocolSupport(coreProtocolManagerFactory.getProtocols()[0]);
       this.protocolMap.put(coreProtocolManagerFactory.getProtocols()[0],
-                           coreProtocolManagerFactory.createProtocolManager(server, incomingInterceptors, outgoingInterceptors));
+                           coreProtocolManagerFactory.createProtocolManager(server, coreProtocolManagerFactory.filterInterceptors(incomingInterceptors),
+                                                                            coreProtocolManagerFactory.filterInterceptors(outgoingInterceptors)));
 
       if (config.isResolveProtocols())
       {
@@ -160,7 +162,8 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
                for (String protocol : protocols)
                {
                   ActiveMQServerLogger.LOGGER.addingProtocolSupport(protocol);
-                  protocolMap.put(protocol, next.createProtocolManager(server, incomingInterceptors, outgoingInterceptors));
+                  protocolMap.put(protocol, next.createProtocolManager(server, next.filterInterceptors(incomingInterceptors),
+                                                                       next.filterInterceptors(outgoingInterceptors)));
                }
             }
          }
@@ -190,11 +193,11 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
       outgoingInterceptors.addAll(serviceRegistry.getOutgoingInterceptors());
    }
 
-   private void addReflectivelyInstantiatedInterceptors(List<String> classNames, List<Interceptor> interceptors)
+   private void addReflectivelyInstantiatedInterceptors(List<String> classNames, List<BaseInterceptor> interceptors)
    {
       for (String className : classNames)
       {
-         Interceptor interceptor = ((Interceptor) safeInitNewInstance(className));
+         BaseInterceptor interceptor = ((BaseInterceptor) safeInitNewInstance(className));
          interceptors.add(interceptor);
       }
    }
@@ -221,8 +224,8 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
       // to support many hundreds of connections, but the main thread pool must be kept small for better performance
 
       ThreadFactory tFactory = new ActiveMQThreadFactory("ActiveMQ-remoting-threads-" + server.toString() +
-                                                           "-" +
-                                                           System.identityHashCode(this), false, tccl);
+                                                            "-" +
+                                                            System.identityHashCode(this), false, tccl);
 
       threadPool = Executors.newCachedThreadPool(tFactory);
 
@@ -620,24 +623,43 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
    public void addIncomingInterceptor(final Interceptor interceptor)
    {
       incomingInterceptors.add(interceptor);
+
+      updateProtocols();
    }
 
    @Override
    public boolean removeIncomingInterceptor(final Interceptor interceptor)
    {
-      return incomingInterceptors.remove(interceptor);
+      if (incomingInterceptors.remove(interceptor))
+      {
+         updateProtocols();
+         return true;
+      }
+      else
+      {
+         return false;
+      }
    }
 
    @Override
    public void addOutgoingInterceptor(final Interceptor interceptor)
    {
       outgoingInterceptors.add(interceptor);
+      updateProtocols();
    }
 
    @Override
    public boolean removeOutgoingInterceptor(final Interceptor interceptor)
    {
-      return outgoingInterceptors.remove(interceptor);
+      if (outgoingInterceptors.remove(interceptor))
+      {
+         updateProtocols();
+         return true;
+      }
+      else
+      {
+         return false;
+      }
    }
 
    private ClusterConnection lookupClusterConnection(TransportConfiguration acceptorConfig)
@@ -801,6 +823,15 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
             return ClassloadingUtil.newInstanceFromClassLoader(className);
          }
       });
+   }
+
+   protected void updateProtocols()
+   {
+      for (ProtocolManager<?> protocolManager : this.protocolMap.values())
+      {
+         protocolManager.updateInterceptors(incomingInterceptors, outgoingInterceptors);
+      }
+
    }
 
 }

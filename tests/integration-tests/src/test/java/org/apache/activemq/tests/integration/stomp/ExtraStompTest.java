@@ -20,14 +20,20 @@ import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.QueueBrowser;
 import javax.jms.TextMessage;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import org.apache.activemq.api.core.Interceptor;
 import org.apache.activemq.api.core.TransportConfiguration;
 import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.core.config.Configuration;
+import org.apache.activemq.core.protocol.core.Packet;
 import org.apache.activemq.core.protocol.stomp.Stomp;
+import org.apache.activemq.core.protocol.stomp.StompFrame;
+import org.apache.activemq.core.protocol.stomp.StompFrameInterceptor;
 import org.apache.activemq.core.protocol.stomp.StompProtocolManagerFactory;
 import org.apache.activemq.core.registry.JndiBindingRegistry;
 import org.apache.activemq.core.remoting.impl.invm.InVMAcceptorFactory;
@@ -41,6 +47,7 @@ import org.apache.activemq.jms.server.config.impl.JMSConfigurationImpl;
 import org.apache.activemq.jms.server.config.impl.JMSQueueConfigurationImpl;
 import org.apache.activemq.jms.server.config.impl.TopicConfigurationImpl;
 import org.apache.activemq.jms.server.impl.JMSServerManagerImpl;
+import org.apache.activemq.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.tests.integration.largemessage.LargeMessageTestBase;
 import org.apache.activemq.tests.integration.largemessage.LargeMessageTestBase.TestLargeMessageInputStream;
 import org.apache.activemq.tests.integration.stomp.util.ClientStompFrame;
@@ -811,6 +818,177 @@ public class ExtraStompTest extends StompTestBase
                                                 .setName(getTopicName())
                                                 .setBindings(getTopicName()));
       server = new JMSServerManagerImpl(activeMQServer, jmsConfig);
+      server.setRegistry(new JndiBindingRegistry(new InVMNamingContext()));
+      return server;
+   }
+
+
+   public static class MyCoreInterceptor implements Interceptor
+   {
+      static List<Packet> incomingInterceptedFrames = new ArrayList<Packet>();
+
+      @Override
+      public boolean intercept(Packet packet, RemotingConnection connection)
+      {
+         incomingInterceptedFrames.add(packet);
+         return true;
+      }
+
+   }
+
+
+   public static class MyIncomingStompFrameInterceptor implements StompFrameInterceptor
+   {
+      static List<StompFrame> incomingInterceptedFrames = new ArrayList<StompFrame>();
+
+      @Override
+      public boolean intercept(StompFrame stompFrame, RemotingConnection connection)
+      {
+         incomingInterceptedFrames.add(stompFrame);
+         stompFrame.addHeader("incomingInterceptedProp", "incomingInterceptedVal");
+         return true;
+      }
+   }
+
+
+   public static class MyOutgoingStompFrameInterceptor implements StompFrameInterceptor
+   {
+
+      static List<StompFrame> outgoingInterceptedFrames = new ArrayList<StompFrame>();
+
+      @Override
+      public boolean intercept(StompFrame stompFrame, RemotingConnection connection)
+      {
+         outgoingInterceptedFrames.add(stompFrame);
+         stompFrame.addHeader("outgoingInterceptedProp", "outgoingInterceptedVal");
+         return true;
+      }
+   }
+
+   @Test
+   public void stompFrameInterceptor() throws Exception
+   {
+      MyIncomingStompFrameInterceptor.incomingInterceptedFrames.clear();
+      MyOutgoingStompFrameInterceptor.outgoingInterceptedFrames.clear();
+      try
+      {
+         List<String> incomingInterceptorList = new ArrayList<String>();
+         incomingInterceptorList.add("org.apache.activemq.tests.integration.stomp.ExtraStompTest$MyIncomingStompFrameInterceptor");
+         incomingInterceptorList.add("org.apache.activemq.tests.integration.stomp.ExtraStompTest$MyCoreInterceptor");
+         List<String> outgoingInterceptorList = new ArrayList<String>();
+         outgoingInterceptorList.add("org.apache.activemq.tests.integration.stomp.ExtraStompTest$MyOutgoingStompFrameInterceptor");
+
+         server = createServerWithStompInterceptor(incomingInterceptorList, outgoingInterceptorList);
+         server.start();
+
+         setUpAfterServer(); // This will make some calls through core
+
+         // So we clear them here
+         MyCoreInterceptor.incomingInterceptedFrames.clear();
+
+         String frame = "CONNECT\n" + "login: brianm\n" + "passcode: wombats\n\n" + Stomp.NULL;
+         sendFrame(frame);
+
+         frame = receiveFrame(100000);
+
+         frame = "SUBSCRIBE\n" + "destination:" + getQueuePrefix() + getQueueName() + "\n" + "ack:auto\n\nfff" + Stomp.NULL;
+         sendFrame(frame);
+
+         assertEquals(0, MyCoreInterceptor.incomingInterceptedFrames.size());
+         sendMessage(getName());
+
+         // Something was supposed to be called on sendMessages
+         assertTrue("core interceptor is not working", MyCoreInterceptor.incomingInterceptedFrames.size() > 0);
+
+         receiveFrame(10000);
+
+         frame = "SEND\n" + "destination:" +
+            getQueuePrefix() +
+            getQueueName() +
+            "\n\n" +
+            "Hello World" +
+            Stomp.NULL;
+         sendFrame(frame);
+
+         receiveFrame(10000);
+
+         frame = "DISCONNECT\n" + "\n\n" + Stomp.NULL;
+
+         sendFrame(frame);
+
+      }
+      finally
+      {
+         cleanUp();
+         server.stop();
+      }
+
+      List<String> incomingCommands = new ArrayList<String>(4);
+      incomingCommands.add("CONNECT");
+      incomingCommands.add("SUBSCRIBE");
+      incomingCommands.add("SEND");
+      incomingCommands.add("DISCONNECT");
+
+      List<String> outgoingCommands = new ArrayList<String>(3);
+      outgoingCommands.add("CONNECTED");
+      outgoingCommands.add("MESSAGE");
+      outgoingCommands.add("MESSAGE");
+
+      long timeout = System.currentTimeMillis() + 1000;
+
+      // Things are async, giving some time to things arrive before we actually assert
+      while (MyIncomingStompFrameInterceptor.incomingInterceptedFrames.size() < 4 &&
+         MyOutgoingStompFrameInterceptor.outgoingInterceptedFrames.size() < 3 &&
+         timeout > System.currentTimeMillis())
+      {
+         Thread.sleep(10);
+      }
+
+      Assert.assertEquals(4, MyIncomingStompFrameInterceptor.incomingInterceptedFrames.size());
+      Assert.assertEquals(3, MyOutgoingStompFrameInterceptor.outgoingInterceptedFrames.size());
+
+      for (int i = 0; i < MyIncomingStompFrameInterceptor.incomingInterceptedFrames.size(); i++)
+      {
+         Assert.assertEquals(incomingCommands.get(i), MyIncomingStompFrameInterceptor.incomingInterceptedFrames.get(i).getCommand());
+         Assert.assertEquals("incomingInterceptedVal", MyIncomingStompFrameInterceptor.incomingInterceptedFrames.get(i).getHeader("incomingInterceptedProp"));
+      }
+
+      for (int i = 0; i < MyOutgoingStompFrameInterceptor.outgoingInterceptedFrames.size(); i++)
+      {
+         Assert.assertEquals(outgoingCommands.get(i), MyOutgoingStompFrameInterceptor.outgoingInterceptedFrames.get(i).getCommand());
+      }
+
+      Assert.assertEquals("incomingInterceptedVal", MyOutgoingStompFrameInterceptor.outgoingInterceptedFrames.get(2).getHeader("incomingInterceptedProp"));
+      Assert.assertEquals("outgoingInterceptedVal", MyOutgoingStompFrameInterceptor.outgoingInterceptedFrames.get(2).getHeader("outgoingInterceptedProp"));
+   }
+
+   protected JMSServerManager createServerWithStompInterceptor(List<String> stompIncomingInterceptor, List<String> stompOutgoingInterceptor) throws Exception
+   {
+
+      Map<String, Object> params = new HashMap<String, Object>();
+      params.put(TransportConstants.PROTOCOLS_PROP_NAME, StompProtocolManagerFactory.STOMP_PROTOCOL_NAME);
+      params.put(TransportConstants.PORT_PROP_NAME, TransportConstants.DEFAULT_STOMP_PORT);
+      params.put(TransportConstants.STOMP_CONSUMERS_CREDIT, "-1");
+      TransportConfiguration stompTransport = new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, params);
+
+      Configuration config = createBasicConfig()
+         .setPersistenceEnabled(false)
+         .addAcceptorConfiguration(stompTransport)
+         .addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY))
+         .setIncomingInterceptorClassNames(stompIncomingInterceptor)
+         .setOutgoingInterceptorClassNames(stompOutgoingInterceptor);
+
+      ActiveMQServer hornetQServer = addServer(ActiveMQServers.newActiveMQServer(config, defUser, defPass));
+
+      JMSConfiguration jmsConfig = new JMSConfigurationImpl();
+      jmsConfig.getQueueConfigurations().add(new JMSQueueConfigurationImpl()
+                                                .setName(getQueueName())
+                                                .setDurable(false)
+                                                .setBindings(getQueueName()));
+      jmsConfig.getTopicConfigurations().add(new TopicConfigurationImpl()
+                                                .setName(getTopicName())
+                                                .setBindings(getTopicName()));
+      server = new JMSServerManagerImpl(hornetQServer, jmsConfig);
       server.setRegistry(new JndiBindingRegistry(new InVMNamingContext()));
       return server;
    }

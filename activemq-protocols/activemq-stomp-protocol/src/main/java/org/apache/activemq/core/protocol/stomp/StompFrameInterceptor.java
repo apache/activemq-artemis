@@ -14,17 +14,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.api.core;
+package org.apache.activemq.core.protocol.stomp;
 
-import org.apache.activemq.core.protocol.core.Packet;
+import org.apache.activemq.api.core.BaseInterceptor;
 
 /**
- * This is class is a simple way to intercepting calls on ActiveMQ client and servers.
+ * This class is a simple way to intercepting client calls on ActiveMQ using STOMP protocol.
  * <p>
  * To add an interceptor to ActiveMQ server, you have to modify the server configuration file
  * {@literal activemq-configuration.xml}.<br>
- * To add it to a client, use {@link org.apache.activemq.api.core.client.ServerLocator#addIncomingInterceptor(Interceptor)}
  */
-public interface Interceptor extends BaseInterceptor<Packet>
+public interface StompFrameInterceptor extends BaseInterceptor<StompFrame>
 {
 }

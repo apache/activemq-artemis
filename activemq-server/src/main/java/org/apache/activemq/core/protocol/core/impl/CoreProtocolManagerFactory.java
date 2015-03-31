@@ -18,19 +18,36 @@ package org.apache.activemq.core.protocol.core.impl;
 
 import java.util.List;
 
+import org.apache.activemq.api.core.BaseInterceptor;
 import org.apache.activemq.api.core.Interceptor;
 import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.spi.core.protocol.AbstractProtocolManagerFactory;
 import org.apache.activemq.spi.core.protocol.ProtocolManager;
-import org.apache.activemq.spi.core.protocol.ProtocolManagerFactory;
 
-public class CoreProtocolManagerFactory implements ProtocolManagerFactory
+public class CoreProtocolManagerFactory extends AbstractProtocolManagerFactory<Interceptor>
 {
    private static String[] SUPPORTED_PROTOCOLS = {ActiveMQClient.DEFAULT_CORE_PROTOCOL};
 
+   /**
+    * {@inheritDoc} *
+    * @param server
+    * @param incomingInterceptors
+    * @param outgoingInterceptors
+    * @return
+    */
    public ProtocolManager createProtocolManager(final ActiveMQServer server, final List<Interceptor> incomingInterceptors, List<Interceptor> outgoingInterceptors)
    {
-      return new CoreProtocolManager(server, incomingInterceptors, outgoingInterceptors);
+      return new CoreProtocolManager(this, server, incomingInterceptors, outgoingInterceptors);
+   }
+
+   @Override
+   public List<Interceptor> filterInterceptors(List<BaseInterceptor> interceptors)
+   {
+      // This is using this tool method
+      // it wouldn't be possible to write a generic method without this class parameter
+      // and I didn't want to bloat the cllaers for this
+      return filterInterceptors(Interceptor.class, interceptors);
    }
 
    @Override

@@ -16,14 +16,16 @@
  */
 package org.apache.activemq.core.protocol.openwire;
 
+import java.util.Collections;
 import java.util.List;
 
+import org.apache.activemq.api.core.BaseInterceptor;
 import org.apache.activemq.api.core.Interceptor;
 import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.spi.core.protocol.AbstractProtocolManagerFactory;
 import org.apache.activemq.spi.core.protocol.ProtocolManager;
-import org.apache.activemq.spi.core.protocol.ProtocolManagerFactory;
 
-public class OpenWireProtocolManagerFactory implements ProtocolManagerFactory
+public class OpenWireProtocolManagerFactory extends AbstractProtocolManagerFactory<Interceptor>
 {
    public static final String OPENWIRE_PROTOCOL_NAME = "OPENWIRE";
 
@@ -31,7 +33,13 @@ public class OpenWireProtocolManagerFactory implements ProtocolManagerFactory
 
    public ProtocolManager createProtocolManager(final ActiveMQServer server, final List<Interceptor> incomingInterceptors, List<Interceptor> outgoingInterceptors)
    {
-      return new OpenWireProtocolManager(server);
+      return new OpenWireProtocolManager(this, server);
+   }
+
+   @Override
+   public List<Interceptor> filterInterceptors(List<BaseInterceptor> interceptors)
+   {
+      return Collections.emptyList();
    }
 
    @Override

@@ -16,10 +16,13 @@
  */
 package org.apache.activemq.core.protocol.proton;
 
+import java.util.List;
 import java.util.concurrent.Executor;
 
 import io.netty.channel.ChannelPipeline;
 import org.apache.activemq.api.core.ActiveMQBuffer;
+import org.apache.activemq.api.core.BaseInterceptor;
+import org.apache.activemq.api.core.Interceptor;
 import org.apache.activemq.api.core.client.ActiveMQClient;
 import org.apache.activemq.core.protocol.proton.converter.ProtonMessageConverter;
 import org.apache.activemq.core.protocol.proton.plug.ActiveMQProtonConnectionCallback;
@@ -30,6 +33,7 @@ import org.apache.activemq.core.server.management.NotificationListener;
 import org.apache.activemq.spi.core.protocol.ConnectionEntry;
 import org.apache.activemq.spi.core.protocol.MessageConverter;
 import org.apache.activemq.spi.core.protocol.ProtocolManager;
+import org.apache.activemq.spi.core.protocol.ProtocolManagerFactory;
 import org.apache.activemq.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.spi.core.remoting.Acceptor;
 import org.apache.activemq.spi.core.remoting.Connection;
@@ -39,14 +43,18 @@ import org.proton.plug.context.server.ProtonServerConnectionContextFactory;
 /**
  * A proton protocol manager, basically reads the Proton Input and maps proton resources to ActiveMQ resources
  */
-public class ProtonProtocolManager implements ProtocolManager, NotificationListener
+public class ProtonProtocolManager implements ProtocolManager<Interceptor>, NotificationListener
 {
    private final ActiveMQServer server;
 
    private MessageConverter protonConverter;
 
-   public ProtonProtocolManager(ActiveMQServer server)
+
+   private final ProtonProtocolManagerFactory factory;
+
+   public ProtonProtocolManager(ProtonProtocolManagerFactory factory, ActiveMQServer server)
    {
+      this.factory = factory;
       this.server = server;
       this.protonConverter = new ProtonMessageConverter(server.getStorageManager());
    }
@@ -67,6 +75,18 @@ public class ProtonProtocolManager implements ProtocolManager, NotificationListe
    public void onNotification(Notification notification)
    {
 
+   }
+
+   @Override
+   public ProtocolManagerFactory<Interceptor> getFactory()
+   {
+      return factory;
+   }
+
+   @Override
+   public void updateInterceptors(List<BaseInterceptor> incomingInterceptors, List<BaseInterceptor> outgoingInterceptors)
+   {
+      // no op
    }
 
    @Override
@@ -97,7 +117,7 @@ public class ProtonProtocolManager implements ProtocolManager, NotificationListe
    @Override
    public void handleBuffer(RemotingConnection connection, ActiveMQBuffer buffer)
    {
-      ActiveMQProtonRemotingConnection protonConnection = (ActiveMQProtonRemotingConnection)connection;
+      ActiveMQProtonRemotingConnection protonConnection = (ActiveMQProtonRemotingConnection) connection;
 
       protonConnection.bufferReceived(protonConnection.getID(), buffer);
    }

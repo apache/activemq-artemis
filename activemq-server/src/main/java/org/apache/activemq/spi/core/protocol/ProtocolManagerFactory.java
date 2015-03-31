@@ -18,12 +18,28 @@ package org.apache.activemq.spi.core.protocol;
 
 import java.util.List;
 
-import org.apache.activemq.api.core.Interceptor;
+import org.apache.activemq.api.core.BaseInterceptor;
 import org.apache.activemq.core.server.ActiveMQServer;
 
-public interface ProtocolManagerFactory
+public interface ProtocolManagerFactory<P extends BaseInterceptor>
 {
-   ProtocolManager createProtocolManager(ActiveMQServer server, List<Interceptor> incomingInterceptors, List<Interceptor> outgoingInterceptors);
+   /**
+    * When you create the ProtocolManager, you should filter out any interceptors that won't belong
+    * to this Protocol.
+    * For example don't send any core Interceptors {@link org.apache.activemq.api.core.Interceptor} to Stomp * * *
+    * @param server
+    * @param incomingInterceptors
+    * @param outgoingInterceptors
+    * @return
+    */
+   ProtocolManager createProtocolManager(ActiveMQServer server, List<P> incomingInterceptors, List<P> outgoingInterceptors);
+
+   /**
+    * This should get the entire list and only return the ones this factory can deal with *
+    * @param interceptors
+    * @return
+    */
+   List<P> filterInterceptors(List<BaseInterceptor> interceptors);
 
    String[] getProtocols();
 }

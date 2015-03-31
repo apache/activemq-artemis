@@ -182,10 +182,10 @@ public abstract class StompTestBase extends UnitTestCase
       createBootstrap();
 
       connection = connectionFactory.createConnection();
+      connection.start();
       session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       queue = session.createQueue(getQueueName());
       topic = session.createTopic(getTopicName());
-      connection.start();
 
    }
 

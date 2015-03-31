@@ -625,8 +625,13 @@ public class QueueImplTest extends UnitTestCase
       queue.resume();
 
       // Need to make sure the consumers will receive the messages before we do these assertions
-      long timeout = System.currentTimeMillis() + 1000;
-      while (cons1.getReferences().size() != numMessages / 2 && cons2.getReferences().size() != numMessages / 2 && timeout > System.currentTimeMillis())
+      long timeout = System.currentTimeMillis() + 5000;
+      while (cons1.getReferences().size() != numMessages / 2 && timeout > System.currentTimeMillis())
+      {
+         Thread.sleep(1);
+      }
+
+      while (cons2.getReferences().size() != numMessages / 2 && timeout > System.currentTimeMillis())
       {
          Thread.sleep(1);
       }

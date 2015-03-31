@@ -20,6 +20,17 @@ public interface Interceptor
 }
 ```
 
+For stomp protocol an interceptor must implement the `StompFrameInterceptor class`:
+
+``` java
+package org.apache.activemq.core.protocol.stomp;
+
+public interface StompFrameInterceptor
+{
+   public abstract boolean intercept(StompFrame stompFrame, RemotingConnection connection);
+}
+```
+
 The returned boolean value is important:
 
 -   if `true` is returned, the process continues normally
