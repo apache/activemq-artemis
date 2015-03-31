@@ -19,6 +19,7 @@ package org.apache.activemq.core.persistence.impl.nullpm;
 import org.apache.activemq.api.core.ActiveMQBuffers;
 import org.apache.activemq.core.journal.SequentialFile;
 import org.apache.activemq.core.server.LargeServerMessage;
+import org.apache.activemq.core.server.ServerMessage;
 import org.apache.activemq.core.server.impl.ServerMessageImpl;
 
 class NullStorageLargeServerMessage extends ServerMessageImpl implements LargeServerMessage
@@ -27,6 +28,11 @@ class NullStorageLargeServerMessage extends ServerMessageImpl implements LargeSe
    public NullStorageLargeServerMessage()
    {
       super();
+   }
+
+   public NullStorageLargeServerMessage(NullStorageLargeServerMessage other)
+   {
+      super(other);
    }
 
    @Override
@@ -79,7 +85,13 @@ class NullStorageLargeServerMessage extends ServerMessageImpl implements LargeSe
    @Override
    public String toString()
    {
-      return "LargeServerMessage[messageID=" + messageID + ", durable=" + durable + ", address=" + getAddress()  + ",properties=" + properties.toString() + "]";
+      return "NullStorageLargeServerMessage[messageID=" + messageID + ", durable=" + durable + ", address=" + getAddress()  + ",properties=" + properties.toString() + "]";
+   }
+
+   public ServerMessage copy()
+   {
+      // This is a simple copy, used only to avoid changing original properties
+      return new NullStorageLargeServerMessage(this);
    }
 
    @Override
