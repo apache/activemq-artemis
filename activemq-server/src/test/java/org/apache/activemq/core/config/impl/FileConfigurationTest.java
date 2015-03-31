@@ -16,6 +16,12 @@
  */
 package org.apache.activemq.core.config.impl;
 
+import java.io.File;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.Collections;
 
 import org.apache.activemq.api.core.BroadcastGroupConfiguration;
@@ -38,6 +44,9 @@ import org.junit.Test;
 
 public class FileConfigurationTest extends ConfigurationImplTest
 {
+
+   private final String fullConfigurationName = "ConfigurationTest-full-config.xml";
+
    @Override
    @Test
    public void testDefaults()
@@ -347,12 +356,80 @@ public class FileConfigurationTest extends ConfigurationImplTest
 
 
    }
+   @Test
+   public void testContextClassLoaderUsage() throws Exception
+   {
+
+      final File customConfiguration = File.createTempFile("hornetq-unittest", ".xml");
+
+      try
+      {
+
+         // copy working configuration to a location where the standard classloader cannot find it
+         final Path workingConfiguration = new File(getClass().getResource(File.separator + fullConfigurationName).toURI()).toPath();
+         final Path targetFile = customConfiguration.toPath();
+
+         Files.copy(workingConfiguration, targetFile, StandardCopyOption.REPLACE_EXISTING);
+
+         // build a custom classloader knowing the location of the config created above (used as context class loader)
+         final URL customConfigurationDirUrl = new URL("file://" + customConfiguration.getParentFile().getAbsolutePath() + File.separator);
+         final ClassLoader testWebappClassLoader = new URLClassLoader(new URL[]{customConfigurationDirUrl});
+
+         /*
+            run this in an own thread, avoid polluting the class loader of the thread context of the unit test engine,
+            expect no exception in this thread when the class loading works as expected
+          */
+
+         final class ThrowableHolder
+         {
+            public Exception t = null;
+         }
+
+         final ThrowableHolder holder = new ThrowableHolder();
+
+         final Thread webappContextThread = new Thread(new Runnable()
+         {
+            @Override
+            public void run()
+            {
+               FileConfiguration fileConfiguration = new FileConfiguration();
+
+               try
+               {
+                  FileDeploymentManager deploymentManager = new FileDeploymentManager(customConfiguration.getName());
+                  deploymentManager.addDeployable(fileConfiguration);
+                  deploymentManager.readConfiguration();
+               }
+               catch (Exception e)
+               {
+                  holder.t = e;
+               }
+            }
+         });
+
+         webappContextThread.setContextClassLoader(testWebappClassLoader);
+
+         webappContextThread.start();
+         webappContextThread.join();
+
+         if (holder.t != null)
+         {
+            fail("Exception caught while loading configuration with the context class loader: " + holder.t.getMessage());
+         }
+
+      }
+      finally
+      {
+         customConfiguration.delete();
+      }
+   }
+
 
    @Override
    protected Configuration createConfiguration() throws Exception
    {
       FileConfiguration fc = new FileConfiguration();
-      FileDeploymentManager deploymentManager = new FileDeploymentManager("ConfigurationTest-full-config.xml");
+      FileDeploymentManager deploymentManager = new FileDeploymentManager(fullConfigurationName);
       deploymentManager.addDeployable(fc);
       deploymentManager.readConfiguration();
       return fc;

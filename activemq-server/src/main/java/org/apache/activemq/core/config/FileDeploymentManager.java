@@ -16,14 +16,6 @@
  */
 package org.apache.activemq.core.config;
 
-import org.apache.activemq.core.deployers.Deployable;
-import org.apache.activemq.core.server.ActiveMQComponent;
-import org.apache.activemq.spi.core.security.ActiveMQSecurityManager;
-import org.apache.activemq.utils.XMLUtil;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-
 import javax.management.MBeanServer;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -31,6 +23,14 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+
+import org.apache.activemq.core.deployers.Deployable;
+import org.apache.activemq.core.server.ActiveMQComponent;
+import org.apache.activemq.spi.core.security.ActiveMQSecurityManager;
+import org.apache.activemq.utils.XMLUtil;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 /**
  * ised to build a set of ActiveMQComponents from a set of Deployables pulled out of the configuration file
@@ -58,7 +58,15 @@ public class FileDeploymentManager
    */
    public void readConfiguration() throws Exception
    {
-      URL url = getClass().getClassLoader().getResource(configurationUrl);
+      URL url;
+
+      url = Thread.currentThread().getContextClassLoader().getResource(configurationUrl);
+
+      if (url == null)
+      {
+         // trying a different classloader now
+         url = getClass().getClassLoader().getResource(configurationUrl);
+      }
 
       if (url == null)
       {
