@@ -48,7 +48,7 @@ Name | Description
 [jmx-management-enabled](management.md "30.2.1. Configuring JMX")                   |  true means that the management API is available via JMX. Default=true
 [journal-buffer-size](persistence.md)                                               |  The size of the internal buffer on the journal in KB. Default=490 KiB
 [journal-buffer-timeout](persistence.md)                                            |  The Flush timeout for the journal buffer
-[journal-compact-min-files](persistence.md)                                         |  The minimal number of data files before we can start compacting. Default=10
+[journal-compact-min-files](persistence.md)                                         |  The minimal number of data files before we can start compacting. Setting this to 0 means compacting is disabled. Default=10
 [journal-compact-percentage](persistence.md)                                        |  The percentage of live data on which we consider compacting the journal. Default=30
 [journal-directory](persistence.md)                                                 |  the directory to store the journal files in. Default=data/journal
 [journal-file-size](persistence.md)                                                 |  the size (in bytes) of each journal file. Default=10485760 (10 MB)

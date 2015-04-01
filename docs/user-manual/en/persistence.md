@@ -269,6 +269,11 @@ The message journal is configured using the following attributes in
     journal. The compacting algorithm won't start until you have at
     least `journal-compact-min-files`
 
+    Setting this to 0 will disable the feature to compact completely. 
+    This could be dangerous though as the journal could grow indefinitely.
+    Use it wisely!
+
+
     The default for this parameter is `10`
 
 -   `journal-compact-percentage`
