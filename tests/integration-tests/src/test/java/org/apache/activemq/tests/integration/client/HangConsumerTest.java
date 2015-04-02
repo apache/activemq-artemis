@@ -15,12 +15,7 @@
  * limitations under the License.
  */
 package org.apache.activemq.tests.integration.client;
-import org.apache.activemq.api.core.ActiveMQException;
-import org.apache.activemq.core.server.ServerConsumer;
-import org.junit.Before;
-import org.junit.After;
-import org.junit.Test;
-
+import javax.management.MBeanServer;
 import java.lang.management.ManagementFactory;
 import java.util.LinkedList;
 import java.util.concurrent.CountDownLatch;
@@ -29,9 +24,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
-import javax.management.MBeanServer;
-
-import org.junit.Assert;
+import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.Interceptor;
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.client.ClientConsumer;
@@ -56,6 +49,7 @@ import org.apache.activemq.core.protocol.core.Packet;
 import org.apache.activemq.core.protocol.core.impl.wireformat.SessionReceiveMessage;
 import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.server.Queue;
+import org.apache.activemq.core.server.ServerConsumer;
 import org.apache.activemq.core.server.ServerMessage;
 import org.apache.activemq.core.server.ServerSessionFactory;
 import org.apache.activemq.core.server.impl.ActiveMQServerImpl;
@@ -72,6 +66,10 @@ import org.apache.activemq.spi.core.security.ActiveMQSecurityManagerImpl;
 import org.apache.activemq.tests.util.ServiceTestBase;
 import org.apache.activemq.utils.ExecutorFactory;
 import org.apache.activemq.utils.ReusableLatch;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * This test will simulate a consumer hanging on the delivery packet due to unbehaved clients
@@ -150,8 +148,8 @@ public class HangConsumerTest extends ServiceTestBase
          sessionProducer.commit();
 
          // These three operations should finish without the test hanging
-         getMessagesAdded(queue);
-         getMessageCount(queue);
+         queue.getMessagesAdded();
+         queue.getMessageCount();
 
          releaseConsumers();
 
