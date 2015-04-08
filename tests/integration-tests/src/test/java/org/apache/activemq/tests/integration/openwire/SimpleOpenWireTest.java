@@ -31,6 +31,7 @@ import javax.jms.TextMessage;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.command.ActiveMQQueue;
 import org.apache.activemq.command.ActiveMQTopic;
+import org.apache.activemq.core.settings.impl.AddressSettings;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -230,9 +231,14 @@ public class SimpleOpenWireTest extends BasicOpenWireTest
    @Test
    public void testInvalidDestinationExceptionWhenNoQueueExistsOnCreateProducer() throws Exception
    {
+      AddressSettings addressSetting = new AddressSettings();
+      addressSetting.setAutoCreateJmsQueues(false);
+
+      server.getAddressSettingsRepository().addMatch("jms.queue.foo", addressSetting);
+
       connection.start();
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-      Queue queue = session.createQueue("fake.queue");
+      Queue queue = session.createQueue("foo");
 
       thrown.expect(InvalidDestinationException.class);
       thrown.expect(JMSException.class);
@@ -241,15 +247,50 @@ public class SimpleOpenWireTest extends BasicOpenWireTest
    }
 
    @Test
-   public void testInvalidDestinationExceptionWhenNoTopicExistsOnCreateProducer() throws Exception
+   public void testAutoDestinationCreationOnProducerSend() throws JMSException
    {
+      AddressSettings addressSetting = new AddressSettings();
+      addressSetting.setAutoCreateJmsQueues(true);
+
+      String address = "foo";
+      server.getAddressSettingsRepository().addMatch("jms.queue." + address, addressSetting);
+
       connection.start();
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-      Destination destination = session.createTopic("fake.queue");
 
-      thrown.expect(InvalidDestinationException.class);
-      session.createProducer(destination);
-      session.close();
+      TextMessage message = session.createTextMessage("bar");
+      Queue queue = new ActiveMQQueue(address);
+
+      MessageProducer producer = session.createProducer(null);
+      producer.send(queue, message);
+
+      MessageConsumer consumer = session.createConsumer(queue);
+      TextMessage message1 = (TextMessage) consumer.receive(1000);
+      assertTrue(message1.getText().equals(message.getText()));
+   }
+
+   @Test
+   public void testAutoDestinationCreationOnConsumer() throws JMSException
+   {
+      AddressSettings addressSetting = new AddressSettings();
+      addressSetting.setAutoCreateJmsQueues(true);
+
+      String address = "foo";
+      server.getAddressSettingsRepository().addMatch("jms.queue." + address, addressSetting);
+
+      connection.start();
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+
+      TextMessage message = session.createTextMessage("bar");
+      Queue queue = new ActiveMQQueue(address);
+
+      MessageConsumer consumer = session.createConsumer(queue);
+
+      MessageProducer producer = session.createProducer(null);
+      producer.send(queue, message);
+
+      TextMessage message1 = (TextMessage) consumer.receive(1000);
+      assertTrue(message1.getText().equals(message.getText()));
    }
 
    /**

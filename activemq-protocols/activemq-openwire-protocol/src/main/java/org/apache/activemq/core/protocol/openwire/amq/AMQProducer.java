@@ -32,6 +32,10 @@ public class AMQProducer
 
    public void init() throws Exception
    {
-      OpenWireUtil.validateDestination(info.getDestination(), amqSession);
+      // If the destination is specified check that it exists.
+      if (info.getDestination() != null)
+      {
+         OpenWireUtil.validateDestination(info.getDestination(), amqSession);
+      }
    }
 }

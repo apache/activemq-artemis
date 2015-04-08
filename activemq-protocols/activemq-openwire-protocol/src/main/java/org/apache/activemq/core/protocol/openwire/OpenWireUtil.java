@@ -58,12 +58,15 @@ public class OpenWireUtil
     */
    public static void validateDestination(ActiveMQDestination destination, AMQSession amqSession) throws Exception
    {
-      AMQServerSession coreSession = amqSession.getCoreSession();
-      SimpleString physicalName = OpenWireUtil.toCoreAddress(destination);
-      BindingQueryResult result = coreSession.executeBindingQuery(physicalName);
-      if (!result.isExists())
+      if (destination.isQueue())
       {
-         throw ActiveMQMessageBundle.BUNDLE.noSuchQueue(physicalName);
+         AMQServerSession coreSession = amqSession.getCoreSession();
+         SimpleString physicalName = OpenWireUtil.toCoreAddress(destination);
+         BindingQueryResult result = coreSession.executeBindingQuery(physicalName);
+         if (!result.isExists() && !result.isAutoCreateJmsQueues())
+         {
+            throw ActiveMQMessageBundle.BUNDLE.noSuchQueue(physicalName);
+         }
       }
    }
 
