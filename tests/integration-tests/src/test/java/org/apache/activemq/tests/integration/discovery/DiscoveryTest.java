@@ -76,7 +76,7 @@ public class DiscoveryTest extends DiscoveryBaseTest
    public void tearDown() throws Exception
    {
       /** This file path is defined at {@link #TEST_JGROUPS_CONF_FILE} */
-      deleteDirectory(new File("/tmp/amqtest.ping.dir"));
+      deleteDirectory(new File("./target/tmp/amqtest.ping.dir"));
       for (ActiveMQComponent component : new ActiveMQComponent[]{bg, bg1, bg2, bg3, dg, dg1, dg2, dg3})
       {
          stopComponent(component);

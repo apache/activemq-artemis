@@ -43,7 +43,7 @@
          oob_thread_pool.queue_max_size="100"
          oob_thread_pool.rejection_policy="run"/>
 
-    <FILE_PING location="/tmp/hqtest.ping.dir"/>
+    <FILE_PING location="./target/tmp/amqtest.ping.dir"/>
     <MERGE2 max_interval="30000"
               min_interval="10000"/>
     <FD_SOCK/>
