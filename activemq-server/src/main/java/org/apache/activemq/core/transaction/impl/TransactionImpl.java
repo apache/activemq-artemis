@@ -167,7 +167,10 @@ public class TransactionImpl implements Transaction
                   // so we reset it now
                   beforeRollback();
                   afterRollback();
-                  operations.clear();
+                  if (operations != null)
+                  {
+                     operations.clear();
+                  }
                   throw exception;
                }
                else
