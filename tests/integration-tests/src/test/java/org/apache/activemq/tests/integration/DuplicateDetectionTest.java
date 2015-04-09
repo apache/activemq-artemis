@@ -1245,6 +1245,7 @@ public class DuplicateDetectionTest extends ServiceTestBase
       }
       catch (XAException expected)
       {
+         assertTrue(expected.getCause().toString().contains("DUPLICATE_ID_REJECTED"));
       }
 
       session.rollback(xid2);
