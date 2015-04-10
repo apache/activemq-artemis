@@ -26,7 +26,7 @@
          <connector name="netty-connector">tcp://localhost:61616</connector>
       </connectors>
 
-      <journal-directory>/tmp/activemq-unit-test/start-stop-data</journal-directory>
+      <journal-directory>./target/tmp/activemq-unit-test/start-stop-data</journal-directory>
 
       <acceptors>
          <acceptor name="netty-acceptor">tcp://localhost:61616</acceptor>

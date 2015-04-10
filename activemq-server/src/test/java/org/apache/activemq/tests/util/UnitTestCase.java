@@ -123,13 +123,21 @@ import org.junit.rules.TestName;
  */
 public abstract class UnitTestCase extends CoreUnitTestCase
 {
+   public static final String TARGET_TMP = "./target/tmp";
    // Constants -----------------------------------------------------
 
    @Rule
    public TestName name = new TestName();
 
    @Rule
-   public TemporaryFolder temporaryFolder = new TemporaryFolder();
+   public TemporaryFolder temporaryFolder;
+
+   @Rule
+   // This Custom rule will remove any files under ./target/tmp
+   // including anything created previously by TemporaryFolder
+   public RemoveFolder folder = new RemoveFolder(TARGET_TMP);
+
+
    private String testDir;
 
    private static final ActiveMQServerLogger log = ActiveMQServerLogger.LOGGER;
@@ -146,6 +154,14 @@ public abstract class UnitTestCase extends CoreUnitTestCase
 
    private static final String OS_TYPE = System.getProperty("os.name").toLowerCase();
    private static final int DEFAULT_UDP_PORT;
+
+
+   public UnitTestCase()
+   {
+      File parent = new File(TARGET_TMP);
+      parent.mkdirs();
+      temporaryFolder = new TemporaryFolder(parent);
+   }
 
    static
    {

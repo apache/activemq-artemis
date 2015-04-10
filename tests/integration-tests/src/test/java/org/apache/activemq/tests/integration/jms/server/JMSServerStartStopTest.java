@@ -200,10 +200,6 @@ public class JMSServerStartStopTest extends UnitTestCase
       deploymentManager.addDeployable(fileConfiguration);
       deploymentManager.readConfiguration();
 
-      fc.setJournalDirectory(getJournalDir());
-      fc.setBindingsDirectory(getBindingsDir());
-      fc.setLargeMessagesDirectory(getLargeMessagesDir());
-
       ActiveMQSecurityManager sm = new ActiveMQSecurityManagerImpl();
 
       ActiveMQServer liveServer = addServer(new ActiveMQServerImpl(fc, sm));
