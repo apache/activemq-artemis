@@ -282,8 +282,8 @@ public class ScaleDownHandler
                Message message = messageRef.getMessage().copy();
 
                /* Here we are taking messages out of a store-and-forward queue and sending them to the corresponding
-                * address on the scale-down target server.  However, we have to take the existing _HQ_ROUTE_TOsf.*
-                * property and put its value into the _HQ_ROUTE_TO property so the message is routed properly.
+                * address on the scale-down target server.  However, we have to take the existing _AMQ_ROUTE_TOsf.*
+                * property and put its value into the _AMQ_ROUTE_TO property so the message is routed properly.
                 */
 
                byte[] oldRouteToIDs = null;

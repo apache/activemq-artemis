@@ -21,13 +21,13 @@ package org.apache.activemq.api.jms;
  */
 public class ActiveMQJMSConstants
 {
-   public static final String JMS_ACTIVEMQ_INPUT_STREAM = "JMS_HQ_InputStream";
+   public static final String JMS_ACTIVEMQ_INPUT_STREAM = "JMS_AMQ_InputStream";
 
-   public static final String JMS_ACTIVEMQ_OUTPUT_STREAM = "JMS_HQ_OutputStream";
+   public static final String JMS_ACTIVEMQ_OUTPUT_STREAM = "JMS_AMQ_OutputStream";
 
-   public static final String JMS_ACTIVEMQ_SAVE_STREAM = "JMS_HQ_SaveStream";
+   public static final String JMS_ACTIVEMQ_SAVE_STREAM = "JMS_AMQ_SaveStream";
 
-   public static final String JBOSS_MESSAGING_BRIDGE_MESSAGE_ID_LIST = "HQ_BRIDGE_MSG_ID_LIST";
+   public static final String AMQ_MESSAGING_BRIDGE_MESSAGE_ID_LIST = "AMQ_BRIDGE_MSG_ID_LIST";
 
    public static final int PRE_ACKNOWLEDGE = 100;
 

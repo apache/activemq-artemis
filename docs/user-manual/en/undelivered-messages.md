@@ -127,12 +127,12 @@ set of addresses (see [Understanding the Wildcard Syntax](wildcard-syntax.md)).
 Dead letter messages which are consumed from a dead letter address have
 the following properties:
 
--   `_HQ_ORIG_ADDRESS`
+-   `_AMQ_ORIG_ADDRESS`
 
     a String property containing the *original address* of the dead
     letter message
 
--   `_HQ_ORIG_QUEUE`
+-   `_AMQ_ORIG_QUEUE`
 
     a String property containing the *original queue* of the dead letter
     message

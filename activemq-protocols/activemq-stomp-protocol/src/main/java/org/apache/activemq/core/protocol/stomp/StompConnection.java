@@ -48,7 +48,7 @@ import static org.apache.activemq.core.protocol.stomp.ActiveMQStompProtocolMessa
 
 public final class StompConnection implements RemotingConnection
 {
-   protected static final String CONNECTION_ID_PROP = "__HQ_CID";
+   protected static final String CONNECTION_ID_PROP = "__AMQ_CID";
    private static final String SERVER_NAME = "ActiveMQ/" + VersionLoader.getVersion().getFullVersion() +
       " ActiveMQ Messaging Engine";
 
@@ -633,7 +633,7 @@ public final class StompConnection implements RemotingConnection
       }
       if (enableMessageID())
       {
-         message.putStringProperty("hqMessageId",
+         message.putStringProperty("amqMessageId",
                                    "STOMP" + message.getMessageID());
       }
       try

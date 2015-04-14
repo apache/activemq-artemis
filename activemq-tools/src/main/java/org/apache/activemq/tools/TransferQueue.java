@@ -149,16 +149,16 @@ public class TransferQueue // NO_UCD (unused code)
 
             message.acknowledge();
 
-            if (!message.containsProperty("_HQ_TOOL_original_address"))
+            if (!message.containsProperty("_AMQ_TOOL_original_address"))
             {
-               message.putStringProperty("_HQ_TOOL_original_address", message.getAddress().toString());
+               message.putStringProperty("_AMQ_TOOL_original_address", message.getAddress().toString());
             }
 
             LinkedList<String> listToRemove = new LinkedList<String>();
 
             for (SimpleString name : message.getPropertyNames())
             {
-               if (name.toString().startsWith("_HQ_ROUTE_TO"))
+               if (name.toString().startsWith("_AMQ_ROUTE_TO"))
                {
                   listToRemove.add(name.toString());
                }

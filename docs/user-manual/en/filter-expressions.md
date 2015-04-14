@@ -31,21 +31,21 @@ JMS message, Apache ActiveMQ core filter expressions operate on a core message.
 The following identifiers can be used in a core filter expressions to
 refer to attributes of the core message in an expression:
 
--   `HQPriority`. To refer to the priority of a message. Message
+-   `AMQPriority`. To refer to the priority of a message. Message
     priorities are integers with valid values from `0 - 9`. `0` is the
     lowest priority and `9` is the highest. E.g.
-    `HQPriority = 3 AND animal = 'aardvark'`
+    `AMQPriority = 3 AND animal = 'aardvark'`
 
--   `HQExpiration`. To refer to the expiration time of a message. The
+-   `AMQExpiration`. To refer to the expiration time of a message. The
     value is a long integer.
 
--   `HQDurable`. To refer to whether a message is durable or not. The
+-   `AMQDurable`. To refer to whether a message is durable or not. The
     value is a string with valid values: `DURABLE` or `NON_DURABLE`.
 
--   `HQTimestamp`. The timestamp of when the message was created. The
+-   `AMQTimestamp`. The timestamp of when the message was created. The
     value is a long integer.
 
--   `HQSize`. The size of a message in bytes. The value is an integer.
+-   `AMQSize`. The size of a message in bytes. The value is an integer.
 
 Any other identifiers used in core filter expressions will be assumed to
 be properties of the message.

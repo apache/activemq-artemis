@@ -133,12 +133,12 @@ under the License.
         <pre class="prettyprint">
             <code>------------------------
             Received notification:
-              _HQ_RoutingName: jms.queue.exampleQueue
-              _HQ_Address: jms.queue.exampleQueue
+              _AMQ_RoutingName: jms.queue.exampleQueue
+              _AMQ_Address: jms.queue.exampleQueue
               ...
-              _HQ_ConsumerCount: 1
+              _AMQ_ConsumerCount: 1
               ...
-              _HQ_NotifType: CONSUMER_CREATED
+              _AMQ_NotifType: CONSUMER_CREATED
             ------------------------</code>
         </pre>
         <p>The notification tells us that a consumer was created for the JMS queue <code>exampleQueue</code>. When the notification
@@ -153,12 +153,12 @@ under the License.
         <pre class="prettyprint">
             <code>------------------------
             Received notification:
-              _HQ_RoutingName: jms.queue.exampleQueue
-              _HQ_Address: jms.queue.exampleQueue
+              _AMQ_RoutingName: jms.queue.exampleQueue
+              _AMQ_Address: jms.queue.exampleQueue
               ...
-              _HQ_ConsumerCount: 0
+              _AMQ_ConsumerCount: 0
               ...
-              _HQ_NotifType: CONSUMER_CLOSED
+              _AMQ_NotifType: CONSUMER_CLOSED
             ------------------------</code>
         </pre>
         <p>The notification tells us that a consumer was closed for the JMS queue <code>exampleQueue</code>. When the notification
@@ -178,9 +178,9 @@ under the License.
         <pre class="prettyprint">
             <code>------------------------
             Received notification:
-              _HQ_User: not.a.valid.user
+              _AMQ_User: not.a.valid.user
               ...
-              _HQ_NotifType: SECURITY_AUTHENTICATION_VIOLATION
+              _AMQ_NotifType: SECURITY_AUTHENTICATION_VIOLATION
             ------------------------
             </code>
         </pre>

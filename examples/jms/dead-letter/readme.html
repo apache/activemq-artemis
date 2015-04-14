@@ -189,9 +189,9 @@ under the License.
             <code>System.out.println("Destination of the message: " + ((Queue)messageReceived.getJMSDestination()).getQueueName());</code>
         </pre>
 
-        <li>The <strong>origin destination</strong> is stored in the <code>_HQ_ORIG_ADDRESS</code> property
+        <li>The <strong>origin destination</strong> is stored in the <code>_AMQ_ORIG_ADDRESS</code> property
         <pre class="prettyprint">
-            <code>System.out.println("*Origin destination* of the message: " + messageReceived.getStringProperty("_HQ_ORIG_ADDRESS"));</code>
+            <code>System.out.println("*Origin destination* of the message: " + messageReceived.getStringProperty("_AMQ_ORIG_ADDRESS"));</code>
         </pre>
 
         <li>We do not forget to commit the session to acknowledge that we have received the message from the dead letter queue</li>

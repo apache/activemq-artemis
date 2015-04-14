@@ -35,12 +35,12 @@ import org.apache.activemq.core.server.ServerMessage;
 *
 * Valid identifiers that can be used are:
 *
-* HQPriority - the priority of the message
-* HQTimestamp - the timestamp of the message
-* HQDurable - "DURABLE" or "NON_DURABLE"
-* HQExpiration - the expiration of the message
-* HQSize - the encoded size of the full message in bytes
-* HQUserID - the user specified ID string (if any)
+* AMQPriority - the priority of the message
+* AMQTimestamp - the timestamp of the message
+* AMQDurable - "DURABLE" or "NON_DURABLE"
+* AMQExpiration - the expiration of the message
+* AMQSize - the encoded size of the full message in bytes
+* AMQUserID - the user specified ID string (if any)
 * Any other identifiers that appear in a filter expression represent header values for the message
 *
 * String values must be set as <code>SimpleString</code>, not <code>java.lang.String</code> (see JBMESSAGING-1307).

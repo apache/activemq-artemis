@@ -27,17 +27,17 @@ JMS MessageProducer allows to set a TimeToLive for the messages it sent:
 Expired messages which are consumed from an expiry address have the
 following properties:
 
--   `_HQ_ORIG_ADDRESS`
+-   `_AMQ_ORIG_ADDRESS`
 
     a String property containing the *original address* of the expired
     message
 
--   `_HQ_ORIG_QUEUE`
+-   `_AMQ_ORIG_QUEUE`
 
     a String property containing the *original queue* of the expired
     message
 
--   `_HQ_ACTUAL_EXPIRY`
+-   `_AMQ_ACTUAL_EXPIRY`
 
     a Long property containing the *actual expiration time* of the
     expired message

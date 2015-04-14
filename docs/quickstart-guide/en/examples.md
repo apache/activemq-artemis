@@ -83,27 +83,27 @@ Type the command `mvn verify` and you should see the following output:
     [INFO] --- activemq-maven-plugin:1.1.1-SNAPSHOT:start (start) @ activemq-jms-queue-example ---
     [file:/home/andy/projects/activemq-master/examples/jms/queue/target/classes/activemq/server0/]
     Apr 17, 2013 10:51:01 AM org.apache.activemq.core.deployers.impl.FileConfigurationParser parseMainConfig
-    WARN: HQ222018: AIO was not located on this platform, it will fall back to using pure Java NIO. If your platform is Linux, install LibAIO to enable the AIO journal
+    WARN: AMQ222018: AIO was not located on this platform, it will fall back to using pure Java NIO. If your platform is Linux, install LibAIO to enable the AIO journal
     Apr 17, 2013 10:51:01 AM org.apache.activemq.core.server.impl.ActiveMQServerImpl start
-    INFO: HQ221000: live server is starting with configuration ActiveMQ Configuration (clustered=false,backup=false,sharedStore=true,journalDirectory=/home/andy/projects/activemq-master/examples/jms/queue/target//server0/data/messaging/journal,bindingsDirectory=/home/andy/projects/activemq-master/examples/jms/queue/target//server0/data/messaging/bindings,largeMessagesDirectory=/home/andy/projects/activemq-master/examples/jms/queue/target//server0/data/messaging/largemessages,pagingDirectory=/home/andy/projects/activemq-master/examples/jms/queue/target//server0/data/messaging/paging)
+    INFO: AMQ221000: live server is starting with configuration ActiveMQ Configuration (clustered=false,backup=false,sharedStore=true,journalDirectory=/home/andy/projects/activemq-master/examples/jms/queue/target//server0/data/messaging/journal,bindingsDirectory=/home/andy/projects/activemq-master/examples/jms/queue/target//server0/data/messaging/bindings,largeMessagesDirectory=/home/andy/projects/activemq-master/examples/jms/queue/target//server0/data/messaging/largemessages,pagingDirectory=/home/andy/projects/activemq-master/examples/jms/queue/target//server0/data/messaging/paging)
     Apr 17, 2013 10:51:01 AM org.apache.activemq.core.server.impl.ActiveMQServerImpl$SharedStoreLiveActivation run
-    INFO: HQ221006: Waiting to obtain live lock
+    INFO: AMQ221006: Waiting to obtain live lock
     Apr 17, 2013 10:51:01 AM org.apache.activemq.core.persistence.impl.journal.JournalStorageManager <init>
-    INFO: HQ221013: Using NIO Journal
+    INFO: AMQ221013: Using NIO Journal
     Apr 17, 2013 10:51:01 AM org.apache.activemq.core.server.impl.ActiveMQServerImpl initialisePart1
-    WARN: HQ222007: Security risk! ActiveMQ is running with the default cluster admin user and default password. Please see the ActiveMQ user guide, cluster chapter, for instructions on how to change this.
+    WARN: AMQ222007: Security risk! ActiveMQ is running with the default cluster admin user and default password. Please see the ActiveMQ user guide, cluster chapter, for instructions on how to change this.
     Apr 17, 2013 10:51:01 AM org.apache.activemq.core.server.impl.FileLockNodeManager startLiveNode
-    INFO: HQ221034: Waiting to obtain live lock
+    INFO: AMQ221034: Waiting to obtain live lock
     Apr 17, 2013 10:51:01 AM org.apache.activemq.core.server.impl.FileLockNodeManager startLiveNode
-    INFO: HQ221035: Live Server Obtained live lock
+    INFO: AMQ221035: Live Server Obtained live lock
     Apr 17, 2013 10:51:02 AM org.apache.activemq.core.server.impl.ActiveMQServerImpl deployQueue
-    INFO: HQ221003: trying to deploy queue jms.queue.exampleQueue
+    INFO: AMQ221003: trying to deploy queue jms.queue.exampleQueue
     Apr 17, 2013 10:51:02 AM org.apache.activemq.core.remoting.impl.netty.NettyAcceptor start
-    INFO: HQ221020: Started Netty Acceptor version 3.6.2.Final-c0d783c localhost:61616 for CORE protocol
+    INFO: AMQ221020: Started Netty Acceptor version 3.6.2.Final-c0d783c localhost:61616 for CORE protocol
     Apr 17, 2013 10:51:02 AM org.apache.activemq.core.server.impl.ActiveMQServerImpl$SharedStoreLiveActivation run
-    INFO: HQ221007: Server is now live
+    INFO: AMQ221007: Server is now live
     Apr 17, 2013 10:51:02 AM org.apache.activemq.core.server.impl.ActiveMQServerImpl start
-    INFO: HQ221001: ActiveMQ Server version 2.3.0.SNAPSHOT (black'n'yellow, 123) [a57893ff-7783-11e2-9787-07ca142fc9f7]
+    INFO: AMQ221001: ActiveMQ Server version 2.3.0.SNAPSHOT (black'n'yellow, 123) [a57893ff-7783-11e2-9787-07ca142fc9f7]
     [INFO]
     [INFO] --- activemq-maven-plugin:1.1.1-SNAPSHOT:runClient (runClient) @ activemq-jms-queue-example ---
     Apr 17, 2013 10:51:02 AM org.apache.activemq.common.example.ActiveMQExample getContext
@@ -118,9 +118,9 @@ Type the command `mvn verify` and you should see the following output:
     [INFO]
     [INFO] --- activemq-maven-plugin:1.1.1-SNAPSHOT:stop (stop) @ activemq-jms-queue-example ---
     Apr 17, 2013 10:51:03 AM org.apache.activemq.core.server.management.impl.ManagementServiceImpl stop
-    WARN: HQ222113: On ManagementService stop, there are 1 unexpected registered MBeans: [core.acceptor.netty-acceptor]
+    WARN: AMQ222113: On ManagementService stop, there are 1 unexpected registered MBeans: [core.acceptor.netty-acceptor]
     Apr 17, 2013 10:51:03 AM org.apache.activemq.core.server.impl.ActiveMQServerImpl stop
-    INFO: HQ221002: ActiveMQ Server version 2.3.0.SNAPSHOT (black'n'yellow, 123) [a57893ff-7783-11e2-9787-07ca142fc9f7] stopped
+    INFO: AMQ221002: ActiveMQ Server version 2.3.0.SNAPSHOT (black'n'yellow, 123) [a57893ff-7783-11e2-9787-07ca142fc9f7] stopped
     [INFO] ------------------------------------------------------------------------
     [INFO] BUILD SUCCESS
     [INFO] ------------------------------------------------------------------------
@@ -233,7 +233,7 @@ In the shell window you should see something like the following output:
     10:58:08,790 INFO  [org.apache.activemq.core.remoting.impl.netty.NettyAcceptor] (MSC service thread 1-11) Started Netty Acceptor version 3.2.5.Final-a96d88c localhost.localdomain:61616 for CORE protocol
     10:58:08,793 INFO  [org.apache.activemq.core.remoting.impl.netty.NettyAcceptor] (MSC service thread 1-11) Started Netty Acceptor version 3.2.5.Final-a96d88c localhost.localdomain:5455 for CORE protocol
     10:58:08,795 INFO  [org.apache.activemq.core.server.impl.ActiveMQServerImpl] (MSC service thread 1-11) Server is now live
-    10:58:08,797 INFO  [org.apache.activemq.core.server.impl.ActiveMQServerImpl] (MSC service thread 1-11) ActiveMQ Server version 2.2.13.Final (HQ_2_2_13_FINAL_AS7, 122) [5c499e88-9c63-11e2-bfa3-fe5400591699]) started
+    10:58:08,797 INFO  [org.apache.activemq.core.server.impl.ActiveMQServerImpl] (MSC service thread 1-11) ActiveMQ Server version 2.2.13.Final (AMQ_2_2_13_FINAL_AS7, 122) [5c499e88-9c63-11e2-bfa3-fe5400591699]) started
     10:58:08,822 INFO  [org.jboss.as.messaging] (MSC service thread 1-4) JBAS011601: Bound messaging object to jndi name java:jboss/exported/jms/RemoteConnectionFactory
     10:58:08,824 INFO  [org.jboss.as.messaging] (MSC service thread 1-4) JBAS011601: Bound messaging object to jndi name java:/RemoteConnectionFactory
     10:58:08,825 INFO  [org.jboss.as.messaging] (MSC service thread 1-10) JBAS011601: Bound messaging object to jndi name java:/ConnectionFactory

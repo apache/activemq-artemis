@@ -5,7 +5,7 @@ characteristics:
 
 -   Messages in a message group share the same group id, i.e. they have
     same group identifier property (`JMSXGroupID` for JMS,
-    `_HQ_GROUP_ID` for Apache ActiveMQ Core API).
+    `_AMQ_GROUP_ID` for Apache ActiveMQ Core API).
 
 -   Messages in a message group are always consumed by the same
     consumer, even if there are many consumers on a queue. They pin all
@@ -20,7 +20,7 @@ An example might be orders for a certain stock. You may want orders for
 any particular stock to be processed serially by the same consumer. To
 do this you can create a pool of consumers (perhaps one for each stock,
 but less will work too), then set the stock name as the value of the
-_HQ_GROUP_ID property.
+_AMQ_GROUP_ID property.
 
 This will ensure that all messages for a particular stock will always be
 processed by the same consumer.
@@ -42,7 +42,7 @@ processed by the same consumer.
 
 ## Using Core API
 
-The property name used to identify the message group is `"_HQ_GROUP_ID"`
+The property name used to identify the message group is `"_AMQ_GROUP_ID"`
 (or the constant `MessageImpl.HDR_GROUP_ID`). Alternatively, you can set
 `autogroup` to true on the `SessionFactory` which will pick a random
 unique id.

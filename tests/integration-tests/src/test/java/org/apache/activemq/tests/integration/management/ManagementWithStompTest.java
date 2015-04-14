@@ -90,14 +90,14 @@ public class ManagementWithStompTest extends ManagementTestBase
       // retrieve the address of the queue
       frame = "\nSEND\n" + "destination:" + ActiveMQDefaultConfiguration.getDefaultManagementAddress() + "\n" +
             "reply-to:" + address + "\n" +
-            "_HQ_ResourceName:" + ResourceNames.CORE_QUEUE + queue + "\n" +
-            "_HQ_Attribute: Address\n\n" +
+            "_AMQ_ResourceName:" + ResourceNames.CORE_QUEUE + queue + "\n" +
+            "_AMQ_Attribute: Address\n\n" +
             Stomp.NULL;
       sendFrame(frame);
 
       frame = receiveFrame(10000);
       System.out.println(frame);
-      assertTrue(frame.contains("_HQ_OperationSucceeded:true"));
+      assertTrue(frame.contains("_AMQ_OperationSucceeded:true"));
       // the address will be returned in the message body in a JSON array
       Assert.assertTrue(frame.contains("[\"" + address + "\"]"));
 
@@ -133,15 +133,15 @@ public class ManagementWithStompTest extends ManagementTestBase
       // count number of message with filter "color = 'blue'"
       frame = "\nSEND\n" + "destination:" + ActiveMQDefaultConfiguration.getDefaultManagementAddress() + "\n" +
             "reply-to:" + address + "\n" +
-            "_HQ_ResourceName:" + ResourceNames.CORE_QUEUE + queue + "\n" +
-            "_HQ_OperationName: countMessages\n\n" +
+            "_AMQ_ResourceName:" + ResourceNames.CORE_QUEUE + queue + "\n" +
+            "_AMQ_OperationName: countMessages\n\n" +
             "[\"color = 'blue'\"]" +
             Stomp.NULL;
       sendFrame(frame);
 
       frame = receiveFrame(10000);
       System.out.println(frame);
-      assertTrue(frame.contains("_HQ_OperationSucceeded:true"));
+      assertTrue(frame.contains("_AMQ_OperationSucceeded:true"));
       // there is no such messages => 0 returned in a JSON array
       assertTrue(frame.contains("[0]"));
 

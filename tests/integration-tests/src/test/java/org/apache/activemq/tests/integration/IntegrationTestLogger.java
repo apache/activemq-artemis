@@ -20,7 +20,7 @@ import org.jboss.logging.BasicLogger;
 import org.jboss.logging.Logger;
 import org.jboss.logging.annotations.MessageLogger;
 
-@MessageLogger(projectCode = "HQTEST")
+@MessageLogger(projectCode = "AMQTEST")
 public interface IntegrationTestLogger extends BasicLogger
 {
    /**

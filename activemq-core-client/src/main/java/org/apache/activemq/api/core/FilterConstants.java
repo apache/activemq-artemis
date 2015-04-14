@@ -25,17 +25,17 @@ public final class FilterConstants
    /**
     * Name of the ActiveMQ UserID header.
     */
-   public static final SimpleString ACTIVEMQ_USERID = new SimpleString("HQUserID");
+   public static final SimpleString ACTIVEMQ_USERID = new SimpleString("AMQUserID");
 
    /**
     * Name of the ActiveMQ Message expiration header.
     */
-   public static final SimpleString ACTIVEMQ_EXPIRATION = new SimpleString("HQExpiration");
+   public static final SimpleString ACTIVEMQ_EXPIRATION = new SimpleString("AMQExpiration");
 
    /**
     * Name of the ActiveMQ Message durable header.
     */
-   public static final SimpleString ACTIVEMQ_DURABLE = new SimpleString("HQDurable");
+   public static final SimpleString ACTIVEMQ_DURABLE = new SimpleString("AMQDurable");
 
    /**
     * Value for the Durable header when the message is non-durable.
@@ -50,22 +50,22 @@ public final class FilterConstants
    /**
     * Name of the ActiveMQ Message timestamp header.
     */
-   public static final SimpleString ACTIVEMQ_TIMESTAMP = new SimpleString("HQTimestamp");
+   public static final SimpleString ACTIVEMQ_TIMESTAMP = new SimpleString("AMQTimestamp");
 
    /**
     * Name of the ActiveMQ Message priority header.
     */
-   public static final SimpleString ACTIVEMQ_PRIORITY = new SimpleString("HQPriority");
+   public static final SimpleString ACTIVEMQ_PRIORITY = new SimpleString("AMQPriority");
 
    /**
     * Name of the ActiveMQ Message size header.
     */
-   public static final SimpleString ACTIVEMQ_SIZE = new SimpleString("HQSize");
+   public static final SimpleString ACTIVEMQ_SIZE = new SimpleString("AMQSize");
 
    /**
     * All ActiveMQ headers are prepended by this prefix.
     */
-   public static final SimpleString ACTIVEMQ_PREFIX = new SimpleString("HQ");
+   public static final SimpleString ACTIVEMQ_PREFIX = new SimpleString("AMQ");
 
    private FilterConstants()
    {

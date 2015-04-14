@@ -50,7 +50,7 @@ public class MessageUtil
 
    public static final String JMSXGROUPID = "JMSXGroupID";
 
-   public static final SimpleString CONNECTION_ID_PROPERTY_NAME = new SimpleString("__HQ_CID");
+   public static final SimpleString CONNECTION_ID_PROPERTY_NAME = new SimpleString("__AMQ_CID");
 
 
 

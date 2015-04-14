@@ -131,7 +131,7 @@ public class MessageGroupingTest extends UnitTestCase
             for (int messageId = 0; messageId < 3; messageId++)
             {
                ClientMessage message = clientSession.createMessage(false);
-               message.putStringProperty("_HQ_GROUP_ID", "" + group);
+               message.putStringProperty("_AMQ_GROUP_ID", "" + group);
                clientProducer.send(message);
             }
          }

@@ -167,17 +167,17 @@ which are also available through JMS by the use of object properties.
     <tr>
         <td>setBodyInputStream(InputStream)</td>
         <td>Set the InputStream used to read a message body when sending it.</td>
-        <td>JMS_HQ_InputStream</td>
+        <td>JMS_AMQ_InputStream</td>
     </tr>
     <tr>
         <td>setOutputStream(OutputStream)</td>
         <td>Set the OutputStream that will receive the body of a message. This method does not block.</td>
-        <td>JMS_HQ_OutputStream</td>
+        <td>JMS_AMQ_OutputStream</td>
     </tr>
     <tr>
         <td>saveOutputStream(OutputStream)</td>
         <td>Save the body of the message to the `OutputStream`. It will block until the entire content is transferred to the `OutputStream`.</td>
-        <td>JMS_HQ_SaveStream</td>
+        <td>JMS_AMQ_SaveStream</td>
     </tr>
     </tbody>
 </table>
@@ -209,7 +209,7 @@ msg.setInputStream(dataInputStream);
 Notice also that for messages with more than 2GiB the getBodySize() will
 return invalid values since this is an integer (which is also exposed to
 the JMS API). On those cases you can use the message property
-_HQ_LARGE_SIZE.
+_AMQ_LARGE_SIZE.
 
 ### Streaming over JMS
 
@@ -218,7 +218,7 @@ ClientMessage API table above) by setting object properties . You can use the me
 `Message.setObjectProperty` to set the input and output streams.
 
 The `InputStream` can be defined through the JMS Object Property
-JMS_HQ_InputStream on messages being sent:
+JMS_AMQ_InputStream on messages being sent:
 
 ``` java
 BytesMessage message = session.createBytesMessage();
@@ -227,13 +227,13 @@ FileInputStream fileInputStream = new FileInputStream(fileInput);
 
 BufferedInputStream bufferedInput = new BufferedInputStream(fileInputStream);
 
-message.setObjectProperty("JMS_HQ_InputStream", bufferedInput);
+message.setObjectProperty("JMS_AMQ_InputStream", bufferedInput);
 
 someProducer.send(message);
 ```
 
 The `OutputStream` can be set through the JMS Object Property
-JMS_HQ_SaveStream on messages being received in a blocking way.
+JMS_AMQ_SaveStream on messages being received in a blocking way.
 
 ``` java
 BytesMessage messageReceived = (BytesMessage)messageConsumer.receive(120000);
@@ -245,15 +245,15 @@ FileOutputStream fileOutputStream = new FileOutputStream(outputFile);
 BufferedOutputStream bufferedOutput = new BufferedOutputStream(fileOutputStream);
 
 // This will block until the entire content is saved on disk
-messageReceived.setObjectProperty("JMS_HQ_SaveStream", bufferedOutput);
+messageReceived.setObjectProperty("JMS_AMQ_SaveStream", bufferedOutput);
 ```
 
 Setting the `OutputStream` could also be done in a non blocking way
-using the property JMS_HQ_OutputStream.
+using the property JMS_AMQ_OutputStream.
 
 ``` java
 // This won't wait the stream to finish. You need to keep the consumer active.
-messageReceived.setObjectProperty("JMS_HQ_OutputStream", bufferedOutput);
+messageReceived.setObjectProperty("JMS_AMQ_OutputStream", bufferedOutput);
 ```
 
 > **Note**

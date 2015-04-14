@@ -34,41 +34,41 @@ public final class ManagementHelper
 {
    // Constants -----------------------------------------------------
 
-   public static final SimpleString HDR_RESOURCE_NAME = new SimpleString("_HQ_ResourceName");
+   public static final SimpleString HDR_RESOURCE_NAME = new SimpleString("_AMQ_ResourceName");
 
-   public static final SimpleString HDR_ATTRIBUTE = new SimpleString("_HQ_Attribute");
+   public static final SimpleString HDR_ATTRIBUTE = new SimpleString("_AMQ_Attribute");
 
-   public static final SimpleString HDR_OPERATION_NAME = new SimpleString("_HQ_OperationName");
+   public static final SimpleString HDR_OPERATION_NAME = new SimpleString("_AMQ_OperationName");
 
-   public static final SimpleString HDR_OPERATION_SUCCEEDED = new SimpleString("_HQ_OperationSucceeded");
+   public static final SimpleString HDR_OPERATION_SUCCEEDED = new SimpleString("_AMQ_OperationSucceeded");
 
-   public static final SimpleString HDR_NOTIFICATION_TYPE = new SimpleString("_HQ_NotifType");
+   public static final SimpleString HDR_NOTIFICATION_TYPE = new SimpleString("_AMQ_NotifType");
 
-   public static final SimpleString HDR_NOTIFICATION_TIMESTAMP = new SimpleString("_HQ_NotifTimestamp");
+   public static final SimpleString HDR_NOTIFICATION_TIMESTAMP = new SimpleString("_AMQ_NotifTimestamp");
 
-   public static final SimpleString HDR_ROUTING_NAME = new SimpleString("_HQ_RoutingName");
+   public static final SimpleString HDR_ROUTING_NAME = new SimpleString("_AMQ_RoutingName");
 
-   public static final SimpleString HDR_CLUSTER_NAME = new SimpleString("_HQ_ClusterName");
+   public static final SimpleString HDR_CLUSTER_NAME = new SimpleString("_AMQ_ClusterName");
 
-   public static final SimpleString HDR_ADDRESS = new SimpleString("_HQ_Address");
+   public static final SimpleString HDR_ADDRESS = new SimpleString("_AMQ_Address");
 
-   public static final SimpleString HDR_BINDING_ID = new SimpleString("_HQ_Binding_ID");
+   public static final SimpleString HDR_BINDING_ID = new SimpleString("_AMQ_Binding_ID");
 
-   public static final SimpleString HDR_BINDING_TYPE = new SimpleString("_HQ_Binding_Type");
+   public static final SimpleString HDR_BINDING_TYPE = new SimpleString("_AMQ_Binding_Type");
 
-   public static final SimpleString HDR_FILTERSTRING = new SimpleString("_HQ_FilterString");
+   public static final SimpleString HDR_FILTERSTRING = new SimpleString("_AMQ_FilterString");
 
-   public static final SimpleString HDR_DISTANCE = new SimpleString("_HQ_Distance");
+   public static final SimpleString HDR_DISTANCE = new SimpleString("_AMQ_Distance");
 
-   public static final SimpleString HDR_CONSUMER_COUNT = new SimpleString("_HQ_ConsumerCount");
+   public static final SimpleString HDR_CONSUMER_COUNT = new SimpleString("_AMQ_ConsumerCount");
 
-   public static final SimpleString HDR_USER = new SimpleString("_HQ_User");
+   public static final SimpleString HDR_USER = new SimpleString("_AMQ_User");
 
-   public static final SimpleString HDR_CHECK_TYPE = new SimpleString("_HQ_CheckType");
+   public static final SimpleString HDR_CHECK_TYPE = new SimpleString("_AMQ_CheckType");
 
-   public static final SimpleString HDR_SESSION_NAME = new SimpleString("_HQ_SessionName");
+   public static final SimpleString HDR_SESSION_NAME = new SimpleString("_AMQ_SessionName");
 
-   public static final SimpleString HDR_REMOTE_ADDRESS = new SimpleString("_HQ_RemoteAddress");
+   public static final SimpleString HDR_REMOTE_ADDRESS = new SimpleString("_AMQ_RemoteAddress");
 
    public static final SimpleString HDR_PROPOSAL_GROUP_ID = new SimpleString("_JBM_ProposalGroupId");
 
@@ -76,9 +76,9 @@ public final class ManagementHelper
 
    public static final SimpleString HDR_PROPOSAL_ALT_VALUE = new SimpleString("_JBM_ProposalAltValue");
 
-   public static final SimpleString HDR_CONSUMER_NAME = new SimpleString("_HQ_ConsumerName");
+   public static final SimpleString HDR_CONSUMER_NAME = new SimpleString("_AMQ_ConsumerName");
 
-   public static final SimpleString HDR_CONNECTION_NAME = new SimpleString("_HQ_ConnectionName");
+   public static final SimpleString HDR_CONNECTION_NAME = new SimpleString("_AMQ_ConnectionName");
 
    // Attributes ----------------------------------------------------
 

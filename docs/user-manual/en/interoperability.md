@@ -156,10 +156,10 @@ unique ID, just set the `stompEnableMessageId` to true. For example:
 When the server starts with the above setting, each stomp message sent
 through this acceptor will have an extra property added. The property
 key is `
-            hq-message-id` and the value is a String representation of a
+            amq-message-id` and the value is a String representation of a
 long type internal message id prefixed with "`STOMP`", like:
 
-    hq-message-id : STOMP12345
+    amq-message-id : STOMP12345
 
 If `stomp-enable-message-id` is not specified in the configuration,
 default is `false`.

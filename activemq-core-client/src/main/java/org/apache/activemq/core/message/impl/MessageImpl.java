@@ -42,14 +42,14 @@ import org.apache.activemq.utils.UUID;
  */
 public abstract class MessageImpl implements MessageInternal
 {
-   public static final SimpleString HDR_ROUTE_TO_IDS = new SimpleString("_HQ_ROUTE_TO");
+   public static final SimpleString HDR_ROUTE_TO_IDS = new SimpleString("_AMQ_ROUTE_TO");
 
-   public static final SimpleString HDR_SCALEDOWN_TO_IDS = new SimpleString("_HQ_SCALEDOWN_TO");
+   public static final SimpleString HDR_SCALEDOWN_TO_IDS = new SimpleString("_AMQ_SCALEDOWN_TO");
 
-   public static final SimpleString HDR_ROUTE_TO_ACK_IDS = new SimpleString("_HQ_ACK_ROUTE_TO");
+   public static final SimpleString HDR_ROUTE_TO_ACK_IDS = new SimpleString("_AMQ_ACK_ROUTE_TO");
 
    // used by the bridges to set duplicates
-   public static final SimpleString HDR_BRIDGE_DUPLICATE_ID = new SimpleString("_HQ_BRIDGE_DUP");
+   public static final SimpleString HDR_BRIDGE_DUPLICATE_ID = new SimpleString("_AMQ_BRIDGE_DUP");
 
    public static final int BUFFER_HEADER_SPACE = PacketImpl.PACKET_HEADERS_SIZE;
 

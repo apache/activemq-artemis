@@ -86,7 +86,7 @@ public class JMSLargeMessageTest extends JMSTestBase
 
       BytesMessage m = session.createBytesMessage();
 
-      m.setObjectProperty("JMS_HQ_InputStream", UnitTestCase.createFakeLargeStream(1024 * 1024));
+      m.setObjectProperty("JMS_AMQ_InputStream", UnitTestCase.createFakeLargeStream(1024 * 1024));
 
       prod.send(m);
 
@@ -130,7 +130,7 @@ public class JMSLargeMessageTest extends JMSTestBase
 
       BytesMessage m = session.createBytesMessage();
 
-      m.setObjectProperty("JMS_HQ_InputStream", UnitTestCase.createFakeLargeStream(10));
+      m.setObjectProperty("JMS_AMQ_InputStream", UnitTestCase.createFakeLargeStream(10));
 
       prod.send(m);
 
@@ -171,7 +171,7 @@ public class JMSLargeMessageTest extends JMSTestBase
 
       try
       {
-         msg.setObjectProperty("JMS_HQ_InputStream", UnitTestCase.createFakeLargeStream(10));
+         msg.setObjectProperty("JMS_AMQ_InputStream", UnitTestCase.createFakeLargeStream(10));
          Assert.fail("Exception was expected");
       }
       catch (JMSException e)
@@ -198,7 +198,7 @@ public class JMSLargeMessageTest extends JMSTestBase
 
       try
       {
-         rm.setObjectProperty("JMS_HQ_OutputStream", new OutputStream()
+         rm.setObjectProperty("JMS_AMQ_OutputStream", new OutputStream()
          {
             @Override
             public void write(final int b) throws IOException
@@ -232,7 +232,7 @@ public class JMSLargeMessageTest extends JMSTestBase
 
       BytesMessage m = session.createBytesMessage();
 
-      m.setObjectProperty("JMS_HQ_InputStream", UnitTestCase.createFakeLargeStream(msgSize));
+      m.setObjectProperty("JMS_AMQ_InputStream", UnitTestCase.createFakeLargeStream(msgSize));
 
       prod.send(m);
 
@@ -273,14 +273,14 @@ public class JMSLargeMessageTest extends JMSTestBase
 
       try
       {
-         rm.setObjectProperty("JMS_HQ_InputStream", UnitTestCase.createFakeLargeStream(100));
+         rm.setObjectProperty("JMS_AMQ_InputStream", UnitTestCase.createFakeLargeStream(100));
          Assert.fail("Exception expected!");
       }
       catch (MessageNotWriteableException expected)
       {
       }
 
-      rm.setObjectProperty("JMS_HQ_SaveStream", out);
+      rm.setObjectProperty("JMS_AMQ_SaveStream", out);
 
       Assert.assertEquals(msgSize, numberOfBytes.get());
 
