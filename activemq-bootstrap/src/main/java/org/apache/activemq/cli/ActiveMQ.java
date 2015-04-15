@@ -20,6 +20,7 @@ import io.airlift.command.Cli;
 import io.airlift.command.ParseArgumentsUnexpectedException;
 import org.apache.activemq.cli.commands.Action;
 import org.apache.activemq.cli.commands.ActionContext;
+import org.apache.activemq.cli.commands.Create;
 import org.apache.activemq.cli.commands.HelpAction;
 import org.apache.activemq.cli.commands.Run;
 import org.apache.activemq.cli.commands.Stop;
@@ -32,15 +33,27 @@ public class ActiveMQ
 
    public static void main(String[] args) throws Exception
    {
+      String instance = System.getProperty("activemq.instance");
       Cli.CliBuilder<Action> builder = Cli.<Action>builder("activemq")
-               .withDefaultCommand(HelpAction.class)
-               .withCommand(Run.class)
-               .withCommand(Stop.class)
-               .withCommand(HelpAction.class)
-               .withDescription("ActiveMQ Command Line");
+         .withDescription("ActiveMQ Command Line")
+         .withCommand(HelpAction.class)
+         .withCommand(Create.class)
+         .withDefaultCommand(HelpAction.class);
+
+      if (instance != null)
+      {
+         builder = builder
+            .withCommand(Run.class)
+            .withCommand(Stop.class);
+      }
+      else
+      {
+         builder = builder
+            .withCommand(Create.class);
+      }
+
 
       Cli<Action> parser = builder.build();
-
       try
       {
          parser.parse(args).execute(ActionContext.system());
@@ -55,7 +68,7 @@ public class ActiveMQ
       {
          System.err.println(configException.getMessage());
          System.out.println();
-         System.out.println("Configuration should be specified as 'scheme:location'. Default configuration is 'xml:${ACTIVEMQ_HOME}/config/non-clustered/bootstrap.xml'");
+         System.out.println("Configuration should be specified as 'scheme:location'. Default configuration is 'xml:${ACTIVEMQ_INSTANCE}/etc/bootstrap.xml'");
       }
 
    }

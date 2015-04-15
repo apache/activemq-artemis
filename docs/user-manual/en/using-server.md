@@ -9,45 +9,59 @@ For the remainder of this chapter when we talk about the Apache ActiveMQ server
 we mean the Apache ActiveMQ standalone server, in its default configuration
 with a JMS Service enabled.
 
-## Starting and Stopping the standalone server
+This document will refer to the full path of the directory where the ActiveMQ
+distribution has been extracted to as `${ACTIVEMQ_HOME}` directory.
 
-In the distribution you will find a directory called `bin`.
+## Creating a Broker Instance
 
-`cd` into that directory and you will find a Unix/Linux script called
-`activemq` and a Windows script called `activemq.cmd`.
+A broker instance is the directory containing all the configuration and runtime
+data, such as logs and data files, associated with a broker process.  It is recommended that
+you do *not* create the instance directory under `${ACTIVEMQ_HOME}`.  This separation is
+encouraged so that you can more easily upgrade when the next version of ActiveMQ is released.
 
-To start the Apache ActiveMQ instance on Unix/Linux type `./activemq run`
+On Unix systems, it is a common convention to store this kind of runtime data under 
+the `/var/lib` directory.  For example, to create an instance at '/var/lib/mybroker', run
+the following commands in your command line shell:
 
-To start the Apache ActiveMQ instance on Windows type `activemq.cmd run`
+    cd /var/lib
+    ${ACTIVEMQ_HOME}/bin/activemq create mybroker
 
-These scripts are very simple and basically just set-up the classpath
-and some JVM parameters and bootstrap the server using
-[Airline](https://github.com/airlift/airline).
+A broker instance directory will contain the following sub directories:
 
-To stop the Apache ActiveMQ instance you will use the same `activemq` script.
+ * `bin`: holds execution scripts associated with this instance.
+ * `etc`: hold the instance configuration files
+ * `data`: holds the data files used for storing persistent messages
+ * `log`: holds rotating log files
+ * `tmp`: holds temporary files that are safe to delete between broker runs
 
-To run on Unix/Linux type `./activemq stop`
+At this point you may want to adjust the default configuration located in
+the `etc` directory.
 
-To run on Windows type `activemq.cmd stop`
+### Starting and Stopping a Broker Instance
 
-Please note that Apache ActiveMQ requires a Java 6 or later runtime to run.
+Assuming you created the broker instance under `/var/lib/mybroker` all you need
+to do start running the broker instance is execute:
 
-By default the `config/non-clustered/bootstrap.xml` configuration is
+    /var/lib/mybroker/bin/activemq run
+
+Now that the broker is running, you can optionally run some of the included 
+examples to verify the the broker is running properly.
+
+To stop the Apache ActiveMQ instance you will use the same `activemq` script, but with 
+the `stop argument`.  Example:
+
+    /var/lib/mybroker/bin/activemq stop
+
+Please note that Apache ActiveMQ requires a Java 7 or later runtime to run.
+
+By default the `etc/bootstrap.xml` configuration is
 used. The configuration can be changed e.g. by running
-`./activemq run -- xml:../config/clustered/bootstrap.xml` or another
+`./activemq run -- xml:path/to/bootstrap.xml` or another
 config of your choosing.
 
 Environment variables are used to provide ease of changing ports, hosts and
-data directories used and can be found in `activemq.conf` on linux and
-`activemq.conf.bat` on Windows. A different properties file can be used by
-setting the property `ACTIVEMQ_CONF`, on linux this would be:
-
-      export ACTIVEMQ_CONF=myenv.env
-
-or on Windows
-
-      set ACTIVEMQ_CONF=myenv.env
-
+data directories used and can be found in `etc/activemq.profile` on linux and
+`etc\activemq.profile.cmd` on Windows.
 
 ## Server JVM settings
 

@@ -1,0 +1,6 @@
+
+      <ha-policy>
+         <shared-store>
+            <master/>
+         </shared-store>
+      </ha-policy>

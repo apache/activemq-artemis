@@ -1,0 +1,6 @@
+
+      <ha-policy>
+         <replication>
+            <master/>
+         </replication>
+      </ha-policy>

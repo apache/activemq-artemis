@@ -15,6 +15,7 @@ dependency-reduced-pom.xml
 # compilation from native
 */*/bin
 *~
+.DS_Store
 
 target
 tests/integration-tests/data/

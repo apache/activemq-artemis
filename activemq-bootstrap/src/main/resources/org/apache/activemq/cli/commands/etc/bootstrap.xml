@@ -18,13 +18,13 @@
 
 <broker xmlns="http://activemq.org/schema">
 
-   <basic-security>
-      <users>file:${activemq.home}/config/non-clustered/activemq-users.properties</users>
-      <roles>file:${activemq.home}/config/non-clustered/activemq-roles.properties</roles>
-      <default-user>guest</default-user>
-   </basic-security>
+   <basic-security
+           users="file:${activemq.instance}/etc/activemq-users.properties"
+           roles="file:${activemq.instance}/etc/activemq-roles.properties"
+           default-user="guest"
+           />
 
-   <server configuration="file:${activemq.home}/config/shared-store/activemq-configuration.xml"/>
+   <server configuration="file:${activemq.instance}/etc/activemq-configuration.xml"/>
 
    <web bind="http://localhost:8161" path="web">
        <app url="jolokia" war="jolokia-war-1.2.3.war"/>

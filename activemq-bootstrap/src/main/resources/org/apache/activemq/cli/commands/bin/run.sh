@@ -16,4 +16,4 @@
 # specific language governing permissions and limitations
 # under the License.
 
-./activemq stop $@
+`dirname "$0"`/activemq run $@

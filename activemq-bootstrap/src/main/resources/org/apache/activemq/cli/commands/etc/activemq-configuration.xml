@@ -26,11 +26,6 @@ under the License.
       <queue name="ExpiryQueue"/>
    </jms>
    <core xmlns="urn:activemq:core">
-      <!--
-      if you want to run this as a backup on different ports you would need to set the following variable
-      export CLUSTER_PROPS="-Dactivemq.remoting.netty.host=localhost -Dactivemq.remoting.netty.port=5545 -Dactivemq.remoting.netty.batch.port=5555 -Dactivemq.backup=true"
-      -->
-
       <paging-directory>${data.dir:../data}/paging</paging-directory>
 
       <bindings-directory>${data.dir:../data}/bindings</bindings-directory>
@@ -60,36 +55,7 @@ under the License.
          <acceptor name="hornetq">tcp://${activemq.remoting.hornetq.host:localhost}:${activemq.remoting.hornetq.port:5445}?protocols=CORE,STOMP</acceptor>
       </acceptors>
 
-      <broadcast-groups>
-         <broadcast-group name="bg-group1">
-            <group-address>231.7.7.7</group-address>
-            <group-port>9876</group-port>
-            <broadcast-period>5000</broadcast-period>
-            <connector-ref>activemq</connector-ref>
-         </broadcast-group>
-      </broadcast-groups>
-
-      <discovery-groups>
-         <discovery-group name="dg-group1">
-            <group-address>231.7.7.7</group-address>
-            <group-port>9876</group-port>
-            <refresh-timeout>10000</refresh-timeout>
-         </discovery-group>
-      </discovery-groups>
-
-      <cluster-connections>
-         <cluster-connection name="my-cluster">
-            <address>jms</address>
-            <connector-ref>activemq</connector-ref>
-            <discovery-group-ref discovery-group-name="dg-group1"/>
-         </cluster-connection>
-      </cluster-connections>
-
-      <ha-policy>
-         <shared-store>
-            <master/>
-         </shared-store>
-      </ha-policy>
+      ${cluster.settings}${replicated.settings}${shared-store.settings}
 
       <security-settings>
          <security-setting match="#">

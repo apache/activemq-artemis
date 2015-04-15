@@ -15,11 +15,14 @@ rem KIND, either express or implied.  See the License for the
 rem specific language governing permissions and limitations
 rem under the License.
 
+set ACTIVEMQ_HOME='${activemq.home}'
+set ACTIVEMQ_BASE='${activemq.base}'
+
 rem Path to logging configuration file
-set ACTIVEMQ_LOGGING_CONF=file:%ACTIVEMQ_HOME%\config\logging.properties
+set ACTIVEMQ_LOGGING_CONF=file:%ACTIVEMQ_BASE%\etc\logging.properties
 
 rem Path to data directory
-set ACTIVEMQ_DATA_DIR=%ACTIVEMQ_HOME%\data
+set ACTIVEMQ_DATA_DIR=%ACTIVEMQ_BASE%\data
 
 rem Log manager class
 set ACTIVEMQ_LOG_MANAGER=org.jboss.logmanager.LogManager
