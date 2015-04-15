@@ -31,8 +31,8 @@ Using aptitude, (e.g. on Ubuntu or Debian system):
 
     apt-get install libaio
 
-Stand-alone ActiveMQ Server
-===========================
+Installing the Standalone Distribution
+======================================
 
 After downloading the distribution, unzip it into your chosen directory.
 At this point it should be possible to [run straight out of the
@@ -40,11 +40,6 @@ box](#running.standalone), the following describes the directory
 structure:
 
              |___ bin
-             |
-             |___ config
-             |      |___ jboss-as-4
-             |      |___ jboss-as-5
-             |      |___ stand-alone
              |
              |___ docs
              |      |___ api
@@ -65,11 +60,6 @@ structure:
 
 -   `bin` -- binaries and scripts needed to run ActiveMQ.
 
--   `config` -- configuration files needed to configure ActiveMQ. This
-    contains configurations to run ActiveMQ either in stand-alone or
-    inside JBoss AS 4 and 5. Please refer to the reference guide for
-    details on configuration.
-
 -   `docs` -- guides and javadocs for ActiveMQ
 
 -   `examples` -- JMS and Java EE examples. Please refer to the 'running
@@ -81,5 +71,3 @@ structure:
 
 -   `schemas` -- XML Schemas used to validate ActiveMQ configuration
     files
-
-

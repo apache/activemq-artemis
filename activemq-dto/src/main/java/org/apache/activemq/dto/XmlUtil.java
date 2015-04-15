@@ -50,6 +50,7 @@ public class XmlUtil
          this.props = props;
       }
 
+      @Override
       public String getAttributeValue(int index)
       {
          return filter(super.getAttributeValue(index));

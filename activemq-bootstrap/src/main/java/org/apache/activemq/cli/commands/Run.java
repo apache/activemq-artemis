@@ -40,7 +40,7 @@ import java.util.TimerTask;
 public class Run implements Action
 {
 
-   @Arguments(description = "Broker Configuration URI, default 'xml:${ACTIVEMQ_HOME}/config/non-clustered/bootstrap.xml'")
+   @Arguments(description = "Broker Configuration URI, default 'xml:${ACTIVEMQ_INSTANCE}/etc/bootstrap.xml'")
    String configuration;
    private ArrayList<ActiveMQComponent> components = new ArrayList<>();
 
@@ -55,12 +55,12 @@ public class Run implements Action
       /* We use File URI for locating files.  The ACTIVEMQ_HOME variable is used to determine file paths.  For Windows
       the ACTIVEMQ_HOME variable will include back slashes (An invalid file URI character path separator).  For this
       reason we overwrite the ACTIVEMQ_HOME variable with backslashes replaced with forward slashes. */
-      String activemqHome = System.getProperty("activemq.home").replace("\\", "/");
-      System.setProperty("activemq.home", activemqHome);
+      String activemqInstance = System.getProperty("activemq.instance").replace("\\", "/");
+      System.setProperty("activemq.instance", activemqInstance);
 
       if (configuration == null)
       {
-         configuration = "xml:" + activemqHome + "/config/non-clustered/bootstrap.xml";
+         configuration = "xml:" + activemqInstance + "/etc/bootstrap.xml";
       }
 
       // To support Windows paths as explained above.
@@ -89,7 +89,7 @@ public class Run implements Action
       {
          Class clazz = this.getClass().getClassLoader().loadClass(componentDTO.componentClassName);
          ExternalComponent component = (ExternalComponent)clazz.newInstance();
-         component.configure(componentDTO, activemqHome);
+         component.configure(componentDTO, activemqInstance);
          component.start();
          components.add(component);
       }
