@@ -23,6 +23,7 @@ import org.apache.activemq.integration.Broker;
 import org.apache.activemq.spi.core.security.ActiveMQSecurityManager;
 import org.apache.activemq.utils.FactoryFinder;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 
@@ -40,9 +41,9 @@ public class BrokerFactory
       try
       {
          FactoryFinder finder = new FactoryFinder("META-INF/services/org/apache/activemq/broker/");
-         factory = (BrokerFactoryHandler)finder.newInstance(configURI.getScheme());
+         factory = (BrokerFactoryHandler) finder.newInstance(configURI.getScheme());
       }
-      catch (IOException ioe )
+      catch (IOException ioe)
       {
          throw new ConfigurationException("Invalid configuration URI, can't find configuration scheme: " + configURI.getScheme());
       }
@@ -56,18 +57,29 @@ public class BrokerFactory
       return createBrokerConfiguration(new URI(configuration));
    }
 
+   static String fixupFileURI(String value)
+   {
+      if (value != null && value.startsWith("file:"))
+      {
+         value = value.substring("file:".length());
+         value = new File(value).toURI().toString();
+      }
+      return value;
+   }
+
    public static Broker createServer(ServerDTO brokerDTO, ActiveMQSecurityManager security) throws Exception
    {
       if (brokerDTO.configuration != null)
       {
          BrokerHandler handler;
-         URI configURI = new URI(brokerDTO.configuration.replace("\\", "/"));
+         URI configURI = new URI(fixupFileURI(brokerDTO.configuration));
+
          try
          {
             FactoryFinder finder = new FactoryFinder("META-INF/services/org/apache/activemq/broker/server/");
-            handler = (BrokerHandler)finder.newInstance(configURI.getScheme());
+            handler = (BrokerHandler) finder.newInstance(configURI.getScheme());
          }
-         catch (IOException ioe )
+         catch (IOException ioe)
          {
             throw new ConfigurationException("Invalid configuration URI, can't find configuration scheme: " + configURI.getScheme());
          }

@@ -110,14 +110,6 @@ public class Create implements Action
       write("bin/activemq-service", null, true);
       makeExec("bin/activemq-service");
 
-      write("bin/run.bat", null, false);
-      write("bin/run.sh", null, true);
-      makeExec("bin/run.sh");
-
-      write("bin/stop.bat", null, false);
-      write("bin/stop.sh", null, true);
-      makeExec("bin/stop.sh");
-
       write("etc/logging.properties", null, false);
       write("etc/bootstrap.xml", null, false);
 
@@ -212,12 +204,19 @@ public class Create implements Action
 
    private void makeExec(String path) throws IOException
    {
-      File file = new File(directory, path);
-      Files.setPosixFilePermissions(file.toPath(), new HashSet<PosixFilePermission>(Arrays.asList(
-         OWNER_READ, OWNER_WRITE, OWNER_EXECUTE,
-         GROUP_READ, GROUP_WRITE, GROUP_EXECUTE,
-         OTHERS_READ, OTHERS_EXECUTE
-      )));
+      try
+      {
+         File file = new File(directory, path);
+         Files.setPosixFilePermissions(file.toPath(), new HashSet<PosixFilePermission>(Arrays.asList(
+            OWNER_READ, OWNER_WRITE, OWNER_EXECUTE,
+            GROUP_READ, GROUP_WRITE, GROUP_EXECUTE,
+            OTHERS_READ, OTHERS_EXECUTE
+         )));
+      }
+      catch (Throwable ignore)
+      {
+         // Our best effort was not good enough :)
+      }
    }
 
    String path(String value, boolean unixPaths) throws IOException

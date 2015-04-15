@@ -46,6 +46,16 @@ public class Run implements Action
 
    private Broker server;
 
+   static String fixupFileURI(String value)
+   {
+      if (value != null && value.startsWith("file:"))
+      {
+         value = value.substring("file:".length());
+         value = new File(value).toURI().toString();
+      }
+      return value;
+   }
+
    @Override
    public Object execute(ActionContext context) throws Exception
    {
@@ -60,17 +70,16 @@ public class Run implements Action
 
       if (configuration == null)
       {
-         configuration = "xml:" + activemqInstance + "/etc/bootstrap.xml";
+         File xmlFile = new File(new File(new File(activemqInstance), "etc"), "bootstrap.xml");
+         configuration = "xml:" + xmlFile.toURI().toString().substring("file:".length());
       }
 
       // To support Windows paths as explained above.
-      configuration = configuration.replace("\\", "/");
-
       System.out.println("Loading configuration file: " + configuration);
 
       BrokerDTO broker = BrokerFactory.createBrokerConfiguration(configuration);
 
-      String fileName = new URI(broker.server.configuration).getSchemeSpecificPart();
+      String fileName = new URI(fixupFileURI(broker.server.configuration)).getSchemeSpecificPart();
 
       addShutdownHook(new File(fileName).getParentFile());
 

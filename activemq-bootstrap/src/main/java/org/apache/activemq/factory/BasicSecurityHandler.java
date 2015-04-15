@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.factory;
 
+import java.io.File;
+
 import org.apache.activemq.core.config.impl.FileSecurityConfiguration;
 import org.apache.activemq.dto.BasicSecurityDTO;
 import org.apache.activemq.dto.SecurityDTO;
@@ -24,13 +26,25 @@ import org.apache.activemq.spi.core.security.ActiveMQSecurityManagerImpl;
 
 public class BasicSecurityHandler implements SecurityHandler
 {
+
+
+   static String fixupFileURI(String value)
+   {
+      if (value != null && value.startsWith("file:"))
+      {
+         value = value.substring("file:".length());
+         value = new File(value).toURI().toString();
+      }
+      return value;
+   }
+
    @Override
    public ActiveMQSecurityManager createSecurityManager(SecurityDTO security) throws Exception
    {
       BasicSecurityDTO fileSecurity = (BasicSecurityDTO) security;
       String home = System.getProperty("activemq.home");
-      FileSecurityConfiguration securityConfiguration = new FileSecurityConfiguration(fileSecurity.users.replace("${activemq.home}", home).replace("\\", "/"),
-                                                                                      fileSecurity.roles.replace("${activemq.home}", home).replace("\\", "/"),
+      FileSecurityConfiguration securityConfiguration = new FileSecurityConfiguration(fixupFileURI(fileSecurity.users),
+                                                                                      fixupFileURI(fileSecurity.roles),
                                                                                       fileSecurity.defaultUser,
                                                                                       fileSecurity.maskPassword,
                                                                                       fileSecurity.passwordCodec);

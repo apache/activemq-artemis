@@ -39,6 +39,11 @@
      <!-- ActiveMQ artifacts -->
       <dependency>
          <groupId>org.apache.activemq</groupId>
+         <artifactId>activemq-boot</artifactId>
+         <version>${project.version}</version>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
          <artifactId>activemq-server</artifactId>
          <version>${project.version}</version>
       </dependency>

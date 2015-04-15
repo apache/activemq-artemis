@@ -37,7 +37,6 @@ public class ActiveMQ
       Cli.CliBuilder<Action> builder = Cli.<Action>builder("activemq")
          .withDescription("ActiveMQ Command Line")
          .withCommand(HelpAction.class)
-         .withCommand(Create.class)
          .withDefaultCommand(HelpAction.class);
 
       if (instance != null)

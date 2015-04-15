@@ -48,27 +48,16 @@ echo.
 :RUN_JAVA
 
 rem "Set Defaults."
-set JAVA_ARGS=-Xmx1024M
-set ACTIVEMQ_LOGGING_CONF="file:%ACTIVEMQ_HOME%\config\logging.properties"
-set ACTIVEMQ_DATA_DIR="%ACTIVEMQ_HOME%\data"
-set ACTIVEMQ_LOG_MANAGER=org.jboss.logmanager.LogManager
-
-rem "Load Config"
-if "%ACTIVEMQ_CONF%" == "" set ACTIVEMQ_CONF="%ACTIVEMQ_HOME%\bin\activemq.conf.bat"
-if exist "%ACTIVEMQ_CONF%" (
-   call "%ACTIVEMQ_CONF%" %*
-) else (
-   echo Config file not found "%ACTIVEMQ_CONF%"
-)
+set JAVA_ARGS=-XX:+UseParallelGC -XX:+AggressiveOpts -XX:+UseFastAccessorMethods -Xms512M -Xmx1024M
 
 rem "Create full JVM Args"
-set JVM_ARGS=%JAVA_ARGS% -classpath %ACTIVEMQ_HOME%\lib\* -Dactivemq.home=%ACTIVEMQ_HOME% -Ddata.dir=%ACTIVEMQ_DATA_DIR% -Djava.util.logging.manager=%ACTIVEMQ_LOG_MANAGER% -Dlogging.configuration=%ACTIVEMQ_LOGGING_CONF% -Djava.library.path=%ACTIVEMQ_HOME%\lib\
-
-rem "Set Debug & Cluster props"
-if not "%DEBUG_ARGS%"=="" set JVM_ARGS=%JVM_ARGS% %DEBUG_ARGS%
+set JVM_ARGS=%JAVA_ARGS%
 if not "%ACTIVEMQ_CLUSTER_PROPS%"=="" set JVM_ARGS=%JVM_ARGS% %ACTIVEMQ_CLUSTER_PROPS%
+set JVM_ARGS=%JVM_ARGS% -classpath "%ACTIVEMQ_HOME%\lib\activemq-boot.jar"
+set JVM_ARGS=%JVM_ARGS% -Dactivemq.home="%ACTIVEMQ_HOME%"
+if not "%DEBUG_ARGS%"=="" set JVM_ARGS=%JVM_ARGS% %DEBUG_ARGS%
 
-"%_JAVACMD%" %JVM_ARGS% org.apache.activemq.cli.ActiveMQ %*
+"%_JAVACMD%" %JVM_ARGS% org.apache.activemq.boot.ActiveMQ %*
 
 :END
 endlocal

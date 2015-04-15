@@ -26,9 +26,26 @@
       <format>tar.gz</format>
    </formats>
    <includeBaseDirectory>true</includeBaseDirectory>
+
+
    <dependencySets>
       <dependencySet>
+        <directoryMode>755</directoryMode>
+        <fileMode>644</fileMode>
+        <outputDirectory>lib</outputDirectory>
+        <outputFileNameMapping>${artifact.artifactId}.${artifact.extension}</outputFileNameMapping>
+        <unpack>false</unpack>
+        <useTransitiveDependencies>false</useTransitiveDependencies>
+        <includes>
+           <include>org.apache.activemq:activemq-boot</include>
+        </includes>
+      </dependencySet>
+
+      <dependencySet>
+         <directoryMode>755</directoryMode>
+         <fileMode>644</fileMode>
          <includes>
+
             <!-- modules -->
             <include>org.apache.activemq:activemq-bootstrap</include>
             <include>org.apache.activemq:activemq-commons</include>

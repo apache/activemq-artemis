@@ -46,24 +46,14 @@ fi
 
 # Set Defaults Properties
 ACTIVEMQ_LOGGING_CONF="file:$ACTIVEMQ_INSTANCE/etc/logging.properties"
-ACTIVEMQ_DATA_DIR=$ACTIVEMQ_INSTANCE/data
+ACTIVEMQ_DATA_DIR="$ACTIVEMQ_INSTANCE/data"
 ACTIVEMQ_LOG_MANAGER=org.jboss.logmanager.LogManager
 JAVA_ARGS="-XX:+UseParallelGC -XX:+AggressiveOpts -XX:+UseFastAccessorMethods -Xms512M -Xmx1024M"
-CLASSPATH=""
 
 # Load Profile Data
 . "$ACTIVEMQ_INSTANCE/etc/activemq.profile"
 
-# Optionally load jars installed in the instance directory.
-if [ -d $ACTIVEMQ_INSTANCE/lib ] ; then
-    for i in `ls $ACTIVEMQ_INSTANCE/lib/*.jar`; do
-        CLASSPATH=$CLASSPATH:$i
-    done
-fi
-
-for i in `ls $ACTIVEMQ_HOME/lib/*.jar`; do
-	CLASSPATH=$CLASSPATH:$i
-done
+CLASSPATH="$ACTIVEMQ_HOME/lib/activemq-boot.jar"
 
 # OS specific support.
 cygwin=false;
@@ -86,8 +76,6 @@ if $cygwin ; then
     ACTIVEMQ_INSTANCE=`cygpath --unix "$ACTIVEMQ_INSTANCE"`
   [ -n "$JAVA_HOME" ] &&
     JAVA_HOME=`cygpath --unix "$JAVA_HOME"`
-  [ -n "$CLASSPATH" ] &&
-    CLASSPATH=`cygpath --path --unix "$CLASSPATH"`
 fi
 
 if [ -z "$JAVACMD" ] ; then
@@ -112,14 +100,20 @@ if [ ! -x "$JAVACMD" ] ; then
   exit 1
 fi
 
-JAVA_ARGS="$JAVA_ARGS $ACTIVEMQ_CLUSTER_PROPS
-    -Dactivemq.home="$ACTIVEMQ_HOME"
-    -Dactivemq.instance="$ACTIVEMQ_INSTANCE"
-    -Djava.library.path="$ACTIVEMQ_HOME/bin/lib/linux-i686:$ACTIVEMQ_INSTANCE/bin/lib/linux-x86_64"
-    -Djava.io.tmpdir="$ACTIVEMQ_INSTANCE/tmp"
-    -Ddata.dir="$ACTIVEMQ_DATA_DIR"
-    -Djava.util.logging.manager="$ACTIVEMQ_LOG_MANAGER"
-    -Dlogging.configuration="$ACTIVEMQ_LOGGING_CONF"
-    $DEBUG_ARGS"
+if $cygwin ; then
+  JAVA_HOME=`cygpath --windows "$JAVA_HOME"`
+  ACTIVEMQ_HOME=`cygpath --windows "$ACTIVEMQ_HOME"`
+  CLASSPATH=`cygpath --windows "$CLASSPATH"`
+fi
 
-exec "$JAVACMD" $JAVA_ARGS -classpath $CLASSPATH org.apache.activemq.cli.ActiveMQ $@
+exec "$JAVACMD" $JAVA_ARGS $ACTIVEMQ_CLUSTER_PROPS \
+    -classpath "$CLASSPATH" \
+    -Dactivemq.home="$ACTIVEMQ_HOME" \
+    -Dactivemq.instance="$ACTIVEMQ_INSTANCE" \
+    -Djava.library.path="$ACTIVEMQ_HOME/bin/lib/linux-i686:$ACTIVEMQ_INSTANCE/bin/lib/linux-x86_64" \
+    -Djava.io.tmpdir="$ACTIVEMQ_INSTANCE/tmp" \
+    -Ddata.dir="$ACTIVEMQ_DATA_DIR" \
+    -Djava.util.logging.manager="$ACTIVEMQ_LOG_MANAGER" \
+    -Dlogging.configuration="$ACTIVEMQ_LOGGING_CONF" \
+    $DEBUG_ARGS \
+    org.apache.activemq.boot.ActiveMQ $@

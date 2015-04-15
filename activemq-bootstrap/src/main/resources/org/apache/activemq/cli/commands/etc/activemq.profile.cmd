@@ -15,23 +15,13 @@ rem KIND, either express or implied.  See the License for the
 rem specific language governing permissions and limitations
 rem under the License.
 
-set ACTIVEMQ_HOME='${activemq.home}'
-set ACTIVEMQ_BASE='${activemq.base}'
+set ACTIVEMQ_HOME=${activemq.home}
 
-rem Path to logging configuration file
-set ACTIVEMQ_LOGGING_CONF=file:%ACTIVEMQ_BASE%\etc\logging.properties
-
-rem Path to data directory
-set ACTIVEMQ_DATA_DIR=%ACTIVEMQ_BASE%\data
-
-rem Log manager class
-set ACTIVEMQ_LOG_MANAGER=org.jboss.logmanager.LogManager
-
-rem Cluster Properties: Used to pass arguments to ActiveMQ.  These can be referenced in activemq-configuration.xml
+rem Cluster Properties: Used to pass arguments to ActiveMQ which can be referenced in activemq-configuration.xml
 rem set ACTIVEMQ_CLUSTER_PROPS=-Dactivemq.remoting.default.port=61617 -Dactivemq.remoting.amqp.port=5673 -Dactivemq.remoting.stomp.port=61614 -Dactivemq.remoting.hornetq.port=5446
 
 rem Java Opts
-set JAVA_ARGS=-Xmx1024m
+rem set JAVA_ARGS=-XX:+UseParallelGC -XX:+AggressiveOpts -XX:+UseFastAccessorMethods -Xms512M -Xmx1024M
 
 rem Debug args: Uncomment to enable debug
 rem set DEBUG_ARGS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005
