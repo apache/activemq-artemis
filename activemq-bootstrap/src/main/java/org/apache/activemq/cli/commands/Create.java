@@ -97,24 +97,7 @@ public class Create implements Action
          host = directory.getName();
       }
 
-      new File(directory, "bin").mkdirs();
-      new File(directory, "etc").mkdirs();
-      new File(directory, "log").mkdirs();
-      new File(directory, "tmp").mkdirs();
-      new File(directory, "data").mkdirs();
-
-      write("bin/activemq", null, true);
-      makeExec("bin/activemq");
-
-      write("bin/activemq.cmd", null, false);
-      write("bin/activemq-service", null, true);
-      makeExec("bin/activemq-service");
-
-      write("etc/logging.properties", null, false);
-      write("etc/bootstrap.xml", null, false);
-
       HashMap<String, String> filters = new HashMap<String, String>();
-
       String replicatedSettings = "";
       if (replicated)
       {
@@ -149,14 +132,36 @@ public class Create implements Action
       filters.put("${activemq.instance}", path(directory, false));
       filters.put("${java.home}", path(System.getProperty("java.home"), false));
 
-      write("etc/activemq.profile", filters, true);
-      makeExec("etc/activemq.profile");
+      new File(directory, "bin").mkdirs();
+      new File(directory, "etc").mkdirs();
+      new File(directory, "log").mkdirs();
+      new File(directory, "tmp").mkdirs();
+      new File(directory, "data").mkdirs();
 
-      write("etc/activemq.profile.cmd", filters, false);
+
+      if (IS_WINDOWS)
+      {
+         write("bin/activemq.cmd", null, false);
+         write("bin/activemq-service.exe");
+         write("bin/activemq-service.xml", filters, false);
+         write("etc/activemq.profile.cmd", filters, false);
+      }
+
+      if (!IS_WINDOWS || IS_CYGWIN)
+      {
+         write("bin/activemq", null, true);
+         makeExec("bin/activemq");
+         write("bin/activemq-service", null, true);
+         makeExec("bin/activemq-service");
+         write("etc/activemq.profile", filters, true);
+         makeExec("etc/activemq.profile");
+      }
+
+      write("etc/logging.properties", null, false);
+      write("etc/bootstrap.xml", null, false);
       write("etc/activemq-configuration.xml", filters, false);
       write("etc/activemq-roles.properties", null, false);
       write("etc/activemq-users.properties", null, false);
-
 
       context.out.println("");
       context.out.println("You can now start the broker by executing:  ");
@@ -189,15 +194,16 @@ public class Create implements Action
          }
 
       }
-//      if ( IS_WINDOWS ) {
-//
-//        context.out.println("Or you can setup the broker as Windows service and run it in the background:");
-//        context.out.println("");
-//        context.out.println(String.format("   \"%s\" install", path(service,true)));
-//        context.out.println(String.format("   \"%s\" start", path(service, true)));
-//        context.out.println("");
-//
-//      }
+      if (IS_WINDOWS)
+      {
+
+         context.out.println("Or you can setup the broker as Windows service and run it in the background:");
+         context.out.println("");
+         context.out.println(String.format("   \"%s\" install", path(service, true)));
+         context.out.println(String.format("   \"%s\" start", path(service, true)));
+         context.out.println("");
+
+      }
 
       return null;
    }
@@ -282,8 +288,9 @@ public class Create implements Action
       return new String(out.toByteArray(), "UTF-8");
    }
 
-   private void write(String source, File target) throws IOException
+   private void write(String source) throws IOException
    {
+      File target = new File(directory, source);
       if (target.exists() && !force)
       {
          throw new RuntimeException(String.format("The file '%s' already exists.  Use --force to overwrite.", target));
