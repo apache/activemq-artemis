@@ -1,0 +1,59 @@
+<!--
+
+    Licensed to the Apache Software Foundation (ASF) under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The ASF licenses this file to You under the Apache License, Version 2.0
+    (the "License"); you may not use this file except in compliance with
+    the License.  You may obtain a copy of the License at
+
+         http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+
+<service>
+   <id>activemq-${host}</id>
+   <name>ActiveMQ: ${host}</name>
+   <description>Apache ActiveMQ is a reliable messaging broker</description>
+
+   <logpath>${activemq.instance}\log</logpath>
+   <logmode>roll</logmode>
+
+   <executable>"${java.home}\bin\java.exe"</executable>
+   <argument>-XX:+UseParallelGC</argument>
+   <argument>-XX:+AggressiveOpts</argument>
+   <argument>-XX:+UseFastAccessorMethods</argument>
+   <argument>-Xms512M</argument>
+   <argument>-Xmx1024M</argument>
+
+   <!-- Cluster Properties: Used to pass arguments to ActiveMQ which can be referenced in activemq-configuration.xml
+   <argument>-Dactivemq.remoting.default.port=61617</argument>
+   <argument>-Dactivemq.remoting.amqp.port=5673</argument>
+   <argument>-Dactivemq.remoting.stomp.port=61614</argument>
+   <argument>-Dactivemq.remoting.hornetq.port=5446</argument>
+   -->
+
+   <argument>-classpath</argument>
+   <argument>"${activemq.home}\lib\activemq-boot.jar"</argument>
+   <argument>"-Dactivemq.home=${activemq.home}"</argument>
+   <argument>"-Dactivemq.instance=${activemq.instance}"</argument>
+   <argument>"-Ddata.dir=${activemq.instance}/data"</argument>
+   <argument>-Djava.util.logging.manager=org.jboss.logmanager.LogManager</argument>
+   <argument>"-Dlogging.configuration=file:${activemq.instance}\etc\logging.properties"</argument>
+
+
+   <!-- Debug args: Uncomment to enable debug
+   <argument>-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005</argument>
+   -->
+
+   <argument>org.apache.activemq.boot.ActiveMQ</argument>
+
+   <argument>run</argument>
+
+</service>

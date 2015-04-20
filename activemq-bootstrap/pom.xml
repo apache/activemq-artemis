@@ -62,6 +62,14 @@
          <artifactId>airline</artifactId>
       </dependency>
       <dependency>
+        <groupId>com.sun.winsw</groupId>
+        <artifactId>winsw</artifactId>
+        <version>1.9</version>
+        <classifier>bin</classifier>
+        <type>exe</type>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
          <groupId>junit</groupId>
          <artifactId>junit</artifactId>
          <scope>test</scope>
@@ -102,6 +110,36 @@
          </includes>
        </resource>
      </resources>
+
+     <plugins>
+       <plugin>
+         <groupId>org.apache.maven.plugins</groupId>
+         <artifactId>maven-dependency-plugin</artifactId>
+         <version>2.2</version>
+         <executions>
+           <execution>
+             <id>unpack</id>
+             <phase>process-resources</phase>
+             <goals>
+               <goal>copy</goal>
+             </goals>
+             <configuration>
+               <artifactItems>
+                 <artifactItem>
+                   <groupId>com.sun.winsw</groupId>
+                   <artifactId>winsw</artifactId>
+                   <version>1.9</version>
+                   <classifier>bin</classifier>
+                   <type>exe</type>
+                   <outputDirectory>${basedir}/target/classes/org/apache/activemq/cli/commands/bin</outputDirectory>
+                   <destFileName>activemq-service.exe</destFileName>
+                 </artifactItem>
+               </artifactItems>
+             </configuration>
+           </execution>
+         </executions>
+       </plugin>
+     </plugins>
    </build>
 
 
