@@ -29,7 +29,7 @@ under the License.
 
    <artifactId>activemq-jms-clustered-topic-example</artifactId>
    <packaging>jar</packaging>
-   <name>ActiveMQ6 JMS Clustered Topic Example</name>
+   <name>ActiveMQ Artemis JMS Clustered Topic Example</name>
 
    <dependencies>
       <dependency>

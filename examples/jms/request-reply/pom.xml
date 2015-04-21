@@ -29,7 +29,7 @@ under the License.
 
    <artifactId>activemq-jms-request-reply-example</artifactId>
    <packaging>jar</packaging>
-   <name>ActiveMQ6 JMS Request Reply Example</name>
+   <name>ActiveMQ Artemis JMS Request Reply Example</name>
 
    <dependencies>
       <dependency>

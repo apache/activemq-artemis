@@ -29,7 +29,7 @@ under the License.
 
    <artifactId>activemq-jms-replicated-failback-static-example</artifactId>
    <packaging>jar</packaging>
-   <name>ActiveMQ6 JMS Replicated Failback Static Example</name>
+   <name>ActiveMQ Artemis JMS Replicated Failback Static Example</name>
 
    <dependencies>
       <dependency>

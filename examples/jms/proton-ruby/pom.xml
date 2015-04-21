@@ -29,7 +29,7 @@ under the License.
 
    <artifactId>activemq-jms-proton-ruby-example</artifactId>
    <packaging>jar</packaging>
-   <name>ActiveMQ6 Proton Ruby Examplee</name>
+   <name>ActiveMQ Artemis Proton Ruby Examplee</name>
 
    <dependencies>
       <dependency>

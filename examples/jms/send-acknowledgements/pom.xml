@@ -29,7 +29,7 @@ under the License.
 
    <artifactId>activemq-jms-send-acknowledgements-example</artifactId>
    <packaging>jar</packaging>
-   <name>ActiveMQ6 JMS Send Acknowledgements Example</name>
+   <name>ActiveMQ Artemis JMS Send Acknowledgements Example</name>
 
    <dependencies>
       <dependency>

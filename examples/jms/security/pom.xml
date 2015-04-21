@@ -29,7 +29,7 @@ under the License.
 
    <artifactId>activemq-jms-security-example</artifactId>
    <packaging>jar</packaging>
-   <name>ActiveMQ6 JMS Security Example</name>
+   <name>ActiveMQ Artemis JMS Security Example</name>
 
    <dependencies>
       <dependency>

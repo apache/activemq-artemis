@@ -25,7 +25,7 @@
 
    <artifactId>activemq-service-extensions</artifactId>
    <packaging>jar</packaging>
-   <name>ActiveMQ6 Service Extensions</name>
+   <name>ActiveMQ Artemis Service Extensions</name>
 
    <dependencies>
       <dependency>

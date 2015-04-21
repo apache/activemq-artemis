@@ -29,7 +29,7 @@ under the License.
 
    <artifactId>activemq-jms-divert-example</artifactId>
    <packaging>jar</packaging>
-   <name>ActiveMQ6 JMS Divert Example</name>
+   <name>ActiveMQ Artemis JMS Divert Example</name>
 
    <dependencies>
       <dependency>

@@ -29,7 +29,7 @@ under the License.
 
    <artifactId>activemq-jms-examples-common</artifactId>
    <packaging>jar</packaging>
-   <name>ActiveMQ6 Examples common</name>
+   <name>ActiveMQ Artemis Examples common</name>
 
    <dependencies>
       <dependency>

@@ -30,7 +30,7 @@ under the License.
    <groupId>org.apache.activemq.examples.jms</groupId>
    <artifactId>jms-examples</artifactId>
    <packaging>pom</packaging>
-   <name>ActiveMQ6 JMS Examples</name>
+   <name>ActiveMQ Artemis JMS Examples</name>
 
    <properties>
       <udp-address>231.7.7.7</udp-address>

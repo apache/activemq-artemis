@@ -29,7 +29,7 @@ under the License.
 
    <artifactId>activemq-jms-client-side-fileoverlistener-example</artifactId>
    <packaging>jar</packaging>
-   <name>ActiveMQ6 JMS Client Side Failover listener Example</name>
+   <name>ActiveMQ Artemis JMS Client Side Failover listener Example</name>
 
    <dependencies>
       <dependency>

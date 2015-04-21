@@ -29,7 +29,7 @@ under the License.
 
    <artifactId>activemq-jms-application-layer-failover-example</artifactId>
    <packaging>jar</packaging>
-   <name>ActiveMQ6 JMS Application Layer Failover Example</name>
+   <name>ActiveMQ Artemis JMS Application Layer Failover Example</name>
 
    <dependencies>
       <dependency>

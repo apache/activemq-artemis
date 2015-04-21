@@ -25,7 +25,7 @@
 
    <artifactId>activemq-core-client</artifactId>
    <packaging>jar</packaging>
-   <name>ActiveMQ6 Core Client</name>
+   <name>ActiveMQ Artemis Core Client</name>
 
    <properties>
       <activemq.basedir>${project.basedir}/..</activemq.basedir>

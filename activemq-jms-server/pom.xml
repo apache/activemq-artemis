@@ -25,7 +25,7 @@
 
    <artifactId>activemq-jms-server</artifactId>
    <packaging>jar</packaging>
-   <name>ActiveMQ6 JMS Server</name>
+   <name>ActiveMQ Artemis JMS Server</name>
 
    <properties>
       <activemq.basedir>${project.basedir}/..</activemq.basedir>

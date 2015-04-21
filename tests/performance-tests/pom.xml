@@ -25,7 +25,7 @@
 
    <artifactId>performance-tests</artifactId>
    <packaging>jar</packaging>
-   <name>ActiveMQ6 performance Tests</name>
+   <name>ActiveMQ Artemis performance Tests</name>
 
    <properties>
       <activemq.basedir>${project.basedir}/../..</activemq.basedir>

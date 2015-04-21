@@ -29,7 +29,7 @@ under the License.
 
    <artifactId>activemq-jms-ssl-enabled-example</artifactId>
    <packaging>jar</packaging>
-   <name>ActiveMQ6 JMS SSL Enabled Example</name>
+   <name>ActiveMQ Artemis JMS SSL Enabled Example</name>
 
    <dependencies>
       <dependency>

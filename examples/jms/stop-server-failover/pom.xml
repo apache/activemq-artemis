@@ -29,7 +29,7 @@ under the License.
 
    <artifactId>activemq-jms-stop-server-failover-example</artifactId>
    <packaging>jar</packaging>
-   <name>ActiveMQ6 JMS Stop Server Failover Example</name>
+   <name>ActiveMQ Artemis JMS Stop Server Failover Example</name>
 
    <dependencies>
       <dependency>

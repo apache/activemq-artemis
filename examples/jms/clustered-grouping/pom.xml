@@ -29,7 +29,7 @@ under the License.
 
    <artifactId>activemq-jms-clustered-grouping-example</artifactId>
    <packaging>jar</packaging>
-   <name>ActiveMQ6 JMS CLustered Grouping Example</name>
+   <name>ActiveMQ Artemis JMS CLustered Grouping Example</name>
 
    <dependencies>
       <dependency>

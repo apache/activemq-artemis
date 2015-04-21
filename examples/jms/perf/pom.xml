@@ -29,7 +29,7 @@ under the License.
 
    <artifactId>activemq-jms-perf-example</artifactId>
    <packaging>jar</packaging>
-   <name>ActiveMQ6 JMS PerfExample Example</name>
+   <name>ActiveMQ Artemis JMS PerfExample Example</name>
 
    <dependencies>
       <dependency>

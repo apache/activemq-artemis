@@ -29,7 +29,7 @@ under the License.
 
    <artifactId>activemq-jms-paging-example</artifactId>
    <packaging>jar</packaging>
-   <name>ActiveMQ6 JMS Paging Example</name>
+   <name>ActiveMQ Artemis JMS Paging Example</name>
 
    <dependencies>
       <dependency>

@@ -29,7 +29,7 @@ under the License.
 
    <artifactId>activemq-jms-stomp-websockets-example</artifactId>
    <packaging>jar</packaging>
-   <name>ActiveMQ6 JMS StompWebSocketExample Example</name>
+   <name>ActiveMQ Artemis JMS StompWebSocketExample Example</name>
 
    <dependencies>
       <dependency>

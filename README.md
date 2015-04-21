@@ -1,4 +1,4 @@
-# ActiveMQ6
+# ActiveMQ Artemis
 
 This file describes some minimum 'stuff one needs to know' to get
 started coding in this project.
@@ -132,10 +132,10 @@ can be installed from [Eclipse Kepler release repository].
 
 ### Importing the Project
 
-The following steps show how to import ActiveMQ6 source into IntelliJ IDEA and setup the correct maven profile to allow
+The following steps show how to import ActiveMQ Artemis source into IntelliJ IDEA and setup the correct maven profile to allow
 running of JUnit tests from within the IDE.  (Steps are based on version: 13.1.4)
 
-* File --> Import Project --> Select the root directory of the ActiveMQ6 source folder. --> Click OK
+* File --> Import Project --> Select the root directory of the ActiveMQ Artemis source folder. --> Click OK
 
 This should open the import project wizard.  From here:
 
@@ -172,7 +172,7 @@ blue arrow.
 
 ### Annotation Pre-Processing
 
-ActiveMQ6 uses [JBoss Logging] and that requires source code generation from Java
+ActiveMQ Artemis uses [JBoss Logging] and that requires source code generation from Java
 annotations. In order for it to 'just work' in Eclipse you need to install the
 _Maven Integration for Eclipse JDT Annotation Processor Toolkit_ [m2e-apt]. See
 this [JBoss blog post] for details.
@@ -203,7 +203,7 @@ http://dev.eclipse.org/mhonarc/lists/m2e-users/msg02725.html
 
 ### Use _Project Working Sets_
 
-Importing all ActiveMQ6 subprojects will create _too many_ projects in Eclipse,
+Importing all ActiveMQ Artemis subprojects will create _too many_ projects in Eclipse,
 cluttering your _Package Explorer_ and _Project Explorer_ views. One way to address
 that is to use [Eclipse's Working Sets] feature. A good introduction to it can be
 found at a [Dzone article on Eclipse Working Sets].
@@ -232,13 +232,13 @@ Do not use the [maven-eclipse-plugin] to copy the files as it conflicts with [m2
 
 ### Repositories
 
-The code repository for ActiveMQ6 is hosted by Apache org and lives here: https://git-wip-us.apache.org/repos/asf/activemq-6.git.
+The code repository for ActiveMQ Artemis is hosted by Apache org and lives here: https://git-wip-us.apache.org/repos/asf/activemq-6.git.
 
-We also host a mirror of the ActiveMQ repository on GitHub: https://github.com/apache/activemq-6.  We use this mirror for all code submissions and reviews.  To submit code to ActiveMQ6 please open a Pull Request as outlined as part of the GitHub workflow described here: https://guides.github.com/introduction/flow/index.html.  Once a pull request is opened it will be reviewed and commented on.  Any further changes as a result of comments / review process should be addressed and reflected in the original pull request as outlined in the GitHub workflow.  When the pull request has went through the review process and ready to merge, the reviewer should comment with "Ack, Ready to Push".  Once an Ack message is received one of the ActiveMQ6 core team members will push the changes to upstream Apache ActiveMQ6 repository and close the pull request.
+We also host a mirror of the ActiveMQ repository on GitHub: https://github.com/apache/activemq-6.  We use this mirror for all code submissions and reviews.  To submit code to ActiveMQ Artemis please open a Pull Request as outlined as part of the GitHub workflow described here: https://guides.github.com/introduction/flow/index.html.  Once a pull request is opened it will be reviewed and commented on.  Any further changes as a result of comments / review process should be addressed and reflected in the original pull request as outlined in the GitHub workflow.  When the pull request has went through the review process and ready to merge, the reviewer should comment with "Ack, Ready to Push".  Once an Ack message is received one of the ActiveMQ Artemis core team members will push the changes to upstream Apache ActiveMQ Artemis repository and close the pull request.
 
 ### Commit Messages
 
-We follow the 50/72 git commit message format.  An ActiveMQ6 commit message should be formatted in the following manner:
+We follow the 50/72 git commit message format.  An ActiveMQ Artemis commit message should be formatted in the following manner:
 
 * Add the ACTIVEMQ6 JIRA or Bugzilla reference (if one exists) followed by a brief description of the change in the first line.
 * Insert a single blank line after the first line.
@@ -262,21 +262,21 @@ Due to incompatibilities between some open source licenses and the Apache v2.0 l
 care must be taken when adding new dependencies to the project.  The Apache Software Foundation 3rd party
  licensing policy has more information here: http://www.apache.org/legal/3party.html
 
-To keep track of all licenses in ActiveMQ6, new dependencies must be added in either the top level pom.xml or in test/pom.xml
+To keep track of all licenses in ActiveMQ Artemis, new dependencies must be added in either the top level pom.xml or in test/pom.xml
 (depending on whether this is a test only dependency or if it is used in the main code base).  The dependency should be
 added under the dependency management section with version and labelled with a comment highlighting the license for the
 dependency version.  See existing dependencies in the main pom.xml for examples.  The dependency can then be added to
-individual ActiveMQ6 modules *without* the version specified (the version is implied from the dependency management
-section of the top level pom).  This allows ActiveMQ6 developers to keep track of all dependencies and licenses.
+individual ActiveMQ Artemis modules *without* the version specified (the version is implied from the dependency management
+section of the top level pom).  This allows ActiveMQ Artemis developers to keep track of all dependencies and licenses.
 
 ### Core Contributers
 
-Core ActiveMQ6 members have write access to the Apache ActiveMQ6 repositories and will be responsible for Ack'ing and pushing commits contributed via pull requests on GitHub.  The follow steps can be used as an example for how to set up relevant ActiveMQ6 repositories for reviewing and pushing changes.
+Core ActiveMQ Artemis members have write access to the Apache ActiveMQ Artemis repositories and will be responsible for Ack'ing and pushing commits contributed via pull requests on GitHub.  The follow steps can be used as an example for how to set up relevant ActiveMQ Artemis repositories for reviewing and pushing changes.
 
 To setup repositories for reviewing and pushing:
 
 ```bash
-  # Clone the GitHub Mirror of ActiveMQ6 Repo:
+  # Clone the GitHub Mirror of ActiveMQ Artemis Repo:
   git clone git@github.com:apache/activemq-6.git
 
   # Add the following section to your <activemq6 repo>/.git/config statement to fetch all pull requests sent to the GitHub mirror.  Note that the remote name for git@github.com:apache/activemq-6.git may be different.  Be sure to edit all references to the remote name.  In this case "activemq".
@@ -324,7 +324,7 @@ To push commits from a pull request to the apache repository:
 
 #### Notes:
 
-The GitHub mirror repository is cloning the Apache ActiveMQ6 repository (The root repository).  There maybe a slight delay between when a commit is pushed to the Apache repo and when that commit is reflected in the GitHub mirror.  This may cause some difficulty when trying to push a PR to upstream (Apache) that has been merged on an out of date GitHub (mirror) master.  You can wait for the mirror to update before performing the steps above.  A solution to this is to change local master branch to track the upstream (Apache) master, rather than GitHub (mirror) master by editing your config to look like this:
+The GitHub mirror repository is cloning the Apache ActiveMQ Artemis repository (The root repository).  There maybe a slight delay between when a commit is pushed to the Apache repo and when that commit is reflected in the GitHub mirror.  This may cause some difficulty when trying to push a PR to upstream (Apache) that has been merged on an out of date GitHub (mirror) master.  You can wait for the mirror to update before performing the steps above.  A solution to this is to change local master branch to track the upstream (Apache) master, rather than GitHub (mirror) master by editing your config to look like this:
 
 ```bash
   [branch "master"]

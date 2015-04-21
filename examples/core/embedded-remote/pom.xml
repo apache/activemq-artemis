@@ -29,7 +29,7 @@ under the License.
 
    <artifactId>activemq-core-embedded-remote-example</artifactId>
    <packaging>jar</packaging>
-   <name>ActiveMQ6 Core Embedded Remote Example</name>
+   <name>ActiveMQ Artemis Core Embedded Remote Example</name>
 
    <dependencies>
       <dependency>

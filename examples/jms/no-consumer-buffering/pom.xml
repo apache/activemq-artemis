@@ -29,7 +29,7 @@ under the License.
 
    <artifactId>activemq-jms-no-consumer-buffering-example</artifactId>
    <packaging>jar</packaging>
-   <name>ActiveMQ6 JMS No Consumer Buffering Example</name>
+   <name>ActiveMQ Artemis JMS No Consumer Buffering Example</name>
 
    <dependencies>
       <dependency>

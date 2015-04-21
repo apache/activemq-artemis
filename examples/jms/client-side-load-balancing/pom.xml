@@ -29,7 +29,7 @@ under the License.
 
    <artifactId>activemq-jms-client-side-load-balancing-example</artifactId>
    <packaging>jar</packaging>
-   <name>ActiveMQ6 JMS Client Side Load Balancing Example</name>
+   <name>ActiveMQ Artemis JMS Client Side Load Balancing Example</name>
 
    <dependencies>
       <dependency>

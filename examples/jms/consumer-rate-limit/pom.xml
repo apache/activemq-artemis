@@ -29,7 +29,7 @@ under the License.
 
    <artifactId>activemq-jms-consumer-rate-limit-example</artifactId>
    <packaging>jar</packaging>
-   <name>ActiveMQ6 JMS Consumer Rate Limit Example</name>
+   <name>ActiveMQ Artemis JMS Consumer Rate Limit Example</name>
 
    <dependencies>
       <dependency>

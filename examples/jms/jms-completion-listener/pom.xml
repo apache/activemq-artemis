@@ -29,7 +29,7 @@ under the License.
 
    <artifactId>activemq-jms-completion-listener-example</artifactId>
    <packaging>jar</packaging>
-   <name>ActiveMQ6 JMS Completion Listener Example</name>
+   <name>ActiveMQ Artemis JMS Completion Listener Example</name>
 
    <dependencies>
       <dependency>

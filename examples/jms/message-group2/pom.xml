@@ -29,7 +29,7 @@ under the License.
 
    <artifactId>activemq-jms-message-group2-example</artifactId>
    <packaging>jar</packaging>
-   <name>ActiveMQ6 JMS Message Group Example 2</name>
+   <name>ActiveMQ Artemis JMS Message Group Example 2</name>
 
    <dependencies>
       <dependency>

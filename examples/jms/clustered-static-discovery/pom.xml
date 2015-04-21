@@ -29,7 +29,7 @@ under the License.
 
    <artifactId>activemq-jms-clustered-static-discovery-example</artifactId>
    <packaging>jar</packaging>
-   <name>ActiveMQ6 JMS Clustered Static Discovery Example</name>
+   <name>ActiveMQ Artemis JMS Clustered Static Discovery Example</name>
 
    <dependencies>
       <dependency>

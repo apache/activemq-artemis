@@ -29,7 +29,7 @@ under the License.
 
    <artifactId>activemq-jms-symmetric-cluster-example</artifactId>
    <packaging>jar</packaging>
-   <name>ActiveMQ6 JMS Symmetric Cluster Example</name>
+   <name>ActiveMQ Artemis JMS Symmetric Cluster Example</name>
 
    <dependencies>
       <dependency>

@@ -25,7 +25,7 @@
 
    <artifactId>soak-tests</artifactId>
    <packaging>jar</packaging>
-   <name>ActiveMQ6 soak Tests</name>
+   <name>ActiveMQ Artemis soak Tests</name>
 
    <properties>
       <activemq.basedir>${project.basedir}/../..</activemq.basedir>

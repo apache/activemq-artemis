@@ -29,7 +29,7 @@ under the License.
 
    <artifactId>activemq-jms-dead-letter-example</artifactId>
    <packaging>jar</packaging>
-   <name>ActiveMQ6 JMS Dead Letter Example</name>
+   <name>ActiveMQ Artemis JMS Dead Letter Example</name>
 
    <dependencies>
       <dependency>

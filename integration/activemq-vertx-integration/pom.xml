@@ -27,7 +27,7 @@
 
    <artifactId>activemq-vertx-integration</artifactId>
    <packaging>jar</packaging>
-   <name>ActiveMQ6 Vert.x Integration</name>
+   <name>ActiveMQ Artemis Vert.x Integration</name>
 
   <properties>
 

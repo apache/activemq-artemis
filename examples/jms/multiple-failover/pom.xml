@@ -29,7 +29,7 @@ under the License.
 
    <artifactId>activemq-jms-multiple-failover-example</artifactId>
    <packaging>jar</packaging>
-   <name>ActiveMQ6 JMS Multiple Failover Example</name>
+   <name>ActiveMQ Artemis JMS Multiple Failover Example</name>
 
    <dependencies>
       <dependency>

@@ -29,7 +29,7 @@ under the License.
 
    <artifactId>activemq-jms-message-counters-example</artifactId>
    <packaging>jar</packaging>
-   <name>ActiveMQ6 JMS Message Counter Example</name>
+   <name>ActiveMQ Artemis JMS Message Counter Example</name>
 
    <dependencies>
       <dependency>

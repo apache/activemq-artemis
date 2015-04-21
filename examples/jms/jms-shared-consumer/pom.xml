@@ -29,7 +29,7 @@ under the License.
 
    <artifactId>activemq-jms-shared-consumer-example</artifactId>
    <packaging>jar</packaging>
-   <name>ActiveMQ6 JMS Shared Consumer Example</name>
+   <name>ActiveMQ Artemis JMS Shared Consumer Example</name>
 
    <dependencies>
       <dependency>

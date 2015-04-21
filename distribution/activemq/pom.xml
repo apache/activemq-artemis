@@ -21,13 +21,13 @@
 
    <parent>
       <groupId>org.apache.activemq</groupId>
-      <artifactId>activemq-distribution</artifactId>
+      <artifactId>activemq-artemis-distribution</artifactId>
       <version>10.0.0-SNAPSHOT</version>
    </parent>
 
-   <artifactId>apache-activemq</artifactId>
+   <artifactId>apache-activemq-artemis</artifactId>
    <packaging>pom</packaging>
-   <name>Apache ActiveMQ Distribution</name>
+   <name>Apache ActiveMQ Artemis Distribution</name>
 
    <properties>
       <schemaLocation>${project.build.directory}/${project.artifactId}-${project.version}-bin/${project.artifactId}-${project.version}/schema</schemaLocation>

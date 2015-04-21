@@ -25,7 +25,7 @@
 
    <artifactId>activemq-website</artifactId>
    <packaging>jar</packaging>
-   <name>ActiveMQ6 Web</name>
+   <name>ActiveMQ Artemis Web</name>
 
     <dependencies>
         <dependency>

@@ -29,7 +29,7 @@ under the License.
 
    <artifactId>activemq-static-selector-example</artifactId>
    <packaging>jar</packaging>
-   <name>ActiveMQ6 Static Selector Example</name>
+   <name>ActiveMQ Artemis Static Selector Example</name>
 
    <dependencies>
       <dependency>

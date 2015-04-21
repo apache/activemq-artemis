@@ -29,7 +29,7 @@ under the License.
 
    <artifactId>activemq-jms-xa-heuristic-example</artifactId>
    <packaging>jar</packaging>
-   <name>ActiveMQ6 JMS XAHeuristicExample Example</name>
+   <name>ActiveMQ Artemis JMS XAHeuristicExample Example</name>
 
    <dependencies>
       <dependency>

@@ -29,7 +29,7 @@ under the License.
 
    <artifactId>activemq-jms-spring-integration-example</artifactId>
    <packaging>jar</packaging>
-   <name>ActiveMQ6 JMS Spring Integration Example</name>
+   <name>ActiveMQ Artemis JMS Spring Integration Example</name>
 
    <dependencies>
       <dependency>

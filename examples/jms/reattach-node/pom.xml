@@ -29,7 +29,7 @@ under the License.
 
    <artifactId>activemq-jms-reattach-node-example</artifactId>
    <packaging>jar</packaging>
-   <name>ActiveMQ6 JMS Reattach Node Example</name>
+   <name>ActiveMQ Artemis JMS Reattach Node Example</name>
 
    <dependencies>
       <dependency>

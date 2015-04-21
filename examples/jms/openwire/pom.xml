@@ -29,7 +29,7 @@ under the License.
 
    <artifactId>activemq-jms-openwire-example</artifactId>
    <packaging>jar</packaging>
-   <name>ActiveMQ6 JMS Openwire Example</name>
+   <name>ActiveMQ Artemis JMS Openwire Example</name>
 
    <profiles>
       <profile>
