@@ -201,7 +201,7 @@ under the License.
         <li>We display the message ID and its "bridged" message ID</li>
         <pre class="prettyprint">
            System.out.format("Message ID         : %s\n", messageReceived.getJMSMessageID());
-           System.out.format("Bridged Message ID : %s\n", messageReceived.getStringProperty("HQ_BRIDGE_MSG_ID_LIST"));
+           System.out.format("Bridged Message ID : %s\n", messageReceived.getStringProperty("AMQ_BRIDGE_MSG_ID_LIST"));
         </pre>
         
         <p>Note that the message received from the target queue is <em>not the same message</em> sent to the source topic

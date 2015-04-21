@@ -72,7 +72,7 @@ public class TopicDestinationsResource
             ClientSession.QueueQuery query = session.queueQuery(new SimpleString(topicName));
             if (!query.isExists())
             {
-               session.createQueue(topicName, topicName, "__HQX=-1", true);
+               session.createQueue(topicName, topicName, "__AMQX=-1", true);
 
             }
             else

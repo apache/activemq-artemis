@@ -74,7 +74,7 @@ public class ActiveMQSession implements QueueSession, TopicSession
 
    public static final int TYPE_TOPIC_SESSION = 2;
 
-   private static SimpleString REJECTING_FILTER = new SimpleString("_HQX=-1");
+   private static SimpleString REJECTING_FILTER = new SimpleString("_AMQX=-1");
 
    private final ActiveMQConnection connection;
 

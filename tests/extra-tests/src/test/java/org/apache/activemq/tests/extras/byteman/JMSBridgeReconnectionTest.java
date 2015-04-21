@@ -125,7 +125,7 @@ public class JMSBridgeReconnectionTest extends BridgeTestBase
       if (packet.getType() == PacketImpl.SESS_SEND)
       {
          SessionSendMessage sendMessage = (SessionSendMessage) packet;
-         if (sendMessage.getMessage().containsProperty("__HQ_CID") && count < 0 && !stopped)
+         if (sendMessage.getMessage().containsProperty("__AMQ_CID") && count < 0 && !stopped)
          {
             try
             {
@@ -155,7 +155,7 @@ public class JMSBridgeReconnectionTest extends BridgeTestBase
    static CountDownLatch stopLatch = new CountDownLatch(1);
    public static void pause2(MessageInternal msgI, boolean sendBlocking, final ClientProducerCredits theCredits)
    {
-      if (msgI.containsProperty("__HQ_CID"))
+      if (msgI.containsProperty("__AMQ_CID"))
       {
          count--;
       }

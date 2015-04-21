@@ -64,19 +64,19 @@ public class LastValueQueueExample extends ActiveMQExample
 
          // Step 5. Create and send a text message with the Last-Value header set
          TextMessage message = session.createTextMessage("1st message with Last-Value property set");
-         message.setStringProperty("_HQ_LVQ_NAME", "STOCK_NAME");
+         message.setStringProperty("_AMQ_LVQ_NAME", "STOCK_NAME");
          producer.send(message);
          System.out.format("Sent message: %s%n", message.getText());
 
          // Step 6. Create and send a second text message with the Last-Value header set
          message = session.createTextMessage("2nd message with Last-Value property set");
-         message.setStringProperty("_HQ_LVQ_NAME", "STOCK_NAME");
+         message.setStringProperty("_AMQ_LVQ_NAME", "STOCK_NAME");
          producer.send(message);
          System.out.format("Sent message: %s%n", message.getText());
 
          // Step 7. Create and send a third text message with the Last-Value header set
          message = session.createTextMessage("3rd message with Last-Value property set");
-         message.setStringProperty("_HQ_LVQ_NAME", "STOCK_NAME");
+         message.setStringProperty("_AMQ_LVQ_NAME", "STOCK_NAME");
          producer.send(message);
          System.out.format("Sent message: %s%n", message.getText());
 

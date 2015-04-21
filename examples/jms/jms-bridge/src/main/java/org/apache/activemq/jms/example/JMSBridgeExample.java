@@ -126,7 +126,7 @@ public class JMSBridgeExample
 
          // Step 11. Display the received message's ID and this "bridged" message ID
          System.out.format("Message ID         : %s%n", messageReceived.getJMSMessageID());
-         System.out.format("Bridged Message ID : %s%n", messageReceived.getStringProperty("HQ_BRIDGE_MSG_ID_LIST"));
+         System.out.format("Bridged Message ID : %s%n", messageReceived.getStringProperty("AMQ_BRIDGE_MSG_ID_LIST"));
       }
       finally
       {

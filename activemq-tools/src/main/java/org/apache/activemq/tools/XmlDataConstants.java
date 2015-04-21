@@ -119,5 +119,5 @@ public final class XmlDataConstants
 
    public static final String JNDI_COMPATIBILITY_PREFIX = "java:jboss/exported/";
 
-   static final String NULL = "_HQ_NULL";
+   static final String NULL = "_AMQ_NULL";
 }

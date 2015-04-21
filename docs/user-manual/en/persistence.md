@@ -113,7 +113,7 @@ The standard Apache ActiveMQ core server uses two instances of the journal:
     fall back to using Java NIO which is available on any Java platform.
 
     The files on this journal are prefixed as `activemq-data`. Each file
-    has a `hq` extension. File size is by the default `10485760`
+    has a `amq` extension. File size is by the default `10485760`
     (configurable), and it is located at the journal folder.
 
 For large messages, Apache ActiveMQ persists them outside the message journal.

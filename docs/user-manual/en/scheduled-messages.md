@@ -8,7 +8,7 @@ To do this, a special property is set on the message before sending it.
 ## Scheduled Delivery Property
 
 The property name used to identify a scheduled message is
-`"_HQ_SCHED_DELIVERY"` (or the constant
+`"_AMQ_SCHED_DELIVERY"` (or the constant
 `Message.HDR_SCHEDULED_DELIVERY_TIME`).
 
 The specified value must be a positive `long` corresponding to the time
@@ -17,7 +17,7 @@ scheduled message using the JMS API is as follows.
 
 ``` java
 TextMessage message = session.createTextMessage("This is a scheduled message message which will be delivered in 5 sec.");
-message.setLongProperty("_HQ_SCHED_DELIVERY", System.currentTimeMillis() + 5000);
+message.setLongProperty("_AMQ_SCHED_DELIVERY", System.currentTimeMillis() + 5000);
 producer.send(message);
 
 ...

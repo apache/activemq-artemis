@@ -144,7 +144,7 @@ public class ActiveMQServerImpl implements ActiveMQServer
     * any other component on the system, and just be ignored for any purpose It's declared here as
     * this filter is considered a global ignore
     */
-   public static final String GENERIC_IGNORED_FILTER = "__HQX=-1";
+   public static final String GENERIC_IGNORED_FILTER = "__AMQX=-1";
 
    private HAPolicy haPolicy;
 

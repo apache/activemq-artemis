@@ -541,8 +541,8 @@ posted to the system.
 If you happen to use the same ID more than once you'll see a message
 like this on the server:
 
-    WARN  [org.apache.activemq.core.server] (Thread-3 (Apache ActiveMQ-remoting-threads-ActiveMQServerImpl::serverUUID=8d6be6f8-5e8b-11e2-80db-51bbde66f473-26319292-267207)) HQ112098: Duplicate message detected - message will not be routed. Message information:
-    ServerMessage[messageID=20,priority=4, bodySize=1500,expiration=0, durable=true, address=jms.queue.bar,properties=TypedProperties[{http_content$type=application/x-www-form-urlencoded, http_content$length=3, postedAsHttpMessage=true, _HQ_DUPL_ID=42}]]@12835058
+    WARN  [org.apache.activemq.core.server] (Thread-3 (Apache ActiveMQ-remoting-threads-ActiveMQServerImpl::serverUUID=8d6be6f8-5e8b-11e2-80db-51bbde66f473-26319292-267207)) AMQ112098: Duplicate message detected - message will not be routed. Message information:
+    ServerMessage[messageID=20,priority=4, bodySize=1500,expiration=0, durable=true, address=jms.queue.bar,properties=TypedProperties[{http_content$type=application/x-www-form-urlencoded, http_content$length=3, postedAsHttpMessage=true, _AMQ_DUPL_ID=42}]]@12835058
 
 An alternative to this approach is to use the `msg-create-with-id`
 header. This is not an invokable URL, but a URL template. The idea is

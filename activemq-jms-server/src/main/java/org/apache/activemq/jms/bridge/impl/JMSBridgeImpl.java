@@ -1785,7 +1785,7 @@ public final class JMSBridgeImpl implements JMSBridge
 
       String val = null;
 
-      val = msg.getStringProperty(ActiveMQJMSConstants.JBOSS_MESSAGING_BRIDGE_MESSAGE_ID_LIST);
+      val = msg.getStringProperty(ActiveMQJMSConstants.AMQ_MESSAGING_BRIDGE_MESSAGE_ID_LIST);
 
       if (val == null)
       {
@@ -1800,7 +1800,7 @@ public final class JMSBridgeImpl implements JMSBridge
          val = sb.toString();
       }
 
-      msg.setStringProperty(ActiveMQJMSConstants.JBOSS_MESSAGING_BRIDGE_MESSAGE_ID_LIST, val);
+      msg.setStringProperty(ActiveMQJMSConstants.AMQ_MESSAGING_BRIDGE_MESSAGE_ID_LIST, val);
    }
 
    /*

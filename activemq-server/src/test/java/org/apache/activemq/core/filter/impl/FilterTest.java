@@ -86,9 +86,9 @@ public class FilterTest extends SilentTestCase
    }
 
    @Test
-   public void testHQDurable() throws Exception
+   public void testAMQDurable() throws Exception
    {
-      filter = FilterImpl.createFilter(new SimpleString("HQDurable='DURABLE'"));
+      filter = FilterImpl.createFilter(new SimpleString("AMQDurable='DURABLE'"));
 
       message.setDurable(true);
 
@@ -98,7 +98,7 @@ public class FilterTest extends SilentTestCase
 
       Assert.assertFalse(filter.match(message));
 
-      filter = FilterImpl.createFilter(new SimpleString("HQDurable='NON_DURABLE'"));
+      filter = FilterImpl.createFilter(new SimpleString("AMQDurable='NON_DURABLE'"));
 
       message = new ServerMessageImpl();
       message.setDurable(true);
@@ -112,17 +112,17 @@ public class FilterTest extends SilentTestCase
    }
 
    @Test
-   public void testHQSize() throws Exception
+   public void testAMQSize() throws Exception
    {
       message.setAddress(RandomUtil.randomSimpleString());
 
       int encodeSize = message.getEncodeSize();
 
-      Filter moreThanSmall = FilterImpl.createFilter(new SimpleString("HQSize > " + (encodeSize - 1)));
-      Filter lessThanLarge = FilterImpl.createFilter(new SimpleString("HQSize < " + (encodeSize + 1)));
+      Filter moreThanSmall = FilterImpl.createFilter(new SimpleString("AMQSize > " + (encodeSize - 1)));
+      Filter lessThanLarge = FilterImpl.createFilter(new SimpleString("AMQSize < " + (encodeSize + 1)));
 
-      Filter lessThanSmall = FilterImpl.createFilter(new SimpleString("HQSize < " + encodeSize));
-      Filter moreThanLarge = FilterImpl.createFilter(new SimpleString("HQSize > " + encodeSize));
+      Filter lessThanSmall = FilterImpl.createFilter(new SimpleString("AMQSize < " + encodeSize));
+      Filter moreThanLarge = FilterImpl.createFilter(new SimpleString("AMQSize > " + encodeSize));
 
       Assert.assertTrue(moreThanSmall.match(message));
       Assert.assertTrue(lessThanLarge.match(message));
@@ -133,9 +133,9 @@ public class FilterTest extends SilentTestCase
    }
 
    @Test
-   public void testHQPriority() throws Exception
+   public void testAMQPriority() throws Exception
    {
-      filter = FilterImpl.createFilter(new SimpleString("HQPriority=3"));
+      filter = FilterImpl.createFilter(new SimpleString("AMQPriority=3"));
 
       for (int i = 0; i < 10; i++)
       {
@@ -153,9 +153,9 @@ public class FilterTest extends SilentTestCase
    }
 
    @Test
-   public void testHQTimestamp() throws Exception
+   public void testAMQTimestamp() throws Exception
    {
-      filter = FilterImpl.createFilter(new SimpleString("HQTimestamp=12345678"));
+      filter = FilterImpl.createFilter(new SimpleString("AMQTimestamp=12345678"));
 
       message.setTimestamp(87654321);
 

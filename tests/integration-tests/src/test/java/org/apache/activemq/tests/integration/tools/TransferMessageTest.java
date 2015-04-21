@@ -335,7 +335,7 @@ public class TransferMessageTest extends ClusterTestBase
                       "127.0.0.1", "" + TransportConstants.DEFAULT_PORT, "guest", "guest",
                       "output-result",
                       "500", "100",
-                      "_HQ_TOOL_original_address='queues.testaddress'");
+                      "_AMQ_TOOL_original_address='queues.testaddress'");
 
 
          ClientSession session = sfs[0].createSession(false, false);
@@ -371,7 +371,7 @@ public class TransferMessageTest extends ClusterTestBase
                       "127.0.0.1", "" + TransportConstants.DEFAULT_PORT, "guest", "guest",
                       "output-result",
                       "500", "100",
-                      "_HQ_TOOL_original_address='queues2.testaddress'");
+                      "_AMQ_TOOL_original_address='queues2.testaddress'");
 
          session.start();
 

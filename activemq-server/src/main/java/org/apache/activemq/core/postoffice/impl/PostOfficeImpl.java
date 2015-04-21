@@ -85,9 +85,9 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 {
    private static final boolean isTrace = ActiveMQServerLogger.LOGGER.isTraceEnabled();
 
-   public static final SimpleString HDR_RESET_QUEUE_DATA = new SimpleString("_HQ_RESET_QUEUE_DATA");
+   public static final SimpleString HDR_RESET_QUEUE_DATA = new SimpleString("_AMQ_RESET_QUEUE_DATA");
 
-   public static final SimpleString HDR_RESET_QUEUE_DATA_COMPLETE = new SimpleString("_HQ_RESET_QUEUE_DATA_COMPLETE");
+   public static final SimpleString HDR_RESET_QUEUE_DATA_COMPLETE = new SimpleString("_AMQ_RESET_QUEUE_DATA_COMPLETE");
 
    public static final SimpleString BRIDGE_CACHE_STR = new SimpleString("BRIDGE.");
 

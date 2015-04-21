@@ -748,7 +748,7 @@ public class ExtraStompTest extends StompTestBase
          while (enu.hasMoreElements())
          {
             Message msg = (Message) enu.nextElement();
-            String msgId = msg.getStringProperty("hqMessageId");
+            String msgId = msg.getStringProperty("amqMessageId");
             if (enable != null && enable.booleanValue())
             {
                assertNotNull(msgId);

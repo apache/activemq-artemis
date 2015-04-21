@@ -44,13 +44,13 @@ public class SelectorTranslator
 
       // First convert any JMS header identifiers
 
-      String filterString = SelectorTranslator.parse(selectorString, "JMSDeliveryMode", "HQDurable");
+      String filterString = SelectorTranslator.parse(selectorString, "JMSDeliveryMode", "AMQDurable");
       filterString = SelectorTranslator.parse(filterString, "'PERSISTENT'", "'DURABLE'");
       filterString = SelectorTranslator.parse(filterString, "'NON_PERSISTENT'", "'NON_DURABLE'");
-      filterString = SelectorTranslator.parse(filterString, "JMSPriority", "HQPriority");
-      filterString = SelectorTranslator.parse(filterString, "JMSTimestamp", "HQTimestamp");
-      filterString = SelectorTranslator.parse(filterString, "JMSMessageID", "HQUserID");
-      filterString = SelectorTranslator.parse(filterString, "JMSExpiration", "HQExpiration");
+      filterString = SelectorTranslator.parse(filterString, "JMSPriority", "AMQPriority");
+      filterString = SelectorTranslator.parse(filterString, "JMSTimestamp", "AMQTimestamp");
+      filterString = SelectorTranslator.parse(filterString, "JMSMessageID", "AMQUserID");
+      filterString = SelectorTranslator.parse(filterString, "JMSExpiration", "AMQExpiration");
 
       return filterString;
 

@@ -64,7 +64,7 @@ public interface ServerMessage extends MessageInternal, EncodingSupport
 
    PagingStore getPagingStore();
 
-   // Is there any _HQ_ property being used
+   // Is there any _AMQ_ property being used
    boolean hasInternalProperties();
 
    boolean storeIsPaging();

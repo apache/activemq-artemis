@@ -156,7 +156,7 @@ public class GroupingTest extends JMSTestBase
 
          message.setText("Message" + j);
 
-         message.setStringProperty("_HQ_GROUP_ID", "" + (j % 10));
+         message.setStringProperty("_AMQ_GROUP_ID", "" + (j % 10));
 
          producer.send(message);
 

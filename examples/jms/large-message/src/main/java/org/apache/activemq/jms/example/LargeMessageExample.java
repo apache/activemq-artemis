@@ -102,7 +102,7 @@ public class LargeMessageExample extends ActiveMQExample
          FileInputStream fileInputStream = new FileInputStream(fileInput);
          BufferedInputStream bufferedInput = new BufferedInputStream(fileInputStream);
 
-         message.setObjectProperty("JMS_HQ_InputStream", bufferedInput);
+         message.setObjectProperty("JMS_AMQ_InputStream", bufferedInput);
 
          System.out.println("Sending the huge message.");
 
@@ -154,7 +154,7 @@ public class LargeMessageExample extends ActiveMQExample
          // an empty body.
          BytesMessage messageReceived = (BytesMessage)messageConsumer.receive(120000);
 
-         System.out.println("Received message with: " + messageReceived.getLongProperty("_HQ_LARGE_SIZE") +
+         System.out.println("Received message with: " + messageReceived.getLongProperty("_AMQ_LARGE_SIZE") +
                             " bytes. Now streaming to file on disk.");
 
          // Step 13. We set an OutputStream on the message. This causes the message body to be written to the
@@ -170,7 +170,7 @@ public class LargeMessageExample extends ActiveMQExample
          BufferedOutputStream bufferedOutput = new BufferedOutputStream(fileOutputStream);
 
          // Step 14. This will save the stream and wait until the entire message is written before continuing.
-         messageReceived.setObjectProperty("JMS_HQ_SaveStream", bufferedOutput);
+         messageReceived.setObjectProperty("JMS_AMQ_SaveStream", bufferedOutput);
 
          fileOutputStream.close();
 

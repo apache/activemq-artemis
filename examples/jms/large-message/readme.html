@@ -98,7 +98,7 @@ under the License.
          
          BufferedInputStream bufferedInput = new BufferedInputStream(fileInputStream);
          
-         message.setObjectProperty("JMS_HQ_InputStream", bufferedInput);
+         message.setObjectProperty("JMS_AMQ_InputStream", bufferedInput);
         </code></pre>
         
         <li>Send the Message.</li>
@@ -174,7 +174,7 @@ under the License.
          
          <li>This will save the stream and wait until the entire message is written before continuing.</li> 
         <pre class="prettyprint"><code>
-         messageReceived.setObjectProperty("JMS_HQ_SaveStream", bufferedOutput);
+         messageReceived.setObjectProperty("JMS_AMQ_SaveStream", bufferedOutput);
         </code></pre>
         
         <li>Be sure to close our resources!</li>

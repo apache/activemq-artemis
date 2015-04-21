@@ -800,40 +800,40 @@ See the [examples](examples.md) chapter for an example which shows how to use a 
 
 Below is a list of all the different kinds of notifications as well as
 which headers are on the messages. Every notification has a
-`_HQ_NotifType` (value noted in parentheses) and `_HQ_NotifTimestamp`
+`_AMQ_NotifType` (value noted in parentheses) and `_AMQ_NotifTimestamp`
 header. The timestamp is the un-formatted result of a call to
 `java.lang.System.currentTimeMillis()`.
 
 -   `BINDING_ADDED` (0)
 
-    `_HQ_Binding_Type`, `_HQ_Address`, `_HQ_ClusterName`,
-    `_HQ_RoutingName`, `_HQ_Binding_ID`, `_HQ_Distance`,
-    `_HQ_FilterString`
+    `_AMQ_Binding_Type`, `_AMQ_Address`, `_AMQ_ClusterName`,
+    `_AMQ_RoutingName`, `_AMQ_Binding_ID`, `_AMQ_Distance`,
+    `_AMQ_FilterString`
 
 -   `BINDING_REMOVED` (1)
 
-    `_HQ_Address`, `_HQ_ClusterName`, `_HQ_RoutingName`,
-    `_HQ_Binding_ID`, `_HQ_Distance`, `_HQ_FilterString`
+    `_AMQ_Address`, `_AMQ_ClusterName`, `_AMQ_RoutingName`,
+    `_AMQ_Binding_ID`, `_AMQ_Distance`, `_AMQ_FilterString`
 
 -   `CONSUMER_CREATED` (2)
 
-    `_HQ_Address`, `_HQ_ClusterName`, `_HQ_RoutingName`, `_HQ_Distance`,
-    `_HQ_ConsumerCount`, `_HQ_User`, `_HQ_RemoteAddress`,
-    `_HQ_SessionName`, `_HQ_FilterString`
+    `_AMQ_Address`, `_AMQ_ClusterName`, `_AMQ_RoutingName`, `_AMQ_Distance`,
+    `_AMQ_ConsumerCount`, `_AMQ_User`, `_AMQ_RemoteAddress`,
+    `_AMQ_SessionName`, `_AMQ_FilterString`
 
 -   `CONSUMER_CLOSED` (3)
 
-    `_HQ_Address`, `_HQ_ClusterName`, `_HQ_RoutingName`, `_HQ_Distance`,
-    `_HQ_ConsumerCount`, `_HQ_User`, `_HQ_RemoteAddress`,
-    `_HQ_SessionName`, `_HQ_FilterString`
+    `_AMQ_Address`, `_AMQ_ClusterName`, `_AMQ_RoutingName`, `_AMQ_Distance`,
+    `_AMQ_ConsumerCount`, `_AMQ_User`, `_AMQ_RemoteAddress`,
+    `_AMQ_SessionName`, `_AMQ_FilterString`
 
 -   `SECURITY_AUTHENTICATION_VIOLATION` (6)
 
-    `_HQ_User`
+    `_AMQ_User`
 
 -   `SECURITY_PERMISSION_VIOLATION` (7)
 
-    `_HQ_Address`, `_HQ_CheckType`, `_HQ_User`
+    `_AMQ_Address`, `_AMQ_CheckType`, `_AMQ_User`
 
 -   `DISCOVERY_GROUP_STARTED` (8)
 
@@ -877,19 +877,19 @@ header. The timestamp is the un-formatted result of a call to
 
 -   `PROPOSAL` (18)
 
-    `_JBM_ProposalGroupId`, `_JBM_ProposalValue`, `_HQ_Binding_Type`,
-    `_HQ_Address`, `_HQ_Distance`
+    `_JBM_ProposalGroupId`, `_JBM_ProposalValue`, `_AMQ_Binding_Type`,
+    `_AMQ_Address`, `_AMQ_Distance`
 
 -   `PROPOSAL_RESPONSE` (19)
 
     `_JBM_ProposalGroupId`, `_JBM_ProposalValue`,
-    `_JBM_ProposalAltValue`, `_HQ_Binding_Type`, `_HQ_Address`,
-    `_HQ_Distance`
+    `_JBM_ProposalAltValue`, `_AMQ_Binding_Type`, `_AMQ_Address`,
+    `_AMQ_Distance`
 
 -   `CONSUMER_SLOW` (21)
 
-    `_HQ_Address`, `_HQ_ConsumerCount`, `_HQ_RemoteAddress`,
-    `_HQ_ConnectionName`, `_HQ_ConsumerName`, `_HQ_SessionName`
+    `_AMQ_Address`, `_AMQ_ConsumerCount`, `_AMQ_RemoteAddress`,
+    `_AMQ_ConnectionName`, `_AMQ_ConsumerName`, `_AMQ_SessionName`
 
 ## Message Counters
 

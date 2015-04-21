@@ -72,17 +72,17 @@ under the License.
        <li>We will create and send a text message with the Last-Value property set to <code>STOCK_NAME</code></li>
        <pre class="prettyprint">
            <code>TextMessage message = session.createTextMessage("1st message with Last-Value property set");
-           message.setStringProperty("_HQ_LVQ_NAME", "STOCK_NAME");
+           message.setStringProperty("_AMQ_LVQ_NAME", "STOCK_NAME");
            producer.send(message);
            System.out.format("Sent message: %s\n", message.getText());</code>
        </pre>
        
-       <p><em>The <em>Last-Value</em> key is defined in ActiveMQ's MessageImpl class. Its value is <code>"_HQ_LVQ_NAME"</code></em></p>
+       <p><em>The <em>Last-Value</em> key is defined in ActiveMQ's MessageImpl class. Its value is <code>"_AMQ_LVQ_NAME"</code></em></p>
 
        <li>We will create and send a <em>second</em> text message with the Last-Value property set to <code>STOCK_NAME</code></li>
        <pre class="prettyprint">
            <code>message = session.createTextMessage("2nd message with Last-Value property set");
-           message.setStringProperty("_HQ_LVQ_NAME", "STOCK_NAME");
+           message.setStringProperty("_AMQ_LVQ_NAME", "STOCK_NAME");
            producer.send(message);
            System.out.format("Sent message: %s\n", message.getText());</code>
        </pre>
@@ -90,7 +90,7 @@ under the License.
        <li>We will create and send a <em>third</em> text message with the Last-Value property set to <code>STOCK_NAME</code></li>
        <pre class="prettyprint">
            <code>message = session.createTextMessage("3rd message with Last-Value property set");
-           message.setStringProperty("_HQ_LVQ_NAME", "STOCK_NAME");
+           message.setStringProperty("_AMQ_LVQ_NAME", "STOCK_NAME");
            producer.send(message);
            System.out.format("Sent message: %s\n", message.getText());</code>
        </pre>

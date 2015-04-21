@@ -763,7 +763,7 @@ public class OpenWireMessageConverter implements MessageConverter
          for (SimpleString s : props)
          {
             String keyStr = s.toString();
-            if (keyStr.startsWith("__HQ") || keyStr.startsWith("__HDR_"))
+            if (keyStr.startsWith("__AMQ") || keyStr.startsWith("__HDR_"))
             {
                continue;
             }

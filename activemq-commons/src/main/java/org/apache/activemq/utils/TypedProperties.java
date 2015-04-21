@@ -52,7 +52,7 @@ import static org.apache.activemq.utils.DataConstants.STRING;
 public final class TypedProperties
 {
 
-   private static final SimpleString HQ_PROPNAME = new SimpleString("_HQ_");
+   private static final SimpleString AMQ_PROPNAME = new SimpleString("_AMQ_");
 
    private Map<SimpleString, PropertyValue> properties;
 
@@ -630,7 +630,7 @@ public final class TypedProperties
             {
                sb.append("[" + ByteUtil.maxString(ByteUtil.bytesToHex((byte [])theValue, 2), 150) + ")");
 
-               if (iterItem.getKey().toString().startsWith("_HQ_ROUTE_TO"))
+               if (iterItem.getKey().toString().startsWith("_AMQ_ROUTE_TO"))
                {
                   sb.append(",bytesAsLongs(");
                   try
@@ -681,7 +681,7 @@ public final class TypedProperties
 
    private synchronized void doPutValue(final SimpleString key, final PropertyValue value)
    {
-      if (key.startsWith(HQ_PROPNAME))
+      if (key.startsWith(AMQ_PROPNAME))
       {
          internalProperties = true;
       }

@@ -64,7 +64,7 @@ ignore the entire transaction.
 
 The name of the property that you set is given by the value of
 `org.apache.activemq.api.core.Message.HDR_DUPLICATE_DETECTION_ID`, which
-is `_HQ_DUPL_ID`
+is `_AMQ_DUPL_ID`
 
 The value of the property can be of type `byte[]` or `SimpleString` if
 you're using the core API. If you're using JMS it must be a `String`,

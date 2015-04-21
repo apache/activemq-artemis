@@ -112,10 +112,10 @@ public class ExpiryExample extends ActiveMQExample
          System.out.println("Expiration time of the expired message (relative to the expiry queue): " + messageReceived.getJMSExpiration());
 
          System.out.println();
-         // Step 20. the *origin* destination is stored in the _HQ_ORIG_ADDRESS property
-         System.out.println("*Origin destination* of the expired message: " + messageReceived.getStringProperty("_HQ_ORIG_ADDRESS"));
-         // Step 21. the actual expiration time is stored in the _HQ_ACTUAL_EXPIRY property
-         System.out.println("*Actual expiration time* of the expired message: " + messageReceived.getLongProperty("_HQ_ACTUAL_EXPIRY"));
+         // Step 20. the *origin* destination is stored in the _AMQ_ORIG_ADDRESS property
+         System.out.println("*Origin destination* of the expired message: " + messageReceived.getStringProperty("_AMQ_ORIG_ADDRESS"));
+         // Step 21. the actual expiration time is stored in the _AMQ_ACTUAL_EXPIRY property
+         System.out.println("*Actual expiration time* of the expired message: " + messageReceived.getLongProperty("_AMQ_ACTUAL_EXPIRY"));
 
          return true;
       }
