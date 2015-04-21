@@ -661,7 +661,7 @@ public class HangConsumerTest extends ServiceTestBase
       }
 
       @Override
-      protected ServerSessionImpl internalCreateSession(String name, String username, String password, int minLargeMessageSize, RemotingConnection connection, boolean autoCommitSends, boolean autoCommitAcks, boolean preAcknowledge, boolean xa, String defaultAddress, SessionCallback callback, OperationContext context, ServerSessionFactory sessionFactory) throws Exception
+      protected ServerSessionImpl internalCreateSession(String name, String username, String password, int minLargeMessageSize, RemotingConnection connection, boolean autoCommitSends, boolean autoCommitAcks, boolean preAcknowledge, boolean xa, String defaultAddress, SessionCallback callback, OperationContext context, ServerSessionFactory sessionFactory, boolean autoCreateQueue) throws Exception
       {
          return new ServerSessionImpl(name,
             username,
@@ -683,7 +683,8 @@ public class HangConsumerTest extends ServiceTestBase
             defaultAddress == null ? null
                : new SimpleString(defaultAddress),
             new MyCallback(callback),
-            context);
+            context,
+            null);
       }
    }
 

@@ -61,6 +61,7 @@ import org.apache.activemq.core.server.ActiveMQServerLogger;
 import org.apache.activemq.core.server.LargeServerMessage;
 import org.apache.activemq.core.server.MessageReference;
 import org.apache.activemq.core.server.Queue;
+import org.apache.activemq.core.server.QueueCreator;
 import org.apache.activemq.core.server.QueueFactory;
 import org.apache.activemq.core.server.RouteContextList;
 import org.apache.activemq.core.server.RoutingContext;
@@ -81,6 +82,10 @@ import org.apache.activemq.core.transaction.impl.TransactionImpl;
 import org.apache.activemq.utils.TypedProperties;
 import org.apache.activemq.utils.UUIDGenerator;
 
+/**
+ * This is the class that will make the routing to Queues and decide which consumer will get the messages
+ * It's the queue component on distributing the messages * *
+ */
 public class PostOfficeImpl implements PostOffice, NotificationListener, BindingsFactory
 {
    private static final boolean isTrace = ActiveMQServerLogger.LOGGER.isTraceEnabled();
@@ -605,30 +610,32 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
       return addressManager.getBindings();
    }
 
-   public void route(final ServerMessage message, final boolean direct) throws Exception
+   public void route(final ServerMessage message, QueueCreator queueCreator, final boolean direct) throws Exception
    {
-      route(message, (Transaction) null, direct);
+      route(message, queueCreator, (Transaction) null, direct);
    }
 
-   public void route(final ServerMessage message, final Transaction tx, final boolean direct) throws Exception
+   public void route(final ServerMessage message, QueueCreator queueCreator, final Transaction tx, final boolean direct) throws Exception
    {
-      route(message, new RoutingContextImpl(tx), direct);
+      route(message, queueCreator, new RoutingContextImpl(tx), direct);
    }
 
    public void route(final ServerMessage message,
+                     final QueueCreator queueCreator,
                      final Transaction tx,
                      final boolean direct,
                      final boolean rejectDuplicates) throws Exception
    {
-      route(message, new RoutingContextImpl(tx), direct, rejectDuplicates);
+      route(message, queueCreator, new RoutingContextImpl(tx), direct, rejectDuplicates);
    }
 
-   public void route(final ServerMessage message, final RoutingContext context, final boolean direct) throws Exception
+   public void route(final ServerMessage message, final QueueCreator queueCreator, final RoutingContext context, final boolean direct) throws Exception
    {
-      route(message, context, direct, true);
+      route(message, queueCreator, context, direct, true);
    }
 
    public void route(final ServerMessage message,
+                     final QueueCreator queueCreator,
                      final RoutingContext context,
                      final boolean direct,
                      boolean rejectDuplicates) throws Exception
@@ -660,6 +667,18 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
       }
 
       Bindings bindings = addressManager.getBindingsForRoutingAddress(address);
+
+      // first check for the auto-queue creation thing
+      if (bindings == null && queueCreator != null)
+      {
+         // There is no queue with this address, we will check if it needs to be created
+         if (queueCreator.create(address))
+         {
+            // TODO: this is not working!!!!
+            // reassign bindings if it was created
+            bindings = addressManager.getBindingsForRoutingAddress(address);
+         }
+      }
 
       if (bindings != null)
       {
@@ -708,7 +727,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
                message.setAddress(dlaAddress);
 
-               route(message, context.getTransaction(), false);
+               route(message, null, context.getTransaction(), false);
             }
          }
          else

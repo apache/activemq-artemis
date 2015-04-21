@@ -32,6 +32,7 @@ import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.command.ActiveMQQueue;
 import org.apache.activemq.command.ActiveMQTopic;
 import org.apache.activemq.core.settings.impl.AddressSettings;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -291,6 +292,32 @@ public class SimpleOpenWireTest extends BasicOpenWireTest
 
       TextMessage message1 = (TextMessage) consumer.receive(1000);
       assertTrue(message1.getText().equals(message.getText()));
+   }
+
+   @Test
+   public void testAutoDestinationNoCreationOnConsumer() throws JMSException
+   {
+      AddressSettings addressSetting = new AddressSettings();
+      addressSetting.setAutoCreateJmsQueues(false);
+
+      String address = "foo";
+      server.getAddressSettingsRepository().addMatch("jms.queue." + address, addressSetting);
+
+      connection.start();
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+
+      TextMessage message = session.createTextMessage("bar");
+      Queue queue = new ActiveMQQueue(address);
+
+      try
+      {
+         MessageConsumer consumer = session.createConsumer(queue);
+         Assert.fail("supposed to throw an exception here");
+      }
+      catch (JMSException e)
+      {
+
+      }
    }
 
    /**

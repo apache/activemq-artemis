@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.core.protocol.openwire;
 
+import javax.jms.InvalidDestinationException;
+import javax.jms.JMSSecurityException;
+import javax.jms.ResourceAllocationException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -31,15 +34,12 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import javax.jms.InvalidDestinationException;
-import javax.jms.JMSSecurityException;
-import javax.jms.ResourceAllocationException;
-
 import org.apache.activemq.api.core.ActiveMQBuffer;
 import org.apache.activemq.api.core.ActiveMQBuffers;
 import org.apache.activemq.api.core.ActiveMQException;
 import org.apache.activemq.api.core.ActiveMQNonExistentQueueException;
 import org.apache.activemq.api.core.ActiveMQSecurityException;
+import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.command.ActiveMQMessage;
 import org.apache.activemq.command.BrokerInfo;
@@ -74,19 +74,6 @@ import org.apache.activemq.command.ShutdownInfo;
 import org.apache.activemq.command.TransactionId;
 import org.apache.activemq.command.TransactionInfo;
 import org.apache.activemq.command.WireFormatInfo;
-import org.apache.activemq.core.server.QueueQueryResult;
-import org.apache.activemq.openwire.OpenWireFormat;
-import org.apache.activemq.state.CommandVisitor;
-import org.apache.activemq.state.ConnectionState;
-import org.apache.activemq.state.ConsumerState;
-import org.apache.activemq.state.ProducerState;
-import org.apache.activemq.state.SessionState;
-import org.apache.activemq.thread.TaskRunner;
-import org.apache.activemq.thread.TaskRunnerFactory;
-import org.apache.activemq.transport.TransmitCallback;
-import org.apache.activemq.util.ByteSequence;
-import org.apache.activemq.wireformat.WireFormat;
-import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.core.protocol.openwire.amq.AMQBrokerStoppedException;
 import org.apache.activemq.core.protocol.openwire.amq.AMQConnectionContext;
 import org.apache.activemq.core.protocol.openwire.amq.AMQConsumerBrokerExchange;
@@ -101,10 +88,21 @@ import org.apache.activemq.core.protocol.openwire.amq.AMQTransportConnectionStat
 import org.apache.activemq.core.remoting.CloseListener;
 import org.apache.activemq.core.remoting.FailureListener;
 import org.apache.activemq.core.server.ActiveMQServerLogger;
+import org.apache.activemq.openwire.OpenWireFormat;
 import org.apache.activemq.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.spi.core.remoting.Acceptor;
 import org.apache.activemq.spi.core.remoting.Connection;
+import org.apache.activemq.state.CommandVisitor;
+import org.apache.activemq.state.ConnectionState;
+import org.apache.activemq.state.ConsumerState;
+import org.apache.activemq.state.ProducerState;
+import org.apache.activemq.state.SessionState;
+import org.apache.activemq.thread.TaskRunner;
+import org.apache.activemq.thread.TaskRunnerFactory;
+import org.apache.activemq.transport.TransmitCallback;
+import org.apache.activemq.util.ByteSequence;
 import org.apache.activemq.utils.ConcurrentHashSet;
+import org.apache.activemq.wireformat.WireFormat;
 
 /**
  * Represents an activemq connection.
@@ -1403,12 +1401,6 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor
 
          if (producerExchange.canDispatch(messageSend))
          {
-            if (messageSend.getDestination().isQueue())
-            {
-               SimpleString queueName = OpenWireUtil.toCoreAddress(messageSend.getDestination());
-               autoCreateQueueIfPossible(queueName, session);
-            }
-
             SendingResult result = session.send(producerExchange, messageSend, sendProducerAck);
             if (result.isBlockNextSend())
             {
@@ -1456,15 +1448,6 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor
          }
       }
       return resp;
-   }
-
-   public void autoCreateQueueIfPossible(SimpleString queueName, AMQSession session) throws Exception
-   {
-      QueueQueryResult result = session.getCoreSession().executeQueueQuery(queueName);
-      if (result.isAutoCreateJmsQueues() && !result.isExists())
-      {
-         session.getCoreServer().createQueue(queueName, queueName, null, false, false, true);
-      }
    }
 
    private AMQProducerBrokerExchange getProducerBrokerExchange(ProducerId id) throws IOException

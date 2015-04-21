@@ -35,6 +35,7 @@ import org.apache.activemq.api.core.ActiveMQNonExistentQueueException;
 import org.apache.activemq.api.core.Message;
 import org.apache.activemq.api.core.Pair;
 import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.management.CoreNotificationType;
 import org.apache.activemq.api.core.management.ManagementHelper;
 import org.apache.activemq.api.core.management.ResourceNames;
@@ -63,6 +64,7 @@ import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.server.LargeServerMessage;
 import org.apache.activemq.core.server.MessageReference;
 import org.apache.activemq.core.server.Queue;
+import org.apache.activemq.core.server.QueueCreator;
 import org.apache.activemq.core.server.QueueQueryResult;
 import org.apache.activemq.core.server.RoutingContext;
 import org.apache.activemq.core.server.ServerConsumer;
@@ -154,6 +156,8 @@ public class ServerSessionImpl implements ServerSession, FailureListener
 
    private final OperationContext context;
 
+   private QueueCreator queueCreator;
+
    // Session's usage should be by definition single threaded, hence it's not needed to use a concurrentHashMap here
    protected final Map<SimpleString, Pair<UUID, AtomicLong>> targetAddressInfos = new HashMap<SimpleString, Pair<UUID, AtomicLong>>();
 
@@ -168,8 +172,6 @@ public class ServerSessionImpl implements ServerSession, FailureListener
    private volatile boolean closed = false;
 
    private final TransactionFactory transactionFactory;
-
-   // Constructors ---------------------------------------------------------------------------------
 
    //create an 'empty' session. Only used by AMQServerSession
    //in order to check username and password
@@ -193,35 +195,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener
       this.managementAddress = null;
       this.context = null;
       this.callback = null;
-   }
-
-   public ServerSessionImpl(final String name,
-                            final String username,
-                            final String password,
-                            final int minLargeMessageSize,
-                            final boolean autoCommitSends,
-                            final boolean autoCommitAcks,
-                            final boolean preAcknowledge,
-                            final boolean strictUpdateDeliveryCount,
-                            final boolean xa,
-                            final RemotingConnection remotingConnection,
-                            final StorageManager storageManager,
-                            final PostOffice postOffice,
-                            final ResourceManager resourceManager,
-                            final SecurityStore securityStore,
-                            final ManagementService managementService,
-                            final ActiveMQServer server,
-                            final SimpleString managementAddress,
-                            final SimpleString defaultAddress,
-                            final SessionCallback callback,
-                            final OperationContext context) throws Exception
-   {
-      this(name, username, password, minLargeMessageSize,
-         autoCommitSends, autoCommitAcks, preAcknowledge,
-         strictUpdateDeliveryCount, xa, remotingConnection,
-         storageManager, postOffice, resourceManager, securityStore,
-         managementService, server, managementAddress, defaultAddress,
-         callback, context, null);
+      this.queueCreator = null;
    }
 
    public ServerSessionImpl(final String name,
@@ -244,7 +218,38 @@ public class ServerSessionImpl implements ServerSession, FailureListener
                             final SimpleString defaultAddress,
                             final SessionCallback callback,
                             final OperationContext context,
-                            TransactionFactory transactionFactory) throws Exception
+                            final QueueCreator queueCreator) throws Exception
+   {
+      this(name, username, password, minLargeMessageSize,
+         autoCommitSends, autoCommitAcks, preAcknowledge,
+         strictUpdateDeliveryCount, xa, remotingConnection,
+         storageManager, postOffice, resourceManager, securityStore,
+         managementService, server, managementAddress, defaultAddress,
+         callback, context, null, queueCreator);
+   }
+
+   public ServerSessionImpl(final String name,
+                            final String username,
+                            final String password,
+                            final int minLargeMessageSize,
+                            final boolean autoCommitSends,
+                            final boolean autoCommitAcks,
+                            final boolean preAcknowledge,
+                            final boolean strictUpdateDeliveryCount,
+                            final boolean xa,
+                            final RemotingConnection remotingConnection,
+                            final StorageManager storageManager,
+                            final PostOffice postOffice,
+                            final ResourceManager resourceManager,
+                            final SecurityStore securityStore,
+                            final ManagementService managementService,
+                            final ActiveMQServer server,
+                            final SimpleString managementAddress,
+                            final SimpleString defaultAddress,
+                            final SessionCallback callback,
+                            final OperationContext context,
+                            TransactionFactory transactionFactory,
+                            final QueueCreator queueCreator) throws Exception
    {
       this.username = username;
 
@@ -287,6 +292,8 @@ public class ServerSessionImpl implements ServerSession, FailureListener
 
       remotingConnection.addFailureListener(this);
       this.context = context;
+
+      this.queueCreator = queueCreator;
 
       if (transactionFactory == null)
       {
@@ -419,6 +426,13 @@ public class ServerSessionImpl implements ServerSession, FailureListener
 
          closed = true;
       }
+   }
+
+
+
+   public QueueCreator getQueueCreator()
+   {
+      return queueCreator;
    }
 
    public ServerConsumer createConsumer(final long consumerID,
@@ -1596,6 +1610,12 @@ public class ServerSessionImpl implements ServerSession, FailureListener
       {
          data = metaData.get(key);
       }
+
+      if (key.equals(ClientSession.JMS_SESSION_CLIENT_ID_PROPERTY))
+      {
+         // we know it's a JMS Session, we now install JMS Hooks of any kind
+         installJMSHooks();
+      }
       return data;
    }
 
@@ -1709,16 +1729,18 @@ public class ServerSessionImpl implements ServerSession, FailureListener
       connectionFailed(me, failedOver);
    }
 
-   // Public
-   // ----------------------------------------------------------------------------
-
    public void clearLargeMessage()
    {
       currentLargeMessage = null;
    }
 
-   // Private
-   // ----------------------------------------------------------------------------
+
+
+   private void installJMSHooks()
+   {
+      this.queueCreator = server.getJMSQueueCreator();
+   }
+
 
    private Map<SimpleString, Pair<UUID, AtomicLong>> cloneTargetAddresses()
    {
@@ -1846,7 +1868,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener
 
       try
       {
-         postOffice.route(msg, routingContext, direct);
+         postOffice.route(msg, queueCreator, routingContext, direct);
 
          Pair<UUID, AtomicLong> value = targetAddressInfos.get(msg.getAddress());
 

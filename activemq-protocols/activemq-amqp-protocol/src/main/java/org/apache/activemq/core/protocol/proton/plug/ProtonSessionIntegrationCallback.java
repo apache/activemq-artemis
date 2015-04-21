@@ -105,7 +105,8 @@ public class ProtonSessionIntegrationCallback implements AMQPSessionCallback, Se
                                                         true, //boolean xa,
                                                         (String) null,
                                                         this,
-                                                        null);
+                                                        null,
+                                                        true);
    }
 
    @Override

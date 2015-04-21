@@ -73,6 +73,38 @@ public class AutoCreateJmsQueueTest extends JMSTestBase
    }
 
    @Test
+   public void testAutoCreateOnSendToQueueAnonymousProducer() throws Exception
+   {
+      Connection connection = cf.createConnection();
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+
+      javax.jms.Queue queue = ActiveMQJMSClient.createQueue("test");
+
+      MessageProducer producer = session.createProducer(null);
+
+      final int numMessages = 100;
+
+      for (int i = 0; i < numMessages; i++)
+      {
+         TextMessage mess = session.createTextMessage("msg" + i);
+         producer.send(queue, mess);
+      }
+
+      producer.close();
+
+      MessageConsumer messageConsumer = session.createConsumer(queue);
+      connection.start();
+
+      for (int i = 0; i < numMessages; i++)
+      {
+         Message m = messageConsumer.receive(5000);
+         Assert.assertNotNull(m);
+      }
+
+      connection.close();
+   }
+
+   @Test
    public void testAutoCreateOnSendToQueueSecurity() throws Exception
    {
       ((ActiveMQSecurityManagerImpl)server.getSecurityManager()).getConfiguration().addUser("guest", "guest");

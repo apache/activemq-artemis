@@ -44,6 +44,7 @@ import org.apache.activemq.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.core.server.ActiveMQServerLogger;
 import org.apache.activemq.core.server.MessageReference;
 import org.apache.activemq.core.server.Queue;
+import org.apache.activemq.core.server.QueueCreator;
 import org.apache.activemq.core.server.ServerConsumer;
 import org.apache.activemq.core.server.ServerMessage;
 import org.apache.activemq.core.server.impl.ActiveMQServerImpl;
@@ -72,6 +73,7 @@ public class AMQServerSession extends ServerSessionImpl
          SecurityStore securityStore, ManagementService managementService,
          ActiveMQServerImpl activeMQServerImpl, SimpleString managementAddress,
          SimpleString simpleString, SessionCallback callback,
+         QueueCreator queueCreator,
          OperationContext context) throws Exception
    {
       super(name, username, password,
@@ -83,7 +85,8 @@ public class AMQServerSession extends ServerSessionImpl
          securityStore, managementService,
          activeMQServerImpl, managementAddress,
          simpleString, callback,
-         context, new AMQTransactionFactory());
+         context, new AMQTransactionFactory(),
+         queueCreator);
    }
 
    //create a fake session just for security check
@@ -387,7 +390,7 @@ public class AMQServerSession extends ServerSessionImpl
 
       try
       {
-         postOffice.route(msg, routingContext, direct);
+         postOffice.route(msg, getQueueCreator(), routingContext, direct);
 
          Pair<UUID, AtomicLong> value = targetAddressInfos.get(msg.getAddress());
 

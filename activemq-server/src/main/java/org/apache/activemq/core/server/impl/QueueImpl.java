@@ -2449,7 +2449,7 @@ public class QueueImpl implements Queue
 
       copyMessage.setAddress(toAddress);
 
-      postOffice.route(copyMessage, tx, false, rejectDuplicate);
+      postOffice.route(copyMessage, null, tx, false, rejectDuplicate);
 
       acknowledge(tx, ref);
    }
@@ -2673,7 +2673,7 @@ public class QueueImpl implements Queue
 
       copyMessage.setAddress(address);
 
-      postOffice.route(copyMessage, tx, false, rejectDuplicate);
+      postOffice.route(copyMessage, null, tx, false, rejectDuplicate);
 
       acknowledge(tx, ref);
 

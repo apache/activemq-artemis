@@ -409,16 +409,12 @@ public class ActiveMQMessageProducer implements MessageProducer, QueueSender, To
             try
             {
                ClientSession.AddressQuery query = clientSession.addressQuery(address);
-               if (!query.isExists())
+
+               // if it's autoCreateJMSQueue we will let the PostOffice.route to execute the creation at the server's side
+               // as that's a more efficient path for such operation
+               if (!query.isExists() && !query.isAutoCreateJmsQueues())
                {
-                  if (query.isAutoCreateJmsQueues())
-                  {
-                     clientSession.createQueue(address, address, true);
-                  }
-                  else
-                  {
-                     throw new InvalidDestinationException("Destination " + address + " does not exist");
-                  }
+                  throw new InvalidDestinationException("Destination " + address + " does not exist");
                }
                else
                {
