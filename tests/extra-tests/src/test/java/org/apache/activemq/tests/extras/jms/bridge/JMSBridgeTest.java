@@ -1399,7 +1399,7 @@ public class JMSBridgeTest extends BridgeTestBase
 
             if (on)
             {
-               String header = tm.getStringProperty(ActiveMQJMSConstants.JBOSS_MESSAGING_BRIDGE_MESSAGE_ID_LIST);
+               String header = tm.getStringProperty(ActiveMQJMSConstants.AMQ_MESSAGING_BRIDGE_MESSAGE_ID_LIST);
 
                Assert.assertNotNull(header);
 
@@ -1449,7 +1449,7 @@ public class JMSBridgeTest extends BridgeTestBase
 
                Assert.assertEquals("mygroup543", tm.getStringProperty("JMSXGroupID"));
 
-               String header = tm.getStringProperty(ActiveMQJMSConstants.JBOSS_MESSAGING_BRIDGE_MESSAGE_ID_LIST);
+               String header = tm.getStringProperty(ActiveMQJMSConstants.AMQ_MESSAGING_BRIDGE_MESSAGE_ID_LIST);
 
                Assert.assertNotNull(header);
 
@@ -1749,7 +1749,7 @@ public class JMSBridgeTest extends BridgeTestBase
             Assert.assertTrue(tm.getBooleanProperty("cheese"));
             Assert.assertEquals(23, tm.getIntProperty("Sausages"));
 
-            String header = tm.getStringProperty(ActiveMQJMSConstants.JBOSS_MESSAGING_BRIDGE_MESSAGE_ID_LIST);
+            String header = tm.getStringProperty(ActiveMQJMSConstants.AMQ_MESSAGING_BRIDGE_MESSAGE_ID_LIST);
 
             Assert.assertNull(header);
          }
