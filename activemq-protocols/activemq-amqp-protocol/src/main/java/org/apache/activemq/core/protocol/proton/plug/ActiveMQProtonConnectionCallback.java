@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.core.protocol.proton.plug;
 
+import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
 import io.netty.buffer.ByteBuf;
@@ -61,6 +62,18 @@ public class ActiveMQProtonConnectionCallback implements AMQPConnectionCallback
    public void close()
    {
 
+   }
+
+   public Executor getExeuctor()
+   {
+      if (protonConnectionDelegate != null)
+      {
+         return protonConnectionDelegate.getExecutor();
+      }
+      else
+      {
+         return null;
+      }
    }
 
    @Override
