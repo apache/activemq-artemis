@@ -230,7 +230,7 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
 
       try
       {
-         initialSession.addUniqueMetaData("jms-client-id", clientID);
+         initialSession.addUniqueMetaData(ClientSession.JMS_SESSION_CLIENT_ID_PROPERTY, clientID);
       }
       catch (ActiveMQException e)
       {
@@ -732,10 +732,10 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
 
    private void addSessionMetaData(ClientSession session) throws ActiveMQException
    {
-      session.addMetaData("jms-session", "");
+      session.addMetaData(ClientSession.JMS_SESSION_IDENTIFIER_PROPERTY, "");
       if (clientID != null)
       {
-         session.addMetaData("jms-client-id", clientID);
+         session.addMetaData(ClientSession.JMS_SESSION_CLIENT_ID_PROPERTY, clientID);
       }
    }
 

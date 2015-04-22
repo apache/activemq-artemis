@@ -561,11 +561,11 @@ public class ActiveMQActivation
                                    spec.getTransactionTimeout());
 
          result.addMetaData("resource-adapter", "inbound");
-         result.addMetaData("jms-session", "");
+         result.addMetaData(ClientSession.JMS_SESSION_IDENTIFIER_PROPERTY, "");
          String clientID = ra.getClientID() == null ? spec.getClientID() : ra.getClientID();
          if (clientID != null)
          {
-            result.addMetaData("jms-client-id", clientID);
+            result.addMetaData(ClientSession.JMS_SESSION_CLIENT_ID_PROPERTY, clientID);
          }
 
          ActiveMQRALogger.LOGGER.debug("Using queue connection " + result);

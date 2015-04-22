@@ -75,6 +75,8 @@ public interface ServerSession
 
    void xaSuspend() throws Exception;
 
+   QueueCreator getQueueCreator();
+
    List<Xid> xaGetInDoubtXids();
 
    int xaGetTimeout();

@@ -99,6 +99,7 @@ import org.apache.activemq.core.server.LargeServerMessage;
 import org.apache.activemq.core.server.MemoryManager;
 import org.apache.activemq.core.server.NodeManager;
 import org.apache.activemq.core.server.Queue;
+import org.apache.activemq.core.server.QueueCreator;
 import org.apache.activemq.core.server.QueueFactory;
 import org.apache.activemq.core.server.ServerSession;
 import org.apache.activemq.core.server.ServerSessionFactory;
@@ -221,6 +222,11 @@ public class ActiveMQServerImpl implements ActiveMQServer
    private volatile ConnectorsService connectorsService;
 
    private MemoryManager memoryManager;
+
+   /**
+    * This will be set by the JMS Queue Manager.
+    */
+   private QueueCreator jmsQueueCreator;
 
    private final Map<String, ServerSession> sessions = new ConcurrentHashMap<String, ServerSession>();
 
@@ -591,6 +597,18 @@ public class ActiveMQServerImpl implements ActiveMQServer
    public final void stop(boolean failoverOnServerShutdown) throws Exception
    {
       stop(failoverOnServerShutdown, false, false);
+   }
+
+   @Override
+   public QueueCreator getJMSQueueCreator()
+   {
+      return jmsQueueCreator;
+   }
+
+   @Override
+   public void setJMSQueueCreator(QueueCreator jmsQueueCreator)
+   {
+      this.jmsQueueCreator = jmsQueueCreator;
    }
 
    /**
@@ -1007,6 +1025,7 @@ public class ActiveMQServerImpl implements ActiveMQServer
       return backupManager;
    }
 
+   @Override
    public ServerSession createSession(final String name,
                                       final String username,
                                       final String password,
@@ -1018,7 +1037,8 @@ public class ActiveMQServerImpl implements ActiveMQServer
                                       final boolean xa,
                                       final String defaultAddress,
                                       final SessionCallback callback,
-                                      final ServerSessionFactory sessionFactory) throws Exception
+                                      final ServerSessionFactory sessionFactory,
+                                      final boolean autoCreateQueues) throws Exception
    {
 
       if (securityStore != null)
@@ -1026,14 +1046,22 @@ public class ActiveMQServerImpl implements ActiveMQServer
          securityStore.authenticate(username, password);
       }
       final OperationContext context = storageManager.newContext(getExecutorFactory().getExecutor());
-      final ServerSessionImpl session = internalCreateSession(name, username, password, minLargeMessageSize, connection, autoCommitSends, autoCommitAcks, preAcknowledge, xa, defaultAddress, callback, context, sessionFactory);
+      final ServerSessionImpl session = internalCreateSession(name, username, password, minLargeMessageSize,
+                                                              connection, autoCommitSends, autoCommitAcks, preAcknowledge,
+                                                              xa, defaultAddress, callback, context, sessionFactory, autoCreateQueues);
 
       sessions.put(name, session);
 
       return session;
    }
 
-   protected ServerSessionImpl internalCreateSession(String name, String username, String password, int minLargeMessageSize, RemotingConnection connection, boolean autoCommitSends, boolean autoCommitAcks, boolean preAcknowledge, boolean xa, String defaultAddress, SessionCallback callback, OperationContext context, ServerSessionFactory sessionFactory) throws Exception
+   protected ServerSessionImpl internalCreateSession(String name, String username,
+                                                     String password, int minLargeMessageSize,
+                                                     RemotingConnection connection, boolean autoCommitSends,
+                                                     boolean autoCommitAcks, boolean preAcknowledge, boolean xa,
+                                                     String defaultAddress, SessionCallback callback,
+                                                     OperationContext context, ServerSessionFactory sessionFactory,
+                                                     boolean autoCreateJMSQueues) throws Exception
    {
       if (sessionFactory == null)
       {
@@ -1057,7 +1085,8 @@ public class ActiveMQServerImpl implements ActiveMQServer
                                    defaultAddress == null ? null
                                       : new SimpleString(defaultAddress),
                                    callback,
-                                   context);
+                                   context,
+                                   autoCreateJMSQueues ? jmsQueueCreator : null);
       }
       else
       {
@@ -1081,6 +1110,7 @@ public class ActiveMQServerImpl implements ActiveMQServer
                                    defaultAddress == null ? null
                                       : new SimpleString(defaultAddress),
                                    callback,
+                                   jmsQueueCreator,
                                    context);
       }
    }

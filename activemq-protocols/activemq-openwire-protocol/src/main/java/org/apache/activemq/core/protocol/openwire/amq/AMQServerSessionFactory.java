@@ -21,6 +21,7 @@ import org.apache.activemq.core.persistence.OperationContext;
 import org.apache.activemq.core.persistence.StorageManager;
 import org.apache.activemq.core.postoffice.PostOffice;
 import org.apache.activemq.core.security.SecurityStore;
+import org.apache.activemq.core.server.QueueCreator;
 import org.apache.activemq.core.server.ServerSessionFactory;
 import org.apache.activemq.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.core.server.impl.ServerSessionImpl;
@@ -41,13 +42,13 @@ public class AMQServerSessionFactory implements ServerSessionFactory
          PostOffice postOffice, ResourceManager resourceManager,
          SecurityStore securityStore, ManagementService managementService,
          ActiveMQServerImpl activeMQServerImpl, SimpleString managementAddress,
-         SimpleString simpleString, SessionCallback callback,
+         SimpleString simpleString, SessionCallback callback, QueueCreator queueCreator,
          OperationContext context) throws Exception
    {
       return new AMQServerSession(name, username, password, minLargeMessageSize, autoCommitSends,
             autoCommitAcks, preAcknowledge, persistDeliveryCountBeforeDelivery, xa,
             connection, storageManager, postOffice, resourceManager, securityStore,
-            managementService, activeMQServerImpl, managementAddress, simpleString, callback,
+            managementService, activeMQServerImpl, managementAddress, simpleString, callback, queueCreator,
             context);
    }
 

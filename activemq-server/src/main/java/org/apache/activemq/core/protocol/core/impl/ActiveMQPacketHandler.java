@@ -177,7 +177,7 @@ public class ActiveMQPacketHandler implements ChannelHandler
                                                       request.getDefaultAddress(),
                                                       new CoreSessionCallback(request.getName(),
                                                                               protocolManager,
-                                                                              channel), null);
+                                                                              channel), null, true);
 
          ServerSessionPacketHandler handler = new ServerSessionPacketHandler(session,
                                                                              server.getStorageManager(),

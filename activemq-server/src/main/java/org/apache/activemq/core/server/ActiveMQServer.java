@@ -111,7 +111,8 @@ public interface ActiveMQServer extends ActiveMQComponent
                                boolean xa,
                                String defaultAddress,
                                SessionCallback callback,
-                               ServerSessionFactory sessionFactory) throws Exception;
+                               ServerSessionFactory sessionFactory,
+                               boolean autoCreateQueues) throws Exception;
 
    SecurityStore getSecurityStore();
 
@@ -141,6 +142,19 @@ public interface ActiveMQServer extends ActiveMQComponent
    SimpleString getNodeID();
 
    boolean isActive();
+
+   /**
+    * This is the queue creator responsible for JMS Queue creations*
+    * @param queueCreator
+    */
+   void setJMSQueueCreator(QueueCreator queueCreator);
+
+   /**
+    * @see {@link org.apache.activemq.core.server.ActiveMQServer#setJMSQueueCreator(QueueCreator)} *
+    * *
+    * @return
+    */
+   QueueCreator getJMSQueueCreator();
 
    /**
     * Wait for server initialization.

@@ -29,6 +29,7 @@ import org.apache.activemq.core.postoffice.PostOffice;
 import org.apache.activemq.core.postoffice.impl.DuplicateIDCacheImpl;
 import org.apache.activemq.core.server.MessageReference;
 import org.apache.activemq.core.server.Queue;
+import org.apache.activemq.core.server.QueueCreator;
 import org.apache.activemq.core.server.RoutingContext;
 import org.apache.activemq.core.server.ServerMessage;
 import org.apache.activemq.core.server.impl.MessageReferenceImpl;
@@ -153,45 +154,27 @@ public class FakePostOffice implements PostOffice
       return new MessageReferenceImpl();
    }
 
-   public void route(final ServerMessage message, final Transaction tx) throws Exception
+   public void route(ServerMessage message, QueueCreator creator, RoutingContext context, boolean direct) throws Exception
    {
 
 
    }
 
-   public void route(final ServerMessage message, final RoutingContext context) throws Exception
-   {
-
-
-   }
-
-   public void route(ServerMessage message, boolean direct) throws Exception
-   {
-
-
-   }
-
-   public void route(ServerMessage message, RoutingContext context, boolean direct) throws Exception
-   {
-
-
-   }
-
-   public void route(ServerMessage message, Transaction tx, boolean direct) throws Exception
+   public void route(ServerMessage message, QueueCreator creator, Transaction tx, boolean direct) throws Exception
    {
 
 
    }
 
    @Override
-   public void route(ServerMessage message, RoutingContext context, boolean direct, boolean rejectDuplicates) throws Exception
+   public void route(ServerMessage message, QueueCreator creator, RoutingContext context, boolean direct, boolean rejectDuplicates) throws Exception
    {
 
 
    }
 
    @Override
-   public void route(ServerMessage message, Transaction tx, boolean direct, boolean rejectDuplicates) throws Exception
+   public void route(ServerMessage message, QueueCreator creator, Transaction tx, boolean direct, boolean rejectDuplicates) throws Exception
    {
 
 
@@ -200,8 +183,11 @@ public class FakePostOffice implements PostOffice
    @Override
    public void processRoute(ServerMessage message, RoutingContext context, boolean direct) throws Exception
    {
-
-
    }
 
+   @Override
+   public void route(ServerMessage message, QueueCreator queueCreator, boolean direct) throws Exception
+   {
+
+   }
 }

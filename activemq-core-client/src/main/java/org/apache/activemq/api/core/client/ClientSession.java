@@ -27,6 +27,25 @@ import org.apache.activemq.api.core.SimpleString;
  */
 public interface ClientSession extends XAResource, AutoCloseable
 {
+
+   /**
+    * This is used to identify a ClientSession as used by the JMS Layer
+    * The JMS Layer will add this through Meta-data, so the server or management layers
+    * can identify session created over core API purely or through the JMS Layer
+    */
+   String JMS_SESSION_IDENTIFIER_PROPERTY = "jms-session";
+
+
+   /**
+    * Just like {@link org.apache.activemq.api.core.client.ClientSession.AddressQuery#JMS_SESSION_IDENTIFIER_PROPERTY} this is
+    * used to identify the ClientID over JMS Session.
+    * However this is only used when the JMS Session.clientID is set (which is optional).
+    * With this property management tools and the server can identify the jms-client-id used over JMS
+    */
+   String JMS_SESSION_CLIENT_ID_PROPERTY = "jms-client-id";
+
+
+
    /**
     * Information returned by a binding query
     *

@@ -40,6 +40,6 @@ public interface ServerSessionFactory
          SecurityStore securityStore, ManagementService managementService,
          ActiveMQServerImpl activeMQServerImpl, SimpleString managementAddress,
          SimpleString simpleString, SessionCallback callback,
-         OperationContext context) throws Exception;
+         QueueCreator queueCreator, OperationContext context) throws Exception;
 
 }

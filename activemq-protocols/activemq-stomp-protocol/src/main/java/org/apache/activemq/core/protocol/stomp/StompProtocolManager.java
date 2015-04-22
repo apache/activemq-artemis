@@ -274,7 +274,7 @@ class StompProtocolManager implements ProtocolManager<StompFrameInterceptor>, No
                                                       false,
                                                       false,
                                                       null,
-                                                      stompSession, null);
+                                                      stompSession, null, true);
          stompSession.setServerSession(session);
          sessions.put(connection.getID(), stompSession);
       }
@@ -299,7 +299,7 @@ class StompProtocolManager implements ProtocolManager<StompFrameInterceptor>, No
                                                       false,
                                                       false,
                                                       null,
-                                                      stompSession, null);
+                                                      stompSession, null, true);
          stompSession.setServerSession(session);
          transactedSessions.put(txID, stompSession);
       }

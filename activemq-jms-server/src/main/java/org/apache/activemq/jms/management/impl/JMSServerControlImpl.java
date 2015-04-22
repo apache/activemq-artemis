@@ -33,6 +33,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.apache.activemq.api.core.client.ClientSession;
 import org.apache.activemq.api.core.management.Parameter;
 import org.apache.activemq.api.jms.JMSFactoryType;
 import org.apache.activemq.api.jms.management.ConnectionFactoryControl;
@@ -737,9 +738,10 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
 
          Map<Object, ServerSession> jmsSessions = new HashMap<Object, ServerSession>();
 
+         // First separate the real jms sessions, after all we are only interested in those here on the *jms* server controller
          for (ServerSession session : sessions)
          {
-            if (session.getMetaData("jms-session") != null)
+            if (session.getMetaData(ClientSession.JMS_SESSION_IDENTIFIER_PROPERTY) != null)
             {
                jmsSessions.put(session.getConnectionID(), session);
             }
@@ -754,7 +756,8 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
                obj.put("connectionID", connection.getID().toString());
                obj.put("clientAddress", connection.getRemoteAddress());
                obj.put("creationTime", connection.getCreationTime());
-               obj.put("clientID", session.getMetaData("jms-client-id"));
+               // Notice: this will be null when the user haven't set the client-id
+               obj.put("clientID", session.getMetaData(ClientSession.JMS_SESSION_CLIENT_ID_PROPERTY));
                obj.put("principal", session.getUsername());
                array.put(obj);
             }
@@ -986,7 +989,7 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
 
    public String closeConnectionWithClientID(final String clientID) throws Exception
    {
-      return server.getActiveMQServer().destroyConnectionWithSessionMetadata("jms-client-id", clientID);
+      return server.getActiveMQServer().destroyConnectionWithSessionMetadata(ClientSession.JMS_SESSION_CLIENT_ID_PROPERTY, clientID);
    }
 
    private JSONObject toJSONObject(ServerConsumer consumer) throws Exception

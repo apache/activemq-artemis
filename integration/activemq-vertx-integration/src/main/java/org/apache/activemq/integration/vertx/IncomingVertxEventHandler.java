@@ -175,7 +175,7 @@ public class IncomingVertxEventHandler implements ConnectorService
 
          try
          {
-            postOffice.route(msg, false);
+            postOffice.route(msg, null, false);
          }
          catch (Exception e)
          {

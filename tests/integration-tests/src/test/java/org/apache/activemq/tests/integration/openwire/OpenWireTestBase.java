@@ -16,16 +16,15 @@
  */
 package org.apache.activemq.tests.integration.openwire;
 
+import javax.jms.ConnectionFactory;
+import javax.management.MBeanServer;
+import javax.management.MBeanServerFactory;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import javax.jms.ConnectionFactory;
-import javax.management.MBeanServer;
-import javax.management.MBeanServerFactory;
 
 import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.api.core.TransportConfiguration;
@@ -75,6 +74,7 @@ public class OpenWireTestBase extends ServiceTestBase
       Map<String, AddressSettings> addressSettings = serverConfig.getAddressesSettings();
       String match = "jms.queue.#";
       AddressSettings dlaSettings = new AddressSettings();
+      dlaSettings.setAutoCreateJmsQueues(false);
       SimpleString dla = new SimpleString("jms.queue.ActiveMQ.DLQ");
       dlaSettings.setDeadLetterAddress(dla);
       addressSettings.put(match, dlaSettings);

@@ -18,7 +18,6 @@ package org.apache.activemq.jms.server.impl;
 
 import javax.naming.NamingException;
 import javax.transaction.xa.Xid;
-
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -50,6 +49,7 @@ import org.apache.activemq.core.security.Role;
 import org.apache.activemq.core.server.ActivateCallback;
 import org.apache.activemq.core.server.ActiveMQServer;
 import org.apache.activemq.core.server.Queue;
+import org.apache.activemq.core.server.QueueCreator;
 import org.apache.activemq.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.core.server.management.Notification;
 import org.apache.activemq.core.settings.impl.AddressSettings;
@@ -62,9 +62,9 @@ import org.apache.activemq.jms.client.ActiveMQQueue;
 import org.apache.activemq.jms.client.ActiveMQTopic;
 import org.apache.activemq.jms.client.SelectorTranslator;
 import org.apache.activemq.jms.persistence.JMSStorageManager;
+import org.apache.activemq.jms.persistence.config.PersistedBindings;
 import org.apache.activemq.jms.persistence.config.PersistedConnectionFactory;
 import org.apache.activemq.jms.persistence.config.PersistedDestination;
-import org.apache.activemq.jms.persistence.config.PersistedBindings;
 import org.apache.activemq.jms.persistence.config.PersistedType;
 import org.apache.activemq.jms.persistence.impl.journal.JMSJournalStorageManagerImpl;
 import org.apache.activemq.jms.persistence.impl.nullpm.NullJMSStorageManagerImpl;
@@ -400,6 +400,8 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
          return;
       }
 
+      server.setJMSQueueCreator(new JMSQueueCreator());
+
       server.registerActivateCallback(this);
       /**
        * See this method's javadoc.
@@ -490,6 +492,16 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
                                            final String selectorString,
                                            final boolean durable,
                                            final String... bindings) throws Exception
+   {
+      return internalCreateJMSQueue(storeConfig, queueName, selectorString, durable, false, bindings);
+   }
+
+   protected boolean internalCreateJMSQueue(final boolean storeConfig,
+                                         final String queueName,
+                                         final String selectorString,
+                                         final boolean durable,
+                                         final boolean autoCreated,
+                                         final String... bindings) throws Exception
    {
 
       if (active && queues.get(queueName) != null)
@@ -1880,5 +1892,30 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
          }
       }
    }
+
+
+
+
+   class JMSQueueCreator implements QueueCreator
+   {
+      private final SimpleString PREFIX = SimpleString.toSimpleString("jms.queue");
+      @Override
+      public boolean create(SimpleString address) throws Exception
+      {
+         AddressSettings settings = server.getAddressSettingsRepository().getMatch(address.toString());
+         if (address.startsWith(PREFIX) && settings.isAutoCreateJmsQueues())
+         {
+            // stopped here... finish here
+            JMSServerManagerImpl.this.internalCreateJMSQueue(false, address.toString().substring(PREFIX.toString().length() + 1), null, true, true);
+            return true;
+         }
+         else
+         {
+            return false;
+         }
+      }
+   }
+
+
 
 }

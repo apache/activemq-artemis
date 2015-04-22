@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.core.protocol.openwire.amq;
 
+import javax.transaction.xa.Xid;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -28,8 +29,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import javax.transaction.xa.Xid;
-
+import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.command.ConnectionInfo;
 import org.apache.activemq.command.ConsumerId;
@@ -46,9 +46,6 @@ import org.apache.activemq.command.SessionInfo;
 import org.apache.activemq.command.TransactionId;
 import org.apache.activemq.command.TransactionInfo;
 import org.apache.activemq.command.XATransactionId;
-import org.apache.activemq.core.server.ActiveMQServerLogger;
-import org.apache.activemq.wireformat.WireFormat;
-import org.apache.activemq.api.core.SimpleString;
 import org.apache.activemq.core.paging.impl.PagingStoreImpl;
 import org.apache.activemq.core.protocol.openwire.OpenWireConnection;
 import org.apache.activemq.core.protocol.openwire.OpenWireMessageConverter;
@@ -56,12 +53,14 @@ import org.apache.activemq.core.protocol.openwire.OpenWireProtocolManager;
 import org.apache.activemq.core.protocol.openwire.OpenWireUtil;
 import org.apache.activemq.core.protocol.openwire.SendingResult;
 import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.core.server.ActiveMQServerLogger;
 import org.apache.activemq.core.server.ServerConsumer;
 import org.apache.activemq.core.server.ServerMessage;
 import org.apache.activemq.core.server.impl.ServerMessageImpl;
 import org.apache.activemq.core.transaction.impl.XidImpl;
 import org.apache.activemq.spi.core.protocol.SessionCallback;
 import org.apache.activemq.spi.core.remoting.ReadyListener;
+import org.apache.activemq.wireformat.WireFormat;
 
 public class AMQSession implements SessionCallback
 {
@@ -109,7 +108,7 @@ public class AMQSession implements SessionCallback
       {
          coreSession = (AMQServerSession) server.createSession(name, username, password,
                minLargeMessageSize, connection, true, false, false, false,
-               null, this, new AMQServerSessionFactory());
+               null, this, new AMQServerSessionFactory(), true);
 
          long sessionId = sessInfo.getSessionId().getValue();
          if (sessionId == -1)
@@ -143,7 +142,7 @@ public class AMQSession implements SessionCallback
          if (d.isQueue())
          {
             SimpleString queueName = OpenWireUtil.toCoreAddress(d);
-            connection.autoCreateQueueIfPossible(queueName, this);
+            getCoreServer().getJMSQueueCreator().create(queueName);
          }
          AMQConsumer consumer = new AMQConsumer(this, d, info);
          consumer.init();
