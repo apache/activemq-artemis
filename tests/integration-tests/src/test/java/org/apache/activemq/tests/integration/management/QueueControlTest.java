@@ -285,10 +285,20 @@ public class QueueControlTest extends ManagementTestBase
       // It's empty, so it's supposed to be like this
       assertEquals("[{}]", queueControl.getFirstMessageAsJSON());
 
+      long beforeSend = System.currentTimeMillis();
       ClientProducer producer = session.createProducer(address);
       producer.send(session.createMessage(false).putStringProperty("x", "valueX").putStringProperty("y", "valueY"));
 
       System.out.println("first:" + queueControl.getFirstMessageAsJSON());
+
+      long firstMessageTimestamp = queueControl.getFirstMessageTimestamp();
+      System.out.println("first message timestamp: " + firstMessageTimestamp);
+      assertTrue(beforeSend <= firstMessageTimestamp);
+      assertTrue(firstMessageTimestamp <= System.currentTimeMillis());
+
+      long firstMessageAge = queueControl.getFirstMessageAge();
+      System.out.println("first message age: " + firstMessageAge);
+      assertTrue(firstMessageAge <= (System.currentTimeMillis() - firstMessageTimestamp));
 
       session.deleteQueue(queue);
    }

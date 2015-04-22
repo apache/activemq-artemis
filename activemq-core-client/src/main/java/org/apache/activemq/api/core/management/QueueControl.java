@@ -93,6 +93,16 @@ public interface QueueControl
    String getFirstMessageAsJSON() throws Exception;
 
    /**
+    * Returns the timestamp of the first message in milliseconds.
+    */
+   Long getFirstMessageTimestamp() throws Exception;
+
+   /**
+    * Returns the age of the first message in milliseconds.
+    */
+   Long getFirstMessageAge() throws Exception;
+
+   /**
     * Returns the expiry address associated to this queue.
     */
    String getExpiryAddress();

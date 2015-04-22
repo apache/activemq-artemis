@@ -55,6 +55,21 @@ public interface JMSQueueControl extends DestinationControl
     */
    String getSelector();
 
+   /**
+    * Returns the first message on the queue as JSON
+    */
+   String getFirstMessageAsJSON() throws Exception;
+
+   /**
+    * Returns the timestamp of the first message in milliseconds.
+    */
+   Long getFirstMessageTimestamp() throws Exception;
+
+   /**
+    * Returns the age of the first message in milliseconds.
+    */
+   Long getFirstMessageAge() throws Exception;
+
    // Operations ----------------------------------------------------
 
    /**

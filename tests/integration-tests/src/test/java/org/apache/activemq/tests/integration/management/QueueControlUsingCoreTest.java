@@ -182,6 +182,21 @@ public class QueueControlUsingCoreTest extends QueueControlTest
             return (String) proxy.invokeOperation("getFirstMessageAsJSON");
          }
 
+         /**
+          * Returns the timestamp of the first message in milliseconds.
+          */
+         public Long getFirstMessageTimestamp() throws Exception
+         {
+            return (Long) proxy.invokeOperation("getFirstMessageTimestamp");
+         }
+
+         /**
+          * Returns the age of the first message in milliseconds.
+          */
+         public Long getFirstMessageAge() throws Exception
+         {
+            return (Long) proxy.invokeOperation("getFirstMessageAge");
+         }
 
          public String listMessageCounterHistoryAsHTML() throws Exception
          {

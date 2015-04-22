@@ -146,6 +146,21 @@ public class JMSQueueControlImpl extends StandardMBean implements JMSQueueContro
       return coreQueueControl.getExpiryAddress();
    }
 
+   public String getFirstMessageAsJSON() throws Exception
+   {
+      return coreQueueControl.getFirstMessageAsJSON();
+   }
+
+   public Long getFirstMessageTimestamp() throws Exception
+   {
+      return coreQueueControl.getFirstMessageTimestamp();
+   }
+
+   public Long getFirstMessageAge() throws Exception
+   {
+      return coreQueueControl.getFirstMessageAge();
+   }
+
    @Override
    public void addBinding(String binding) throws Exception
    {
