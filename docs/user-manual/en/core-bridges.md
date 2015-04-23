@@ -195,6 +195,12 @@ Let's take a look at all the parameters in turn:
     > `confirmation-window-size` is less than or equal to
     > `max-size-bytes` to prevent the flow of messages from ceasing.
 
+-   `producer-window-size`. This optional parameter determines the
+    producer flow control through the bridge. You usually leave this off
+    unless you are dealing with huge large messages. 
+    
+    Default=-1 (disabled)
+
 -   `user`. This optional parameter determines the user name to use when
     creating the bridge connection to the remote server. If it is not
     specified the default cluster user specified by `cluster-user` in

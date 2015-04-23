@@ -109,6 +109,7 @@ import static org.apache.activemq.core.protocol.core.impl.PacketImpl.SESS_RECEIV
 
 public class ActiveMQSessionContext extends SessionContext
 {
+   private static final long MAX_RESENDCACHE_WAITING_TIME = 10000L;//10 sec
    private final Channel sessionChannel;
    private final int serverVersion;
    private int confirmationWindow;
@@ -425,6 +426,27 @@ public class ActiveMQSessionContext extends SessionContext
 
    @Override
    public int sendLargeMessageChunk(MessageInternal msgI, long messageBodySize, boolean sendBlocking, boolean lastChunk, byte[] chunk, SendAcknowledgementHandler messageHandler) throws ActiveMQException
+   {
+      final boolean requiresResponse = lastChunk && sendBlocking;
+      final SessionSendContinuationMessage chunkPacket =
+              new SessionSendContinuationMessage(msgI, chunk, !lastChunk,
+                      requiresResponse, messageBodySize, messageHandler);
+
+      if (requiresResponse)
+      {
+         // When sending it blocking, only the last chunk will be blocking.
+         sessionChannel.sendBlocking(chunkPacket, PacketImpl.NULL_RESPONSE);
+      }
+      else
+      {
+         sessionChannel.send(chunkPacket);
+      }
+
+      return chunkPacket.getPacketSize();
+   }
+
+   @Override
+   public int sendServerLargeMessageChunk(MessageInternal msgI, long messageBodySize, boolean sendBlocking, boolean lastChunk, byte[] chunk, SendAcknowledgementHandler messageHandler) throws ActiveMQException
    {
       final boolean requiresResponse = lastChunk && sendBlocking;
       final SessionSendContinuationMessage chunkPacket =

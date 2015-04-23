@@ -72,7 +72,7 @@ public class LinkedListTest extends UnitTestCase
 
       LinkedListIterator<MyObject> iter = objs.iterator();
 
-      for (int i = 0; i < 5000; i++)
+      for (int i = 0; i < 1000; i++)
       {
 
          for (int add = 0; add < 1000; add++)

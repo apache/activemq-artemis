@@ -113,6 +113,8 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
 
    private final int confirmationWindowSize;
 
+   private final int producerWindowSize;
+
    /**
     * Guard for the field {@link #records}. Note that the field is {@link ConcurrentHashMap},
     * however we need the guard to synchronize multiple step operations during topology updates.
@@ -179,6 +181,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
                                 final boolean useDuplicateDetection,
                                 final boolean routeWhenNoConsumers,
                                 final int confirmationWindowSize,
+                                final int producerWindowSize,
                                 final ExecutorFactory executorFactory,
                                 final ActiveMQServer server,
                                 final PostOffice postOffice,
@@ -219,6 +222,8 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
       this.routeWhenNoConsumers = routeWhenNoConsumers;
 
       this.confirmationWindowSize = confirmationWindowSize;
+
+      this.producerWindowSize = producerWindowSize;
 
       this.executorFactory = executorFactory;
 
@@ -286,6 +291,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
                                 final boolean useDuplicateDetection,
                                 final boolean routeWhenNoConsumers,
                                 final int confirmationWindowSize,
+                                final int producerWindowSize,
                                 final ExecutorFactory executorFactory,
                                 final ActiveMQServer server,
                                 final PostOffice postOffice,
@@ -332,6 +338,8 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
       this.routeWhenNoConsumers = routeWhenNoConsumers;
 
       this.confirmationWindowSize = confirmationWindowSize;
+
+      this.producerWindowSize = producerWindowSize;
 
       this.executorFactory = executorFactory;
 
@@ -637,8 +645,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
          serverLocator.setBlockOnNonDurableSend(!useDuplicateDetection);
          serverLocator.setCallTimeout(callTimeout);
          serverLocator.setCallFailoverTimeout(callFailoverTimeout);
-         // No producer flow control on the bridges, as we don't want to lock the queues
-         serverLocator.setProducerWindowSize(-1);
+         serverLocator.setProducerWindowSize(producerWindowSize);
 
          if (retryInterval > 0)
          {

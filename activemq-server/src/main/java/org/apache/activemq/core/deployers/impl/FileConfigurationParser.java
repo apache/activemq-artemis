@@ -1417,6 +1417,10 @@ public final class FileConfigurationParser extends XMLConfigurationUtil
          getInteger(e, "confirmation-window-size", ActiveMQDefaultConfiguration.getDefaultClusterConfirmationWindowSize(),
                     Validators.GT_ZERO);
 
+      int producerWindowSize =
+         getInteger(e, "producer-window-size", ActiveMQDefaultConfiguration.getDefaultBridgeConfirmationWindowSize(),
+                    Validators.MINUS_ONE_OR_GT_ZERO);
+
       long clusterNotificationInterval = getLong(e, "notification-interval", ActiveMQDefaultConfiguration.getDefaultClusterNotificationInterval(), Validators.GT_ZERO);
 
       int clusterNotificationAttempts = getInteger(e, "notification-attempts", ActiveMQDefaultConfiguration.getDefaultClusterNotificationAttempts(), Validators.GT_ZERO);
@@ -1468,6 +1472,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil
          .setForwardWhenNoConsumers(forwardWhenNoConsumers)
          .setMaxHops(maxHops)
          .setConfirmationWindowSize(confirmationWindowSize)
+         .setProducerindowSize(producerWindowSize)
          .setAllowDirectConnectionsOnly(allowDirectConnectionsOnly)
          .setClusterNotificationInterval(clusterNotificationInterval)
          .setClusterNotificationAttempts(clusterNotificationAttempts);
@@ -1547,6 +1552,10 @@ public final class FileConfigurationParser extends XMLConfigurationUtil
 
       int reconnectAttemptsSameNode =
          getInteger(brNode, "reconnect-attempts-same-node", ActiveMQDefaultConfiguration.getDefaultBridgeConnectSameNode(),
+                    Validators.MINUS_ONE_OR_GE_ZERO);
+
+      int producerWindowSize =
+         getInteger(brNode, "producer-window-size", ActiveMQDefaultConfiguration.getDefaultBridgeProducerWindowSize(),
                     Validators.MINUS_ONE_OR_GE_ZERO);
 
       boolean useDuplicateDetection = getBoolean(brNode,
@@ -1630,7 +1639,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil
          .setConfirmationWindowSize(confirmationWindowSize)
          .setHA(ha)
          .setUser(user)
-         .setPassword(password);
+         .setPassword(password)
+         .setProducerWindowSize(producerWindowSize);
 
       if (!staticConnectorNames.isEmpty())
       {

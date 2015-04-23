@@ -736,6 +736,10 @@ specified. The following shows all the available configuration options
     server has received `confirmation-window-size` bytes it notifies its
     client, default is 1048576. A value of -1 means no window.
 
+-   `producer-window-size`. The size for producer flow control over cluster connection.
+     it's by default disabled through the cluster connection bridge but you may want
+     to set a value if you are using really large messages in cluster. A value of -1 means no window.
+
 -   `call-failover-timeout`. Similar to `call-timeout` but used when a
     call is made during a failover attempt. Default is -1 (no timeout).
 

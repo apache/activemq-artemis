@@ -63,6 +63,8 @@ public final class ClusterConnectionConfiguration implements Serializable
 
    private int confirmationWindowSize = ActiveMQDefaultConfiguration.getDefaultClusterConfirmationWindowSize();
 
+   private int producerWindowSize = ActiveMQDefaultConfiguration.getDefaultBridgeProducerWindowSize();
+
    private boolean allowDirectConnectionsOnly = false;
 
    private int minLargeMessageSize = ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE;
@@ -195,6 +197,18 @@ public final class ClusterConnectionConfiguration implements Serializable
    public ClusterConnectionConfiguration setConfirmationWindowSize(int confirmationWindowSize)
    {
       this.confirmationWindowSize = confirmationWindowSize;
+      return this;
+   }
+
+
+   public int getProducerWindowSize()
+   {
+      return producerWindowSize;
+   }
+
+   public ClusterConnectionConfiguration setProducerindowSize(int producerWindowSize)
+   {
+      this.producerWindowSize = producerWindowSize;
       return this;
    }
 

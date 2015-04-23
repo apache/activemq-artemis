@@ -529,8 +529,7 @@ public final class ClusterManager implements ActiveMQComponent
       serverLocator.setBlockOnDurableSend(!config.isUseDuplicateDetection());
       serverLocator.setBlockOnNonDurableSend(!config.isUseDuplicateDetection());
       serverLocator.setMinLargeMessageSize(config.getMinLargeMessageSize());
-      //disable flow control
-      serverLocator.setProducerWindowSize(-1);
+      serverLocator.setProducerWindowSize(config.getProducerWindowSize());
 
       // This will be set to 30s unless it's changed from embedded / testing
       // there is no reason to exception the config for this timeout
@@ -735,6 +734,7 @@ public final class ClusterManager implements ActiveMQComponent
                                                        config.isDuplicateDetection(),
                                                        config.isForwardWhenNoConsumers(),
                                                        config.getConfirmationWindowSize(),
+                                                       config.getProducerWindowSize(),
                                                        executorFactory,
                                                        server,
                                                        postOffice,
@@ -777,6 +777,7 @@ public final class ClusterManager implements ActiveMQComponent
                                                        config.isDuplicateDetection(),
                                                        config.isForwardWhenNoConsumers(),
                                                        config.getConfirmationWindowSize(),
+                                                       config.getProducerWindowSize(),
                                                        executorFactory,
                                                        server,
                                                        postOffice,

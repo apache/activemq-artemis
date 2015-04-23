@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>   
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
   Licensed to the Apache Software Foundation (ASF) under one or more
   contributor license agreements.  See the NOTICE file distributed with
@@ -287,7 +287,7 @@
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
-         
+
          <xsd:element name="remoting-incoming-interceptors" type="class-name-sequenceType" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
@@ -1049,6 +1049,14 @@
             </xsd:annotation>
          </xsd:element>
 
+         <xsd:element name="producer-window-size" type="xsd:int" maxOccurs="1" minOccurs="0" default="1048576">
+            <xsd:annotation>
+               <xsd:documentation>
+                  Producer flow control on the bridge (default disabled = -1)
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
          <xsd:element name="user" type="xsd:string" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
@@ -1227,6 +1235,14 @@
             <xsd:annotation>
                <xsd:documentation>
                   The size (in bytes) of the window used for confirming data from the server connected to.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
+         <xsd:element name="producer-window-size" type="xsd:int" maxOccurs="1" minOccurs="0" default="1048576">
+            <xsd:annotation>
+               <xsd:documentation>
+                  Producer flow control on the bridge (default disabled = -1)
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
