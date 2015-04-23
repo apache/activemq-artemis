@@ -56,6 +56,8 @@ public final class BridgeConfiguration implements Serializable
 
    private int confirmationWindowSize = ActiveMQClient.DEFAULT_CONFIRMATION_WINDOW_SIZE;
 
+   private int producerWindowSize = ActiveMQDefaultConfiguration.getDefaultBridgeProducerWindowSize();
+
    private long clientFailureCheckPeriod = ActiveMQClient.DEFAULT_CLIENT_FAILURE_CHECK_PERIOD;
 
    private String user = ActiveMQDefaultConfiguration.getDefaultClusterUser();
@@ -300,6 +302,19 @@ public final class BridgeConfiguration implements Serializable
    {
       this.confirmationWindowSize = confirmationWindowSize;
       return this;
+   }
+
+   /** The producer flow control on the birdge */
+   public BridgeConfiguration setProducerWindowSize(final int producerWindowSize)
+   {
+      this.producerWindowSize = producerWindowSize;
+      return this;
+   }
+
+   public int getProducerWindowSize()
+   {
+      return producerWindowSize;
+
    }
 
    public long getClientFailureCheckPeriod()

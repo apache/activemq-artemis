@@ -1795,7 +1795,7 @@ public class BridgeTest extends ServiceTestBase
          ArrayList<String> staticConnectors = new ArrayList<String>();
          staticConnectors.add(server1tc.getName());
 
-         int minLargeMessageSize = 50 * 1024 * 1024; //50M
+         int minLargeMessageSize = 1024 * 1024;
 
          BridgeConfiguration bridgeConfiguration = new BridgeConfiguration()
                  .setName("bridge1")
@@ -1806,7 +1806,8 @@ public class BridgeTest extends ServiceTestBase
                  .setUseDuplicateDetection(false)
                  .setConfirmationWindowSize(1024)
                  .setStaticConnectors(staticConnectors)
-                 .setMinLargeMessageSize(minLargeMessageSize);
+                 .setMinLargeMessageSize(minLargeMessageSize)
+                 .setProducerWindowSize(minLargeMessageSize / 2);
 
          List<BridgeConfiguration> bridgeConfigs = new ArrayList<BridgeConfiguration>();
          bridgeConfigs.add(bridgeConfiguration);
@@ -1847,10 +1848,9 @@ public class BridgeTest extends ServiceTestBase
          session1.start();
 
          //create a large message bigger than Integer.MAX_VALUE
-         final long largeMessageSize = 3L * 1024L * 1024L * 1024L;
+         final long largeMessageSize = Integer.MAX_VALUE + 1000L;
 
-         File destDir = createDestDir("testBridgeWithVeryLargeMessage");
-         ClientMessage largeMessage = createLargeMessage(session0, largeMessageSize, destDir);
+         ClientMessage largeMessage = createLargeMessage(session0, largeMessageSize);
 
          producer0.send(largeMessage);
 
@@ -1878,7 +1878,7 @@ public class BridgeTest extends ServiceTestBase
          ClientMessage message = consumer1.receive(5000);
          message.acknowledge();
 
-         File outputFile = new File(destDir, "huge_message_received.dat");
+         File outputFile = new File(getTemporaryDir(), "huge_message_received.dat");
 
          System.out.println("-----message save to: " + outputFile.getAbsolutePath());
          FileOutputStream fileOutputStream = new FileOutputStream(outputFile);
@@ -1930,30 +1930,10 @@ public class BridgeTest extends ServiceTestBase
       assertEquals(0, loadQueues(server0).size());
    }
 
-   private File createDestDir(String dirName)
-   {
-      File clientDir = new File(getClientLargeMessagesDir());
-      if (!clientDir.exists())
-      {
-         if (!clientDir.mkdirs())
-         {
-            throw new IllegalStateException("Can't create dir " + clientDir.getAbsolutePath());
-         }
-      }
-
-      File destDir = new File(clientDir, dirName);
-      if (!destDir.mkdir())
-      {
-         throw new IllegalStateException("Can't create dir " + destDir.getAbsolutePath());
-      }
-      return destDir;
-   }
-
-
-   private ClientMessage createLargeMessage(ClientSession session, long largeMessageSize, File destDir) throws Exception
+   private ClientMessage createLargeMessage(ClientSession session, long largeMessageSize) throws Exception
    {
 
-      File fileInput = new File(destDir, "huge_message_to_send.dat");
+      File fileInput = new File(getTemporaryDir(), "huge_message_to_send.dat");
 
       createFile(fileInput, largeMessageSize);
 

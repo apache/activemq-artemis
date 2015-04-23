@@ -226,27 +226,6 @@ public final class ChannelImpl implements Channel
       this.transferring = transferring;
    }
 
-   @Override
-   public boolean largeServerCheck(long timeout)
-   {
-      if (resendCache == null) return true;
-
-      synchronized (resendCache)
-      {
-         if (resendCache.size() >= 1)
-         {
-            try
-            {
-               resendCache.wait(timeout);
-            }
-            catch (InterruptedException e)
-            {
-            }
-         }
-      }
-      return resendCache.size() == 0;
-   }
-
    // This must never called by more than one thread concurrently
    public boolean send(final Packet packet, final boolean flush, final boolean batch)
    {
@@ -628,12 +607,7 @@ public final class ChannelImpl implements Channel
 
          firstStoredCommandID = 0;
 
-         synchronized (resendCache)
-         {
-            resendCache.clear();
-            resendCache.notifyAll();
-         }
-
+         resendCache.clear();
       }
    }
 
@@ -698,38 +672,28 @@ public final class ChannelImpl implements Channel
 
       int sizeToFree = 0;
 
-      try
+      for (int i = 0; i < numberToClear; i++)
       {
-         for (int i = 0; i < numberToClear; i++)
+         final Packet packet = resendCache.poll();
+
+         if (packet == null)
          {
-            final Packet packet = resendCache.poll();
-
-            if (packet == null)
+            if (lastReceivedCommandID > 0)
             {
-               if (lastReceivedCommandID > 0)
-               {
-                  ActiveMQClientLogger.LOGGER.cannotFindPacketToClear(lastReceivedCommandID, firstStoredCommandID);
-               }
-               firstStoredCommandID = lastReceivedCommandID + 1;
-               return;
+               ActiveMQClientLogger.LOGGER.cannotFindPacketToClear(lastReceivedCommandID, firstStoredCommandID);
             }
-
-            if (packet.getType() != PacketImpl.PACKETS_CONFIRMED)
-            {
-               sizeToFree += packet.getPacketSize();
-            }
-
-            if (commandConfirmationHandler != null)
-            {
-               commandConfirmationHandler.commandConfirmed(packet);
-            }
+            firstStoredCommandID = lastReceivedCommandID + 1;
+            return;
          }
-      }
-      finally
-      {
-         synchronized (resendCache)
+
+         if (packet.getType() != PacketImpl.PACKETS_CONFIRMED)
          {
-            resendCache.notifyAll();
+            sizeToFree += packet.getPacketSize();
+         }
+
+         if (commandConfirmationHandler != null)
+         {
+            commandConfirmationHandler.commandConfirmed(packet);
          }
       }
 

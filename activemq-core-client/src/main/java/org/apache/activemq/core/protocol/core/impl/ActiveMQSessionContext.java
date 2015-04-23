@@ -461,14 +461,6 @@ public class ActiveMQSessionContext extends SessionContext
       else
       {
          sessionChannel.send(chunkPacket);
-         if (!sessionChannel.largeServerCheck(MAX_RESENDCACHE_WAITING_TIME))
-         {
-            ActiveMQClientLogger.LOGGER.warn("Bridge detected that the target server is slow to " +
-                    " send back chunk confirmations. It 's possible the bridge may take more memory" +
-                    " during sending of a large message. It may be a temporary situation if this warning" +
-                    " occasionally shows up.");
-         }
-
       }
 
       return chunkPacket.getPacketSize();
