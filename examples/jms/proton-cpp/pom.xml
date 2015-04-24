@@ -29,7 +29,7 @@ under the License.
 
    <artifactId>activemq-jms-protoncpp</artifactId>
    <packaging>jar</packaging>
-   <name>ActiveMQ6 AMQP CPP Example</name>
+   <name>ActiveMQ Artemis AMQP CPP Example</name>
 
    <dependencies>
       <dependency>

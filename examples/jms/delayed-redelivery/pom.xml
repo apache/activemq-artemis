@@ -29,7 +29,7 @@ under the License.
 
    <artifactId>activemq-jms-delayed-redelivery-example</artifactId>
    <packaging>jar</packaging>
-   <name>ActiveMQ6 JMS Delayed Redelivery Example</name>
+   <name>ActiveMQ Artemis JMS Delayed Redelivery Example</name>
 
    <dependencies>
       <dependency>

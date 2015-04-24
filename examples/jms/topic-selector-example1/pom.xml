@@ -29,7 +29,7 @@ under the License.
 
    <artifactId>activemq-jms-topic-selector-example1-example</artifactId>
    <packaging>jar</packaging>
-   <name>ActiveMQ6 JMS Topic Selector Example 1</name>
+   <name>ActiveMQ Artemis JMS Topic Selector Example 1</name>
 
    <dependencies>
       <dependency>

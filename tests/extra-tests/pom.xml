@@ -30,7 +30,7 @@
 
    <artifactId>extra-tests</artifactId>
    <packaging>jar</packaging>
-   <name>ActiveMQ6 Extra Tests</name>
+   <name>ActiveMQ Artemis Extra Tests</name>
 
    <properties>
       <tools.jar>${java.home}/../lib/tools.jar</tools.jar>

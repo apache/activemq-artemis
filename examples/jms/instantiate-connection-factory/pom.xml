@@ -29,7 +29,7 @@ under the License.
 
    <artifactId>activemq-jms-instantiate-connection-factory-example</artifactId>
    <packaging>jar</packaging>
-   <name>ActiveMQ6 JMS Instantiate Connection Factory Example</name>
+   <name>ActiveMQ Artemis JMS Instantiate Connection Factory Example</name>
 
    <dependencies>
       <dependency>

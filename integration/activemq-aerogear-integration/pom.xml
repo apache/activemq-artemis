@@ -26,7 +26,7 @@
 
    <artifactId>activemq-aerogear-integration</artifactId>
    <packaging>jar</packaging>
-   <name>ActiveMQ6 Aerogear Integration</name>
+   <name>ActiveMQ Artemis Aerogear Integration</name>
 
    <properties>
       <activemq.basedir>${project.basedir}/../..</activemq.basedir>

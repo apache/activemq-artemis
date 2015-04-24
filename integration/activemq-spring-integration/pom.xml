@@ -27,7 +27,7 @@
 
    <artifactId>activemq-spring-integration</artifactId>
    <packaging>jar</packaging>
-   <name>ActiveMQ6 Spring Integration</name>
+   <name>ActiveMQ Artemis Spring Integration</name>
 
    <properties>
       <activemq.basedir>${project.basedir}/../..</activemq.basedir>

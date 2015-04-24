@@ -29,7 +29,7 @@ under the License.
 
    <artifactId>activemq-jms-browser-example</artifactId>
    <packaging>jar</packaging>
-   <name>ActiveMQ6 JMS Browser Example</name>
+   <name>ActiveMQ Artemis JMS Browser Example</name>
 
    <dependencies>
       <dependency>

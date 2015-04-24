@@ -29,7 +29,7 @@ under the License.
 
    <artifactId>activemq-jms-clustered-static-oneway-example</artifactId>
    <packaging>jar</packaging>
-   <name>ActiveMQ6 JMS Clustered Static One Way Example</name>
+   <name>ActiveMQ Artemis JMS Clustered Static One Way Example</name>
 
    <dependencies>
       <dependency>

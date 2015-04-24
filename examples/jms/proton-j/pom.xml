@@ -29,7 +29,7 @@ under the License.
 
    <artifactId>activemq-proton-j-example</artifactId>
    <packaging>jar</packaging>
-   <name>ActiveMQ6 Proton-J Example</name>
+   <name>ActiveMQ Artemis Proton-J Example</name>
 
    <dependencies>
       <dependency>

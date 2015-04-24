@@ -29,7 +29,7 @@ under the License.
 
    <artifactId>activemq-jms-xa-send-example</artifactId>
    <packaging>jar</packaging>
-   <name>ActiveMQ6 JMS XA Send Example</name>
+   <name>ActiveMQ Artemis JMS XA Send Example</name>
 
    <dependencies>
       <dependency>

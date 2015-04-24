@@ -29,7 +29,7 @@ under the License.
 
    <artifactId>activemq-jms-producer-rate-limit-example</artifactId>
    <packaging>jar</packaging>
-   <name>ActiveMQ6 JMS Producer Rate Limit Example</name>
+   <name>ActiveMQ Artemis JMS Producer Rate Limit Example</name>
 
    <dependencies>
       <dependency>

@@ -29,7 +29,7 @@
 
    <artifactId>activemq-boot</artifactId>
    <packaging>jar</packaging>
-   <name>ActiveMQ6 Boot</name>
+   <name>ActiveMQ Artemis Boot</name>
 
    <properties>
       <activemq.basedir>${project.basedir}/..</activemq.basedir>

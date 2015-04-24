@@ -29,7 +29,7 @@ under the License.
 
    <artifactId>activemq-jms-scheduled-message-example</artifactId>
    <packaging>jar</packaging>
-   <name>ActiveMQ6 JMS Scheduled Message Example</name>
+   <name>ActiveMQ Artemis JMS Scheduled Message Example</name>
 
    <dependencies>
       <dependency>

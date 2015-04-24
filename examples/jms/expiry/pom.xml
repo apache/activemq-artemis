@@ -29,7 +29,7 @@ under the License.
 
    <artifactId>activemq-jms-expiry-example</artifactId>
    <packaging>jar</packaging>
-   <name>ActiveMQ6 JMS Expiry Example</name>
+   <name>ActiveMQ Artemis JMS Expiry Example</name>
 
    <dependencies>
       <dependency>

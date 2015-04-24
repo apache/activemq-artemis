@@ -29,7 +29,7 @@ under the License.
 
    <artifactId>activemq-jms-bridge-example</artifactId>
    <packaging>jar</packaging>
-   <name>ActiveMQ6 JMS Bridge Example</name>
+   <name>ActiveMQ Artemis JMS Bridge Example</name>
 
    <dependencies>
       <dependency>

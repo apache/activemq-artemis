@@ -29,7 +29,7 @@ under the License.
 
    <artifactId>non-transaction-failover</artifactId>
    <packaging>jar</packaging>
-   <name>ActiveMQ6 JMS Non Transaction Failover Example</name>
+   <name>ActiveMQ Artemis JMS Non Transaction Failover Example</name>
 
    <dependencies>
       <dependency>

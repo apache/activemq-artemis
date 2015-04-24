@@ -29,7 +29,7 @@ under the License.
 
    <artifactId>colocated-failover-scale-down</artifactId>
    <packaging>jar</packaging>
-   <name>ActiveMQ6 JMS Colocated Failover Recover Only Example</name>
+   <name>ActiveMQ Artemis JMS Colocated Failover Recover Only Example</name>
 
    <dependencies>
       <dependency>

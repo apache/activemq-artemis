@@ -29,7 +29,7 @@ under the License.
 
    <artifactId>activemq-vertx-example</artifactId>
    <packaging>jar</packaging>
-   <name>ActiveMQ6 Vert.x Example</name>
+   <name>ActiveMQ Artemis Vert.x Example</name>
 
    <properties>
       <vertx.version>2.1.2</vertx.version>

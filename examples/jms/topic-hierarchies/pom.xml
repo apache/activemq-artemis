@@ -29,7 +29,7 @@ under the License.
 
    <artifactId>activemq-jms-topic-hierarchies-example</artifactId>
    <packaging>jar</packaging>
-   <name>ActiveMQ6 JMS Topic Hierarchies Example</name>
+   <name>ActiveMQ Artemis JMS Topic Hierarchies Example</name>
 
    <dependencies>
       <dependency>

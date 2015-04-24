@@ -25,7 +25,7 @@
 
    <artifactId>joram-tests</artifactId>
    <packaging>jar</packaging>
-   <name>ActiveMQ6 Joram Tests</name>
+   <name>ActiveMQ Artemis Joram Tests</name>
 
    <properties>
       <activemq.basedir>${project.basedir}/../..</activemq.basedir>

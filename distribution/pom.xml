@@ -27,9 +27,9 @@ under the License.
       <version>10.0.0-SNAPSHOT</version>
    </parent>
 
-   <artifactId>activemq-distribution</artifactId>
+   <artifactId>activemq-artemis-distribution</artifactId>
    <packaging>pom</packaging>
-   <name>ActiveMQ6 Distribution</name>
+   <name>ActiveMQ Artemis Distribution</name>
 
    <properties>
       <skipLicenseCheck>true</skipLicenseCheck>

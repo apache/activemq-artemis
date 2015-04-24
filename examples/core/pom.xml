@@ -30,7 +30,7 @@ under the License.
    <groupId>org.apache.activemq.examples.core</groupId>
    <artifactId>core-examples</artifactId>
    <packaging>pom</packaging>
-   <name>ActiveMQ6 Core Examples</name>
+   <name>ActiveMQ Artemis Core Examples</name>
 
    <properties>
       <udp-address>231.7.7.7</udp-address>

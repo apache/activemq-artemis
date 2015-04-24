@@ -25,7 +25,7 @@
 
    <artifactId>activemq-bootstrap</artifactId>
    <packaging>jar</packaging>
-   <name>ActiveMQ6 Bootstrap</name>
+   <name>ActiveMQ Artemis Bootstrap</name>
 
    <properties>
       <activemq.basedir>${project.basedir}/..</activemq.basedir>

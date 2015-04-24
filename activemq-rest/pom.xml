@@ -22,7 +22,7 @@
       <version>10.0.0-SNAPSHOT</version>
    </parent>
 
-   <name>ActiveMQ6 REST Interface Implementation</name>
+   <name>ActiveMQ Artemis REST Interface Implementation</name>
    <groupId>org.apache.activemq.rest</groupId>
    <artifactId>activemq-rest</artifactId>
    <packaging>jar</packaging>

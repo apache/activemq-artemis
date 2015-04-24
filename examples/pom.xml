@@ -30,7 +30,7 @@ under the License.
    <groupId>org.apache.activemq.examples</groupId>
    <artifactId>activemq-examples</artifactId>
    <packaging>pom</packaging>
-   <name>ActiveMQ6 Examples</name>
+   <name>ActiveMQ Artemis Examples</name>
 
    <properties>
       <skipLicenseCheck>true</skipLicenseCheck>

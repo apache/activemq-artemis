@@ -29,7 +29,7 @@ under the License.
 
    <artifactId>clustered-queue</artifactId>
    <packaging>jar</packaging>
-   <name>ActiveMQ6 JMS Clustered Queue Example</name>
+   <name>ActiveMQ Artemis JMS Clustered Queue Example</name>
 
    <dependencies>
       <dependency>

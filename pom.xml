@@ -34,7 +34,7 @@
       <module>activemq-boot</module>
    </modules>
 
-   <name>ActiveMQ6 Parent</name>
+   <name>ActiveMQ Artemis Parent</name>
    <url>http://apache.org/activemq</url>
 
    <licenses>

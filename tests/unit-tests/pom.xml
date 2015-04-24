@@ -24,7 +24,7 @@
 
    <artifactId>unit-tests</artifactId>
    <packaging>jar</packaging>
-   <name>ActiveMQ6 Unit Tests</name>
+   <name>ActiveMQ Artemis Unit Tests</name>
 
    <properties>
       <activemq.basedir>${project.basedir}/../..</activemq.basedir>

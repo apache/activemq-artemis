@@ -25,7 +25,7 @@
 
    <artifactId>activemq-tools</artifactId>
    <packaging>jar</packaging>
-   <name>ActiveMQ6 Tools</name>
+   <name>ActiveMQ Artemis Tools</name>
 
    <dependencies>
       <dependency>

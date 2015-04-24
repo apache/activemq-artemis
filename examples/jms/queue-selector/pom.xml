@@ -29,7 +29,7 @@ under the License.
 
    <artifactId>activemq-jms-queue-selector-example</artifactId>
    <packaging>jar</packaging>
-   <name>ActiveMQ6 JMS Queue Selector Example</name>
+   <name>ActiveMQ Artemis JMS Queue Selector Example</name>
 
    <dependencies>
       <dependency>

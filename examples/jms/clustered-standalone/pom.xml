@@ -29,7 +29,7 @@ under the License.
 
    <artifactId>activemq-jms-clustered-standalone-example</artifactId>
    <packaging>jar</packaging>
-   <name>ActiveMQ6 JMS Clustered Standalone Example</name>
+   <name>ActiveMQ Artemis JMS Clustered Standalone Example</name>
 
    <dependencies>
       <dependency>

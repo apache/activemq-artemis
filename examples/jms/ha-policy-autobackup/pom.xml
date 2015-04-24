@@ -29,7 +29,7 @@ under the License.
 
    <artifactId>ha-policy-autobackup</artifactId>
    <packaging>jar</packaging>
-   <name>ActiveMQ6 JMS HA Policy Auto backup example</name>
+   <name>ActiveMQ Artemis JMS HA Policy Auto backup example</name>
 
    <dependencies>
       <dependency>

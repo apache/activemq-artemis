@@ -30,7 +30,7 @@ under the License.
    <groupId>org.apache.activemq.examples.soak</groupId>
    <artifactId>soak-examples</artifactId>
    <packaging>pom</packaging>
-   <name>ActiveMQ6 Soak Examples</name>
+   <name>ActiveMQ Artemis Soak Examples</name>
 
    <!-- Properties -->
    <properties>

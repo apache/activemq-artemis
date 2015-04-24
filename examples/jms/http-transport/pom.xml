@@ -29,7 +29,7 @@ under the License.
 
    <artifactId>activemq-jms-http-transport-example</artifactId>
    <packaging>jar</packaging>
-   <name>ActiveMQ6 JMS Http Transport Example</name>
+   <name>ActiveMQ Artemis JMS Http Transport Example</name>
 
    <dependencies>
       <dependency>

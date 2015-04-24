@@ -29,7 +29,7 @@ under the License.
 
    <artifactId>activemq-jms-message-priority-example</artifactId>
    <packaging>jar</packaging>
-   <name>ActiveMQ6 JMS MessagePriorityExample Example</name>
+   <name>ActiveMQ Artemis JMS MessagePriorityExample Example</name>
 
    <dependencies>
       <dependency>

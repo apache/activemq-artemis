@@ -29,7 +29,7 @@ under the License.
 
    <artifactId>activemq-jms-client-kickoff-example</artifactId>
    <packaging>jar</packaging>
-   <name>ActiveMQ6 JMS Kick Off Example</name>
+   <name>ActiveMQ Artemis JMS Kick Off Example</name>
 
    <dependencies>
       <dependency>

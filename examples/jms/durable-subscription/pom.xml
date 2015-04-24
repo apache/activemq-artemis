@@ -29,7 +29,7 @@ under the License.
 
    <artifactId>activemq-jms-durable-subscription-example</artifactId>
    <packaging>jar</packaging>
-   <name>ActiveMQ6 JMS Durable Subscription Example</name>
+   <name>ActiveMQ Artemis JMS Durable Subscription Example</name>
 
    <dependencies>
       <dependency>

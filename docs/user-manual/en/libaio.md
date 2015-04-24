@@ -72,7 +72,7 @@ script `compile-native.sh`. This script will invoke the proper maven profile to 
     [INFO] Scanning for projects...
     [INFO]
     [INFO] ------------------------------------------------------------------------
-    [INFO] Building ActiveMQ6 Native POM 6.0.0
+    [INFO] Building ActiveMQ Artemis Native POM 6.0.0
     [INFO] ------------------------------------------------------------------------
     [INFO]
     [INFO] --- nar-maven-plugin:3.0.0:nar-validate (default-nar-validate) @ activemq-native ---

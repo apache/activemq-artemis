@@ -35,7 +35,7 @@ under the License.
 
    <artifactId>activemq-jms-aerogear-example</artifactId>
    <packaging>jar</packaging>
-   <name>ActiveMQ6 JMS AeroGear Example</name>
+   <name>ActiveMQ Artemis JMS AeroGear Example</name>
 
    <dependencies>
       <dependency>

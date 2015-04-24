@@ -29,7 +29,7 @@ under the License.
 
    <artifactId>activemq-jms-auto-closeable-example</artifactId>
    <packaging>jar</packaging>
-   <name>ActiveMQ6 JMS Auto Closable Example</name>
+   <name>ActiveMQ Artemis JMS Auto Closable Example</name>
 
    <dependencies>
       <dependency>

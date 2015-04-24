@@ -25,7 +25,7 @@
 
    <artifactId>activemq-commons</artifactId>
    <packaging>jar</packaging>
-   <name>ActiveMQ6 Commons</name>
+   <name>ActiveMQ Artemis Commons</name>
 
    <properties>
       <activemq.basedir>${project.basedir}/..</activemq.basedir>

@@ -29,7 +29,7 @@ under the License.
 
    <artifactId>scale-down</artifactId>
    <packaging>jar</packaging>
-   <name>ActiveMQ6 JMS Scale Down Example</name>
+   <name>ActiveMQ Artemis JMS Scale Down Example</name>
 
    <dependencies>
       <dependency>
