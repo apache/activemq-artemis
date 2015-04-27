@@ -195,7 +195,14 @@ public class QueueControlUsingCoreTest extends QueueControlTest
           */
          public Long getFirstMessageAge() throws Exception
          {
-            return (Long) proxy.invokeOperation("getFirstMessageAge");
+            Object value = proxy.invokeOperation("getFirstMessageAge");
+
+            if (value instanceof Integer)
+            {
+               return ((Integer) value).longValue();
+            }
+
+            return (Long) value;
          }
 
          public String listMessageCounterHistoryAsHTML() throws Exception
