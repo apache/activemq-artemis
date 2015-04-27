@@ -14,12 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.journal.impl;
+package org.apache.activemq.artemis.core.journal.impl;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq.core.journal.IOAsyncTask;
-import org.apache.activemq.utils.ReusableLatch;
+import org.apache.activemq.artemis.core.journal.IOAsyncTask;
+import org.apache.activemq.artemis.utils.ReusableLatch;
 
 public class TransactionCallback implements IOAsyncTask
 {

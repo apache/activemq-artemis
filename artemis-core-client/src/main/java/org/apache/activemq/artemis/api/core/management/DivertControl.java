@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.api.core.management;
+package org.apache.activemq.artemis.api.core.management;
 
 /**
  * A DivertControl is used to manage a divert.
@@ -55,7 +55,7 @@ public interface DivertControl
    String getForwardingAddress();
 
    /**
-    * Return the name of the org.apache.activemq.core.server.cluster.Transformer implementation associated to this bridge.
+    * Return the name of the org.apache.activemq.artemis.core.server.cluster.Transformer implementation associated to this bridge.
     */
    String getTransformerClassName();
 }

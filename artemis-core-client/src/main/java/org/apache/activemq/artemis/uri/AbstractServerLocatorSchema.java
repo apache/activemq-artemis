@@ -14,10 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.uri;
+package org.apache.activemq.artemis.uri;
 
-import org.apache.activemq.api.core.client.ServerLocator;
-import org.apache.activemq.utils.uri.URISchema;
+import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.utils.uri.URISchema;
 
 import java.net.URI;
 import java.util.Map;

@@ -14,9 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.ra;
+package org.apache.activemq.artemis.ra;
 
-import org.apache.activemq.ra.inflow.ActiveMQActivationSpec;
+import org.apache.activemq.artemis.ra.inflow.ActiveMQActivationSpec;
 import org.jboss.logging.BasicLogger;
 import org.jboss.logging.Logger;
 import org.jboss.logging.annotations.Cause;

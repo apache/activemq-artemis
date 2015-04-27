@@ -14,11 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.cluster.topology;
+package org.apache.activemq.artemis.tests.integration.cluster.topology;
 
-import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.core.client.ActiveMQClient;
-import org.apache.activemq.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
+import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
 
 public class HAClientTopologyTest extends TopologyClusterTestBase
 {
@@ -56,7 +57,7 @@ public class HAClientTopologyTest extends TopologyClusterTestBase
    @Override
    protected ServerLocator createHAServerLocator()
    {
-      TransportConfiguration tc = createTransportConfiguration(isNetty(), false, generateParams(0, isNetty()));
+      TransportConfiguration tc = ServiceTestBase.createTransportConfiguration(isNetty(), false, ServiceTestBase.generateParams(0, isNetty()));
       ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithHA(tc));
       locator.setBlockOnNonDurableSend(true);
       locator.setBlockOnDurableSend(true);

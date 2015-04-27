@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.remoting.impl.netty;
+package org.apache.activemq.artemis.core.remoting.impl.netty;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
@@ -85,23 +85,23 @@ import io.netty.util.AttributeKey;
 import io.netty.util.ResourceLeakDetector;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GlobalEventExecutor;
-import org.apache.activemq.api.core.ActiveMQException;
-import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
-import org.apache.activemq.core.client.ActiveMQClientLogger;
-import org.apache.activemq.core.client.ActiveMQClientMessageBundle;
-import org.apache.activemq.core.client.impl.ClientSessionFactoryImpl;
-import org.apache.activemq.core.protocol.core.impl.ActiveMQClientProtocolManager;
-import org.apache.activemq.core.remoting.impl.ssl.SSLSupport;
-import org.apache.activemq.core.server.ActiveMQComponent;
-import org.apache.activemq.spi.core.remoting.AbstractConnector;
-import org.apache.activemq.spi.core.remoting.BufferHandler;
-import org.apache.activemq.spi.core.remoting.ClientProtocolManager;
-import org.apache.activemq.spi.core.remoting.Connection;
-import org.apache.activemq.spi.core.remoting.ConnectionLifeCycleListener;
-import org.apache.activemq.utils.ConfigurationHelper;
-import org.apache.activemq.utils.FutureLatch;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
+import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
+import org.apache.activemq.artemis.core.client.ActiveMQClientMessageBundle;
+import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryImpl;
+import org.apache.activemq.artemis.core.protocol.core.impl.ActiveMQClientProtocolManager;
+import org.apache.activemq.artemis.core.remoting.impl.ssl.SSLSupport;
+import org.apache.activemq.artemis.core.server.ActiveMQComponent;
+import org.apache.activemq.artemis.spi.core.remoting.AbstractConnector;
+import org.apache.activemq.artemis.spi.core.remoting.BufferHandler;
+import org.apache.activemq.artemis.spi.core.remoting.ClientProtocolManager;
+import org.apache.activemq.artemis.spi.core.remoting.Connection;
+import org.apache.activemq.artemis.spi.core.remoting.ConnectionLifeCycleListener;
+import org.apache.activemq.artemis.utils.ConfigurationHelper;
+import org.apache.activemq.artemis.utils.FutureLatch;
 
-import static org.apache.activemq.utils.Base64.encodeBytes;
+import static org.apache.activemq.artemis.utils.Base64.encodeBytes;
 
 public class NettyConnector extends AbstractConnector
 {

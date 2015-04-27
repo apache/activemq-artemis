@@ -14,7 +14,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.stress.stomp;
+package org.apache.activemq.artemis.tests.stress.stomp;
+import org.apache.activemq.artemis.tests.util.UnitTestCase;
 import org.junit.Before;
 import org.junit.After;
 
@@ -31,17 +32,16 @@ import java.util.Map;
 
 import org.junit.Assert;
 
-import org.apache.activemq.core.protocol.stomp.StompProtocolManagerFactory;
-import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.config.CoreQueueConfiguration;
-import org.apache.activemq.core.protocol.stomp.Stomp;
-import org.apache.activemq.core.remoting.impl.invm.InVMAcceptorFactory;
-import org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory;
-import org.apache.activemq.core.remoting.impl.netty.TransportConstants;
-import org.apache.activemq.core.server.ActiveMQServer;
-import org.apache.activemq.core.server.ActiveMQServers;
-import org.apache.activemq.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.core.protocol.stomp.StompProtocolManagerFactory;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.config.CoreQueueConfiguration;
+import org.apache.activemq.artemis.core.protocol.stomp.Stomp;
+import org.apache.activemq.artemis.core.remoting.impl.invm.InVMAcceptorFactory;
+import org.apache.activemq.artemis.core.remoting.impl.netty.NettyAcceptorFactory;
+import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.ActiveMQServers;
 
 public class StompStressTest extends UnitTestCase
 {

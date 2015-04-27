@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.config.impl;
+package org.apache.activemq.artemis.core.config.impl;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -29,24 +29,24 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
-import org.apache.activemq.api.core.BroadcastGroupConfiguration;
-import org.apache.activemq.api.core.DiscoveryGroupConfiguration;
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.core.config.BridgeConfiguration;
-import org.apache.activemq.core.config.ClusterConnectionConfiguration;
-import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.config.ConnectorServiceConfiguration;
-import org.apache.activemq.core.config.CoreQueueConfiguration;
-import org.apache.activemq.core.config.DivertConfiguration;
-import org.apache.activemq.core.config.HAPolicyConfiguration;
-import org.apache.activemq.core.config.ha.ReplicaPolicyConfiguration;
-import org.apache.activemq.core.config.ha.ReplicatedPolicyConfiguration;
-import org.apache.activemq.core.security.Role;
-import org.apache.activemq.core.server.JournalType;
-import org.apache.activemq.core.server.group.impl.GroupingHandlerConfiguration;
-import org.apache.activemq.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
+import org.apache.activemq.artemis.api.core.BroadcastGroupConfiguration;
+import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.core.config.BridgeConfiguration;
+import org.apache.activemq.artemis.core.config.ClusterConnectionConfiguration;
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.config.ConnectorServiceConfiguration;
+import org.apache.activemq.artemis.core.config.CoreQueueConfiguration;
+import org.apache.activemq.artemis.core.config.DivertConfiguration;
+import org.apache.activemq.artemis.core.config.HAPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.ReplicaPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.ReplicatedPolicyConfiguration;
+import org.apache.activemq.artemis.core.security.Role;
+import org.apache.activemq.artemis.core.server.JournalType;
+import org.apache.activemq.artemis.core.server.group.impl.GroupingHandlerConfiguration;
+import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 
 public class ConfigurationImpl implements Configuration, Serializable
 {

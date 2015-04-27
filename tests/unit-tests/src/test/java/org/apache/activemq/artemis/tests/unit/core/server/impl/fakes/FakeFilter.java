@@ -14,11 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.unit.core.server.impl.fakes;
+package org.apache.activemq.artemis.tests.unit.core.server.impl.fakes;
 
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.core.filter.Filter;
-import org.apache.activemq.core.server.ServerMessage;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.filter.Filter;
+import org.apache.activemq.artemis.core.server.ServerMessage;
 
 public class FakeFilter implements Filter
 {

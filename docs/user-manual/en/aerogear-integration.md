@@ -2,7 +2,7 @@
 
 AeroGears push technology provides support for different push
 notification technologies like Google Cloud Messaging, Apple's APNs or
-Mozilla's SimplePush. Apache ActiveMQ allows you to configure a Connector
+Mozilla's SimplePush. Apache ActiveMQ Artemis allows you to configure a Connector
 Service that will consume messages from a queue and forward them to an
 AeroGear push server and subsequently sent as notifications to mobile
 devices.
@@ -13,7 +13,7 @@ AeroGear Connector services are configured in the connector-services
 configuration:
 
         <connector-service name="aerogear-connector">
-        <factory-class>org.apache.activemq.integration.aerogear.AeroGearConnectorServiceFactory</factory-class>
+        <factory-class>org.apache.activemq.artemis.integration.aerogear.AeroGearConnectorServiceFactory</factory-class>
         <param key="endpoint" value="endpoint"/>
         <param key="queue" value="jms.queue.aerogearQueue"/>
         <param key="application-id" value="an applicationid"/>

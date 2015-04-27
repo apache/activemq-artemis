@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.jms.client;
+package org.apache.activemq.artemis.tests.integration.jms.client;
 
 import javax.jms.Connection;
 import javax.jms.MessageConsumer;
@@ -23,14 +23,14 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.jms.Topic;
 
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.core.filter.impl.FilterImpl;
-import org.apache.activemq.core.persistence.StorageManager;
-import org.apache.activemq.core.postoffice.impl.LocalQueueBinding;
-import org.apache.activemq.core.server.Queue;
-import org.apache.activemq.core.server.impl.ActiveMQServerImpl;
-import org.apache.activemq.core.server.impl.QueueImpl;
-import org.apache.activemq.tests.util.JMSTestBase;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.tests.util.JMSTestBase;
+import org.apache.activemq.artemis.core.filter.impl.FilterImpl;
+import org.apache.activemq.artemis.core.persistence.StorageManager;
+import org.apache.activemq.artemis.core.postoffice.impl.LocalQueueBinding;
+import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
+import org.apache.activemq.artemis.core.server.impl.QueueImpl;
 import org.junit.Test;
 
 /**

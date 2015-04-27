@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.protocol.openwire;
+package org.apache.activemq.artemis.core.protocol.openwire;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
@@ -28,8 +28,8 @@ import java.util.Map.Entry;
 
 import javax.jms.JMSException;
 
-import org.apache.activemq.api.core.ActiveMQBuffer;
-import org.apache.activemq.api.core.ActiveMQPropertyConversionException;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.ActiveMQPropertyConversionException;
 import org.apache.activemq.command.ActiveMQBytesMessage;
 import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.command.ActiveMQMapMessage;
@@ -51,14 +51,14 @@ import org.apache.activemq.util.ByteSequence;
 import org.apache.activemq.util.MarshallingSupport;
 import org.apache.activemq.wireformat.WireFormat;
 import org.fusesource.hawtbuf.UTF8Buffer;
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.core.protocol.openwire.amq.AMQConsumer;
-import org.apache.activemq.core.server.ServerMessage;
-import org.apache.activemq.core.server.impl.ServerMessageImpl;
-import org.apache.activemq.spi.core.protocol.MessageConverter;
-import org.apache.activemq.utils.DataConstants;
-import org.apache.activemq.utils.TypedProperties;
-import org.apache.activemq.utils.UUIDGenerator;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQConsumer;
+import org.apache.activemq.artemis.core.server.ServerMessage;
+import org.apache.activemq.artemis.core.server.impl.ServerMessageImpl;
+import org.apache.activemq.artemis.spi.core.protocol.MessageConverter;
+import org.apache.activemq.artemis.utils.DataConstants;
+import org.apache.activemq.artemis.utils.TypedProperties;
+import org.apache.activemq.artemis.utils.UUIDGenerator;
 
 public class OpenWireMessageConverter implements MessageConverter
 {
@@ -125,14 +125,14 @@ public class OpenWireMessageConverter implements MessageConverter
          ActiveMQBuffer body = coreMessage.getBodyBuffer();
          switch (coreType)
          {
-            case org.apache.activemq.api.core.Message.TEXT_TYPE:
+            case org.apache.activemq.artemis.api.core.Message.TEXT_TYPE:
                ByteArrayInputStream tis = new ByteArrayInputStream(contents);
                DataInputStream tdataIn = new DataInputStream(tis);
                String text = MarshallingSupport.readUTF8(tdataIn);
                tdataIn.close();
                body.writeNullableSimpleString(new SimpleString(text));
                break;
-            case org.apache.activemq.api.core.Message.MAP_TYPE:
+            case org.apache.activemq.artemis.api.core.Message.MAP_TYPE:
                InputStream mis = new ByteArrayInputStream(contents);
                DataInputStream mdataIn = new DataInputStream(mis);
                Map<String, Object> map = MarshallingSupport.unmarshalPrimitiveMap(mdataIn);
@@ -141,11 +141,11 @@ public class OpenWireMessageConverter implements MessageConverter
                loadMapIntoProperties(props, map);
                props.encode(body);
                break;
-            case org.apache.activemq.api.core.Message.OBJECT_TYPE:
+            case org.apache.activemq.artemis.api.core.Message.OBJECT_TYPE:
                body.writeInt(contents.length);
                body.writeBytes(contents.data, contents.offset, contents.length);
                break;
-            case org.apache.activemq.api.core.Message.STREAM_TYPE:
+            case org.apache.activemq.artemis.api.core.Message.STREAM_TYPE:
                InputStream sis = new ByteArrayInputStream(contents);
                DataInputStream sdis = new DataInputStream(sis);
                int stype = sdis.read();
@@ -388,17 +388,17 @@ public class OpenWireMessageConverter implements MessageConverter
          case CommandTypes.ACTIVEMQ_BLOB_MESSAGE:
             throw new IllegalStateException("We don't support BLOB type yet!");
          case CommandTypes.ACTIVEMQ_BYTES_MESSAGE:
-            return org.apache.activemq.api.core.Message.BYTES_TYPE;
+            return org.apache.activemq.artemis.api.core.Message.BYTES_TYPE;
          case CommandTypes.ACTIVEMQ_MAP_MESSAGE:
-            return org.apache.activemq.api.core.Message.MAP_TYPE;
+            return org.apache.activemq.artemis.api.core.Message.MAP_TYPE;
          case CommandTypes.ACTIVEMQ_OBJECT_MESSAGE:
-            return org.apache.activemq.api.core.Message.OBJECT_TYPE;
+            return org.apache.activemq.artemis.api.core.Message.OBJECT_TYPE;
          case CommandTypes.ACTIVEMQ_STREAM_MESSAGE:
-            return org.apache.activemq.api.core.Message.STREAM_TYPE;
+            return org.apache.activemq.artemis.api.core.Message.STREAM_TYPE;
          case CommandTypes.ACTIVEMQ_TEXT_MESSAGE:
-            return org.apache.activemq.api.core.Message.TEXT_TYPE;
+            return org.apache.activemq.artemis.api.core.Message.TEXT_TYPE;
          case CommandTypes.ACTIVEMQ_MESSAGE:
-            return org.apache.activemq.api.core.Message.DEFAULT_TYPE;
+            return org.apache.activemq.artemis.api.core.Message.DEFAULT_TYPE;
          default:
             throw new IllegalStateException("Unknown ActiveMQ message type: " + amqType);
       }
@@ -425,22 +425,22 @@ public class OpenWireMessageConverter implements MessageConverter
       byte coreType = coreMessage.getType();
       switch (coreType)
       {
-         case org.apache.activemq.api.core.Message.BYTES_TYPE:
+         case org.apache.activemq.artemis.api.core.Message.BYTES_TYPE:
             amqMsg = new ActiveMQBytesMessage();
             break;
-         case org.apache.activemq.api.core.Message.MAP_TYPE:
+         case org.apache.activemq.artemis.api.core.Message.MAP_TYPE:
             amqMsg = new ActiveMQMapMessage();
             break;
-         case org.apache.activemq.api.core.Message.OBJECT_TYPE:
+         case org.apache.activemq.artemis.api.core.Message.OBJECT_TYPE:
             amqMsg = new ActiveMQObjectMessage();
             break;
-         case org.apache.activemq.api.core.Message.STREAM_TYPE:
+         case org.apache.activemq.artemis.api.core.Message.STREAM_TYPE:
             amqMsg = new ActiveMQStreamMessage();
             break;
-         case org.apache.activemq.api.core.Message.TEXT_TYPE:
+         case org.apache.activemq.artemis.api.core.Message.TEXT_TYPE:
             amqMsg = new ActiveMQTextMessage();
             break;
-         case org.apache.activemq.api.core.Message.DEFAULT_TYPE:
+         case org.apache.activemq.artemis.api.core.Message.DEFAULT_TYPE:
             amqMsg = new ActiveMQMessage();
             break;
          default:
@@ -471,7 +471,7 @@ public class OpenWireMessageConverter implements MessageConverter
          byte[] bytes = null;
          synchronized (buffer)
          {
-            if (coreType == org.apache.activemq.api.core.Message.TEXT_TYPE)
+            if (coreType == org.apache.activemq.artemis.api.core.Message.TEXT_TYPE)
             {
                SimpleString text = buffer.readNullableSimpleString();
 
@@ -484,7 +484,7 @@ public class OpenWireMessageConverter implements MessageConverter
                   out.close();
                }
             }
-            else if (coreType == org.apache.activemq.api.core.Message.MAP_TYPE)
+            else if (coreType == org.apache.activemq.artemis.api.core.Message.MAP_TYPE)
             {
                TypedProperties mapData = new TypedProperties();
                mapData.decode(buffer);
@@ -496,13 +496,13 @@ public class OpenWireMessageConverter implements MessageConverter
                bytes = out.toByteArray();
                dataOut.close();
             }
-            else if (coreType == org.apache.activemq.api.core.Message.OBJECT_TYPE)
+            else if (coreType == org.apache.activemq.artemis.api.core.Message.OBJECT_TYPE)
             {
                int len = buffer.readInt();
                bytes = new byte[len];
                buffer.readBytes(bytes);
             }
-            else if (coreType == org.apache.activemq.api.core.Message.STREAM_TYPE)
+            else if (coreType == org.apache.activemq.artemis.api.core.Message.STREAM_TYPE)
             {
                ByteArrayOutputStream out = new ByteArrayOutputStream(buffer.readableBytes());
                DataOutputStream dataOut = new DataOutputStream(out);

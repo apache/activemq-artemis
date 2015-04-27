@@ -14,14 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.maven;
+package org.apache.activemq.artemis.maven;
 
 import javax.management.MBeanServer;
 
-import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.server.NodeManager;
-import org.apache.activemq.core.server.impl.ActiveMQServerImpl;
-import org.apache.activemq.spi.core.security.ActiveMQSecurityManager;
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.server.NodeManager;
+import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
+import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
 
 public final class InVMNodeManagerServer extends ActiveMQServerImpl
 {

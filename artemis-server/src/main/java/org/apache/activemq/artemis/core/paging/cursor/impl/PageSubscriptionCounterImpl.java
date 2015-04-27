@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.paging.cursor.impl;
+package org.apache.activemq.artemis.core.paging.cursor.impl;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -24,17 +24,17 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.apache.activemq.api.core.Pair;
-import org.apache.activemq.core.paging.cursor.PageSubscription;
-import org.apache.activemq.core.paging.cursor.PageSubscriptionCounter;
-import org.apache.activemq.core.paging.impl.Page;
-import org.apache.activemq.core.persistence.StorageManager;
-import org.apache.activemq.core.server.ActiveMQServerLogger;
-import org.apache.activemq.core.transaction.Transaction;
-import org.apache.activemq.core.transaction.TransactionOperation;
-import org.apache.activemq.core.transaction.TransactionOperationAbstract;
-import org.apache.activemq.core.transaction.TransactionPropertyIndexes;
-import org.apache.activemq.core.transaction.impl.TransactionImpl;
+import org.apache.activemq.artemis.api.core.Pair;
+import org.apache.activemq.artemis.core.paging.cursor.PageSubscription;
+import org.apache.activemq.artemis.core.paging.cursor.PageSubscriptionCounter;
+import org.apache.activemq.artemis.core.paging.impl.Page;
+import org.apache.activemq.artemis.core.persistence.StorageManager;
+import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.apache.activemq.artemis.core.transaction.Transaction;
+import org.apache.activemq.artemis.core.transaction.TransactionOperation;
+import org.apache.activemq.artemis.core.transaction.TransactionOperationAbstract;
+import org.apache.activemq.artemis.core.transaction.TransactionPropertyIndexes;
+import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
 
 /**
  * This class will encapsulate the persistent counters for the PagingSubscription

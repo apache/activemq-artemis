@@ -15,11 +15,11 @@
  * limitations under the License.
  */
 
-package org.apache.activemq.tests.extras.jms.bridge;
+package org.apache.activemq.artemis.tests.extras.jms.bridge;
 
 import javax.transaction.TransactionManager;
 
-import org.apache.activemq.service.extensions.transactions.TransactionManagerLocator;
+import org.apache.activemq.artemis.service.extensions.transactions.TransactionManagerLocator;
 
 public class TransactionManagerLocatorImpl implements TransactionManagerLocator
 {

@@ -14,7 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.remoting;
+package org.apache.activemq.artemis.tests.integration.remoting;
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.junit.Assert;
 import org.junit.Before;
 
 import org.junit.Test;
@@ -22,18 +24,17 @@ import org.junit.Test;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.core.client.ClientConsumer;
-import org.apache.activemq.api.core.client.ClientMessage;
-import org.apache.activemq.api.core.client.ClientProducer;
-import org.apache.activemq.api.core.client.ClientSession;
-import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.ActiveMQClient;
-import org.apache.activemq.api.core.client.ServerLocator;
-import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.remoting.impl.netty.TransportConstants;
-import org.apache.activemq.core.server.ActiveMQServer;
-import org.apache.activemq.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.client.ClientConsumer;
+import org.apache.activemq.artemis.api.core.client.ClientMessage;
+import org.apache.activemq.artemis.api.core.client.ClientProducer;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
+import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
 
 public class BatchDelayTest extends ServiceTestBase
 {
@@ -114,7 +115,7 @@ public class BatchDelayTest extends ServiceTestBase
 
       msg = cons.receive(10000);
 
-      assertNotNull(msg);
+      Assert.assertNotNull(msg);
 
       msg.acknowledge();
    }

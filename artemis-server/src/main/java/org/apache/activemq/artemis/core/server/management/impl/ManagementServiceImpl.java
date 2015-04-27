@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.server.management.impl;
+package org.apache.activemq.artemis.core.server.management.impl;
 
 import javax.management.InstanceNotFoundException;
 import javax.management.MBeanRegistrationException;
@@ -33,56 +33,57 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledExecutorService;
 
-import org.apache.activemq.api.core.BroadcastGroupConfiguration;
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.core.management.AcceptorControl;
-import org.apache.activemq.api.core.management.BridgeControl;
-import org.apache.activemq.api.core.management.BroadcastGroupControl;
-import org.apache.activemq.api.core.management.ClusterConnectionControl;
-import org.apache.activemq.api.core.management.DivertControl;
-import org.apache.activemq.api.core.management.ManagementHelper;
-import org.apache.activemq.api.core.management.ObjectNameBuilder;
-import org.apache.activemq.api.core.management.ResourceNames;
-import org.apache.activemq.core.config.BridgeConfiguration;
-import org.apache.activemq.core.config.ClusterConnectionConfiguration;
-import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.config.DivertConfiguration;
-import org.apache.activemq.core.management.impl.AcceptorControlImpl;
-import org.apache.activemq.core.management.impl.AddressControlImpl;
-import org.apache.activemq.core.management.impl.BridgeControlImpl;
-import org.apache.activemq.core.management.impl.BroadcastGroupControlImpl;
-import org.apache.activemq.core.management.impl.ClusterConnectionControlImpl;
-import org.apache.activemq.core.management.impl.DivertControlImpl;
-import org.apache.activemq.core.management.impl.ActiveMQServerControlImpl;
-import org.apache.activemq.core.management.impl.QueueControlImpl;
-import org.apache.activemq.core.messagecounter.MessageCounter;
-import org.apache.activemq.core.messagecounter.MessageCounterManager;
-import org.apache.activemq.core.messagecounter.impl.MessageCounterManagerImpl;
-import org.apache.activemq.core.paging.PagingManager;
-import org.apache.activemq.core.persistence.StorageManager;
-import org.apache.activemq.core.postoffice.PostOffice;
-import org.apache.activemq.core.remoting.server.RemotingService;
-import org.apache.activemq.core.security.Role;
-import org.apache.activemq.core.server.ActiveMQServerLogger;
-import org.apache.activemq.core.server.Divert;
-import org.apache.activemq.core.server.ActiveMQMessageBundle;
-import org.apache.activemq.core.server.ActiveMQServer;
-import org.apache.activemq.core.server.Queue;
-import org.apache.activemq.core.server.QueueFactory;
-import org.apache.activemq.core.server.ServerMessage;
-import org.apache.activemq.core.server.cluster.Bridge;
-import org.apache.activemq.core.server.cluster.BroadcastGroup;
-import org.apache.activemq.core.server.cluster.ClusterConnection;
-import org.apache.activemq.core.server.impl.ServerMessageImpl;
-import org.apache.activemq.core.server.management.ManagementService;
-import org.apache.activemq.core.server.management.Notification;
-import org.apache.activemq.core.server.management.NotificationListener;
-import org.apache.activemq.core.settings.HierarchicalRepository;
-import org.apache.activemq.core.settings.impl.AddressSettings;
-import org.apache.activemq.core.transaction.ResourceManager;
-import org.apache.activemq.spi.core.remoting.Acceptor;
-import org.apache.activemq.utils.TypedProperties;
+import org.apache.activemq.artemis.api.core.BroadcastGroupConfiguration;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.management.AcceptorControl;
+import org.apache.activemq.artemis.api.core.management.BridgeControl;
+import org.apache.activemq.artemis.api.core.management.BroadcastGroupControl;
+import org.apache.activemq.artemis.api.core.management.ClusterConnectionControl;
+import org.apache.activemq.artemis.api.core.management.DivertControl;
+import org.apache.activemq.artemis.api.core.management.ManagementHelper;
+import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
+import org.apache.activemq.artemis.api.core.management.ResourceNames;
+import org.apache.activemq.artemis.core.config.BridgeConfiguration;
+import org.apache.activemq.artemis.core.config.ClusterConnectionConfiguration;
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.config.DivertConfiguration;
+import org.apache.activemq.artemis.core.management.impl.AcceptorControlImpl;
+import org.apache.activemq.artemis.core.management.impl.AddressControlImpl;
+import org.apache.activemq.artemis.core.management.impl.BridgeControlImpl;
+import org.apache.activemq.artemis.core.management.impl.BroadcastGroupControlImpl;
+import org.apache.activemq.artemis.core.management.impl.ClusterConnectionControlImpl;
+import org.apache.activemq.artemis.core.management.impl.DivertControlImpl;
+import org.apache.activemq.artemis.core.management.impl.ActiveMQServerControlImpl;
+import org.apache.activemq.artemis.core.management.impl.QueueControlImpl;
+import org.apache.activemq.artemis.core.messagecounter.MessageCounter;
+import org.apache.activemq.artemis.core.messagecounter.MessageCounterManager;
+import org.apache.activemq.artemis.core.messagecounter.impl.MessageCounterManagerImpl;
+import org.apache.activemq.artemis.core.paging.PagingManager;
+import org.apache.activemq.artemis.core.persistence.StorageManager;
+import org.apache.activemq.artemis.core.postoffice.PostOffice;
+import org.apache.activemq.artemis.core.remoting.server.RemotingService;
+import org.apache.activemq.artemis.core.security.Role;
+import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.apache.activemq.artemis.core.server.Divert;
+import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.server.QueueFactory;
+import org.apache.activemq.artemis.core.server.ServerMessage;
+import org.apache.activemq.artemis.core.server.cluster.Bridge;
+import org.apache.activemq.artemis.core.server.cluster.BroadcastGroup;
+import org.apache.activemq.artemis.core.server.cluster.ClusterConnection;
+import org.apache.activemq.artemis.core.server.impl.ServerMessageImpl;
+import org.apache.activemq.artemis.core.server.management.ManagementService;
+import org.apache.activemq.artemis.core.server.management.Notification;
+import org.apache.activemq.artemis.core.server.management.NotificationListener;
+import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
+import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.core.transaction.ResourceManager;
+import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
+import org.apache.activemq.artemis.utils.ConcurrentHashSet;
+import org.apache.activemq.artemis.utils.TypedProperties;
 
 public class ManagementServiceImpl implements ManagementService
 {
@@ -124,7 +125,7 @@ public class ManagementServiceImpl implements ManagementService
 
    private boolean notificationsEnabled;
 
-   private final Set<NotificationListener> listeners = new org.apache.activemq.utils.ConcurrentHashSet<NotificationListener>();
+   private final Set<NotificationListener> listeners = new ConcurrentHashSet<NotificationListener>();
 
    private final ObjectNameBuilder objectNameBuilder;
 

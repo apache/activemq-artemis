@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.protocol.stomp;
+package org.apache.activemq.artemis.core.protocol.stomp;
 
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
@@ -26,38 +26,38 @@ import java.util.Set;
 import java.util.concurrent.Executor;
 
 import io.netty.channel.ChannelPipeline;
-import org.apache.activemq.api.core.ActiveMQBuffer;
-import org.apache.activemq.api.core.ActiveMQExceptionType;
-import org.apache.activemq.api.core.BaseInterceptor;
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.api.core.client.ActiveMQClient;
-import org.apache.activemq.api.core.management.CoreNotificationType;
-import org.apache.activemq.api.core.management.ManagementHelper;
-import org.apache.activemq.core.journal.IOAsyncTask;
-import org.apache.activemq.core.postoffice.BindingType;
-import org.apache.activemq.core.remoting.impl.netty.NettyServerConnection;
-import org.apache.activemq.core.remoting.impl.netty.TransportConstants;
-import org.apache.activemq.core.server.ActiveMQMessageBundle;
-import org.apache.activemq.core.server.ActiveMQServer;
-import org.apache.activemq.core.server.ActiveMQServerLogger;
-import org.apache.activemq.core.server.ServerSession;
-import org.apache.activemq.core.server.impl.ServerMessageImpl;
-import org.apache.activemq.core.server.management.ManagementService;
-import org.apache.activemq.core.server.management.Notification;
-import org.apache.activemq.core.server.management.NotificationListener;
-import org.apache.activemq.spi.core.protocol.ConnectionEntry;
-import org.apache.activemq.spi.core.protocol.MessageConverter;
-import org.apache.activemq.spi.core.protocol.ProtocolManager;
-import org.apache.activemq.spi.core.protocol.ProtocolManagerFactory;
-import org.apache.activemq.spi.core.protocol.RemotingConnection;
-import org.apache.activemq.spi.core.remoting.Acceptor;
-import org.apache.activemq.spi.core.remoting.Connection;
-import org.apache.activemq.spi.core.security.ActiveMQSecurityManager;
-import org.apache.activemq.utils.ConcurrentHashSet;
-import org.apache.activemq.utils.TypedProperties;
-import org.apache.activemq.utils.UUIDGenerator;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
+import org.apache.activemq.artemis.api.core.BaseInterceptor;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
+import org.apache.activemq.artemis.api.core.management.CoreNotificationType;
+import org.apache.activemq.artemis.api.core.management.ManagementHelper;
+import org.apache.activemq.artemis.core.journal.IOAsyncTask;
+import org.apache.activemq.artemis.core.postoffice.BindingType;
+import org.apache.activemq.artemis.core.remoting.impl.netty.NettyServerConnection;
+import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
+import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.apache.activemq.artemis.core.server.ServerSession;
+import org.apache.activemq.artemis.core.server.impl.ServerMessageImpl;
+import org.apache.activemq.artemis.core.server.management.ManagementService;
+import org.apache.activemq.artemis.core.server.management.Notification;
+import org.apache.activemq.artemis.core.server.management.NotificationListener;
+import org.apache.activemq.artemis.spi.core.protocol.ConnectionEntry;
+import org.apache.activemq.artemis.spi.core.protocol.MessageConverter;
+import org.apache.activemq.artemis.spi.core.protocol.ProtocolManager;
+import org.apache.activemq.artemis.spi.core.protocol.ProtocolManagerFactory;
+import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
+import org.apache.activemq.artemis.spi.core.remoting.Connection;
+import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
+import org.apache.activemq.artemis.utils.ConcurrentHashSet;
+import org.apache.activemq.artemis.utils.TypedProperties;
+import org.apache.activemq.artemis.utils.UUIDGenerator;
 
-import static org.apache.activemq.core.protocol.stomp.ActiveMQStompProtocolMessageBundle.BUNDLE;
+import static org.apache.activemq.artemis.core.protocol.stomp.ActiveMQStompProtocolMessageBundle.BUNDLE;
 
 /**
  * StompProtocolManager

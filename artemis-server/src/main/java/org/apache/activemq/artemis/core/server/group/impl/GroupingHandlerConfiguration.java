@@ -14,12 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.server.group.impl;
+package org.apache.activemq.artemis.core.server.group.impl;
 
 import java.io.Serializable;
 
-import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
-import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
+import org.apache.activemq.artemis.api.core.SimpleString;
 
 /**
  * A remote Grouping handler configuration

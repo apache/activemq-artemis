@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.config;
+package org.apache.activemq.artemis.core.config;
 
 import javax.management.MBeanServer;
 import java.io.InputStreamReader;
@@ -24,10 +24,10 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.apache.activemq.core.deployers.Deployable;
-import org.apache.activemq.core.server.ActiveMQComponent;
-import org.apache.activemq.spi.core.security.ActiveMQSecurityManager;
-import org.apache.activemq.utils.XMLUtil;
+import org.apache.activemq.artemis.core.deployers.Deployable;
+import org.apache.activemq.artemis.core.server.ActiveMQComponent;
+import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
+import org.apache.activemq.artemis.utils.XMLUtil;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -75,10 +75,10 @@ public class FileDeploymentManager
       }
       // create a reader
       Reader reader = new InputStreamReader(url.openStream());
-      String xml = org.apache.activemq.utils.XMLUtil.readerToString(reader);
+      String xml = XMLUtil.readerToString(reader);
       //replace any system props
       xml = XMLUtil.replaceSystemProps(xml);
-      Element e = org.apache.activemq.utils.XMLUtil.stringToElement(xml);
+      Element e = XMLUtil.stringToElement(xml);
 
       //iterate around all the deployables
       for (Deployable deployable : deployables.values())

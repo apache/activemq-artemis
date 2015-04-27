@@ -14,24 +14,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.unit.core.postoffice.impl;
+package org.apache.activemq.artemis.tests.unit.core.postoffice.impl;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executor;
 
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.core.filter.Filter;
-import org.apache.activemq.core.paging.cursor.PageSubscription;
-import org.apache.activemq.core.server.Consumer;
-import org.apache.activemq.core.server.MessageReference;
-import org.apache.activemq.core.server.Queue;
-import org.apache.activemq.core.server.RoutingContext;
-import org.apache.activemq.core.server.ServerMessage;
-import org.apache.activemq.core.transaction.Transaction;
-import org.apache.activemq.utils.LinkedListIterator;
-import org.apache.activemq.utils.ReferenceCounter;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.filter.Filter;
+import org.apache.activemq.artemis.core.paging.cursor.PageSubscription;
+import org.apache.activemq.artemis.core.server.Consumer;
+import org.apache.activemq.artemis.core.server.MessageReference;
+import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.server.RoutingContext;
+import org.apache.activemq.artemis.core.server.ServerMessage;
+import org.apache.activemq.artemis.core.transaction.Transaction;
+import org.apache.activemq.artemis.utils.LinkedListIterator;
+import org.apache.activemq.artemis.utils.ReferenceCounter;
 
 public class FakeQueue implements Queue
 {
@@ -590,14 +590,14 @@ public class FakeQueue implements Queue
    }
 
    /* (non-Javadoc)
-   * @see org.apache.activemq.core.server.Queue#destroyPaging()
+   * @see org.apache.activemq.artemis.core.server.Queue#destroyPaging()
    */
    public void destroyPaging()
    {
    }
 
    /* (non-Javadoc)
-    * @see org.apache.activemq.core.server.Queue#getDeliveringMessages()
+    * @see org.apache.activemq.artemis.core.server.Queue#getDeliveringMessages()
     */
    @Override
    public Map<String, List<MessageReference>> getDeliveringMessages()

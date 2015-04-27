@@ -14,14 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.server.group;
+package org.apache.activemq.artemis.core.server.group;
 
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.core.server.ActiveMQComponent;
-import org.apache.activemq.core.server.group.impl.GroupBinding;
-import org.apache.activemq.core.server.group.impl.Proposal;
-import org.apache.activemq.core.server.group.impl.Response;
-import org.apache.activemq.core.server.management.NotificationListener;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.server.ActiveMQComponent;
+import org.apache.activemq.artemis.core.server.group.impl.GroupBinding;
+import org.apache.activemq.artemis.core.server.group.impl.Proposal;
+import org.apache.activemq.artemis.core.server.group.impl.Response;
+import org.apache.activemq.artemis.core.server.management.NotificationListener;
 
 public interface GroupingHandler extends NotificationListener, ActiveMQComponent
 {

@@ -1,1 +1,1 @@
-org.apache.activemq.tests.extras.jms.bridge.TransactionManagerLocatorImpl
+org.apache.activemq.artemis.tests.extras.jms.bridge.TransactionManagerLocatorImpl

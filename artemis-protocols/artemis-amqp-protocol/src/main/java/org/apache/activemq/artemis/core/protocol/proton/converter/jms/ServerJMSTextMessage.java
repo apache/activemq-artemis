@@ -14,17 +14,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.protocol.proton.converter.jms;
+package org.apache.activemq.artemis.core.protocol.proton.converter.jms;
 
 import javax.jms.JMSException;
 import javax.jms.TextMessage;
 
-import org.apache.activemq.api.core.Message;
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.core.message.impl.MessageInternal;
+import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.message.impl.MessageInternal;
 
-import static org.apache.activemq.reader.TextMessageUtil.readBodyText;
-import static org.apache.activemq.reader.TextMessageUtil.writeBodyText;
+import static org.apache.activemq.artemis.reader.TextMessageUtil.readBodyText;
+import static org.apache.activemq.artemis.reader.TextMessageUtil.writeBodyText;
 
 
 /**

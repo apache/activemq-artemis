@@ -14,15 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.clientcrash;
+package org.apache.activemq.artemis.tests.integration.clientcrash;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq.api.core.ActiveMQException;
-import org.apache.activemq.api.core.Interceptor;
-import org.apache.activemq.core.protocol.core.Packet;
-import org.apache.activemq.spi.core.protocol.RemotingConnection;
-import org.apache.activemq.tests.integration.IntegrationTestLogger;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.Interceptor;
+import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
+import org.apache.activemq.artemis.core.protocol.core.Packet;
+import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 
 public class DummyInterceptorB implements Interceptor
 {

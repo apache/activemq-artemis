@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.jms.cluster;
+package org.apache.activemq.artemis.tests.integration.jms.cluster;
 
 import javax.jms.BytesMessage;
 import javax.jms.Connection;
@@ -28,14 +28,14 @@ import javax.jms.TextMessage;
 import java.util.Arrays;
 import java.util.Collection;
 
-import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.jms.ActiveMQJMSClient;
-import org.apache.activemq.api.jms.JMSFactoryType;
-import org.apache.activemq.core.config.ClusterConnectionConfiguration;
-import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.config.impl.ConfigurationImpl;
-import org.apache.activemq.jms.client.ActiveMQConnectionFactory;
-import org.apache.activemq.tests.util.JMSClusteredTestBase;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
+import org.apache.activemq.artemis.api.jms.JMSFactoryType;
+import org.apache.activemq.artemis.core.config.ClusterConnectionConfiguration;
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.tests.util.JMSClusteredTestBase;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;

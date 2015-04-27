@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.utils;
+package org.apache.activemq.artemis.utils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,9 +29,9 @@ import java.util.List;
 import java.util.Properties;
 import java.util.StringTokenizer;
 
-import org.apache.activemq.core.client.ActiveMQClientLogger;
-import org.apache.activemq.core.version.Version;
-import org.apache.activemq.core.version.impl.VersionImpl;
+import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
+import org.apache.activemq.artemis.core.version.Version;
+import org.apache.activemq.artemis.core.version.impl.VersionImpl;
 
 /**
  * This loads the version info in from a version.properties file.

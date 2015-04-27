@@ -14,16 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.cluster.failover;
+package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
-import org.apache.activemq.api.core.client.ClientConsumer;
-import org.apache.activemq.api.core.client.ClientMessage;
-import org.apache.activemq.api.core.client.ClientProducer;
-import org.apache.activemq.api.core.client.ClientSession;
-import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.ServerLocator;
-import org.apache.activemq.tests.integration.cluster.util.TestableServer;
-import org.junit.Assert;
+import org.apache.activemq.artemis.api.core.client.ClientConsumer;
+import org.apache.activemq.artemis.api.core.client.ClientMessage;
+import org.apache.activemq.artemis.api.core.client.ClientProducer;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
+import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.tests.integration.cluster.util.TestableServer;
 import org.junit.Test;
 
 public class ReplicatedMultipleServerFailoverTest extends MultipleServerFailoverTestBase
@@ -78,7 +77,7 @@ public class ReplicatedMultipleServerFailoverTest extends MultipleServerFailover
          for (int i = 0; i < factories.length; i++)
          {
             sessions[i] = createSession(factories[i], true, true);
-            sessions[i].createQueue(MultipleServerFailoverTestBase.ADDRESS, MultipleServerFailoverTestBase.ADDRESS, null, true);
+            sessions[i].createQueue(ADDRESS, ADDRESS, null, true);
          }
 
          //make sure bindings are ready before sending messages
@@ -88,7 +87,7 @@ public class ReplicatedMultipleServerFailoverTest extends MultipleServerFailover
             this.waitForBindings(liveServers.get(i).getServer(), ADDRESS.toString(), false, 1, 0, 2000);
          }
 
-         ClientProducer producer = sessions[0].createProducer(MultipleServerFailoverTestBase.ADDRESS);
+         ClientProducer producer = sessions[0].createProducer(ADDRESS);
 
          for (int i = 0; i < liveServers.size() * 100; i++)
          {
@@ -105,7 +104,7 @@ public class ReplicatedMultipleServerFailoverTest extends MultipleServerFailover
 
          for (TestableServer liveServer : liveServers)
          {
-            waitForDistribution(MultipleServerFailoverTestBase.ADDRESS, liveServer.getServer(), 100);
+            waitForDistribution(ADDRESS, liveServer.getServer(), 100);
          }
 
 
@@ -116,7 +115,7 @@ public class ReplicatedMultipleServerFailoverTest extends MultipleServerFailover
          ClientConsumer[] consumers = new ClientConsumer[liveServers.size()];
          for (int i = 0; i < factories.length; i++)
          {
-            consumers[i] = sessions[i].createConsumer(MultipleServerFailoverTestBase.ADDRESS);
+            consumers[i] = sessions[i].createConsumer(ADDRESS);
             sessions[i].start();
          }
 
@@ -125,7 +124,7 @@ public class ReplicatedMultipleServerFailoverTest extends MultipleServerFailover
             for (ClientConsumer consumer : consumers)
             {
                ClientMessage message = consumer.receive(1000);
-               Assert.assertNotNull("expecting durable msg " + i, message);
+               assertNotNull("expecting durable msg " + i, message);
                message.acknowledge();
             }
 

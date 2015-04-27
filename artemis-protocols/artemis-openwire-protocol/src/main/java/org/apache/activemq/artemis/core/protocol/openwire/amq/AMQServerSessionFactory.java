@@ -14,21 +14,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.protocol.openwire.amq;
+package org.apache.activemq.artemis.core.protocol.openwire.amq;
 
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.core.persistence.OperationContext;
-import org.apache.activemq.core.persistence.StorageManager;
-import org.apache.activemq.core.postoffice.PostOffice;
-import org.apache.activemq.core.security.SecurityStore;
-import org.apache.activemq.core.server.QueueCreator;
-import org.apache.activemq.core.server.ServerSessionFactory;
-import org.apache.activemq.core.server.impl.ActiveMQServerImpl;
-import org.apache.activemq.core.server.impl.ServerSessionImpl;
-import org.apache.activemq.core.server.management.ManagementService;
-import org.apache.activemq.core.transaction.ResourceManager;
-import org.apache.activemq.spi.core.protocol.RemotingConnection;
-import org.apache.activemq.spi.core.protocol.SessionCallback;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.persistence.OperationContext;
+import org.apache.activemq.artemis.core.persistence.StorageManager;
+import org.apache.activemq.artemis.core.postoffice.PostOffice;
+import org.apache.activemq.artemis.core.security.SecurityStore;
+import org.apache.activemq.artemis.core.server.QueueCreator;
+import org.apache.activemq.artemis.core.server.ServerSessionFactory;
+import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
+import org.apache.activemq.artemis.core.server.impl.ServerSessionImpl;
+import org.apache.activemq.artemis.core.server.management.ManagementService;
+import org.apache.activemq.artemis.core.transaction.ResourceManager;
+import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.artemis.spi.core.protocol.SessionCallback;
 
 public class AMQServerSessionFactory implements ServerSessionFactory
 {

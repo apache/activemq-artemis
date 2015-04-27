@@ -14,17 +14,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.api.core;
+package org.apache.activemq.artemis.api.core;
 
 import java.io.Serializable;
 import java.util.List;
 
-import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
+import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 
 
 /**
  * The basic configuration used to determine how the server will broadcast members
- * This is analogous to {@link org.apache.activemq.api.core.DiscoveryGroupConfiguration}
+ * This is analogous to {@link DiscoveryGroupConfiguration}
  */
 public final class BroadcastGroupConfiguration implements Serializable
 {

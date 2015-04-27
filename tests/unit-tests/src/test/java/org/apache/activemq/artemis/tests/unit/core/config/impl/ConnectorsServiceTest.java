@@ -14,21 +14,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.unit.core.config.impl;
+package org.apache.activemq.artemis.tests.unit.core.config.impl;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.config.ConnectorServiceConfiguration;
-import org.apache.activemq.core.config.impl.ConfigurationImpl;
-import org.apache.activemq.core.server.ConnectorService;
-import org.apache.activemq.core.server.impl.ConnectorsService;
-import org.apache.activemq.core.server.impl.ServiceRegistry;
-import org.apache.activemq.tests.unit.core.config.impl.fakes.FakeConnectorService;
-import org.apache.activemq.tests.unit.core.config.impl.fakes.FakeConnectorServiceFactory;
-import org.apache.activemq.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.tests.unit.core.config.impl.fakes.FakeConnectorServiceFactory;
+import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.config.ConnectorServiceConfiguration;
+import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
+import org.apache.activemq.artemis.core.server.ConnectorService;
+import org.apache.activemq.artemis.core.server.impl.ConnectorsService;
+import org.apache.activemq.artemis.core.server.impl.ServiceRegistry;
+import org.apache.activemq.artemis.tests.unit.core.config.impl.fakes.FakeConnectorService;
 import org.junit.Before;
 import org.junit.Test;
 

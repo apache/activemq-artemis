@@ -14,12 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.reader;
+package org.apache.activemq.artemis.reader;
 
-import org.apache.activemq.api.core.ActiveMQBuffer;
-import org.apache.activemq.api.core.Message;
-import org.apache.activemq.api.core.Pair;
-import org.apache.activemq.utils.DataConstants;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.Pair;
+import org.apache.activemq.artemis.utils.DataConstants;
 
 public class StreamMessageUtil extends MessageUtil
 {

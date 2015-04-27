@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.jms.jms2client;
+package org.apache.activemq.artemis.tests.integration.jms.jms2client;
 
 import javax.jms.BytesMessage;
 import javax.jms.Connection;
@@ -24,8 +24,8 @@ import javax.jms.MessageFormatException;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 
-import org.apache.activemq.api.jms.ActiveMQJMSClient;
-import org.apache.activemq.tests.util.JMSTestBase;
+import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
+import org.apache.activemq.artemis.tests.util.JMSTestBase;
 import org.junit.Before;
 import org.junit.Test;
 

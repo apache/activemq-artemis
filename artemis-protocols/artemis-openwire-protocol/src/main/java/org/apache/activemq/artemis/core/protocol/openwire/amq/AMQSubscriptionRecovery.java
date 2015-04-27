@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.protocol.openwire.amq;
+package org.apache.activemq.artemis.core.protocol.openwire.amq;
 
 import org.apache.activemq.broker.region.MessageReference;
 import org.apache.activemq.command.ActiveMQDestination;

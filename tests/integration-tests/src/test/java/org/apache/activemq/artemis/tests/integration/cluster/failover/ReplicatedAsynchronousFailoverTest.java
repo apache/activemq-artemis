@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.cluster.failover;
+package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
 public class ReplicatedAsynchronousFailoverTest extends AsynchronousFailoverTest
 {

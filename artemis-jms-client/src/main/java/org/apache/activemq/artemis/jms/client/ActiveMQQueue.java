@@ -14,11 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.jms.client;
+package org.apache.activemq.artemis.jms.client;
 
 import javax.jms.Queue;
 
-import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.SimpleString;
 
 /**
  * ActiveMQ implementation of a JMS Queue.
@@ -34,7 +34,7 @@ public class ActiveMQQueue extends ActiveMQDestination implements Queue
 
    public static SimpleString createAddressFromName(final String name)
    {
-      return new SimpleString(ActiveMQDestination.JMS_QUEUE_ADDRESS_PREFIX + name);
+      return new SimpleString(JMS_QUEUE_ADDRESS_PREFIX + name);
    }
 
    // Attributes ----------------------------------------------------
@@ -43,7 +43,7 @@ public class ActiveMQQueue extends ActiveMQDestination implements Queue
 
    public ActiveMQQueue(final String name)
    {
-      super(ActiveMQDestination.JMS_QUEUE_ADDRESS_PREFIX + name, name, false, true, null);
+      super(JMS_QUEUE_ADDRESS_PREFIX + name, name, false, true, null);
    }
 
 

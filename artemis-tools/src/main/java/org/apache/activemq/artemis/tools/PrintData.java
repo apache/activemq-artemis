@@ -14,15 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tools;
+package org.apache.activemq.artemis.tools;
 
 import java.io.File;
 
-import org.apache.activemq.core.persistence.impl.journal.DescribeJournal;
-import org.apache.activemq.core.server.impl.FileLockNodeManager;
+import org.apache.activemq.artemis.core.persistence.impl.journal.DescribeJournal;
+import org.apache.activemq.artemis.core.server.impl.FileLockNodeManager;
 
 /**
- * Writes a human-readable interpretation of the contents of a ActiveMQ {@link org.apache.activemq.core.journal.Journal}.
+ * Writes a human-readable interpretation of the contents of a ActiveMQ {@link org.apache.activemq.artemis.core.journal.Journal}.
  * <p>
  * To run this class with Maven, use:
  *

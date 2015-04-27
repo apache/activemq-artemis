@@ -14,12 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.spi.core.protocol;
+package org.apache.activemq.artemis.spi.core.protocol;
 
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.core.server.ServerConsumer;
-import org.apache.activemq.core.server.ServerMessage;
-import org.apache.activemq.spi.core.remoting.ReadyListener;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.server.ServerConsumer;
+import org.apache.activemq.artemis.core.server.ServerMessage;
+import org.apache.activemq.artemis.spi.core.remoting.ReadyListener;
 
 public interface SessionCallback
 {

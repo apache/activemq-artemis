@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.stomp.v11;
+package org.apache.activemq.artemis.tests.integration.stomp.v11;
 
 import javax.jms.BytesMessage;
 import javax.jms.DeliveryMode;
@@ -30,12 +30,12 @@ import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq.core.settings.impl.AddressSettings;
-import org.apache.activemq.tests.integration.IntegrationTestLogger;
-import org.apache.activemq.tests.integration.stomp.util.ClientStompFrame;
-import org.apache.activemq.tests.integration.stomp.util.StompClientConnection;
-import org.apache.activemq.tests.integration.stomp.util.StompClientConnectionFactory;
-import org.apache.activemq.tests.integration.stomp.util.StompClientConnectionV11;
+import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
+import org.apache.activemq.artemis.tests.integration.stomp.util.ClientStompFrame;
+import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnection;
+import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnectionFactory;
+import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnectionV11;
+import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;

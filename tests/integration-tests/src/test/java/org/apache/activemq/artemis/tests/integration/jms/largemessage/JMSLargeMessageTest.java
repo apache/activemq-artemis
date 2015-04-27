@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.jms.largemessage;
+package org.apache.activemq.artemis.tests.integration.jms.largemessage;
 
 import javax.jms.BytesMessage;
 import javax.jms.JMSException;
@@ -30,9 +30,9 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.apache.activemq.tests.util.JMSTestBase;
-import org.apache.activemq.tests.util.UnitTestCase;
-import org.apache.activemq.utils.UUIDGenerator;
+import org.apache.activemq.artemis.tests.util.JMSTestBase;
+import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -332,7 +332,7 @@ public class JMSLargeMessageTest extends JMSTestBase
       Assert.assertNotNull(rm);
 
       String str = rm.getText();
-      assertEquals(originalString, str);
+      Assert.assertEquals(originalString, str);
       conn.close();
       validateNoFilesOnLargeDir(0);
 

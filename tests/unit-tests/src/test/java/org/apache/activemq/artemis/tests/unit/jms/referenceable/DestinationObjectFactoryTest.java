@@ -14,19 +14,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.unit.jms.referenceable;
+package org.apache.activemq.artemis.tests.unit.jms.referenceable;
 
+import org.apache.activemq.artemis.tests.util.UnitTestCase;
 import org.junit.Test;
 
 import javax.naming.Reference;
 
 import org.junit.Assert;
 
-import org.apache.activemq.api.jms.ActiveMQJMSClient;
-import org.apache.activemq.jms.client.ActiveMQDestination;
-import org.apache.activemq.jms.referenceable.DestinationObjectFactory;
-import org.apache.activemq.tests.util.RandomUtil;
-import org.apache.activemq.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
+import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
+import org.apache.activemq.artemis.jms.referenceable.DestinationObjectFactory;
+import org.apache.activemq.artemis.tests.util.RandomUtil;
 
 public class DestinationObjectFactoryTest extends UnitTestCase
 {

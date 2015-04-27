@@ -14,9 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.api.core;
-
-import static org.apache.activemq.api.core.ActiveMQExceptionType.INTERNAL_ERROR;
+package org.apache.activemq.artemis.api.core;
 
 /**
  * Internal error which prevented ActiveMQ from performing an important operation.
@@ -27,21 +25,21 @@ public final class ActiveMQInternalErrorException extends ActiveMQException
 
    public ActiveMQInternalErrorException()
    {
-      super(INTERNAL_ERROR);
+      super(ActiveMQExceptionType.INTERNAL_ERROR);
    }
 
    public ActiveMQInternalErrorException(String msg)
    {
-      super(INTERNAL_ERROR, msg);
+      super(ActiveMQExceptionType.INTERNAL_ERROR, msg);
    }
 
    public ActiveMQInternalErrorException(String message, Exception e)
    {
-      super(INTERNAL_ERROR, message, e);
+      super(ActiveMQExceptionType.INTERNAL_ERROR, message, e);
    }
 
    public ActiveMQInternalErrorException(String message, Throwable t)
    {
-      super(INTERNAL_ERROR, message, t);
+      super(ActiveMQExceptionType.INTERNAL_ERROR, message, t);
    }
 }

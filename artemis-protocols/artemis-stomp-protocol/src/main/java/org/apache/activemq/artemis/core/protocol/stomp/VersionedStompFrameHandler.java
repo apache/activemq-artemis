@@ -14,23 +14,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.protocol.stomp;
+package org.apache.activemq.artemis.core.protocol.stomp;
 
 import java.nio.charset.StandardCharsets;
 
-import org.apache.activemq.api.core.ActiveMQBuffer;
-import org.apache.activemq.api.core.Message;
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.core.message.impl.MessageImpl;
-import org.apache.activemq.core.protocol.stomp.Stomp.Headers;
-import org.apache.activemq.core.protocol.stomp.v10.StompFrameHandlerV10;
-import org.apache.activemq.core.protocol.stomp.v11.StompFrameHandlerV11;
-import org.apache.activemq.core.protocol.stomp.v12.StompFrameHandlerV12;
-import org.apache.activemq.core.server.ServerMessage;
-import org.apache.activemq.core.server.impl.ServerMessageImpl;
-import org.apache.activemq.utils.DataConstants;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.message.impl.MessageImpl;
+import org.apache.activemq.artemis.core.protocol.stomp.Stomp.Headers;
+import org.apache.activemq.artemis.core.protocol.stomp.v10.StompFrameHandlerV10;
+import org.apache.activemq.artemis.core.protocol.stomp.v11.StompFrameHandlerV11;
+import org.apache.activemq.artemis.core.protocol.stomp.v12.StompFrameHandlerV12;
+import org.apache.activemq.artemis.core.server.ServerMessage;
+import org.apache.activemq.artemis.core.server.impl.ServerMessageImpl;
+import org.apache.activemq.artemis.utils.DataConstants;
 
-import static org.apache.activemq.core.protocol.stomp.ActiveMQStompProtocolMessageBundle.BUNDLE;
+import static org.apache.activemq.artemis.core.protocol.stomp.ActiveMQStompProtocolMessageBundle.BUNDLE;
 
 public abstract class VersionedStompFrameHandler
 {

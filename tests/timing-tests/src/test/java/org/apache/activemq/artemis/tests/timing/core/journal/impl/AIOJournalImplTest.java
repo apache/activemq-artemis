@@ -14,11 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.timing.core.journal.impl;
+package org.apache.activemq.artemis.tests.timing.core.journal.impl;
 import java.io.File;
 
-import org.apache.activemq.core.journal.SequentialFileFactory;
-import org.apache.activemq.core.journal.impl.AIOSequentialFileFactory;
+import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.core.journal.SequentialFileFactory;
+import org.apache.activemq.artemis.core.journal.impl.AIOSequentialFileFactory;
 import org.junit.BeforeClass;
 
 public class AIOJournalImplTest extends JournalImplTestUnit
@@ -34,7 +35,7 @@ public class AIOJournalImplTest extends JournalImplTestUnit
    {
       File file = new File(getTestDir());
 
-      deleteDirectory(file);
+      UnitTestCase.deleteDirectory(file);
 
       file.mkdir();
 

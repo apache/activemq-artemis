@@ -14,20 +14,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.rest.test;
+package org.apache.activemq.artemis.rest.test;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq.api.core.Message;
-import org.apache.activemq.api.core.client.ClientMessage;
-import org.apache.activemq.api.core.client.ClientProducer;
-import org.apache.activemq.api.core.client.ClientSession;
-import org.apache.activemq.api.core.client.MessageHandler;
-import org.apache.activemq.rest.ActiveMQ;
-import org.apache.activemq.rest.queue.QueueDeployment;
+import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.client.ClientMessage;
+import org.apache.activemq.artemis.api.core.client.ClientProducer;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.api.core.client.MessageHandler;
+import org.apache.activemq.artemis.rest.ActiveMQ;
+import org.apache.activemq.artemis.rest.queue.QueueDeployment;
 import org.jboss.resteasy.client.ClientRequest;
 import org.jboss.resteasy.client.ClientResponse;
 import org.jboss.resteasy.spi.Link;
@@ -132,12 +132,12 @@ public class TransformTest extends MessageTestBase
       ClientResponse<?> response = request.head();
       response.releaseConnection();
       Assert.assertEquals(200, response.getStatus());
-      Link sender = MessageTestBase.getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "create");
+      Link sender = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "create");
       System.out.println("create: " + sender);
-      Link consumers = MessageTestBase.getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "pull-consumers");
+      Link consumers = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "pull-consumers");
       System.out.println("pull: " + consumers);
       response = Util.setAutoAck(consumers, true);
-      Link consumeNext = MessageTestBase.getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "consume-next");
+      Link consumeNext = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "consume-next");
       System.out.println("consume-next: " + consumeNext);
 
       // test that Accept header is used to set content-type
@@ -154,7 +154,7 @@ public class TransformTest extends MessageTestBase
          Order order2 = response.getEntity(Order.class);
          response.releaseConnection();
          Assert.assertEquals(order, order2);
-         consumeNext = MessageTestBase.getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "consume-next");
+         consumeNext = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "consume-next");
          Assert.assertNotNull(consumeNext);
       }
 
@@ -171,7 +171,7 @@ public class TransformTest extends MessageTestBase
          Order order2 = response.getEntity(Order.class);
          response.releaseConnection();
          Assert.assertEquals(order, order2);
-         consumeNext = MessageTestBase.getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "consume-next");
+         consumeNext = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "consume-next");
          Assert.assertNotNull(consumeNext);
       }
 
@@ -188,7 +188,7 @@ public class TransformTest extends MessageTestBase
          Order order2 = response.getEntity(Order.class);
          response.releaseConnection();
          Assert.assertEquals(order, order2);
-         consumeNext = MessageTestBase.getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "consume-next");
+         consumeNext = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "consume-next");
          Assert.assertNotNull(consumeNext);
       }
    }
@@ -233,12 +233,12 @@ public class TransformTest extends MessageTestBase
          ClientResponse<?> response = request.head();
          response.releaseConnection();
          Assert.assertEquals(200, response.getStatus());
-         Link sender = MessageTestBase.getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "create");
+         Link sender = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "create");
          System.out.println("create: " + sender);
-         Link consumers = MessageTestBase.getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "pull-consumers");
+         Link consumers = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "pull-consumers");
          System.out.println("pull: " + consumers);
          response = Util.setAutoAck(consumers, true);
-         Link consumeNext = MessageTestBase.getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "consume-next");
+         Link consumeNext = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "consume-next");
          System.out.println("consume-next: " + consumeNext);
 
          // test that Accept header is used to set content-type

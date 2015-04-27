@@ -14,15 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.jms.persistence;
+package org.apache.activemq.artemis.jms.persistence;
 
 import java.util.List;
 
-import org.apache.activemq.core.server.ActiveMQComponent;
-import org.apache.activemq.jms.persistence.config.PersistedConnectionFactory;
-import org.apache.activemq.jms.persistence.config.PersistedDestination;
-import org.apache.activemq.jms.persistence.config.PersistedBindings;
-import org.apache.activemq.jms.persistence.config.PersistedType;
+import org.apache.activemq.artemis.core.server.ActiveMQComponent;
+import org.apache.activemq.artemis.jms.persistence.config.PersistedConnectionFactory;
+import org.apache.activemq.artemis.jms.persistence.config.PersistedDestination;
+import org.apache.activemq.artemis.jms.persistence.config.PersistedBindings;
+import org.apache.activemq.artemis.jms.persistence.config.PersistedType;
 
 public interface JMSStorageManager extends ActiveMQComponent
 {

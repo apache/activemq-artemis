@@ -14,17 +14,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.jms.server.config;
+package org.apache.activemq.artemis.tests.integration.jms.server.config;
 
-import org.apache.activemq.core.config.FileDeploymentManager;
-import org.apache.activemq.jms.server.config.impl.FileJMSConfiguration;
+import org.apache.activemq.artemis.core.config.FileDeploymentManager;
+import org.apache.activemq.artemis.jms.server.config.impl.FileJMSConfiguration;
 import org.junit.Test;
 
-import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.jms.server.config.JMSQueueConfiguration;
-import org.apache.activemq.jms.server.config.TopicConfiguration;
-import org.apache.activemq.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.jms.server.config.JMSQueueConfiguration;
+import org.apache.activemq.artemis.jms.server.config.TopicConfiguration;
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
 
 public class JMSServerConfigParserTest extends ServiceTestBase
 {

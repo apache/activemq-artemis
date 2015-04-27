@@ -14,18 +14,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.reader;
+package org.apache.activemq.artemis.reader;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.activemq.api.core.ActiveMQBuffer;
-import org.apache.activemq.api.core.ActiveMQException;
-import org.apache.activemq.api.core.ActiveMQPropertyConversionException;
-import org.apache.activemq.api.core.Message;
-import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.ActiveMQPropertyConversionException;
+import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.SimpleString;
 
 /**
  * static methods intended for import static on JMS like messages.
@@ -196,6 +196,6 @@ public class MessageUtil
    {
       return message.containsProperty(new SimpleString(name)) || name.equals(MessageUtil.JMSXDELIVERYCOUNT) ||
          MessageUtil.JMSXGROUPID.equals(name) &&
-            message.containsProperty(org.apache.activemq.api.core.Message.HDR_GROUP_ID);
+            message.containsProperty(Message.HDR_GROUP_ID);
    }
 }

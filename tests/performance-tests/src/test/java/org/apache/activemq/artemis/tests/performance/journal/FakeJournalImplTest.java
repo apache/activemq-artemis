@@ -14,10 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.performance.journal;
+package org.apache.activemq.artemis.tests.performance.journal;
 
-import org.apache.activemq.core.journal.SequentialFileFactory;
-import org.apache.activemq.tests.unit.core.journal.impl.fakes.FakeSequentialFileFactory;
+import org.apache.activemq.artemis.core.journal.SequentialFileFactory;
+import org.apache.activemq.artemis.tests.unit.core.journal.impl.fakes.FakeSequentialFileFactory;
 
 /**
  *

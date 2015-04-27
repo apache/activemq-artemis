@@ -14,7 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.cluster.distribution;
+package org.apache.activemq.artemis.tests.integration.cluster.distribution;
+import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.junit.Assert;
 import org.junit.Before;
 
 import org.junit.Test;
@@ -24,17 +26,17 @@ import java.util.ArrayList;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 
-import org.apache.activemq.api.core.client.ClientConsumer;
-import org.apache.activemq.api.core.client.ClientMessage;
-import org.apache.activemq.api.core.client.ClientProducer;
-import org.apache.activemq.api.core.client.ClientSession;
-import org.apache.activemq.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.api.core.client.ClientConsumer;
+import org.apache.activemq.artemis.api.core.client.ClientMessage;
+import org.apache.activemq.artemis.api.core.client.ClientProducer;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 
 public class MessageRedistributionWithDiscoveryTest extends ClusterTestBase
 {
-   protected final String groupAddress = getUDPDiscoveryAddress();
+   protected final String groupAddress = UnitTestCase.getUDPDiscoveryAddress();
 
-   protected final int groupPort = getUDPDiscoveryPort();
+   protected final int groupPort = UnitTestCase.getUDPDiscoveryPort();
 
    protected boolean isNetty()
    {
@@ -182,7 +184,7 @@ public class MessageRedistributionWithDiscoveryTest extends ClusterTestBase
       for (int i = 0; i < 100; i++)
       {
          ClientMessage msg = consumer1.receive(15000);
-         assertNotNull(msg);
+         Assert.assertNotNull(msg);
          msg.acknowledge();
       }
 

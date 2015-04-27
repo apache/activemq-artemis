@@ -14,36 +14,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.replication;
+package org.apache.activemq.artemis.core.replication;
 
-import org.apache.activemq.api.core.Message;
+import org.apache.activemq.artemis.api.core.Message;
 
 /**
- * {@link org.apache.activemq.core.server.LargeServerMessage} methods used by the {@link ReplicationEndpoint}.
+ * {@link org.apache.activemq.artemis.core.server.LargeServerMessage} methods used by the {@link ReplicationEndpoint}.
  * <p/>
- * In practice a subset of the methods necessary to have a {@link org.apache.activemq.core.server.LargeServerMessage}
+ * In practice a subset of the methods necessary to have a {@link org.apache.activemq.artemis.core.server.LargeServerMessage}
  *
- * @see org.apache.activemq.core.persistence.impl.journal.LargeServerMessageInSync
+ * @see org.apache.activemq.artemis.core.persistence.impl.journal.LargeServerMessageInSync
  */
 public interface ReplicatedLargeMessage
 {
    /**
-    * @see org.apache.activemq.core.server.LargeServerMessage#setDurable(boolean)
+    * @see org.apache.activemq.artemis.core.server.LargeServerMessage#setDurable(boolean)
     */
    Message setDurable(boolean b);
 
    /**
-    * @see org.apache.activemq.core.server.LargeServerMessage#setMessageID(long)
+    * @see org.apache.activemq.artemis.core.server.LargeServerMessage#setMessageID(long)
     */
    Message setMessageID(long id);
 
    /**
-    * @see org.apache.activemq.core.server.LargeServerMessage#releaseResources()
+    * @see org.apache.activemq.artemis.core.server.LargeServerMessage#releaseResources()
     */
    void releaseResources();
 
    /**
-    * @see org.apache.activemq.core.server.LargeServerMessage#deleteFile()
+    * @see org.apache.activemq.artemis.core.server.LargeServerMessage#deleteFile()
     */
    void deleteFile() throws Exception;
 

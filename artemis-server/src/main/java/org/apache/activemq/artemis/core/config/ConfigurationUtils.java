@@ -14,25 +14,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.config;
+package org.apache.activemq.artemis.core.config;
 
-import org.apache.activemq.api.core.ActiveMQIllegalStateException;
-import org.apache.activemq.core.config.ha.ColocatedPolicyConfiguration;
-import org.apache.activemq.core.config.ha.LiveOnlyPolicyConfiguration;
-import org.apache.activemq.core.config.ha.ReplicaPolicyConfiguration;
-import org.apache.activemq.core.config.ha.ReplicatedPolicyConfiguration;
-import org.apache.activemq.core.config.ha.SharedStoreMasterPolicyConfiguration;
-import org.apache.activemq.core.config.ha.SharedStoreSlavePolicyConfiguration;
-import org.apache.activemq.core.server.ActiveMQMessageBundle;
-import org.apache.activemq.core.server.cluster.ha.BackupPolicy;
-import org.apache.activemq.core.server.cluster.ha.ColocatedPolicy;
-import org.apache.activemq.core.server.cluster.ha.HAPolicy;
-import org.apache.activemq.core.server.cluster.ha.LiveOnlyPolicy;
-import org.apache.activemq.core.server.cluster.ha.ReplicaPolicy;
-import org.apache.activemq.core.server.cluster.ha.ReplicatedPolicy;
-import org.apache.activemq.core.server.cluster.ha.ScaleDownPolicy;
-import org.apache.activemq.core.server.cluster.ha.SharedStoreMasterPolicy;
-import org.apache.activemq.core.server.cluster.ha.SharedStoreSlavePolicy;
+import org.apache.activemq.artemis.api.core.ActiveMQIllegalStateException;
+import org.apache.activemq.artemis.core.config.ha.ColocatedPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.LiveOnlyPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.ReplicaPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.ReplicatedPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.SharedStoreMasterPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.SharedStoreSlavePolicyConfiguration;
+import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
+import org.apache.activemq.artemis.core.server.cluster.ha.BackupPolicy;
+import org.apache.activemq.artemis.core.server.cluster.ha.ColocatedPolicy;
+import org.apache.activemq.artemis.core.server.cluster.ha.HAPolicy;
+import org.apache.activemq.artemis.core.server.cluster.ha.LiveOnlyPolicy;
+import org.apache.activemq.artemis.core.server.cluster.ha.ReplicaPolicy;
+import org.apache.activemq.artemis.core.server.cluster.ha.ReplicatedPolicy;
+import org.apache.activemq.artemis.core.server.cluster.ha.ScaleDownPolicy;
+import org.apache.activemq.artemis.core.server.cluster.ha.SharedStoreMasterPolicy;
+import org.apache.activemq.artemis.core.server.cluster.ha.SharedStoreSlavePolicy;
 
 public final class ConfigurationUtils
 {

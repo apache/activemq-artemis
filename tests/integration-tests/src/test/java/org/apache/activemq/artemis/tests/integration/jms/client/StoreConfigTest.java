@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.jms.client;
+package org.apache.activemq.artemis.tests.integration.jms.client;
 
 import org.junit.Test;
 
@@ -30,9 +30,9 @@ import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.naming.NamingException;
 
-import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.jms.server.config.impl.ConnectionFactoryConfigurationImpl;
-import org.apache.activemq.tests.util.JMSTestBase;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.jms.server.config.impl.ConnectionFactoryConfigurationImpl;
+import org.apache.activemq.artemis.tests.util.JMSTestBase;
 
 public class StoreConfigTest extends JMSTestBase
 {

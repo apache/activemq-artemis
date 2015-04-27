@@ -14,16 +14,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.client.impl;
+package org.apache.activemq.artemis.core.client.impl;
 
 import java.io.IOException;
 import java.io.OutputStream;
 
-import org.apache.activemq.api.core.ActiveMQBuffer;
-import org.apache.activemq.api.core.ActiveMQException;
-import org.apache.activemq.api.core.Message;
-import org.apache.activemq.core.buffers.impl.ResetLimitWrappedActiveMQBuffer;
-import org.apache.activemq.utils.DataConstants;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.core.buffers.impl.ResetLimitWrappedActiveMQBuffer;
+import org.apache.activemq.artemis.utils.DataConstants;
 
 /**
  * ClientLargeMessageImpl is only created when receiving large messages.

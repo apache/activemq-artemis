@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.server.impl;
+package org.apache.activemq.artemis.core.server.impl;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -24,12 +24,12 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.apache.activemq.api.core.ActiveMQException;
-import org.apache.activemq.api.core.Pair;
-import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.core.client.TopologyMember;
-import org.apache.activemq.core.server.LiveNodeLocator;
-import org.apache.activemq.core.server.cluster.qourum.SharedNothingBackupQuorum;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.Pair;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.client.TopologyMember;
+import org.apache.activemq.artemis.core.server.LiveNodeLocator;
+import org.apache.activemq.artemis.core.server.cluster.qourum.SharedNothingBackupQuorum;
 
 /**
  * This implementation looks for any available live node, once tried with no success it is marked as

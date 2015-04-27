@@ -14,14 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.config.impl;
+package org.apache.activemq.artemis.core.config.impl;
 
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 
-import org.apache.activemq.core.deployers.impl.FileConfigurationParser;
-import org.apache.activemq.logs.AssertionLoggerHandler;
-import org.apache.activemq.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.core.deployers.impl.FileConfigurationParser;
+import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
+import org.apache.activemq.artemis.tests.util.UnitTestCase;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -66,7 +66,7 @@ public class WrongRoleFileConfigurationParserTest extends UnitTestCase
          "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
          "xsi:schemaLocation=\"urn:activemq /schema/activemq-configuration.xsd\">\n" +
          "<name>ActiveMQ.main.config</name>" + "\n" +
-         "<log-delegate-factory-class-name>org.apache.activemq.integration.logging.Log4jLogDelegateFactory</log-delegate-factory-class-name>" + "\n" +
+         "<log-delegate-factory-class-name>org.apache.activemq.artemis.integration.logging.Log4jLogDelegateFactory</log-delegate-factory-class-name>" + "\n" +
          "<bindings-directory>${jboss.server.data.dir}/activemq/bindings</bindings-directory>" + "\n" +
          "<journal-directory>${jboss.server.data.dir}/activemq/journal</journal-directory>" + "\n" +
          "<journal-min-files>10</journal-min-files>" + "\n" +

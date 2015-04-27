@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.remoting.impl.invm;
+package org.apache.activemq.artemis.core.remoting.impl.invm;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -23,18 +23,18 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Executor;
 
-import org.apache.activemq.api.core.ActiveMQException;
-import org.apache.activemq.core.server.ActiveMQComponent;
-import org.apache.activemq.core.server.ActiveMQServerLogger;
-import org.apache.activemq.core.server.ActiveMQMessageBundle;
-import org.apache.activemq.spi.core.remoting.AbstractConnector;
-import org.apache.activemq.spi.core.remoting.Acceptor;
-import org.apache.activemq.spi.core.remoting.BufferHandler;
-import org.apache.activemq.spi.core.remoting.ClientProtocolManager;
-import org.apache.activemq.spi.core.remoting.Connection;
-import org.apache.activemq.spi.core.remoting.ConnectionLifeCycleListener;
-import org.apache.activemq.utils.ConfigurationHelper;
-import org.apache.activemq.utils.OrderedExecutorFactory;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.core.server.ActiveMQComponent;
+import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
+import org.apache.activemq.artemis.spi.core.remoting.AbstractConnector;
+import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
+import org.apache.activemq.artemis.spi.core.remoting.BufferHandler;
+import org.apache.activemq.artemis.spi.core.remoting.ClientProtocolManager;
+import org.apache.activemq.artemis.spi.core.remoting.Connection;
+import org.apache.activemq.artemis.spi.core.remoting.ConnectionLifeCycleListener;
+import org.apache.activemq.artemis.utils.ConfigurationHelper;
+import org.apache.activemq.artemis.utils.OrderedExecutorFactory;
 
 public class InVMConnector extends AbstractConnector
 {

@@ -41,14 +41,14 @@ struct timespec nanoTime;
 inline AIOController * getController(JNIEnv *env, jobject & controllerAddress)
 {
      return (AIOController *) env->GetDirectBufferAddress(controllerAddress);
-} 
+}
 
 /* Inaccessible static: log */
 /* Inaccessible static: totalMaxIO */
 /* Inaccessible static: loaded */
 /* Inaccessible static: EXPECTED_NATIVE_VERSION */
 /*
- * Class:     org.apache.activemq6_core_asyncio_impl_AsynchronousFileImpl
+ * Class:     org.apache.activemq.artemis_core_asyncio_impl_AsynchronousFileImpl
  * Method:    openFile
  * Signature: (Ljava/lang/String;)I
  */
@@ -61,7 +61,7 @@ JNIEXPORT jint JNICALL Java_org_apache_activemq_core_libaio_Native_openFile
 }
 
 /*
- * Class:     org.apache.activemq6_core_asyncio_impl_AsynchronousFileImpl
+ * Class:     org.apache.activemq.artemis_core_asyncio_impl_AsynchronousFileImpl
  * Method:    closeFile
  * Signature: (I)V
  */
@@ -72,7 +72,7 @@ JNIEXPORT void JNICALL Java_org_apache_activemq_core_libaio_Native_closeFile
 }
 
 /*
- * Class:     org.apache.activemq6_core_asyncio_impl_AsynchronousFileImpl
+ * Class:     org.apache.activemq.artemis_core_asyncio_impl_AsynchronousFileImpl
  * Method:    flock
  * Signature: (I)Z
  */

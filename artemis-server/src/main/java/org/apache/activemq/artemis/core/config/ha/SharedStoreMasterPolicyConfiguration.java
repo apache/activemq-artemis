@@ -14,10 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.config.ha;
+package org.apache.activemq.artemis.core.config.ha;
 
-import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
-import org.apache.activemq.core.config.HAPolicyConfiguration;
+import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
+import org.apache.activemq.artemis.core.config.HAPolicyConfiguration;
 
 public class SharedStoreMasterPolicyConfiguration implements HAPolicyConfiguration
 {

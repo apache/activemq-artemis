@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tools;
+package org.apache.activemq.artemis.tools;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -27,34 +27,34 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
-import org.apache.activemq.api.core.ActiveMQBuffer;
-import org.apache.activemq.api.core.ActiveMQBuffers;
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.core.config.impl.ConfigurationImpl;
-import org.apache.activemq.core.journal.PreparedTransactionInfo;
-import org.apache.activemq.core.journal.RecordInfo;
-import org.apache.activemq.core.journal.SequentialFileFactory;
-import org.apache.activemq.core.journal.impl.JournalImpl;
-import org.apache.activemq.core.journal.impl.NIOSequentialFileFactory;
-import org.apache.activemq.core.paging.PagedMessage;
-import org.apache.activemq.core.paging.PagingManager;
-import org.apache.activemq.core.paging.PagingStore;
-import org.apache.activemq.core.paging.PagingStoreFactory;
-import org.apache.activemq.core.paging.cursor.PagePosition;
-import org.apache.activemq.core.paging.cursor.impl.PagePositionImpl;
-import org.apache.activemq.core.paging.impl.Page;
-import org.apache.activemq.core.paging.impl.PageTransactionInfoImpl;
-import org.apache.activemq.core.paging.impl.PagingManagerImpl;
-import org.apache.activemq.core.paging.impl.PagingStoreFactoryNIO;
-import org.apache.activemq.core.persistence.StorageManager;
-import org.apache.activemq.core.persistence.impl.journal.JournalRecordIds;
-import org.apache.activemq.core.persistence.impl.journal.JournalStorageManager.CursorAckRecordEncoding;
-import org.apache.activemq.core.persistence.impl.journal.JournalStorageManager.PageUpdateTXEncoding;
-import org.apache.activemq.core.persistence.impl.nullpm.NullStorageManager;
-import org.apache.activemq.core.settings.HierarchicalRepository;
-import org.apache.activemq.core.settings.impl.AddressSettings;
-import org.apache.activemq.core.settings.impl.HierarchicalObjectRepository;
-import org.apache.activemq.utils.ExecutorFactory;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
+import org.apache.activemq.artemis.core.journal.PreparedTransactionInfo;
+import org.apache.activemq.artemis.core.journal.RecordInfo;
+import org.apache.activemq.artemis.core.journal.SequentialFileFactory;
+import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
+import org.apache.activemq.artemis.core.journal.impl.NIOSequentialFileFactory;
+import org.apache.activemq.artemis.core.paging.PagedMessage;
+import org.apache.activemq.artemis.core.paging.PagingManager;
+import org.apache.activemq.artemis.core.paging.PagingStore;
+import org.apache.activemq.artemis.core.paging.PagingStoreFactory;
+import org.apache.activemq.artemis.core.paging.cursor.PagePosition;
+import org.apache.activemq.artemis.core.paging.cursor.impl.PagePositionImpl;
+import org.apache.activemq.artemis.core.paging.impl.Page;
+import org.apache.activemq.artemis.core.paging.impl.PageTransactionInfoImpl;
+import org.apache.activemq.artemis.core.paging.impl.PagingManagerImpl;
+import org.apache.activemq.artemis.core.paging.impl.PagingStoreFactoryNIO;
+import org.apache.activemq.artemis.core.persistence.StorageManager;
+import org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds;
+import org.apache.activemq.artemis.core.persistence.impl.journal.JournalStorageManager.CursorAckRecordEncoding;
+import org.apache.activemq.artemis.core.persistence.impl.journal.JournalStorageManager.PageUpdateTXEncoding;
+import org.apache.activemq.artemis.core.persistence.impl.nullpm.NullStorageManager;
+import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
+import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.core.settings.impl.HierarchicalObjectRepository;
+import org.apache.activemq.artemis.utils.ExecutorFactory;
 
 public class PrintPages // NO_UCD (unused code)
 {

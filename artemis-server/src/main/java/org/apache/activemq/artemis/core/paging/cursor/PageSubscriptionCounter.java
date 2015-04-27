@@ -14,10 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.paging.cursor;
+package org.apache.activemq.artemis.core.paging.cursor;
 
-import org.apache.activemq.core.paging.impl.Page;
-import org.apache.activemq.core.transaction.Transaction;
+import org.apache.activemq.artemis.core.paging.impl.Page;
+import org.apache.activemq.artemis.core.transaction.Transaction;
 
 public interface PageSubscriptionCounter
 {

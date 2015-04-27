@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.journal;
+package org.apache.activemq.artemis.tests.integration.journal;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -30,29 +30,29 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.apache.activemq.api.core.Pair;
-import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.journal.IOAsyncTask;
-import org.apache.activemq.core.journal.PreparedTransactionInfo;
-import org.apache.activemq.core.journal.RecordInfo;
-import org.apache.activemq.core.journal.SequentialFile;
-import org.apache.activemq.core.journal.SequentialFileFactory;
-import org.apache.activemq.core.journal.impl.AbstractJournalUpdateTask;
-import org.apache.activemq.core.journal.impl.JournalCompactor;
-import org.apache.activemq.core.journal.impl.JournalFile;
-import org.apache.activemq.core.journal.impl.JournalFileImpl;
-import org.apache.activemq.core.journal.impl.JournalImpl;
-import org.apache.activemq.core.journal.impl.NIOSequentialFileFactory;
-import org.apache.activemq.core.persistence.impl.journal.JournalStorageManager;
-import org.apache.activemq.core.persistence.impl.journal.OperationContextImpl;
-import org.apache.activemq.core.server.impl.ServerMessageImpl;
-import org.apache.activemq.tests.unit.core.journal.impl.JournalImplTestBase;
-import org.apache.activemq.tests.unit.core.journal.impl.fakes.SimpleEncoding;
-import org.apache.activemq.tests.util.UnitTestCase;
-import org.apache.activemq.tools.ExportJournal;
-import org.apache.activemq.utils.IDGenerator;
-import org.apache.activemq.utils.OrderedExecutorFactory;
-import org.apache.activemq.utils.SimpleIDGenerator;
+import org.apache.activemq.artemis.api.core.Pair;
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.journal.IOAsyncTask;
+import org.apache.activemq.artemis.core.journal.PreparedTransactionInfo;
+import org.apache.activemq.artemis.core.journal.RecordInfo;
+import org.apache.activemq.artemis.core.journal.SequentialFile;
+import org.apache.activemq.artemis.core.journal.SequentialFileFactory;
+import org.apache.activemq.artemis.core.journal.impl.AbstractJournalUpdateTask;
+import org.apache.activemq.artemis.core.journal.impl.JournalCompactor;
+import org.apache.activemq.artemis.core.journal.impl.JournalFile;
+import org.apache.activemq.artemis.core.journal.impl.JournalFileImpl;
+import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
+import org.apache.activemq.artemis.core.journal.impl.NIOSequentialFileFactory;
+import org.apache.activemq.artemis.core.persistence.impl.journal.JournalStorageManager;
+import org.apache.activemq.artemis.core.persistence.impl.journal.OperationContextImpl;
+import org.apache.activemq.artemis.core.server.impl.ServerMessageImpl;
+import org.apache.activemq.artemis.tests.unit.core.journal.impl.JournalImplTestBase;
+import org.apache.activemq.artemis.tests.unit.core.journal.impl.fakes.SimpleEncoding;
+import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.tools.ExportJournal;
+import org.apache.activemq.artemis.utils.IDGenerator;
+import org.apache.activemq.artemis.utils.OrderedExecutorFactory;
+import org.apache.activemq.artemis.utils.SimpleIDGenerator;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;

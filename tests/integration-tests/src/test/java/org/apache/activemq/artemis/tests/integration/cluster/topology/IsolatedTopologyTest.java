@@ -14,22 +14,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.cluster.topology;
+package org.apache.activemq.artemis.tests.integration.cluster.topology;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.core.client.impl.Topology;
-import org.apache.activemq.core.client.impl.TopologyMemberImpl;
-import org.apache.activemq.core.config.ClusterConnectionConfiguration;
-import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.remoting.impl.netty.TransportConstants;
-import org.apache.activemq.core.server.ActiveMQServer;
-import org.apache.activemq.tests.util.ServiceTestBase;
-import org.apache.activemq.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.core.client.impl.Topology;
+import org.apache.activemq.artemis.core.client.impl.TopologyMemberImpl;
+import org.apache.activemq.artemis.core.config.ClusterConnectionConfiguration;
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -107,7 +107,7 @@ public class IsolatedTopologyTest extends ServiceTestBase
    {
       Map<String, Object> params = new HashMap<String, Object>();
       params.put(TransportConstants.CLUSTER_CONNECTION, "cc1");
-      params.put(org.apache.activemq.core.remoting.impl.invm.TransportConstants.SERVER_ID_PROP_NAME, "1");
+      params.put(org.apache.activemq.artemis.core.remoting.impl.invm.TransportConstants.SERVER_ID_PROP_NAME, "1");
 
       TransportConfiguration acceptor1VM1 = new TransportConfiguration(UnitTestCase.INVM_ACCEPTOR_FACTORY,
                                                                        params,
@@ -115,7 +115,7 @@ public class IsolatedTopologyTest extends ServiceTestBase
 
       params = new HashMap<String, Object>();
       params.put(TransportConstants.CLUSTER_CONNECTION, "cc2");
-      params.put(org.apache.activemq.core.remoting.impl.invm.TransportConstants.SERVER_ID_PROP_NAME, "2");
+      params.put(org.apache.activemq.artemis.core.remoting.impl.invm.TransportConstants.SERVER_ID_PROP_NAME, "2");
 
       TransportConfiguration acceptor2VM1 = new TransportConfiguration(UnitTestCase.INVM_ACCEPTOR_FACTORY,
                                                                        params,
@@ -164,7 +164,7 @@ public class IsolatedTopologyTest extends ServiceTestBase
 
       Map<String, Object> params = new HashMap<String, Object>();
       params.put(TransportConstants.CLUSTER_CONNECTION, "cc1");
-      params.put(org.apache.activemq.core.remoting.impl.invm.TransportConstants.SERVER_ID_PROP_NAME, "3");
+      params.put(org.apache.activemq.artemis.core.remoting.impl.invm.TransportConstants.SERVER_ID_PROP_NAME, "3");
 
       TransportConfiguration acceptor1VM1 = new TransportConfiguration(UnitTestCase.INVM_ACCEPTOR_FACTORY,
                                                                        params,
@@ -172,7 +172,7 @@ public class IsolatedTopologyTest extends ServiceTestBase
 
       params = new HashMap<String, Object>();
       params.put(TransportConstants.CLUSTER_CONNECTION, "cc2");
-      params.put(org.apache.activemq.core.remoting.impl.invm.TransportConstants.SERVER_ID_PROP_NAME, "4");
+      params.put(org.apache.activemq.artemis.core.remoting.impl.invm.TransportConstants.SERVER_ID_PROP_NAME, "4");
 
       TransportConfiguration acceptor2VM1 = new TransportConfiguration(UnitTestCase.INVM_ACCEPTOR_FACTORY,
                                                                        params,

@@ -14,9 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.api.core;
-
-import static org.apache.activemq.api.core.ActiveMQExceptionType.SESSION_CREATION_REJECTED;
+package org.apache.activemq.artemis.api.core;
 
 /**
  * The creation of a session was rejected by the server (e.g. if the server is starting and has not
@@ -28,11 +26,11 @@ public final class ActiveMQSessionCreationException extends ActiveMQException
 
    public ActiveMQSessionCreationException()
    {
-      super(SESSION_CREATION_REJECTED);
+      super(ActiveMQExceptionType.SESSION_CREATION_REJECTED);
    }
 
    public ActiveMQSessionCreationException(String msg)
    {
-      super(SESSION_CREATION_REJECTED, msg);
+      super(ActiveMQExceptionType.SESSION_CREATION_REJECTED, msg);
    }
 }

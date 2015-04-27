@@ -14,13 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.util;
+package org.apache.activemq.artemis.tests.util;
 
 import java.util.concurrent.CountDownLatch;
 
-import org.apache.activemq.api.core.ActiveMQException;
-import org.apache.activemq.api.core.client.ClientSession;
-import org.apache.activemq.api.core.client.SessionFailureListener;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.api.core.client.SessionFailureListener;
 
 public final class CountDownSessionFailureListener implements SessionFailureListener
 {

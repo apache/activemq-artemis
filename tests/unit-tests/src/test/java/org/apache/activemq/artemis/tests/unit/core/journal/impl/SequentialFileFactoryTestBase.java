@@ -14,9 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.unit.core.journal.impl;
-import org.apache.activemq.api.core.ActiveMQBuffer;
-import org.apache.activemq.api.core.ActiveMQBuffers;
+package org.apache.activemq.artemis.tests.unit.core.journal.impl;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
+import org.apache.activemq.artemis.tests.util.UnitTestCase;
 import org.junit.Before;
 import org.junit.After;
 
@@ -30,10 +31,9 @@ import java.util.UUID;
 
 import org.junit.Assert;
 
-import org.apache.activemq.core.asyncio.impl.AsynchronousFileImpl;
-import org.apache.activemq.core.journal.SequentialFile;
-import org.apache.activemq.core.journal.SequentialFileFactory;
-import org.apache.activemq.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.core.asyncio.impl.AsynchronousFileImpl;
+import org.apache.activemq.artemis.core.journal.SequentialFile;
+import org.apache.activemq.artemis.core.journal.SequentialFileFactory;
 
 public abstract class SequentialFileFactoryTestBase extends UnitTestCase
 {

@@ -14,9 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.integration.spring;
+package org.apache.activemq.artemis.integration.spring;
 
-import org.apache.activemq.jms.server.embedded.EmbeddedJMS;
+import org.apache.activemq.artemis.jms.server.embedded.EmbeddedJMS;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;

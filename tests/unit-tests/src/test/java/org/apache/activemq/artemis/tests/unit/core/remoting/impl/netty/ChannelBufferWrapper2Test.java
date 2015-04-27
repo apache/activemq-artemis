@@ -14,11 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.unit.core.remoting.impl.netty;
+package org.apache.activemq.artemis.tests.unit.core.remoting.impl.netty;
 
-import org.apache.activemq.api.core.ActiveMQBuffer;
-import org.apache.activemq.api.core.ActiveMQBuffers;
-import org.apache.activemq.tests.unit.core.remoting.ActiveMQBufferTestBase;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
+import org.apache.activemq.artemis.tests.unit.core.remoting.ActiveMQBufferTestBase;
 
 /**
  * Same as ChannelBufferWrapperTest, but using a different constructor

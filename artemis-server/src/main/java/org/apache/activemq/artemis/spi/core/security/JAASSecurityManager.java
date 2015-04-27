@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.spi.core.security;
+package org.apache.activemq.artemis.spi.core.security;
 
 import java.security.Principal;
 import java.security.acl.Group;
@@ -28,9 +28,9 @@ import javax.security.auth.login.Configuration;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
-import org.apache.activemq.core.security.CheckType;
-import org.apache.activemq.core.security.Role;
-import org.apache.activemq.core.server.ActiveMQServerLogger;
+import org.apache.activemq.artemis.core.security.CheckType;
+import org.apache.activemq.artemis.core.security.Role;
+import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 
 /**
  * This implementation delegates to the JAAS security interfaces.

@@ -37,7 +37,7 @@
         <unpack>false</unpack>
         <useTransitiveDependencies>false</useTransitiveDependencies>
         <includes>
-           <include>org.apache.activemq:activemq-boot</include>
+           <include>org.apache.activemq:artemis-boot</include>
         </includes>
       </dependencySet>
 
@@ -47,25 +47,25 @@
          <includes>
 
             <!-- modules -->
-            <include>org.apache.activemq:activemq-bootstrap</include>
-            <include>org.apache.activemq:activemq-commons</include>
-            <include>org.apache.activemq:activemq-core-client</include>
-            <include>org.apache.activemq:activemq-dto</include>
-            <include>org.apache.activemq:activemq-jms-client</include>
-            <include>org.apache.activemq:activemq-jms-server</include>
-            <include>org.apache.activemq:activemq-journal</include>
-            <include>org.apache.activemq:activemq-native</include>
-            <include>org.apache.activemq:activemq-amqp-protocol</include>
-            <include>org.apache.activemq:activemq-openwire-protocol</include>
-            <include>org.apache.activemq:activemq-proton-plug</include>
-            <include>org.apache.activemq:activemq-stomp-protocol</include>
-            <include>org.apache.activemq:activemq-ra</include>
-            <include>org.apache.activemq:activemq-selector</include>
-            <include>org.apache.activemq:activemq-server</include>
-            <include>org.apache.activemq:activemq-service-extensions</include>
-            <include>org.apache.activemq:activemq-tools</include>
-            <include>org.apache.activemq:activemq-web</include>
-            <include>org.apache.activemq.rest:activemq-rest</include>
+            <include>org.apache.activemq:artemis-bootstrap</include>
+            <include>org.apache.activemq:artemis-commons</include>
+            <include>org.apache.activemq:artemis-core-client</include>
+            <include>org.apache.activemq:artemis-dto</include>
+            <include>org.apache.activemq:artemis-jms-client</include>
+            <include>org.apache.activemq:artemis-jms-server</include>
+            <include>org.apache.activemq:artemis-journal</include>
+            <include>org.apache.activemq:artemis-native</include>
+            <include>org.apache.activemq:artemis-amqp-protocol</include>
+            <include>org.apache.activemq:artemis-openwire-protocol</include>
+            <include>org.apache.activemq:artemis-proton-plug</include>
+            <include>org.apache.activemq:artemis-stomp-protocol</include>
+            <include>org.apache.activemq:artemis-ra</include>
+            <include>org.apache.activemq:artemis-selector</include>
+            <include>org.apache.activemq:artemis-server</include>
+            <include>org.apache.activemq:artemis-service-extensions</include>
+            <include>org.apache.activemq:artemis-tools</include>
+            <include>org.apache.activemq:artemis-web</include>
+            <include>org.apache.activemq.rest:artemis-rest</include>
             <!-- dependencies -->
             <include>org.apache.geronimo.specs:geronimo-jms_2.0_spec</include>
             <include>org.jboss.logmanager:jboss-logmanager</include>
@@ -86,7 +86,7 @@
             <include>org.fusesource.hawtbuf:hawtbuf</include>
          </includes>
          <!--excludes>
-            <exclude>org.apache.activemq:activemq-website</exclude>
+            <exclude>org.apache.activemq:artemis-website</exclude>
          </excludes-->
          <outputDirectory>lib</outputDirectory>
          <unpack>false</unpack>
@@ -94,7 +94,7 @@
       <!-- native -->
       <dependencySet>
          <includes>
-            <include>org.apache.activemq:activemq-native</include>
+            <include>org.apache.activemq:artemis-native</include>
          </includes>
          <outputDirectory>bin</outputDirectory>
          <unpack>true</unpack>
@@ -106,17 +106,17 @@
       </dependencySet>
       <dependencySet>
          <includes>
-            <include>org.apache.activemq:activemq-website</include>
+            <include>org.apache.activemq:artemis-website</include>
          </includes>
          <excludes>
-            <exclude>org.apache.activemq:activemq-website:jar:javadoc</exclude>
+            <exclude>org.apache.activemq:artemis-website:jar:javadoc</exclude>
          </excludes>
          <outputDirectory>web</outputDirectory>
          <unpack>true</unpack>
       </dependencySet>
       <dependencySet>
          <includes>
-            <include>org.apache.activemq:activemq-website:jar:javadoc</include>
+            <include>org.apache.activemq:artemis-website:jar:javadoc</include>
          </includes>
          <outputDirectory>web/api</outputDirectory>
          <unpack>true</unpack>
@@ -132,12 +132,12 @@
    <fileSets>
       <!-- schema -->
       <fileSet>
-         <directory>${activemq.basedir}/activemq-server/src/main/resources/schema/</directory>
+         <directory>${activemq.basedir}/artemis-server/src/main/resources/schema/</directory>
          <outputDirectory>schema</outputDirectory>
          <lineEnding>keep</lineEnding>
       </fileSet>
       <fileSet>
-         <directory>${activemq.basedir}/activemq-jms-server/src/main/resources/schema/</directory>
+         <directory>${activemq.basedir}/artemis-jms-server/src/main/resources/schema/</directory>
          <outputDirectory>schema</outputDirectory>
          <lineEnding>keep</lineEnding>
       </fileSet>

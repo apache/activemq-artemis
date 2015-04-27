@@ -14,16 +14,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.protocol.proton.converter;
+package org.apache.activemq.artemis.core.protocol.proton.converter;
 
 import org.apache.qpid.proton.jms.EncodedMessage;
 import org.apache.qpid.proton.jms.InboundTransformer;
 import org.apache.qpid.proton.jms.JMSMappingInboundTransformer;
 import org.apache.qpid.proton.jms.JMSMappingOutboundTransformer;
-import org.apache.activemq.core.protocol.proton.converter.jms.ServerJMSMessage;
-import org.apache.activemq.core.server.ServerMessage;
-import org.apache.activemq.spi.core.protocol.MessageConverter;
-import org.apache.activemq.utils.IDGenerator;
+import org.apache.activemq.artemis.core.protocol.proton.converter.jms.ServerJMSMessage;
+import org.apache.activemq.artemis.core.server.ServerMessage;
+import org.apache.activemq.artemis.spi.core.protocol.MessageConverter;
+import org.apache.activemq.artemis.utils.IDGenerator;
 
 public class ProtonMessageConverter implements MessageConverter
 {

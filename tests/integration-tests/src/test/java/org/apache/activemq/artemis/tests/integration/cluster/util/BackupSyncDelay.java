@@ -14,24 +14,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.cluster.util;
+package org.apache.activemq.artemis.tests.integration.cluster.util;
 
 import java.util.concurrent.locks.Lock;
 
-import org.apache.activemq.api.core.ActiveMQException;
-import org.apache.activemq.api.core.Interceptor;
-import org.apache.activemq.core.protocol.core.Channel;
-import org.apache.activemq.core.protocol.core.ChannelHandler;
-import org.apache.activemq.core.protocol.core.CommandConfirmationHandler;
-import org.apache.activemq.core.protocol.core.CoreRemotingConnection;
-import org.apache.activemq.core.protocol.core.Packet;
-import org.apache.activemq.core.protocol.core.impl.PacketImpl;
-import org.apache.activemq.core.protocol.core.impl.wireformat.ReplicationResponseMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.ReplicationStartSyncMessage;
-import org.apache.activemq.core.replication.ReplicationEndpoint;
-import org.apache.activemq.core.server.ActiveMQServer;
-import org.apache.activemq.core.server.impl.SharedNothingBackupActivation;
-import org.apache.activemq.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.Interceptor;
+import org.apache.activemq.artemis.core.protocol.core.Channel;
+import org.apache.activemq.artemis.core.protocol.core.ChannelHandler;
+import org.apache.activemq.artemis.core.protocol.core.CommandConfirmationHandler;
+import org.apache.activemq.artemis.core.protocol.core.CoreRemotingConnection;
+import org.apache.activemq.artemis.core.protocol.core.Packet;
+import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationResponseMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationStartSyncMessage;
+import org.apache.activemq.artemis.core.replication.ReplicationEndpoint;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.impl.SharedNothingBackupActivation;
+import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 
 /**
  * An interceptor to keep a replicated backup server from reaching "up-to-date" status.

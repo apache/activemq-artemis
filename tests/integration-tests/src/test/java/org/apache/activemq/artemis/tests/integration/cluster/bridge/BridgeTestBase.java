@@ -14,21 +14,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.cluster.bridge;
+package org.apache.activemq.artemis.tests.integration.cluster.bridge;
 
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.config.ha.SharedStoreMasterPolicyConfiguration;
-import org.apache.activemq.core.config.ha.SharedStoreSlavePolicyConfiguration;
-import org.apache.activemq.core.remoting.impl.invm.InVMConnector;
-import org.apache.activemq.core.server.ActiveMQServer;
-import org.apache.activemq.core.server.ActiveMQServers;
-import org.apache.activemq.core.server.NodeManager;
-import org.apache.activemq.tests.util.InVMNodeManagerServer;
-import org.apache.activemq.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.config.ha.SharedStoreMasterPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.SharedStoreSlavePolicyConfiguration;
+import org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnector;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.ActiveMQServers;
+import org.apache.activemq.artemis.core.server.NodeManager;
+import org.apache.activemq.artemis.tests.util.InVMNodeManagerServer;
 import org.junit.After;
 
 public abstract class BridgeTestBase extends UnitTestCase
@@ -62,14 +62,14 @@ public abstract class BridgeTestBase extends UnitTestCase
 
       if (netty)
       {
-         params.put(org.apache.activemq.core.remoting.impl.netty.TransportConstants.PORT_PROP_NAME,
-                    org.apache.activemq.core.remoting.impl.netty.TransportConstants.DEFAULT_PORT + id);
+         params.put(org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.PORT_PROP_NAME,
+                    org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.DEFAULT_PORT + id);
          tc = new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, params);
 
       }
       else
       {
-         params.put(org.apache.activemq.core.remoting.impl.invm.TransportConstants.SERVER_ID_PROP_NAME, id);
+         params.put(org.apache.activemq.artemis.core.remoting.impl.invm.TransportConstants.SERVER_ID_PROP_NAME, id);
          tc = new TransportConfiguration(INVM_ACCEPTOR_FACTORY, params);
       }
       Configuration serviceConf = createBasicConfig()
@@ -107,14 +107,14 @@ public abstract class BridgeTestBase extends UnitTestCase
 
       if (netty)
       {
-         params.put(org.apache.activemq.core.remoting.impl.netty.TransportConstants.PORT_PROP_NAME,
-                    org.apache.activemq.core.remoting.impl.netty.TransportConstants.DEFAULT_PORT + id);
+         params.put(org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.PORT_PROP_NAME,
+                    org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.DEFAULT_PORT + id);
          tc = new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, params);
 
       }
       else
       {
-         params.put(org.apache.activemq.core.remoting.impl.invm.TransportConstants.SERVER_ID_PROP_NAME, id);
+         params.put(org.apache.activemq.artemis.core.remoting.impl.invm.TransportConstants.SERVER_ID_PROP_NAME, id);
          tc = new TransportConfiguration(INVM_ACCEPTOR_FACTORY, params);
       }
 

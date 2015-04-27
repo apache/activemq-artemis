@@ -14,17 +14,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.security;
+package org.apache.activemq.artemis.core.security;
 
 import org.junit.Assert;
 import org.junit.Test;
 
-import static org.apache.activemq.core.security.CheckType.CONSUME;
-import static org.apache.activemq.core.security.CheckType.CREATE_DURABLE_QUEUE;
-import static org.apache.activemq.core.security.CheckType.CREATE_NON_DURABLE_QUEUE;
-import static org.apache.activemq.core.security.CheckType.DELETE_DURABLE_QUEUE;
-import static org.apache.activemq.core.security.CheckType.DELETE_NON_DURABLE_QUEUE;
-import static org.apache.activemq.core.security.CheckType.SEND;
+import static org.apache.activemq.artemis.core.security.CheckType.CONSUME;
+import static org.apache.activemq.artemis.core.security.CheckType.CREATE_DURABLE_QUEUE;
+import static org.apache.activemq.artemis.core.security.CheckType.CREATE_NON_DURABLE_QUEUE;
+import static org.apache.activemq.artemis.core.security.CheckType.DELETE_DURABLE_QUEUE;
+import static org.apache.activemq.artemis.core.security.CheckType.DELETE_NON_DURABLE_QUEUE;
+import static org.apache.activemq.artemis.core.security.CheckType.SEND;
 
 public class RoleTest extends Assert
 {

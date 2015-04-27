@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.protocol.core.impl;
+package org.apache.activemq.artemis.core.protocol.core.impl;
 
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -22,43 +22,43 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 
 import io.netty.channel.ChannelPipeline;
-import org.apache.activemq.api.core.ActiveMQBuffer;
-import org.apache.activemq.api.core.ActiveMQException;
-import org.apache.activemq.api.core.ActiveMQExceptionType;
-import org.apache.activemq.api.core.ActiveMQInterruptedException;
-import org.apache.activemq.api.core.Interceptor;
-import org.apache.activemq.api.core.Pair;
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.ActiveMQClient;
-import org.apache.activemq.core.client.ActiveMQClientLogger;
-import org.apache.activemq.core.client.ActiveMQClientMessageBundle;
-import org.apache.activemq.core.client.impl.ClientSessionFactoryInternal;
-import org.apache.activemq.core.protocol.ClientPacketDecoder;
-import org.apache.activemq.core.protocol.core.Channel;
-import org.apache.activemq.core.protocol.core.ChannelHandler;
-import org.apache.activemq.core.protocol.core.CoreRemotingConnection;
-import org.apache.activemq.core.protocol.core.Packet;
-import org.apache.activemq.core.protocol.core.impl.wireformat.CheckFailoverMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.CheckFailoverReplyMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.ClusterTopologyChangeMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.ClusterTopologyChangeMessage_V2;
-import org.apache.activemq.core.protocol.core.impl.wireformat.ClusterTopologyChangeMessage_V3;
-import org.apache.activemq.core.protocol.core.impl.wireformat.CreateSessionMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.CreateSessionResponseMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.DisconnectMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.DisconnectMessage_V2;
-import org.apache.activemq.core.protocol.core.impl.wireformat.Ping;
-import org.apache.activemq.core.protocol.core.impl.wireformat.SubscribeClusterTopologyUpdatesMessageV2;
-import org.apache.activemq.core.remoting.impl.netty.ActiveMQFrameDecoder2;
-import org.apache.activemq.core.version.Version;
-import org.apache.activemq.spi.core.protocol.RemotingConnection;
-import org.apache.activemq.spi.core.remoting.ClientProtocolManager;
-import org.apache.activemq.spi.core.remoting.Connection;
-import org.apache.activemq.spi.core.remoting.TopologyResponseHandler;
-import org.apache.activemq.spi.core.remoting.SessionContext;
-import org.apache.activemq.utils.VersionLoader;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
+import org.apache.activemq.artemis.api.core.ActiveMQInterruptedException;
+import org.apache.activemq.artemis.api.core.Interceptor;
+import org.apache.activemq.artemis.api.core.Pair;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
+import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
+import org.apache.activemq.artemis.core.client.ActiveMQClientMessageBundle;
+import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal;
+import org.apache.activemq.artemis.core.protocol.ClientPacketDecoder;
+import org.apache.activemq.artemis.core.protocol.core.Channel;
+import org.apache.activemq.artemis.core.protocol.core.ChannelHandler;
+import org.apache.activemq.artemis.core.protocol.core.CoreRemotingConnection;
+import org.apache.activemq.artemis.core.protocol.core.Packet;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CheckFailoverMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CheckFailoverReplyMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ClusterTopologyChangeMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ClusterTopologyChangeMessage_V2;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ClusterTopologyChangeMessage_V3;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CreateSessionMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CreateSessionResponseMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.DisconnectMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.DisconnectMessage_V2;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.Ping;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SubscribeClusterTopologyUpdatesMessageV2;
+import org.apache.activemq.artemis.core.remoting.impl.netty.ActiveMQFrameDecoder2;
+import org.apache.activemq.artemis.core.version.Version;
+import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.artemis.spi.core.remoting.ClientProtocolManager;
+import org.apache.activemq.artemis.spi.core.remoting.Connection;
+import org.apache.activemq.artemis.spi.core.remoting.TopologyResponseHandler;
+import org.apache.activemq.artemis.spi.core.remoting.SessionContext;
+import org.apache.activemq.artemis.utils.VersionLoader;
 
 /**
  * This class will return specific packets for different types of actions happening on a messaging protocol.

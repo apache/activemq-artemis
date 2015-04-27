@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.api.core.management;
+package org.apache.activemq.artemis.api.core.management;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;

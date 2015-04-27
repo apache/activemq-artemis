@@ -14,12 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.rest.topic;
+package org.apache.activemq.artemis.rest.topic;
 
-import org.apache.activemq.api.core.ActiveMQException;
-import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.rest.queue.AcknowledgedQueueConsumer;
-import org.apache.activemq.rest.queue.DestinationServiceManager;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
+import org.apache.activemq.artemis.rest.queue.AcknowledgedQueueConsumer;
+import org.apache.activemq.artemis.rest.queue.DestinationServiceManager;
 
 public class AcknowledgedSubscriptionResource extends AcknowledgedQueueConsumer implements Subscription
 {

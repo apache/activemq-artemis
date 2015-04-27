@@ -14,7 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.timing.core.server.impl;
+package org.apache.activemq.artemis.tests.timing.core.server.impl;
+import org.apache.activemq.artemis.tests.unit.core.server.impl.fakes.FakeQueueFactory;
+import org.apache.activemq.artemis.tests.util.UnitTestCase;
 import org.junit.Before;
 import org.junit.After;
 
@@ -23,16 +25,14 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.core.server.HandleStatus;
-import org.apache.activemq.core.server.MessageReference;
-import org.apache.activemq.core.server.Queue;
-import org.apache.activemq.core.server.ServerMessage;
-import org.apache.activemq.core.server.impl.QueueImpl;
-import org.apache.activemq.tests.unit.UnitTestLogger;
-import org.apache.activemq.tests.unit.core.server.impl.fakes.FakeConsumer;
-import org.apache.activemq.tests.unit.core.server.impl.fakes.FakeQueueFactory;
-import org.apache.activemq.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.server.HandleStatus;
+import org.apache.activemq.artemis.core.server.MessageReference;
+import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.server.ServerMessage;
+import org.apache.activemq.artemis.core.server.impl.QueueImpl;
+import org.apache.activemq.artemis.tests.unit.UnitTestLogger;
+import org.apache.activemq.artemis.tests.unit.core.server.impl.fakes.FakeConsumer;
 
 /**
  *

@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.server.cluster.impl;
+package org.apache.activemq.artemis.core.server.cluster.impl;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -29,47 +29,47 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq.api.core.ActiveMQException;
-import org.apache.activemq.api.core.DiscoveryGroupConfiguration;
-import org.apache.activemq.api.core.Pair;
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.core.client.ClientMessage;
-import org.apache.activemq.api.core.client.ClusterTopologyListener;
-import org.apache.activemq.api.core.client.TopologyMember;
-import org.apache.activemq.api.core.management.CoreNotificationType;
-import org.apache.activemq.api.core.management.ManagementHelper;
-import org.apache.activemq.core.client.impl.AfterConnectInternalListener;
-import org.apache.activemq.core.client.impl.ClientSessionFactoryInternal;
-import org.apache.activemq.core.client.impl.ServerLocatorImpl;
-import org.apache.activemq.core.client.impl.ServerLocatorInternal;
-import org.apache.activemq.core.client.impl.Topology;
-import org.apache.activemq.core.client.impl.TopologyMemberImpl;
-import org.apache.activemq.core.postoffice.Binding;
-import org.apache.activemq.core.postoffice.Bindings;
-import org.apache.activemq.core.postoffice.PostOffice;
-import org.apache.activemq.core.postoffice.impl.PostOfficeImpl;
-import org.apache.activemq.core.server.ActiveMQMessageBundle;
-import org.apache.activemq.core.server.ActiveMQServer;
-import org.apache.activemq.core.server.ActiveMQServerLogger;
-import org.apache.activemq.core.server.NodeManager;
-import org.apache.activemq.core.server.Queue;
-import org.apache.activemq.core.server.cluster.Bridge;
-import org.apache.activemq.core.server.cluster.ClusterConnection;
-import org.apache.activemq.core.server.cluster.ClusterControl;
-import org.apache.activemq.core.server.cluster.ClusterManager;
-import org.apache.activemq.core.server.cluster.ClusterManager.IncomingInterceptorLookingForExceptionMessage;
-import org.apache.activemq.core.server.cluster.ActiveMQServerSideProtocolManagerFactory;
-import org.apache.activemq.core.server.cluster.MessageFlowRecord;
-import org.apache.activemq.core.server.cluster.RemoteQueueBinding;
-import org.apache.activemq.core.server.group.impl.Proposal;
-import org.apache.activemq.core.server.group.impl.Response;
-import org.apache.activemq.core.server.management.ManagementService;
-import org.apache.activemq.core.server.management.Notification;
-import org.apache.activemq.spi.core.protocol.RemotingConnection;
-import org.apache.activemq.utils.ExecutorFactory;
-import org.apache.activemq.utils.FutureLatch;
-import org.apache.activemq.utils.TypedProperties;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
+import org.apache.activemq.artemis.api.core.Pair;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.client.ClientMessage;
+import org.apache.activemq.artemis.api.core.client.ClusterTopologyListener;
+import org.apache.activemq.artemis.api.core.client.TopologyMember;
+import org.apache.activemq.artemis.api.core.management.CoreNotificationType;
+import org.apache.activemq.artemis.api.core.management.ManagementHelper;
+import org.apache.activemq.artemis.core.client.impl.AfterConnectInternalListener;
+import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal;
+import org.apache.activemq.artemis.core.client.impl.ServerLocatorImpl;
+import org.apache.activemq.artemis.core.client.impl.ServerLocatorInternal;
+import org.apache.activemq.artemis.core.client.impl.Topology;
+import org.apache.activemq.artemis.core.client.impl.TopologyMemberImpl;
+import org.apache.activemq.artemis.core.postoffice.Binding;
+import org.apache.activemq.artemis.core.postoffice.Bindings;
+import org.apache.activemq.artemis.core.postoffice.PostOffice;
+import org.apache.activemq.artemis.core.postoffice.impl.PostOfficeImpl;
+import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.apache.activemq.artemis.core.server.NodeManager;
+import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.server.cluster.Bridge;
+import org.apache.activemq.artemis.core.server.cluster.ClusterConnection;
+import org.apache.activemq.artemis.core.server.cluster.ClusterControl;
+import org.apache.activemq.artemis.core.server.cluster.ClusterManager;
+import org.apache.activemq.artemis.core.server.cluster.ClusterManager.IncomingInterceptorLookingForExceptionMessage;
+import org.apache.activemq.artemis.core.server.cluster.ActiveMQServerSideProtocolManagerFactory;
+import org.apache.activemq.artemis.core.server.cluster.MessageFlowRecord;
+import org.apache.activemq.artemis.core.server.cluster.RemoteQueueBinding;
+import org.apache.activemq.artemis.core.server.group.impl.Proposal;
+import org.apache.activemq.artemis.core.server.group.impl.Response;
+import org.apache.activemq.artemis.core.server.management.ManagementService;
+import org.apache.activemq.artemis.core.server.management.Notification;
+import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.artemis.utils.ExecutorFactory;
+import org.apache.activemq.artemis.utils.FutureLatch;
+import org.apache.activemq.artemis.utils.TypedProperties;
 
 public final class ClusterConnectionImpl implements ClusterConnection, AfterConnectInternalListener
 {
@@ -112,8 +112,6 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
    private final boolean routeWhenNoConsumers;
 
    private final int confirmationWindowSize;
-
-   private final int producerWindowSize;
 
    /**
     * Guard for the field {@link #records}. Note that the field is {@link ConcurrentHashMap},
@@ -181,7 +179,6 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
                                 final boolean useDuplicateDetection,
                                 final boolean routeWhenNoConsumers,
                                 final int confirmationWindowSize,
-                                final int producerWindowSize,
                                 final ExecutorFactory executorFactory,
                                 final ActiveMQServer server,
                                 final PostOffice postOffice,
@@ -222,8 +219,6 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
       this.routeWhenNoConsumers = routeWhenNoConsumers;
 
       this.confirmationWindowSize = confirmationWindowSize;
-
-      this.producerWindowSize = producerWindowSize;
 
       this.executorFactory = executorFactory;
 
@@ -291,7 +286,6 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
                                 final boolean useDuplicateDetection,
                                 final boolean routeWhenNoConsumers,
                                 final int confirmationWindowSize,
-                                final int producerWindowSize,
                                 final ExecutorFactory executorFactory,
                                 final ActiveMQServer server,
                                 final PostOffice postOffice,
@@ -338,8 +332,6 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
       this.routeWhenNoConsumers = routeWhenNoConsumers;
 
       this.confirmationWindowSize = confirmationWindowSize;
-
-      this.producerWindowSize = producerWindowSize;
 
       this.executorFactory = executorFactory;
 
@@ -645,7 +637,8 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
          serverLocator.setBlockOnNonDurableSend(!useDuplicateDetection);
          serverLocator.setCallTimeout(callTimeout);
          serverLocator.setCallFailoverTimeout(callFailoverTimeout);
-         serverLocator.setProducerWindowSize(producerWindowSize);
+         // No producer flow control on the bridges, as we don't want to lock the queues
+         serverLocator.setProducerWindowSize(-1);
 
          if (retryInterval > 0)
          {

@@ -1,7 +1,7 @@
 # Core Bridges
 
 The function of a bridge is to consume messages from a source queue, and
-forward them to a target address, typically on a different Apache ActiveMQ
+forward them to a target address, typically on a different Apache ActiveMQ Artemis
 server.
 
 The source and target servers do not have to be in the same cluster
@@ -14,9 +14,9 @@ connection is lost, e.g. due to network failure, the bridge will retry
 connecting to the target until it comes back online. When it comes back
 online it will resume operation as normal.
 
-In summary, bridges are a way to reliably connect two separate Apache ActiveMQ
+In summary, bridges are a way to reliably connect two separate Apache ActiveMQ Artemis
 servers together. With a core bridge both source and target servers must
-be Apache ActiveMQ servers.
+be Apache ActiveMQ Artemis servers.
 
 Bridges can be configured to provide *once and only once* delivery
 guarantees even in the event of the failure of the source or the target
@@ -27,7 +27,7 @@ server. They do this by using duplicate detection (described in [Duplicate Detec
 > Although they have similar function, don't confuse core bridges with
 > JMS bridges!
 >
-> Core bridges are for linking an Apache ActiveMQ node with another Apache ActiveMQ
+> Core bridges are for linking an Apache ActiveMQ Artemis node with another Apache ActiveMQ Artemis
 > node and do not use the JMS API. A JMS Bridge is used for linking any
 > two JMS 1.1 compliant JMS providers. So, a JMS Bridge could be used
 > for bridging to or from different JMS compliant messaging system. It's
@@ -102,7 +102,7 @@ Let's take a look at all the parameters in turn:
 
 -   `transformer-class-name`. An optional transformer-class-name can be
     specified. This is the name of a user-defined class which implements
-    the `org.apache.activemq.core.server.cluster.Transformer` interface.
+    the `org.apache.activemq.artemis.core.server.cluster.Transformer` interface.
 
     If this is specified then the transformer's `transform()` method
     will be invoked with the message before it is forwarded. This gives

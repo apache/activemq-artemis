@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.jms.tests;
+package org.apache.activemq.artemis.jms.tests;
 
 import javax.jms.Connection;
 import javax.jms.JMSException;
@@ -27,7 +27,7 @@ import javax.jms.TemporaryTopic;
 import javax.jms.TextMessage;
 import javax.naming.NamingException;
 
-import org.apache.activemq.jms.tests.util.ProxyAssertSupport;
+import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
 import org.junit.Test;
 
 public class TemporaryDestinationTest extends JMSTestCase

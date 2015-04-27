@@ -14,21 +14,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.extras.byteman;
+package org.apache.activemq.artemis.tests.extras.byteman;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq.api.core.ActiveMQNonExistentQueueException;
-import org.apache.activemq.api.core.Message;
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.api.core.management.ManagementHelper;
-import org.apache.activemq.api.core.management.CoreNotificationType;
-import org.apache.activemq.core.server.ActiveMQServer;
-import org.apache.activemq.core.server.group.impl.GroupingHandlerConfiguration;
-import org.apache.activemq.core.server.group.impl.Response;
-import org.apache.activemq.core.server.management.Notification;
-import org.apache.activemq.tests.integration.cluster.distribution.ClusterTestBase;
+import org.apache.activemq.artemis.api.core.ActiveMQNonExistentQueueException;
+import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.management.ManagementHelper;
+import org.apache.activemq.artemis.api.core.management.CoreNotificationType;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.group.impl.GroupingHandlerConfiguration;
+import org.apache.activemq.artemis.core.server.group.impl.Response;
+import org.apache.activemq.artemis.core.server.management.Notification;
+import org.apache.activemq.artemis.tests.integration.cluster.distribution.ClusterTestBase;
 import org.jboss.byteman.contrib.bmunit.BMRule;
 import org.jboss.byteman.contrib.bmunit.BMRules;
 import org.jboss.byteman.contrib.bmunit.BMUnitRunner;
@@ -48,7 +48,7 @@ public class ClusteredGroupingTest extends ClusterTestBase
                @BMRule
                   (
                      name = "blow-up",
-                     targetClass = "org.apache.activemq.core.server.group.impl.LocalGroupingHandler",
+                     targetClass = "org.apache.activemq.artemis.core.server.group.impl.LocalGroupingHandler",
                      targetMethod = "removeGrouping",
                      targetLocation = "ENTRY",
                      action = "org.apache.activemq.tests.extras.byteman.ClusteredGroupingTest.pause($1);"
@@ -56,7 +56,7 @@ public class ClusteredGroupingTest extends ClusterTestBase
                @BMRule
                   (
                      name = "blow-up2",
-                     targetClass = "org.apache.activemq.core.server.group.impl.GroupHandlingAbstract",
+                     targetClass = "org.apache.activemq.artemis.core.server.group.impl.GroupHandlingAbstract",
                      targetMethod = "forceRemove",
                      targetLocation = "ENTRY",
                      action = "org.apache.activemq.tests.extras.byteman.ClusteredGroupingTest.restart2();"
@@ -125,13 +125,13 @@ public class ClusteredGroupingTest extends ClusterTestBase
                @BMRule
                   (
                      name = "blow-up",
-                     targetClass = "org.apache.activemq.core.server.group.impl.RemoteGroupingHandler",
+                     targetClass = "org.apache.activemq.artemis.core.server.group.impl.RemoteGroupingHandler",
                      targetMethod = "onNotification",
                      targetLocation = "ENTRY",
                      action = "org.apache.activemq.tests.extras.byteman.ClusteredGroupingTest.pause2($1);"
                   ),
                @BMRule(name = "blow-up2",
-                       targetClass = "org.apache.activemq.core.server.group.impl.RemoteGroupingHandler",
+                       targetClass = "org.apache.activemq.artemis.core.server.group.impl.RemoteGroupingHandler",
                        targetMethod = "remove",
                        targetLocation = "ENTRY",
                        action = "org.apache.activemq.tests.extras.byteman.ClusteredGroupingTest.restart2();")
@@ -210,13 +210,13 @@ public class ClusteredGroupingTest extends ClusterTestBase
                @BMRule
                   (
                      name = "blow-up",
-                     targetClass = "org.apache.activemq.core.server.group.impl.LocalGroupingHandler",
+                     targetClass = "org.apache.activemq.artemis.core.server.group.impl.LocalGroupingHandler",
                      targetMethod = "onNotification",
                      targetLocation = "ENTRY",
                      action = "org.apache.activemq.tests.extras.byteman.ClusteredGroupingTest.pause2($1);"
                   ),
                @BMRule(name = "blow-up2",
-                       targetClass = "org.apache.activemq.core.server.group.impl.LocalGroupingHandler",
+                       targetClass = "org.apache.activemq.artemis.core.server.group.impl.LocalGroupingHandler",
                        targetMethod = "remove",
                        targetLocation = "ENTRY",
                        action = "org.apache.activemq.tests.extras.byteman.ClusteredGroupingTest.restart2();")
@@ -295,13 +295,13 @@ public class ClusteredGroupingTest extends ClusterTestBase
                @BMRule
                   (
                      name = "blow-up",
-                     targetClass = "org.apache.activemq.core.server.group.impl.LocalGroupingHandler",
+                     targetClass = "org.apache.activemq.artemis.core.server.group.impl.LocalGroupingHandler",
                      targetMethod = "onNotification",
                      targetLocation = "ENTRY",
                      action = "org.apache.activemq.tests.extras.byteman.ClusteredGroupingTest.pause2($1);"
                   ),
                @BMRule(name = "blow-up2",
-                       targetClass = "org.apache.activemq.core.server.group.impl.LocalGroupingHandler",
+                       targetClass = "org.apache.activemq.artemis.core.server.group.impl.LocalGroupingHandler",
                        targetMethod = "remove",
                        targetLocation = "ENTRY",
                        action = "org.apache.activemq.tests.extras.byteman.ClusteredGroupingTest.restart2();")

@@ -14,17 +14,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.extras.byteman;
+package org.apache.activemq.artemis.tests.extras.byteman;
 
 import java.util.concurrent.CountDownLatch;
 
-import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
-import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.server.ActiveMQServer;
-import org.apache.activemq.tests.util.ReplicatedBackupUtils;
-import org.apache.activemq.tests.util.ServiceTestBase;
-import org.apache.activemq.tests.util.TransportConfigurationUtils;
+import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.tests.util.ReplicatedBackupUtils;
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.TransportConfigurationUtils;
 import org.jboss.byteman.contrib.bmunit.BMRule;
 import org.jboss.byteman.contrib.bmunit.BMRules;
 import org.jboss.byteman.contrib.bmunit.BMUnitRunner;
@@ -50,7 +50,7 @@ public class ReplicationBackupTest extends ServiceTestBase
                @BMRule
                   (
                      name = "prevent backup annoucement",
-                     targetClass = "org.apache.activemq.core.server.impl.SharedNothingLiveActivation",
+                     targetClass = "org.apache.activemq.artemis.core.server.impl.SharedNothingLiveActivation",
                      targetMethod = "run",
                      targetLocation = "AT EXIT",
                      action = "org.apache.activemq.tests.extras.byteman.ReplicationBackupTest.breakIt();"

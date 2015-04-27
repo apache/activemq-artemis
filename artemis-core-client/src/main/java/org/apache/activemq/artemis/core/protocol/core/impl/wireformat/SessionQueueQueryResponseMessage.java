@@ -14,14 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.protocol.core.impl.wireformat;
+package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
-import org.apache.activemq.api.core.ActiveMQBuffer;
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.api.core.client.ClientSession;
-import org.apache.activemq.core.client.impl.QueueQueryImpl;
-import org.apache.activemq.core.protocol.core.impl.PacketImpl;
-import org.apache.activemq.core.server.QueueQueryResult;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.core.client.impl.QueueQueryImpl;
+import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
+import org.apache.activemq.artemis.core.server.QueueQueryResult;
 
 public class SessionQueueQueryResponseMessage extends PacketImpl
 {

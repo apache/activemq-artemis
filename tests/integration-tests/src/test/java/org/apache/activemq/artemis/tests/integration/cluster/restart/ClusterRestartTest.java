@@ -14,16 +14,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.cluster.restart;
+package org.apache.activemq.artemis.tests.integration.cluster.restart;
 
 import org.junit.Test;
 
 import java.util.Collection;
 
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.core.postoffice.Binding;
-import org.apache.activemq.tests.integration.IntegrationTestLogger;
-import org.apache.activemq.tests.integration.cluster.distribution.ClusterTestBase;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.postoffice.Binding;
+import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
+import org.apache.activemq.artemis.tests.integration.cluster.distribution.ClusterTestBase;
 
 public class ClusterRestartTest extends ClusterTestBase
 {

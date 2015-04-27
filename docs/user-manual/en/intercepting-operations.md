@@ -1,6 +1,6 @@
 # Intercepting Operations
 
-Apache ActiveMQ supports *interceptors* to intercept packets entering and
+Apache ActiveMQ Artemis supports *interceptors* to intercept packets entering and
 exiting the server. Incoming and outgoing interceptors are be called for
 any packet entering or exiting the server respectively. This allows
 custom code to be executed, e.g. for auditing packets, filtering or
@@ -23,7 +23,7 @@ public interface Interceptor
 For stomp protocol an interceptor must implement the `StompFrameInterceptor class`:
 
 ``` java
-package org.apache.activemq.core.protocol.stomp;
+package org.apache.activemq.artemis.core.protocol.stomp;
 
 public interface StompFrameInterceptor
 {

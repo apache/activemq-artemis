@@ -14,8 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.unit.util;
+package org.apache.activemq.artemis.tests.unit.util;
 
+import org.apache.activemq.artemis.tests.util.UnitTestCase;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
@@ -37,8 +38,7 @@ import java.util.StringTokenizer;
 
 import org.junit.Assert;
 
-import org.apache.activemq.tests.util.UnitTestCase;
-import org.apache.activemq.utils.ObjectInputStreamWithClassLoader;
+import org.apache.activemq.artemis.utils.ObjectInputStreamWithClassLoader;
 
 public class ObjectInputStreamWithClassLoaderTest extends UnitTestCase
 {
@@ -96,7 +96,7 @@ public class ObjectInputStreamWithClassLoaderTest extends UnitTestCase
          Thread.currentThread().setContextClassLoader(testClassLoader);
 
          ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
-         org.apache.activemq.utils.ObjectInputStreamWithClassLoader ois = new ObjectInputStreamWithClassLoader(bais);
+         ObjectInputStreamWithClassLoader ois = new ObjectInputStreamWithClassLoader(bais);
 
          Object deserializedObj = ois.readObject();
 
@@ -132,7 +132,7 @@ public class ObjectInputStreamWithClassLoaderTest extends UnitTestCase
                .newClassLoader(this.getClass());
          Thread.currentThread().setContextClassLoader(testClassLoader);
          ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
-         org.apache.activemq.utils.ObjectInputStreamWithClassLoader ois = new ObjectInputStreamWithClassLoader(
+         ObjectInputStreamWithClassLoader ois = new ObjectInputStreamWithClassLoader(
                bais);
 
          Runnable toRun = (Runnable) testClassLoader.loadClass(

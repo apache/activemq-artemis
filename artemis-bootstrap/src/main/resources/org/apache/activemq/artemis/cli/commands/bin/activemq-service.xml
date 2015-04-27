@@ -20,7 +20,7 @@
 <service>
    <id>activemq-${host}</id>
    <name>ActiveMQ: ${host}</name>
-   <description>Apache ActiveMQ is a reliable messaging broker</description>
+   <description>Apache ActiveMQ Artemis is a reliable messaging broker</description>
 
    <logpath>${activemq.instance}\log</logpath>
    <logmode>roll</logmode>
@@ -40,7 +40,7 @@
    -->
 
    <argument>-classpath</argument>
-   <argument>"${activemq.home}\lib\activemq-boot.jar"</argument>
+   <argument>"${activemq.home}\lib\artemis-boot.jar"</argument>
    <argument>"-Dactivemq.home=${activemq.home}"</argument>
    <argument>"-Dactivemq.instance=${activemq.instance}"</argument>
    <argument>"-Ddata.dir=${activemq.instance}/data"</argument>
@@ -52,7 +52,7 @@
    <argument>-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005</argument>
    -->
 
-   <argument>org.apache.activemq.boot.ActiveMQ</argument>
+   <argument>ActiveMQ</argument>
 
    <argument>run</argument>
 

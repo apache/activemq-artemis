@@ -14,21 +14,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.extras.byteman;
+package org.apache.activemq.artemis.tests.extras.byteman;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.config.ha.SharedStoreMasterPolicyConfiguration;
-import org.apache.activemq.core.config.ha.SharedStoreSlavePolicyConfiguration;
-import org.apache.activemq.core.registry.JndiBindingRegistry;
-import org.apache.activemq.core.server.ActiveMQServer;
-import org.apache.activemq.core.server.ActiveMQServers;
-import org.apache.activemq.jms.server.impl.JMSServerManagerImpl;
-import org.apache.activemq.tests.unit.util.InVMNamingContext;
-import org.apache.activemq.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.config.ha.SharedStoreMasterPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.SharedStoreSlavePolicyConfiguration;
+import org.apache.activemq.artemis.core.registry.JndiBindingRegistry;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.ActiveMQServers;
+import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
+import org.apache.activemq.artemis.tests.unit.util.InVMNamingContext;
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
 import org.jboss.byteman.contrib.bmunit.BMRule;
 import org.jboss.byteman.contrib.bmunit.BMRules;
 import org.jboss.byteman.contrib.bmunit.BMUnitRunner;
@@ -54,7 +54,7 @@ public class StartStopDeadlockTest extends ServiceTestBase
                @BMRule
                   (
                      name = "Server.start wait-init",
-                     targetClass = "org.apache.activemq.core.server.impl.ActiveMQServerImpl",
+                     targetClass = "org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl",
                      targetMethod = "initialisePart2",
                      targetLocation = "ENTRY",
                      condition = "incrementCounter(\"server-Init\") == 2",
@@ -62,7 +62,7 @@ public class StartStopDeadlockTest extends ServiceTestBase
                   ),
                @BMRule(
                   name = "JMSServer.stop wait-init",
-                  targetClass = "org.apache.activemq.jms.server.impl.JMSServerManagerImpl",
+                  targetClass = "org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl",
                   targetMethod = "stop",
                   targetLocation = "ENTRY",
                   action = "signalWake(\"start-init\", true)"

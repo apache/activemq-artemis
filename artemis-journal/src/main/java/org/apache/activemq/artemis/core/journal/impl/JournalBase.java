@@ -14,13 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.journal.impl;
+package org.apache.activemq.artemis.core.journal.impl;
 
-import org.apache.activemq.api.core.ActiveMQBuffer;
-import org.apache.activemq.core.journal.EncodingSupport;
-import org.apache.activemq.core.journal.IOCompletion;
-import org.apache.activemq.core.journal.Journal;
-import org.apache.activemq.core.journal.impl.dataformat.ByteArrayEncoding;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.core.journal.EncodingSupport;
+import org.apache.activemq.artemis.core.journal.IOCompletion;
+import org.apache.activemq.artemis.core.journal.Journal;
+import org.apache.activemq.artemis.core.journal.impl.dataformat.ByteArrayEncoding;
 
 abstract class JournalBase implements Journal
 {

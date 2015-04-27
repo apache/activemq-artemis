@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.config.impl;
+package org.apache.activemq.artemis.core.config.impl;
 
 import java.io.File;
 import java.net.URL;
@@ -24,21 +24,21 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.Collections;
 
-import org.apache.activemq.api.core.BroadcastGroupConfiguration;
-import org.apache.activemq.api.core.DiscoveryGroupConfiguration;
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.core.UDPBroadcastEndpointFactory;
-import org.apache.activemq.core.config.BridgeConfiguration;
-import org.apache.activemq.core.config.ClusterConnectionConfiguration;
-import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.config.DivertConfiguration;
-import org.apache.activemq.core.config.FileDeploymentManager;
-import org.apache.activemq.core.config.HAPolicyConfiguration;
-import org.apache.activemq.core.config.ha.LiveOnlyPolicyConfiguration;
-import org.apache.activemq.core.security.Role;
-import org.apache.activemq.core.server.JournalType;
-import org.apache.activemq.core.settings.impl.SlowConsumerPolicy;
+import org.apache.activemq.artemis.api.core.BroadcastGroupConfiguration;
+import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory;
+import org.apache.activemq.artemis.core.config.BridgeConfiguration;
+import org.apache.activemq.artemis.core.config.ClusterConnectionConfiguration;
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.config.DivertConfiguration;
+import org.apache.activemq.artemis.core.config.FileDeploymentManager;
+import org.apache.activemq.artemis.core.config.HAPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.LiveOnlyPolicyConfiguration;
+import org.apache.activemq.artemis.core.security.Role;
+import org.apache.activemq.artemis.core.server.JournalType;
+import org.apache.activemq.artemis.core.settings.impl.SlowConsumerPolicy;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -103,16 +103,16 @@ public class FileConfigurationTest extends ConfigurationImplTest
 
       Assert.assertEquals(2, conf.getIncomingInterceptorClassNames().size());
       Assert.assertTrue(conf.getIncomingInterceptorClassNames()
-                           .contains("org.apache.activemq.tests.unit.core.config.impl.TestInterceptor1"));
+                           .contains("org.apache.activemq.artemis.tests.unit.core.config.impl.TestInterceptor1"));
       Assert.assertTrue(conf.getIncomingInterceptorClassNames()
-                           .contains("org.apache.activemq.tests.unit.core.config.impl.TestInterceptor2"));
+                           .contains("org.apache.activemq.artemis.tests.unit.core.config.impl.TestInterceptor2"));
 
 
       Assert.assertEquals(2, conf.getConnectorConfigurations().size());
 
       TransportConfiguration tc = conf.getConnectorConfigurations().get("connector1");
       Assert.assertNotNull(tc);
-      Assert.assertEquals("org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory", tc.getFactoryClassName());
+      Assert.assertEquals("org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory", tc.getFactoryClassName());
       Assert.assertEquals("mylocal", tc.getParams().get("localAddress"));
       Assert.assertEquals("99", tc.getParams().get("localPort"));
       Assert.assertEquals("localhost1", tc.getParams().get("host"));
@@ -120,20 +120,20 @@ public class FileConfigurationTest extends ConfigurationImplTest
 
       tc = conf.getConnectorConfigurations().get("connector2");
       Assert.assertNotNull(tc);
-      Assert.assertEquals("org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory", tc.getFactoryClassName());
+      Assert.assertEquals("org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory", tc.getFactoryClassName());
       Assert.assertEquals("5", tc.getParams().get("serverId"));
 
       Assert.assertEquals(2, conf.getAcceptorConfigurations().size());
       for (TransportConfiguration ac : conf.getAcceptorConfigurations())
       {
-         if (ac.getFactoryClassName().equals("org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory"))
+         if (ac.getFactoryClassName().equals("org.apache.activemq.artemis.core.remoting.impl.netty.NettyAcceptorFactory"))
          {
             Assert.assertEquals("456", ac.getParams().get("tcpNoDelay"));
             Assert.assertEquals("44", ac.getParams().get("connectionTtl"));
          }
          else
          {
-            Assert.assertEquals("org.apache.activemq.core.remoting.impl.invm.InVMAcceptorFactory",
+            Assert.assertEquals("org.apache.activemq.artemis.core.remoting.impl.invm.InVMAcceptorFactory",
                                 ac.getFactoryClassName());
             Assert.assertEquals("0", ac.getParams().get("serverId"));
          }
@@ -223,7 +223,6 @@ public class FileConfigurationTest extends ConfigurationImplTest
             Assert.assertEquals(true, bc.isUseDuplicateDetection());
             Assert.assertEquals("connector1", bc.getStaticConnectors().get(0));
             Assert.assertEquals(null, bc.getDiscoveryGroupName());
-            Assert.assertEquals(444, bc.getProducerWindowSize());
          }
          else
          {
@@ -234,7 +233,6 @@ public class FileConfigurationTest extends ConfigurationImplTest
             Assert.assertEquals(null, bc.getTransformerClassName());
             Assert.assertEquals(null, bc.getStaticConnectors());
             Assert.assertEquals("dg1", bc.getDiscoveryGroupName());
-            Assert.assertEquals(555, bc.getProducerWindowSize());
          }
       }
 
@@ -269,7 +267,6 @@ public class FileConfigurationTest extends ConfigurationImplTest
             Assert.assertEquals("connector1", ccc.getStaticConnectors().get(0));
             Assert.assertEquals("connector2", ccc.getStaticConnectors().get(1));
             Assert.assertEquals(null, ccc.getDiscoveryGroupName());
-            Assert.assertEquals(222, ccc.getProducerWindowSize());
          }
          else
          {
@@ -283,7 +280,6 @@ public class FileConfigurationTest extends ConfigurationImplTest
             Assert.assertEquals(2, ccc.getMaxHops());
             Assert.assertEquals(Collections.emptyList(), ccc.getStaticConnectors());
             Assert.assertEquals("dg1", ccc.getDiscoveryGroupName());
-            Assert.assertEquals(333, ccc.getProducerWindowSize());
          }
       }
 

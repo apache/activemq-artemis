@@ -14,25 +14,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.server.impl;
+package org.apache.activemq.artemis.core.server.impl;
 
-import static org.apache.activemq.core.server.impl.InVMNodeManager.State.LIVE;
-import static org.apache.activemq.core.server.impl.InVMNodeManager.State.FAILING_BACK;
-import static org.apache.activemq.core.server.impl.InVMNodeManager.State.NOT_STARTED;
-import static org.apache.activemq.core.server.impl.InVMNodeManager.State.PAUSED;
+import static org.apache.activemq.artemis.core.server.impl.InVMNodeManager.State.LIVE;
+import static org.apache.activemq.artemis.core.server.impl.InVMNodeManager.State.FAILING_BACK;
+import static org.apache.activemq.artemis.core.server.impl.InVMNodeManager.State.NOT_STARTED;
+import static org.apache.activemq.artemis.core.server.impl.InVMNodeManager.State.PAUSED;
 
 import java.io.IOException;
 import java.util.concurrent.Semaphore;
 
-import org.apache.activemq.api.core.ActiveMQIllegalStateException;
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.core.server.NodeManager;
-import org.apache.activemq.utils.UUIDGenerator;
+import org.apache.activemq.artemis.api.core.ActiveMQIllegalStateException;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.server.NodeManager;
+import org.apache.activemq.artemis.utils.UUIDGenerator;
 
 /**
  * NodeManager used to run multiple servers in the same VM.
  * <p/>
- * We use the {@link org.apache.activemq.core.server.impl.InVMNodeManager} instead of {@link org.apache.activemq.core.server.impl.FileLockNodeManager} when
+ * We use the {@link org.apache.activemq.artemis.core.server.impl.InVMNodeManager} instead of {@link org.apache.activemq.artemis.core.server.impl.FileLockNodeManager} when
  * multiple servers are run inside the same VM and File Locks can not be shared in the
  * same VM (it would cause a shared lock violation).
  */

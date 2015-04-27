@@ -14,12 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.util;
+package org.apache.activemq.artemis.tests.util;
 
-import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.config.ha.ReplicaPolicyConfiguration;
-import org.apache.activemq.core.config.ha.ReplicatedPolicyConfiguration;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.config.ha.ReplicaPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.ReplicatedPolicyConfiguration;
 
 public final class ReplicatedBackupUtils
 {

@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.client.impl;
+package org.apache.activemq.artemis.core.client.impl;
 
 import java.io.DataInputStream;
 import java.io.InputStream;
@@ -22,16 +22,16 @@ import java.io.OutputStream;
 import java.nio.ByteBuffer;
 
 import io.netty.buffer.ByteBuf;
-import org.apache.activemq.api.core.ActiveMQBuffer;
-import org.apache.activemq.api.core.ActiveMQBuffers;
-import org.apache.activemq.api.core.ActiveMQException;
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.core.client.ActiveMQClientLogger;
-import org.apache.activemq.utils.DataConstants;
-import org.apache.activemq.utils.ActiveMQBufferInputStream;
-import org.apache.activemq.utils.InflaterReader;
-import org.apache.activemq.utils.InflaterWriter;
-import org.apache.activemq.utils.UTF8Util;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
+import org.apache.activemq.artemis.utils.DataConstants;
+import org.apache.activemq.artemis.utils.ActiveMQBufferInputStream;
+import org.apache.activemq.artemis.utils.InflaterReader;
+import org.apache.activemq.artemis.utils.InflaterWriter;
+import org.apache.activemq.artemis.utils.UTF8Util;
 
 final class CompressedLargeMessageControllerImpl implements LargeMessageController
 {

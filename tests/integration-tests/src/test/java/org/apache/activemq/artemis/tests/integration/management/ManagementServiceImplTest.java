@@ -14,29 +14,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.management;
+package org.apache.activemq.artemis.tests.integration.management;
 
+import org.apache.activemq.artemis.tests.unit.core.postoffice.impl.FakeQueue;
+import org.apache.activemq.artemis.tests.util.UnitTestCase;
 import org.junit.Test;
 
 import org.junit.Assert;
 
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.api.core.management.AddressControl;
-import org.apache.activemq.api.core.management.ManagementHelper;
-import org.apache.activemq.api.core.management.QueueControl;
-import org.apache.activemq.api.core.management.ResourceNames;
-import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.persistence.impl.nullpm.NullStorageManager;
-import org.apache.activemq.core.server.ActiveMQServer;
-import org.apache.activemq.core.server.ActiveMQServers;
-import org.apache.activemq.core.server.Queue;
-import org.apache.activemq.core.server.ServerMessage;
-import org.apache.activemq.core.server.impl.ServerMessageImpl;
-import org.apache.activemq.core.server.management.impl.ManagementServiceImpl;
-import org.apache.activemq.tests.integration.server.FakeStorageManager;
-import org.apache.activemq.tests.unit.core.postoffice.impl.FakeQueue;
-import org.apache.activemq.tests.util.RandomUtil;
-import org.apache.activemq.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.management.AddressControl;
+import org.apache.activemq.artemis.api.core.management.ManagementHelper;
+import org.apache.activemq.artemis.api.core.management.QueueControl;
+import org.apache.activemq.artemis.api.core.management.ResourceNames;
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.persistence.impl.nullpm.NullStorageManager;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.ActiveMQServers;
+import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.server.ServerMessage;
+import org.apache.activemq.artemis.core.server.impl.ServerMessageImpl;
+import org.apache.activemq.artemis.core.server.management.impl.ManagementServiceImpl;
+import org.apache.activemq.artemis.tests.integration.server.FakeStorageManager;
+import org.apache.activemq.artemis.tests.util.RandomUtil;
 
 public class ManagementServiceImplTest extends UnitTestCase
 {

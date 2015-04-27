@@ -14,10 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.journal.impl.dataformat;
+package org.apache.activemq.artemis.core.journal.impl.dataformat;
 
-import org.apache.activemq.api.core.ActiveMQBuffer;
-import org.apache.activemq.core.journal.impl.JournalImpl;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
 
 public class JournalDeleteRecord extends JournalInternalRecord
 {

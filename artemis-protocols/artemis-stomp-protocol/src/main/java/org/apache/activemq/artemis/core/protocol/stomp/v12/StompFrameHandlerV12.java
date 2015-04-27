@@ -14,21 +14,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.protocol.stomp.v12;
+package org.apache.activemq.artemis.core.protocol.stomp.v12;
 
-import org.apache.activemq.core.protocol.stomp.FrameEventListener;
-import org.apache.activemq.core.protocol.stomp.ActiveMQStompException;
-import org.apache.activemq.core.protocol.stomp.Stomp;
-import org.apache.activemq.core.protocol.stomp.StompConnection;
-import org.apache.activemq.core.protocol.stomp.StompDecoder;
-import org.apache.activemq.core.protocol.stomp.StompFrame;
-import org.apache.activemq.core.protocol.stomp.StompSubscription;
-import org.apache.activemq.core.protocol.stomp.v11.StompFrameHandlerV11;
-import org.apache.activemq.core.protocol.stomp.v11.StompFrameV11;
-import org.apache.activemq.core.server.ActiveMQServerLogger;
-import org.apache.activemq.core.server.ServerMessage;
+import org.apache.activemq.artemis.core.protocol.stomp.FrameEventListener;
+import org.apache.activemq.artemis.core.protocol.stomp.ActiveMQStompException;
+import org.apache.activemq.artemis.core.protocol.stomp.Stomp;
+import org.apache.activemq.artemis.core.protocol.stomp.StompConnection;
+import org.apache.activemq.artemis.core.protocol.stomp.StompDecoder;
+import org.apache.activemq.artemis.core.protocol.stomp.StompFrame;
+import org.apache.activemq.artemis.core.protocol.stomp.StompSubscription;
+import org.apache.activemq.artemis.core.protocol.stomp.v11.StompFrameHandlerV11;
+import org.apache.activemq.artemis.core.protocol.stomp.v11.StompFrameV11;
+import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.apache.activemq.artemis.core.server.ServerMessage;
 
-import static org.apache.activemq.core.protocol.stomp.ActiveMQStompProtocolMessageBundle.BUNDLE;
+import static org.apache.activemq.artemis.core.protocol.stomp.ActiveMQStompProtocolMessageBundle.BUNDLE;
 
 public class StompFrameHandlerV12 extends StompFrameHandlerV11 implements FrameEventListener
 {

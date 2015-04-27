@@ -14,18 +14,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.protocol;
+package org.apache.activemq.artemis.core.protocol;
 
-import static org.apache.activemq.core.protocol.core.impl.PacketImpl.SESS_RECEIVE_LARGE_MSG;
-import static org.apache.activemq.core.protocol.core.impl.PacketImpl.SESS_RECEIVE_MSG;
+import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.SESS_RECEIVE_LARGE_MSG;
+import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.SESS_RECEIVE_MSG;
 
-import org.apache.activemq.api.core.ActiveMQBuffer;
-import org.apache.activemq.core.client.impl.ClientLargeMessageImpl;
-import org.apache.activemq.core.client.impl.ClientMessageImpl;
-import org.apache.activemq.core.protocol.core.Packet;
-import org.apache.activemq.core.protocol.core.impl.PacketDecoder;
-import org.apache.activemq.core.protocol.core.impl.wireformat.SessionReceiveClientLargeMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.SessionReceiveMessage;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.core.client.impl.ClientLargeMessageImpl;
+import org.apache.activemq.artemis.core.client.impl.ClientMessageImpl;
+import org.apache.activemq.artemis.core.protocol.core.Packet;
+import org.apache.activemq.artemis.core.protocol.core.impl.PacketDecoder;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionReceiveClientLargeMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionReceiveMessage;
 
 public class ClientPacketDecoder extends PacketDecoder
 {

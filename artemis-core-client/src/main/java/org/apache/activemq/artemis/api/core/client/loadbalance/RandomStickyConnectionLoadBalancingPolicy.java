@@ -14,9 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.api.core.client.loadbalance;
+package org.apache.activemq.artemis.api.core.client.loadbalance;
 
-import org.apache.activemq.utils.Random;
+import org.apache.activemq.artemis.utils.Random;
 
 /**
  * {@link RandomConnectionLoadBalancingPolicy#select(int)} chooses a the initial node randomly then subsequent requests return the same node

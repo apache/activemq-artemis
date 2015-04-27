@@ -14,10 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.uri;
+package org.apache.activemq.artemis.uri;
 
-import org.apache.activemq.api.core.client.ServerLocator;
-import org.apache.activemq.utils.uri.URIFactory;
+import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.utils.uri.URIFactory;
 
 public class ServerLocatorParser extends URIFactory<ServerLocator, String>
 {

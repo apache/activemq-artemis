@@ -14,9 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.remoting.impl.invm;
+package org.apache.activemq.artemis.core.remoting.impl.invm;
 
-import org.apache.activemq.core.server.ActiveMQMessageBundle;
+import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;

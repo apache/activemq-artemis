@@ -14,12 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.remoting;
+package org.apache.activemq.artemis.core.remoting;
 
 /**
- * CloseListeners can be registered with a {@link org.apache.activemq.spi.core.protocol.RemotingConnection} to get notified when the connection is closed.
+ * CloseListeners can be registered with a {@link org.apache.activemq.artemis.spi.core.protocol.RemotingConnection} to get notified when the connection is closed.
  * <p>
- * {@link org.apache.activemq.spi.core.protocol.RemotingConnection#addCloseListener(CloseListener)}
+ * {@link org.apache.activemq.artemis.spi.core.protocol.RemotingConnection#addCloseListener(CloseListener)}
  */
 public interface CloseListener
 {

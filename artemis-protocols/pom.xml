@@ -17,14 +17,13 @@
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
    <parent>
-      <artifactId>activemq-pom</artifactId>
+      <artifactId>artemis-pom</artifactId>
       <groupId>org.apache.activemq</groupId>
-      <version>10.0.0-SNAPSHOT</version>
+      <version>1.0.0-SNAPSHOT</version>
    </parent>
    <modelVersion>4.0.0</modelVersion>
 
-   <artifactId>activemq-protocols</artifactId>
-   <name>ActiveMQ Artemis Protocols</name>
+   <artifactId>artemis-protocols</artifactId>
    <packaging>pom</packaging>
 
    <properties>
@@ -32,10 +31,10 @@
    </properties>
 
    <modules>
-      <module>activemq-amqp-protocol</module>
-      <module>activemq-stomp-protocol</module>
-      <module>activemq-openwire-protocol</module>
-      <module>activemq-proton-plug</module>
+      <module>artemis-amqp-protocol</module>
+      <module>artemis-stomp-protocol</module>
+      <module>artemis-openwire-protocol</module>
+      <module>artemis-proton-plug</module>
    </modules>
 
 </project>

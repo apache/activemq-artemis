@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.server.impl;
+package org.apache.activemq.artemis.core.server.impl;
 
 import java.math.BigDecimal;
 import java.util.Iterator;
@@ -27,37 +27,37 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import org.apache.activemq.api.core.ActiveMQBuffer;
-import org.apache.activemq.api.core.ActiveMQBuffers;
-import org.apache.activemq.api.core.ActiveMQException;
-import org.apache.activemq.api.core.ActiveMQIllegalStateException;
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.api.core.management.CoreNotificationType;
-import org.apache.activemq.api.core.management.ManagementHelper;
-import org.apache.activemq.core.client.impl.ClientConsumerImpl;
-import org.apache.activemq.core.filter.Filter;
-import org.apache.activemq.core.message.BodyEncoder;
-import org.apache.activemq.core.persistence.StorageManager;
-import org.apache.activemq.core.postoffice.Binding;
-import org.apache.activemq.core.postoffice.QueueBinding;
-import org.apache.activemq.core.server.ActiveMQServerLogger;
-import org.apache.activemq.core.server.HandleStatus;
-import org.apache.activemq.core.server.ActiveMQMessageBundle;
-import org.apache.activemq.core.server.LargeServerMessage;
-import org.apache.activemq.core.server.MessageReference;
-import org.apache.activemq.core.server.Queue;
-import org.apache.activemq.core.server.ServerConsumer;
-import org.apache.activemq.core.server.ServerMessage;
-import org.apache.activemq.core.server.ServerSession;
-import org.apache.activemq.core.server.management.ManagementService;
-import org.apache.activemq.core.server.management.Notification;
-import org.apache.activemq.core.transaction.Transaction;
-import org.apache.activemq.core.transaction.impl.TransactionImpl;
-import org.apache.activemq.spi.core.protocol.SessionCallback;
-import org.apache.activemq.spi.core.remoting.ReadyListener;
-import org.apache.activemq.utils.FutureLatch;
-import org.apache.activemq.utils.LinkedListIterator;
-import org.apache.activemq.utils.TypedProperties;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.ActiveMQIllegalStateException;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.management.CoreNotificationType;
+import org.apache.activemq.artemis.api.core.management.ManagementHelper;
+import org.apache.activemq.artemis.core.client.impl.ClientConsumerImpl;
+import org.apache.activemq.artemis.core.filter.Filter;
+import org.apache.activemq.artemis.core.message.BodyEncoder;
+import org.apache.activemq.artemis.core.persistence.StorageManager;
+import org.apache.activemq.artemis.core.postoffice.Binding;
+import org.apache.activemq.artemis.core.postoffice.QueueBinding;
+import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.apache.activemq.artemis.core.server.HandleStatus;
+import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
+import org.apache.activemq.artemis.core.server.LargeServerMessage;
+import org.apache.activemq.artemis.core.server.MessageReference;
+import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.server.ServerConsumer;
+import org.apache.activemq.artemis.core.server.ServerMessage;
+import org.apache.activemq.artemis.core.server.ServerSession;
+import org.apache.activemq.artemis.core.server.management.ManagementService;
+import org.apache.activemq.artemis.core.server.management.Notification;
+import org.apache.activemq.artemis.core.transaction.Transaction;
+import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
+import org.apache.activemq.artemis.spi.core.protocol.SessionCallback;
+import org.apache.activemq.artemis.spi.core.remoting.ReadyListener;
+import org.apache.activemq.artemis.utils.FutureLatch;
+import org.apache.activemq.artemis.utils.LinkedListIterator;
+import org.apache.activemq.artemis.utils.TypedProperties;
 
 /**
  * Concrete implementation of a ClientConsumer.

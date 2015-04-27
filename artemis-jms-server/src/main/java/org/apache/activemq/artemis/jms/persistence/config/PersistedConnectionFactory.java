@@ -14,12 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.jms.persistence.config;
+package org.apache.activemq.artemis.jms.persistence.config;
 
-import org.apache.activemq.api.core.ActiveMQBuffer;
-import org.apache.activemq.core.journal.EncodingSupport;
-import org.apache.activemq.jms.server.config.ConnectionFactoryConfiguration;
-import org.apache.activemq.jms.server.config.impl.ConnectionFactoryConfigurationImpl;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.core.journal.EncodingSupport;
+import org.apache.activemq.artemis.jms.server.config.ConnectionFactoryConfiguration;
+import org.apache.activemq.artemis.jms.server.config.impl.ConnectionFactoryConfigurationImpl;
 
 public class PersistedConnectionFactory implements EncodingSupport
 {

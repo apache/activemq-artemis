@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.jms.server.management;
+package org.apache.activemq.artemis.tests.integration.jms.server.management;
 
 import javax.jms.Message;
 import javax.jms.Queue;
@@ -22,7 +22,7 @@ import javax.jms.QueueRequestor;
 import javax.jms.QueueSession;
 import javax.jms.Session;
 
-import org.apache.activemq.api.jms.management.JMSManagementHelper;
+import org.apache.activemq.artemis.api.jms.management.JMSManagementHelper;
 
 public class JMSMessagingProxy
 {

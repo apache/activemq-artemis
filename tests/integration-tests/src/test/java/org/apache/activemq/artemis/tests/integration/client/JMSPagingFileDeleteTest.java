@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.client;
+package org.apache.activemq.artemis.tests.integration.client;
 
 import javax.jms.BytesMessage;
 import javax.jms.Connection;
@@ -24,11 +24,11 @@ import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.Topic;
 
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.core.paging.PagingStore;
-import org.apache.activemq.core.settings.impl.AddressSettings;
-import org.apache.activemq.tests.integration.IntegrationTestLogger;
-import org.apache.activemq.tests.util.JMSTestBase;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
+import org.apache.activemq.artemis.tests.util.JMSTestBase;
+import org.apache.activemq.artemis.core.paging.PagingStore;
+import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

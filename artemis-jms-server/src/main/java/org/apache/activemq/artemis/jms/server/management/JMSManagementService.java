@@ -14,15 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.jms.server.management;
+package org.apache.activemq.artemis.jms.server.management;
 
-import org.apache.activemq.api.jms.management.JMSServerControl;
-import org.apache.activemq.core.server.Queue;
-import org.apache.activemq.jms.client.ActiveMQConnectionFactory;
-import org.apache.activemq.jms.client.ActiveMQQueue;
-import org.apache.activemq.jms.client.ActiveMQTopic;
-import org.apache.activemq.jms.server.JMSServerManager;
-import org.apache.activemq.jms.server.config.ConnectionFactoryConfiguration;
+import org.apache.activemq.artemis.api.jms.management.JMSServerControl;
+import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.jms.client.ActiveMQQueue;
+import org.apache.activemq.artemis.jms.client.ActiveMQTopic;
+import org.apache.activemq.artemis.jms.server.JMSServerManager;
+import org.apache.activemq.artemis.jms.server.config.ConnectionFactoryConfiguration;
 
 public interface JMSManagementService
 {

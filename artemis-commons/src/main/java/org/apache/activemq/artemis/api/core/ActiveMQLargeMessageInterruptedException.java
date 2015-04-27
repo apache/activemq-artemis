@@ -14,10 +14,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.api.core;
+package org.apache.activemq.artemis.api.core;
 
-
-import static org.apache.activemq.api.core.ActiveMQExceptionType.LARGE_MESSAGE_INTERRUPTED;
 
 /**
  */
@@ -28,11 +26,11 @@ public class ActiveMQLargeMessageInterruptedException extends ActiveMQException
 
    public ActiveMQLargeMessageInterruptedException(String message)
    {
-      super(LARGE_MESSAGE_INTERRUPTED, message);
+      super(ActiveMQExceptionType.LARGE_MESSAGE_INTERRUPTED, message);
    }
 
    public ActiveMQLargeMessageInterruptedException()
    {
-      super(LARGE_MESSAGE_INTERRUPTED);
+      super(ActiveMQExceptionType.LARGE_MESSAGE_INTERRUPTED);
    }
 }

@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.client.impl;
+package org.apache.activemq.artemis.core.client.impl;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -39,35 +39,35 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq.api.core.ActiveMQException;
-import org.apache.activemq.api.core.ActiveMQExceptionType;
-import org.apache.activemq.api.core.ActiveMQIllegalStateException;
-import org.apache.activemq.api.core.ActiveMQInterruptedException;
-import org.apache.activemq.api.core.DiscoveryGroupConfiguration;
-import org.apache.activemq.api.core.Interceptor;
-import org.apache.activemq.api.core.Pair;
-import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.ClusterTopologyListener;
-import org.apache.activemq.api.core.client.ActiveMQClient;
-import org.apache.activemq.api.core.client.TopologyMember;
-import org.apache.activemq.api.core.client.loadbalance.ConnectionLoadBalancingPolicy;
-import org.apache.activemq.core.client.ActiveMQClientLogger;
-import org.apache.activemq.core.client.ActiveMQClientMessageBundle;
-import org.apache.activemq.core.cluster.DiscoveryEntry;
-import org.apache.activemq.core.cluster.DiscoveryGroup;
-import org.apache.activemq.core.cluster.DiscoveryListener;
-import org.apache.activemq.core.protocol.core.impl.ActiveMQClientProtocolManagerFactory;
-import org.apache.activemq.core.remoting.FailureListener;
-import org.apache.activemq.spi.core.remoting.ClientProtocolManager;
-import org.apache.activemq.spi.core.remoting.ClientProtocolManagerFactory;
-import org.apache.activemq.spi.core.remoting.Connector;
-import org.apache.activemq.utils.ClassloadingUtil;
-import org.apache.activemq.utils.ActiveMQThreadFactory;
-import org.apache.activemq.utils.UUIDGenerator;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
+import org.apache.activemq.artemis.api.core.ActiveMQIllegalStateException;
+import org.apache.activemq.artemis.api.core.ActiveMQInterruptedException;
+import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
+import org.apache.activemq.artemis.api.core.Interceptor;
+import org.apache.activemq.artemis.api.core.Pair;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
+import org.apache.activemq.artemis.api.core.client.ClusterTopologyListener;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
+import org.apache.activemq.artemis.api.core.client.TopologyMember;
+import org.apache.activemq.artemis.api.core.client.loadbalance.ConnectionLoadBalancingPolicy;
+import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
+import org.apache.activemq.artemis.core.client.ActiveMQClientMessageBundle;
+import org.apache.activemq.artemis.core.cluster.DiscoveryEntry;
+import org.apache.activemq.artemis.core.cluster.DiscoveryGroup;
+import org.apache.activemq.artemis.core.cluster.DiscoveryListener;
+import org.apache.activemq.artemis.core.protocol.core.impl.ActiveMQClientProtocolManagerFactory;
+import org.apache.activemq.artemis.core.remoting.FailureListener;
+import org.apache.activemq.artemis.spi.core.remoting.ClientProtocolManager;
+import org.apache.activemq.artemis.spi.core.remoting.ClientProtocolManagerFactory;
+import org.apache.activemq.artemis.spi.core.remoting.Connector;
+import org.apache.activemq.artemis.utils.ClassloadingUtil;
+import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
+import org.apache.activemq.artemis.utils.UUIDGenerator;
 
 /**
- * This is the implementation of {@link org.apache.activemq.api.core.client.ServerLocator} and all
+ * This is the implementation of {@link org.apache.activemq.artemis.api.core.client.ServerLocator} and all
  * the proper javadoc is located on that interface.
  */
 public final class ServerLocatorImpl implements ServerLocatorInternal, DiscoveryListener

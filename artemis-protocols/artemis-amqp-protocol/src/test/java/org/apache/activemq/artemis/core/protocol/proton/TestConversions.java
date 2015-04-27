@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.protocol.proton;
+package org.apache.activemq.artemis.core.protocol.proton;
 
 import java.nio.ByteBuffer;
 import java.util.HashMap;
@@ -24,7 +24,7 @@ import java.util.Map;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
-import org.apache.activemq.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.qpid.proton.amqp.Binary;
 import org.apache.qpid.proton.amqp.messaging.AmqpSequence;
 import org.apache.qpid.proton.amqp.messaging.AmqpValue;
@@ -34,16 +34,16 @@ import org.apache.qpid.proton.jms.EncodedMessage;
 import org.apache.qpid.proton.message.Message;
 import org.apache.qpid.proton.message.ProtonJMessage;
 import org.apache.qpid.proton.message.impl.MessageImpl;
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.core.journal.EncodingSupport;
-import org.apache.activemq.core.protocol.proton.converter.ProtonMessageConverter;
-import org.apache.activemq.core.protocol.proton.converter.jms.ServerJMSBytesMessage;
-import org.apache.activemq.core.protocol.proton.converter.jms.ServerJMSMapMessage;
-import org.apache.activemq.core.protocol.proton.converter.jms.ServerJMSMessage;
-import org.apache.activemq.core.protocol.proton.converter.jms.ServerJMSStreamMessage;
-import org.apache.activemq.core.protocol.proton.converter.jms.ServerJMSTextMessage;
-import org.apache.activemq.core.server.ServerMessage;
-import org.apache.activemq.utils.SimpleIDGenerator;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.journal.EncodingSupport;
+import org.apache.activemq.artemis.core.protocol.proton.converter.ProtonMessageConverter;
+import org.apache.activemq.artemis.core.protocol.proton.converter.jms.ServerJMSBytesMessage;
+import org.apache.activemq.artemis.core.protocol.proton.converter.jms.ServerJMSMapMessage;
+import org.apache.activemq.artemis.core.protocol.proton.converter.jms.ServerJMSMessage;
+import org.apache.activemq.artemis.core.protocol.proton.converter.jms.ServerJMSStreamMessage;
+import org.apache.activemq.artemis.core.protocol.proton.converter.jms.ServerJMSTextMessage;
+import org.apache.activemq.artemis.core.server.ServerMessage;
+import org.apache.activemq.artemis.utils.SimpleIDGenerator;
 import org.junit.Assert;
 import org.junit.Test;
 import org.proton.plug.util.NettyWritable;

@@ -14,12 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.client.impl;
+package org.apache.activemq.artemis.core.client.impl;
 
-import org.apache.activemq.api.core.Pair;
-import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.core.client.TopologyMember;
-import org.apache.activemq.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.artemis.api.core.Pair;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.client.TopologyMember;
+import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 
 public final class TopologyMemberImpl implements TopologyMember
 {

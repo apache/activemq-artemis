@@ -14,12 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.api.core;
+package org.apache.activemq.artemis.api.core;
 
 import java.io.Serializable;
 
-import org.apache.activemq.api.core.client.ActiveMQClient;
-import org.apache.activemq.utils.UUIDGenerator;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
+import org.apache.activemq.artemis.utils.UUIDGenerator;
 
 /**
  * This file represents how we are using Discovery.

@@ -14,22 +14,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.cluster.failover;
+package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
 import java.util.Collection;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq.api.core.Message;
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.ServerLocator;
-import org.apache.activemq.core.client.impl.TopologyMemberImpl;
-import org.apache.activemq.core.config.ha.ReplicaPolicyConfiguration;
-import org.apache.activemq.core.config.ha.ReplicatedPolicyConfiguration;
-import org.apache.activemq.core.server.group.impl.GroupingHandlerConfiguration;
-import org.apache.activemq.core.server.impl.SharedNothingBackupActivation;
-import org.apache.activemq.tests.integration.cluster.distribution.ClusterTestBase;
-import org.apache.activemq.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
+import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.core.client.impl.TopologyMemberImpl;
+import org.apache.activemq.artemis.core.config.ha.ReplicaPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.ReplicatedPolicyConfiguration;
+import org.apache.activemq.artemis.core.server.group.impl.GroupingHandlerConfiguration;
+import org.apache.activemq.artemis.core.server.impl.SharedNothingBackupActivation;
+import org.apache.activemq.artemis.tests.integration.cluster.distribution.ClusterTestBase;
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
 import org.junit.Test;
 
 public abstract class GroupingFailoverTestBase extends ClusterTestBase

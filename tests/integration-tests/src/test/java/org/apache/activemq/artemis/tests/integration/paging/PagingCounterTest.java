@@ -14,25 +14,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.paging;
+package org.apache.activemq.artemis.tests.integration.paging;
 
 import javax.transaction.xa.Xid;
 
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.api.core.client.ClientSession;
-import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.ServerLocator;
-import org.apache.activemq.core.paging.cursor.PageSubscription;
-import org.apache.activemq.core.paging.cursor.PageSubscriptionCounter;
-import org.apache.activemq.core.paging.cursor.impl.PageSubscriptionCounterImpl;
-import org.apache.activemq.core.persistence.StorageManager;
-import org.apache.activemq.core.persistence.impl.journal.OperationContextImpl;
-import org.apache.activemq.core.server.ActiveMQServer;
-import org.apache.activemq.core.server.Queue;
-import org.apache.activemq.core.settings.impl.AddressSettings;
-import org.apache.activemq.core.transaction.Transaction;
-import org.apache.activemq.core.transaction.impl.TransactionImpl;
-import org.apache.activemq.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
+import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.core.paging.cursor.PageSubscription;
+import org.apache.activemq.artemis.core.paging.cursor.PageSubscriptionCounter;
+import org.apache.activemq.artemis.core.paging.cursor.impl.PageSubscriptionCounterImpl;
+import org.apache.activemq.artemis.core.persistence.StorageManager;
+import org.apache.activemq.artemis.core.persistence.impl.journal.OperationContextImpl;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.core.transaction.Transaction;
+import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
 import org.junit.Before;
 import org.junit.Test;
 

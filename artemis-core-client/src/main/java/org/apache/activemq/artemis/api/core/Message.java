@@ -14,12 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.api.core;
+package org.apache.activemq.artemis.api.core;
 
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.activemq.utils.UUID;
+import org.apache.activemq.artemis.utils.UUID;
 
 
 /**

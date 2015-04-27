@@ -14,9 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.soak.failover;
+package org.apache.activemq.artemis.tests.soak.failover;
 
-import org.apache.activemq.tests.integration.cluster.reattach.RandomReattachTest;
+import org.apache.activemq.artemis.tests.integration.cluster.reattach.RandomReattachTest;
 
 public class RandomFailoverSoakTest extends RandomReattachTest
 {

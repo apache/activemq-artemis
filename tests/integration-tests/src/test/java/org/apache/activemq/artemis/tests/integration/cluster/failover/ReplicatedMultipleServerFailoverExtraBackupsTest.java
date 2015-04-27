@@ -14,20 +14,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.cluster.failover;
+package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.activemq.api.core.client.ClientConsumer;
-import org.apache.activemq.api.core.client.ClientMessage;
-import org.apache.activemq.api.core.client.ClientProducer;
-import org.apache.activemq.api.core.client.ClientSession;
-import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.ServerLocator;
-import org.apache.activemq.core.config.ha.ReplicaPolicyConfiguration;
-import org.apache.activemq.tests.integration.cluster.util.TestableServer;
-import org.junit.Assert;
+import org.apache.activemq.artemis.api.core.client.ClientConsumer;
+import org.apache.activemq.artemis.api.core.client.ClientMessage;
+import org.apache.activemq.artemis.api.core.client.ClientProducer;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
+import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.tests.integration.cluster.util.TestableServer;
+import org.apache.activemq.artemis.core.config.ha.ReplicaPolicyConfiguration;
 import org.junit.Test;
 
 public class ReplicatedMultipleServerFailoverExtraBackupsTest extends ReplicatedMultipleServerFailoverTest
@@ -91,7 +90,7 @@ public class ReplicatedMultipleServerFailoverExtraBackupsTest extends Replicated
       ClientSession session0 = factory0.createSession(false, true, true);
       ClientSession session1 = factory1.createSession(false, true, true);
 
-      ClientProducer producer = session0.createProducer(MultipleServerFailoverTestBase.ADDRESS);
+      ClientProducer producer = session0.createProducer(ADDRESS);
 
       for (int i = 0; i < 200; i++)
       {
@@ -106,8 +105,8 @@ public class ReplicatedMultipleServerFailoverExtraBackupsTest extends Replicated
 
       producer.close();
 
-      waitForDistribution(MultipleServerFailoverTestBase.ADDRESS, backupServers.get(0).getServer(), 100);
-      waitForDistribution(MultipleServerFailoverTestBase.ADDRESS, backupServers.get(1).getServer(), 100);
+      waitForDistribution(ADDRESS, backupServers.get(0).getServer(), 100);
+      waitForDistribution(ADDRESS, backupServers.get(1).getServer(), 100);
 
       List<TestableServer> toCrash = new ArrayList<TestableServer>();
       for (TestableServer backupServer : backupServers)
@@ -123,8 +122,8 @@ public class ReplicatedMultipleServerFailoverExtraBackupsTest extends Replicated
          testableServer.crash();
       }
 
-      ClientConsumer consumer0 = session0.createConsumer(MultipleServerFailoverTestBase.ADDRESS);
-      ClientConsumer consumer1 = session1.createConsumer(MultipleServerFailoverTestBase.ADDRESS);
+      ClientConsumer consumer0 = session0.createConsumer(ADDRESS);
+      ClientConsumer consumer1 = session1.createConsumer(ADDRESS);
       session0.start();
       session1.start();
 
@@ -132,10 +131,10 @@ public class ReplicatedMultipleServerFailoverExtraBackupsTest extends Replicated
       for (int i = 0; i < 100; i++)
       {
          ClientMessage message = consumer0.receive(1000);
-         Assert.assertNotNull("expecting durable msg " + i, message);
+         assertNotNull("expecting durable msg " + i, message);
          message.acknowledge();
          consumer1.receive(1000);
-         Assert.assertNotNull("expecting durable msg " + i, message);
+         assertNotNull("expecting durable msg " + i, message);
          message.acknowledge();
 
       }

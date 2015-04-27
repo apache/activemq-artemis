@@ -14,28 +14,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.spi.core.remoting;
+package org.apache.activemq.artemis.spi.core.remoting;
 
 import javax.transaction.xa.XAException;
 import javax.transaction.xa.Xid;
 import java.util.HashMap;
 import java.util.concurrent.Executor;
 
-import org.apache.activemq.api.core.ActiveMQException;
-import org.apache.activemq.api.core.Message;
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.api.core.client.ClientConsumer;
-import org.apache.activemq.api.core.client.ClientSession;
-import org.apache.activemq.api.core.client.SendAcknowledgementHandler;
-import org.apache.activemq.core.client.impl.ClientConsumerInternal;
-import org.apache.activemq.core.client.impl.ClientLargeMessageInternal;
-import org.apache.activemq.core.client.impl.ClientMessageInternal;
-import org.apache.activemq.core.client.impl.ClientProducerCreditsImpl;
-import org.apache.activemq.core.client.impl.ClientSessionInternal;
-import org.apache.activemq.core.message.impl.MessageInternal;
-import org.apache.activemq.spi.core.protocol.RemotingConnection;
-import org.apache.activemq.utils.IDGenerator;
-import org.apache.activemq.utils.SimpleIDGenerator;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.client.ClientConsumer;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.api.core.client.SendAcknowledgementHandler;
+import org.apache.activemq.artemis.core.client.impl.ClientConsumerInternal;
+import org.apache.activemq.artemis.core.client.impl.ClientLargeMessageInternal;
+import org.apache.activemq.artemis.core.client.impl.ClientMessageInternal;
+import org.apache.activemq.artemis.core.client.impl.ClientProducerCreditsImpl;
+import org.apache.activemq.artemis.core.client.impl.ClientSessionInternal;
+import org.apache.activemq.artemis.core.message.impl.MessageInternal;
+import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.artemis.utils.IDGenerator;
+import org.apache.activemq.artemis.utils.SimpleIDGenerator;
 
 public abstract class SessionContext
 {
@@ -69,7 +69,7 @@ public abstract class SessionContext
     *
     * @param newConnection
     * @return true if it was possible to reattach
-    * @throws org.apache.activemq.api.core.ActiveMQException
+    * @throws ActiveMQException
     */
    public abstract boolean reattachOnNewConnection(RemotingConnection newConnection) throws ActiveMQException;
 
@@ -142,14 +142,12 @@ public abstract class SessionContext
     *
     * @param msgI
     * @return
-    * @throws org.apache.activemq.api.core.ActiveMQException
+    * @throws ActiveMQException
     */
    public abstract int sendInitialChunkOnLargeMessage(MessageInternal msgI) throws ActiveMQException;
 
 
    public abstract int sendLargeMessageChunk(MessageInternal msgI, long messageBodySize, boolean sendBlocking, boolean lastChunk, byte[] chunk, SendAcknowledgementHandler messageHandler) throws ActiveMQException;
-
-   public abstract int sendServerLargeMessageChunk(MessageInternal msgI, long messageBodySize, boolean sendBlocking, boolean lastChunk, byte[] chunk, SendAcknowledgementHandler messageHandler) throws ActiveMQException;
 
 
    public abstract void setSendAcknowledgementHandler(final SendAcknowledgementHandler handler);
@@ -179,7 +177,7 @@ public abstract class SessionContext
     * this is because we only ACK after on the RA, We may review this if we always acked earlier.
     *
     * @param lastMessageAsDelivered
-    * @throws org.apache.activemq.api.core.ActiveMQException
+    * @throws ActiveMQException
     */
    public abstract void simpleRollback(boolean lastMessageAsDelivered) throws ActiveMQException;
 

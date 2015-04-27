@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.jms.tests.message;
+package org.apache.activemq.artemis.jms.tests.message;
 
 import java.io.File;
 import java.io.Serializable;
@@ -37,26 +37,26 @@ import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 
-import org.apache.activemq.api.core.ActiveMQBuffer;
-import org.apache.activemq.api.core.ActiveMQException;
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.api.core.client.ClientConsumer;
-import org.apache.activemq.api.core.client.ClientMessage;
-import org.apache.activemq.api.core.client.ClientProducer;
-import org.apache.activemq.api.core.client.ClientSession;
-import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.FailoverEventListener;
-import org.apache.activemq.api.core.client.SendAcknowledgementHandler;
-import org.apache.activemq.api.core.client.SessionFailureListener;
-import org.apache.activemq.core.client.impl.ClientMessageImpl;
-import org.apache.activemq.core.remoting.FailureListener;
-import org.apache.activemq.jms.client.ActiveMQBytesMessage;
-import org.apache.activemq.jms.client.ActiveMQMapMessage;
-import org.apache.activemq.jms.client.ActiveMQMessage;
-import org.apache.activemq.jms.client.ActiveMQObjectMessage;
-import org.apache.activemq.jms.client.ActiveMQStreamMessage;
-import org.apache.activemq.jms.client.ActiveMQTextMessage;
-import org.apache.activemq.jms.tests.util.ProxyAssertSupport;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.client.ClientConsumer;
+import org.apache.activemq.artemis.api.core.client.ClientMessage;
+import org.apache.activemq.artemis.api.core.client.ClientProducer;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
+import org.apache.activemq.artemis.api.core.client.FailoverEventListener;
+import org.apache.activemq.artemis.api.core.client.SendAcknowledgementHandler;
+import org.apache.activemq.artemis.api.core.client.SessionFailureListener;
+import org.apache.activemq.artemis.core.client.impl.ClientMessageImpl;
+import org.apache.activemq.artemis.core.remoting.FailureListener;
+import org.apache.activemq.artemis.jms.client.ActiveMQBytesMessage;
+import org.apache.activemq.artemis.jms.client.ActiveMQMapMessage;
+import org.apache.activemq.artemis.jms.client.ActiveMQMessage;
+import org.apache.activemq.artemis.jms.client.ActiveMQObjectMessage;
+import org.apache.activemq.artemis.jms.client.ActiveMQStreamMessage;
+import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
+import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
 import org.junit.Test;
 
 public class MessageHeaderTest extends MessageHeaderTestBase
@@ -1387,7 +1387,7 @@ public class MessageHeaderTest extends MessageHeaderTestBase
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq.api.core.client.ClientSession#createTransportBuffer(byte[])
+       * @see ClientSession#createTransportBuffer(byte[])
        */
       public ActiveMQBuffer createBuffer(final byte[] bytes)
       {
@@ -1396,7 +1396,7 @@ public class MessageHeaderTest extends MessageHeaderTestBase
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq.api.core.client.ClientSession#createTransportBuffer(int)
+       * @see ClientSession#createTransportBuffer(int)
        */
       public ActiveMQBuffer createBuffer(final int size)
       {
@@ -1418,7 +1418,7 @@ public class MessageHeaderTest extends MessageHeaderTestBase
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq.api.core.client.ClientSession#createQueue(org.apache.activemq.utils.SimpleString, org.apache.activemq.utils.SimpleString)
+       * @see ClientSession#createQueue(org.apache.activemq.utils.SimpleString, org.apache.activemq.utils.SimpleString)
        */
       public void createQueue(SimpleString address, SimpleString queueName) throws ActiveMQException
       {
@@ -1427,7 +1427,7 @@ public class MessageHeaderTest extends MessageHeaderTestBase
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq.api.core.client.ClientSession#setClientID(java.lang.String)
+       * @see ClientSession#setClientID(java.lang.String)
        */
       public void setClientID(String clientID)
       {
@@ -1436,7 +1436,7 @@ public class MessageHeaderTest extends MessageHeaderTestBase
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq.api.core.client.ClientSession#addMetaData(java.lang.String, java.lang.String)
+       * @see ClientSession#addMetaData(java.lang.String, java.lang.String)
        */
       public void addMetaData(String key, String data) throws ActiveMQException
       {
@@ -1445,7 +1445,7 @@ public class MessageHeaderTest extends MessageHeaderTestBase
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq.api.core.client.ClientSession#addUniqueMetaData(java.lang.String, java.lang.String)
+       * @see ClientSession#addUniqueMetaData(java.lang.String, java.lang.String)
        */
       public void addUniqueMetaData(String key, String data) throws ActiveMQException
       {

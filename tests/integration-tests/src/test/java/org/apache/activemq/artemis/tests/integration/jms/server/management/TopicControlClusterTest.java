@@ -14,15 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.jms.server.management;
+package org.apache.activemq.artemis.tests.integration.jms.server.management;
 import org.junit.Before;
 import org.junit.After;
 
 import org.junit.Test;
 
-import org.apache.activemq.api.jms.management.TopicControl;
-import org.apache.activemq.tests.integration.management.ManagementControlHelper;
-import org.apache.activemq.tests.util.JMSClusteredTestBase;
+import org.apache.activemq.artemis.api.jms.management.TopicControl;
+import org.apache.activemq.artemis.tests.integration.management.ManagementControlHelper;
+import org.apache.activemq.artemis.tests.util.JMSClusteredTestBase;
 
 import javax.jms.Connection;
 import javax.jms.Session;

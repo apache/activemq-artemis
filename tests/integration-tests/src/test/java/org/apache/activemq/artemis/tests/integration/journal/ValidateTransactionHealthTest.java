@@ -14,23 +14,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.journal;
+package org.apache.activemq.artemis.tests.integration.journal;
 import java.io.File;
 import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.apache.activemq.core.asyncio.impl.AsynchronousFileImpl;
-import org.apache.activemq.core.journal.LoaderCallback;
-import org.apache.activemq.core.journal.PreparedTransactionInfo;
-import org.apache.activemq.core.journal.RecordInfo;
-import org.apache.activemq.core.journal.SequentialFileFactory;
-import org.apache.activemq.core.journal.impl.AIOSequentialFileFactory;
-import org.apache.activemq.core.journal.impl.JournalConstants;
-import org.apache.activemq.core.journal.impl.JournalImpl;
-import org.apache.activemq.core.journal.impl.NIOSequentialFileFactory;
-import org.apache.activemq.tests.util.SpawnedVMSupport;
-import org.apache.activemq.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.tests.util.SpawnedVMSupport;
+import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.core.asyncio.impl.AsynchronousFileImpl;
+import org.apache.activemq.artemis.core.journal.LoaderCallback;
+import org.apache.activemq.artemis.core.journal.PreparedTransactionInfo;
+import org.apache.activemq.artemis.core.journal.RecordInfo;
+import org.apache.activemq.artemis.core.journal.SequentialFileFactory;
+import org.apache.activemq.artemis.core.journal.impl.AIOSequentialFileFactory;
+import org.apache.activemq.artemis.core.journal.impl.JournalConstants;
+import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
+import org.apache.activemq.artemis.core.journal.impl.NIOSequentialFileFactory;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -139,11 +139,11 @@ public class ValidateTransactionHealthTest extends UnitTestCase
             if (externalProcess)
             {
                Process process = SpawnedVMSupport.spawnVM(ValidateTransactionHealthTest.class.getCanonicalName(),
-                                                          type,
-                                                          journalDir,
-                                                          Long.toString(numberOfRecords),
-                                                          Integer.toString(transactionSize),
-                                                          Integer.toString(numberOfThreads));
+                       type,
+                       journalDir,
+                       Long.toString(numberOfRecords),
+                       Integer.toString(transactionSize),
+                       Integer.toString(numberOfThreads));
                process.waitFor();
                Assert.assertEquals(ValidateTransactionHealthTest.OK, process.exitValue());
             }

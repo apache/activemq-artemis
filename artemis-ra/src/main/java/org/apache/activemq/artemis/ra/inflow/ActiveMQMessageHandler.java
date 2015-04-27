@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.ra.inflow;
+package org.apache.activemq.artemis.ra.inflow;
 
 import javax.jms.MessageListener;
 import javax.resource.ResourceException;
@@ -27,23 +27,23 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import org.apache.activemq.api.core.ActiveMQException;
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.api.core.client.ClientMessage;
-import org.apache.activemq.api.core.client.ClientSession.QueueQuery;
-import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.MessageHandler;
-import org.apache.activemq.core.client.impl.ClientConsumerInternal;
-import org.apache.activemq.core.client.impl.ClientSessionFactoryInternal;
-import org.apache.activemq.core.client.impl.ClientSessionInternal;
-import org.apache.activemq.jms.client.ActiveMQDestination;
-import org.apache.activemq.jms.client.ActiveMQMessage;
-import org.apache.activemq.ra.ActiveMQRALogger;
-import org.apache.activemq.ra.ActiveMQResourceAdapter;
-import org.apache.activemq.service.extensions.ServiceUtils;
-import org.apache.activemq.service.extensions.xa.ActiveMQXAResourceWrapper;
-import org.apache.activemq.utils.FutureLatch;
-import org.apache.activemq.utils.VersionLoader;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.client.ClientMessage;
+import org.apache.activemq.artemis.api.core.client.ClientSession.QueueQuery;
+import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
+import org.apache.activemq.artemis.api.core.client.MessageHandler;
+import org.apache.activemq.artemis.core.client.impl.ClientConsumerInternal;
+import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal;
+import org.apache.activemq.artemis.core.client.impl.ClientSessionInternal;
+import org.apache.activemq.artemis.ra.ActiveMQRALogger;
+import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
+import org.apache.activemq.artemis.jms.client.ActiveMQMessage;
+import org.apache.activemq.artemis.ra.ActiveMQResourceAdapter;
+import org.apache.activemq.artemis.service.extensions.ServiceUtils;
+import org.apache.activemq.artemis.service.extensions.xa.ActiveMQXAResourceWrapper;
+import org.apache.activemq.artemis.utils.FutureLatch;
+import org.apache.activemq.artemis.utils.VersionLoader;
 
 /**
  * The message handler

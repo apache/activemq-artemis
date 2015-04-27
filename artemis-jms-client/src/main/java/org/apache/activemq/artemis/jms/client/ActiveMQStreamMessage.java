@@ -14,32 +14,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.jms.client;
+package org.apache.activemq.artemis.jms.client;
 
 import javax.jms.JMSException;
 import javax.jms.MessageEOFException;
 import javax.jms.MessageFormatException;
 import javax.jms.StreamMessage;
 
-import org.apache.activemq.api.core.ActiveMQBuffer;
-import org.apache.activemq.api.core.Message;
-import org.apache.activemq.api.core.Pair;
-import org.apache.activemq.api.core.client.ClientMessage;
-import org.apache.activemq.api.core.client.ClientSession;
-import org.apache.activemq.core.client.impl.ClientMessageImpl;
-import org.apache.activemq.utils.DataConstants;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.Pair;
+import org.apache.activemq.artemis.api.core.client.ClientMessage;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.core.client.impl.ClientMessageImpl;
+import org.apache.activemq.artemis.utils.DataConstants;
 
-import static org.apache.activemq.reader.StreamMessageUtil.streamReadBoolean;
-import static org.apache.activemq.reader.StreamMessageUtil.streamReadByte;
-import static org.apache.activemq.reader.StreamMessageUtil.streamReadBytes;
-import static org.apache.activemq.reader.StreamMessageUtil.streamReadChar;
-import static org.apache.activemq.reader.StreamMessageUtil.streamReadDouble;
-import static org.apache.activemq.reader.StreamMessageUtil.streamReadFloat;
-import static org.apache.activemq.reader.StreamMessageUtil.streamReadInteger;
-import static org.apache.activemq.reader.StreamMessageUtil.streamReadLong;
-import static org.apache.activemq.reader.StreamMessageUtil.streamReadObject;
-import static org.apache.activemq.reader.StreamMessageUtil.streamReadShort;
-import static org.apache.activemq.reader.StreamMessageUtil.streamReadString;
+import static org.apache.activemq.artemis.reader.StreamMessageUtil.streamReadBoolean;
+import static org.apache.activemq.artemis.reader.StreamMessageUtil.streamReadByte;
+import static org.apache.activemq.artemis.reader.StreamMessageUtil.streamReadBytes;
+import static org.apache.activemq.artemis.reader.StreamMessageUtil.streamReadChar;
+import static org.apache.activemq.artemis.reader.StreamMessageUtil.streamReadDouble;
+import static org.apache.activemq.artemis.reader.StreamMessageUtil.streamReadFloat;
+import static org.apache.activemq.artemis.reader.StreamMessageUtil.streamReadInteger;
+import static org.apache.activemq.artemis.reader.StreamMessageUtil.streamReadLong;
+import static org.apache.activemq.artemis.reader.StreamMessageUtil.streamReadObject;
+import static org.apache.activemq.artemis.reader.StreamMessageUtil.streamReadShort;
+import static org.apache.activemq.artemis.reader.StreamMessageUtil.streamReadString;
 
 /**
  * ActiveMQ implementation of a JMS StreamMessage.

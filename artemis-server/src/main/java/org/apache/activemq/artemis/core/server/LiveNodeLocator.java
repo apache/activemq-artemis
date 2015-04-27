@@ -14,14 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.server;
+package org.apache.activemq.artemis.core.server;
 
-import org.apache.activemq.api.core.ActiveMQException;
-import org.apache.activemq.api.core.Pair;
-import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.core.client.ClusterTopologyListener;
-import org.apache.activemq.core.client.impl.ServerLocatorInternal;
-import org.apache.activemq.core.server.cluster.qourum.SharedNothingBackupQuorum;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.Pair;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.client.ClusterTopologyListener;
+import org.apache.activemq.artemis.core.client.impl.ServerLocatorInternal;
+import org.apache.activemq.artemis.core.server.cluster.qourum.SharedNothingBackupQuorum;
 
 /**
  * A class that will locate a particular live server running in a cluster. How this live is chosen

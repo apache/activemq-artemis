@@ -14,15 +14,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.persistence;
+package org.apache.activemq.artemis.tests.integration.persistence;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.List;
 
-import org.apache.activemq.jms.persistence.config.PersistedDestination;
-import org.apache.activemq.jms.persistence.config.PersistedBindings;
-import org.apache.activemq.jms.persistence.config.PersistedType;
+import org.apache.activemq.artemis.jms.persistence.config.PersistedDestination;
+import org.apache.activemq.artemis.jms.persistence.config.PersistedBindings;
+import org.apache.activemq.artemis.jms.persistence.config.PersistedType;
 
 public class JMSStorageManagerTest extends StorageManagerTestBase
 {
@@ -41,15 +42,15 @@ public class JMSStorageManagerTest extends StorageManagerTestBase
 
       List<PersistedBindings> jndiList = jmsJournal.recoverPersistedBindings();
 
-      assertEquals(1, destinations.size());
+      Assert.assertEquals(1, destinations.size());
 
-      assertEquals(1, jndiList.size());
+      Assert.assertEquals(1, jndiList.size());
 
       jmsJournal.deleteDestination(PersistedType.Queue, "jndiPersistQueue");
 
       destinations = jmsJournal.recoverDestinations();
 
-      assertEquals(0, destinations.size());
+      Assert.assertEquals(0, destinations.size());
 
       jmsJournal.stop();
 
@@ -57,19 +58,19 @@ public class JMSStorageManagerTest extends StorageManagerTestBase
 
       destinations = jmsJournal.recoverDestinations();
 
-      assertEquals(0, destinations.size());
+      Assert.assertEquals(0, destinations.size());
 
       jndiList = jmsJournal.recoverPersistedBindings();
 
-      assertEquals(1, jndiList.size());
+      Assert.assertEquals(1, jndiList.size());
 
       PersistedBindings jndi = jndiList.get(0);
 
       List<String> jndis = jndi.getBindings();
 
-      assertEquals(1, jndis.size());
+      Assert.assertEquals(1, jndis.size());
 
-      assertEquals("jndi-1", jndis.get(0));
+      Assert.assertEquals("jndi-1", jndis.get(0));
 
    }
 

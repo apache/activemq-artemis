@@ -14,16 +14,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.spi.core.protocol;
+package org.apache.activemq.artemis.spi.core.protocol;
 
 import java.util.List;
 
 import io.netty.channel.ChannelPipeline;
-import org.apache.activemq.api.core.ActiveMQBuffer;
-import org.apache.activemq.api.core.BaseInterceptor;
-import org.apache.activemq.core.remoting.impl.netty.NettyServerConnection;
-import org.apache.activemq.spi.core.remoting.Acceptor;
-import org.apache.activemq.spi.core.remoting.Connection;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.BaseInterceptor;
+import org.apache.activemq.artemis.core.remoting.impl.netty.NettyServerConnection;
+import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
+import org.apache.activemq.artemis.spi.core.remoting.Connection;
 
 public interface ProtocolManager<P extends BaseInterceptor>
 {

@@ -14,12 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.protocol.core.impl.wireformat;
+package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
-import org.apache.activemq.api.core.ActiveMQBuffer;
-import org.apache.activemq.core.message.impl.MessageInternal;
-import org.apache.activemq.spi.core.protocol.RemotingConnection;
-import org.apache.activemq.utils.DataConstants;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.core.message.impl.MessageInternal;
+import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.artemis.utils.DataConstants;
 
 public class SessionReceiveMessage extends MessagePacket
 {

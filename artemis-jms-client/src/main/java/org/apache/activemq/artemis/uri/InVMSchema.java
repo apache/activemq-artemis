@@ -14,12 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.uri;
+package org.apache.activemq.artemis.uri;
 
-import org.apache.activemq.api.jms.ActiveMQJMSClient;
-import org.apache.activemq.jms.client.ActiveMQConnectionFactory;
-import org.apache.activemq.utils.uri.SchemaConstants;
-import org.apache.activemq.utils.uri.URISchema;
+import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.utils.uri.SchemaConstants;
 
 import java.net.URI;
 import java.util.Map;
@@ -38,8 +37,8 @@ public class InVMSchema extends AbstractCFSchema
       JMSConnectionOptions options = newConectionOptions(uri, query);
       ActiveMQConnectionFactory factory =
             ActiveMQJMSClient.createConnectionFactoryWithoutHA(options.getFactoryTypeEnum(),
-                                                               InVMTransportConfigurationSchema.createTransportConfiguration(uri, name, "org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory"));
-      return URISchema.setData(uri, factory, query);
+                                                               InVMTransportConfigurationSchema.createTransportConfiguration(uri, name, "org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory"));
+      return setData(uri, factory, query);
    }
 
    @Override

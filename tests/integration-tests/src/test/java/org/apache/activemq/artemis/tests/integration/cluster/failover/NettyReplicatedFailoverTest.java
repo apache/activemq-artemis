@@ -14,12 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.cluster.failover;
+package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
-import org.apache.activemq.api.core.client.ClientSession;
-import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.tests.integration.cluster.util.SameProcessActiveMQServer;
-import org.apache.activemq.tests.integration.cluster.util.TestableServer;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.tests.integration.cluster.util.SameProcessActiveMQServer;
+import org.apache.activemq.artemis.tests.integration.cluster.util.TestableServer;
 
 public class NettyReplicatedFailoverTest extends NettyFailoverTest
 {

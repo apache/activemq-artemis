@@ -14,12 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.component;
+package org.apache.activemq.artemis.component;
 
-import org.apache.activemq.components.ExternalComponent;
-import org.apache.activemq.dto.AppDTO;
-import org.apache.activemq.dto.ComponentDTO;
-import org.apache.activemq.dto.WebServerDTO;
+import org.apache.activemq.artemis.components.ExternalComponent;
+import org.apache.activemq.artemis.dto.AppDTO;
+import org.apache.activemq.artemis.dto.ComponentDTO;
+import org.apache.activemq.artemis.dto.WebServerDTO;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.DefaultHandler;

@@ -14,9 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.api.core;
-
-import static org.apache.activemq.api.core.ActiveMQExceptionType.INVALID_TRANSIENT_QUEUE_USE;
+package org.apache.activemq.artemis.api.core;
 
 /**
  * An operation failed because a queue exists on the server.
@@ -27,11 +25,11 @@ public final class ActiveMQInvalidTransientQueueUseException extends ActiveMQExc
 
    public ActiveMQInvalidTransientQueueUseException()
    {
-      super(INVALID_TRANSIENT_QUEUE_USE);
+      super(ActiveMQExceptionType.INVALID_TRANSIENT_QUEUE_USE);
    }
 
    public ActiveMQInvalidTransientQueueUseException(String msg)
    {
-      super(INVALID_TRANSIENT_QUEUE_USE, msg);
+      super(ActiveMQExceptionType.INVALID_TRANSIENT_QUEUE_USE, msg);
    }
 }

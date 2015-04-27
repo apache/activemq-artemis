@@ -15,9 +15,9 @@
  * limitations under the License.
  */
 
-package org.apache.activemq.api.core;
+package org.apache.activemq.artemis.api.core;
 
-import org.apache.activemq.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 
 public interface BaseInterceptor<P>
 {

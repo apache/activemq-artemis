@@ -14,12 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.client;
+package org.apache.activemq.artemis.tests.integration.client;
 
 import org.junit.Test;
 
-import org.apache.activemq.core.asyncio.impl.AsynchronousFileImpl;
-import org.apache.activemq.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.core.asyncio.impl.AsynchronousFileImpl;
+import org.apache.activemq.artemis.tests.util.UnitTestCase;
 
 /**
  * This tests is placed in duplication here to validate that the libaio module is properly loaded on this

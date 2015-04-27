@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.server.cluster;
+package org.apache.activemq.artemis.core.server.cluster;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -23,39 +23,39 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq.api.core.ActiveMQException;
-import org.apache.activemq.api.core.DiscoveryGroupConfiguration;
-import org.apache.activemq.api.core.Interceptor;
-import org.apache.activemq.api.core.Pair;
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.core.client.ClusterTopologyListener;
-import org.apache.activemq.api.core.client.ActiveMQClient;
-import org.apache.activemq.api.core.client.ServerLocator;
-import org.apache.activemq.core.client.impl.ClientSessionFactoryInternal;
-import org.apache.activemq.core.client.impl.ServerLocatorImpl;
-import org.apache.activemq.core.client.impl.ServerLocatorInternal;
-import org.apache.activemq.core.client.impl.Topology;
-import org.apache.activemq.core.config.ClusterConnectionConfiguration;
-import org.apache.activemq.core.protocol.core.Channel;
-import org.apache.activemq.core.protocol.core.ChannelHandler;
-import org.apache.activemq.core.protocol.core.CoreRemotingConnection;
-import org.apache.activemq.core.protocol.core.Packet;
-import org.apache.activemq.core.protocol.core.impl.PacketImpl;
-import org.apache.activemq.core.protocol.core.impl.wireformat.ClusterConnectMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.ClusterConnectReplyMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.NodeAnnounceMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.QuorumVoteMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.QuorumVoteReplyMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.ScaleDownAnnounceMessage;
-import org.apache.activemq.core.server.ActiveMQComponent;
-import org.apache.activemq.core.server.ActiveMQServer;
-import org.apache.activemq.core.server.ActiveMQServerLogger;
-import org.apache.activemq.core.server.cluster.qourum.QuorumManager;
-import org.apache.activemq.core.server.cluster.qourum.QuorumVoteHandler;
-import org.apache.activemq.core.server.cluster.qourum.Vote;
-import org.apache.activemq.core.server.impl.Activation;
-import org.apache.activemq.spi.core.remoting.Acceptor;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
+import org.apache.activemq.artemis.api.core.Interceptor;
+import org.apache.activemq.artemis.api.core.Pair;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.client.ClusterTopologyListener;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
+import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal;
+import org.apache.activemq.artemis.core.client.impl.ServerLocatorImpl;
+import org.apache.activemq.artemis.core.client.impl.ServerLocatorInternal;
+import org.apache.activemq.artemis.core.client.impl.Topology;
+import org.apache.activemq.artemis.core.config.ClusterConnectionConfiguration;
+import org.apache.activemq.artemis.core.protocol.core.Channel;
+import org.apache.activemq.artemis.core.protocol.core.ChannelHandler;
+import org.apache.activemq.artemis.core.protocol.core.CoreRemotingConnection;
+import org.apache.activemq.artemis.core.protocol.core.Packet;
+import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ClusterConnectMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ClusterConnectReplyMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.NodeAnnounceMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.QuorumVoteMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.QuorumVoteReplyMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ScaleDownAnnounceMessage;
+import org.apache.activemq.artemis.core.server.ActiveMQComponent;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.apache.activemq.artemis.core.server.cluster.qourum.QuorumManager;
+import org.apache.activemq.artemis.core.server.cluster.qourum.QuorumVoteHandler;
+import org.apache.activemq.artemis.core.server.cluster.qourum.Vote;
+import org.apache.activemq.artemis.core.server.impl.Activation;
+import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
 
 /**
  * used for creating and managing cluster control connections for each cluster connection and the replication connection

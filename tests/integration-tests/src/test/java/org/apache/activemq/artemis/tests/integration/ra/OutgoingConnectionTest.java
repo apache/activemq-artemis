@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.ra;
+package org.apache.activemq.artemis.tests.integration.ra;
 
 import javax.jms.Connection;
 import javax.jms.JMSContext;
@@ -38,21 +38,21 @@ import javax.transaction.xa.Xid;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.activemq.api.jms.ActiveMQJMSClient;
-import org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory;
-import org.apache.activemq.core.security.Role;
-import org.apache.activemq.core.transaction.impl.XidImpl;
-import org.apache.activemq.ra.ActiveMQRAConnectionFactory;
-import org.apache.activemq.ra.ActiveMQRAConnectionFactoryImpl;
-import org.apache.activemq.ra.ActiveMQRAConnectionManager;
-import org.apache.activemq.ra.ActiveMQRAManagedConnectionFactory;
-import org.apache.activemq.ra.ActiveMQRASession;
-import org.apache.activemq.ra.ActiveMQResourceAdapter;
-import org.apache.activemq.service.extensions.xa.ActiveMQXAResourceWrapper;
-import org.apache.activemq.service.extensions.xa.ActiveMQXAResourceWrapperImpl;
-import org.apache.activemq.spi.core.security.ActiveMQSecurityManagerImpl;
-import org.apache.activemq.utils.UUIDGenerator;
-import org.apache.activemq.utils.VersionLoader;
+import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
+import org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory;
+import org.apache.activemq.artemis.core.security.Role;
+import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
+import org.apache.activemq.artemis.ra.ActiveMQRAConnectionFactory;
+import org.apache.activemq.artemis.ra.ActiveMQRAConnectionFactoryImpl;
+import org.apache.activemq.artemis.ra.ActiveMQRAConnectionManager;
+import org.apache.activemq.artemis.ra.ActiveMQRAManagedConnectionFactory;
+import org.apache.activemq.artemis.ra.ActiveMQRASession;
+import org.apache.activemq.artemis.ra.ActiveMQResourceAdapter;
+import org.apache.activemq.artemis.service.extensions.xa.ActiveMQXAResourceWrapper;
+import org.apache.activemq.artemis.service.extensions.xa.ActiveMQXAResourceWrapperImpl;
+import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManagerImpl;
+import org.apache.activemq.artemis.utils.UUIDGenerator;
+import org.apache.activemq.artemis.utils.VersionLoader;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

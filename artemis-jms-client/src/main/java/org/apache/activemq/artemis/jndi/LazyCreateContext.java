@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.jndi;
+package org.apache.activemq.artemis.jndi;
 
 import javax.naming.NameNotFoundException;
 import javax.naming.NamingException;

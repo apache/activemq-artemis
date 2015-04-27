@@ -14,27 +14,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.cluster.failover;
+package org.apache.activemq.artemis.tests.integration.cluster.failover;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.core.client.ClientConsumer;
-import org.apache.activemq.api.core.client.ClientMessage;
-import org.apache.activemq.api.core.client.ClientProducer;
-import org.apache.activemq.api.core.client.ClientSession;
-import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.ServerLocator;
-import org.apache.activemq.core.client.impl.ClientSessionFactoryInternal;
-import org.apache.activemq.core.client.impl.ServerLocatorImpl;
-import org.apache.activemq.core.server.ActiveMQServer;
-import org.apache.activemq.jms.client.ActiveMQTextMessage;
-import org.apache.activemq.tests.integration.IntegrationTestLogger;
-import org.apache.activemq.tests.integration.cluster.failover.FailoverTestBase.LatchClusterTopologyListener;
-import org.apache.activemq.tests.integration.cluster.util.TestableServer;
-import org.apache.activemq.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.client.ClientConsumer;
+import org.apache.activemq.artemis.api.core.client.ClientMessage;
+import org.apache.activemq.artemis.api.core.client.ClientProducer;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
+import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
+import org.apache.activemq.artemis.tests.integration.cluster.util.TestableServer;
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal;
+import org.apache.activemq.artemis.core.client.impl.ServerLocatorImpl;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
 import org.junit.Assert;
 
 public abstract class MultipleBackupsFailoverTestBase extends ServiceTestBase
@@ -86,7 +85,7 @@ public abstract class MultipleBackupsFailoverTestBase extends ServiceTestBase
          }
          if (System.currentTimeMillis() > (time + toWait))
          {
-            fail("backup server never started");
+            Assert.fail("backup server never started");
          }
       }
    }
@@ -124,7 +123,7 @@ public abstract class MultipleBackupsFailoverTestBase extends ServiceTestBase
       {
          ClientMessage message2 = consumer.receive(10000);
 
-         assertNotNull(message2);
+         Assert.assertNotNull(message2);
 
          Assert.assertEquals("aardvarks", message2.getBodyBuffer().readString());
 
@@ -153,7 +152,7 @@ public abstract class MultipleBackupsFailoverTestBase extends ServiceTestBase
       ClientSessionFactoryInternal sf;
       CountDownLatch countDownLatch = new CountDownLatch(topologyMembers);
 
-      LatchClusterTopologyListener topListener = new LatchClusterTopologyListener(countDownLatch);
+      FailoverTestBase.LatchClusterTopologyListener topListener = new FailoverTestBase.LatchClusterTopologyListener(countDownLatch);
       locator.addClusterTopologyListener(topListener);
 
       sf = (ClientSessionFactoryInternal)locator.createSessionFactory();
@@ -168,7 +167,7 @@ public abstract class MultipleBackupsFailoverTestBase extends ServiceTestBase
             log.info("failed topology, Topology on server = " + server.getClusterManager().describe());
          }
       }
-      assertTrue("expected " + topologyMembers + " members", ok);
+      Assert.assertTrue("expected " + topologyMembers + " members", ok);
       return sf;
    }
 

@@ -14,15 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.remoting.impl.netty;
+package org.apache.activemq.artemis.core.remoting.impl.netty;
 
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.FutureListener;
 import io.netty.util.concurrent.ImmediateEventExecutor;
 import io.netty.util.concurrent.Promise;
-import org.apache.activemq.core.client.impl.ClientSessionFactoryImpl;
-import org.apache.activemq.utils.ActiveMQThreadFactory;
+import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryImpl;
+import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 
 import java.security.AccessController;
 import java.security.PrivilegedAction;

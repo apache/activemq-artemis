@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.openwire.amq;
+package org.apache.activemq.artemis.tests.integration.openwire.amq;
 
 import javax.jms.DeliveryMode;
 import javax.jms.JMSException;
@@ -30,10 +30,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.command.ActiveMQQueue;
-import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.settings.impl.AddressFullMessagePolicy;
-import org.apache.activemq.core.settings.impl.AddressSettings;
-import org.apache.activemq.tests.integration.openwire.BasicOpenWireTest;
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
+import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.tests.integration.openwire.BasicOpenWireTest;
 import org.apache.activemq.transport.tcp.TcpTransport;
 import org.junit.After;
 import org.junit.Before;

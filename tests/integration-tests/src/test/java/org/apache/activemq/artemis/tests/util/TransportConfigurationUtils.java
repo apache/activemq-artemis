@@ -14,13 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.util;
+package org.apache.activemq.artemis.tests.util;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.core.remoting.impl.invm.TransportConstants;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.core.remoting.impl.invm.TransportConstants;
 
 public final class TransportConfigurationUtils
 {
@@ -103,7 +103,7 @@ public final class TransportConfigurationUtils
       {
          Map<String, Object> serverParams = new HashMap<String, Object>();
          Integer port = live ? 61616 : 5545;
-         serverParams.put(org.apache.activemq.core.remoting.impl.netty.TransportConstants.PORT_PROP_NAME, port);
+         serverParams.put(org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.PORT_PROP_NAME, port);
          return new TransportConfiguration(classname, serverParams);
       }
 
@@ -118,7 +118,7 @@ public final class TransportConfigurationUtils
       {
          Map<String, Object> serverParams = new HashMap<String, Object>();
          Integer port = live ? 61616 : 5545;
-         serverParams.put(org.apache.activemq.core.remoting.impl.netty.TransportConstants.PORT_PROP_NAME, port);
+         serverParams.put(org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.PORT_PROP_NAME, port);
          return new TransportConfiguration(classname, serverParams, name);
       }
 

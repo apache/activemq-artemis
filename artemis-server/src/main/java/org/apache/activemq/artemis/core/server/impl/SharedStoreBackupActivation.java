@@ -14,21 +14,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.server.impl;
+package org.apache.activemq.artemis.core.server.impl;
 
-import org.apache.activemq.api.core.ActiveMQException;
-import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.paging.PagingManager;
-import org.apache.activemq.core.persistence.StorageManager;
-import org.apache.activemq.core.postoffice.PostOffice;
-import org.apache.activemq.core.server.ActiveMQServer;
-import org.apache.activemq.core.server.ActiveMQServerLogger;
-import org.apache.activemq.core.server.NodeManager;
-import org.apache.activemq.core.server.QueueFactory;
-import org.apache.activemq.core.server.cluster.ha.ScaleDownPolicy;
-import org.apache.activemq.core.server.cluster.ha.SharedStoreSlavePolicy;
-import org.apache.activemq.core.server.group.GroupingHandler;
-import org.apache.activemq.core.server.management.ManagementService;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.paging.PagingManager;
+import org.apache.activemq.artemis.core.persistence.StorageManager;
+import org.apache.activemq.artemis.core.postoffice.PostOffice;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.apache.activemq.artemis.core.server.NodeManager;
+import org.apache.activemq.artemis.core.server.QueueFactory;
+import org.apache.activemq.artemis.core.server.cluster.ha.ScaleDownPolicy;
+import org.apache.activemq.artemis.core.server.cluster.ha.SharedStoreSlavePolicy;
+import org.apache.activemq.artemis.core.server.group.GroupingHandler;
+import org.apache.activemq.artemis.core.server.management.ManagementService;
 
 import java.nio.channels.ClosedChannelException;
 import java.util.concurrent.TimeUnit;

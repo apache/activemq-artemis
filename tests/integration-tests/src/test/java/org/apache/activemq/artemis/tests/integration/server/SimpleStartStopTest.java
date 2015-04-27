@@ -15,15 +15,15 @@
  * limitations under the License.
  */
 
-package org.apache.activemq.tests.integration.server;
+package org.apache.activemq.artemis.tests.integration.server;
 
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq.core.persistence.impl.journal.JournalRecordIds;
-import org.apache.activemq.core.server.ActiveMQServer;
-import org.apache.activemq.logs.AssertionLoggerHandler;
-import org.apache.activemq.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
 import org.jboss.logmanager.Level;
 import org.junit.Test;
 

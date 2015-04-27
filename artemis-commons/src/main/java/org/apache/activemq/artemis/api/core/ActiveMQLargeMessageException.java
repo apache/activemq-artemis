@@ -14,9 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.api.core;
-
-import static org.apache.activemq.api.core.ActiveMQExceptionType.LARGE_MESSAGE_ERROR_BODY;
+package org.apache.activemq.artemis.api.core;
 
 /**
  * A problem occurred while manipulating the body of a large message.
@@ -27,11 +25,11 @@ public final class ActiveMQLargeMessageException extends ActiveMQException
 
    public ActiveMQLargeMessageException()
    {
-      super(LARGE_MESSAGE_ERROR_BODY);
+      super(ActiveMQExceptionType.LARGE_MESSAGE_ERROR_BODY);
    }
 
    public ActiveMQLargeMessageException(String msg)
    {
-      super(LARGE_MESSAGE_ERROR_BODY, msg);
+      super(ActiveMQExceptionType.LARGE_MESSAGE_ERROR_BODY, msg);
    }
 }

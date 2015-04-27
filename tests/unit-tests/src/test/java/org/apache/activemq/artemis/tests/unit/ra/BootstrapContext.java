@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.unit.ra;
+package org.apache.activemq.artemis.tests.unit.ra;
 
 import javax.resource.spi.UnavailableException;
 import javax.resource.spi.XATerminator;

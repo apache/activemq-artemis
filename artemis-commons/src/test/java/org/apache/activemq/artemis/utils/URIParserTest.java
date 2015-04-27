@@ -15,10 +15,10 @@
  * limitations under the License.
  */
 
-package org.apache.activemq.utils;
+package org.apache.activemq.artemis.utils;
 
-import org.apache.activemq.utils.uri.URIFactory;
-import org.apache.activemq.utils.uri.URISchema;
+import org.apache.activemq.artemis.utils.uri.URIFactory;
+import org.apache.activemq.artemis.utils.uri.URISchema;
 import org.junit.Assert;
 import org.junit.Test;
 

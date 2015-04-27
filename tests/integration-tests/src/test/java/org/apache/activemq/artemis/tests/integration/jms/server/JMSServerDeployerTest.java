@@ -14,24 +14,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.jms.server;
+package org.apache.activemq.artemis.tests.integration.jms.server;
 
 import javax.jms.Queue;
 import javax.jms.Topic;
 import javax.naming.Context;
 
-import org.apache.activemq.api.core.DiscoveryGroupConfiguration;
-import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.core.UDPBroadcastEndpointFactory;
-import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.registry.JndiBindingRegistry;
-import org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory;
-import org.apache.activemq.core.server.ActiveMQServer;
-import org.apache.activemq.jms.server.JMSServerManager;
-import org.apache.activemq.jms.server.impl.JMSServerManagerImpl;
-import org.apache.activemq.tests.integration.IntegrationTestLogger;
-import org.apache.activemq.tests.unit.util.InVMNamingContext;
-import org.apache.activemq.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory;
+import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
+import org.apache.activemq.artemis.tests.unit.util.InVMNamingContext;
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.registry.JndiBindingRegistry;
+import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.jms.server.JMSServerManager;
+import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;

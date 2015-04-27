@@ -14,15 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.integration;
+package org.apache.activemq.artemis.integration;
 
-import org.apache.activemq.core.config.FileDeploymentManager;
-import org.apache.activemq.core.config.impl.FileConfiguration;
-import org.apache.activemq.core.server.ActiveMQComponent;
-import org.apache.activemq.dto.ServerDTO;
-import org.apache.activemq.integration.bootstrap.ActiveMQBootstrapLogger;
-import org.apache.activemq.jms.server.config.impl.FileJMSConfiguration;
-import org.apache.activemq.spi.core.security.ActiveMQSecurityManager;
+import org.apache.activemq.artemis.core.config.FileDeploymentManager;
+import org.apache.activemq.artemis.core.config.impl.FileConfiguration;
+import org.apache.activemq.artemis.core.server.ActiveMQComponent;
+import org.apache.activemq.artemis.dto.ServerDTO;
+import org.apache.activemq.artemis.integration.bootstrap.ActiveMQBootstrapLogger;
+import org.apache.activemq.artemis.jms.server.config.impl.FileJMSConfiguration;
+import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
 
 import java.lang.management.ManagementFactory;
 import java.util.ArrayList;

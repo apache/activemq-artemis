@@ -14,15 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.protocol.openwire;
+package org.apache.activemq.artemis.core.protocol.openwire;
 
 import java.io.DataInput;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import org.apache.activemq.api.core.ActiveMQBuffer;
-import org.apache.activemq.utils.UTF8Util;
-import org.apache.activemq.utils.UTF8Util.StringUtilBuffer;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.utils.UTF8Util;
+import org.apache.activemq.artemis.utils.UTF8Util.StringUtilBuffer;
 
 public class DataInputWrapper implements DataInput
 {

@@ -14,14 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.protocol.openwire.amq;
+package org.apache.activemq.artemis.core.protocol.openwire.amq;
 
 import javax.transaction.xa.Xid;
 
-import org.apache.activemq.core.persistence.StorageManager;
-import org.apache.activemq.core.protocol.openwire.AMQTransactionImpl;
-import org.apache.activemq.core.transaction.Transaction;
-import org.apache.activemq.core.transaction.TransactionFactory;
+import org.apache.activemq.artemis.core.persistence.StorageManager;
+import org.apache.activemq.artemis.core.protocol.openwire.AMQTransactionImpl;
+import org.apache.activemq.artemis.core.transaction.Transaction;
+import org.apache.activemq.artemis.core.transaction.TransactionFactory;
 
 public class AMQTransactionFactory implements TransactionFactory
 {

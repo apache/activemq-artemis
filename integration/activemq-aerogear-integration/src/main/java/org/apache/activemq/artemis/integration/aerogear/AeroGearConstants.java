@@ -14,9 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.integration.aerogear;
+package org.apache.activemq.artemis.integration.aerogear;
 
-import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.SimpleString;
 
 import java.util.HashSet;
 import java.util.Set;

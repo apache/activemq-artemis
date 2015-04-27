@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.ra;
+package org.apache.activemq.artemis.ra;
 
 import javax.jms.ConnectionMetaData;
 import javax.resource.ResourceException;
@@ -29,8 +29,8 @@ import java.io.PrintWriter;
 import java.util.Iterator;
 import java.util.Set;
 
-import org.apache.activemq.jms.client.ActiveMQConnectionFactory;
-import org.apache.activemq.service.extensions.xa.recovery.XARecoveryConfig;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.service.extensions.xa.recovery.XARecoveryConfig;
 
 /**
  * ActiveMQ ManagedConnectionFactory

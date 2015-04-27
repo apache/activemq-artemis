@@ -14,17 +14,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.server.impl;
+package org.apache.activemq.artemis.core.server.impl;
 
 import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadMXBean;
 import java.util.Date;
 
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.core.paging.PagingManager;
-import org.apache.activemq.core.paging.PagingStore;
-import org.apache.activemq.core.server.ActiveMQServer;
-import org.apache.activemq.utils.SizeFormatterUtil;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.paging.PagingManager;
+import org.apache.activemq.artemis.core.paging.PagingStore;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.utils.SizeFormatterUtil;
 
 public class ServerInfo
 {

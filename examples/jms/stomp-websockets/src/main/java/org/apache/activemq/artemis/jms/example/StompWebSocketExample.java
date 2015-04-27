@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.jms.example;
+package org.apache.activemq.artemis.jms.example;
 
 import java.util.Date;
 
@@ -27,7 +27,7 @@ import javax.jms.TextMessage;
 import javax.jms.Topic;
 import javax.naming.InitialContext;
 
-import org.apache.activemq.common.example.ActiveMQExample;
+import org.apache.activemq.artemis.common.example.ActiveMQExample;
 
 /**
  * An example where a client will send a JMS message to a Topic.

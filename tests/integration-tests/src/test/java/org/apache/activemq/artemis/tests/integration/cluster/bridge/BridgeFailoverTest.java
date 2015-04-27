@@ -14,22 +14,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.cluster.bridge;
+package org.apache.activemq.artemis.tests.integration.cluster.bridge;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.activemq.api.core.client.ClientConsumer;
-import org.apache.activemq.api.core.client.ClientMessage;
-import org.apache.activemq.api.core.client.ClientProducer;
-import org.apache.activemq.api.core.client.ClientSession;
-import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.ServerLocator;
-import org.apache.activemq.core.config.BridgeConfiguration;
-import org.apache.activemq.core.config.CoreQueueConfiguration;
-import org.apache.activemq.core.server.ActiveMQServer;
-import org.apache.activemq.core.server.cluster.impl.BridgeImpl;
-import org.apache.activemq.tests.integration.cluster.util.MultiServerTestBase;
+import org.apache.activemq.artemis.api.core.client.ClientConsumer;
+import org.apache.activemq.artemis.api.core.client.ClientMessage;
+import org.apache.activemq.artemis.api.core.client.ClientProducer;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
+import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.core.config.BridgeConfiguration;
+import org.apache.activemq.artemis.core.config.CoreQueueConfiguration;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.cluster.impl.BridgeImpl;
+import org.apache.activemq.artemis.tests.integration.cluster.util.MultiServerTestBase;
 import org.junit.Test;
 
 public class BridgeFailoverTest extends MultiServerTestBase

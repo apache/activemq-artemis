@@ -14,13 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.utils;
+package org.apache.activemq.artemis.utils;
 
 import java.lang.ref.SoftReference;
 
-import org.apache.activemq.api.core.ActiveMQBuffer;
-import org.apache.activemq.logs.ActiveMQUtilBundle;
-import org.apache.activemq.logs.ActiveMQUtilLogger;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.logs.ActiveMQUtilBundle;
+import org.apache.activemq.artemis.logs.ActiveMQUtilLogger;
 
 /**
  * A UTF8Util

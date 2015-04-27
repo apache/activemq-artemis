@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.asyncio;
+package org.apache.activemq.artemis.core.asyncio;
 
 /**
  * The interface used for AIO Callbacks.

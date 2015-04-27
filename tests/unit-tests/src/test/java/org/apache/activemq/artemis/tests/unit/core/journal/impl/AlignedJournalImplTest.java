@@ -14,7 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.unit.core.journal.impl;
+package org.apache.activemq.artemis.tests.unit.core.journal.impl;
+import org.apache.activemq.artemis.tests.unit.core.journal.impl.fakes.FakeSequentialFileFactory;
+import org.apache.activemq.artemis.tests.util.UnitTestCase;
 import org.junit.Before;
 import org.junit.After;
 
@@ -31,18 +33,16 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.Assert;
 
-import org.apache.activemq.core.journal.EncodingSupport;
-import org.apache.activemq.core.journal.LoaderCallback;
-import org.apache.activemq.core.journal.PreparedTransactionInfo;
-import org.apache.activemq.core.journal.RecordInfo;
-import org.apache.activemq.core.journal.SequentialFile;
-import org.apache.activemq.core.journal.SequentialFileFactory;
-import org.apache.activemq.core.journal.TransactionFailureCallback;
-import org.apache.activemq.core.journal.impl.JournalImpl;
-import org.apache.activemq.tests.unit.UnitTestLogger;
-import org.apache.activemq.tests.unit.core.journal.impl.fakes.FakeSequentialFileFactory;
-import org.apache.activemq.tests.unit.core.journal.impl.fakes.SimpleEncoding;
-import org.apache.activemq.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.core.journal.EncodingSupport;
+import org.apache.activemq.artemis.core.journal.LoaderCallback;
+import org.apache.activemq.artemis.core.journal.PreparedTransactionInfo;
+import org.apache.activemq.artemis.core.journal.RecordInfo;
+import org.apache.activemq.artemis.core.journal.SequentialFile;
+import org.apache.activemq.artemis.core.journal.SequentialFileFactory;
+import org.apache.activemq.artemis.core.journal.TransactionFailureCallback;
+import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
+import org.apache.activemq.artemis.tests.unit.UnitTestLogger;
+import org.apache.activemq.artemis.tests.unit.core.journal.impl.fakes.SimpleEncoding;
 
 public class AlignedJournalImplTest extends UnitTestCase
 {

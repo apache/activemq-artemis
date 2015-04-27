@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.stomp;
+package org.apache.activemq.artemis.tests.integration.stomp;
 
 import javax.jms.BytesMessage;
 import javax.jms.DeliveryMode;
@@ -30,12 +30,12 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.api.core.management.ResourceNames;
-import org.apache.activemq.api.jms.ActiveMQJMSClient;
-import org.apache.activemq.core.protocol.stomp.Stomp;
-import org.apache.activemq.tests.integration.IntegrationTestLogger;
-import org.apache.activemq.tests.util.RandomUtil;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.management.ResourceNames;
+import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
+import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
+import org.apache.activemq.artemis.core.protocol.stomp.Stomp;
+import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.junit.Assert;
 import org.junit.Test;
 

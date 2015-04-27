@@ -20,16 +20,16 @@
 
    <parent>
       <groupId>org.apache.activemq</groupId>
-      <artifactId>activemq-pom</artifactId>
-      <version>10.0.0-SNAPSHOT</version>
+      <artifactId>artemis-pom</artifactId>
+      <version>1.0.0-SNAPSHOT</version>
    </parent>
 
-   <artifactId>activemq-native</artifactId>
+   <artifactId>artemis-native</artifactId>
    <packaging>${native-package-type}</packaging>
    <dependencies>
       <dependency>
          <groupId>org.apache.activemq</groupId>
-         <artifactId>activemq-commons</artifactId>
+         <artifactId>artemis-commons</artifactId>
          <version>${project.version}</version>
       </dependency>
    </dependencies>
@@ -123,7 +123,7 @@
                      <libraries>
                         <library>
                            <type>jni</type>
-                           <narSystemPackage>org.apache.activemq.core.libaio</narSystemPackage>
+                           <narSystemPackage>org.apache.activemq.artemis.core.libaio</narSystemPackage>
                         </library>
                      </libraries>
                   </configuration>

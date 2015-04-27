@@ -14,19 +14,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.jms.server.embedded;
+package org.apache.activemq.artemis.jms.server.embedded;
 
 import javax.naming.Context;
 
-import org.apache.activemq.core.config.FileDeploymentManager;
-import org.apache.activemq.core.registry.JndiBindingRegistry;
-import org.apache.activemq.core.registry.MapBindingRegistry;
-import org.apache.activemq.core.server.embedded.EmbeddedActiveMQ;
-import org.apache.activemq.jms.server.JMSServerManager;
-import org.apache.activemq.jms.server.config.JMSConfiguration;
-import org.apache.activemq.jms.server.config.impl.FileJMSConfiguration;
-import org.apache.activemq.jms.server.impl.JMSServerManagerImpl;
-import org.apache.activemq.spi.core.naming.BindingRegistry;
+import org.apache.activemq.artemis.core.config.FileDeploymentManager;
+import org.apache.activemq.artemis.core.registry.JndiBindingRegistry;
+import org.apache.activemq.artemis.core.registry.MapBindingRegistry;
+import org.apache.activemq.artemis.core.server.embedded.EmbeddedActiveMQ;
+import org.apache.activemq.artemis.jms.server.JMSServerManager;
+import org.apache.activemq.artemis.jms.server.config.JMSConfiguration;
+import org.apache.activemq.artemis.jms.server.config.impl.FileJMSConfiguration;
+import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
+import org.apache.activemq.artemis.spi.core.naming.BindingRegistry;
 
 /**
  * Simple bootstrap class that parses activemq config files (server and jms and security) and starts

@@ -14,19 +14,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.spi.core.protocol;
+package org.apache.activemq.artemis.spi.core.protocol;
 
 import java.util.List;
 
-import org.apache.activemq.api.core.BaseInterceptor;
-import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.api.core.BaseInterceptor;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
 
 public interface ProtocolManagerFactory<P extends BaseInterceptor>
 {
    /**
     * When you create the ProtocolManager, you should filter out any interceptors that won't belong
     * to this Protocol.
-    * For example don't send any core Interceptors {@link org.apache.activemq.api.core.Interceptor} to Stomp * * *
+    * For example don't send any core Interceptors {@link org.apache.activemq.artemis.api.core.Interceptor} to Stomp * * *
     * @param server
     * @param incomingInterceptors
     * @param outgoingInterceptors

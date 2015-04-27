@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.openwire.amq;
+package org.apache.activemq.artemis.tests.integration.openwire.amq;
 
 import javax.jms.DeliveryMode;
 import javax.jms.JMSException;

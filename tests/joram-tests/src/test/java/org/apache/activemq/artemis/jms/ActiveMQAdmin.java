@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.jms;
+package org.apache.activemq.artemis.jms;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -24,18 +24,18 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.Hashtable;
 
-import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
-import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.core.client.ClientMessage;
-import org.apache.activemq.api.core.client.ClientRequestor;
-import org.apache.activemq.api.core.client.ClientSession;
-import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.ActiveMQClient;
-import org.apache.activemq.api.core.client.ServerLocator;
-import org.apache.activemq.api.core.management.ManagementHelper;
-import org.apache.activemq.api.core.management.ResourceNames;
-import org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory;
-import org.apache.activemq.tests.util.SpawnedVMSupport;
+import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.client.ClientMessage;
+import org.apache.activemq.artemis.api.core.client.ClientRequestor;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
+import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.api.core.management.ManagementHelper;
+import org.apache.activemq.artemis.api.core.management.ResourceNames;
+import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory;
+import org.apache.activemq.artemis.tests.util.SpawnedVMSupport;
 import org.junit.Assert;
 import org.objectweb.jtests.jms.admin.Admin;
 
@@ -61,7 +61,7 @@ public class ActiveMQAdmin implements Admin
     * @see https://github.com/activemq/activemq-version-tests
     */
    private final boolean serverLifeCycleActive;
-   private static final String SERVER_LIVE_CYCLE_PROPERTY = "org.apache.activemq.jms.ActiveMQAdmin.serverLifeCycle";
+   private static final String SERVER_LIVE_CYCLE_PROPERTY = "org.apache.activemq.artemis.jms.ActiveMQAdmin.serverLifeCycle";
 
    public ActiveMQAdmin()
    {
@@ -69,7 +69,7 @@ public class ActiveMQAdmin implements Admin
       try
       {
          Hashtable<String, String> env = new Hashtable<String, String>();
-         env.put("java.naming.factory.initial", "org.apache.activemq.jndi.ActiveMQInitialContextFactory");
+         env.put("java.naming.factory.initial", "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
          env.put("java.naming.provider.url", "tcp://localhost:61616");
          context = new InitialContext(env);
       }

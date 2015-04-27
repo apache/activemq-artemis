@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.protocol.core.impl;
+package org.apache.activemq.artemis.core.protocol.core.impl;
 
 import java.util.HashSet;
 import java.util.List;
@@ -23,21 +23,21 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 
-import org.apache.activemq.api.core.ActiveMQBuffer;
-import org.apache.activemq.api.core.ActiveMQException;
-import org.apache.activemq.api.core.Interceptor;
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.core.client.ActiveMQClientLogger;
-import org.apache.activemq.core.protocol.core.Channel;
-import org.apache.activemq.core.protocol.core.CoreRemotingConnection;
-import org.apache.activemq.core.protocol.core.Packet;
-import org.apache.activemq.core.protocol.core.impl.ChannelImpl.CHANNEL_ID;
-import org.apache.activemq.core.protocol.core.impl.wireformat.DisconnectMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.DisconnectMessage_V2;
-import org.apache.activemq.core.security.ActiveMQPrincipal;
-import org.apache.activemq.spi.core.protocol.AbstractRemotingConnection;
-import org.apache.activemq.spi.core.remoting.Connection;
-import org.apache.activemq.utils.SimpleIDGenerator;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.Interceptor;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
+import org.apache.activemq.artemis.core.protocol.core.Channel;
+import org.apache.activemq.artemis.core.protocol.core.CoreRemotingConnection;
+import org.apache.activemq.artemis.core.protocol.core.Packet;
+import org.apache.activemq.artemis.core.protocol.core.impl.ChannelImpl.CHANNEL_ID;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.DisconnectMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.DisconnectMessage_V2;
+import org.apache.activemq.artemis.core.security.ActiveMQPrincipal;
+import org.apache.activemq.artemis.spi.core.protocol.AbstractRemotingConnection;
+import org.apache.activemq.artemis.spi.core.remoting.Connection;
+import org.apache.activemq.artemis.utils.SimpleIDGenerator;
 
 public class RemotingConnectionImpl extends AbstractRemotingConnection implements CoreRemotingConnection
 {

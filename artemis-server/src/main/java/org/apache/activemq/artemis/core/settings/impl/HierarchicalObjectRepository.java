@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.settings.impl;
+package org.apache.activemq.artemis.core.settings.impl;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -30,10 +30,10 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import org.apache.activemq.core.server.ActiveMQServerLogger;
-import org.apache.activemq.core.settings.HierarchicalRepository;
-import org.apache.activemq.core.settings.HierarchicalRepositoryChangeListener;
-import org.apache.activemq.core.settings.Mergeable;
+import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
+import org.apache.activemq.artemis.core.settings.HierarchicalRepositoryChangeListener;
+import org.apache.activemq.artemis.core.settings.Mergeable;
 
 /**
  * allows objects to be mapped against a regex pattern and held in order in a list

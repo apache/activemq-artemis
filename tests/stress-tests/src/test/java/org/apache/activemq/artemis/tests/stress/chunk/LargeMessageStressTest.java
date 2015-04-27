@@ -14,11 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.stress.chunk;
+package org.apache.activemq.artemis.tests.stress.chunk;
 
+import org.apache.activemq.artemis.tests.integration.largemessage.LargeMessageTestBase;
 import org.junit.Test;
-
-import org.apache.activemq.tests.integration.largemessage.LargeMessageTestBase;
 
 public class LargeMessageStressTest extends LargeMessageTestBase
 {

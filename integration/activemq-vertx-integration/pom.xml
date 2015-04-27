@@ -20,12 +20,12 @@
 
    <parent>
       <groupId>org.apache.activemq</groupId>
-      <artifactId>activemq-pom</artifactId>
-      <version>10.0.0-SNAPSHOT</version>
+      <artifactId>artemis-pom</artifactId>
+      <version>1.0.0-SNAPSHOT</version>
       <relativePath>../../pom.xml</relativePath>
    </parent>
 
-   <artifactId>activemq-vertx-integration</artifactId>
+   <artifactId>artemis-vertx-integration</artifactId>
    <packaging>jar</packaging>
    <name>ActiveMQ Artemis Vert.x Integration</name>
 
@@ -92,7 +92,7 @@
       </dependency>
       <dependency>
          <groupId>org.apache.activemq</groupId>
-         <artifactId>activemq-server</artifactId>
+         <artifactId>artemis-server</artifactId>
          <version>${project.version}</version>
       </dependency>
 

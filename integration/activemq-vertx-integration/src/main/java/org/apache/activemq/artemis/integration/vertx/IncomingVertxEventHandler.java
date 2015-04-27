@@ -14,20 +14,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.integration.vertx;
+package org.apache.activemq.artemis.integration.vertx;
 
 import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
 
-import org.apache.activemq.api.core.ActiveMQBuffer;
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.core.persistence.StorageManager;
-import org.apache.activemq.core.postoffice.Binding;
-import org.apache.activemq.core.postoffice.PostOffice;
-import org.apache.activemq.core.server.ConnectorService;
-import org.apache.activemq.core.server.ServerMessage;
-import org.apache.activemq.core.server.impl.ServerMessageImpl;
-import org.apache.activemq.utils.ConfigurationHelper;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.persistence.StorageManager;
+import org.apache.activemq.artemis.core.postoffice.Binding;
+import org.apache.activemq.artemis.core.postoffice.PostOffice;
+import org.apache.activemq.artemis.core.server.ConnectorService;
+import org.apache.activemq.artemis.core.server.ServerMessage;
+import org.apache.activemq.artemis.core.server.impl.ServerMessageImpl;
+import org.apache.activemq.artemis.utils.ConfigurationHelper;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.buffer.Buffer;
 import org.vertx.java.core.eventbus.EventBus;

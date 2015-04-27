@@ -14,9 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.service.extensions.xa.recovery;
+package org.apache.activemq.artemis.service.extensions.xa.recovery;
 
-import org.apache.activemq.api.core.client.ClientSessionFactory;
+import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.jboss.logging.BasicLogger;
 import org.jboss.logging.Logger;
 import org.jboss.logging.annotations.Cause;

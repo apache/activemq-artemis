@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.paging.cursor.impl;
+package org.apache.activemq.artemis.core.paging.cursor.impl;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -24,22 +24,22 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq.core.filter.Filter;
-import org.apache.activemq.core.paging.PagedMessage;
-import org.apache.activemq.core.paging.PagingStore;
-import org.apache.activemq.core.paging.cursor.PageCache;
-import org.apache.activemq.core.paging.cursor.PageCursorProvider;
-import org.apache.activemq.core.paging.cursor.PagePosition;
-import org.apache.activemq.core.paging.cursor.PageSubscription;
-import org.apache.activemq.core.paging.cursor.PagedReference;
-import org.apache.activemq.core.paging.cursor.PagedReferenceImpl;
-import org.apache.activemq.core.paging.impl.Page;
-import org.apache.activemq.core.persistence.StorageManager;
-import org.apache.activemq.core.server.ActiveMQServerLogger;
-import org.apache.activemq.core.transaction.Transaction;
-import org.apache.activemq.core.transaction.impl.TransactionImpl;
-import org.apache.activemq.utils.FutureLatch;
-import org.apache.activemq.utils.SoftValueHashMap;
+import org.apache.activemq.artemis.core.filter.Filter;
+import org.apache.activemq.artemis.core.paging.PagedMessage;
+import org.apache.activemq.artemis.core.paging.PagingStore;
+import org.apache.activemq.artemis.core.paging.cursor.PageCache;
+import org.apache.activemq.artemis.core.paging.cursor.PageCursorProvider;
+import org.apache.activemq.artemis.core.paging.cursor.PagePosition;
+import org.apache.activemq.artemis.core.paging.cursor.PageSubscription;
+import org.apache.activemq.artemis.core.paging.cursor.PagedReference;
+import org.apache.activemq.artemis.core.paging.cursor.PagedReferenceImpl;
+import org.apache.activemq.artemis.core.paging.impl.Page;
+import org.apache.activemq.artemis.core.persistence.StorageManager;
+import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.apache.activemq.artemis.core.transaction.Transaction;
+import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
+import org.apache.activemq.artemis.utils.FutureLatch;
+import org.apache.activemq.artemis.utils.SoftValueHashMap;
 /**
  * A PageProviderIMpl
  *

@@ -14,14 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.journal.impl;
+package org.apache.activemq.artemis.core.journal.impl;
 
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq.core.journal.SequentialFile;
+import org.apache.activemq.artemis.core.journal.SequentialFile;
 
 public class JournalFileImpl implements JournalFile
 {

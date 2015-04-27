@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.jms.client;
+package org.apache.activemq.artemis.jms.client;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -40,17 +40,17 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.net.URI;
 
-import org.apache.activemq.api.core.DiscoveryGroupConfiguration;
-import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.core.UDPBroadcastEndpointFactory;
-import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.ActiveMQClient;
-import org.apache.activemq.api.core.client.ServerLocator;
-import org.apache.activemq.api.jms.JMSFactoryType;
-import org.apache.activemq.jms.referenceable.ConnectionFactoryObjectFactory;
-import org.apache.activemq.jms.referenceable.SerializableObjectRefAddr;
-import org.apache.activemq.uri.ConnectionFactoryParser;
-import org.apache.activemq.uri.ServerLocatorParser;
+import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory;
+import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
+import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.api.jms.JMSFactoryType;
+import org.apache.activemq.artemis.jms.referenceable.ConnectionFactoryObjectFactory;
+import org.apache.activemq.artemis.jms.referenceable.SerializableObjectRefAddr;
+import org.apache.activemq.artemis.uri.ConnectionFactoryParser;
+import org.apache.activemq.artemis.uri.ServerLocatorParser;
 
 /**
  * ActiveMQ implementation of a JMS ConnectionFactory.

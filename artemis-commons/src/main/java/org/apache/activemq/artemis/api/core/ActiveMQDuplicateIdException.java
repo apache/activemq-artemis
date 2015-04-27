@@ -14,9 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.api.core;
-
-import static org.apache.activemq.api.core.ActiveMQExceptionType.DUPLICATE_ID_REJECTED;
+package org.apache.activemq.artemis.api.core;
 
 /**
  * A DuplicateID was rejected.
@@ -27,11 +25,11 @@ public final class ActiveMQDuplicateIdException extends ActiveMQException
 
    public ActiveMQDuplicateIdException()
    {
-      super(DUPLICATE_ID_REJECTED);
+      super(ActiveMQExceptionType.DUPLICATE_ID_REJECTED);
    }
 
    public ActiveMQDuplicateIdException(String message)
    {
-      super(DUPLICATE_ID_REJECTED, message);
+      super(ActiveMQExceptionType.DUPLICATE_ID_REJECTED, message);
    }
 }

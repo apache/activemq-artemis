@@ -14,20 +14,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.protocol.core.impl.wireformat;
+package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.Set;
 
-import org.apache.activemq.api.core.ActiveMQBuffer;
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.core.persistence.impl.journal.JournalStorageManager.JournalContent;
-import org.apache.activemq.core.protocol.core.impl.PacketImpl;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.persistence.impl.journal.JournalStorageManager.JournalContent;
+import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 
 /**
- * Message is used to sync {@link org.apache.activemq.core.journal.SequentialFile}s to a backup server. The {@link FileType} controls
+ * Message is used to sync {@link org.apache.activemq.artemis.core.journal.SequentialFile}s to a backup server. The {@link FileType} controls
  * which extra information is sent.
  */
 public final class ReplicationSyncFileMessage extends PacketImpl
@@ -38,7 +38,7 @@ public final class ReplicationSyncFileMessage extends PacketImpl
     */
    private JournalContent journalType;
    /**
-    * This value refers to {@link org.apache.activemq.core.journal.impl.JournalFile#getFileID()}, or the
+    * This value refers to {@link org.apache.activemq.artemis.core.journal.impl.JournalFile#getFileID()}, or the
     * message id if we are sync'ing a large-message.
     */
    private long fileId;

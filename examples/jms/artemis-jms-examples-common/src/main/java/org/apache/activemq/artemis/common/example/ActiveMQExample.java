@@ -14,24 +14,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.common.example;
+package org.apache.activemq.artemis.common.example;
+
 import java.io.File;
 import java.util.HashMap;
-import java.util.Properties;
 import java.util.logging.Logger;
 
 import javax.jms.Connection;
 import javax.jms.JMSException;
-import javax.naming.InitialContext;
 
-import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.core.client.ClientSession;
-import org.apache.activemq.api.jms.ActiveMQJMSClient;
-import org.apache.activemq.api.jms.JMSFactoryType;
-import org.apache.activemq.core.client.impl.DelegatingSession;
-import org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory;
-import org.apache.activemq.jms.client.ActiveMQConnection;
-import org.apache.activemq.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
+import org.apache.activemq.artemis.api.jms.JMSFactoryType;
+import org.apache.activemq.artemis.core.client.impl.DelegatingSession;
+import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnection;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 
 /**
  * Base class for ActiveMQ examples.

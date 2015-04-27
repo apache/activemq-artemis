@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.jndi;
+package org.apache.activemq.artemis.jndi;
 
 import java.io.Serializable;
 import java.util.Collections;
@@ -37,7 +37,7 @@ import javax.naming.OperationNotSupportedException;
 import javax.naming.Reference;
 import javax.naming.spi.NamingManager;
 
-import org.apache.activemq.core.client.ActiveMQClientLogger;
+import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
 
 /**
  * A read-only Context <p/> This version assumes it and all its subcontext are

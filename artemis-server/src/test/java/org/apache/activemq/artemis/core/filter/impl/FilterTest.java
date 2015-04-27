@@ -14,16 +14,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.filter.impl;
+package org.apache.activemq.artemis.core.filter.impl;
 
-import org.apache.activemq.api.core.ActiveMQException;
-import org.apache.activemq.api.core.ActiveMQInvalidFilterExpressionException;
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.core.filter.Filter;
-import org.apache.activemq.core.server.ServerMessage;
-import org.apache.activemq.core.server.impl.ServerMessageImpl;
-import org.apache.activemq.tests.util.RandomUtil;
-import org.apache.activemq.tests.util.SilentTestCase;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.ActiveMQInvalidFilterExpressionException;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.filter.Filter;
+import org.apache.activemq.artemis.core.server.ServerMessage;
+import org.apache.activemq.artemis.core.server.impl.ServerMessageImpl;
+import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.tests.util.SilentTestCase;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

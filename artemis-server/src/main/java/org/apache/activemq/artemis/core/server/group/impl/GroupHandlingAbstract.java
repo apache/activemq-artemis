@@ -14,23 +14,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.server.group.impl;
+package org.apache.activemq.artemis.core.server.group.impl;
 
 import java.util.Collections;
 import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.concurrent.Executor;
 
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.api.core.management.CoreNotificationType;
-import org.apache.activemq.api.core.management.ManagementHelper;
-import org.apache.activemq.core.postoffice.BindingType;
-import org.apache.activemq.core.server.ActiveMQServerLogger;
-import org.apache.activemq.core.server.group.GroupingHandler;
-import org.apache.activemq.core.server.group.UnproposalListener;
-import org.apache.activemq.core.server.management.ManagementService;
-import org.apache.activemq.core.server.management.Notification;
-import org.apache.activemq.utils.TypedProperties;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.management.CoreNotificationType;
+import org.apache.activemq.artemis.api.core.management.ManagementHelper;
+import org.apache.activemq.artemis.core.postoffice.BindingType;
+import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.apache.activemq.artemis.core.server.group.GroupingHandler;
+import org.apache.activemq.artemis.core.server.group.UnproposalListener;
+import org.apache.activemq.artemis.core.server.management.ManagementService;
+import org.apache.activemq.artemis.core.server.management.Notification;
+import org.apache.activemq.artemis.utils.TypedProperties;
 
 public abstract class GroupHandlingAbstract implements GroupingHandler
 {

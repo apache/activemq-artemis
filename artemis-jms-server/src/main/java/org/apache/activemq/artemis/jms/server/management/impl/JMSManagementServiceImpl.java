@@ -14,32 +14,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.jms.server.management.impl;
+package org.apache.activemq.artemis.jms.server.management.impl;
 
 import javax.management.ObjectName;
 
-import org.apache.activemq.api.core.management.AddressControl;
-import org.apache.activemq.api.core.management.QueueControl;
-import org.apache.activemq.api.core.management.ResourceNames;
-import org.apache.activemq.api.jms.management.ConnectionFactoryControl;
-import org.apache.activemq.api.jms.management.JMSQueueControl;
-import org.apache.activemq.api.jms.management.JMSServerControl;
-import org.apache.activemq.api.jms.management.TopicControl;
-import org.apache.activemq.core.messagecounter.MessageCounter;
-import org.apache.activemq.core.messagecounter.MessageCounterManager;
-import org.apache.activemq.core.server.ActiveMQServer;
-import org.apache.activemq.core.server.Queue;
-import org.apache.activemq.core.server.management.ManagementService;
-import org.apache.activemq.jms.client.ActiveMQConnectionFactory;
-import org.apache.activemq.jms.client.ActiveMQQueue;
-import org.apache.activemq.jms.client.ActiveMQTopic;
-import org.apache.activemq.jms.management.impl.JMSConnectionFactoryControlImpl;
-import org.apache.activemq.jms.management.impl.JMSQueueControlImpl;
-import org.apache.activemq.jms.management.impl.JMSServerControlImpl;
-import org.apache.activemq.jms.management.impl.JMSTopicControlImpl;
-import org.apache.activemq.jms.server.JMSServerManager;
-import org.apache.activemq.jms.server.config.ConnectionFactoryConfiguration;
-import org.apache.activemq.jms.server.management.JMSManagementService;
+import org.apache.activemq.artemis.api.core.management.AddressControl;
+import org.apache.activemq.artemis.api.core.management.QueueControl;
+import org.apache.activemq.artemis.api.core.management.ResourceNames;
+import org.apache.activemq.artemis.api.jms.management.ConnectionFactoryControl;
+import org.apache.activemq.artemis.api.jms.management.JMSQueueControl;
+import org.apache.activemq.artemis.api.jms.management.JMSServerControl;
+import org.apache.activemq.artemis.api.jms.management.TopicControl;
+import org.apache.activemq.artemis.core.messagecounter.MessageCounter;
+import org.apache.activemq.artemis.core.messagecounter.MessageCounterManager;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.server.management.ManagementService;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.jms.client.ActiveMQQueue;
+import org.apache.activemq.artemis.jms.client.ActiveMQTopic;
+import org.apache.activemq.artemis.jms.management.impl.JMSConnectionFactoryControlImpl;
+import org.apache.activemq.artemis.jms.management.impl.JMSQueueControlImpl;
+import org.apache.activemq.artemis.jms.management.impl.JMSServerControlImpl;
+import org.apache.activemq.artemis.jms.management.impl.JMSTopicControlImpl;
+import org.apache.activemq.artemis.jms.server.JMSServerManager;
+import org.apache.activemq.artemis.jms.server.config.ConnectionFactoryConfiguration;
+import org.apache.activemq.artemis.jms.server.management.JMSManagementService;
 
 public class JMSManagementServiceImpl implements JMSManagementService
 {

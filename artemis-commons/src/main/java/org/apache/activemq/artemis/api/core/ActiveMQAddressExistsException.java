@@ -14,9 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.api.core;
-
-import static org.apache.activemq.api.core.ActiveMQExceptionType.ADDRESS_EXISTS;
+package org.apache.activemq.artemis.api.core;
 
 /**
  * An operation failed because an address exists on the server.
@@ -27,11 +25,11 @@ public final class ActiveMQAddressExistsException extends ActiveMQException
 
    public ActiveMQAddressExistsException()
    {
-      super(ADDRESS_EXISTS);
+      super(ActiveMQExceptionType.ADDRESS_EXISTS);
    }
 
    public ActiveMQAddressExistsException(String msg)
    {
-      super(ADDRESS_EXISTS, msg);
+      super(ActiveMQExceptionType.ADDRESS_EXISTS, msg);
    }
 }

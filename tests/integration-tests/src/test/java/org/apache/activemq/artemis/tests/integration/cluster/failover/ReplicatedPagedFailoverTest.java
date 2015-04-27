@@ -14,16 +14,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.cluster.failover;
+package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
 import org.junit.Test;
 
 import java.util.HashMap;
 
-import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.server.ActiveMQServer;
-import org.apache.activemq.core.server.NodeManager;
-import org.apache.activemq.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.NodeManager;
+import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 
 public class ReplicatedPagedFailoverTest extends ReplicatedFailoverTest
 {

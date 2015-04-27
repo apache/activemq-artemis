@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.boot;
+package org.apache.activemq.artemis.boot;
 
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
@@ -98,7 +98,7 @@ public class ActiveMQ
       // Now setup our classloader..
       URLClassLoader loader = new URLClassLoader(urls.toArray(new URL[urls.size()]));
       Thread.currentThread().setContextClassLoader(loader);
-      Class<?> clazz = loader.loadClass("org.apache.activemq.cli.ActiveMQ");
+      Class<?> clazz = loader.loadClass("org.apache.activemq.artemis.cli.ActiveMQ");
       Method method = clazz.getMethod("main", args.getClass());
       try
       {

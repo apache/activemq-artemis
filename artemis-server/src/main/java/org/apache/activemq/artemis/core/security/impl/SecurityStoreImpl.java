@@ -14,28 +14,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.security.impl;
+package org.apache.activemq.artemis.core.security.impl;
 
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.api.core.management.CoreNotificationType;
-import org.apache.activemq.api.core.management.ManagementHelper;
-import org.apache.activemq.core.security.CheckType;
-import org.apache.activemq.core.security.Role;
-import org.apache.activemq.core.security.SecurityStore;
-import org.apache.activemq.core.server.ActiveMQMessageBundle;
-import org.apache.activemq.core.server.ActiveMQServerLogger;
-import org.apache.activemq.core.server.ServerSession;
-import org.apache.activemq.core.server.management.Notification;
-import org.apache.activemq.core.server.management.NotificationService;
-import org.apache.activemq.core.settings.HierarchicalRepository;
-import org.apache.activemq.core.settings.HierarchicalRepositoryChangeListener;
-import org.apache.activemq.spi.core.security.ActiveMQSecurityManager;
-import org.apache.activemq.utils.ConcurrentHashSet;
-import org.apache.activemq.utils.TypedProperties;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.management.CoreNotificationType;
+import org.apache.activemq.artemis.api.core.management.ManagementHelper;
+import org.apache.activemq.artemis.core.security.CheckType;
+import org.apache.activemq.artemis.core.security.Role;
+import org.apache.activemq.artemis.core.security.SecurityStore;
+import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
+import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.apache.activemq.artemis.core.server.ServerSession;
+import org.apache.activemq.artemis.core.server.management.Notification;
+import org.apache.activemq.artemis.core.server.management.NotificationService;
+import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
+import org.apache.activemq.artemis.core.settings.HierarchicalRepositoryChangeListener;
+import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
+import org.apache.activemq.artemis.utils.ConcurrentHashSet;
+import org.apache.activemq.artemis.utils.TypedProperties;
 
 /**
  * The ActiveMQ SecurityStore implementation

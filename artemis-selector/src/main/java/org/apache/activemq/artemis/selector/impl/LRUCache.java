@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.selector.impl;
+package org.apache.activemq.artemis.selector.impl;
 
 import java.util.LinkedHashMap;
 import java.util.Map;

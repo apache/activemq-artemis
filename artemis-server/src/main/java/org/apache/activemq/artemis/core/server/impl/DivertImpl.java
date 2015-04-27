@@ -14,17 +14,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.server.impl;
+package org.apache.activemq.artemis.core.server.impl;
 
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.core.filter.Filter;
-import org.apache.activemq.core.persistence.StorageManager;
-import org.apache.activemq.core.postoffice.PostOffice;
-import org.apache.activemq.core.server.ActiveMQServerLogger;
-import org.apache.activemq.core.server.Divert;
-import org.apache.activemq.core.server.RoutingContext;
-import org.apache.activemq.core.server.ServerMessage;
-import org.apache.activemq.core.server.cluster.Transformer;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.filter.Filter;
+import org.apache.activemq.artemis.core.persistence.StorageManager;
+import org.apache.activemq.artemis.core.postoffice.PostOffice;
+import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.apache.activemq.artemis.core.server.Divert;
+import org.apache.activemq.artemis.core.server.RoutingContext;
+import org.apache.activemq.artemis.core.server.ServerMessage;
+import org.apache.activemq.artemis.core.server.cluster.Transformer;
 
 /**
  * A DivertImpl simply diverts a message to a different forwardAddress

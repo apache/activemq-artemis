@@ -14,21 +14,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.unit.core.persistence.impl;
+package org.apache.activemq.artemis.tests.unit.core.persistence.impl;
 import java.util.ArrayList;
 
-import org.apache.activemq.api.core.ActiveMQBuffer;
-import org.apache.activemq.api.core.ActiveMQBuffers;
-import org.apache.activemq.core.journal.Journal;
-import org.apache.activemq.core.journal.PreparedTransactionInfo;
-import org.apache.activemq.core.journal.RecordInfo;
-import org.apache.activemq.core.journal.impl.JournalImpl;
-import org.apache.activemq.core.journal.impl.NIOSequentialFileFactory;
-import org.apache.activemq.core.persistence.StorageManager;
-import org.apache.activemq.core.persistence.impl.journal.BatchingIDGenerator;
-import org.apache.activemq.core.persistence.impl.journal.JournalRecordIds;
-import org.apache.activemq.core.persistence.impl.nullpm.NullStorageManager;
-import org.apache.activemq.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
+import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.core.journal.Journal;
+import org.apache.activemq.artemis.core.journal.PreparedTransactionInfo;
+import org.apache.activemq.artemis.core.journal.RecordInfo;
+import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
+import org.apache.activemq.artemis.core.journal.impl.NIOSequentialFileFactory;
+import org.apache.activemq.artemis.core.persistence.StorageManager;
+import org.apache.activemq.artemis.core.persistence.impl.journal.BatchingIDGenerator;
+import org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds;
+import org.apache.activemq.artemis.core.persistence.impl.nullpm.NullStorageManager;
 import org.junit.Assert;
 import org.junit.Test;
 

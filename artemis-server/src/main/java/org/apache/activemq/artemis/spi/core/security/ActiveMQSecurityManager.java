@@ -14,12 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.spi.core.security;
+package org.apache.activemq.artemis.spi.core.security;
 
 import java.util.Set;
 
-import org.apache.activemq.core.security.CheckType;
-import org.apache.activemq.core.security.Role;
+import org.apache.activemq.artemis.core.security.CheckType;
+import org.apache.activemq.artemis.core.security.Role;
 
 /**
  * Use to validate whether a user has is valid to connect to the server and perform certain

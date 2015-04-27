@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.integration.aerogear;
+package org.apache.activemq.artemis.integration.aerogear;
 
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -26,19 +26,19 @@ import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.core.filter.Filter;
-import org.apache.activemq.core.filter.impl.FilterImpl;
-import org.apache.activemq.core.postoffice.Binding;
-import org.apache.activemq.core.postoffice.PostOffice;
-import org.apache.activemq.core.server.ActiveMQServerLogger;
-import org.apache.activemq.core.server.ConnectorService;
-import org.apache.activemq.core.server.Consumer;
-import org.apache.activemq.core.server.HandleStatus;
-import org.apache.activemq.core.server.MessageReference;
-import org.apache.activemq.core.server.Queue;
-import org.apache.activemq.core.server.ServerMessage;
-import org.apache.activemq.utils.ConfigurationHelper;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.filter.Filter;
+import org.apache.activemq.artemis.core.filter.impl.FilterImpl;
+import org.apache.activemq.artemis.core.postoffice.Binding;
+import org.apache.activemq.artemis.core.postoffice.PostOffice;
+import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.apache.activemq.artemis.core.server.ConnectorService;
+import org.apache.activemq.artemis.core.server.Consumer;
+import org.apache.activemq.artemis.core.server.HandleStatus;
+import org.apache.activemq.artemis.core.server.MessageReference;
+import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.server.ServerMessage;
+import org.apache.activemq.artemis.utils.ConfigurationHelper;
 import org.jboss.aerogear.unifiedpush.JavaSender;
 import org.jboss.aerogear.unifiedpush.SenderClient;
 import org.jboss.aerogear.unifiedpush.message.MessageResponseCallback;

@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.service.extensions;
+package org.apache.activemq.artemis.service.extensions;
 
 import javax.transaction.TransactionManager;
 import javax.transaction.xa.XAResource;
@@ -22,10 +22,10 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.ServiceLoader;
 
-import org.apache.activemq.service.extensions.transactions.TransactionManagerLocator;
-import org.apache.activemq.service.extensions.xa.ActiveMQXAResourceWrapper;
-import org.apache.activemq.service.extensions.xa.ActiveMQXAResourceWrapperFactory;
-import org.apache.activemq.service.extensions.xa.ActiveMQXAResourceWrapperFactoryImpl;
+import org.apache.activemq.artemis.service.extensions.transactions.TransactionManagerLocator;
+import org.apache.activemq.artemis.service.extensions.xa.ActiveMQXAResourceWrapper;
+import org.apache.activemq.artemis.service.extensions.xa.ActiveMQXAResourceWrapperFactory;
+import org.apache.activemq.artemis.service.extensions.xa.ActiveMQXAResourceWrapperFactoryImpl;
 
 public class ServiceUtils
 {

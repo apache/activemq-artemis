@@ -14,8 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.jms.client;
+package org.apache.activemq.artemis.tests.integration.jms.client;
 
+import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.junit.Test;
 
 import javax.jms.Connection;
@@ -28,9 +29,8 @@ import javax.jms.TextMessage;
 import javax.jms.Topic;
 import javax.jms.TopicSubscriber;
 
-import org.apache.activemq.tests.integration.IntegrationTestLogger;
-import org.apache.activemq.tests.util.JMSTestBase;
-import org.apache.activemq.tests.util.RandomUtil;
+import org.apache.activemq.artemis.tests.util.JMSTestBase;
+import org.apache.activemq.artemis.tests.util.RandomUtil;
 
 public class NoLocalSubscriberTest extends JMSTestBase
 {
@@ -185,7 +185,7 @@ public class NoLocalSubscriberTest extends JMSTestBase
 
          // now drain the subscription
          // we should not receive message M3, but we should receive message M4
-         // However for some reason ActiveMQ Artemis doesn't receive either
+         // However for some reason Artemis doesn't receive either
          TextMessage textMessage = (TextMessage)topicSubscriber.receive(1000);
          assertNotNull(textMessage);
 
@@ -254,7 +254,7 @@ public class NoLocalSubscriberTest extends JMSTestBase
 
          // now drain the subscription
          // we should not receive message M3, but we should receive message M4
-         // However for some reason ActiveMQ Artemis doesn't receive either
+         // However for some reason Artemis doesn't receive either
          TextMessage textMessage = (TextMessage)topicSubscriber.receive(1000);
          assertNotNull(textMessage);
 

@@ -14,8 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.unit.jms.misc;
+package org.apache.activemq.artemis.tests.unit.jms.misc;
 
+import org.apache.activemq.artemis.tests.util.UnitTestCase;
 import org.junit.Test;
 
 import java.io.File;
@@ -29,11 +30,10 @@ import javax.jms.ConnectionMetaData;
 
 import org.junit.Assert;
 
-import org.apache.activemq.core.server.ActiveMQServer;
-import org.apache.activemq.core.server.ActiveMQServers;
-import org.apache.activemq.jms.client.ActiveMQConnectionMetaData;
-import org.apache.activemq.tests.unit.UnitTestLogger;
-import org.apache.activemq.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.ActiveMQServers;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnectionMetaData;
+import org.apache.activemq.artemis.tests.unit.UnitTestLogger;
 
 public class ManifestTest extends UnitTestCase
 {

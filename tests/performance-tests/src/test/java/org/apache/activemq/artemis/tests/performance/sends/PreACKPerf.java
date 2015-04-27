@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.performance.sends;
+package org.apache.activemq.artemis.tests.performance.sends;
 
 import javax.jms.Connection;
 import javax.jms.Message;
@@ -22,7 +22,7 @@ import javax.jms.MessageConsumer;
 import javax.jms.Queue;
 import javax.jms.Session;
 
-import org.apache.activemq.api.jms.ActiveMQJMSConstants;
+import org.apache.activemq.artemis.api.jms.ActiveMQJMSConstants;
 
 public class PreACKPerf extends AbstractSendReceivePerfTest
 {

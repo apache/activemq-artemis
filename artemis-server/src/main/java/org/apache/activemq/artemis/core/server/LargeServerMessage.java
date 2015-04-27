@@ -14,11 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.server;
+package org.apache.activemq.artemis.core.server;
 
-import org.apache.activemq.api.core.ActiveMQException;
-import org.apache.activemq.core.journal.SequentialFile;
-import org.apache.activemq.core.replication.ReplicatedLargeMessage;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.core.journal.SequentialFile;
+import org.apache.activemq.artemis.core.replication.ReplicatedLargeMessage;
 
 
 public interface LargeServerMessage extends ServerMessage, ReplicatedLargeMessage
@@ -46,7 +46,7 @@ public interface LargeServerMessage extends ServerMessage, ReplicatedLargeMessag
 
    /**
     * @return
-    * @throws org.apache.activemq.api.core.ActiveMQException
+    * @throws ActiveMQException
     */
    SequentialFile getFile() throws ActiveMQException;
 }

@@ -14,14 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.server.impl;
+package org.apache.activemq.artemis.core.server.impl;
 
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.core.server.ActiveMQServer;
-import org.apache.activemq.core.server.ActiveMQServerLogger;
-import org.apache.activemq.core.server.AutoCreatedQueueManager;
-import org.apache.activemq.core.server.Queue;
-import org.apache.activemq.utils.ReferenceCounterUtil;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.apache.activemq.artemis.core.server.AutoCreatedQueueManager;
+import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.utils.ReferenceCounterUtil;
 
 public class AutoCreatedQueueManagerImpl implements AutoCreatedQueueManager
 {

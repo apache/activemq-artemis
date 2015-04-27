@@ -9,7 +9,7 @@
  * release to you under whatever reasonable license you desire: MIT, BSD, GPL, whatever."
  *
  */
-package org.apache.activemq.utils;
+package org.apache.activemq.artemis.utils;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;

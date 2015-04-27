@@ -14,22 +14,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.discovery;
+package org.apache.activemq.artemis.tests.integration.discovery;
 
 import java.net.InetAddress;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq.api.core.ActiveMQBuffer;
-import org.apache.activemq.api.core.ActiveMQBuffers;
-import org.apache.activemq.api.core.BroadcastEndpoint;
-import org.apache.activemq.api.core.BroadcastEndpointFactory;
-import org.apache.activemq.api.core.UDPBroadcastEndpointFactory;
-import org.apache.activemq.core.cluster.DiscoveryGroup;
-import org.apache.activemq.core.server.cluster.impl.BroadcastGroupImpl;
-import org.apache.activemq.tests.util.RandomUtil;
-import org.apache.activemq.utils.ActiveMQThreadFactory;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
+import org.apache.activemq.artemis.api.core.BroadcastEndpoint;
+import org.apache.activemq.artemis.api.core.BroadcastEndpointFactory;
+import org.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory;
+import org.apache.activemq.artemis.core.cluster.DiscoveryGroup;
+import org.apache.activemq.artemis.core.server.cluster.impl.BroadcastGroupImpl;
+import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

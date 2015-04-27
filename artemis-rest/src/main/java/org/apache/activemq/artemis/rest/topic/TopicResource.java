@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.rest.topic;
+package org.apache.activemq.artemis.rest.topic;
 
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -26,11 +26,11 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.api.core.client.ClientSession;
-import org.apache.activemq.rest.ActiveMQRestLogger;
-import org.apache.activemq.rest.queue.DestinationResource;
-import org.apache.activemq.rest.queue.PostMessage;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.rest.ActiveMQRestLogger;
+import org.apache.activemq.artemis.rest.queue.DestinationResource;
+import org.apache.activemq.artemis.rest.queue.PostMessage;
 
 public class TopicResource extends DestinationResource
 {

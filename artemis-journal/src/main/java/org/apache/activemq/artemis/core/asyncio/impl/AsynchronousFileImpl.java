@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.asyncio.impl;
+package org.apache.activemq.artemis.core.asyncio.impl;
 
 import java.nio.ByteBuffer;
 import java.nio.channels.FileLock;
@@ -28,15 +28,15 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import org.apache.activemq.api.core.ActiveMQException;
-import org.apache.activemq.api.core.ActiveMQExceptionType;
-import org.apache.activemq.core.asyncio.AIOCallback;
-import org.apache.activemq.core.asyncio.AsynchronousFile;
-import org.apache.activemq.core.asyncio.BufferCallback;
-import org.apache.activemq.core.asyncio.IOExceptionListener;
-import org.apache.activemq.core.libaio.Native;
-import org.apache.activemq.journal.ActiveMQJournalLogger;
-import org.apache.activemq.utils.ReusableLatch;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
+import org.apache.activemq.artemis.core.asyncio.AIOCallback;
+import org.apache.activemq.artemis.core.asyncio.AsynchronousFile;
+import org.apache.activemq.artemis.core.asyncio.BufferCallback;
+import org.apache.activemq.artemis.core.asyncio.IOExceptionListener;
+import org.apache.activemq.artemis.core.libaio.Native;
+import org.apache.activemq.artemis.journal.ActiveMQJournalLogger;
+import org.apache.activemq.artemis.utils.ReusableLatch;
 
 /**
  * AsynchronousFile implementation
@@ -671,7 +671,7 @@ public class AsynchronousFileImpl implements AsynchronousFile
    }
 
    /**
-    * @throws org.apache.activemq.api.core.ActiveMQException
+    * @throws ActiveMQException
     * @throws InterruptedException
     */
    private void stopPoller() throws ActiveMQException, InterruptedException

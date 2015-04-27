@@ -14,9 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.jms.client;
+package org.apache.activemq.artemis.jms.client;
 
-import org.apache.activemq.utils.ConcurrentHashSet;
+import org.apache.activemq.artemis.utils.ConcurrentHashSet;
 
 import javax.jms.IllegalStateException;
 import java.util.Set;

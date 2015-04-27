@@ -14,9 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.api.core;
-
-import static org.apache.activemq.api.core.ActiveMQExceptionType.INVALID_FILTER_EXPRESSION;
+package org.apache.activemq.artemis.api.core;
 
 /**
  * A filter expression was found to be invalid.
@@ -27,11 +25,11 @@ public final class ActiveMQInvalidFilterExpressionException extends ActiveMQExce
 
    public ActiveMQInvalidFilterExpressionException()
    {
-      super(INVALID_FILTER_EXPRESSION);
+      super(ActiveMQExceptionType.INVALID_FILTER_EXPRESSION);
    }
 
    public ActiveMQInvalidFilterExpressionException(String msg)
    {
-      super(INVALID_FILTER_EXPRESSION, msg);
+      super(ActiveMQExceptionType.INVALID_FILTER_EXPRESSION, msg);
    }
 }

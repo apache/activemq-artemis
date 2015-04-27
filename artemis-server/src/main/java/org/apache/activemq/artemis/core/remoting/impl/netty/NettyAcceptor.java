@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.remoting.impl.netty;
+package org.apache.activemq.artemis.core.remoting.impl.netty;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
@@ -55,29 +55,29 @@ import io.netty.util.ResourceLeakDetector;
 import io.netty.util.concurrent.GenericFutureListener;
 import io.netty.util.concurrent.GlobalEventExecutor;
 
-import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
-import org.apache.activemq.api.core.ActiveMQException;
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.core.management.CoreNotificationType;
-import org.apache.activemq.core.client.impl.ClientSessionFactoryImpl;
-import org.apache.activemq.core.protocol.ProtocolHandler;
-import org.apache.activemq.core.remoting.impl.ssl.SSLSupport;
-import org.apache.activemq.core.security.ActiveMQPrincipal;
-import org.apache.activemq.core.server.ActiveMQComponent;
-import org.apache.activemq.core.server.ActiveMQMessageBundle;
-import org.apache.activemq.core.server.ActiveMQServerLogger;
-import org.apache.activemq.core.server.cluster.ClusterConnection;
-import org.apache.activemq.core.server.management.Notification;
-import org.apache.activemq.core.server.management.NotificationService;
-import org.apache.activemq.spi.core.protocol.ProtocolManager;
-import org.apache.activemq.spi.core.remoting.Acceptor;
-import org.apache.activemq.spi.core.remoting.BufferHandler;
-import org.apache.activemq.spi.core.remoting.Connection;
-import org.apache.activemq.spi.core.remoting.ConnectionLifeCycleListener;
-import org.apache.activemq.utils.ConfigurationHelper;
-import org.apache.activemq.utils.ActiveMQThreadFactory;
-import org.apache.activemq.utils.TypedProperties;
+import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.management.CoreNotificationType;
+import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryImpl;
+import org.apache.activemq.artemis.core.protocol.ProtocolHandler;
+import org.apache.activemq.artemis.core.remoting.impl.ssl.SSLSupport;
+import org.apache.activemq.artemis.core.security.ActiveMQPrincipal;
+import org.apache.activemq.artemis.core.server.ActiveMQComponent;
+import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
+import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.apache.activemq.artemis.core.server.cluster.ClusterConnection;
+import org.apache.activemq.artemis.core.server.management.Notification;
+import org.apache.activemq.artemis.core.server.management.NotificationService;
+import org.apache.activemq.artemis.spi.core.protocol.ProtocolManager;
+import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
+import org.apache.activemq.artemis.spi.core.remoting.BufferHandler;
+import org.apache.activemq.artemis.spi.core.remoting.Connection;
+import org.apache.activemq.artemis.spi.core.remoting.ConnectionLifeCycleListener;
+import org.apache.activemq.artemis.utils.ConfigurationHelper;
+import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
+import org.apache.activemq.artemis.utils.TypedProperties;
 
 /**
  * A Netty TCP Acceptor that supports SSL

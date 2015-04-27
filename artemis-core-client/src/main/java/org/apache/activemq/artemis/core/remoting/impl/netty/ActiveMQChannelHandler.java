@@ -14,19 +14,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.remoting.impl.netty;
+package org.apache.activemq.artemis.core.remoting.impl.netty;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.group.ChannelGroup;
-import org.apache.activemq.api.core.ActiveMQException;
-import org.apache.activemq.core.buffers.impl.ChannelBufferWrapper;
-import org.apache.activemq.core.client.ActiveMQClientLogger;
-import org.apache.activemq.core.client.ActiveMQClientMessageBundle;
-import org.apache.activemq.spi.core.remoting.BufferHandler;
-import org.apache.activemq.spi.core.remoting.ConnectionLifeCycleListener;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.core.buffers.impl.ChannelBufferWrapper;
+import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
+import org.apache.activemq.artemis.core.client.ActiveMQClientMessageBundle;
+import org.apache.activemq.artemis.spi.core.remoting.BufferHandler;
+import org.apache.activemq.artemis.spi.core.remoting.ConnectionLifeCycleListener;
 
 
 /**

@@ -14,19 +14,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.server;
+package org.apache.activemq.artemis.core.server;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
 
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.core.filter.Filter;
-import org.apache.activemq.core.paging.cursor.PageSubscription;
-import org.apache.activemq.core.transaction.Transaction;
-import org.apache.activemq.utils.LinkedListIterator;
-import org.apache.activemq.utils.ReferenceCounter;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.filter.Filter;
+import org.apache.activemq.artemis.core.paging.cursor.PageSubscription;
+import org.apache.activemq.artemis.core.transaction.Transaction;
+import org.apache.activemq.artemis.utils.LinkedListIterator;
+import org.apache.activemq.artemis.utils.ReferenceCounter;
 
 public interface Queue extends Bindable
 {

@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.stomp;
+package org.apache.activemq.artemis.tests.integration.stomp;
 
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
@@ -26,34 +26,33 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.activemq.api.core.Interceptor;
-import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.core.client.ActiveMQClient;
-import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.protocol.core.Packet;
-import org.apache.activemq.core.protocol.stomp.Stomp;
-import org.apache.activemq.core.protocol.stomp.StompFrame;
-import org.apache.activemq.core.protocol.stomp.StompFrameInterceptor;
-import org.apache.activemq.core.protocol.stomp.StompProtocolManagerFactory;
-import org.apache.activemq.core.registry.JndiBindingRegistry;
-import org.apache.activemq.core.remoting.impl.invm.InVMAcceptorFactory;
-import org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory;
-import org.apache.activemq.core.remoting.impl.netty.TransportConstants;
-import org.apache.activemq.core.server.ActiveMQServer;
-import org.apache.activemq.core.server.ActiveMQServers;
-import org.apache.activemq.jms.server.JMSServerManager;
-import org.apache.activemq.jms.server.config.JMSConfiguration;
-import org.apache.activemq.jms.server.config.impl.JMSConfigurationImpl;
-import org.apache.activemq.jms.server.config.impl.JMSQueueConfigurationImpl;
-import org.apache.activemq.jms.server.config.impl.TopicConfigurationImpl;
-import org.apache.activemq.jms.server.impl.JMSServerManagerImpl;
-import org.apache.activemq.spi.core.protocol.RemotingConnection;
-import org.apache.activemq.tests.integration.largemessage.LargeMessageTestBase;
-import org.apache.activemq.tests.integration.largemessage.LargeMessageTestBase.TestLargeMessageInputStream;
-import org.apache.activemq.tests.integration.stomp.util.ClientStompFrame;
-import org.apache.activemq.tests.integration.stomp.util.StompClientConnection;
-import org.apache.activemq.tests.integration.stomp.util.StompClientConnectionFactory;
-import org.apache.activemq.tests.unit.util.InVMNamingContext;
+import org.apache.activemq.artemis.api.core.Interceptor;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
+import org.apache.activemq.artemis.tests.integration.largemessage.LargeMessageTestBase;
+import org.apache.activemq.artemis.tests.unit.util.InVMNamingContext;
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.protocol.core.Packet;
+import org.apache.activemq.artemis.core.protocol.stomp.Stomp;
+import org.apache.activemq.artemis.core.protocol.stomp.StompFrame;
+import org.apache.activemq.artemis.core.protocol.stomp.StompFrameInterceptor;
+import org.apache.activemq.artemis.core.protocol.stomp.StompProtocolManagerFactory;
+import org.apache.activemq.artemis.core.registry.JndiBindingRegistry;
+import org.apache.activemq.artemis.core.remoting.impl.invm.InVMAcceptorFactory;
+import org.apache.activemq.artemis.core.remoting.impl.netty.NettyAcceptorFactory;
+import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.ActiveMQServers;
+import org.apache.activemq.artemis.jms.server.JMSServerManager;
+import org.apache.activemq.artemis.jms.server.config.JMSConfiguration;
+import org.apache.activemq.artemis.jms.server.config.impl.JMSConfigurationImpl;
+import org.apache.activemq.artemis.jms.server.config.impl.JMSQueueConfigurationImpl;
+import org.apache.activemq.artemis.jms.server.config.impl.TopicConfigurationImpl;
+import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
+import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.artemis.tests.integration.stomp.util.ClientStompFrame;
+import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnection;
+import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnectionFactory;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -426,7 +425,7 @@ public class ExtraStompTest extends StompTestBase
 
          setUpAfterServer(true);
 
-         TestLargeMessageInputStream input = new TestLargeMessageInputStream(ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE, true);
+         LargeMessageTestBase.TestLargeMessageInputStream input = new LargeMessageTestBase.TestLargeMessageInputStream(ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE, true);
          LargeMessageTestBase.adjustLargeCompression(true, input, ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE);
 
          char[] contents = input.toArray();
@@ -498,7 +497,7 @@ public class ExtraStompTest extends StompTestBase
 
          setUpAfterServer(true);
 
-         TestLargeMessageInputStream input = new TestLargeMessageInputStream(ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE, true);
+         LargeMessageTestBase.TestLargeMessageInputStream input = new LargeMessageTestBase.TestLargeMessageInputStream(ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE, true);
          LargeMessageTestBase.adjustLargeCompression(true, input, ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE);
 
          char[] contents = input.toArray();
@@ -561,7 +560,7 @@ public class ExtraStompTest extends StompTestBase
 
          setUpAfterServer(true);
 
-         TestLargeMessageInputStream input = new TestLargeMessageInputStream(ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE, true);
+         LargeMessageTestBase.TestLargeMessageInputStream input = new LargeMessageTestBase.TestLargeMessageInputStream(ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE, true);
          input.setSize(10 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE);
          LargeMessageTestBase.adjustLargeCompression(false, input, 10 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE);
 
@@ -625,7 +624,7 @@ public class ExtraStompTest extends StompTestBase
 
          setUpAfterServer(true);
 
-         TestLargeMessageInputStream input = new TestLargeMessageInputStream(ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE, true);
+         LargeMessageTestBase.TestLargeMessageInputStream input = new LargeMessageTestBase.TestLargeMessageInputStream(ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE, true);
          input.setSize(10 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE);
          LargeMessageTestBase.adjustLargeCompression(false, input, 10 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE);
 
@@ -873,10 +872,10 @@ public class ExtraStompTest extends StompTestBase
       try
       {
          List<String> incomingInterceptorList = new ArrayList<String>();
-         incomingInterceptorList.add("org.apache.activemq.tests.integration.stomp.ExtraStompTest$MyIncomingStompFrameInterceptor");
-         incomingInterceptorList.add("org.apache.activemq.tests.integration.stomp.ExtraStompTest$MyCoreInterceptor");
+         incomingInterceptorList.add("org.apache.activemq.artemis.tests.integration.stomp.ExtraStompTest$MyIncomingStompFrameInterceptor");
+         incomingInterceptorList.add("org.apache.activemq.artemis.tests.integration.stomp.ExtraStompTest$MyCoreInterceptor");
          List<String> outgoingInterceptorList = new ArrayList<String>();
-         outgoingInterceptorList.add("org.apache.activemq.tests.integration.stomp.ExtraStompTest$MyOutgoingStompFrameInterceptor");
+         outgoingInterceptorList.add("org.apache.activemq.artemis.tests.integration.stomp.ExtraStompTest$MyOutgoingStompFrameInterceptor");
 
          server = createServerWithStompInterceptor(incomingInterceptorList, outgoingInterceptorList);
          server.start();

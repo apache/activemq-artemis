@@ -14,9 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.management;
-import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
-import org.apache.activemq.core.protocol.stomp.StompProtocolManagerFactory;
+package org.apache.activemq.artemis.tests.integration.management;
+import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
+import org.apache.activemq.artemis.core.protocol.stomp.StompProtocolManagerFactory;
 import org.junit.Before;
 import org.junit.After;
 
@@ -33,20 +33,20 @@ import java.util.Map;
 
 import org.junit.Assert;
 
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.core.client.ClientSession;
-import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.ServerLocator;
-import org.apache.activemq.api.core.management.ResourceNames;
-import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.protocol.stomp.Stomp;
-import org.apache.activemq.core.remoting.impl.invm.InVMAcceptorFactory;
-import org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory;
-import org.apache.activemq.core.remoting.impl.netty.TransportConstants;
-import org.apache.activemq.core.server.ActiveMQServer;
-import org.apache.activemq.core.server.ActiveMQServers;
-import org.apache.activemq.tests.util.RandomUtil;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
+import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.api.core.management.ResourceNames;
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.protocol.stomp.Stomp;
+import org.apache.activemq.artemis.core.remoting.impl.invm.InVMAcceptorFactory;
+import org.apache.activemq.artemis.core.remoting.impl.netty.NettyAcceptorFactory;
+import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.ActiveMQServers;
+import org.apache.activemq.artemis.tests.util.RandomUtil;
 
 public class ManagementWithStompTest extends ManagementTestBase
 {
@@ -97,7 +97,7 @@ public class ManagementWithStompTest extends ManagementTestBase
 
       frame = receiveFrame(10000);
       System.out.println(frame);
-      assertTrue(frame.contains("_AMQ_OperationSucceeded:true"));
+      Assert.assertTrue(frame.contains("_AMQ_OperationSucceeded:true"));
       // the address will be returned in the message body in a JSON array
       Assert.assertTrue(frame.contains("[\"" + address + "\"]"));
 
@@ -141,9 +141,9 @@ public class ManagementWithStompTest extends ManagementTestBase
 
       frame = receiveFrame(10000);
       System.out.println(frame);
-      assertTrue(frame.contains("_AMQ_OperationSucceeded:true"));
+      Assert.assertTrue(frame.contains("_AMQ_OperationSucceeded:true"));
       // there is no such messages => 0 returned in a JSON array
-      assertTrue(frame.contains("[0]"));
+      Assert.assertTrue(frame.contains("[0]"));
 
       frame = "UNSUBSCRIBE\n" + "destination:" + queue + "\n" +
          "receipt: 123\n\n" +
@@ -258,8 +258,8 @@ public class ManagementWithStompTest extends ManagementTestBase
    protected void waitForReceipt() throws Exception
    {
       String frame = receiveFrame(50000);
-      assertNotNull(frame);
-      assertTrue(frame.indexOf("RECEIPT") > -1);
+      Assert.assertNotNull(frame);
+      Assert.assertTrue(frame.indexOf("RECEIPT") > -1);
    }
 
    // Inner classes -------------------------------------------------

@@ -14,13 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.cluster.failover;
+package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
 
-import org.apache.activemq.core.server.cluster.qourum.BooleanVote;
-import org.apache.activemq.core.server.cluster.qourum.QuorumVoteServerConnect;
-import org.apache.activemq.tests.integration.server.FakeStorageManager;
-import org.apache.activemq.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.core.server.cluster.qourum.BooleanVote;
+import org.apache.activemq.artemis.core.server.cluster.qourum.QuorumVoteServerConnect;
+import org.apache.activemq.artemis.tests.integration.server.FakeStorageManager;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;

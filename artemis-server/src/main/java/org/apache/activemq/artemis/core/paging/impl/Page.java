@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.paging.impl;
+package org.apache.activemq.artemis.core.paging.impl;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -22,20 +22,20 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq.api.core.ActiveMQBuffer;
-import org.apache.activemq.api.core.ActiveMQBuffers;
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.core.journal.SequentialFile;
-import org.apache.activemq.core.journal.SequentialFileFactory;
-import org.apache.activemq.core.paging.PagedMessage;
-import org.apache.activemq.core.paging.cursor.LivePageCache;
-import org.apache.activemq.core.paging.cursor.PageSubscriptionCounter;
-import org.apache.activemq.core.persistence.StorageManager;
-import org.apache.activemq.core.server.ActiveMQMessageBundle;
-import org.apache.activemq.core.server.ActiveMQServerLogger;
-import org.apache.activemq.core.server.LargeServerMessage;
-import org.apache.activemq.utils.ConcurrentHashSet;
-import org.apache.activemq.utils.DataConstants;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.journal.SequentialFile;
+import org.apache.activemq.artemis.core.journal.SequentialFileFactory;
+import org.apache.activemq.artemis.core.paging.PagedMessage;
+import org.apache.activemq.artemis.core.paging.cursor.LivePageCache;
+import org.apache.activemq.artemis.core.paging.cursor.PageSubscriptionCounter;
+import org.apache.activemq.artemis.core.persistence.StorageManager;
+import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
+import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.apache.activemq.artemis.core.server.LargeServerMessage;
+import org.apache.activemq.artemis.utils.ConcurrentHashSet;
+import org.apache.activemq.artemis.utils.DataConstants;
 
 public final class Page implements Comparable<Page>
 {

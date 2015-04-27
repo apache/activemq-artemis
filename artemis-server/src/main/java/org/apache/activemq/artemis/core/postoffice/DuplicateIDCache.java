@@ -14,12 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.postoffice;
+package org.apache.activemq.artemis.core.postoffice;
 
 import java.util.List;
 
-import org.apache.activemq.api.core.Pair;
-import org.apache.activemq.core.transaction.Transaction;
+import org.apache.activemq.artemis.api.core.Pair;
+import org.apache.activemq.artemis.core.transaction.Transaction;
 
 public interface DuplicateIDCache
 {

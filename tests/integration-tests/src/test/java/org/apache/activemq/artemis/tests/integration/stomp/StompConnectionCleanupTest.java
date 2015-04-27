@@ -14,17 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.stomp;
+package org.apache.activemq.artemis.tests.integration.stomp;
 
 import org.junit.Test;
 
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
 
-import org.junit.Assert;
-
-import org.apache.activemq.core.protocol.stomp.Stomp;
-import org.apache.activemq.jms.server.JMSServerManager;
+import org.apache.activemq.artemis.core.protocol.stomp.Stomp;
+import org.apache.activemq.artemis.jms.server.JMSServerManager;
 
 public class StompConnectionCleanupTest extends StompTestBase
 {
@@ -41,7 +39,7 @@ public class StompConnectionCleanupTest extends StompTestBase
 
       System.out.println("Received frame: " + frame);
 
-      Assert.assertTrue(frame.startsWith("CONNECTED"));
+      assertTrue(frame.startsWith("CONNECTED"));
 
       frame = "SUBSCRIBE\n" + "destination:" + getQueuePrefix() + getQueueName() + "\n" + "ack:auto\n\n" + Stomp.NULL;
       sendFrame(frame);
@@ -50,8 +48,8 @@ public class StompConnectionCleanupTest extends StompTestBase
       sendFrame(frame);
 
       frame = receiveFrame(10000);
-      Assert.assertTrue(frame.startsWith("MESSAGE"));
-      Assert.assertTrue(frame.indexOf("destination:") > 0);
+      assertTrue(frame.startsWith("MESSAGE"));
+      assertTrue(frame.indexOf("destination:") > 0);
 
       // Now we wait until the connection is cleared on the server, which will happen some time after ttl, since no data
       // is being sent
@@ -89,7 +87,7 @@ public class StompConnectionCleanupTest extends StompTestBase
 
       //We send and consumer a message to ensure a STOMP connection and server session is created
 
-      Assert.assertTrue(frame.startsWith("CONNECTED"));
+      assertTrue(frame.startsWith("CONNECTED"));
 
       MessageConsumer consumer = session.createConsumer(queue);
 

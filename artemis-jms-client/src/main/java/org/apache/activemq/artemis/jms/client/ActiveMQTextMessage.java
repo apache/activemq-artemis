@@ -14,19 +14,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.jms.client;
+package org.apache.activemq.artemis.jms.client;
 
 import javax.jms.JMSException;
 import javax.jms.TextMessage;
 
-import org.apache.activemq.api.core.ActiveMQException;
-import org.apache.activemq.api.core.Message;
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.api.core.client.ClientMessage;
-import org.apache.activemq.api.core.client.ClientSession;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.client.ClientMessage;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
 
-import static org.apache.activemq.reader.TextMessageUtil.readBodyText;
-import static org.apache.activemq.reader.TextMessageUtil.writeBodyText;
+import static org.apache.activemq.artemis.reader.TextMessageUtil.readBodyText;
+import static org.apache.activemq.artemis.reader.TextMessageUtil.writeBodyText;
 
 
 /**

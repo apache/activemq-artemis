@@ -14,10 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.rest;
+package org.apache.activemq.artemis.rest;
 
-import org.apache.activemq.api.core.ActiveMQException;
-import org.apache.activemq.rest.queue.push.xml.XmlLink;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.rest.queue.push.xml.XmlLink;
 import org.jboss.logging.BasicLogger;
 import org.jboss.logging.Logger;
 import org.jboss.logging.annotations.Cause;

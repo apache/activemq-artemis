@@ -14,9 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.api.core;
-
-import static org.apache.activemq.api.core.ActiveMQExceptionType.QUEUE_DOES_NOT_EXIST;
+package org.apache.activemq.artemis.api.core;
 
 /**
  * An operation failed because a queue does not exist on the server.
@@ -27,11 +25,11 @@ public final class ActiveMQNonExistentQueueException extends ActiveMQException
 
    public ActiveMQNonExistentQueueException()
    {
-      super(QUEUE_DOES_NOT_EXIST);
+      super(ActiveMQExceptionType.QUEUE_DOES_NOT_EXIST);
    }
 
    public ActiveMQNonExistentQueueException(String msg)
    {
-      super(QUEUE_DOES_NOT_EXIST, msg);
+      super(ActiveMQExceptionType.QUEUE_DOES_NOT_EXIST, msg);
    }
 }

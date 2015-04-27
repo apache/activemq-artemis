@@ -14,17 +14,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.server.embedded;
+package org.apache.activemq.artemis.core.server.embedded;
 
 import javax.management.MBeanServer;
 
-import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.config.FileDeploymentManager;
-import org.apache.activemq.core.config.impl.FileConfiguration;
-import org.apache.activemq.core.server.ActiveMQServer;
-import org.apache.activemq.core.server.impl.ActiveMQServerImpl;
-import org.apache.activemq.spi.core.security.ActiveMQSecurityManager;
-import org.apache.activemq.spi.core.security.ActiveMQSecurityManagerImpl;
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.config.FileDeploymentManager;
+import org.apache.activemq.artemis.core.config.impl.FileConfiguration;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
+import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
+import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManagerImpl;
 
 /**
  * Helper class to simplify bootstrap of ActiveMQ server.  Bootstraps from classpath-based config files.
@@ -48,7 +48,7 @@ public class EmbeddedActiveMQ
    }
 
    /**
-    * Set the activemq security manager.  This defaults to org.apache.activemq.spi.core.security.ActiveMQSecurityManagerImpl
+    * Set the activemq security manager.  This defaults to org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManagerImpl
     *
     * @param securityManager
     */

@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.cluster.distribution;
+package org.apache.activemq.artemis.tests.integration.cluster.distribution;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,28 +25,28 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq.api.core.ActiveMQException;
-import org.apache.activemq.api.core.Message;
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.api.core.client.ClientConsumer;
-import org.apache.activemq.api.core.client.ClientMessage;
-import org.apache.activemq.api.core.client.ClientProducer;
-import org.apache.activemq.api.core.client.ClientSession;
-import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.management.CoreNotificationType;
-import org.apache.activemq.core.postoffice.impl.BindingsImpl;
-import org.apache.activemq.core.server.group.GroupingHandler;
-import org.apache.activemq.core.server.group.UnproposalListener;
-import org.apache.activemq.core.server.group.impl.GroupBinding;
-import org.apache.activemq.core.server.group.impl.GroupingHandlerConfiguration;
-import org.apache.activemq.core.server.group.impl.Proposal;
-import org.apache.activemq.core.server.group.impl.Response;
-import org.apache.activemq.core.server.impl.QueueImpl;
-import org.apache.activemq.core.server.management.Notification;
-import org.apache.activemq.core.server.management.NotificationListener;
-import org.apache.activemq.core.settings.impl.AddressFullMessagePolicy;
-import org.apache.activemq.core.settings.impl.AddressSettings;
-import org.apache.activemq.tests.integration.IntegrationTestLogger;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.client.ClientConsumer;
+import org.apache.activemq.artemis.api.core.client.ClientMessage;
+import org.apache.activemq.artemis.api.core.client.ClientProducer;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
+import org.apache.activemq.artemis.api.core.management.CoreNotificationType;
+import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
+import org.apache.activemq.artemis.core.postoffice.impl.BindingsImpl;
+import org.apache.activemq.artemis.core.server.group.GroupingHandler;
+import org.apache.activemq.artemis.core.server.group.UnproposalListener;
+import org.apache.activemq.artemis.core.server.group.impl.GroupBinding;
+import org.apache.activemq.artemis.core.server.group.impl.GroupingHandlerConfiguration;
+import org.apache.activemq.artemis.core.server.group.impl.Proposal;
+import org.apache.activemq.artemis.core.server.group.impl.Response;
+import org.apache.activemq.artemis.core.server.impl.QueueImpl;
+import org.apache.activemq.artemis.core.server.management.Notification;
+import org.apache.activemq.artemis.core.server.management.NotificationListener;
+import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
+import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.junit.After;
 import org.junit.Test;
 

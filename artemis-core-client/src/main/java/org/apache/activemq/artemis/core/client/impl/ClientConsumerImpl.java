@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.client.impl;
+package org.apache.activemq.artemis.core.client.impl;
 
 import java.io.File;
 import java.security.AccessController;
@@ -24,25 +24,25 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq.api.core.ActiveMQBuffer;
-import org.apache.activemq.api.core.ActiveMQException;
-import org.apache.activemq.api.core.ActiveMQInterruptedException;
-import org.apache.activemq.api.core.Message;
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.api.core.client.ClientMessage;
-import org.apache.activemq.api.core.client.ClientSession;
-import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.MessageHandler;
-import org.apache.activemq.api.core.client.ServerLocator;
-import org.apache.activemq.core.client.ActiveMQClientLogger;
-import org.apache.activemq.core.client.ActiveMQClientMessageBundle;
-import org.apache.activemq.spi.core.remoting.ConsumerContext;
-import org.apache.activemq.spi.core.remoting.SessionContext;
-import org.apache.activemq.utils.FutureLatch;
-import org.apache.activemq.utils.PriorityLinkedList;
-import org.apache.activemq.utils.PriorityLinkedListImpl;
-import org.apache.activemq.utils.ReusableLatch;
-import org.apache.activemq.utils.TokenBucketLimiter;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.ActiveMQInterruptedException;
+import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.client.ClientMessage;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
+import org.apache.activemq.artemis.api.core.client.MessageHandler;
+import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
+import org.apache.activemq.artemis.core.client.ActiveMQClientMessageBundle;
+import org.apache.activemq.artemis.spi.core.remoting.ConsumerContext;
+import org.apache.activemq.artemis.spi.core.remoting.SessionContext;
+import org.apache.activemq.artemis.utils.FutureLatch;
+import org.apache.activemq.artemis.utils.PriorityLinkedList;
+import org.apache.activemq.artemis.utils.PriorityLinkedListImpl;
+import org.apache.activemq.artemis.utils.ReusableLatch;
+import org.apache.activemq.artemis.utils.TokenBucketLimiter;
 
 public final class ClientConsumerImpl implements ClientConsumerInternal
 {
@@ -458,7 +458,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal
    /**
     * To be used by MDBs to stop any more handling of messages.
     *
-    * @throws org.apache.activemq.api.core.ActiveMQException
+    * @throws ActiveMQException
     * @param future the future to run once the onMessage Thread has completed
     */
    public Thread prepareForClose(final FutureLatch future) throws ActiveMQException
@@ -999,7 +999,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal
          return;
       }
 
-      org.apache.activemq.utils.FutureLatch future = new FutureLatch();
+      FutureLatch future = new FutureLatch();
 
       sessionExecutor.execute(future);
 
@@ -1135,7 +1135,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal
 
    /**
     * @param message
-    * @throws org.apache.activemq.api.core.ActiveMQException
+    * @throws ActiveMQException
     */
    private void flowControlBeforeConsumption(final ClientMessageInternal message) throws ActiveMQException
    {

@@ -14,31 +14,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.cluster.failover;
+package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
 import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.core.client.ClientConsumer;
-import org.apache.activemq.api.core.client.ClientMessage;
-import org.apache.activemq.api.core.client.ClientProducer;
-import org.apache.activemq.api.core.client.ClientSession;
-import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.FailoverEventListener;
-import org.apache.activemq.api.core.client.FailoverEventType;
-import org.apache.activemq.api.core.client.ServerLocator;
-import org.apache.activemq.core.client.impl.ClientSessionFactoryInternal;
-import org.apache.activemq.core.client.impl.ServerLocatorInternal;
-import org.apache.activemq.core.config.ha.SharedStoreMasterPolicyConfiguration;
-import org.apache.activemq.core.config.ha.SharedStoreSlavePolicyConfiguration;
-import org.apache.activemq.core.server.impl.InVMNodeManager;
-import org.apache.activemq.jms.client.ActiveMQTextMessage;
-import org.apache.activemq.tests.integration.IntegrationTestLogger;
-import org.apache.activemq.tests.util.TransportConfigurationUtils;
-import org.junit.Assert;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.client.ClientConsumer;
+import org.apache.activemq.artemis.api.core.client.ClientMessage;
+import org.apache.activemq.artemis.api.core.client.ClientProducer;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
+import org.apache.activemq.artemis.api.core.client.FailoverEventListener;
+import org.apache.activemq.artemis.api.core.client.FailoverEventType;
+import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal;
+import org.apache.activemq.artemis.core.client.impl.ServerLocatorInternal;
+import org.apache.activemq.artemis.core.config.ha.SharedStoreMasterPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.SharedStoreSlavePolicyConfiguration;
+import org.apache.activemq.artemis.core.server.impl.InVMNodeManager;
+import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
+import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
+import org.apache.activemq.artemis.tests.util.TransportConfigurationUtils;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -85,7 +84,7 @@ public class FailoverListenerTest extends FailoverTestBase
       //the backup server should be online by now
       assertEquals(FailoverEventType.FAILOVER_COMPLETED, listener.getFailoverEventType().get(1));
 
-      ClientProducer producer = session.createProducer(FailoverTestBase.ADDRESS);
+      ClientProducer producer = session.createProducer(ADDRESS);
 
       ClientMessage message = session.createMessage(true);
 
@@ -190,8 +189,8 @@ public class FailoverListenerTest extends FailoverTestBase
    private void wrapUpSessionFactory()
    {
       sf.close();
-      Assert.assertEquals("Expecting 0 sessions", 0, sf.numSessions());
-      Assert.assertEquals("Expecting 0 connections", 0, sf.numConnections());
+      assertEquals("Expecting 0 sessions", 0, sf.numSessions());
+      assertEquals("Expecting 0 connections", 0, sf.numConnections());
    }
 
    @Override
@@ -245,10 +244,10 @@ public class FailoverListenerTest extends FailoverTestBase
 
       if (createQueue)
       {
-         session.createQueue(FailoverTestBase.ADDRESS, FailoverTestBase.ADDRESS, null, true);
+         session.createQueue(ADDRESS, ADDRESS, null, true);
       }
 
-      ClientProducer producer = session.createProducer(FailoverTestBase.ADDRESS);
+      ClientProducer producer = session.createProducer(ADDRESS);
 
       final int numMessages = 1000;
 
@@ -264,7 +263,7 @@ public class FailoverListenerTest extends FailoverTestBase
          producer.send(message);
       }
 
-      ClientConsumer consumer = session.createConsumer(FailoverTestBase.ADDRESS);
+      ClientConsumer consumer = session.createConsumer(ADDRESS);
 
       session.start();
 
@@ -272,9 +271,9 @@ public class FailoverListenerTest extends FailoverTestBase
       {
          ClientMessage message2 = consumer.receive();
 
-         Assert.assertEquals("aardvarks", message2.getBodyBuffer().readString());
+         assertEquals("aardvarks", message2.getBodyBuffer().readString());
 
-         Assert.assertEquals(i, message2.getObjectProperty(new SimpleString("count")));
+         assertEquals(i, message2.getObjectProperty(new SimpleString("count")));
 
          message2.acknowledge();
       }
@@ -283,7 +282,7 @@ public class FailoverListenerTest extends FailoverTestBase
 
       consumer.close();
 
-      Assert.assertNull(message3);
+      assertNull(message3);
 
       return session;
    }

@@ -14,12 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.api.core.client;
+package org.apache.activemq.artemis.api.core.client;
 
 import java.util.UUID;
 
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.core.client.impl.ClientMessageImpl;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.client.impl.ClientMessageImpl;
 
 /**
  * The ClientRequestor class helps making requests.

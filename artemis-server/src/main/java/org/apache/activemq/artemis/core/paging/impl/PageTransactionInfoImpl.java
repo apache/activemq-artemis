@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.paging.impl;
+package org.apache.activemq.artemis.core.paging.impl;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -22,18 +22,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq.api.core.ActiveMQBuffer;
-import org.apache.activemq.core.paging.PageTransactionInfo;
-import org.apache.activemq.core.paging.PagingManager;
-import org.apache.activemq.core.paging.cursor.PageIterator;
-import org.apache.activemq.core.paging.cursor.PagePosition;
-import org.apache.activemq.core.paging.cursor.PageSubscription;
-import org.apache.activemq.core.persistence.StorageManager;
-import org.apache.activemq.core.server.ActiveMQServerLogger;
-import org.apache.activemq.core.transaction.Transaction;
-import org.apache.activemq.core.transaction.TransactionOperationAbstract;
-import org.apache.activemq.core.transaction.TransactionPropertyIndexes;
-import org.apache.activemq.utils.DataConstants;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.core.paging.PageTransactionInfo;
+import org.apache.activemq.artemis.core.paging.PagingManager;
+import org.apache.activemq.artemis.core.paging.cursor.PageIterator;
+import org.apache.activemq.artemis.core.paging.cursor.PagePosition;
+import org.apache.activemq.artemis.core.paging.cursor.PageSubscription;
+import org.apache.activemq.artemis.core.persistence.StorageManager;
+import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.apache.activemq.artemis.core.transaction.Transaction;
+import org.apache.activemq.artemis.core.transaction.TransactionOperationAbstract;
+import org.apache.activemq.artemis.core.transaction.TransactionPropertyIndexes;
+import org.apache.activemq.artemis.utils.DataConstants;
 
 public final class PageTransactionInfoImpl implements PageTransactionInfo
 {
@@ -161,7 +161,7 @@ public final class PageTransactionInfoImpl implements PageTransactionInfo
    /*
     * This is to be used after paging. We will update the PageTransactions until they get all the messages delivered. On that case we will delete the page TX
     * (non-Javadoc)
-    * @see org.apache.activemq.core.paging.PageTransactionInfo#storeUpdate(org.apache.activemq.core.persistence.StorageManager, org.apache.activemq.core.transaction.Transaction, int)
+    * @see org.apache.activemq.artemis.core.paging.PageTransactionInfo#storeUpdate(org.apache.activemq.artemis.core.persistence.StorageManager, org.apache.activemq.artemis.core.transaction.Transaction, int)
     */
    public void storeUpdate(final StorageManager storageManager, final PagingManager pagingManager, final Transaction tx) throws Exception
    {

@@ -14,9 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.jms.tests.util;
+package org.apache.activemq.artemis.jms.tests.util;
 
-import org.apache.activemq.jms.tests.JmsTestLogger;
+import org.apache.activemq.artemis.jms.tests.JmsTestLogger;
 import org.junit.Assert;
 
 /**

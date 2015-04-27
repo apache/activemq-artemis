@@ -14,11 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.jms.bridge.impl;
+package org.apache.activemq.artemis.jms.bridge.impl;
+
+import org.apache.activemq.artemis.jms.bridge.ConnectionFactoryFactory;
 
 import java.util.Hashtable;
-
-import org.apache.activemq.jms.bridge.ConnectionFactoryFactory;
 
 
 public class JNDIConnectionFactoryFactory extends JNDIFactorySupport implements ConnectionFactoryFactory

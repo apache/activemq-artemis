@@ -14,18 +14,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.remoting.impl.netty;
+package org.apache.activemq.artemis.core.remoting.impl.netty;
 
 import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 
-import org.apache.activemq.core.server.cluster.ClusterConnection;
-import org.apache.activemq.spi.core.protocol.ProtocolManager;
-import org.apache.activemq.spi.core.remoting.Acceptor;
-import org.apache.activemq.spi.core.remoting.AcceptorFactory;
-import org.apache.activemq.spi.core.remoting.BufferHandler;
-import org.apache.activemq.spi.core.remoting.ConnectionLifeCycleListener;
+import org.apache.activemq.artemis.core.server.cluster.ClusterConnection;
+import org.apache.activemq.artemis.spi.core.protocol.ProtocolManager;
+import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
+import org.apache.activemq.artemis.spi.core.remoting.AcceptorFactory;
+import org.apache.activemq.artemis.spi.core.remoting.BufferHandler;
+import org.apache.activemq.artemis.spi.core.remoting.ConnectionLifeCycleListener;
 
 public class NettyAcceptorFactory implements AcceptorFactory
 {

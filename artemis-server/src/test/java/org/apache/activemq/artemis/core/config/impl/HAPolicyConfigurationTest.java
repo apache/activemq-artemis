@@ -14,27 +14,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.config.impl;
+package org.apache.activemq.artemis.core.config.impl;
 
-import org.apache.activemq.core.config.FileDeploymentManager;
-import org.apache.activemq.core.server.cluster.ha.ColocatedPolicy;
-import org.apache.activemq.core.server.cluster.ha.HAPolicy;
-import org.apache.activemq.core.server.cluster.ha.LiveOnlyPolicy;
-import org.apache.activemq.core.server.cluster.ha.ReplicaPolicy;
-import org.apache.activemq.core.server.cluster.ha.ReplicatedPolicy;
-import org.apache.activemq.core.server.cluster.ha.ScaleDownPolicy;
-import org.apache.activemq.core.server.cluster.ha.SharedStoreMasterPolicy;
-import org.apache.activemq.core.server.cluster.ha.SharedStoreSlavePolicy;
-import org.apache.activemq.core.server.impl.ColocatedActivation;
-import org.apache.activemq.core.server.impl.LiveOnlyActivation;
-import org.apache.activemq.core.server.impl.SharedNothingBackupActivation;
-import org.apache.activemq.core.server.impl.SharedNothingLiveActivation;
-import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.server.impl.Activation;
-import org.apache.activemq.core.server.impl.ActiveMQServerImpl;
-import org.apache.activemq.core.server.impl.SharedStoreBackupActivation;
-import org.apache.activemq.core.server.impl.SharedStoreLiveActivation;
-import org.apache.activemq.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.core.config.FileDeploymentManager;
+import org.apache.activemq.artemis.core.server.cluster.ha.ColocatedPolicy;
+import org.apache.activemq.artemis.core.server.cluster.ha.HAPolicy;
+import org.apache.activemq.artemis.core.server.cluster.ha.LiveOnlyPolicy;
+import org.apache.activemq.artemis.core.server.cluster.ha.ReplicaPolicy;
+import org.apache.activemq.artemis.core.server.cluster.ha.ReplicatedPolicy;
+import org.apache.activemq.artemis.core.server.cluster.ha.ScaleDownPolicy;
+import org.apache.activemq.artemis.core.server.cluster.ha.SharedStoreMasterPolicy;
+import org.apache.activemq.artemis.core.server.cluster.ha.SharedStoreSlavePolicy;
+import org.apache.activemq.artemis.core.server.impl.ColocatedActivation;
+import org.apache.activemq.artemis.core.server.impl.LiveOnlyActivation;
+import org.apache.activemq.artemis.core.server.impl.SharedNothingBackupActivation;
+import org.apache.activemq.artemis.core.server.impl.SharedNothingLiveActivation;
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.server.impl.Activation;
+import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
+import org.apache.activemq.artemis.core.server.impl.SharedStoreBackupActivation;
+import org.apache.activemq.artemis.core.server.impl.SharedStoreLiveActivation;
+import org.apache.activemq.artemis.tests.util.UnitTestCase;
 import org.junit.Test;
 
 import java.util.List;

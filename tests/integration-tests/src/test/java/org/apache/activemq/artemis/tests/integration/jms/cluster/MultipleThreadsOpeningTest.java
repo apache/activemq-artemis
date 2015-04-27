@@ -14,17 +14,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.jms.cluster;
+package org.apache.activemq.artemis.tests.integration.jms.cluster;
 
 import javax.jms.Connection;
 import javax.jms.Session;
 import java.util.concurrent.CountDownLatch;
 
-import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.jms.ActiveMQJMSClient;
-import org.apache.activemq.api.jms.JMSFactoryType;
-import org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory;
-import org.apache.activemq.tests.util.JMSClusteredTestBase;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
+import org.apache.activemq.artemis.api.jms.JMSFactoryType;
+import org.apache.activemq.artemis.tests.util.JMSClusteredTestBase;
+import org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory;
 import org.junit.Test;
 
 public class MultipleThreadsOpeningTest extends JMSClusteredTestBase

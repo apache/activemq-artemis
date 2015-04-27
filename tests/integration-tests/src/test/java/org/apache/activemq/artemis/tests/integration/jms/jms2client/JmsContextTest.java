@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.jms.jms2client;
+package org.apache.activemq.artemis.tests.integration.jms.jms2client;
 
 import javax.jms.BytesMessage;
 import javax.jms.CompletionListener;
@@ -40,7 +40,7 @@ import java.util.Random;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq.tests.util.JMSTestBase;
+import org.apache.activemq.artemis.tests.util.JMSTestBase;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

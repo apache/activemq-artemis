@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.jms.client;
+package org.apache.activemq.artemis.jms.client;
 
 import javax.jms.ConnectionConsumer;
 import javax.jms.ConnectionMetaData;
@@ -36,21 +36,21 @@ import java.lang.ref.WeakReference;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.activemq.api.core.ActiveMQException;
-import org.apache.activemq.api.core.ActiveMQExceptionType;
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.api.core.client.ClientSession;
-import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.FailoverEventListener;
-import org.apache.activemq.api.core.client.FailoverEventType;
-import org.apache.activemq.api.core.client.SessionFailureListener;
-import org.apache.activemq.api.jms.ActiveMQJMSConstants;
-import org.apache.activemq.core.client.impl.ClientSessionInternal;
-import org.apache.activemq.core.version.Version;
-import org.apache.activemq.reader.MessageUtil;
-import org.apache.activemq.utils.ConcurrentHashSet;
-import org.apache.activemq.utils.UUIDGenerator;
-import org.apache.activemq.utils.VersionLoader;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
+import org.apache.activemq.artemis.api.core.client.FailoverEventListener;
+import org.apache.activemq.artemis.api.core.client.FailoverEventType;
+import org.apache.activemq.artemis.api.core.client.SessionFailureListener;
+import org.apache.activemq.artemis.api.jms.ActiveMQJMSConstants;
+import org.apache.activemq.artemis.core.client.impl.ClientSessionInternal;
+import org.apache.activemq.artemis.core.version.Version;
+import org.apache.activemq.artemis.reader.MessageUtil;
+import org.apache.activemq.artemis.utils.ConcurrentHashSet;
+import org.apache.activemq.artemis.utils.UUIDGenerator;
+import org.apache.activemq.artemis.utils.VersionLoader;
 
 /**
  * ActiveMQ implementation of a JMS Connection.
@@ -79,9 +79,9 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
 
    private final int connectionType;
 
-   private final Set<ActiveMQSession> sessions = new org.apache.activemq.utils.ConcurrentHashSet<ActiveMQSession>();
+   private final Set<ActiveMQSession> sessions = new ConcurrentHashSet<ActiveMQSession>();
 
-   private final Set<SimpleString> tempQueues = new org.apache.activemq.utils.ConcurrentHashSet<SimpleString>();
+   private final Set<SimpleString> tempQueues = new ConcurrentHashSet<SimpleString>();
 
    private final Set<SimpleString> knownDestinations = new ConcurrentHashSet<SimpleString>();
 

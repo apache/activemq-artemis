@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.protocol.openwire.amq;
+package org.apache.activemq.artemis.core.protocol.openwire.amq;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -26,39 +26,39 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.apache.activemq.api.core.Pair;
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.api.core.management.CoreNotificationType;
-import org.apache.activemq.api.core.management.ManagementHelper;
-import org.apache.activemq.core.filter.Filter;
-import org.apache.activemq.core.filter.impl.FilterImpl;
-import org.apache.activemq.core.persistence.OperationContext;
-import org.apache.activemq.core.persistence.StorageManager;
-import org.apache.activemq.core.postoffice.Binding;
-import org.apache.activemq.core.postoffice.BindingType;
-import org.apache.activemq.core.postoffice.PostOffice;
-import org.apache.activemq.core.postoffice.QueueBinding;
-import org.apache.activemq.core.protocol.openwire.AMQTransactionImpl;
-import org.apache.activemq.core.security.SecurityStore;
-import org.apache.activemq.core.server.ActiveMQMessageBundle;
-import org.apache.activemq.core.server.ActiveMQServerLogger;
-import org.apache.activemq.core.server.MessageReference;
-import org.apache.activemq.core.server.Queue;
-import org.apache.activemq.core.server.QueueCreator;
-import org.apache.activemq.core.server.ServerConsumer;
-import org.apache.activemq.core.server.ServerMessage;
-import org.apache.activemq.core.server.impl.ActiveMQServerImpl;
-import org.apache.activemq.core.server.impl.RefsOperation;
-import org.apache.activemq.core.server.impl.ServerConsumerImpl;
-import org.apache.activemq.core.server.impl.ServerSessionImpl;
-import org.apache.activemq.core.server.management.ManagementService;
-import org.apache.activemq.core.server.management.Notification;
-import org.apache.activemq.core.transaction.ResourceManager;
-import org.apache.activemq.core.transaction.TransactionPropertyIndexes;
-import org.apache.activemq.spi.core.protocol.RemotingConnection;
-import org.apache.activemq.spi.core.protocol.SessionCallback;
-import org.apache.activemq.utils.TypedProperties;
-import org.apache.activemq.utils.UUID;
+import org.apache.activemq.artemis.api.core.Pair;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.management.CoreNotificationType;
+import org.apache.activemq.artemis.api.core.management.ManagementHelper;
+import org.apache.activemq.artemis.core.filter.Filter;
+import org.apache.activemq.artemis.core.filter.impl.FilterImpl;
+import org.apache.activemq.artemis.core.persistence.OperationContext;
+import org.apache.activemq.artemis.core.persistence.StorageManager;
+import org.apache.activemq.artemis.core.postoffice.Binding;
+import org.apache.activemq.artemis.core.postoffice.BindingType;
+import org.apache.activemq.artemis.core.postoffice.PostOffice;
+import org.apache.activemq.artemis.core.postoffice.QueueBinding;
+import org.apache.activemq.artemis.core.protocol.openwire.AMQTransactionImpl;
+import org.apache.activemq.artemis.core.security.SecurityStore;
+import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
+import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.apache.activemq.artemis.core.server.MessageReference;
+import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.server.QueueCreator;
+import org.apache.activemq.artemis.core.server.ServerConsumer;
+import org.apache.activemq.artemis.core.server.ServerMessage;
+import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
+import org.apache.activemq.artemis.core.server.impl.RefsOperation;
+import org.apache.activemq.artemis.core.server.impl.ServerConsumerImpl;
+import org.apache.activemq.artemis.core.server.impl.ServerSessionImpl;
+import org.apache.activemq.artemis.core.server.management.ManagementService;
+import org.apache.activemq.artemis.core.server.management.Notification;
+import org.apache.activemq.artemis.core.transaction.ResourceManager;
+import org.apache.activemq.artemis.core.transaction.TransactionPropertyIndexes;
+import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.artemis.spi.core.protocol.SessionCallback;
+import org.apache.activemq.artemis.utils.TypedProperties;
+import org.apache.activemq.artemis.utils.UUID;
 
 public class AMQServerSession extends ServerSessionImpl
 {

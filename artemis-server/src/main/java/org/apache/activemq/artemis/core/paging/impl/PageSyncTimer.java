@@ -14,16 +14,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.paging.impl;
+package org.apache.activemq.artemis.core.paging.impl;
 
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq.api.core.ActiveMQExceptionType;
-import org.apache.activemq.core.paging.PagingStore;
-import org.apache.activemq.core.persistence.OperationContext;
+import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
+import org.apache.activemq.artemis.core.paging.PagingStore;
+import org.apache.activemq.artemis.core.persistence.OperationContext;
 
 /**
  * This will batch multiple calls waiting to perform a sync in a single call.

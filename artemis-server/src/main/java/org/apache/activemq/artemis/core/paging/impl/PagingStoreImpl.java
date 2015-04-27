@@ -14,34 +14,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.paging.impl;
+package org.apache.activemq.artemis.core.paging.impl;
 
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.core.journal.SequentialFile;
-import org.apache.activemq.core.journal.SequentialFileFactory;
-import org.apache.activemq.core.paging.PageTransactionInfo;
-import org.apache.activemq.core.paging.PagedMessage;
-import org.apache.activemq.core.paging.PagingManager;
-import org.apache.activemq.core.paging.PagingStore;
-import org.apache.activemq.core.paging.PagingStoreFactory;
-import org.apache.activemq.core.paging.cursor.LivePageCache;
-import org.apache.activemq.core.paging.cursor.PageCursorProvider;
-import org.apache.activemq.core.paging.cursor.impl.LivePageCacheImpl;
-import org.apache.activemq.core.paging.cursor.impl.PageCursorProviderImpl;
-import org.apache.activemq.core.persistence.StorageManager;
-import org.apache.activemq.core.replication.ReplicationManager;
-import org.apache.activemq.core.server.ActiveMQMessageBundle;
-import org.apache.activemq.core.server.ActiveMQServerLogger;
-import org.apache.activemq.core.server.LargeServerMessage;
-import org.apache.activemq.core.server.MessageReference;
-import org.apache.activemq.core.server.RouteContextList;
-import org.apache.activemq.core.server.ServerMessage;
-import org.apache.activemq.core.settings.impl.AddressFullMessagePolicy;
-import org.apache.activemq.core.settings.impl.AddressSettings;
-import org.apache.activemq.core.transaction.Transaction;
-import org.apache.activemq.core.transaction.TransactionOperation;
-import org.apache.activemq.core.transaction.TransactionPropertyIndexes;
-import org.apache.activemq.utils.FutureLatch;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.journal.SequentialFile;
+import org.apache.activemq.artemis.core.journal.SequentialFileFactory;
+import org.apache.activemq.artemis.core.paging.PageTransactionInfo;
+import org.apache.activemq.artemis.core.paging.PagedMessage;
+import org.apache.activemq.artemis.core.paging.PagingManager;
+import org.apache.activemq.artemis.core.paging.PagingStore;
+import org.apache.activemq.artemis.core.paging.PagingStoreFactory;
+import org.apache.activemq.artemis.core.paging.cursor.LivePageCache;
+import org.apache.activemq.artemis.core.paging.cursor.PageCursorProvider;
+import org.apache.activemq.artemis.core.paging.cursor.impl.LivePageCacheImpl;
+import org.apache.activemq.artemis.core.paging.cursor.impl.PageCursorProviderImpl;
+import org.apache.activemq.artemis.core.persistence.StorageManager;
+import org.apache.activemq.artemis.core.replication.ReplicationManager;
+import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
+import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.apache.activemq.artemis.core.server.LargeServerMessage;
+import org.apache.activemq.artemis.core.server.MessageReference;
+import org.apache.activemq.artemis.core.server.RouteContextList;
+import org.apache.activemq.artemis.core.server.ServerMessage;
+import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
+import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.core.transaction.Transaction;
+import org.apache.activemq.artemis.core.transaction.TransactionOperation;
+import org.apache.activemq.artemis.core.transaction.TransactionPropertyIndexes;
+import org.apache.activemq.artemis.utils.FutureLatch;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -971,18 +971,18 @@ public class PagingStoreImpl implements PagingStore
 
    private long[] routeQueues(Transaction tx, RouteContextList ctx) throws Exception
    {
-      List<org.apache.activemq.core.server.Queue> durableQueues = ctx.getDurableQueues();
-      List<org.apache.activemq.core.server.Queue> nonDurableQueues = ctx.getNonDurableQueues();
+      List<org.apache.activemq.artemis.core.server.Queue> durableQueues = ctx.getDurableQueues();
+      List<org.apache.activemq.artemis.core.server.Queue> nonDurableQueues = ctx.getNonDurableQueues();
       long[] ids = new long[durableQueues.size() + nonDurableQueues.size()];
       int i = 0;
 
-      for (org.apache.activemq.core.server.Queue q : durableQueues)
+      for (org.apache.activemq.artemis.core.server.Queue q : durableQueues)
       {
          q.getPageSubscription().notEmpty();
          ids[i++] = q.getID();
       }
 
-      for (org.apache.activemq.core.server.Queue q : nonDurableQueues)
+      for (org.apache.activemq.artemis.core.server.Queue q : nonDurableQueues)
       {
          q.getPageSubscription().getCounter().increment(tx, 1);
          q.getPageSubscription().notEmpty();
@@ -1000,9 +1000,9 @@ public class PagingStoreImpl implements PagingStore
     */
    private void applyPageCounters(Transaction tx, Page page, RouteContextList ctx) throws Exception
    {
-      List<org.apache.activemq.core.server.Queue> durableQueues = ctx.getDurableQueues();
-      List<org.apache.activemq.core.server.Queue> nonDurableQueues = ctx.getNonDurableQueues();
-      for (org.apache.activemq.core.server.Queue q : durableQueues)
+      List<org.apache.activemq.artemis.core.server.Queue> durableQueues = ctx.getDurableQueues();
+      List<org.apache.activemq.artemis.core.server.Queue> nonDurableQueues = ctx.getNonDurableQueues();
+      for (org.apache.activemq.artemis.core.server.Queue q : durableQueues)
       {
          if (tx == null)
          {
@@ -1017,7 +1017,7 @@ public class PagingStoreImpl implements PagingStore
          }
       }
 
-      for (org.apache.activemq.core.server.Queue q : nonDurableQueues)
+      for (org.apache.activemq.artemis.core.server.Queue q : nonDurableQueues)
       {
          q.getPageSubscription().getCounter().increment(tx, 1);
       }

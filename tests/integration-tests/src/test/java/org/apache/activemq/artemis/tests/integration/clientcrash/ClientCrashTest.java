@@ -14,25 +14,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.clientcrash;
+package org.apache.activemq.artemis.tests.integration.clientcrash;
+import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
+import org.apache.activemq.artemis.tests.util.SpawnedVMSupport;
 import org.junit.Before;
 
 import org.junit.Test;
 
-import org.junit.Assert;
-
-import org.apache.activemq.api.core.Message;
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.api.core.client.ClientConsumer;
-import org.apache.activemq.api.core.client.ClientMessage;
-import org.apache.activemq.api.core.client.ClientProducer;
-import org.apache.activemq.api.core.client.ClientSession;
-import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.ServerLocator;
-import org.apache.activemq.core.settings.impl.AddressSettings;
-import org.apache.activemq.jms.client.ActiveMQTextMessage;
-import org.apache.activemq.tests.integration.IntegrationTestLogger;
-import org.apache.activemq.tests.util.SpawnedVMSupport;
+import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.client.ClientConsumer;
+import org.apache.activemq.artemis.api.core.client.ClientMessage;
+import org.apache.activemq.artemis.api.core.client.ClientProducer;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
+import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
 
 /**
  * A test that makes sure that a ActiveMQ server cleans up the associated
@@ -90,8 +88,8 @@ public class ClientCrashTest extends ClientTestBase
 
       // receive a message from the queue
       Message messageFromClient = consumer.receive(5000);
-      Assert.assertNotNull("no message received", messageFromClient);
-      Assert.assertEquals(ClientCrashTest.MESSAGE_TEXT_FROM_CLIENT, messageFromClient.getBodyBuffer().readString());
+      assertNotNull("no message received", messageFromClient);
+      assertEquals(ClientCrashTest.MESSAGE_TEXT_FROM_CLIENT, messageFromClient.getBodyBuffer().readString());
 
       assertActiveConnections(1 + 1); // One local and one from the other vm
       assertActiveSession(1 + 1);
@@ -107,7 +105,7 @@ public class ClientCrashTest extends ClientTestBase
       ClientCrashTest.log.debug("waiting for the client VM to crash ...");
       p.waitFor();
 
-      Assert.assertEquals(9, p.exitValue());
+      assertEquals(9, p.exitValue());
 
       System.out.println("VM Exited");
 
@@ -143,7 +141,7 @@ public class ClientCrashTest extends ClientTestBase
       ClientCrashTest.log.debug("waiting for the client VM to crash ...");
       p.waitFor();
 
-      Assert.assertEquals(9, p.exitValue());
+      assertEquals(9, p.exitValue());
 
       System.out.println("VM Exited");
 
@@ -158,8 +156,8 @@ public class ClientCrashTest extends ClientTestBase
 
       // receive a message from the queue
       ClientMessage messageFromClient = consumer.receive(timeout);
-      Assert.assertNotNull("no message received", messageFromClient);
-      Assert.assertEquals(ClientCrashTest.MESSAGE_TEXT_FROM_CLIENT, messageFromClient.getBodyBuffer().readString());
+      assertNotNull("no message received", messageFromClient);
+      assertEquals(ClientCrashTest.MESSAGE_TEXT_FROM_CLIENT, messageFromClient.getBodyBuffer().readString());
 
       assertEquals("delivery count", 2, messageFromClient.getDeliveryCount());
 

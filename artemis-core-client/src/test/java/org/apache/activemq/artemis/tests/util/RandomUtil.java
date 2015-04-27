@@ -14,16 +14,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.util;
+package org.apache.activemq.artemis.tests.util;
 
 import javax.transaction.xa.Xid;
 import java.util.Random;
 import java.util.UUID;
 
-import org.apache.activemq.api.core.ActiveMQBuffer;
-import org.apache.activemq.api.core.ActiveMQBuffers;
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.core.transaction.impl.XidImpl;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
 
 public final class RandomUtil
 {

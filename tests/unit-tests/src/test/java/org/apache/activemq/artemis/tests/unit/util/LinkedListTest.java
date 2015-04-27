@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.unit.util;
+package org.apache.activemq.artemis.tests.unit.util;
 
 import java.lang.ref.WeakReference;
 import java.util.LinkedList;
@@ -22,9 +22,9 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq.tests.util.UnitTestCase;
-import org.apache.activemq.utils.LinkedListImpl;
-import org.apache.activemq.utils.LinkedListIterator;
+import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.utils.LinkedListImpl;
+import org.apache.activemq.artemis.utils.LinkedListIterator;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -72,7 +72,7 @@ public class LinkedListTest extends UnitTestCase
 
       LinkedListIterator<MyObject> iter = objs.iterator();
 
-      for (int i = 0; i < 1000; i++)
+      for (int i = 0; i < 5000; i++)
       {
 
          for (int add = 0; add < 1000; add++)

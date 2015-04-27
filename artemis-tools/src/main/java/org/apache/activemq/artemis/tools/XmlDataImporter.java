@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tools;
+package org.apache.activemq.artemis.tools;
 
 
 import javax.xml.stream.XMLInputFactory;
@@ -34,26 +34,27 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import org.apache.activemq.api.core.Message;
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.core.client.ClientMessage;
-import org.apache.activemq.api.core.client.ClientProducer;
-import org.apache.activemq.api.core.client.ClientRequestor;
-import org.apache.activemq.api.core.client.ClientSession;
-import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.ActiveMQClient;
-import org.apache.activemq.api.core.client.ServerLocator;
-import org.apache.activemq.api.core.management.ManagementHelper;
-import org.apache.activemq.api.core.management.ResourceNames;
-import org.apache.activemq.core.message.impl.MessageImpl;
-import org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory;
-import org.apache.activemq.core.remoting.impl.netty.TransportConstants;
-import org.apache.activemq.core.server.ActiveMQServerLogger;
-import org.apache.activemq.utils.Base64;
+import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.client.ClientMessage;
+import org.apache.activemq.artemis.api.core.client.ClientProducer;
+import org.apache.activemq.artemis.api.core.client.ClientRequestor;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
+import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.api.core.management.ManagementHelper;
+import org.apache.activemq.artemis.api.core.management.ResourceNames;
+import org.apache.activemq.artemis.core.message.impl.MessageImpl;
+import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory;
+import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
+import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.apache.activemq.artemis.utils.UUIDGenerator;
+import org.apache.activemq.artemis.utils.Base64;
 
 /**
- * Read XML output from <code>org.apache.activemq.core.persistence.impl.journal.XmlDataExporter</code>, create a core session, and
+ * Read XML output from <code>org.apache.activemq.artemis.core.persistence.impl.journal.XmlDataExporter</code>, create a core session, and
  * send the messages to a running instance of ActiveMQ.  It uses the StAX <code>javax.xml.stream.XMLStreamReader</code>
  * for speed and simplicity.
  */
@@ -86,7 +87,7 @@ public final class XmlDataImporter
 
    /**
     * This is the normal constructor for programmatic access to the
-    * <code>org.apache.activemq.core.persistence.impl.journal.XmlDataImporter</code> if the session passed
+    * <code>org.apache.activemq.artemis.core.persistence.impl.journal.XmlDataImporter</code> if the session passed
     * in uses auto-commit for sends.
     * <p/>
     * If the session needs to be transactional then use the constructor which takes 2 sessions.
@@ -102,7 +103,7 @@ public final class XmlDataImporter
 
    /**
     * This is the normal constructor for programmatic access to the
-    * <code>org.apache.activemq.core.persistence.impl.journal.XmlDataImporter</code> if the session passed
+    * <code>org.apache.activemq.artemis.core.persistence.impl.journal.XmlDataImporter</code> if the session passed
     * in uses auto-commit for sends.
     * <p/>
     * If the session needs to be transactional then use the constructor which takes 2 sessions.
@@ -240,7 +241,7 @@ public final class XmlDataImporter
       Byte priority = 0;
       Long expiration = 0L;
       Long timestamp = 0L;
-      org.apache.activemq.utils.UUID userId = null;
+      org.apache.activemq.artemis.utils.UUID userId = null;
       ArrayList<String> queues = new ArrayList<>();
 
       // get message's attributes
@@ -262,7 +263,7 @@ public final class XmlDataImporter
                timestamp = Long.parseLong(reader.getAttributeValue(i));
                break;
             case XmlDataConstants.MESSAGE_USER_ID:
-               userId = org.apache.activemq.utils.UUIDGenerator.getInstance().generateUUID();
+               userId = UUIDGenerator.getInstance().generateUUID();
                break;
          }
       }

@@ -14,9 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.api.core;
-
-import static org.apache.activemq.api.core.ActiveMQExceptionType.NOT_CONNECTED;
+package org.apache.activemq.artemis.api.core;
 
 /**
  * A client is not able to connect to ActiveMQ server.
@@ -27,11 +25,11 @@ public final class ActiveMQNotConnectedException extends ActiveMQException
 
    public ActiveMQNotConnectedException(String message)
    {
-      super(NOT_CONNECTED, message);
+      super(ActiveMQExceptionType.NOT_CONNECTED, message);
    }
 
    public ActiveMQNotConnectedException()
    {
-      super(NOT_CONNECTED);
+      super(ActiveMQExceptionType.NOT_CONNECTED);
    }
 }

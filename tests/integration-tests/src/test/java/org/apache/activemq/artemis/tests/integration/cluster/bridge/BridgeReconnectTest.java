@@ -14,41 +14,40 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.cluster.bridge;
+package org.apache.activemq.artemis.tests.integration.cluster.bridge;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.activemq.api.core.ActiveMQException;
-import org.apache.activemq.api.core.ActiveMQExceptionType;
-import org.apache.activemq.api.core.ActiveMQNotConnectedException;
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.core.client.ClientConsumer;
-import org.apache.activemq.api.core.client.ClientMessage;
-import org.apache.activemq.api.core.client.ClientProducer;
-import org.apache.activemq.api.core.client.ClientSession;
-import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.ActiveMQClient;
-import org.apache.activemq.api.core.client.ServerLocator;
-import org.apache.activemq.api.core.management.QueueControl;
-import org.apache.activemq.api.core.management.ResourceNames;
-import org.apache.activemq.core.config.BridgeConfiguration;
-import org.apache.activemq.core.config.CoreQueueConfiguration;
-import org.apache.activemq.core.remoting.impl.invm.InVMConnector;
-import org.apache.activemq.core.server.ActiveMQServer;
-import org.apache.activemq.core.server.NodeManager;
-import org.apache.activemq.core.server.Queue;
-import org.apache.activemq.core.server.cluster.Bridge;
-import org.apache.activemq.core.server.cluster.impl.BridgeImpl;
-import org.apache.activemq.core.server.impl.InVMNodeManager;
-import org.apache.activemq.core.server.management.ManagementService;
-import org.apache.activemq.spi.core.protocol.RemotingConnection;
-import org.apache.activemq.tests.integration.IntegrationTestLogger;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
+import org.apache.activemq.artemis.api.core.ActiveMQNotConnectedException;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.client.ClientConsumer;
+import org.apache.activemq.artemis.api.core.client.ClientMessage;
+import org.apache.activemq.artemis.api.core.client.ClientProducer;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
+import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.api.core.management.QueueControl;
+import org.apache.activemq.artemis.api.core.management.ResourceNames;
+import org.apache.activemq.artemis.core.config.BridgeConfiguration;
+import org.apache.activemq.artemis.core.config.CoreQueueConfiguration;
+import org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnector;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.NodeManager;
+import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.server.cluster.Bridge;
+import org.apache.activemq.artemis.core.server.cluster.impl.BridgeImpl;
+import org.apache.activemq.artemis.core.server.impl.InVMNodeManager;
+import org.apache.activemq.artemis.core.server.management.ManagementService;
+import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -265,8 +264,8 @@ public class BridgeReconnectTest extends BridgeTestBase
       for (int i = 0; i < numMessages; i++)
       {
          ClientMessage r1 = cons2.receive(1500);
-         Assert.assertNotNull(r1);
-         Assert.assertEquals(i, r1.getObjectProperty(propKey));
+         assertNotNull(r1);
+         assertEquals(i, r1.getObjectProperty(propKey));
       }
       closeServers();
 
@@ -359,8 +358,8 @@ public class BridgeReconnectTest extends BridgeTestBase
       for (int i = 0; i < numMessages; i++)
       {
          ClientMessage r1 = cons2.receive(1500);
-         Assert.assertNotNull(r1);
-         Assert.assertEquals(i, r1.getObjectProperty(propKey));
+         assertNotNull(r1);
+         assertEquals(i, r1.getObjectProperty(propKey));
       }
       closeServers();
 
@@ -426,7 +425,7 @@ public class BridgeReconnectTest extends BridgeTestBase
 
       final ManagementService managementService = server0.getManagementService();
       QueueControl coreQueueControl = (QueueControl) managementService.getResource(ResourceNames.CORE_QUEUE + queueName);
-      Assert.assertEquals(0, coreQueueControl.getDeliveringCount());
+      assertEquals(0, coreQueueControl.getDeliveringCount());
 
       final int numMessages = NUM_MESSAGES;
 
@@ -443,8 +442,8 @@ public class BridgeReconnectTest extends BridgeTestBase
       for (int i = 0; i < numMessages; i++)
       {
          ClientMessage r1 = cons1.receive(1500);
-         Assert.assertNotNull(r1);
-         Assert.assertEquals(i, r1.getObjectProperty(propKey));
+         assertNotNull(r1);
+         assertEquals(i, r1.getObjectProperty(propKey));
       }
       closeServers();
 
@@ -552,8 +551,8 @@ public class BridgeReconnectTest extends BridgeTestBase
       for (int i = 0; i < numMessages; i++)
       {
          ClientMessage r1 = cons1.receive(30000);
-         Assert.assertNotNull("received expected msg", r1);
-         Assert.assertEquals("property value matches", i, r1.getObjectProperty(propKey));
+         assertNotNull("received expected msg", r1);
+         assertEquals("property value matches", i, r1.getObjectProperty(propKey));
          BridgeReconnectTest.log.info("got message " + r1.getObjectProperty(propKey));
       }
 
@@ -587,10 +586,10 @@ public class BridgeReconnectTest extends BridgeTestBase
 
    private void assertNoMoreConnections()
    {
-      Assert.assertEquals(0, server0.getRemotingService().getConnections().size());
-      Assert.assertEquals(0, server1.getRemotingService().getConnections().size());
+      assertEquals(0, server0.getRemotingService().getConnections().size());
+      assertEquals(0, server1.getRemotingService().getConnections().size());
       if (server2 != null)
-         Assert.assertEquals(0, server2.getRemotingService().getConnections().size());
+         assertEquals(0, server2.getRemotingService().getConnections().size());
    }
 
    @Test
@@ -660,7 +659,7 @@ public class BridgeReconnectTest extends BridgeTestBase
       for (int i = 0; i < numMessages; i++)
       {
          ClientMessage r1 = cons1.receive(1500);
-         Assert.assertNotNull(r1);
+         assertNotNull(r1);
          if (outOfOrder == -1 && i != r1.getIntProperty(propKey).intValue())
          {
             outOfOrder = r1.getIntProperty(propKey).intValue();
@@ -692,7 +691,7 @@ public class BridgeReconnectTest extends BridgeTestBase
       for (int i = 0; i < numMessages; i++)
       {
          ClientMessage r1 = cons1.receive(1500);
-         Assert.assertNotNull("Didn't receive message", r1);
+         assertNotNull("Didn't receive message", r1);
          if (outOfOrder == -1 && i != r1.getIntProperty(propKey).intValue())
          {
             outOfOrder = r1.getIntProperty(propKey).intValue();
@@ -780,7 +779,7 @@ public class BridgeReconnectTest extends BridgeTestBase
       }
 
       System.out.println("Check.. DeliveringCount: " + queue.getDeliveringCount());
-      Assert.assertEquals("Delivering count of a source queue should be zero on connection failure",
+      assertEquals("Delivering count of a source queue should be zero on connection failure",
                           0, queue.getDeliveringCount());
 
       closeServers();

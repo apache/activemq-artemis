@@ -14,17 +14,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.jms.client;
+package org.apache.activemq.artemis.tests.integration.jms.client;
 
 import org.junit.Test;
 
 import javax.jms.ConnectionFactory;
 import javax.jms.Message;
 
-import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.jms.ActiveMQJMSClient;
-import org.apache.activemq.api.jms.JMSFactoryType;
-import org.apache.activemq.jms.client.ActiveMQJMSConnectionFactory;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
+import org.apache.activemq.artemis.api.jms.JMSFactoryType;
+import org.apache.activemq.artemis.jms.client.ActiveMQJMSConnectionFactory;
 
 public class GroupIDTest extends GroupingTest
 {

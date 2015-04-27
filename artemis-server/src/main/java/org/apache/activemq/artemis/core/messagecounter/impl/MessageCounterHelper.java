@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.messagecounter.impl;
+package org.apache.activemq.artemis.core.messagecounter.impl;
 
 import java.text.DateFormat;
 import java.util.Date;
@@ -22,9 +22,9 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.StringTokenizer;
 
-import org.apache.activemq.api.core.management.DayCounterInfo;
-import org.apache.activemq.core.messagecounter.MessageCounter;
-import org.apache.activemq.core.messagecounter.MessageCounter.DayCounter;
+import org.apache.activemq.artemis.api.core.management.DayCounterInfo;
+import org.apache.activemq.artemis.core.messagecounter.MessageCounter;
+import org.apache.activemq.artemis.core.messagecounter.MessageCounter.DayCounter;
 
 public class MessageCounterHelper
 {

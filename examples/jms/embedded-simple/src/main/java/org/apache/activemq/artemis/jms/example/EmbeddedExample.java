@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.jms.example;
+package org.apache.activemq.artemis.jms.example;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -28,12 +28,12 @@ import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 
-import org.apache.activemq.common.example.ActiveMQExample;
-import org.apache.activemq.core.config.impl.SecurityConfiguration;
-import org.apache.activemq.jms.server.embedded.EmbeddedJMS;
-import org.apache.activemq.jms.server.JMSServerManager;
-import org.apache.activemq.spi.core.security.ActiveMQSecurityManagerImpl;
-import org.apache.activemq.api.jms.JMSFactoryType;
+import org.apache.activemq.artemis.common.example.ActiveMQExample;
+import org.apache.activemq.artemis.core.config.impl.SecurityConfiguration;
+import org.apache.activemq.artemis.jms.server.embedded.EmbeddedJMS;
+import org.apache.activemq.artemis.jms.server.JMSServerManager;
+import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManagerImpl;
+import org.apache.activemq.artemis.api.jms.JMSFactoryType;
 
 /**
  * This example demonstrates how to run a ActiveMQ embedded with JMS

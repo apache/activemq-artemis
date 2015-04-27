@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.jms.example;
+package org.apache.activemq.artemis.jms.example;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -26,8 +26,8 @@ import javax.jms.TextMessage;
 import javax.jms.TransactionRolledBackException;
 import javax.naming.InitialContext;
 
-import org.apache.activemq.api.core.Message;
-import org.apache.activemq.common.example.ActiveMQExample;
+import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.common.example.ActiveMQExample;
 
 /**
  * A simple example that demonstrates failover of the JMS connection from one node to another

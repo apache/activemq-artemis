@@ -14,9 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.factory;
+package org.apache.activemq.artemis.factory;
 
-import org.apache.activemq.dto.BrokerDTO;
+import org.apache.activemq.artemis.dto.BrokerDTO;
 
 import java.net.URI;
 

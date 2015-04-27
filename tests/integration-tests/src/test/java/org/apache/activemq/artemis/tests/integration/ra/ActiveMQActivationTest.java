@@ -14,13 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.ra;
+package org.apache.activemq.artemis.tests.integration.ra;
 
-import org.apache.activemq.ra.inflow.ActiveMQActivationSpec;
+import org.apache.activemq.artemis.ra.inflow.ActiveMQActivationSpec;
 import org.junit.Test;
 
-import org.apache.activemq.ra.ActiveMQResourceAdapter;
-import org.apache.activemq.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.ra.ActiveMQResourceAdapter;
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
 
 public class ActiveMQActivationTest extends ServiceTestBase
 {

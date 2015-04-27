@@ -14,25 +14,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.extras.byteman;
+package org.apache.activemq.artemis.tests.extras.byteman;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.core.client.ClientSession;
-import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.ServerLocator;
-import org.apache.activemq.api.core.management.CoreNotificationType;
-import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.protocol.stomp.StompProtocolManagerFactory;
-import org.apache.activemq.core.remoting.impl.invm.InVMAcceptorFactory;
-import org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory;
-import org.apache.activemq.core.remoting.impl.netty.TransportConstants;
-import org.apache.activemq.core.server.ActiveMQServer;
-import org.apache.activemq.core.server.management.Notification;
-import org.apache.activemq.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
+import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.api.core.management.CoreNotificationType;
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.protocol.stomp.StompProtocolManagerFactory;
+import org.apache.activemq.artemis.core.remoting.impl.invm.InVMAcceptorFactory;
+import org.apache.activemq.artemis.core.remoting.impl.netty.NettyAcceptorFactory;
+import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.management.Notification;
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
 import org.jboss.byteman.contrib.bmunit.BMRule;
 import org.jboss.byteman.contrib.bmunit.BMRules;
 import org.jboss.byteman.contrib.bmunit.BMUnitRunner;
@@ -58,8 +58,8 @@ public class StompInternalStateTest extends ServiceTestBase
                @BMRule
                   (
                      name = "StompProtocolManager Leak Server Rule",
-                     targetClass = "org.apache.activemq.core.protocol.stomp.StompProtocolManager",
-                     targetMethod = "onNotification(org.apache.activemq.core.server.management.Notification)",
+                     targetClass = "org.apache.activemq.artemis.core.protocol.stomp.StompProtocolManager",
+                     targetMethod = "onNotification(org.apache.activemq.artemis.core.server.management.Notification)",
                      targetLocation = "EXIT",
                      helper = "org.apache.activemq.tests.extras.byteman.StompInternalStateTest",
                      action = "verifyBindingAddRemove($1, $0.destinations)"

@@ -14,13 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.server;
+package org.apache.activemq.artemis.tests.integration.server;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.activemq.core.persistence.impl.nullpm.NullStorageManager;
-import org.apache.activemq.core.server.ServerMessage;
+import org.apache.activemq.artemis.core.persistence.impl.nullpm.NullStorageManager;
+import org.apache.activemq.artemis.core.server.ServerMessage;
 
 public class FakeStorageManager extends NullStorageManager
 {

@@ -14,9 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.api.core;
-
-import static org.apache.activemq.api.core.ActiveMQExceptionType.DISCONNECTED;
+package org.apache.activemq.artemis.api.core;
 
 /**
  * A client was disconnected from ActiveMQ server when the server has shut down.
@@ -27,11 +25,11 @@ public final class ActiveMQDisconnectedException extends ActiveMQException
 
    public ActiveMQDisconnectedException()
    {
-      super(DISCONNECTED);
+      super(ActiveMQExceptionType.DISCONNECTED);
    }
 
    public ActiveMQDisconnectedException(String message)
    {
-      super(DISCONNECTED, message);
+      super(ActiveMQExceptionType.DISCONNECTED, message);
    }
 }

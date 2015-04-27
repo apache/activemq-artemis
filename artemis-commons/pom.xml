@@ -19,11 +19,11 @@
 
    <parent>
       <groupId>org.apache.activemq</groupId>
-      <artifactId>activemq-pom</artifactId>
-      <version>10.0.0-SNAPSHOT</version>
+      <artifactId>artemis-pom</artifactId>
+      <version>1.0.0-SNAPSHOT</version>
    </parent>
 
-   <artifactId>activemq-commons</artifactId>
+   <artifactId>artemis-commons</artifactId>
    <packaging>jar</packaging>
    <name>ActiveMQ Artemis Commons</name>
 

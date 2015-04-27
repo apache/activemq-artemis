@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.rest.queue.push;
+package org.apache.activemq.artemis.rest.queue.push;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -32,9 +32,9 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.rest.ActiveMQRestLogger;
-import org.apache.activemq.rest.queue.push.xml.PushRegistration;
+import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
+import org.apache.activemq.artemis.rest.queue.push.xml.PushRegistration;
+import org.apache.activemq.artemis.rest.ActiveMQRestLogger;
 
 public class PushConsumerResource
 {

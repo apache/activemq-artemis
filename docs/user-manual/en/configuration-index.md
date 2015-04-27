@@ -235,21 +235,21 @@ Name | Type | Description
 Using Masked Passwords in Configuration Files
 ---------------------------------------------
 
-By default all passwords in Apache ActiveMQ server's configuration files are in
+By default all passwords in Apache ActiveMQ Artemis server's configuration files are in
 plain text form. This usually poses no security issues as those files
 should be well protected from unauthorized accessing. However, in some
 circumstances a user doesn't want to expose its passwords to more eyes
 than necessary.
 
-Apache ActiveMQ can be configured to use 'masked' passwords in its
+Apache ActiveMQ Artemis can be configured to use 'masked' passwords in its
 configuration files. A masked password is an obscure string
 representation of a real password. To mask a password a user will use an
 'encoder'. The encoder takes in the real password and outputs the masked
 version. A user can then replace the real password in the configuration
-files with the new masked password. When Apache ActiveMQ loads a masked
+files with the new masked password. When Apache ActiveMQ Artemis loads a masked
 password, it uses a suitable 'decoder' to decode it into real password.
 
-Apache ActiveMQ provides a default password encoder and decoder. Optionally
+Apache ActiveMQ Artemis provides a default password encoder and decoder. Optionally
 users can use or implement their own encoder and decoder for masking the
 passwords.
 
@@ -280,7 +280,7 @@ trust-store-password. Because Acceptors and Connectors are pluggable
 implementations, each transport will have different password masking
 needs.
 
-When a Connector or Acceptor configuration is initialised, Apache ActiveMQ will
+When a Connector or Acceptor configuration is initialised, Apache ActiveMQ Artemis will
 add the "mask-password" and "password-codec" values to the Connector or
 Acceptors params using the keys `activemq.usemaskedpassword` and
 `activemq.passwordcodec` respectively. The Netty and InVM
@@ -324,7 +324,7 @@ example 2
 <cluster-password>80cf731af62c290</cluster-password>
 ```
 
-This indicates the cluster password is a masked value and Apache ActiveMQ will
+This indicates the cluster password is a masked value and Apache ActiveMQ Artemis will
 use its built-in decoder to decode it. All other passwords in the
 configuration file, Connectors, Acceptors and Bridges, will also use
 masked passwords.
@@ -350,7 +350,7 @@ followed by key/value pairs, separated by semi-colons. For example:
 <property name="passwordCodec">com.foo.FooDecoder;key=value</property>
 ```
 
-Apache ActiveMQ will load this property and initialize the class with a
+Apache ActiveMQ Artemis will load this property and initialize the class with a
 parameter map containing the "key"-\>"value" pair. If `passwordCodec` is
 not specified, the built-in decoder is used.
 
@@ -387,7 +387,7 @@ will have to be in masked form.
 
 ### Masking passwords in activemq-users.properties
 
-Apache ActiveMQ's built-in security manager uses plain properties files
+Apache ActiveMQ Artemis's built-in security manager uses plain properties files
 where the user passwords are specified in plaintext forms by default. To
 mask those parameters the following two properties need to be set
 in the 'bootstrap.xml' file.
@@ -403,10 +403,10 @@ Bridges. Example:
 
 ```xml
 <mask-password>true</mask-password>
-<password-codec>org.apache.activemq.utils.DefaultSensitiveStringCodec;key=hello world</password-codec>
+<password-codec>org.apache.activemq.artemis.utils.DefaultSensitiveStringCodec;key=hello world</password-codec>
 ```
 
-When so configured, the Apache ActiveMQ security manager will initialize a
+When so configured, the Apache ActiveMQ Artemis security manager will initialize a
 DefaultSensitiveStringCodec with the parameters "key"-\>"hello world",
 then use it to decode all the masked passwords in this configuration
 file.
@@ -419,23 +419,23 @@ its original clear text form in order to be used in various security
 operations. The algorithm used for decoding must match that for
 encoding. Otherwise the decoding may not be successful.
 
-For user's convenience Apache ActiveMQ provides a default built-in Decoder.
+For user's convenience Apache ActiveMQ Artemis provides a default built-in Decoder.
 However a user can if they so wish implement their own.
 
 #### The built-in Decoder
 
 Whenever no decoder is specified in the configuration file, the built-in
 decoder is used. The class name for the built-in decoder is
-org.apache.activemq.utils.DefaultSensitiveStringCodec. It has both
+org.apache.activemq.artemis.utils.DefaultSensitiveStringCodec. It has both
 encoding and decoding capabilities. It uses java.crypto.Cipher utilities
 to encrypt (encode) a plaintext password and decrypt a mask string using
 same algorithm. Using this decoder/encoder is pretty straightforward. To
-get a mask for a password, just run the main class at org.apache.activemq.utils.DefaultSensitiveStringCodec.
+get a mask for a password, just run the main class at org.apache.activemq.artemis.utils.DefaultSensitiveStringCodec.
 
 An easy way to do it is through activemq-tools-<VERSION>-jar-with-dependencies.jar since it has all the dependencies:
 
 ```sh
-    java -cp activemq-tools-6.0.0-jar-with-dependencies.jar org.apache.activemq.utils.DefaultSensitiveStringCodec "your plaintext password"
+    java -cp activemq-tools-6.0.0-jar-with-dependencies.jar org.apache.activemq.artemis.utils.DefaultSensitiveStringCodec "your plaintext password"
 ```
 
 If you don't want to use the jar-with-dependencies, make sure the classpath is correct. You'll get something like
@@ -449,7 +449,7 @@ Just copy "80cf731af62c290" and replace your plaintext password with it.
 #### Using a different decoder
 
 It is possible to use a different decoder rather than the built-in one.
-Simply make sure the decoder is in Apache ActiveMQ's classpath and configure
+Simply make sure the decoder is in Apache ActiveMQ Artemis's classpath and configure
 the server to use it as follows:
 
 ```xml
@@ -471,7 +471,7 @@ Then configure your cluster-password like this:
     <cluster-password>masked_password</cluster-password>
 ```
 
-When Apache ActiveMQ reads the cluster-password it will initialize the
+When Apache ActiveMQ Artemis reads the cluster-password it will initialize the
 NewDecoder and use it to decode "mask\_password". It also process all
 passwords using the new defined decoder.
 
@@ -511,4 +511,4 @@ public class MyNewDecoder implements SensitiveDataCodec<String>
 ```
 
 Last but not least, once you get your own decoder, please add it to the
-classpath. Otherwise Apache ActiveMQ will fail to load it!
+classpath. Otherwise Apache ActiveMQ Artemis will fail to load it!

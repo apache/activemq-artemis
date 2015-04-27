@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.util.transactions;
+package org.apache.activemq.artemis.tests.util.transactions;
 
 import javax.transaction.HeuristicMixedException;
 import javax.transaction.HeuristicRollbackException;
@@ -25,7 +25,7 @@ import javax.transaction.SystemException;
 import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
 
-import org.apache.activemq.service.extensions.transactions.TransactionManagerLocator;
+import org.apache.activemq.artemis.service.extensions.transactions.TransactionManagerLocator;
 
 public class DummyTransactionManagerLocator implements TransactionManagerLocator,TransactionManager
 {

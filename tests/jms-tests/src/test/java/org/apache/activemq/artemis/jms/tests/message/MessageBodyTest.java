@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.jms.tests.message;
+package org.apache.activemq.artemis.jms.tests.message;
 
 import javax.jms.BytesMessage;
 import javax.jms.MapMessage;
@@ -29,7 +29,7 @@ import java.io.Serializable;
 import java.util.Enumeration;
 import java.util.HashSet;
 
-import org.apache.activemq.jms.tests.util.ProxyAssertSupport;
+import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
 import org.junit.Assert;
 import org.junit.Test;
 

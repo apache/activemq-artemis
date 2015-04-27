@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.ra;
+package org.apache.activemq.artemis.tests.integration.ra;
 
 import javax.jms.Message;
 import javax.jms.MessageListener;
@@ -36,14 +36,14 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.concurrent.CountDownLatch;
 
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.api.core.client.ServerLocator;
-import org.apache.activemq.core.settings.impl.AddressSettings;
-import org.apache.activemq.jms.client.ActiveMQMessage;
-import org.apache.activemq.ra.ActiveMQResourceAdapter;
-import org.apache.activemq.ra.inflow.ActiveMQActivation;
-import org.apache.activemq.tests.util.JMSTestBase;
-import org.apache.activemq.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.tests.util.JMSTestBase;
+import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.jms.client.ActiveMQMessage;
+import org.apache.activemq.artemis.ra.ActiveMQResourceAdapter;
+import org.apache.activemq.artemis.ra.inflow.ActiveMQActivation;
 import org.junit.After;
 import org.junit.Before;
 

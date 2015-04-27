@@ -14,21 +14,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.scheduling;
+package org.apache.activemq.artemis.tests.integration.scheduling;
 
-import org.apache.activemq.api.core.client.ClientConsumer;
-import org.apache.activemq.api.core.client.ClientMessage;
-import org.apache.activemq.api.core.client.ClientProducer;
-import org.apache.activemq.api.core.client.ClientSession;
-import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.ServerLocator;
-import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.server.ActiveMQServer;
-import org.apache.activemq.core.settings.impl.AddressSettings;
-import org.apache.activemq.jms.client.ActiveMQTextMessage;
-import org.apache.activemq.tests.integration.IntegrationTestLogger;
-import org.apache.activemq.tests.util.ServiceTestBase;
-import org.apache.activemq.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.api.core.client.ClientConsumer;
+import org.apache.activemq.artemis.api.core.client.ClientMessage;
+import org.apache.activemq.artemis.api.core.client.ClientProducer;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
+import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -136,7 +136,7 @@ public class MultipliedDelayedMessageTest extends ServiceTestBase
       return message;
    }
 
-   // This is based on org.apache.activemq.core.server.impl.QueueImpl.calculateRedeliveryDelay()
+   // This is based on org.apache.activemq.artemis.core.server.impl.QueueImpl.calculateRedeliveryDelay()
    private long calculateExpectedDelay(final long redeliveryDelay, final long maxRedeliveryDelay, final double redeliveryMultiplier, final int deliveryCount)
    {
       int tmpDeliveryCount = deliveryCount > 0 ? deliveryCount - 1 : 0;

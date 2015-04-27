@@ -1,6 +1,6 @@
 # Thread management
 
-This chapter describes how Apache ActiveMQ uses and pools threads and how you
+This chapter describes how Apache ActiveMQ Artemis uses and pools threads and how you
 can manage them.
 
 First we'll discuss how threads are managed and used on the server side,
@@ -8,12 +8,12 @@ then we'll look at the client side.
 
 ## Server-Side Thread Management
 
-Each Apache ActiveMQ Server maintains a single thread pool for general use, and
+Each Apache ActiveMQ Artemis Server maintains a single thread pool for general use, and
 a scheduled thread pool for scheduled use. A Java scheduled thread pool
 cannot be configured to use a standard thread pool, otherwise we could
 use a single thread pool for both scheduled and non scheduled activity.
 
-A separate thread pool is also used to service connections. Apache ActiveMQ can
+A separate thread pool is also used to service connections. Apache ActiveMQ Artemis can
 use "old" (blocking) IO or "new" (non-blocking) IO also called NIO. Both
 of these options use a separate thread pool, but each of them behaves
 uniquely.
@@ -33,7 +33,7 @@ However, even an unbounded thread pool can run into trouble if it
 becomes too large. If you require the server to handle many concurrent
 connections you should use NIO, not old IO.
 
-When using new IO (NIO), Apache ActiveMQ will, by default, cap its thread pool
+When using new IO (NIO), Apache ActiveMQ Artemis will, by default, cap its thread pool
 at three times the number of cores (or hyper-threads) as reported by `
             Runtime.getRuntime().availableProcessors()` for processing
 incoming packets. To override this value, you can set the number of
@@ -96,7 +96,7 @@ For more information on configuring the reaper, please see [message expiry](mess
 
 Asynchronous IO has a thread pool for receiving and dispatching events
 out of the native layer. You will find it on a thread dump with the
-prefix ActiveMQ-AIO-poller-pool. Apache ActiveMQ uses one thread per opened
+prefix ActiveMQ-AIO-poller-pool. Apache ActiveMQ Artemis uses one thread per opened
 file on the journal (there is usually one).
 
 There is also a single thread used to invoke writes on libaio. We do
@@ -106,14 +106,14 @@ ActiveMQ-AIO-writer-pool.
 
 ## Client-Side Thread Management
 
-On the client side, Apache ActiveMQ maintains a single static scheduled thread
+On the client side, Apache ActiveMQ Artemis maintains a single static scheduled thread
 pool and a single static general thread pool for use by all clients
 using the same classloader in that JVM instance.
 
 The static scheduled thread pool has a maximum size of `5` threads, and
 the general purpose thread pool has an unbounded maximum size.
 
-If required Apache ActiveMQ can also be configured so that each
+If required Apache ActiveMQ Artemis can also be configured so that each
 `ClientSessionFactory` instance does not use these static pools but
 instead maintains its own scheduled and general purpose pool. Any
 sessions created from that `ClientSessionFactory` will use those pools
@@ -149,7 +149,7 @@ environment, e.g. `jndi.properties`. Here's a simple example using the
 "ConnectionFactory" connection factory which is available in the context
 by default:
 
-    java.naming.factory.initial=org.apache.activemq.jndi.ActiveMQInitialContextFactory
+    java.naming.factory.initial=ActiveMQInitialContextFactory
 
     java.naming.provider.url=tcp://localhost:61616
 

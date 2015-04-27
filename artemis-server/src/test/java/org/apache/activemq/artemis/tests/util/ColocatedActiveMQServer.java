@@ -14,20 +14,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.util;
+package org.apache.activemq.artemis.tests.util;
 
 import javax.management.MBeanServer;
 
-import org.apache.activemq.core.asyncio.impl.AsynchronousFileImpl;
-import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.config.impl.FileConfiguration;
-import org.apache.activemq.core.server.ActiveMQServer;
-import org.apache.activemq.core.server.JournalType;
-import org.apache.activemq.core.server.NodeManager;
-import org.apache.activemq.core.server.impl.AIOFileLockNodeManager;
-import org.apache.activemq.core.server.impl.FileLockNodeManager;
-import org.apache.activemq.core.server.impl.ActiveMQServerImpl;
-import org.apache.activemq.spi.core.security.ActiveMQSecurityManager;
+import org.apache.activemq.artemis.core.asyncio.impl.AsynchronousFileImpl;
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.config.impl.FileConfiguration;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.JournalType;
+import org.apache.activemq.artemis.core.server.NodeManager;
+import org.apache.activemq.artemis.core.server.impl.AIOFileLockNodeManager;
+import org.apache.activemq.artemis.core.server.impl.FileLockNodeManager;
+import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
+import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
 
 
 public class ColocatedActiveMQServer extends ActiveMQServerImpl

@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.jms.client;
+package org.apache.activemq.artemis.jms.client;
 
 
 import javax.jms.IllegalStateException;
@@ -25,10 +25,10 @@ import javax.jms.JMSRuntimeException;
 import javax.jms.MessageNotReadableException;
 import javax.jms.MessageNotWriteableException;
 
-import org.apache.activemq.api.core.ActiveMQIllegalStateException;
-import org.apache.activemq.api.core.ActiveMQInvalidFilterExpressionException;
-import org.apache.activemq.api.core.ActiveMQNonExistentQueueException;
-import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.ActiveMQIllegalStateException;
+import org.apache.activemq.artemis.api.core.ActiveMQInvalidFilterExpressionException;
+import org.apache.activemq.artemis.api.core.ActiveMQNonExistentQueueException;
+import org.apache.activemq.artemis.api.core.SimpleString;
 import org.jboss.logging.annotations.Cause;
 import org.jboss.logging.annotations.Message;
 import org.jboss.logging.annotations.MessageBundle;

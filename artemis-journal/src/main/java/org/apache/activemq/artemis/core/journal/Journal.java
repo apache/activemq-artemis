@@ -14,13 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.journal;
+package org.apache.activemq.artemis.core.journal;
 
 import java.util.List;
 import java.util.Map;
 
-import org.apache.activemq.core.journal.impl.JournalFile;
-import org.apache.activemq.core.server.ActiveMQComponent;
+import org.apache.activemq.artemis.core.journal.impl.JournalFile;
+import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 
 /**
  * Most methods on the journal provide a blocking version where you select the sync mode and a non

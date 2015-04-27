@@ -14,15 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.remoting.impl;
+package org.apache.activemq.artemis.core.remoting.impl;
 
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.activemq.api.core.TransportConfigurationHelper;
-import org.apache.activemq.utils.ClassloadingUtil;
+import org.apache.activemq.artemis.api.core.TransportConfigurationHelper;
+import org.apache.activemq.artemis.utils.ClassloadingUtil;
 
 /**
  * Stores static mappings of class names to ConnectorFactory instances to act as a central repo for ConnectorFactory

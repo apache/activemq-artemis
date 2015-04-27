@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.jms.client;
+package org.apache.activemq.artemis.tests.integration.jms.client;
 
 import javax.jms.Connection;
 import javax.jms.MessageProducer;
@@ -24,17 +24,17 @@ import javax.jms.TextMessage;
 import javax.management.MBeanServer;
 import javax.management.MBeanServerFactory;
 
-import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.jms.ActiveMQJMSClient;
-import org.apache.activemq.api.jms.JMSFactoryType;
-import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.registry.JndiBindingRegistry;
-import org.apache.activemq.core.server.ActiveMQServer;
-import org.apache.activemq.core.server.ActiveMQServers;
-import org.apache.activemq.jms.client.ActiveMQConnectionFactory;
-import org.apache.activemq.jms.server.impl.JMSServerManagerImpl;
-import org.apache.activemq.tests.unit.util.InVMNamingContext;
-import org.apache.activemq.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
+import org.apache.activemq.artemis.api.jms.JMSFactoryType;
+import org.apache.activemq.artemis.tests.unit.util.InVMNamingContext;
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.registry.JndiBindingRegistry;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.ActiveMQServers;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -56,7 +56,7 @@ public class RemoteConnectionStressTest extends ServiceTestBase
       super.setUp();
 
       Configuration conf = ServiceTestBase.createBasicConfigNoDataFolder();
-      conf.getAcceptorConfigurations().add(new TransportConfiguration("org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory"));
+      conf.getAcceptorConfigurations().add(new TransportConfiguration("org.apache.activemq.artemis.core.remoting.impl.netty.NettyAcceptorFactory"));
 
       mbeanServer = MBeanServerFactory.createMBeanServer();
 

@@ -14,16 +14,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.client.impl;
+package org.apache.activemq.artemis.core.client.impl;
 
 import java.util.concurrent.Executor;
 
-import org.apache.activemq.api.core.ActiveMQException;
-import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.ServerLocator;
-import org.apache.activemq.api.core.Pair;
-import org.apache.activemq.spi.core.remoting.ClientProtocolManager;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
+import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.api.core.Pair;
+import org.apache.activemq.artemis.spi.core.remoting.ClientProtocolManager;
 
 public interface ServerLocatorInternal extends ServerLocator
 {
@@ -53,7 +53,7 @@ public interface ServerLocatorInternal extends ServerLocator
 
    /**
     * Like {@link #connect()} but it does not log warnings if it fails to connect.
-    * @throws org.apache.activemq.api.core.ActiveMQException
+    * @throws ActiveMQException
     */
    ClientSessionFactoryInternal connectNoWarnings() throws ActiveMQException;
 

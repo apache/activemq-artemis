@@ -14,12 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.rest.test;
+package org.apache.activemq.artemis.rest.test;
 import java.lang.reflect.Field;
 
-import org.apache.activemq.rest.MessageServiceManager;
-import org.apache.activemq.rest.util.LinkHeaderLinkStrategy;
-import org.apache.activemq.rest.util.LinkStrategy;
+import org.apache.activemq.artemis.rest.MessageServiceManager;
+import org.apache.activemq.artemis.rest.util.LinkHeaderLinkStrategy;
+import org.apache.activemq.artemis.rest.util.LinkStrategy;
 import org.jboss.resteasy.client.ClientExecutor;
 import org.jboss.resteasy.client.ClientResponse;
 import org.jboss.resteasy.client.core.BaseClientResponse;

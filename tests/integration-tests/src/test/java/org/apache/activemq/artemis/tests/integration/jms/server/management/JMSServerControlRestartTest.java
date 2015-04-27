@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.jms.server.management;
+package org.apache.activemq.artemis.tests.integration.jms.server.management;
 
 import javax.jms.Connection;
 import javax.jms.Message;
@@ -23,26 +23,26 @@ import javax.jms.QueueRequestor;
 import javax.jms.QueueSession;
 import javax.jms.Session;
 
-import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.core.management.ObjectNameBuilder;
-import org.apache.activemq.api.jms.ActiveMQJMSClient;
-import org.apache.activemq.api.jms.JMSFactoryType;
-import org.apache.activemq.api.jms.management.JMSManagementHelper;
-import org.apache.activemq.api.jms.management.JMSServerControl;
-import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.registry.JndiBindingRegistry;
-import org.apache.activemq.core.remoting.impl.invm.InVMAcceptorFactory;
-import org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory;
-import org.apache.activemq.core.server.ActiveMQServer;
-import org.apache.activemq.core.server.ActiveMQServers;
-import org.apache.activemq.core.server.JournalType;
-import org.apache.activemq.jms.server.JMSServerManager;
-import org.apache.activemq.jms.server.impl.JMSServerManagerImpl;
-import org.apache.activemq.tests.integration.management.ManagementControlHelper;
-import org.apache.activemq.tests.integration.management.ManagementTestBase;
-import org.apache.activemq.tests.unit.util.InVMNamingContext;
-import org.apache.activemq.tests.util.RandomUtil;
-import org.apache.activemq.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
+import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
+import org.apache.activemq.artemis.api.jms.JMSFactoryType;
+import org.apache.activemq.artemis.api.jms.management.JMSManagementHelper;
+import org.apache.activemq.artemis.api.jms.management.JMSServerControl;
+import org.apache.activemq.artemis.tests.integration.management.ManagementControlHelper;
+import org.apache.activemq.artemis.tests.integration.management.ManagementTestBase;
+import org.apache.activemq.artemis.tests.unit.util.InVMNamingContext;
+import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.registry.JndiBindingRegistry;
+import org.apache.activemq.artemis.core.remoting.impl.invm.InVMAcceptorFactory;
+import org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.ActiveMQServers;
+import org.apache.activemq.artemis.core.server.JournalType;
+import org.apache.activemq.artemis.jms.server.JMSServerManager;
+import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
+import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -70,12 +70,12 @@ public class JMSServerControlRestartTest extends ManagementTestBase
       Object o = UnitTestCase.checkBinding(context, binding);
       Assert.assertTrue(o instanceof Queue);
       Queue queue = (Queue) o;
-      assertEquals(queueName, queue.getQueueName());
+      Assert.assertEquals(queueName, queue.getQueueName());
       checkResource(ObjectNameBuilder.DEFAULT.getJMSQueueObjectName(queueName));
 
       serverManager.stop();
 
-      checkNoBinding(context, binding);
+      UnitTestCase.checkNoBinding(context, binding);
       checkNoResource(ObjectNameBuilder.DEFAULT.getJMSQueueObjectName(queueName));
 
       serverManager = createJMSServer();
@@ -84,7 +84,7 @@ public class JMSServerControlRestartTest extends ManagementTestBase
       o = UnitTestCase.checkBinding(context, binding);
       Assert.assertTrue(o instanceof Queue);
       queue = (Queue) o;
-      assertEquals(queueName, queue.getQueueName());
+      Assert.assertEquals(queueName, queue.getQueueName());
       checkResource(ObjectNameBuilder.DEFAULT.getJMSQueueObjectName(queueName));
    }
 
@@ -106,18 +106,18 @@ public class JMSServerControlRestartTest extends ManagementTestBase
       Message message = session.createMessage();
       JMSManagementHelper.putOperationInvocation(message, "jms.server", "createQueue", queueName, binding);
       Message reply = requestor.request(message);
-      assertTrue(JMSManagementHelper.hasOperationSucceeded(reply));
+      Assert.assertTrue(JMSManagementHelper.hasOperationSucceeded(reply));
       connection.close();
 
       Object o = UnitTestCase.checkBinding(context, binding);
       Assert.assertTrue(o instanceof Queue);
       Queue queue = (Queue) o;
-      assertEquals(queueName, queue.getQueueName());
+      Assert.assertEquals(queueName, queue.getQueueName());
       checkResource(ObjectNameBuilder.DEFAULT.getJMSQueueObjectName(queueName));
 
       serverManager.stop();
 
-      checkNoBinding(context, binding);
+      UnitTestCase.checkNoBinding(context, binding);
       checkNoResource(ObjectNameBuilder.DEFAULT.getJMSQueueObjectName(queueName));
 
       serverManager = createJMSServer();
@@ -126,7 +126,7 @@ public class JMSServerControlRestartTest extends ManagementTestBase
       o = UnitTestCase.checkBinding(context, binding);
       Assert.assertTrue(o instanceof Queue);
       queue = (Queue) o;
-      assertEquals(queueName, queue.getQueueName());
+      Assert.assertEquals(queueName, queue.getQueueName());
       checkResource(ObjectNameBuilder.DEFAULT.getJMSQueueObjectName(queueName));
    }
 

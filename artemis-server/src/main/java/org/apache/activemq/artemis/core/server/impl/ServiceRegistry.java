@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.server.impl;
+package org.apache.activemq.artemis.core.server.impl;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -23,10 +23,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
 
-import org.apache.activemq.api.core.Interceptor;
-import org.apache.activemq.api.core.Pair;
-import org.apache.activemq.core.config.ConnectorServiceConfiguration;
-import org.apache.activemq.core.server.ConnectorServiceFactory;
+import org.apache.activemq.artemis.api.core.Interceptor;
+import org.apache.activemq.artemis.api.core.Pair;
+import org.apache.activemq.artemis.core.config.ConnectorServiceConfiguration;
+import org.apache.activemq.artemis.core.server.ConnectorServiceFactory;
 
 public class ServiceRegistry
 {

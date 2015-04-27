@@ -14,9 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.rest.topic;
+package org.apache.activemq.artemis.rest.topic;
 
-import org.apache.activemq.rest.queue.DestinationSettings;
+import org.apache.activemq.artemis.rest.queue.DestinationSettings;
 
 public class TopicDeployment extends DestinationSettings
 {

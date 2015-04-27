@@ -14,16 +14,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.unit.core.postoffice.impl;
+package org.apache.activemq.artemis.tests.unit.core.postoffice.impl;
 
+import org.apache.activemq.artemis.tests.util.UnitTestCase;
 import org.junit.Test;
 
 import org.junit.Assert;
 
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.core.postoffice.Address;
-import org.apache.activemq.core.postoffice.impl.AddressImpl;
-import org.apache.activemq.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.postoffice.Address;
+import org.apache.activemq.artemis.core.postoffice.impl.AddressImpl;
 
 public class AddressImplTest extends UnitTestCase
 {

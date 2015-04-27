@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.ra;
+package org.apache.activemq.artemis.tests.integration.ra;
 
 import javax.jms.Connection;
 import javax.resource.ResourceException;
@@ -26,23 +26,24 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 
-import org.apache.activemq.api.core.DiscoveryGroupConfiguration;
-import org.apache.activemq.api.core.UDPBroadcastEndpointFactory;
-import org.apache.activemq.api.core.client.ClientSession;
-import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.ServerLocator;
-import org.apache.activemq.api.jms.ActiveMQJMSClient;
-import org.apache.activemq.core.client.impl.ClientSessionFactoryInternal;
-import org.apache.activemq.core.client.impl.ServerLocatorImpl;
-import org.apache.activemq.jms.client.ActiveMQConnectionFactory;
-import org.apache.activemq.jms.client.ActiveMQDestination;
-import org.apache.activemq.ra.ActiveMQResourceAdapter;
-import org.apache.activemq.ra.inflow.ActiveMQActivation;
-import org.apache.activemq.ra.inflow.ActiveMQActivationSpec;
-import org.apache.activemq.service.extensions.xa.recovery.XARecoveryConfig;
-import org.apache.activemq.tests.unit.ra.MessageEndpointFactory;
-import org.apache.activemq.tests.util.UnitTestCase;
-import org.apache.activemq.utils.DefaultSensitiveStringCodec;
+import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
+import org.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
+import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
+import org.apache.activemq.artemis.tests.unit.ra.BootstrapContext;
+import org.apache.activemq.artemis.tests.unit.ra.MessageEndpointFactory;
+import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal;
+import org.apache.activemq.artemis.core.client.impl.ServerLocatorImpl;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
+import org.apache.activemq.artemis.ra.ActiveMQResourceAdapter;
+import org.apache.activemq.artemis.ra.inflow.ActiveMQActivation;
+import org.apache.activemq.artemis.ra.inflow.ActiveMQActivationSpec;
+import org.apache.activemq.artemis.service.extensions.xa.recovery.XARecoveryConfig;
+import org.apache.activemq.artemis.utils.DefaultSensitiveStringCodec;
 import org.junit.Test;
 
 public class ResourceAdapterTest extends ActiveMQRATestBase
@@ -59,10 +60,10 @@ public class ResourceAdapterTest extends ActiveMQRATestBase
 
       ActiveMQResourceAdapter ra = new ActiveMQResourceAdapter();
 
-      ra.setConnectorClassName("org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory");
+      ra.setConnectorClassName("org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory");
       ra.setUserName("userGlobal");
       ra.setPassword("passwordGlobal");
-      ra.start(new org.apache.activemq.tests.unit.ra.BootstrapContext());
+      ra.start(new BootstrapContext());
 
       Connection conn = ra.getDefaultActiveMQConnectionFactory().createConnection();
 
@@ -623,7 +624,7 @@ public class ResourceAdapterTest extends ActiveMQRATestBase
    public void testMaskPassword() throws Exception
    {
       ActiveMQResourceAdapter qResourceAdapter = new ActiveMQResourceAdapter();
-      qResourceAdapter.setConnectorClassName(UnitTestCase.INVM_CONNECTOR_FACTORY);
+      qResourceAdapter.setConnectorClassName(INVM_CONNECTOR_FACTORY);
       ActiveMQRATestBase.MyBootstrapContext ctx = new ActiveMQRATestBase.MyBootstrapContext();
 
       DefaultSensitiveStringCodec codec = new DefaultSensitiveStringCodec();
@@ -660,7 +661,7 @@ public class ResourceAdapterTest extends ActiveMQRATestBase
    public void testMaskPassword2() throws Exception
    {
       ActiveMQResourceAdapter qResourceAdapter = new ActiveMQResourceAdapter();
-      qResourceAdapter.setConnectorClassName(UnitTestCase.INVM_CONNECTOR_FACTORY);
+      qResourceAdapter.setConnectorClassName(INVM_CONNECTOR_FACTORY);
       ActiveMQRATestBase.MyBootstrapContext ctx = new ActiveMQRATestBase.MyBootstrapContext();
 
       qResourceAdapter.setUseMaskedPassword(true);

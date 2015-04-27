@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.jms.tests.message;
+package org.apache.activemq.artemis.jms.tests.message;
 
 import javax.jms.Connection;
 import javax.jms.Message;
@@ -23,8 +23,8 @@ import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 
-import org.apache.activemq.jms.tests.JMSTestCase;
-import org.apache.activemq.jms.tests.util.ProxyAssertSupport;
+import org.apache.activemq.artemis.jms.tests.JMSTestCase;
+import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
 import org.junit.Test;
 
 public class ExpiredMessageTest extends JMSTestCase

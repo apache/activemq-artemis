@@ -15,14 +15,14 @@
  * limitations under the License.
  */
 
-package org.apache.activemq.uri;
+package org.apache.activemq.artemis.uri;
 
 import java.net.URI;
 import java.util.Map;
 
-import org.apache.activemq.core.client.ActiveMQClientLogger;
-import org.apache.activemq.jms.client.ActiveMQConnectionFactory;
-import org.apache.activemq.utils.uri.URISchema;
+import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.utils.uri.URISchema;
 
 public abstract class AbstractCFSchema extends URISchema<ActiveMQConnectionFactory, String>
 {

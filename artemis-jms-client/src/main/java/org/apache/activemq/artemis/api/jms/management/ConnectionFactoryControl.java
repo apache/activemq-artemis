@@ -14,20 +14,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.api.jms.management;
+package org.apache.activemq.artemis.api.jms.management;
 
-import org.apache.activemq.api.core.DiscoveryGroupConfiguration;
-import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.core.management.Operation;
-import org.apache.activemq.api.core.management.Parameter;
+import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.management.Operation;
+import org.apache.activemq.artemis.api.core.management.Parameter;
 
 /**
  * A ConnectionFactoryControl is used to manage a JMS ConnectionFactory. <br>
  * ActiveMQ JMS ConnectionFactory uses an underlying ClientSessionFactory to connect to ActiveMQ
  * servers. Please refer to the ClientSessionFactory for a detailed description.
  *
- * @see ServerLocator
- * @see ClientSessionFactory
+ * @see org.apache.activemq.artemis.api.core.client.ServerLocator
+ * @see org.apache.activemq.artemis.api.core.client.ClientSessionFactory
  */
 public interface ConnectionFactoryControl
 {
@@ -67,39 +67,39 @@ public interface ConnectionFactoryControl
 
    /**
     * @return whether large messages are compressed
-    * @see ServerLocator#isCompressLargeMessage()
+    * @see org.apache.activemq.artemis.api.core.client.ServerLocator#isCompressLargeMessage()
     */
    boolean isCompressLargeMessages();
 
    void setCompressLargeMessages(boolean compress);
 
    /**
-    * @see ServerLocator#getClientFailureCheckPeriod()
+    * @see org.apache.activemq.artemis.api.core.client.ServerLocator#getClientFailureCheckPeriod()
     */
    long getClientFailureCheckPeriod();
 
    /**
-    * @see ServerLocator#setClientFailureCheckPeriod
+    * @see org.apache.activemq.artemis.api.core.client.ServerLocator#setClientFailureCheckPeriod
     */
    void setClientFailureCheckPeriod(long clientFailureCheckPeriod);
 
    /**
-    * @see ServerLocator#getCallTimeout()
+    * @see org.apache.activemq.artemis.api.core.client.ServerLocator#getCallTimeout()
     */
    long getCallTimeout();
 
    /**
-    * @see ServerLocator#setCallTimeout(long)
+    * @see org.apache.activemq.artemis.api.core.client.ServerLocator#setCallTimeout(long)
     */
    void setCallTimeout(long callTimeout);
 
    /**
-    * @see ServerLocator#getCallFailoverTimeout()
+    * @see org.apache.activemq.artemis.api.core.client.ServerLocator#getCallFailoverTimeout()
     */
    long getCallFailoverTimeout();
 
    /**
-    * @see ServerLocator#setCallFailoverTimeout(long)
+    * @see org.apache.activemq.artemis.api.core.client.ServerLocator#setCallFailoverTimeout(long)
     */
 
    void setCallFailoverTimeout(long callTimeout);
@@ -108,267 +108,267 @@ public interface ConnectionFactoryControl
     * Returns the batch size (in bytes) between acknowledgements when using DUPS_OK_ACKNOWLEDGE
     * mode.
     *
-    * @see ServerLocator#getAckBatchSize()
+    * @see org.apache.activemq.artemis.api.core.client.ServerLocator#getAckBatchSize()
     * @see javax.jms.Session#DUPS_OK_ACKNOWLEDGE
     */
    int getDupsOKBatchSize();
 
    /**
-    * @see ServerLocator#setAckBatchSize(int)
+    * @see org.apache.activemq.artemis.api.core.client.ServerLocator#setAckBatchSize(int)
     */
    void setDupsOKBatchSize(int dupsOKBatchSize);
 
    /**
-    * @see ServerLocator#getConsumerMaxRate()
+    * @see org.apache.activemq.artemis.api.core.client.ServerLocator#getConsumerMaxRate()
     */
    int getConsumerMaxRate();
 
    /**
-    * @see ServerLocator#setConsumerMaxRate(int)
+    * @see org.apache.activemq.artemis.api.core.client.ServerLocator#setConsumerMaxRate(int)
     */
    void setConsumerMaxRate(int consumerMaxRate);
 
    /**
-    * @see ServerLocator#getConsumerWindowSize()
+    * @see org.apache.activemq.artemis.api.core.client.ServerLocator#getConsumerWindowSize()
     */
    int getConsumerWindowSize();
 
    /**
-    * @see ServerLocator#setConfirmationWindowSize(int)
+    * @see org.apache.activemq.artemis.api.core.client.ServerLocator#setConfirmationWindowSize(int)
     */
    void setConsumerWindowSize(int consumerWindowSize);
 
    /**
-    * @see ServerLocator#getProducerMaxRate()
+    * @see org.apache.activemq.artemis.api.core.client.ServerLocator#getProducerMaxRate()
     */
    int getProducerMaxRate();
 
    /**
-    * @see ServerLocator#setProducerMaxRate(int)
+    * @see org.apache.activemq.artemis.api.core.client.ServerLocator#setProducerMaxRate(int)
     */
    void setProducerMaxRate(int producerMaxRate);
 
    /**
-    * @see ServerLocator#getConfirmationWindowSize()
+    * @see org.apache.activemq.artemis.api.core.client.ServerLocator#getConfirmationWindowSize()
     */
    int getConfirmationWindowSize();
 
    /**
-    * @see ServerLocator#setConfirmationWindowSize(int)
+    * @see org.apache.activemq.artemis.api.core.client.ServerLocator#setConfirmationWindowSize(int)
     */
    void setConfirmationWindowSize(int confirmationWindowSize);
 
    /**
-    * @see ServerLocator#isBlockOnAcknowledge()
+    * @see org.apache.activemq.artemis.api.core.client.ServerLocator#isBlockOnAcknowledge()
     */
    boolean isBlockOnAcknowledge();
 
    /**
-    * @see ServerLocator#setBlockOnAcknowledge(boolean)
+    * @see org.apache.activemq.artemis.api.core.client.ServerLocator#setBlockOnAcknowledge(boolean)
     */
    void setBlockOnAcknowledge(boolean blockOnAcknowledge);
 
    /**
-    * @see ServerLocator#isBlockOnDurableSend()
+    * @see org.apache.activemq.artemis.api.core.client.ServerLocator#isBlockOnDurableSend()
     */
    boolean isBlockOnDurableSend();
 
    /**
-    * @see ServerLocator#setBlockOnDurableSend(boolean)
+    * @see org.apache.activemq.artemis.api.core.client.ServerLocator#setBlockOnDurableSend(boolean)
     */
    void setBlockOnDurableSend(boolean blockOnDurableSend);
 
    /**
-    * @see ServerLocator#isBlockOnNonDurableSend()
+    * @see org.apache.activemq.artemis.api.core.client.ServerLocator#isBlockOnNonDurableSend()
     */
    boolean isBlockOnNonDurableSend();
 
    /**
-    * @see ServerLocator#setBlockOnNonDurableSend(boolean)
+    * @see org.apache.activemq.artemis.api.core.client.ServerLocator#setBlockOnNonDurableSend(boolean)
     */
    void setBlockOnNonDurableSend(boolean blockOnNonDurableSend);
 
    /**
-    * @see ServerLocator#isPreAcknowledge()
+    * @see org.apache.activemq.artemis.api.core.client.ServerLocator#isPreAcknowledge()
     */
    boolean isPreAcknowledge();
 
    /**
-    * @see ServerLocator#setPreAcknowledge(boolean)
+    * @see org.apache.activemq.artemis.api.core.client.ServerLocator#setPreAcknowledge(boolean)
     */
    void setPreAcknowledge(boolean preAcknowledge);
 
 
    /**
-    * @see ServerLocator#getConnectionTTL()
+    * @see org.apache.activemq.artemis.api.core.client.ServerLocator#getConnectionTTL()
     */
    long getConnectionTTL();
 
    /**
-    * @see ServerLocator#setConnectionTTL(long)
+    * @see org.apache.activemq.artemis.api.core.client.ServerLocator#setConnectionTTL(long)
     */
    void setConnectionTTL(long connectionTTL);
 
    /**
     * Returns the batch size (in bytes) between acknowledgements when using a transacted session.
     *
-    * @see ServerLocator#getAckBatchSize()
+    * @see org.apache.activemq.artemis.api.core.client.ServerLocator#getAckBatchSize()
     */
    int getTransactionBatchSize();
 
    /**
-    * @see ServerLocator#setAckBatchSize(int)
+    * @see org.apache.activemq.artemis.api.core.client.ServerLocator#setAckBatchSize(int)
     */
    void setTransactionBatchSize(int transactionBatchSize);
 
    /**
-    * @see ServerLocator#getMinLargeMessageSize()
+    * @see org.apache.activemq.artemis.api.core.client.ServerLocator#getMinLargeMessageSize()
     */
    int getMinLargeMessageSize();
 
    /**
-    * @see ServerLocator#setMinLargeMessageSize(int)
+    * @see org.apache.activemq.artemis.api.core.client.ServerLocator#setMinLargeMessageSize(int)
     */
    void setMinLargeMessageSize(int minLargeMessageSize);
 
    /**
-    * @see ServerLocator#isAutoGroup()
+    * @see org.apache.activemq.artemis.api.core.client.ServerLocator#isAutoGroup()
     */
    boolean isAutoGroup();
 
    /**
-    * @see ServerLocator#setAutoGroup(boolean)
+    * @see org.apache.activemq.artemis.api.core.client.ServerLocator#setAutoGroup(boolean)
     */
    void setAutoGroup(boolean autoGroup);
 
    /**
-    * @see ServerLocator#getRetryInterval()
+    * @see org.apache.activemq.artemis.api.core.client.ServerLocator#getRetryInterval()
     */
    long getRetryInterval();
 
    /**
-    * @see ServerLocator#setRetryInterval(long)
+    * @see org.apache.activemq.artemis.api.core.client.ServerLocator#setRetryInterval(long)
     */
    void setRetryInterval(long retryInterval);
 
    /**
-    * @see ServerLocator#getRetryIntervalMultiplier()
+    * @see org.apache.activemq.artemis.api.core.client.ServerLocator#getRetryIntervalMultiplier()
     */
    double getRetryIntervalMultiplier();
 
    /**
-    * @see ServerLocator#setRetryIntervalMultiplier(double)
+    * @see org.apache.activemq.artemis.api.core.client.ServerLocator#setRetryIntervalMultiplier(double)
     */
    void setRetryIntervalMultiplier(double retryIntervalMultiplier);
 
    /**
-    * @see ServerLocator#getReconnectAttempts()
+    * @see org.apache.activemq.artemis.api.core.client.ServerLocator#getReconnectAttempts()
     */
    int getReconnectAttempts();
 
    /**
-    * @see ServerLocator#setReconnectAttempts(int)
+    * @see org.apache.activemq.artemis.api.core.client.ServerLocator#setReconnectAttempts(int)
     */
    void setReconnectAttempts(int reconnectAttempts);
 
    /**
-    * @see ServerLocator#isFailoverOnInitialConnection()
+    * @see org.apache.activemq.artemis.api.core.client.ServerLocator#isFailoverOnInitialConnection()
     */
    boolean isFailoverOnInitialConnection();
 
    /**
-    * @see ServerLocator#setFailoverOnInitialConnection(boolean)
+    * @see org.apache.activemq.artemis.api.core.client.ServerLocator#setFailoverOnInitialConnection(boolean)
     */
    void setFailoverOnInitialConnection(boolean failoverOnInitialConnection);
 
 
    /**
-    * @see org.apache.activemq.api.core.client.ServerLocator#getProducerWindowSize()
+    * @see org.apache.activemq.artemis.api.core.client.ServerLocator#getProducerWindowSize()
     */
    int getProducerWindowSize();
 
    /**
-    * @see ServerLocator#setProducerWindowSize(int)
+    * @see org.apache.activemq.artemis.api.core.client.ServerLocator#setProducerWindowSize(int)
     */
    void setProducerWindowSize(int producerWindowSize);
 
    /**
-    * @see ServerLocator#isCacheLargeMessagesClient()
+    * @see org.apache.activemq.artemis.api.core.client.ServerLocator#isCacheLargeMessagesClient()
     */
    boolean isCacheLargeMessagesClient();
 
    /**
-    * @see ServerLocator#setCacheLargeMessagesClient(boolean)
+    * @see org.apache.activemq.artemis.api.core.client.ServerLocator#setCacheLargeMessagesClient(boolean)
     */
    void setCacheLargeMessagesClient(boolean cacheLargeMessagesClient);
 
    /**
-    * @see ServerLocator#getMaxRetryInterval()
+    * @see org.apache.activemq.artemis.api.core.client.ServerLocator#getMaxRetryInterval()
     */
    long getMaxRetryInterval();
 
    /**
-    * @see ServerLocator#setMaxRetryInterval(long)
+    * @see org.apache.activemq.artemis.api.core.client.ServerLocator#setMaxRetryInterval(long)
     */
    void setMaxRetryInterval(long retryInterval);
 
    /**
-    * @see ServerLocator#getScheduledThreadPoolMaxSize()
+    * @see org.apache.activemq.artemis.api.core.client.ServerLocator#getScheduledThreadPoolMaxSize()
     */
    int getScheduledThreadPoolMaxSize();
 
    /**
-    * @see ServerLocator#setScheduledThreadPoolMaxSize(int)
+    * @see org.apache.activemq.artemis.api.core.client.ServerLocator#setScheduledThreadPoolMaxSize(int)
     */
    void setScheduledThreadPoolMaxSize(int scheduledThreadPoolMaxSize);
 
    /**
-    * @see ServerLocator#getThreadPoolMaxSize()
+    * @see org.apache.activemq.artemis.api.core.client.ServerLocator#getThreadPoolMaxSize()
     */
    int getThreadPoolMaxSize();
 
    /**
-    * @see ServerLocator#setThreadPoolMaxSize(int)
+    * @see org.apache.activemq.artemis.api.core.client.ServerLocator#setThreadPoolMaxSize(int)
     */
    void setThreadPoolMaxSize(int threadPoolMaxSize);
 
    /**
-    * @see ServerLocator#getGroupID()
+    * @see org.apache.activemq.artemis.api.core.client.ServerLocator#getGroupID()
     */
    String getGroupID();
 
    /**
-    * @see ServerLocator#setGroupID(String)
+    * @see org.apache.activemq.artemis.api.core.client.ServerLocator#setGroupID(String)
     */
    void setGroupID(String groupID);
 
    /**
-    * @see ServerLocator#getInitialMessagePacketSize()
+    * @see org.apache.activemq.artemis.api.core.client.ServerLocator#getInitialMessagePacketSize()
     */
    int getInitialMessagePacketSize();
 
    /**
-    * @see ServerLocator#isUseGlobalPools()
+    * @see org.apache.activemq.artemis.api.core.client.ServerLocator#isUseGlobalPools()
     */
    boolean isUseGlobalPools();
 
    /**
-    * @see ServerLocator#setUseGlobalPools(boolean)
+    * @see org.apache.activemq.artemis.api.core.client.ServerLocator#setUseGlobalPools(boolean)
     */
    void setUseGlobalPools(boolean useGlobalPools);
 
    /**
-    * @see ServerLocator#getConnectionLoadBalancingPolicyClassName()
+    * @see org.apache.activemq.artemis.api.core.client.ServerLocator#getConnectionLoadBalancingPolicyClassName()
     */
    String getConnectionLoadBalancingPolicyClassName();
 
    /**
-    * @see ServerLocator#setConnectionLoadBalancingPolicyClassName(String)
+    * @see org.apache.activemq.artemis.api.core.client.ServerLocator#setConnectionLoadBalancingPolicyClassName(String)
     */
    void setConnectionLoadBalancingPolicyClassName(String connectionLoadBalancingPolicyClassName);
 
    /**
-    * @see ClientSessionFactory#getStaticConnectors()
+    * @see org.apache.activemq.artemis.api.core.client.ServerLocator#getStaticTransportConfigurations()
     */
    TransportConfiguration[] getStaticConnectors();
 

@@ -17,17 +17,17 @@ they cannot be processed in time.
 
 ## Window-Based Flow Control
 
-By default, Apache ActiveMQ consumers buffer messages from the server in a
+By default, Apache ActiveMQ Artemis consumers buffer messages from the server in a
 client side buffer before the client consumes them. This improves
 performance: otherwise every time the client consumes a message,
-Apache ActiveMQ would have to go the server to request the next message. In
+Apache ActiveMQ Artemis would have to go the server to request the next message. In
 turn, this message would then get sent to the client side, if one was
 available.
 
 A network round trip would be involved for *every* message and
 considerably reduce performance.
 
-To prevent this, Apache ActiveMQ pre-fetches messages into a buffer on each
+To prevent this, Apache ActiveMQ Artemis pre-fetches messages into a buffer on each
 consumer. The total maximum size of messages (in bytes) that will be
 buffered on each consumer is determined by the `consumerWindowSize`
 parameter.
@@ -89,7 +89,7 @@ of 1MiB is fine in most cases.
 
 ### Using Core API
 
-If Apache ActiveMQ Core API is used, the consumer window size is specified by
+If Apache ActiveMQ Artemis Core API is used, the consumer window size is specified by
 `ServerLocator.setConsumerWindowSize()` method and some of the
 `ClientSession.createConsumer()` methods.
 
@@ -101,14 +101,14 @@ environment, e.g. `jndi.properties`. Here's a simple example using the
 "ConnectionFactory" connection factory which is available in the context
 by default:
 
-    java.naming.factory.initial=org.apache.activemq.jndi.ActiveMQInitialContextFactory
+    java.naming.factory.initial=ActiveMQInitialContextFactory
     connectionFactory.myConnectionFactory=tcp://localhost:61616?consumerWindowSize=0
 
 If the connection factory is directly instantiated, the consumer window
 size is specified by `ActiveMQConnectionFactory.setConsumerWindowSize()`
 method.
 
-Please see the examples for an example which shows how to configure Apache ActiveMQ to
+Please see the examples for an example which shows how to configure Apache ActiveMQ Artemis to
 prevent consumer buffering when dealing with slow consumers.
 
 ## Rate limited flow control
@@ -127,7 +127,7 @@ Please see ? for a working example of limiting consumer rate.
 
 ### Using Core API
 
-If the Apache ActiveMQ core API is being used the rate can be set via the
+If the Apache ActiveMQ Artemis core API is being used the rate can be set via the
 `ServerLocator.setConsumerMaxRate(int consumerMaxRate)` method or
 alternatively via some of the `ClientSession.createConsumer()` methods.
 
@@ -138,7 +138,7 @@ max rate can be configured in the JNDI context environment, e.g.
 `jndi.properties`. Here's a simple example using the "ConnectionFactory"
 connection factory which is available in the context by default:
 
-    java.naming.factory.initial=org.apache.activemq.jndi.ActiveMQInitialContextFactory
+    java.naming.factory.initial=ActiveMQInitialContextFactory
     java.naming.provider.url=tcp://localhost:61616?consumerMaxRate=10
 
 If the connection factory is directly instantiated, the max rate size
@@ -158,12 +158,12 @@ prevent consumer buffering when dealing with slow consumers.
 
 ## Producer flow control
 
-Apache ActiveMQ also can limit the amount of data sent from a client to a
+Apache ActiveMQ Artemis also can limit the amount of data sent from a client to a
 server to prevent the server being overwhelmed.
 
 ### Window based flow control
 
-In a similar way to consumer window based flow control, Apache ActiveMQ
+In a similar way to consumer window based flow control, Apache ActiveMQ Artemis
 producers, by default, can only send messages to an address as long as
 they have sufficient credits to do so. The amount of credits required to
 send a message is given by the size of the message.
@@ -180,7 +180,7 @@ prevents the remoting connection from getting overloaded.
 
 #### Using Core API
 
-If the Apache ActiveMQ core API is being used, window size can be set via the
+If the Apache ActiveMQ Artemis core API is being used, window size can be set via the
 `ServerLocator.setProducerWindowSize(int producerWindowSize)` method.
 
 #### Using JMS
@@ -191,7 +191,7 @@ e.g. `jndi.properties`. Here's a simple example using the
 "ConnectionFactory" connection factory which is available in the context
 by default:
 
-    java.naming.factory.initial=org.apache.activemq.jndi.ActiveMQInitialContextFactory
+    java.naming.factory.initial=ActiveMQInitialContextFactory
     connectionFactory.myConnectionFactory=tcp://localhost:61616?producerWindowSize=10
 
 If the connection factory is directly instantiated, the producer window
@@ -260,8 +260,8 @@ control.
 
 ### Rate limited flow control
 
-Apache ActiveMQ also allows the rate a producer can emit message to be limited,
-in units of messages per second. By specifying such a rate, Apache ActiveMQ
+Apache ActiveMQ Artemis also allows the rate a producer can emit message to be limited,
+in units of messages per second. By specifying such a rate, Apache ActiveMQ Artemis
 will ensure that producer never produces messages at a rate higher than
 that specified.
 
@@ -274,7 +274,7 @@ Please see [the examples chapter](examples.md) for a working example of limiting
 
 #### Using Core API
 
-If the Apache ActiveMQ core API is being used the rate can be set via the
+If the Apache ActiveMQ Artemis core API is being used the rate can be set via the
 `ServerLocator.setProducerMaxRate(int producerMaxRate)` method or
 alternatively via some of the `ClientSession.createProducer()` methods.
 
@@ -285,7 +285,7 @@ max rate size can be configured in the JNDI context environment, e.g.
 `jndi.properties`. Here's a simple example using the "ConnectionFactory"
 connection factory which is available in the context by default:
 
-    java.naming.factory.initial=org.apache.activemq.jndi.ActiveMQInitialContextFactory
+    java.naming.factory.initial=ActiveMQInitialContextFactory
     connectionFactory.myConnectionFactory=tcp://localhost:61616?producerMaxRate=10
 
 If the connection factory is directly instantiated, the max rate size

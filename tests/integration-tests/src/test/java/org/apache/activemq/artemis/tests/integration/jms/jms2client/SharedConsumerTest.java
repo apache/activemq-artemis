@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.jms.jms2client;
+package org.apache.activemq.artemis.tests.integration.jms.jms2client;
 
 import javax.jms.JMSConsumer;
 import javax.jms.JMSContext;
@@ -23,9 +23,9 @@ import javax.jms.JMSRuntimeException;
 import javax.jms.Topic;
 import java.util.Random;
 
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.core.postoffice.Binding;
-import org.apache.activemq.tests.util.JMSTestBase;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.postoffice.Binding;
+import org.apache.activemq.artemis.tests.util.JMSTestBase;
 import org.junit.Before;
 import org.junit.Test;
 

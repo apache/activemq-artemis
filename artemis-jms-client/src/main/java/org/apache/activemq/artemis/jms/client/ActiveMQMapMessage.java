@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.jms.client;
+package org.apache.activemq.artemis.jms.client;
 
 import javax.jms.JMSException;
 import javax.jms.MapMessage;
@@ -24,17 +24,17 @@ import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.activemq.api.core.ActiveMQException;
-import org.apache.activemq.api.core.ActiveMQPropertyConversionException;
-import org.apache.activemq.api.core.Message;
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.api.core.client.ClientMessage;
-import org.apache.activemq.api.core.client.ClientSession;
-import org.apache.activemq.utils.TypedProperties;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.ActiveMQPropertyConversionException;
+import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.client.ClientMessage;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.utils.TypedProperties;
 
 
-import static org.apache.activemq.reader.MapMessageUtil.writeBodyMap;
-import static org.apache.activemq.reader.MapMessageUtil.readBodyMap;
+import static org.apache.activemq.artemis.reader.MapMessageUtil.writeBodyMap;
+import static org.apache.activemq.artemis.reader.MapMessageUtil.readBodyMap;
 
 /**
  * ActiveMQ implementation of a JMS MapMessage.

@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.postoffice.impl;
+package org.apache.activemq.artemis.core.postoffice.impl;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -22,17 +22,17 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.core.postoffice.Address;
-import org.apache.activemq.core.postoffice.AddressManager;
-import org.apache.activemq.core.postoffice.Binding;
-import org.apache.activemq.core.postoffice.Bindings;
-import org.apache.activemq.core.postoffice.BindingsFactory;
-import org.apache.activemq.core.server.ActiveMQMessageBundle;
-import org.apache.activemq.core.server.ActiveMQServerLogger;
-import org.apache.activemq.core.transaction.Transaction;
-import org.apache.activemq.core.transaction.TransactionOperationAbstract;
-import org.apache.activemq.utils.ConcurrentHashSet;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.postoffice.Address;
+import org.apache.activemq.artemis.core.postoffice.AddressManager;
+import org.apache.activemq.artemis.core.postoffice.Binding;
+import org.apache.activemq.artemis.core.postoffice.Bindings;
+import org.apache.activemq.artemis.core.postoffice.BindingsFactory;
+import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
+import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.apache.activemq.artemis.core.transaction.Transaction;
+import org.apache.activemq.artemis.core.transaction.TransactionOperationAbstract;
+import org.apache.activemq.artemis.utils.ConcurrentHashSet;
 
 /**
  * A simple address manager that maintains the addresses and bindings.

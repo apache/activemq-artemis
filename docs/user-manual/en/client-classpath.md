@@ -1,19 +1,19 @@
 # The Client Classpath
 
-Apache ActiveMQ requires several jars on the *Client Classpath* depending on
-whether the client uses Apache ActiveMQ Core API, JMS, and JNDI.
+Apache ActiveMQ Artemis requires several jars on the *Client Classpath* depending on
+whether the client uses Apache ActiveMQ Artemis Core API, JMS, and JNDI.
 
 > **Warning**
 >
 > All the jars mentioned here can be found in the `lib` directory of the
-> Apache ActiveMQ distribution. Be sure you only use the jars from the correct
+> Apache ActiveMQ Artemis distribution. Be sure you only use the jars from the correct
 > version of the release, you *must not* mix and match versions of jars
-> from different Apache ActiveMQ versions. Mixing and matching different jar
+> from different Apache ActiveMQ Artemis versions. Mixing and matching different jar
 > versions may cause subtle errors and failures to occur.
 
-## Apache ActiveMQ Core Client
+## Apache ActiveMQ Artemis Core Client
 
-If you are using just a pure Apache ActiveMQ Core client (i.e. no JMS) then you
+If you are using just a pure Apache ActiveMQ Artemis Core client (i.e. no JMS) then you
 need `activemq-core-client.jar`, `activemq-commons.jar`, and `netty.jar`
 on your client classpath.
 

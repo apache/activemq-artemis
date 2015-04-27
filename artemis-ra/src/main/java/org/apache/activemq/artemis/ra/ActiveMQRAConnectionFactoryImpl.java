@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.ra;
+package org.apache.activemq.artemis.ra;
 
 import javax.jms.Connection;
 import javax.jms.JMSContext;
@@ -34,9 +34,9 @@ import javax.naming.Reference;
 import javax.resource.ResourceException;
 import javax.resource.spi.ConnectionManager;
 
-import org.apache.activemq.jms.client.ActiveMQConnectionFactory;
-import org.apache.activemq.jms.referenceable.ConnectionFactoryObjectFactory;
-import org.apache.activemq.jms.referenceable.SerializableObjectRefAddr;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.jms.referenceable.ConnectionFactoryObjectFactory;
+import org.apache.activemq.artemis.jms.referenceable.SerializableObjectRefAddr;
 
 /**
  * The connection factory

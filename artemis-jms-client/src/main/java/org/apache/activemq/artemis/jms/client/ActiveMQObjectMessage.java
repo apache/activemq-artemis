@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.jms.client;
+package org.apache.activemq.artemis.jms.client;
 
 import javax.jms.JMSException;
 import javax.jms.MessageFormatException;
@@ -25,10 +25,11 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
-import org.apache.activemq.api.core.ActiveMQException;
-import org.apache.activemq.api.core.Message;
-import org.apache.activemq.api.core.client.ClientMessage;
-import org.apache.activemq.api.core.client.ClientSession;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.client.ClientMessage;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.utils.ObjectInputStreamWithClassLoader;
 
 /**
  * ActiveMQ implementation of a JMS ObjectMessage.
@@ -151,7 +152,7 @@ public class ActiveMQObjectMessage extends ActiveMQMessage implements ObjectMess
       try
       {
          ByteArrayInputStream bais = new ByteArrayInputStream(data);
-         ObjectInputStream ois = new org.apache.activemq.utils.ObjectInputStreamWithClassLoader(bais);
+         ObjectInputStream ois = new ObjectInputStreamWithClassLoader(bais);
          Serializable object = (Serializable)ois.readObject();
          return object;
       }

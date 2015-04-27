@@ -14,9 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.server.cluster.ha;
+package org.apache.activemq.artemis.core.server.cluster.ha;
 
-import org.apache.activemq.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
 
 import java.util.HashMap;
 import java.util.Map;

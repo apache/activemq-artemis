@@ -14,14 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.factory;
+package org.apache.activemq.artemis.factory;
 
-import org.apache.activemq.cli.ConfigurationException;
-import org.apache.activemq.dto.BrokerDTO;
-import org.apache.activemq.dto.ServerDTO;
-import org.apache.activemq.integration.Broker;
-import org.apache.activemq.spi.core.security.ActiveMQSecurityManager;
-import org.apache.activemq.utils.FactoryFinder;
+import org.apache.activemq.artemis.cli.ConfigurationException;
+import org.apache.activemq.artemis.dto.BrokerDTO;
+import org.apache.activemq.artemis.dto.ServerDTO;
+import org.apache.activemq.artemis.integration.Broker;
+import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
+import org.apache.activemq.artemis.utils.FactoryFinder;
 
 import java.io.File;
 import java.io.IOException;
@@ -40,7 +40,7 @@ public class BrokerFactory
       BrokerFactoryHandler factory = null;
       try
       {
-         FactoryFinder finder = new FactoryFinder("META-INF/services/org/apache/activemq/broker/");
+         FactoryFinder finder = new FactoryFinder("META-INF/services/org/apache/activemq/artemis/broker/");
          factory = (BrokerFactoryHandler) finder.newInstance(configURI.getScheme());
       }
       catch (IOException ioe)
@@ -76,7 +76,7 @@ public class BrokerFactory
 
          try
          {
-            FactoryFinder finder = new FactoryFinder("META-INF/services/org/apache/activemq/broker/server/");
+            FactoryFinder finder = new FactoryFinder("META-INF/services/org/apache/activemq/artemis/broker/server/");
             handler = (BrokerHandler) finder.newInstance(configURI.getScheme());
          }
          catch (IOException ioe)

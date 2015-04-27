@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.management.impl;
+package org.apache.activemq.artemis.core.management.impl;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -24,8 +24,8 @@ import java.util.List;
 import javax.management.MBeanOperationInfo;
 import javax.management.MBeanParameterInfo;
 
-import org.apache.activemq.api.core.management.Operation;
-import org.apache.activemq.api.core.management.Parameter;
+import org.apache.activemq.artemis.api.core.management.Operation;
+import org.apache.activemq.artemis.api.core.management.Parameter;
 
 public class MBeanInfoHelper
 {

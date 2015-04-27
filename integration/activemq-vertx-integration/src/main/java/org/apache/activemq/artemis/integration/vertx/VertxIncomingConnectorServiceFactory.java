@@ -14,16 +14,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.integration.vertx;
+package org.apache.activemq.artemis.integration.vertx;
 
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
 
-import org.apache.activemq.core.persistence.StorageManager;
-import org.apache.activemq.core.postoffice.PostOffice;
-import org.apache.activemq.core.server.ConnectorService;
-import org.apache.activemq.core.server.ConnectorServiceFactory;
+import org.apache.activemq.artemis.core.persistence.StorageManager;
+import org.apache.activemq.artemis.core.postoffice.PostOffice;
+import org.apache.activemq.artemis.core.server.ConnectorService;
+import org.apache.activemq.artemis.core.server.ConnectorServiceFactory;
 
 public class VertxIncomingConnectorServiceFactory implements ConnectorServiceFactory
 {

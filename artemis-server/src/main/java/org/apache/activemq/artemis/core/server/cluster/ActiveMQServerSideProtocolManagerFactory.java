@@ -14,13 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.server.cluster;
+package org.apache.activemq.artemis.core.server.cluster;
 
-import org.apache.activemq.core.protocol.ServerPacketDecoder;
-import org.apache.activemq.core.protocol.core.impl.ActiveMQClientProtocolManager;
-import org.apache.activemq.core.protocol.core.impl.PacketDecoder;
-import org.apache.activemq.spi.core.remoting.ClientProtocolManager;
-import org.apache.activemq.spi.core.remoting.ClientProtocolManagerFactory;
+import org.apache.activemq.artemis.core.protocol.ServerPacketDecoder;
+import org.apache.activemq.artemis.core.protocol.core.impl.ActiveMQClientProtocolManager;
+import org.apache.activemq.artemis.core.protocol.core.impl.PacketDecoder;
+import org.apache.activemq.artemis.spi.core.remoting.ClientProtocolManager;
+import org.apache.activemq.artemis.spi.core.remoting.ClientProtocolManagerFactory;
 
 /**
  * A protocol manager that will replace the packet manager for inter-server communications

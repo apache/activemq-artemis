@@ -14,42 +14,42 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.server.impl;
+package org.apache.activemq.artemis.core.server.impl;
 
-import org.apache.activemq.api.core.ActiveMQException;
-import org.apache.activemq.api.core.ActiveMQInternalErrorException;
-import org.apache.activemq.api.core.Pair;
-import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.core.client.TopologyMember;
-import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.paging.PagingManager;
-import org.apache.activemq.core.persistence.StorageManager;
-import org.apache.activemq.core.postoffice.PostOffice;
-import org.apache.activemq.core.protocol.core.Channel;
-import org.apache.activemq.core.protocol.core.impl.wireformat.ReplicationLiveIsStoppingMessage;
-import org.apache.activemq.core.replication.ReplicationEndpoint;
-import org.apache.activemq.core.server.ActivationParams;
-import org.apache.activemq.core.server.ActiveMQMessageBundle;
-import org.apache.activemq.core.server.ActiveMQServer;
-import org.apache.activemq.core.server.ActiveMQServerLogger;
-import org.apache.activemq.core.server.LiveNodeLocator;
-import org.apache.activemq.core.server.NodeManager;
-import org.apache.activemq.core.server.QueueFactory;
-import org.apache.activemq.core.server.cluster.ClusterControl;
-import org.apache.activemq.core.server.cluster.ClusterController;
-import org.apache.activemq.core.server.cluster.ha.ReplicaPolicy;
-import org.apache.activemq.core.server.cluster.ha.ScaleDownPolicy;
-import org.apache.activemq.core.server.cluster.qourum.SharedNothingBackupQuorum;
-import org.apache.activemq.core.server.group.GroupingHandler;
-import org.apache.activemq.core.server.management.ManagementService;
-import org.apache.activemq.utils.ReusableLatch;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.ActiveMQInternalErrorException;
+import org.apache.activemq.artemis.api.core.Pair;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.client.TopologyMember;
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.paging.PagingManager;
+import org.apache.activemq.artemis.core.persistence.StorageManager;
+import org.apache.activemq.artemis.core.postoffice.PostOffice;
+import org.apache.activemq.artemis.core.protocol.core.Channel;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationLiveIsStoppingMessage;
+import org.apache.activemq.artemis.core.replication.ReplicationEndpoint;
+import org.apache.activemq.artemis.core.server.ActivationParams;
+import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.apache.activemq.artemis.core.server.LiveNodeLocator;
+import org.apache.activemq.artemis.core.server.NodeManager;
+import org.apache.activemq.artemis.core.server.QueueFactory;
+import org.apache.activemq.artemis.core.server.cluster.ClusterControl;
+import org.apache.activemq.artemis.core.server.cluster.ClusterController;
+import org.apache.activemq.artemis.core.server.cluster.ha.ReplicaPolicy;
+import org.apache.activemq.artemis.core.server.cluster.ha.ScaleDownPolicy;
+import org.apache.activemq.artemis.core.server.cluster.qourum.SharedNothingBackupQuorum;
+import org.apache.activemq.artemis.core.server.group.GroupingHandler;
+import org.apache.activemq.artemis.core.server.management.ManagementService;
+import org.apache.activemq.artemis.utils.ReusableLatch;
 
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import static org.apache.activemq.core.server.cluster.qourum.SharedNothingBackupQuorum.BACKUP_ACTIVATION.FAILURE_REPLICATING;
-import static org.apache.activemq.core.server.cluster.qourum.SharedNothingBackupQuorum.BACKUP_ACTIVATION.FAIL_OVER;
-import static org.apache.activemq.core.server.cluster.qourum.SharedNothingBackupQuorum.BACKUP_ACTIVATION.STOP;
+import static org.apache.activemq.artemis.core.server.cluster.qourum.SharedNothingBackupQuorum.BACKUP_ACTIVATION.FAILURE_REPLICATING;
+import static org.apache.activemq.artemis.core.server.cluster.qourum.SharedNothingBackupQuorum.BACKUP_ACTIVATION.FAIL_OVER;
+import static org.apache.activemq.artemis.core.server.cluster.qourum.SharedNothingBackupQuorum.BACKUP_ACTIVATION.STOP;
 
 public final class SharedNothingBackupActivation extends Activation
 {
@@ -431,7 +431,7 @@ public final class SharedNothingBackupActivation extends Activation
    }
 
    /**
-    * @throws org.apache.activemq.api.core.ActiveMQException
+    * @throws ActiveMQException
     */
    public void remoteFailOver(ReplicationLiveIsStoppingMessage.LiveStopping finalMessage) throws ActiveMQException
    {

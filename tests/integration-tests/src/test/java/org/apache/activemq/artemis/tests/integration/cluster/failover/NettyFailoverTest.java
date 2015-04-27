@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.cluster.failover;
+package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
 import org.junit.Test;
 
@@ -23,14 +23,14 @@ import java.util.Map;
 
 import org.junit.Assert;
 
-import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.core.client.ClientConsumer;
-import org.apache.activemq.api.core.client.ClientProducer;
-import org.apache.activemq.api.core.client.ClientSession;
-import org.apache.activemq.api.core.client.ActiveMQClient;
-import org.apache.activemq.api.core.client.ServerLocator;
-import org.apache.activemq.core.client.impl.ClientSessionFactoryInternal;
-import org.apache.activemq.core.remoting.impl.netty.TransportConstants;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.client.ClientConsumer;
+import org.apache.activemq.artemis.api.core.client.ClientProducer;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
+import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal;
+import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 
 public class NettyFailoverTest extends FailoverTest
 {
@@ -63,13 +63,13 @@ public class NettyFailoverTest extends FailoverTest
 
       ClientSession session = createSession(sf, true, true, 0);
 
-      session.createQueue(FailoverTestBase.ADDRESS, FailoverTestBase.ADDRESS, null, true);
+      session.createQueue(ADDRESS, ADDRESS, null, true);
 
-      ClientProducer producer = session.createProducer(FailoverTestBase.ADDRESS);
+      ClientProducer producer = session.createProducer(ADDRESS);
 
       final int numMessages = 10;
 
-      ClientConsumer consumer = session.createConsumer(FailoverTestBase.ADDRESS);
+      ClientConsumer consumer = session.createConsumer(ADDRESS);
 
       session.start();
 

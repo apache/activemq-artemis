@@ -14,11 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.protocol.openwire.amq;
+package org.apache.activemq.artemis.core.protocol.openwire.amq;
 
 import org.apache.activemq.command.BrokerInfo;
 import org.apache.activemq.command.ConnectionControl;
-import org.apache.activemq.core.protocol.openwire.OpenWireConnection;
+import org.apache.activemq.artemis.core.protocol.openwire.OpenWireConnection;
 
 public interface AMQConnector
 {

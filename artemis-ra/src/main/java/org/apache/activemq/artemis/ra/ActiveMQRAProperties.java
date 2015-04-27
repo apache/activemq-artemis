@@ -14,15 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.ra;
+package org.apache.activemq.artemis.ra;
 
 import java.io.Serializable;
 import java.util.Hashtable;
 
-import org.apache.activemq.api.core.ActiveMQException;
-import org.apache.activemq.utils.DefaultSensitiveStringCodec;
-import org.apache.activemq.utils.PasswordMaskingUtil;
-import org.apache.activemq.utils.SensitiveDataCodec;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.utils.DefaultSensitiveStringCodec;
+import org.apache.activemq.artemis.utils.PasswordMaskingUtil;
+import org.apache.activemq.artemis.utils.SensitiveDataCodec;
 
 
 /**

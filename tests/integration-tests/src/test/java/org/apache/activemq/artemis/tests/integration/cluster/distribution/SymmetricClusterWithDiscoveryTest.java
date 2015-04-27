@@ -14,18 +14,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.cluster.distribution;
+package org.apache.activemq.artemis.tests.integration.cluster.distribution;
 
 
-import org.apache.activemq.tests.integration.IntegrationTestLogger;
+import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
+import org.apache.activemq.artemis.tests.util.UnitTestCase;
 
 public class SymmetricClusterWithDiscoveryTest extends SymmetricClusterTest
 {
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
-   protected final String groupAddress = getUDPDiscoveryAddress();
+   protected final String groupAddress = UnitTestCase.getUDPDiscoveryAddress();
 
-   protected final int groupPort = getUDPDiscoveryPort();
+   protected final int groupPort = UnitTestCase.getUDPDiscoveryPort();
 
    protected boolean isNetty()
    {

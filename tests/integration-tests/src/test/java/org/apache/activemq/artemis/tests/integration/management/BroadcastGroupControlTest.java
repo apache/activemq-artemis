@@ -14,8 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.management;
+package org.apache.activemq.artemis.tests.integration.management;
 
+import org.apache.activemq.artemis.tests.util.UnitTestCase;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -23,16 +24,16 @@ import java.util.List;
 
 import org.junit.Assert;
 
-import org.apache.activemq.api.core.BroadcastGroupConfiguration;
-import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.core.UDPBroadcastEndpointFactory;
-import org.apache.activemq.api.core.management.BroadcastGroupControl;
-import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.server.ActiveMQServer;
-import org.apache.activemq.core.server.ActiveMQServers;
-import org.apache.activemq.tests.util.RandomUtil;
-import org.apache.activemq.api.core.Pair;
-import org.apache.activemq.utils.json.JSONArray;
+import org.apache.activemq.artemis.api.core.BroadcastGroupConfiguration;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory;
+import org.apache.activemq.artemis.api.core.management.BroadcastGroupControl;
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.ActiveMQServers;
+import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.api.core.Pair;
+import org.apache.activemq.artemis.utils.json.JSONArray;
 
 public class BroadcastGroupControlTest extends ManagementTestBase
 {
@@ -65,7 +66,7 @@ public class BroadcastGroupControlTest extends ManagementTestBase
    @Test
    public void testAttributes() throws Exception
    {
-      TransportConfiguration connectorConfiguration = new TransportConfiguration(NETTY_CONNECTOR_FACTORY);
+      TransportConfiguration connectorConfiguration = new TransportConfiguration(UnitTestCase.NETTY_CONNECTOR_FACTORY);
       List<String> connectorInfos = new ArrayList<String>();
       connectorInfos.add(connectorConfiguration.getName());
       BroadcastGroupConfiguration broadcastGroupConfig = BroadcastGroupControlTest.randomBroadcastGroupConfiguration(connectorInfos);
@@ -73,7 +74,7 @@ public class BroadcastGroupControlTest extends ManagementTestBase
       Configuration conf = createBasicConfig()
          .addConnectorConfiguration(connectorConfiguration.getName(), connectorConfiguration)
          .addBroadcastGroupConfiguration(broadcastGroupConfig)
-         .addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY));
+         .addAcceptorConfiguration(new TransportConfiguration(UnitTestCase.INVM_ACCEPTOR_FACTORY));
       service = addServer(ActiveMQServers.newActiveMQServer(conf, mbeanServer, false));
       service.start();
 
@@ -103,7 +104,7 @@ public class BroadcastGroupControlTest extends ManagementTestBase
    @Test
    public void testStartStop() throws Exception
    {
-      TransportConfiguration connectorConfiguration = new TransportConfiguration(NETTY_CONNECTOR_FACTORY);
+      TransportConfiguration connectorConfiguration = new TransportConfiguration(UnitTestCase.NETTY_CONNECTOR_FACTORY);
       List<String> connectorInfos = new ArrayList<String>();
       connectorInfos.add(connectorConfiguration.getName());
       BroadcastGroupConfiguration broadcastGroupConfig = BroadcastGroupControlTest.randomBroadcastGroupConfiguration(connectorInfos);
@@ -111,7 +112,7 @@ public class BroadcastGroupControlTest extends ManagementTestBase
       Configuration conf = createBasicConfig()
          .addConnectorConfiguration(connectorConfiguration.getName(), connectorConfiguration)
          .addBroadcastGroupConfiguration(broadcastGroupConfig)
-         .addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY));
+         .addAcceptorConfiguration(new TransportConfiguration(UnitTestCase.INVM_ACCEPTOR_FACTORY));
       service = addServer(ActiveMQServers.newActiveMQServer(conf, mbeanServer, false));
       service.start();
 

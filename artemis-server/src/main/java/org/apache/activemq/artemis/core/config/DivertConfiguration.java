@@ -14,12 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.config;
+package org.apache.activemq.artemis.core.config;
 
 import java.io.Serializable;
 
-import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
-import org.apache.activemq.utils.UUIDGenerator;
+import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
+import org.apache.activemq.artemis.utils.UUIDGenerator;
 
 public class DivertConfiguration implements Serializable
 {

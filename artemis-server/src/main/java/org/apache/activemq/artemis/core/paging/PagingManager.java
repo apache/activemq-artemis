@@ -14,26 +14,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.paging;
+package org.apache.activemq.artemis.core.paging;
 
 import java.util.Map;
 
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.core.server.ActiveMQComponent;
-import org.apache.activemq.core.settings.HierarchicalRepositoryChangeListener;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.server.ActiveMQComponent;
+import org.apache.activemq.artemis.core.settings.HierarchicalRepositoryChangeListener;
 
 /**
  * <PRE>
  *
  * +--------------+      1  +----------------+       N +--------------+       N +--------+       1 +-------------------+
- * | {@link org.apache.activemq.core.postoffice.PostOffice} |-------&gt; |{@link PagingManager}|-------&gt; |{@link PagingStore} | ------&gt; | {@link org.apache.activemq.core.paging.impl.Page}  | ------&gt; | {@link org.apache.activemq.core.journal.SequentialFile} |
+ * | {@link org.apache.activemq.artemis.core.postoffice.PostOffice} |-------&gt; |{@link PagingManager}|-------&gt; |{@link PagingStore} | ------&gt; | {@link org.apache.activemq.artemis.core.paging.impl.Page}  | ------&gt; | {@link org.apache.activemq.artemis.core.journal.SequentialFile} |
  * +--------------+         +----------------+         +--------------+         +--------+         +-------------------+
  *                                                              |                  1 ^
  *                                                              |                    |
  *                                                              |                    |
  *                                                              |                    | 1
  *                                                              |            N +----------+
- *                                                              +------------&gt; | {@link org.apache.activemq.core.postoffice.Address} |
+ *                                                              +------------&gt; | {@link org.apache.activemq.artemis.core.postoffice.Address} |
  *                                                                             +----------+
  * </PRE>
  */

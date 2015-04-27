@@ -14,11 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.unit.core.server.cluster.impl;
+package org.apache.activemq.artemis.tests.unit.core.server.cluster.impl;
 
-import org.apache.activemq.api.core.management.ManagementHelper;
-import org.apache.activemq.core.server.cluster.impl.ClusterConnectionBridge;
-import org.apache.activemq.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.api.core.management.ManagementHelper;
+import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.core.server.cluster.impl.ClusterConnectionBridge;
 import org.junit.Test;
 
 public class ClusterConnectionBridgeTest extends UnitTestCase

@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.util;
+package org.apache.activemq.artemis.util;
 import org.junit.Before;
 import org.junit.After;
 
@@ -25,9 +25,9 @@ import java.util.Iterator;
 import org.junit.Assert;
 
 
-import org.apache.activemq.tests.util.RandomUtil;
-import org.apache.activemq.utils.ConcurrentHashSet;
-import org.apache.activemq.utils.ConcurrentSet;
+import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.ConcurrentHashSet;
+import org.apache.activemq.artemis.utils.ConcurrentSet;
 
 public class ConcurrentHashSetTest extends Assert
 {

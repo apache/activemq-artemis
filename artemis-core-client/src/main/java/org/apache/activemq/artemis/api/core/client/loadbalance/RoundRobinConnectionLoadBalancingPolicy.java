@@ -14,11 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.api.core.client.loadbalance;
+package org.apache.activemq.artemis.api.core.client.loadbalance;
 
 import java.io.Serializable;
 
-import org.apache.activemq.utils.Random;
+import org.apache.activemq.artemis.utils.Random;
 
 /**
  * RoundRobinConnectionLoadBalancingPolicy corresponds to a round-robin load-balancing policy.

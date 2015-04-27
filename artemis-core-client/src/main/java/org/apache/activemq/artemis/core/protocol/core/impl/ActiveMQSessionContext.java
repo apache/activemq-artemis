@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.protocol.core.impl;
+package org.apache.activemq.artemis.core.protocol.core.impl;
 
 import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
@@ -26,90 +26,89 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
 
-import org.apache.activemq.api.core.ActiveMQBuffer;
-import org.apache.activemq.api.core.ActiveMQException;
-import org.apache.activemq.api.core.ActiveMQExceptionType;
-import org.apache.activemq.api.core.Message;
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.api.core.client.ClientConsumer;
-import org.apache.activemq.api.core.client.ClientSession;
-import org.apache.activemq.api.core.client.SendAcknowledgementHandler;
-import org.apache.activemq.core.client.ActiveMQClientLogger;
-import org.apache.activemq.core.client.ActiveMQClientMessageBundle;
-import org.apache.activemq.core.client.impl.AddressQueryImpl;
-import org.apache.activemq.core.client.impl.ClientConsumerImpl;
-import org.apache.activemq.core.client.impl.ClientConsumerInternal;
-import org.apache.activemq.core.client.impl.ClientLargeMessageInternal;
-import org.apache.activemq.core.client.impl.ClientMessageInternal;
-import org.apache.activemq.core.client.impl.ClientProducerCreditsImpl;
-import org.apache.activemq.core.client.impl.ClientSessionImpl;
-import org.apache.activemq.core.message.impl.MessageInternal;
-import org.apache.activemq.core.protocol.core.Channel;
-import org.apache.activemq.core.protocol.core.ChannelHandler;
-import org.apache.activemq.core.protocol.core.CommandConfirmationHandler;
-import org.apache.activemq.core.protocol.core.CoreRemotingConnection;
-import org.apache.activemq.core.protocol.core.Packet;
-import org.apache.activemq.core.protocol.core.impl.wireformat.CreateQueueMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.CreateSessionMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.CreateSharedQueueMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.DisconnectConsumerMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.ActiveMQExceptionMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.ReattachSessionMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.ReattachSessionResponseMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.RollbackMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.SessionAcknowledgeMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.SessionAddMetaDataMessageV2;
-import org.apache.activemq.core.protocol.core.impl.wireformat.SessionBindingQueryMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.SessionBindingQueryResponseMessage_V2;
-import org.apache.activemq.core.protocol.core.impl.wireformat.SessionCloseMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.SessionConsumerCloseMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.SessionConsumerFlowCreditMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.SessionCreateConsumerMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.SessionDeleteQueueMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.SessionExpireMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.SessionForceConsumerDelivery;
-import org.apache.activemq.core.protocol.core.impl.wireformat.SessionIndividualAcknowledgeMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.SessionProducerCreditsFailMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.SessionProducerCreditsMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.SessionQueueQueryMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.SessionQueueQueryResponseMessage_V2;
-import org.apache.activemq.core.protocol.core.impl.wireformat.SessionReceiveContinuationMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.SessionReceiveLargeMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.SessionReceiveMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.SessionRequestProducerCreditsMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.SessionSendContinuationMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.SessionSendLargeMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.SessionSendMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.SessionUniqueAddMetaDataMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.SessionXAAfterFailedMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.SessionXACommitMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.SessionXAEndMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.SessionXAForgetMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.SessionXAGetInDoubtXidsResponseMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.SessionXAGetTimeoutResponseMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.SessionXAJoinMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.SessionXAPrepareMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.SessionXAResponseMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.SessionXAResumeMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.SessionXARollbackMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.SessionXASetTimeoutMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.SessionXASetTimeoutResponseMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.SessionXAStartMessage;
-import org.apache.activemq.spi.core.protocol.RemotingConnection;
-import org.apache.activemq.spi.core.remoting.Connection;
-import org.apache.activemq.spi.core.remoting.SessionContext;
-import org.apache.activemq.utils.TokenBucketLimiterImpl;
-import org.apache.activemq.utils.VersionLoader;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
+import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.client.ClientConsumer;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.api.core.client.SendAcknowledgementHandler;
+import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
+import org.apache.activemq.artemis.core.client.ActiveMQClientMessageBundle;
+import org.apache.activemq.artemis.core.client.impl.AddressQueryImpl;
+import org.apache.activemq.artemis.core.client.impl.ClientConsumerImpl;
+import org.apache.activemq.artemis.core.client.impl.ClientConsumerInternal;
+import org.apache.activemq.artemis.core.client.impl.ClientLargeMessageInternal;
+import org.apache.activemq.artemis.core.client.impl.ClientMessageInternal;
+import org.apache.activemq.artemis.core.client.impl.ClientProducerCreditsImpl;
+import org.apache.activemq.artemis.core.client.impl.ClientSessionImpl;
+import org.apache.activemq.artemis.core.message.impl.MessageInternal;
+import org.apache.activemq.artemis.core.protocol.core.Channel;
+import org.apache.activemq.artemis.core.protocol.core.ChannelHandler;
+import org.apache.activemq.artemis.core.protocol.core.CommandConfirmationHandler;
+import org.apache.activemq.artemis.core.protocol.core.CoreRemotingConnection;
+import org.apache.activemq.artemis.core.protocol.core.Packet;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CreateQueueMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CreateSessionMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CreateSharedQueueMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.DisconnectConsumerMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ActiveMQExceptionMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReattachSessionMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReattachSessionResponseMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.RollbackMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionAcknowledgeMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionAddMetaDataMessageV2;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionBindingQueryMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionBindingQueryResponseMessage_V2;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionCloseMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionConsumerCloseMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionConsumerFlowCreditMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionCreateConsumerMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionDeleteQueueMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionExpireMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionForceConsumerDelivery;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionIndividualAcknowledgeMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionProducerCreditsFailMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionProducerCreditsMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionQueueQueryMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionQueueQueryResponseMessage_V2;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionReceiveContinuationMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionReceiveLargeMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionReceiveMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionRequestProducerCreditsMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionSendContinuationMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionSendLargeMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionSendMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionUniqueAddMetaDataMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionXAAfterFailedMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionXACommitMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionXAEndMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionXAForgetMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionXAGetInDoubtXidsResponseMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionXAGetTimeoutResponseMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionXAJoinMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionXAPrepareMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionXAResponseMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionXAResumeMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionXARollbackMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionXASetTimeoutMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionXASetTimeoutResponseMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionXAStartMessage;
+import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.artemis.spi.core.remoting.Connection;
+import org.apache.activemq.artemis.spi.core.remoting.SessionContext;
+import org.apache.activemq.artemis.utils.TokenBucketLimiterImpl;
+import org.apache.activemq.artemis.utils.VersionLoader;
 
-import static org.apache.activemq.core.protocol.core.impl.PacketImpl.DISCONNECT_CONSUMER;
-import static org.apache.activemq.core.protocol.core.impl.PacketImpl.EXCEPTION;
-import static org.apache.activemq.core.protocol.core.impl.PacketImpl.SESS_RECEIVE_CONTINUATION;
-import static org.apache.activemq.core.protocol.core.impl.PacketImpl.SESS_RECEIVE_LARGE_MSG;
-import static org.apache.activemq.core.protocol.core.impl.PacketImpl.SESS_RECEIVE_MSG;
+import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.DISCONNECT_CONSUMER;
+import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.EXCEPTION;
+import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.SESS_RECEIVE_CONTINUATION;
+import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.SESS_RECEIVE_LARGE_MSG;
+import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.SESS_RECEIVE_MSG;
 
 public class ActiveMQSessionContext extends SessionContext
 {
-   private static final long MAX_RESENDCACHE_WAITING_TIME = 10000L;//10 sec
    private final Channel sessionChannel;
    private final int serverVersion;
    private int confirmationWindow;
@@ -426,27 +425,6 @@ public class ActiveMQSessionContext extends SessionContext
 
    @Override
    public int sendLargeMessageChunk(MessageInternal msgI, long messageBodySize, boolean sendBlocking, boolean lastChunk, byte[] chunk, SendAcknowledgementHandler messageHandler) throws ActiveMQException
-   {
-      final boolean requiresResponse = lastChunk && sendBlocking;
-      final SessionSendContinuationMessage chunkPacket =
-              new SessionSendContinuationMessage(msgI, chunk, !lastChunk,
-                      requiresResponse, messageBodySize, messageHandler);
-
-      if (requiresResponse)
-      {
-         // When sending it blocking, only the last chunk will be blocking.
-         sessionChannel.sendBlocking(chunkPacket, PacketImpl.NULL_RESPONSE);
-      }
-      else
-      {
-         sessionChannel.send(chunkPacket);
-      }
-
-      return chunkPacket.getPacketSize();
-   }
-
-   @Override
-   public int sendServerLargeMessageChunk(MessageInternal msgI, long messageBodySize, boolean sendBlocking, boolean lastChunk, byte[] chunk, SendAcknowledgementHandler messageHandler) throws ActiveMQException
    {
       final boolean requiresResponse = lastChunk && sendBlocking;
       final SessionSendContinuationMessage chunkPacket =
@@ -774,7 +752,7 @@ public class ActiveMQSessionContext extends SessionContext
    /**
     * This doesn't apply to other protocols probably, so it will be an ActiveMQ exclusive feature
     *
-    * @throws org.apache.activemq.api.core.ActiveMQException
+    * @throws ActiveMQException
     */
    private void handleConsumerDisconnected(DisconnectConsumerMessage packet) throws ActiveMQException
    {

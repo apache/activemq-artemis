@@ -14,10 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.cluster.failover;
+package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
-import org.apache.activemq.api.core.client.ClientMessage;
-import org.apache.activemq.core.client.impl.ServerLocatorInternal;
+import org.apache.activemq.artemis.api.core.client.ClientMessage;
+import org.apache.activemq.artemis.core.client.impl.ServerLocatorInternal;
 
 /**
  * Validating failover when the size of the message Size > flow Control && message Size < minLargeMessageSize

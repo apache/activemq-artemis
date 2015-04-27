@@ -14,16 +14,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.buffers.impl;
+package org.apache.activemq.artemis.core.buffers.impl;
 
 import java.nio.ByteBuffer;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import org.apache.activemq.api.core.ActiveMQBuffer;
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.utils.DataConstants;
-import org.apache.activemq.utils.UTF8Util;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.utils.DataConstants;
+import org.apache.activemq.artemis.utils.UTF8Util;
 
 public class ChannelBufferWrapper implements ActiveMQBuffer
 {

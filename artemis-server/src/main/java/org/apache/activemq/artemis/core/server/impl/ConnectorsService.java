@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.server.impl;
+package org.apache.activemq.artemis.core.server.impl;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -22,17 +22,17 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
 
-import org.apache.activemq.api.core.Pair;
-import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.config.ConnectorServiceConfiguration;
-import org.apache.activemq.core.persistence.StorageManager;
-import org.apache.activemq.core.postoffice.PostOffice;
-import org.apache.activemq.core.server.ActiveMQServerLogger;
-import org.apache.activemq.core.server.ConnectorService;
-import org.apache.activemq.core.server.ConnectorServiceFactory;
-import org.apache.activemq.core.server.ActiveMQComponent;
-import org.apache.activemq.utils.ClassloadingUtil;
-import org.apache.activemq.utils.ConfigurationHelper;
+import org.apache.activemq.artemis.api.core.Pair;
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.config.ConnectorServiceConfiguration;
+import org.apache.activemq.artemis.core.persistence.StorageManager;
+import org.apache.activemq.artemis.core.postoffice.PostOffice;
+import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.apache.activemq.artemis.core.server.ConnectorService;
+import org.apache.activemq.artemis.core.server.ConnectorServiceFactory;
+import org.apache.activemq.artemis.core.server.ActiveMQComponent;
+import org.apache.activemq.artemis.utils.ClassloadingUtil;
+import org.apache.activemq.artemis.utils.ConfigurationHelper;
 
 /**
  * ConnectorsService will pool some resource for updates, e.g. Twitter, then the changes are picked

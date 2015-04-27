@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.jms.server.management;
+package org.apache.activemq.artemis.tests.integration.jms.server.management;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -38,39 +38,39 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
-import org.apache.activemq.api.core.ActiveMQObjectClosedException;
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.core.client.ActiveMQClient;
-import org.apache.activemq.api.core.management.AddressControl;
-import org.apache.activemq.api.core.management.ObjectNameBuilder;
-import org.apache.activemq.api.core.management.ResourceNames;
-import org.apache.activemq.api.jms.ActiveMQJMSClient;
-import org.apache.activemq.api.jms.management.JMSServerControl;
-import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.postoffice.QueueBinding;
-import org.apache.activemq.core.registry.JndiBindingRegistry;
-import org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory;
-import org.apache.activemq.core.server.ActiveMQServer;
-import org.apache.activemq.core.server.ActiveMQServers;
-import org.apache.activemq.jms.client.ActiveMQConnection;
-import org.apache.activemq.jms.client.ActiveMQConnectionFactory;
-import org.apache.activemq.jms.client.ActiveMQDestination;
-import org.apache.activemq.jms.client.ActiveMQMessageConsumer;
-import org.apache.activemq.jms.client.ActiveMQQueueConnectionFactory;
-import org.apache.activemq.jms.persistence.JMSStorageManager;
-import org.apache.activemq.jms.persistence.config.PersistedConnectionFactory;
-import org.apache.activemq.jms.persistence.config.PersistedDestination;
-import org.apache.activemq.jms.persistence.config.PersistedBindings;
-import org.apache.activemq.jms.persistence.config.PersistedType;
-import org.apache.activemq.jms.server.impl.JMSServerManagerImpl;
-import org.apache.activemq.tests.integration.management.ManagementControlHelper;
-import org.apache.activemq.tests.integration.management.ManagementTestBase;
-import org.apache.activemq.tests.unit.util.InVMNamingContext;
-import org.apache.activemq.tests.util.RandomUtil;
-import org.apache.activemq.tests.util.UnitTestCase;
-import org.apache.activemq.utils.json.JSONArray;
+import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
+import org.apache.activemq.artemis.api.core.ActiveMQObjectClosedException;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
+import org.apache.activemq.artemis.api.core.management.AddressControl;
+import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
+import org.apache.activemq.artemis.api.core.management.ResourceNames;
+import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
+import org.apache.activemq.artemis.api.jms.management.JMSServerControl;
+import org.apache.activemq.artemis.tests.integration.management.ManagementControlHelper;
+import org.apache.activemq.artemis.tests.integration.management.ManagementTestBase;
+import org.apache.activemq.artemis.tests.unit.util.InVMNamingContext;
+import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.postoffice.QueueBinding;
+import org.apache.activemq.artemis.core.registry.JndiBindingRegistry;
+import org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.ActiveMQServers;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnection;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
+import org.apache.activemq.artemis.jms.client.ActiveMQMessageConsumer;
+import org.apache.activemq.artemis.jms.client.ActiveMQQueueConnectionFactory;
+import org.apache.activemq.artemis.jms.persistence.JMSStorageManager;
+import org.apache.activemq.artemis.jms.persistence.config.PersistedConnectionFactory;
+import org.apache.activemq.artemis.jms.persistence.config.PersistedDestination;
+import org.apache.activemq.artemis.jms.persistence.config.PersistedBindings;
+import org.apache.activemq.artemis.jms.persistence.config.PersistedType;
+import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
+import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.json.JSONArray;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -273,7 +273,7 @@ public class JMSServerControlTest extends ManagementTestBase
       Assert.assertEquals(queueName, queue.getQueueName());
       QueueBinding queueBinding = (QueueBinding) server.getPostOffice()
          .getBinding(new SimpleString("jms.queue." + queueName));
-      assertFalse(queueBinding.getQueue().isDurable());
+      Assert.assertFalse(queueBinding.getQueue().isDurable());
       checkResource(ObjectNameBuilder.DEFAULT.getJMSQueueObjectName(queueName));
 
       // queue is not durable => not stored
@@ -320,7 +320,7 @@ public class JMSServerControlTest extends ManagementTestBase
       checkResource(ObjectNameBuilder.DEFAULT.getJMSQueueObjectName(queueName));
 
       ActiveMQConnectionFactory cf =
-         new ActiveMQConnectionFactory(false, new TransportConfiguration(INVM_CONNECTOR_FACTORY));
+         new ActiveMQConnectionFactory(false, new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
       ActiveMQConnection connection = (ActiveMQConnection) cf.createConnection();
       try
       {
@@ -340,16 +340,16 @@ public class JMSServerControlTest extends ManagementTestBase
          {
             Thread.sleep(100);
          }
-         assertTrue(cons.isClosed());
+         Assert.assertTrue(cons.isClosed());
 
          try
          {
             cons.receive(5000);
-            fail("should throw exception");
+            Assert.fail("should throw exception");
          }
          catch (javax.jms.IllegalStateException e)
          {
-            assertTrue(e.getCause() instanceof ActiveMQObjectClosedException);
+            Assert.assertTrue(e.getCause() instanceof ActiveMQObjectClosedException);
          }
       }
       finally
@@ -376,7 +376,7 @@ public class JMSServerControlTest extends ManagementTestBase
       UnitTestCase.checkBinding(context, queueJNDIBinding);
       checkResource(ObjectNameBuilder.DEFAULT.getJMSQueueObjectName(queueName));
 
-      ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory(false, new TransportConfiguration(INVM_CONNECTOR_FACTORY));
+      ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory(false, new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
       ActiveMQConnection connection = (ActiveMQConnection) cf.createConnection();
       connection.start();
       try
@@ -390,11 +390,11 @@ public class JMSServerControlTest extends ManagementTestBase
          try
          {
             control.destroyQueue(queueName, false);
-            fail();
+            Assert.fail();
          }
          catch (Exception e)
          {
-            assertTrue(e.getMessage().startsWith("AMQ119025"));
+            Assert.assertTrue(e.getMessage().startsWith("AMQ119025"));
          }
 
          UnitTestCase.checkBinding(context, queueJNDIBinding);
@@ -402,9 +402,9 @@ public class JMSServerControlTest extends ManagementTestBase
 
          Assert.assertNotNull(fakeJMSStorageManager.destinationMap.get(queueName));
 
-         assertFalse(cons.isClosed());
+         Assert.assertFalse(cons.isClosed());
 
-         assertNotNull(cons.receive(5000));
+         Assert.assertNotNull(cons.receive(5000));
       }
       finally
       {
@@ -431,7 +431,7 @@ public class JMSServerControlTest extends ManagementTestBase
       UnitTestCase.checkBinding(context, topicJNDIBinding);
       checkResource(ObjectNameBuilder.DEFAULT.getJMSTopicObjectName(topicName));
 
-      ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory(false, new TransportConfiguration(INVM_CONNECTOR_FACTORY));
+      ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory(false, new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
       ActiveMQConnection connection = (ActiveMQConnection) cf.createConnection();
       connection.start();
       try
@@ -445,18 +445,18 @@ public class JMSServerControlTest extends ManagementTestBase
          try
          {
             control.destroyTopic(topicName, false);
-            fail();
+            Assert.fail();
          }
          catch (Exception e)
          {
-            assertTrue(e.getMessage().startsWith("AMQ119025"));
+            Assert.assertTrue(e.getMessage().startsWith("AMQ119025"));
          }
 
          UnitTestCase.checkBinding(context, topicJNDIBinding);
          checkResource(ObjectNameBuilder.DEFAULT.getJMSTopicObjectName(topicName));
-         assertFalse(cons.isClosed());
+         Assert.assertFalse(cons.isClosed());
 
-         assertNotNull(cons.receive(5000));
+         Assert.assertNotNull(cons.receive(5000));
       }
       finally
       {
@@ -484,7 +484,7 @@ public class JMSServerControlTest extends ManagementTestBase
       checkResource(ObjectNameBuilder.DEFAULT.getJMSTopicObjectName(topicName));
 
       ActiveMQConnectionFactory cf =
-         new ActiveMQConnectionFactory(false, new TransportConfiguration(INVM_CONNECTOR_FACTORY));
+         new ActiveMQConnectionFactory(false, new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
       ActiveMQConnection connection = (ActiveMQConnection) cf.createConnection();
       try
       {
@@ -502,16 +502,16 @@ public class JMSServerControlTest extends ManagementTestBase
          {
             Thread.sleep(100);
          }
-         assertTrue(cons.isClosed());
+         Assert.assertTrue(cons.isClosed());
 
          try
          {
             cons.receive(5000);
-            fail("should throw exception");
+            Assert.fail("should throw exception");
          }
          catch (javax.jms.IllegalStateException e)
          {
-            assertTrue(e.getCause() instanceof ActiveMQObjectClosedException);
+            Assert.assertTrue(e.getCause() instanceof ActiveMQObjectClosedException);
          }
       }
       finally
@@ -539,7 +539,7 @@ public class JMSServerControlTest extends ManagementTestBase
       checkResource(ObjectNameBuilder.DEFAULT.getJMSQueueObjectName(queueName));
 
       ActiveMQConnectionFactory cf =
-         new ActiveMQConnectionFactory(false, new TransportConfiguration(NETTY_CONNECTOR_FACTORY));
+         new ActiveMQConnectionFactory(false, new TransportConfiguration(UnitTestCase.NETTY_CONNECTOR_FACTORY));
       cf.setReconnectAttempts(-1);
       ActiveMQConnection connection = (ActiveMQConnection) cf.createConnection();
       try
@@ -566,11 +566,11 @@ public class JMSServerControlTest extends ManagementTestBase
          try
          {
             cons.receive(5000);
-            fail("should throw exception");
+            Assert.fail("should throw exception");
          }
          catch (javax.jms.IllegalStateException e)
          {
-            assertTrue(e.getCause() instanceof ActiveMQObjectClosedException);
+            Assert.assertTrue(e.getCause() instanceof ActiveMQObjectClosedException);
          }
       }
       finally
@@ -654,7 +654,7 @@ public class JMSServerControlTest extends ManagementTestBase
 
       checkResource(ObjectNameBuilder.DEFAULT.getJMSTopicObjectName(topicName));
       Topic topic = (Topic) context.lookup(topicJNDIBinding);
-      assertNotNull(topic);
+      Assert.assertNotNull(topic);
       ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory(false,
                                                                  new TransportConfiguration(InVMConnectorFactory.class.getName()));
       Connection connection = cf.createConnection();
@@ -665,14 +665,14 @@ public class JMSServerControlTest extends ManagementTestBase
       String topicAddress = ActiveMQDestination.createTopicAddressFromName(topicName).toString();
       AddressControl addressControl = (AddressControl) server.getManagementService()
          .getResource(ResourceNames.CORE_ADDRESS + topicAddress);
-      assertNotNull(addressControl);
+      Assert.assertNotNull(addressControl);
 
-      assertTrue(addressControl.getQueueNames().length > 0);
+      Assert.assertTrue(addressControl.getQueueNames().length > 0);
 
       connection.close();
       control.destroyTopic(topicName);
 
-      assertNull(server.getManagementService().getResource(ResourceNames.CORE_ADDRESS + topicAddress));
+      Assert.assertNull(server.getManagementService().getResource(ResourceNames.CORE_ADDRESS + topicAddress));
       UnitTestCase.checkNoBinding(context, topicJNDIBinding);
       checkNoResource(ObjectNameBuilder.DEFAULT.getJMSTopicObjectName(topicName));
 
@@ -693,9 +693,9 @@ public class JMSServerControlTest extends ManagementTestBase
 
       checkResource(ObjectNameBuilder.DEFAULT.getJMSTopicObjectName(topicName));
       Topic topic = (Topic) context.lookup(topicJNDIBinding);
-      assertNotNull(topic);
+      Assert.assertNotNull(topic);
       ActiveMQConnectionFactory cf =
-         new ActiveMQConnectionFactory(false, new TransportConfiguration(INVM_CONNECTOR_FACTORY));
+         new ActiveMQConnectionFactory(false, new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
       Connection connection = cf.createConnection();
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       // create a consumer will create a Core queue bound to the topic address
@@ -703,25 +703,25 @@ public class JMSServerControlTest extends ManagementTestBase
 
       JSONArray jsonArray = new JSONArray(control.listAllConsumersAsJSON());
 
-      assertEquals(1 + getNumberOfConsumers(), jsonArray.length());
+      Assert.assertEquals(1 + getNumberOfConsumers(), jsonArray.length());
 
       cons.close();
 
       jsonArray = new JSONArray(control.listAllConsumersAsJSON());
 
-      assertEquals(getNumberOfConsumers(), jsonArray.length());
+      Assert.assertEquals(getNumberOfConsumers(), jsonArray.length());
 
       String topicAddress = ActiveMQDestination.createTopicAddressFromName(topicName).toString();
       AddressControl addressControl = (AddressControl) server.getManagementService()
          .getResource(ResourceNames.CORE_ADDRESS + topicAddress);
-      assertNotNull(addressControl);
+      Assert.assertNotNull(addressControl);
 
-      assertTrue(addressControl.getQueueNames().length > 0);
+      Assert.assertTrue(addressControl.getQueueNames().length > 0);
 
       connection.close();
       control.destroyTopic(topicName);
 
-      assertNull(server.getManagementService().getResource(ResourceNames.CORE_ADDRESS + topicAddress));
+      Assert.assertNull(server.getManagementService().getResource(ResourceNames.CORE_ADDRESS + topicAddress));
       UnitTestCase.checkNoBinding(context, topicJNDIBinding);
       checkNoResource(ObjectNameBuilder.DEFAULT.getJMSTopicObjectName(topicName));
 
@@ -753,7 +753,7 @@ public class JMSServerControlTest extends ManagementTestBase
    {
       server.getConfiguration()
          .getConnectorConfigurations()
-         .put("tst", new TransportConfiguration(INVM_CONNECTOR_FACTORY));
+         .put("tst", new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
 
       doCreateConnectionFactory(new ConnectionFactoryCreator()
       {
@@ -811,35 +811,35 @@ public class JMSServerControlTest extends ManagementTestBase
 
       ActiveMQQueueConnectionFactory cf = (ActiveMQQueueConnectionFactory) context.lookup("tst");
 
-      assertEquals(true, cf.isHA());
-      assertEquals("tst", cf.getClientID());
-      assertEquals(1, cf.getClientFailureCheckPeriod());
-      assertEquals(1, cf.getConnectionTTL());
-      assertEquals(1, cf.getCallTimeout());
-      assertEquals(1, cf.getCallFailoverTimeout());
-      assertEquals(1, cf.getMinLargeMessageSize());
-      assertEquals(true, cf.isCompressLargeMessage());
-      assertEquals(1, cf.getConsumerWindowSize());
-      assertEquals(1, cf.getConfirmationWindowSize());
-      assertEquals(1, cf.getProducerWindowSize());
-      assertEquals(1, cf.getProducerMaxRate());
-      assertEquals(true, cf.isBlockOnAcknowledge());
-      assertEquals(true, cf.isBlockOnDurableSend());
-      assertEquals(true, cf.isBlockOnNonDurableSend());
-      assertEquals(true, cf.isAutoGroup());
-      assertEquals(true, cf.isPreAcknowledge());
-      assertEquals(ActiveMQClient.DEFAULT_CONNECTION_LOAD_BALANCING_POLICY_CLASS_NAME, cf.getConnectionLoadBalancingPolicyClassName());
-      assertEquals(1, cf.getTransactionBatchSize());
-      assertEquals(1, cf.getDupsOKBatchSize());
-      assertEquals(true, cf.isUseGlobalPools());
-      assertEquals(1, cf.getScheduledThreadPoolMaxSize());
-      assertEquals(1, cf.getThreadPoolMaxSize());
-      assertEquals(1, cf.getRetryInterval());
-      assertEquals(1.0, cf.getRetryIntervalMultiplier(), 0.000001);
-      assertEquals(1, cf.getMaxRetryInterval());
-      assertEquals(1, cf.getReconnectAttempts());
-      assertEquals(true, cf.isFailoverOnInitialConnection());
-      assertEquals("tst", cf.getGroupID());
+      Assert.assertEquals(true, cf.isHA());
+      Assert.assertEquals("tst", cf.getClientID());
+      Assert.assertEquals(1, cf.getClientFailureCheckPeriod());
+      Assert.assertEquals(1, cf.getConnectionTTL());
+      Assert.assertEquals(1, cf.getCallTimeout());
+      Assert.assertEquals(1, cf.getCallFailoverTimeout());
+      Assert.assertEquals(1, cf.getMinLargeMessageSize());
+      Assert.assertEquals(true, cf.isCompressLargeMessage());
+      Assert.assertEquals(1, cf.getConsumerWindowSize());
+      Assert.assertEquals(1, cf.getConfirmationWindowSize());
+      Assert.assertEquals(1, cf.getProducerWindowSize());
+      Assert.assertEquals(1, cf.getProducerMaxRate());
+      Assert.assertEquals(true, cf.isBlockOnAcknowledge());
+      Assert.assertEquals(true, cf.isBlockOnDurableSend());
+      Assert.assertEquals(true, cf.isBlockOnNonDurableSend());
+      Assert.assertEquals(true, cf.isAutoGroup());
+      Assert.assertEquals(true, cf.isPreAcknowledge());
+      Assert.assertEquals(ActiveMQClient.DEFAULT_CONNECTION_LOAD_BALANCING_POLICY_CLASS_NAME, cf.getConnectionLoadBalancingPolicyClassName());
+      Assert.assertEquals(1, cf.getTransactionBatchSize());
+      Assert.assertEquals(1, cf.getDupsOKBatchSize());
+      Assert.assertEquals(true, cf.isUseGlobalPools());
+      Assert.assertEquals(1, cf.getScheduledThreadPoolMaxSize());
+      Assert.assertEquals(1, cf.getThreadPoolMaxSize());
+      Assert.assertEquals(1, cf.getRetryInterval());
+      Assert.assertEquals(1.0, cf.getRetryIntervalMultiplier(), 0.000001);
+      Assert.assertEquals(1, cf.getMaxRetryInterval());
+      Assert.assertEquals(1, cf.getReconnectAttempts());
+      Assert.assertEquals(true, cf.isFailoverOnInitialConnection());
+      Assert.assertEquals("tst", cf.getGroupID());
 
       stopServer();
 
@@ -849,51 +849,51 @@ public class JMSServerControlTest extends ManagementTestBase
 
       cf = (ActiveMQQueueConnectionFactory) context.lookup("tst");
 
-      assertEquals(true, cf.isHA());
-      assertEquals("tst", cf.getClientID());
-      assertEquals(1, cf.getClientFailureCheckPeriod());
-      assertEquals(1, cf.getConnectionTTL());
-      assertEquals(1, cf.getCallTimeout());
-      assertEquals(1, cf.getMinLargeMessageSize());
-      assertEquals(true, cf.isCompressLargeMessage());
-      assertEquals(1, cf.getConsumerWindowSize());
-      assertEquals(1, cf.getConfirmationWindowSize());
-      assertEquals(1, cf.getProducerWindowSize());
-      assertEquals(1, cf.getProducerMaxRate());
-      assertEquals(true, cf.isBlockOnAcknowledge());
-      assertEquals(true, cf.isBlockOnDurableSend());
-      assertEquals(true, cf.isBlockOnNonDurableSend());
-      assertEquals(true, cf.isAutoGroup());
-      assertEquals(true, cf.isPreAcknowledge());
-      assertEquals(ActiveMQClient.DEFAULT_CONNECTION_LOAD_BALANCING_POLICY_CLASS_NAME, cf.getConnectionLoadBalancingPolicyClassName());
-      assertEquals(1, cf.getTransactionBatchSize());
-      assertEquals(1, cf.getDupsOKBatchSize());
-      assertEquals(true, cf.isUseGlobalPools());
-      assertEquals(1, cf.getScheduledThreadPoolMaxSize());
-      assertEquals(1, cf.getThreadPoolMaxSize());
-      assertEquals(1, cf.getRetryInterval());
-      assertEquals(1.0, cf.getRetryIntervalMultiplier(), 0.000001);
-      assertEquals(1, cf.getMaxRetryInterval());
-      assertEquals(1, cf.getReconnectAttempts());
-      assertEquals(true, cf.isFailoverOnInitialConnection());
-      assertEquals("tst", cf.getGroupID());
+      Assert.assertEquals(true, cf.isHA());
+      Assert.assertEquals("tst", cf.getClientID());
+      Assert.assertEquals(1, cf.getClientFailureCheckPeriod());
+      Assert.assertEquals(1, cf.getConnectionTTL());
+      Assert.assertEquals(1, cf.getCallTimeout());
+      Assert.assertEquals(1, cf.getMinLargeMessageSize());
+      Assert.assertEquals(true, cf.isCompressLargeMessage());
+      Assert.assertEquals(1, cf.getConsumerWindowSize());
+      Assert.assertEquals(1, cf.getConfirmationWindowSize());
+      Assert.assertEquals(1, cf.getProducerWindowSize());
+      Assert.assertEquals(1, cf.getProducerMaxRate());
+      Assert.assertEquals(true, cf.isBlockOnAcknowledge());
+      Assert.assertEquals(true, cf.isBlockOnDurableSend());
+      Assert.assertEquals(true, cf.isBlockOnNonDurableSend());
+      Assert.assertEquals(true, cf.isAutoGroup());
+      Assert.assertEquals(true, cf.isPreAcknowledge());
+      Assert.assertEquals(ActiveMQClient.DEFAULT_CONNECTION_LOAD_BALANCING_POLICY_CLASS_NAME, cf.getConnectionLoadBalancingPolicyClassName());
+      Assert.assertEquals(1, cf.getTransactionBatchSize());
+      Assert.assertEquals(1, cf.getDupsOKBatchSize());
+      Assert.assertEquals(true, cf.isUseGlobalPools());
+      Assert.assertEquals(1, cf.getScheduledThreadPoolMaxSize());
+      Assert.assertEquals(1, cf.getThreadPoolMaxSize());
+      Assert.assertEquals(1, cf.getRetryInterval());
+      Assert.assertEquals(1.0, cf.getRetryIntervalMultiplier(), 0.000001);
+      Assert.assertEquals(1, cf.getMaxRetryInterval());
+      Assert.assertEquals(1, cf.getReconnectAttempts());
+      Assert.assertEquals(true, cf.isFailoverOnInitialConnection());
+      Assert.assertEquals("tst", cf.getGroupID());
 
       control.destroyConnectionFactory("test");
 
       ObjectNameBuilder nameBuilder = ObjectNameBuilder.create(ActiveMQDefaultConfiguration.getDefaultJmxDomain());
-      assertFalse(mbeanServer.isRegistered(nameBuilder.getConnectionFactoryObjectName("test")));
+      Assert.assertFalse(mbeanServer.isRegistered(nameBuilder.getConnectionFactoryObjectName("test")));
 
       stopServer();
 
       startServer();
 
-      assertFalse(mbeanServer.isRegistered(nameBuilder.getConnectionFactoryObjectName("test")));
+      Assert.assertFalse(mbeanServer.isRegistered(nameBuilder.getConnectionFactoryObjectName("test")));
 
 
       try
       {
          cf = (ActiveMQQueueConnectionFactory) context.lookup("tst");
-         fail("Failure expected");
+         Assert.fail("Failure expected");
       }
       catch (NamingException e)
       {
@@ -916,7 +916,7 @@ public class JMSServerControlTest extends ManagementTestBase
 
       control.destroyConnectionFactory("test-cf");
 
-      assertTrue(control.getConnectionFactoryNames().length == 0);
+      Assert.assertTrue(control.getConnectionFactoryNames().length == 0);
    }
 
    @Test
@@ -930,7 +930,7 @@ public class JMSServerControlTest extends ManagementTestBase
 
       server.getConfiguration()
          .getConnectorConfigurations()
-         .put("tst", new TransportConfiguration(INVM_CONNECTOR_FACTORY));
+         .put("tst", new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
 
       control.createConnectionFactory(cfName, false, false, 3, "tst", cfJNDIBinding);
 
@@ -971,7 +971,7 @@ public class JMSServerControlTest extends ManagementTestBase
 
       server.getConfiguration()
          .getConnectorConfigurations()
-         .put("tst", new TransportConfiguration(INVM_CONNECTOR_FACTORY));
+         .put("tst", new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
 
       control.createConnectionFactory(cfName, false, false, 3, "tst", cfJNDIBinding);
 
@@ -1024,7 +1024,7 @@ public class JMSServerControlTest extends ManagementTestBase
          failed = true;
       }
 
-      assertTrue(failed);
+      Assert.assertTrue(failed);
 
       System.out.println(control.closeConnectionWithClientID("someID"));
 
@@ -1043,7 +1043,7 @@ public class JMSServerControlTest extends ManagementTestBase
          failed = true;
       }
 
-      assertTrue(failed);
+      Assert.assertTrue(failed);
    }
 
    // Package protected ---------------------------------------------
@@ -1066,10 +1066,10 @@ public class JMSServerControlTest extends ManagementTestBase
    {
       Configuration conf = createBasicConfig()
          .setPersistenceEnabled(true)
-         .addAcceptorConfiguration(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY))
-         .addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY))
-         .addConnectorConfiguration("netty", new TransportConfiguration(NETTY_CONNECTOR_FACTORY))
-         .addConnectorConfiguration("invm", new TransportConfiguration(INVM_CONNECTOR_FACTORY));
+         .addAcceptorConfiguration(new TransportConfiguration(UnitTestCase.NETTY_ACCEPTOR_FACTORY))
+         .addAcceptorConfiguration(new TransportConfiguration(UnitTestCase.INVM_ACCEPTOR_FACTORY))
+         .addConnectorConfiguration("netty", new TransportConfiguration(UnitTestCase.NETTY_CONNECTOR_FACTORY))
+         .addConnectorConfiguration("invm", new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
 
       server = addServer(ActiveMQServers.newActiveMQServer(conf, mbeanServer, true));
 

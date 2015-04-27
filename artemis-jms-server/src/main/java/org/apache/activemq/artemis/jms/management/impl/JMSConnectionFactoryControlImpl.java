@@ -14,20 +14,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.jms.management.impl;
+package org.apache.activemq.artemis.jms.management.impl;
 
 import javax.management.MBeanInfo;
 import javax.management.NotCompliantMBeanException;
 import javax.management.StandardMBean;
 
-import org.apache.activemq.api.core.DiscoveryGroupConfiguration;
-import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.core.management.Parameter;
-import org.apache.activemq.api.jms.management.ConnectionFactoryControl;
-import org.apache.activemq.core.management.impl.MBeanInfoHelper;
-import org.apache.activemq.jms.client.ActiveMQConnectionFactory;
-import org.apache.activemq.jms.server.JMSServerManager;
-import org.apache.activemq.jms.server.config.ConnectionFactoryConfiguration;
+import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.management.Parameter;
+import org.apache.activemq.artemis.api.jms.management.ConnectionFactoryControl;
+import org.apache.activemq.artemis.core.management.impl.MBeanInfoHelper;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.jms.server.JMSServerManager;
+import org.apache.activemq.artemis.jms.server.config.ConnectionFactoryConfiguration;
 
 public class JMSConnectionFactoryControlImpl extends StandardMBean implements ConnectionFactoryControl
 {

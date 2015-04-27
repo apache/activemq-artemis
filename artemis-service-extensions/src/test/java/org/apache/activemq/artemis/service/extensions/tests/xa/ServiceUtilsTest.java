@@ -14,16 +14,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.service.extensions.tests.xa;
+package org.apache.activemq.artemis.service.extensions.tests.xa;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.activemq.service.extensions.ServiceUtils;
-import org.apache.activemq.service.extensions.xa.ActiveMQXAResourceWrapperFactory;
-import org.apache.activemq.service.extensions.xa.ActiveMQXAResourceWrapperFactoryImpl;
+import org.apache.activemq.artemis.service.extensions.ServiceUtils;
+import org.apache.activemq.artemis.service.extensions.xa.ActiveMQXAResourceWrapperFactory;
+import org.apache.activemq.artemis.service.extensions.xa.ActiveMQXAResourceWrapperFactoryImpl;
 import org.junit.Test;
 
 import static org.jgroups.util.Util.assertTrue;

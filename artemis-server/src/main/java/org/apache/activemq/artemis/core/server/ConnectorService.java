@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.server;
+package org.apache.activemq.artemis.core.server;
 
 public interface ConnectorService extends ActiveMQComponent
 {

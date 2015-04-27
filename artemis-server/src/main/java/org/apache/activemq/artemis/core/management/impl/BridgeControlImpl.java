@@ -14,14 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.management.impl;
+package org.apache.activemq.artemis.core.management.impl;
 
 import javax.management.MBeanOperationInfo;
 
-import org.apache.activemq.api.core.management.BridgeControl;
-import org.apache.activemq.core.config.BridgeConfiguration;
-import org.apache.activemq.core.persistence.StorageManager;
-import org.apache.activemq.core.server.cluster.Bridge;
+import org.apache.activemq.artemis.api.core.management.BridgeControl;
+import org.apache.activemq.artemis.core.config.BridgeConfiguration;
+import org.apache.activemq.artemis.core.persistence.StorageManager;
+import org.apache.activemq.artemis.core.server.cluster.Bridge;
 
 public class BridgeControlImpl extends AbstractControl implements BridgeControl
 {

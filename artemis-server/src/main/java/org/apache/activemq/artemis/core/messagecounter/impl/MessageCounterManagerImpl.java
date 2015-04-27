@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.messagecounter.impl;
+package org.apache.activemq.artemis.core.messagecounter.impl;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -25,9 +25,9 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
-import org.apache.activemq.core.messagecounter.MessageCounter;
-import org.apache.activemq.core.messagecounter.MessageCounterManager;
+import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
+import org.apache.activemq.artemis.core.messagecounter.MessageCounter;
+import org.apache.activemq.artemis.core.messagecounter.MessageCounterManager;
 
 /**
  *

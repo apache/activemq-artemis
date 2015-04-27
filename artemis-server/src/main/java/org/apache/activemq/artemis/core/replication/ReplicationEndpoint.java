@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.replication;
+package org.apache.activemq.artemis.core.replication;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -31,54 +31,54 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq.api.core.ActiveMQException;
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.journal.IOCriticalErrorListener;
-import org.apache.activemq.core.journal.Journal;
-import org.apache.activemq.core.journal.Journal.JournalState;
-import org.apache.activemq.core.journal.JournalLoadInformation;
-import org.apache.activemq.core.journal.SequentialFile;
-import org.apache.activemq.core.journal.impl.FileWrapperJournal;
-import org.apache.activemq.core.journal.impl.JournalFile;
-import org.apache.activemq.core.paging.PagedMessage;
-import org.apache.activemq.core.paging.PagingManager;
-import org.apache.activemq.core.paging.impl.Page;
-import org.apache.activemq.core.paging.impl.PagingManagerImpl;
-import org.apache.activemq.core.paging.impl.PagingStoreFactoryNIO;
-import org.apache.activemq.core.persistence.StorageManager;
-import org.apache.activemq.core.persistence.impl.journal.JournalStorageManager.JournalContent;
-import org.apache.activemq.core.persistence.impl.journal.LargeServerMessageInSync;
-import org.apache.activemq.core.protocol.core.Channel;
-import org.apache.activemq.core.protocol.core.ChannelHandler;
-import org.apache.activemq.core.protocol.core.Packet;
-import org.apache.activemq.core.protocol.core.impl.PacketImpl;
-import org.apache.activemq.core.protocol.core.impl.wireformat.BackupReplicationStartFailedMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.ActiveMQExceptionMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.ReplicationAddMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.ReplicationAddTXMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.ReplicationCommitMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.ReplicationDeleteMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.ReplicationDeleteTXMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.ReplicationLargeMessageBeginMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.ReplicationLargeMessageEndMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.ReplicationLargeMessageWriteMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.ReplicationLiveIsStoppingMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.ReplicationPageEventMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.ReplicationPageWriteMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.ReplicationPrepareMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.ReplicationResponseMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.ReplicationStartSyncMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.ReplicationStartSyncMessage.SyncDataType;
-import org.apache.activemq.core.protocol.core.impl.wireformat.ReplicationSyncFileMessage;
-import org.apache.activemq.core.replication.ReplicationManager.ADD_OPERATION_TYPE;
-import org.apache.activemq.core.server.ActiveMQComponent;
-import org.apache.activemq.core.server.ActiveMQMessageBundle;
-import org.apache.activemq.core.server.ActiveMQServerLogger;
-import org.apache.activemq.core.server.ServerMessage;
-import org.apache.activemq.core.server.cluster.qourum.SharedNothingBackupQuorum;
-import org.apache.activemq.core.server.impl.ActiveMQServerImpl;
-import org.apache.activemq.core.server.impl.SharedNothingBackupActivation;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.journal.IOCriticalErrorListener;
+import org.apache.activemq.artemis.core.journal.Journal;
+import org.apache.activemq.artemis.core.journal.Journal.JournalState;
+import org.apache.activemq.artemis.core.journal.JournalLoadInformation;
+import org.apache.activemq.artemis.core.journal.SequentialFile;
+import org.apache.activemq.artemis.core.journal.impl.FileWrapperJournal;
+import org.apache.activemq.artemis.core.journal.impl.JournalFile;
+import org.apache.activemq.artemis.core.paging.PagedMessage;
+import org.apache.activemq.artemis.core.paging.PagingManager;
+import org.apache.activemq.artemis.core.paging.impl.Page;
+import org.apache.activemq.artemis.core.paging.impl.PagingManagerImpl;
+import org.apache.activemq.artemis.core.paging.impl.PagingStoreFactoryNIO;
+import org.apache.activemq.artemis.core.persistence.StorageManager;
+import org.apache.activemq.artemis.core.persistence.impl.journal.JournalStorageManager.JournalContent;
+import org.apache.activemq.artemis.core.persistence.impl.journal.LargeServerMessageInSync;
+import org.apache.activemq.artemis.core.protocol.core.Channel;
+import org.apache.activemq.artemis.core.protocol.core.ChannelHandler;
+import org.apache.activemq.artemis.core.protocol.core.Packet;
+import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.BackupReplicationStartFailedMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ActiveMQExceptionMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationAddMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationAddTXMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationCommitMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationDeleteMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationDeleteTXMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationLargeMessageBeginMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationLargeMessageEndMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationLargeMessageWriteMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationLiveIsStoppingMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationPageEventMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationPageWriteMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationPrepareMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationResponseMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationStartSyncMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationStartSyncMessage.SyncDataType;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationSyncFileMessage;
+import org.apache.activemq.artemis.core.replication.ReplicationManager.ADD_OPERATION_TYPE;
+import org.apache.activemq.artemis.core.server.ActiveMQComponent;
+import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
+import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.apache.activemq.artemis.core.server.ServerMessage;
+import org.apache.activemq.artemis.core.server.cluster.qourum.SharedNothingBackupQuorum;
+import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
+import org.apache.activemq.artemis.core.server.impl.SharedNothingBackupActivation;
 
 /**
  * Handles all the synchronization necessary for replication on the backup side (that is the
@@ -261,7 +261,7 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
 
    /**
     * @param packet
-    * @throws org.apache.activemq.api.core.ActiveMQException
+    * @throws ActiveMQException
     */
    private void handleLiveStopping(ReplicationLiveIsStoppingMessage packet) throws ActiveMQException
    {

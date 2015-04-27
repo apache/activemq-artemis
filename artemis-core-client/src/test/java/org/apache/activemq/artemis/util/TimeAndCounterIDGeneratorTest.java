@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.util;
+package org.apache.activemq.artemis.util;
 
 import org.junit.Test;
 
@@ -23,9 +23,9 @@ import java.util.concurrent.CountDownLatch;
 import org.junit.Assert;
 
 
-import org.apache.activemq.tests.CoreUnitTestCase;
-import org.apache.activemq.utils.ConcurrentHashSet;
-import org.apache.activemq.utils.TimeAndCounterIDGenerator;
+import org.apache.activemq.artemis.tests.CoreUnitTestCase;
+import org.apache.activemq.artemis.utils.ConcurrentHashSet;
+import org.apache.activemq.artemis.utils.TimeAndCounterIDGenerator;
 
 public class TimeAndCounterIDGeneratorTest extends Assert
 {

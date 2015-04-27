@@ -14,39 +14,39 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.server;
+package org.apache.activemq.artemis.core.server;
 
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.core.config.BridgeConfiguration;
-import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.config.DivertConfiguration;
-import org.apache.activemq.core.management.impl.ActiveMQServerControlImpl;
-import org.apache.activemq.core.paging.PagingManager;
-import org.apache.activemq.core.persistence.StorageManager;
-import org.apache.activemq.core.postoffice.PostOffice;
-import org.apache.activemq.core.remoting.server.RemotingService;
-import org.apache.activemq.core.replication.ReplicationManager;
-import org.apache.activemq.core.security.Role;
-import org.apache.activemq.core.security.SecurityStore;
-import org.apache.activemq.core.server.cluster.ClusterManager;
-import org.apache.activemq.core.server.cluster.ha.HAPolicy;
-import org.apache.activemq.core.server.group.GroupingHandler;
-import org.apache.activemq.core.server.impl.Activation;
-import org.apache.activemq.core.server.impl.ConnectorsService;
-import org.apache.activemq.core.server.management.ManagementService;
-import org.apache.activemq.core.settings.HierarchicalRepository;
-import org.apache.activemq.core.settings.impl.AddressSettings;
-import org.apache.activemq.core.transaction.ResourceManager;
-import org.apache.activemq.core.version.Version;
-import org.apache.activemq.spi.core.protocol.ProtocolManagerFactory;
-import org.apache.activemq.spi.core.protocol.RemotingConnection;
-import org.apache.activemq.spi.core.protocol.SessionCallback;
-import org.apache.activemq.spi.core.security.ActiveMQSecurityManager;
-import org.apache.activemq.utils.ExecutorFactory;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.config.BridgeConfiguration;
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.config.DivertConfiguration;
+import org.apache.activemq.artemis.core.management.impl.ActiveMQServerControlImpl;
+import org.apache.activemq.artemis.core.paging.PagingManager;
+import org.apache.activemq.artemis.core.persistence.StorageManager;
+import org.apache.activemq.artemis.core.postoffice.PostOffice;
+import org.apache.activemq.artemis.core.remoting.server.RemotingService;
+import org.apache.activemq.artemis.core.replication.ReplicationManager;
+import org.apache.activemq.artemis.core.security.Role;
+import org.apache.activemq.artemis.core.security.SecurityStore;
+import org.apache.activemq.artemis.core.server.cluster.ClusterManager;
+import org.apache.activemq.artemis.core.server.cluster.ha.HAPolicy;
+import org.apache.activemq.artemis.core.server.group.GroupingHandler;
+import org.apache.activemq.artemis.core.server.impl.Activation;
+import org.apache.activemq.artemis.core.server.impl.ConnectorsService;
+import org.apache.activemq.artemis.core.server.management.ManagementService;
+import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
+import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.core.transaction.ResourceManager;
+import org.apache.activemq.artemis.core.version.Version;
+import org.apache.activemq.artemis.spi.core.protocol.ProtocolManagerFactory;
+import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.artemis.spi.core.protocol.SessionCallback;
+import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
+import org.apache.activemq.artemis.utils.ExecutorFactory;
 
 /**
  * This interface defines the internal interface of the ActiveMQ Server exposed to other components
@@ -150,7 +150,7 @@ public interface ActiveMQServer extends ActiveMQComponent
    void setJMSQueueCreator(QueueCreator queueCreator);
 
    /**
-    * @see {@link org.apache.activemq.core.server.ActiveMQServer#setJMSQueueCreator(QueueCreator)} *
+    * @see {@link org.apache.activemq.artemis.core.server.ActiveMQServer#setJMSQueueCreator(QueueCreator)} *
     * *
     * @return
     */

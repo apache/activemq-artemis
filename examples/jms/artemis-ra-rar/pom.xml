@@ -24,26 +24,26 @@ under the License.
    <parent>
       <groupId>org.apache.activemq.examples.jms</groupId>
       <artifactId>jms-examples</artifactId>
-      <version>10.0.0-SNAPSHOT</version>
+      <version>1.0.0-SNAPSHOT</version>
    </parent>
 
-   <artifactId>activemq-rar</artifactId>
+   <artifactId>artemis-rar</artifactId>
    <packaging>rar</packaging>
    <name>ActiveMQ Artemis JMS RA</name>
 
    <dependencies>
       <dependency>
          <groupId>org.apache.activemq</groupId>
-         <artifactId>activemq-jms-client</artifactId>
+         <artifactId>artemis-jms-client</artifactId>
          <version>${project.version}</version>
          <exclusions>
             <exclusion>
                <groupId>org.apache.activemq</groupId>
-               <artifactId>activemq-core-client</artifactId>
+               <artifactId>artemis-core-client</artifactId>
             </exclusion>
             <exclusion>
                <groupId>org.apache.activemq</groupId>
-               <artifactId>activemq-jms-client</artifactId>
+               <artifactId>artemis-jms-client</artifactId>
             </exclusion>
             <exclusion>
               <groupId>org.apache.geronimo.specs</groupId>
@@ -57,22 +57,22 @@ under the License.
       </dependency>
       <dependency>
          <groupId>org.apache.activemq</groupId>
-         <artifactId>activemq-ra</artifactId>
+         <artifactId>artemis-ra</artifactId>
          <version>${project.version}</version>
       </dependency>
       <dependency>
          <groupId>org.apache.activemq</groupId>
-         <artifactId>activemq-jms-server</artifactId>
+         <artifactId>artemis-jms-server</artifactId>
          <version>${project.version}</version>
       </dependency>
       <dependency>
          <groupId>org.apache.activemq</groupId>
-         <artifactId>activemq-core-client</artifactId>
+         <artifactId>artemis-core-client</artifactId>
          <version>${project.version}</version>
          <exclusions>
             <exclusion>
                <groupId>org.apache.activemq</groupId>
-               <artifactId>activemq-core-client</artifactId>
+               <artifactId>artemis-core-client</artifactId>
             </exclusion>
          </exclusions>
       </dependency>

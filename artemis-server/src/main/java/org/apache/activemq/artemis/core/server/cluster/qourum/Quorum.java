@@ -14,9 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.server.cluster.qourum;
+package org.apache.activemq.artemis.core.server.cluster.qourum;
 
-import org.apache.activemq.core.client.impl.Topology;
+import org.apache.activemq.artemis.core.client.impl.Topology;
 
 /**
  * A quorum can be registered with the {@link QuorumManager} to receive notifications about the state of a cluster.

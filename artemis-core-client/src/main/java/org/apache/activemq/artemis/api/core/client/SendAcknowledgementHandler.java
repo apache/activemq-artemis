@@ -14,9 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.api.core.client;
+package org.apache.activemq.artemis.api.core.client;
 
-import org.apache.activemq.api.core.Message;
+import org.apache.activemq.artemis.api.core.Message;
 
 /**
  * A SendAcknowledgementHandler notifies a client when an message sent asynchronously has been

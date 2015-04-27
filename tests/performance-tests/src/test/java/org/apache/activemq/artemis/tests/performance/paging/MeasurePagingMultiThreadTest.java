@@ -14,22 +14,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.performance.paging;
+package org.apache.activemq.artemis.tests.performance.paging;
 import java.util.HashMap;
 import java.util.concurrent.CountDownLatch;
 
-import org.apache.activemq.api.core.ActiveMQException;
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.api.core.client.ClientMessage;
-import org.apache.activemq.api.core.client.ClientProducer;
-import org.apache.activemq.api.core.client.ClientSession;
-import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.ServerLocator;
-import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.server.ActiveMQServer;
-import org.apache.activemq.core.settings.impl.AddressSettings;
-import org.apache.activemq.tests.util.ServiceTestBase;
-import org.apache.activemq.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.client.ClientMessage;
+import org.apache.activemq.artemis.api.core.client.ClientProducer;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
+import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.UnitTestCase;
 import org.junit.Test;
 
 public class MeasurePagingMultiThreadTest extends ServiceTestBase
@@ -176,7 +176,7 @@ public class MeasurePagingMultiThreadTest extends ServiceTestBase
     * @param nMessages
     * @param messageSize
     * @param factory
-    * @throws org.apache.activemq.api.core.ActiveMQException
+    * @throws ActiveMQException
     */
    private void sendInitialBatch(final SimpleString adr,
                                  final int nMessages,
@@ -196,7 +196,7 @@ public class MeasurePagingMultiThreadTest extends ServiceTestBase
     * @param nMessages
     * @param producer
     * @param msg
-    * @throws org.apache.activemq.api.core.ActiveMQException
+    * @throws ActiveMQException
     */
    private void sendMessages(final int nMessages, final ClientProducer producer, final ClientMessage msg) throws ActiveMQException
    {
@@ -209,7 +209,7 @@ public class MeasurePagingMultiThreadTest extends ServiceTestBase
    /**
     * @param factory
     * @param adr
-    * @throws org.apache.activemq.api.core.ActiveMQException
+    * @throws ActiveMQException
     */
    private void createDestination(final ClientSessionFactory factory, final SimpleString adr) throws ActiveMQException
    {

@@ -14,9 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.registry;
+package org.apache.activemq.artemis.core.registry;
 
-import org.apache.activemq.spi.core.naming.BindingRegistry;
+import org.apache.activemq.artemis.spi.core.naming.BindingRegistry;
+import org.apache.activemq.artemis.utils.JNDIUtil;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -124,7 +125,7 @@ public class JndiBindingRegistry implements BindingRegistry
             // OK
          }
 
-         Context c = org.apache.activemq.utils.JNDIUtil.createContext(context, parentContext);
+         Context c = JNDIUtil.createContext(context, parentContext);
 
          c.rebind(jndiNameInContext, objectToBind);
       }

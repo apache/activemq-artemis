@@ -14,10 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.api.core;
+package org.apache.activemq.artemis.api.core;
 
 /**
- * A PropertyConversionException is thrown by {@code org.apache.activemq.api.core.Message} methods when a
+ * A PropertyConversionException is thrown by {@code org.apache.activemq.artemis.api.core.Message} methods when a
  * property can not be converted to the expected type.
  */
 public final class ActiveMQPropertyConversionException extends RuntimeException

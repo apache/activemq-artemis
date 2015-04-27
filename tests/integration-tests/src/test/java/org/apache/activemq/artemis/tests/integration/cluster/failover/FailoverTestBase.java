@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.cluster.failover;
+package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -23,33 +23,33 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq.api.core.ActiveMQBuffer;
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.core.client.ClientMessage;
-import org.apache.activemq.api.core.client.ClientSession;
-import org.apache.activemq.api.core.client.ClusterTopologyListener;
-import org.apache.activemq.api.core.client.ActiveMQClient;
-import org.apache.activemq.api.core.client.ServerLocator;
-import org.apache.activemq.api.core.client.TopologyMember;
-import org.apache.activemq.core.client.impl.ClientSessionFactoryInternal;
-import org.apache.activemq.core.client.impl.ServerLocatorInternal;
-import org.apache.activemq.core.config.ClusterConnectionConfiguration;
-import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.config.ha.ReplicaPolicyConfiguration;
-import org.apache.activemq.core.config.ha.SharedStoreMasterPolicyConfiguration;
-import org.apache.activemq.core.config.ha.SharedStoreSlavePolicyConfiguration;
-import org.apache.activemq.core.remoting.impl.invm.InVMConnector;
-import org.apache.activemq.core.remoting.impl.invm.InVMRegistry;
-import org.apache.activemq.core.server.NodeManager;
-import org.apache.activemq.core.server.cluster.ha.ReplicatedPolicy;
-import org.apache.activemq.core.server.impl.ActiveMQServerImpl;
-import org.apache.activemq.core.server.impl.InVMNodeManager;
-import org.apache.activemq.tests.integration.cluster.util.SameProcessActiveMQServer;
-import org.apache.activemq.tests.integration.cluster.util.TestableServer;
-import org.apache.activemq.tests.util.ReplicatedBackupUtils;
-import org.apache.activemq.tests.util.ServiceTestBase;
-import org.apache.activemq.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.client.ClientMessage;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.api.core.client.ClusterTopologyListener;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
+import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.api.core.client.TopologyMember;
+import org.apache.activemq.artemis.tests.integration.cluster.util.TestableServer;
+import org.apache.activemq.artemis.tests.util.ReplicatedBackupUtils;
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal;
+import org.apache.activemq.artemis.core.client.impl.ServerLocatorInternal;
+import org.apache.activemq.artemis.core.config.ClusterConnectionConfiguration;
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.config.ha.ReplicaPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.SharedStoreMasterPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.SharedStoreSlavePolicyConfiguration;
+import org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnector;
+import org.apache.activemq.artemis.core.remoting.impl.invm.InVMRegistry;
+import org.apache.activemq.artemis.core.server.NodeManager;
+import org.apache.activemq.artemis.core.server.cluster.ha.ReplicatedPolicy;
+import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
+import org.apache.activemq.artemis.core.server.impl.InVMNodeManager;
+import org.apache.activemq.artemis.tests.integration.cluster.util.SameProcessActiveMQServer;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -240,8 +240,8 @@ public abstract class FailoverTestBase extends ServiceTestBase
       if (server.getServer().getHAPolicy().isSharedStore())
       {
          ClusterConnectionConfiguration cc = configuration.getClusterConfigurations().get(0);
-         assertNotNull("cluster connection configuration", cc);
-         assertNotNull("static connectors", cc.getStaticConnectors());
+         Assert.assertNotNull("cluster connection configuration", cc);
+         Assert.assertNotNull("static connectors", cc.getStaticConnectors());
          cc.getStaticConnectors().add(backupConnector.getName());
          // backupConnector is only necessary for fail-back tests
          configuration.getConnectorConfigurations().put(backupConnector.getName(), backupConnector);
@@ -298,7 +298,7 @@ public abstract class FailoverTestBase extends ServiceTestBase
       ClientSessionFactoryInternal sf = (ClientSessionFactoryInternal) locator.createSessionFactory();
       addSessionFactory(sf);
 
-      assertTrue("topology members expected " + topologyMembers, countDownLatch.await(5, TimeUnit.SECONDS));
+      Assert.assertTrue("topology members expected " + topologyMembers, countDownLatch.await(5, TimeUnit.SECONDS));
       return sf;
    }
 

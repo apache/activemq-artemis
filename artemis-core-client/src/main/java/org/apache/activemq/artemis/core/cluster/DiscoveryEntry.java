@@ -14,9 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.cluster;
+package org.apache.activemq.artemis.core.cluster;
 
-import org.apache.activemq.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
 
 public class DiscoveryEntry
 {

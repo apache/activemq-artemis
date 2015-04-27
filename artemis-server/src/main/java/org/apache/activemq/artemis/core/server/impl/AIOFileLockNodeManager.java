@@ -14,13 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.server.impl;
+package org.apache.activemq.artemis.core.server.impl;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.channels.FileLock;
 
-import org.apache.activemq.core.asyncio.impl.AsynchronousFileImpl;
+import org.apache.activemq.artemis.core.asyncio.impl.AsynchronousFileImpl;
 
 /**
  * This is using the ActiveMQ Libaio Native to perform calls to flock on a Linux system. At the

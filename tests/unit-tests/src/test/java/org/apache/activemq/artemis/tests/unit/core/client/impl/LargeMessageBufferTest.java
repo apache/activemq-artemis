@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.unit.core.client.impl;
+package org.apache.activemq.artemis.tests.unit.core.client.impl;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -29,24 +29,24 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq.api.core.ActiveMQBuffer;
-import org.apache.activemq.api.core.ActiveMQBuffers;
-import org.apache.activemq.api.core.ActiveMQException;
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.api.core.client.ClientMessage;
-import org.apache.activemq.api.core.client.ClientSession;
-import org.apache.activemq.api.core.client.MessageHandler;
-import org.apache.activemq.core.client.impl.ClientConsumerInternal;
-import org.apache.activemq.core.client.impl.ClientLargeMessageInternal;
-import org.apache.activemq.core.client.impl.ClientMessageInternal;
-import org.apache.activemq.core.client.impl.ClientSessionInternal;
-import org.apache.activemq.core.client.impl.LargeMessageControllerImpl;
-import org.apache.activemq.core.protocol.core.impl.ActiveMQConsumerContext;
-import org.apache.activemq.spi.core.remoting.ConsumerContext;
-import org.apache.activemq.tests.util.RandomUtil;
-import org.apache.activemq.tests.util.UnitTestCase;
-import org.apache.activemq.utils.FutureLatch;
-import org.apache.activemq.utils.ActiveMQBufferInputStream;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.client.ClientMessage;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.api.core.client.MessageHandler;
+import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.core.client.impl.ClientConsumerInternal;
+import org.apache.activemq.artemis.core.client.impl.ClientLargeMessageInternal;
+import org.apache.activemq.artemis.core.client.impl.ClientMessageInternal;
+import org.apache.activemq.artemis.core.client.impl.ClientSessionInternal;
+import org.apache.activemq.artemis.core.client.impl.LargeMessageControllerImpl;
+import org.apache.activemq.artemis.core.protocol.core.impl.ActiveMQConsumerContext;
+import org.apache.activemq.artemis.spi.core.remoting.ConsumerContext;
+import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.FutureLatch;
+import org.apache.activemq.artemis.utils.ActiveMQBufferInputStream;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -918,7 +918,7 @@ public class LargeMessageBufferTest extends UnitTestCase
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq.core.client.impl.ClientConsumerInternal#getNonXAsession()
+       * @see org.apache.activemq.artemis.core.client.impl.ClientConsumerInternal#getNonXAsession()
        */
       public ClientSessionInternal getSession()
       {
@@ -927,7 +927,7 @@ public class LargeMessageBufferTest extends UnitTestCase
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq.core.client.impl.ClientConsumerInternal#prepareForClose()
+       * @see org.apache.activemq.artemis.core.client.impl.ClientConsumerInternal#prepareForClose()
        */
       public Thread prepareForClose(FutureLatch future) throws ActiveMQException
       {

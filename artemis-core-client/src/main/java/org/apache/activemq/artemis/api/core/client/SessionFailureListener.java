@@ -14,10 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.api.core.client;
+package org.apache.activemq.artemis.api.core.client;
 
-import org.apache.activemq.api.core.ActiveMQException;
-import org.apache.activemq.core.remoting.FailureListener;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.core.remoting.FailureListener;
 
 /**
  * A SessionFailureListener notifies the client when a failure occurred on the session.

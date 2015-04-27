@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.ra.inflow;
+package org.apache.activemq.artemis.ra.inflow;
 
 import javax.jms.Queue;
 import javax.jms.Session;
@@ -31,10 +31,10 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.activemq.ra.ConnectionFactoryProperties;
-import org.apache.activemq.ra.ActiveMQRALogger;
-import org.apache.activemq.ra.ActiveMQRaUtils;
-import org.apache.activemq.ra.ActiveMQResourceAdapter;
+import org.apache.activemq.artemis.ra.ConnectionFactoryProperties;
+import org.apache.activemq.artemis.ra.ActiveMQRALogger;
+import org.apache.activemq.artemis.ra.ActiveMQRaUtils;
+import org.apache.activemq.artemis.ra.ActiveMQResourceAdapter;
 
 /**
  * The activation spec

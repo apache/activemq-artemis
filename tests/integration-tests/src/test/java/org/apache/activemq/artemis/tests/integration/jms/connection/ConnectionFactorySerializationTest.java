@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.jms.connection;
+package org.apache.activemq.artemis.tests.integration.jms.connection;
 
 import java.beans.PropertyDescriptor;
 import java.io.ByteArrayInputStream;
@@ -32,18 +32,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.activemq.api.core.DiscoveryGroupConfiguration;
-import org.apache.activemq.api.core.JGroupsFileBroadcastEndpointFactory;
-import org.apache.activemq.api.core.JGroupsPropertiesBroadcastEndpointFactory;
-import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.core.UDPBroadcastEndpointFactory;
-import org.apache.activemq.api.jms.JMSFactoryType;
-import org.apache.activemq.core.remoting.impl.netty.TransportConstants;
-import org.apache.activemq.jms.client.ActiveMQConnectionFactory;
-import org.apache.activemq.jms.server.config.ConnectionFactoryConfiguration;
-import org.apache.activemq.jms.server.config.impl.ConnectionFactoryConfigurationImpl;
-import org.apache.activemq.tests.util.JMSTestBase;
-import org.apache.activemq.tests.util.RandomUtil;
+import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
+import org.apache.activemq.artemis.api.core.JGroupsFileBroadcastEndpointFactory;
+import org.apache.activemq.artemis.api.core.JGroupsPropertiesBroadcastEndpointFactory;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory;
+import org.apache.activemq.artemis.api.jms.JMSFactoryType;
+import org.apache.activemq.artemis.tests.util.JMSTestBase;
+import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.jms.server.config.ConnectionFactoryConfiguration;
+import org.apache.activemq.artemis.jms.server.config.impl.ConnectionFactoryConfigurationImpl;
+import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.junit.Assert;
 import org.junit.Before;
@@ -74,7 +74,7 @@ public class ConnectionFactorySerializationTest extends JMSTestBase
       createDiscoveryFactoryUDP();
       cf = (ActiveMQConnectionFactory) namingContext.lookup("/MyConnectionFactory");
 
-      // apparently looking up the connection factory with the org.apache.activemq.jms.tests.tools.container.InVMInitialContextFactory
+      // apparently looking up the connection factory with the org.apache.activemq.artemis.jms.tests.tools.container.InVMInitialContextFactory
       // is not enough to actually serialize it so we serialize it manually
       byte[] x = serialize(cf);
       ActiveMQConnectionFactory y = deserialize(x, ActiveMQConnectionFactory.class);
@@ -97,7 +97,7 @@ public class ConnectionFactorySerializationTest extends JMSTestBase
       createDiscoveryFactoryJGroupsFile();
       cf = (ActiveMQConnectionFactory) namingContext.lookup("/MyConnectionFactory");
 
-      // apparently looking up the connection factory with the org.apache.activemq.jms.tests.tools.container.InVMInitialContextFactory
+      // apparently looking up the connection factory with the org.apache.activemq.artemis.jms.tests.tools.container.InVMInitialContextFactory
       // is not enough to actually serialize it so we serialize it manually
       byte[] x = serialize(cf);
       ActiveMQConnectionFactory y = deserialize(x, ActiveMQConnectionFactory.class);
@@ -118,7 +118,7 @@ public class ConnectionFactorySerializationTest extends JMSTestBase
       createDiscoveryFactoryJGroupsProperties();
       cf = (ActiveMQConnectionFactory) namingContext.lookup("/MyConnectionFactory");
 
-      // apparently looking up the connection factory with the org.apache.activemq.jms.tests.tools.container.InVMInitialContextFactory
+      // apparently looking up the connection factory with the org.apache.activemq.artemis.jms.tests.tools.container.InVMInitialContextFactory
       // is not enough to actually serialize it so we serialize it manually
       byte[] x = serialize(cf);
       ActiveMQConnectionFactory y = deserialize(x, ActiveMQConnectionFactory.class);
@@ -139,7 +139,7 @@ public class ConnectionFactorySerializationTest extends JMSTestBase
       createStaticFactory(true);
       cf = (ActiveMQConnectionFactory) namingContext.lookup("/MyConnectionFactory");
 
-      // apparently looking up the connection factory with the org.apache.activemq.jms.tests.tools.container.InVMInitialContextFactory
+      // apparently looking up the connection factory with the org.apache.activemq.artemis.jms.tests.tools.container.InVMInitialContextFactory
       // is not enough to actually serialize it so we serialize it manually
       byte[] x = serialize(cf);
       ActiveMQConnectionFactory y = deserialize(x, ActiveMQConnectionFactory.class);

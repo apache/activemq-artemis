@@ -14,13 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.api.core.management;
+package org.apache.activemq.artemis.api.core.management;
 
 import java.text.DateFormat;
 import java.util.Date;
 
-import org.apache.activemq.core.messagecounter.MessageCounter;
-import org.apache.activemq.utils.json.JSONObject;
+import org.apache.activemq.artemis.core.messagecounter.MessageCounter;
+import org.apache.activemq.artemis.utils.json.JSONObject;
 
 /**
  * Helper class to create Java Objects from the

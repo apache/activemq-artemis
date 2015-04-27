@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.protocol.proton.converter.jms;
+package org.apache.activemq.artemis.core.protocol.proton.converter.jms;
 
 import javax.jms.DeliveryMode;
 import javax.jms.Destination;
@@ -23,12 +23,12 @@ import javax.jms.Message;
 import java.util.Collections;
 import java.util.Enumeration;
 
-import org.apache.activemq.api.core.ActiveMQException;
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.core.message.impl.MessageInternal;
-import org.apache.activemq.jms.client.ActiveMQDestination;
-import org.apache.activemq.jms.client.ActiveMQQueue;
-import org.apache.activemq.reader.MessageUtil;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.message.impl.MessageInternal;
+import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
+import org.apache.activemq.artemis.jms.client.ActiveMQQueue;
+import org.apache.activemq.artemis.reader.MessageUtil;
 
 public class ServerJMSMessage implements Message
 {

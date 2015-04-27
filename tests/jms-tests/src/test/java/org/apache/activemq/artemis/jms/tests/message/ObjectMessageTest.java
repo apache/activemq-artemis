@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.jms.tests.message;
+package org.apache.activemq.artemis.jms.tests.message;
 
 import javax.jms.DeliveryMode;
 import javax.jms.JMSException;
@@ -26,7 +26,7 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
-import org.apache.activemq.jms.tests.util.ProxyAssertSupport;
+import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -77,7 +77,7 @@ public class ObjectMessageTest extends MessageTestBase
 
          Object testObject2 = r.getObject();
 
-         ProxyAssertSupport.assertEquals("org.apache.activemq.jms.tests.message.SomeObject", testObject2.getClass().getName());
+         ProxyAssertSupport.assertEquals("org.apache.activemq.artemis.jms.tests.message.SomeObject", testObject2.getClass().getName());
          ProxyAssertSupport.assertNotSame(testObject, testObject2);
          ProxyAssertSupport.assertNotSame(testObject.getClass(), testObject2.getClass());
          ProxyAssertSupport.assertNotSame(testObject.getClass().getClassLoader(), testObject2.getClass()

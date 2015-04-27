@@ -14,19 +14,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.filter.impl;
+package org.apache.activemq.artemis.core.filter.impl;
 
-import org.apache.activemq.api.core.ActiveMQException;
-import org.apache.activemq.core.server.ActiveMQServerLogger;
-import org.apache.activemq.selector.filter.BooleanExpression;
-import org.apache.activemq.selector.filter.FilterException;
-import org.apache.activemq.selector.filter.Filterable;
-import org.apache.activemq.selector.impl.SelectorParser;
-import org.apache.activemq.api.core.FilterConstants;
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.core.filter.Filter;
-import org.apache.activemq.core.server.ActiveMQMessageBundle;
-import org.apache.activemq.core.server.ServerMessage;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.apache.activemq.artemis.selector.filter.BooleanExpression;
+import org.apache.activemq.artemis.selector.filter.FilterException;
+import org.apache.activemq.artemis.selector.filter.Filterable;
+import org.apache.activemq.artemis.selector.impl.SelectorParser;
+import org.apache.activemq.artemis.api.core.FilterConstants;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.filter.Filter;
+import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
+import org.apache.activemq.artemis.core.server.ServerMessage;
 
 /**
 * This class implements a ActiveMQ filter
@@ -59,7 +59,7 @@ public class FilterImpl implements Filter
 
    /**
     * @return null if <code>filterStr</code> is null or an empty String and a valid filter else
-    * @throws org.apache.activemq.api.core.ActiveMQException if the string does not correspond to a valid filter
+    * @throws ActiveMQException if the string does not correspond to a valid filter
     */
    public static Filter createFilter(final String filterStr) throws ActiveMQException
    {
@@ -68,7 +68,7 @@ public class FilterImpl implements Filter
 
    /**
     * @return null if <code>filterStr</code> is null or an empty String and a valid filter else
-    * @throws org.apache.activemq.api.core.ActiveMQException if the string does not correspond to a valid filter
+    * @throws ActiveMQException if the string does not correspond to a valid filter
     */
    public static Filter createFilter(final SimpleString filterStr) throws ActiveMQException
    {

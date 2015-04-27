@@ -14,14 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.postoffice;
+package org.apache.activemq.artemis.core.postoffice;
 
 import java.util.Collection;
 
-import org.apache.activemq.core.server.Queue;
-import org.apache.activemq.core.server.RoutingContext;
-import org.apache.activemq.core.server.ServerMessage;
-import org.apache.activemq.core.server.group.UnproposalListener;
+import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.server.RoutingContext;
+import org.apache.activemq.artemis.core.server.ServerMessage;
+import org.apache.activemq.artemis.core.server.group.UnproposalListener;
 
 public interface Bindings extends UnproposalListener
 {

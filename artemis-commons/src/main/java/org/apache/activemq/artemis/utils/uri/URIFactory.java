@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.activemq.utils.uri;
+package org.apache.activemq.artemis.utils.uri;
 
 import java.net.URI;
 import java.net.URISyntaxException;

@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.jms.example;
+package org.apache.activemq.artemis.jms.example;
 
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicReference;
@@ -31,9 +31,9 @@ import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
 import javax.naming.InitialContext;
 
-import org.apache.activemq.api.core.management.ActiveMQServerControl;
-import org.apache.activemq.api.core.management.ObjectNameBuilder;
-import org.apache.activemq.common.example.ActiveMQExample;
+import org.apache.activemq.artemis.api.core.management.ActiveMQServerControl;
+import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
+import org.apache.activemq.artemis.common.example.ActiveMQExample;
 
 /**
  * An example that shows how to kick off a client connected to ActiveMQ by using JMX.

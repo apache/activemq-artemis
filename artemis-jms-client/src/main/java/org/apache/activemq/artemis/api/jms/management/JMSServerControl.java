@@ -14,12 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.api.jms.management;
+package org.apache.activemq.artemis.api.jms.management;
 
 import javax.management.MBeanOperationInfo;
 
-import org.apache.activemq.api.core.management.Operation;
-import org.apache.activemq.api.core.management.Parameter;
+import org.apache.activemq.artemis.api.core.management.Operation;
+import org.apache.activemq.artemis.api.core.management.Parameter;
 
 /**
  * A JMSSserverControl is used to manage ActiveMQ JMS server.
@@ -148,8 +148,8 @@ public interface JMSServerControl
     * The ConnectionFactory is bound to JNDI for all the specified bindings Strings.
     * <br>
     * {@code liveConnectorsTransportClassNames}  are the class names
-    * of the {@link org.apache.activemq.spi.core.remoting.ConnectorFactory} to connect to the live servers
-    * and {@code liveConnectorTransportParams}  are Map&lt;String, Object&gt; for the corresponding {@link org.apache.activemq.api.core.TransportConfiguration}'s parameters.
+    * of the {@link org.apache.activemq.artemis.spi.core.remoting.ConnectorFactory} to connect to the live servers
+    * and {@code liveConnectorTransportParams}  are Map&lt;String, Object&gt; for the corresponding {@link org.apache.activemq.artemis.api.core.TransportConfiguration}'s parameters.
     */
    void createConnectionFactory(String name,
                                 boolean ha,

@@ -14,13 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.api.core.client;
+package org.apache.activemq.artemis.api.core.client;
 
-import org.apache.activemq.api.core.DiscoveryGroupConfiguration;
-import org.apache.activemq.api.core.Interceptor;
-import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.core.client.impl.Topology;
-import org.apache.activemq.spi.core.remoting.ClientProtocolManagerFactory;
+import org.apache.activemq.artemis.api.core.Interceptor;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
+import org.apache.activemq.artemis.core.client.impl.Topology;
+import org.apache.activemq.artemis.spi.core.remoting.ClientProtocolManagerFactory;
 
 /**
  * The serverLocator locates a server, but beyond that it locates a server based on a list.
@@ -167,7 +167,7 @@ public interface ServerLocator extends AutoCloseable
     * Returns the blocking calls timeout.
     * <p>
     * If client's blocking calls to the server take more than this timeout, the call will throw a
-    * {@link org.apache.activemq.api.core.ActiveMQException} with the code {@link org.apache.activemq.api.core.ActiveMQExceptionType#CONNECTION_TIMEDOUT}. Value
+    * {@link org.apache.activemq.artemis.api.core.ActiveMQException} with the code {@link org.apache.activemq.artemis.api.core.ActiveMQExceptionType#CONNECTION_TIMEDOUT}. Value
     * is in milliseconds, default value is {@link ActiveMQClient#DEFAULT_CALL_TIMEOUT}.
     *
     * @return the blocking calls timeout
@@ -399,7 +399,7 @@ public interface ServerLocator extends AutoCloseable
     * assign a group ID to the messages they sent.
     * <p>
     * if <code>true</code>, a random unique group ID is created and set on each message for the property
-    * {@link org.apache.activemq.api.core.Message#HDR_GROUP_ID}.
+    * {@link org.apache.activemq.artemis.api.core.Message#HDR_GROUP_ID}.
     * Default value is {@link ActiveMQClient#DEFAULT_AUTO_GROUP}.
     *
     * @return whether producers will automatically assign a group ID to their messages
@@ -416,7 +416,7 @@ public interface ServerLocator extends AutoCloseable
    ServerLocator setAutoGroup(boolean autoGroup);
 
    /**
-    * Returns the group ID that will be eventually set on each message for the property {@link org.apache.activemq.api.core.Message#HDR_GROUP_ID}.
+    * Returns the group ID that will be eventually set on each message for the property {@link org.apache.activemq.artemis.api.core.Message#HDR_GROUP_ID}.
     * <p>
     * Default value is is {@code null} and no group ID will be set on the messages.
     *
@@ -652,7 +652,7 @@ public interface ServerLocator extends AutoCloseable
    /**
     * Returns the class name of the connection load balancing policy.
     * <p>
-    * Default value is "org.apache.activemq.api.core.client.loadbalance.RoundRobinConnectionLoadBalancingPolicy".
+    * Default value is "org.apache.activemq.artemis.api.core.client.loadbalance.RoundRobinConnectionLoadBalancingPolicy".
     *
     * @return the class name of the connection load balancing policy
     */
@@ -661,7 +661,7 @@ public interface ServerLocator extends AutoCloseable
    /**
     * Sets the class name of the connection load balancing policy.
     * <p>
-    * Value must be the name of a class implementing {@link org.apache.activemq.api.core.client.loadbalance.ConnectionLoadBalancingPolicy}.
+    * Value must be the name of a class implementing {@link org.apache.activemq.artemis.api.core.client.loadbalance.ConnectionLoadBalancingPolicy}.
     *
     * @param loadBalancingPolicyClassName class name of the connection load balancing policy
     * @return this ServerLocator

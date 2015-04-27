@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.unit.ra;
+package org.apache.activemq.artemis.tests.unit.ra;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -24,8 +24,8 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.activemq.ra.ActiveMQResourceAdapter;
-import org.apache.activemq.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.ra.ActiveMQResourceAdapter;
+import org.apache.activemq.artemis.tests.util.UnitTestCase;
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -45,11 +45,11 @@ public class ActiveMQResourceAdapterConfigTest extends UnitTestCase
       "<config-property>\n" +
       "         <description>\n" +
       "            The transport type. Multiple connectors can be configured by using a comma separated list,\n" +
-      "            i.e. org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory,org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory.\n" +
+      "            i.e. org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory,org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory.\n" +
       "         </description>\n" +
       "         <config-property-name>ConnectorClassName</config-property-name>\n" +
       "         <config-property-type>java.lang.String</config-property-type>\n" +
-      "         <config-property-value>org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory</config-property-value>\n" +
+      "         <config-property-value>org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory</config-property-value>\n" +
       "      </config-property>\n" +
       "      <config-property>\n" +
       "         <description>The transport configuration. These values must be in the form of key=val;key=val;,\n" +
@@ -287,7 +287,7 @@ public class ActiveMQResourceAdapterConfigTest extends UnitTestCase
       "      <config-property>\n" +
       "         <description>Add a new managed connection factory</description>\n" +
       "         <config-property-name>ManagedConnectionFactory</config-property-name>\n" +
-      "         <config-property-type>org.apache.activemq.ra.ActiveMQRAManagedConnectionFactory</config-property-type>\n" +
+      "         <config-property-type>org.apache.activemq.artemis.ra.ActiveMQRAManagedConnectionFactory</config-property-type>\n" +
       "         <config-property-value></config-property-value>\n" +
       "      </config-property>" +
       "      <config-property>\n" +
@@ -300,7 +300,7 @@ public class ActiveMQResourceAdapterConfigTest extends UnitTestCase
       "         <description>The class definition (full qualified name and its properties) used to encrypt the password</description>\n" +
       "         <config-property-name>PasswordCodec</config-property-name>\n" +
       "         <config-property-type>java.lang.String</config-property-type>\n" +
-      "         <config-property-value>org.apache.activemq.utils.DefaultSensitiveStringCodec;key=clusterpassword;algorithm=ssss</config-property-value>\n" +
+      "         <config-property-value>org.apache.activemq.artemis.utils.DefaultSensitiveStringCodec;key=clusterpassword;algorithm=ssss</config-property-value>\n" +
       "      </config-property>" +
       "      <config-property>" +
       "         <description>Whether the resource adapter must use auto recovery</description>\n" +

@@ -14,9 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.api.core;
-
-import static org.apache.activemq.api.core.ActiveMQExceptionType.OBJECT_CLOSED;
+package org.apache.activemq.artemis.api.core;
 
 /**
  * A client operation failed because the calling resource (ClientSession, ClientProducer, etc.) is
@@ -28,11 +26,11 @@ public final class ActiveMQObjectClosedException extends ActiveMQException
 
    public ActiveMQObjectClosedException()
    {
-      super(OBJECT_CLOSED);
+      super(ActiveMQExceptionType.OBJECT_CLOSED);
    }
 
    public ActiveMQObjectClosedException(String msg)
    {
-      super(OBJECT_CLOSED, msg);
+      super(ActiveMQExceptionType.OBJECT_CLOSED, msg);
    }
 }

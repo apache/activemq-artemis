@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.openwire.amq;
+package org.apache.activemq.artemis.tests.integration.openwire.amq;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -22,7 +22,7 @@ import javax.jms.TransactionRolledBackException;
 
 import org.apache.activemq.TransactionContext;
 import org.apache.activemq.transaction.Synchronization;
-import org.apache.activemq.tests.integration.openwire.BasicOpenWireTest;
+import org.apache.activemq.artemis.tests.integration.openwire.BasicOpenWireTest;
 import org.junit.Before;
 import org.junit.Test;
 

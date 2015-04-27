@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.util;
+package org.apache.activemq.artemis.tests.util;
 
 import javax.management.MBeanServer;
 import java.io.File;
@@ -27,52 +27,52 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq.api.core.ActiveMQException;
-import org.apache.activemq.api.core.Pair;
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.core.client.ClientConsumer;
-import org.apache.activemq.api.core.client.ClientMessage;
-import org.apache.activemq.api.core.client.ClientProducer;
-import org.apache.activemq.api.core.client.ClientSession;
-import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.ActiveMQClient;
-import org.apache.activemq.api.core.client.ServerLocator;
-import org.apache.activemq.core.client.impl.ClientSessionFactoryInternal;
-import org.apache.activemq.core.client.impl.Topology;
-import org.apache.activemq.core.client.impl.TopologyMemberImpl;
-import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.journal.PreparedTransactionInfo;
-import org.apache.activemq.core.journal.RecordInfo;
-import org.apache.activemq.core.journal.SequentialFileFactory;
-import org.apache.activemq.core.journal.impl.JournalFile;
-import org.apache.activemq.core.journal.impl.JournalImpl;
-import org.apache.activemq.core.journal.impl.JournalReaderCallback;
-import org.apache.activemq.core.journal.impl.NIOSequentialFileFactory;
-import org.apache.activemq.core.paging.PagingStore;
-import org.apache.activemq.core.postoffice.Binding;
-import org.apache.activemq.core.postoffice.Bindings;
-import org.apache.activemq.core.postoffice.PostOffice;
-import org.apache.activemq.core.postoffice.QueueBinding;
-import org.apache.activemq.core.postoffice.impl.LocalQueueBinding;
-import org.apache.activemq.core.remoting.impl.invm.InVMRegistry;
-import org.apache.activemq.core.remoting.impl.invm.TransportConstants;
-import org.apache.activemq.core.server.ActiveMQComponent;
-import org.apache.activemq.core.server.ActiveMQServer;
-import org.apache.activemq.core.server.ActiveMQServerLogger;
-import org.apache.activemq.core.server.ActiveMQServers;
-import org.apache.activemq.core.server.NodeManager;
-import org.apache.activemq.core.server.Queue;
-import org.apache.activemq.core.server.cluster.ClusterConnection;
-import org.apache.activemq.core.server.cluster.RemoteQueueBinding;
-import org.apache.activemq.core.server.impl.Activation;
-import org.apache.activemq.core.server.impl.ActiveMQServerImpl;
-import org.apache.activemq.core.server.impl.SharedNothingBackupActivation;
-import org.apache.activemq.core.settings.impl.AddressFullMessagePolicy;
-import org.apache.activemq.core.settings.impl.AddressSettings;
-import org.apache.activemq.spi.core.security.ActiveMQSecurityManager;
-import org.apache.activemq.spi.core.security.ActiveMQSecurityManagerImpl;
-import org.apache.activemq.utils.UUIDGenerator;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.Pair;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.client.ClientConsumer;
+import org.apache.activemq.artemis.api.core.client.ClientMessage;
+import org.apache.activemq.artemis.api.core.client.ClientProducer;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
+import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal;
+import org.apache.activemq.artemis.core.client.impl.Topology;
+import org.apache.activemq.artemis.core.client.impl.TopologyMemberImpl;
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.journal.PreparedTransactionInfo;
+import org.apache.activemq.artemis.core.journal.RecordInfo;
+import org.apache.activemq.artemis.core.journal.SequentialFileFactory;
+import org.apache.activemq.artemis.core.journal.impl.JournalFile;
+import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
+import org.apache.activemq.artemis.core.journal.impl.JournalReaderCallback;
+import org.apache.activemq.artemis.core.journal.impl.NIOSequentialFileFactory;
+import org.apache.activemq.artemis.core.paging.PagingStore;
+import org.apache.activemq.artemis.core.postoffice.Binding;
+import org.apache.activemq.artemis.core.postoffice.Bindings;
+import org.apache.activemq.artemis.core.postoffice.PostOffice;
+import org.apache.activemq.artemis.core.postoffice.QueueBinding;
+import org.apache.activemq.artemis.core.postoffice.impl.LocalQueueBinding;
+import org.apache.activemq.artemis.core.remoting.impl.invm.InVMRegistry;
+import org.apache.activemq.artemis.core.remoting.impl.invm.TransportConstants;
+import org.apache.activemq.artemis.core.server.ActiveMQComponent;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.apache.activemq.artemis.core.server.ActiveMQServers;
+import org.apache.activemq.artemis.core.server.NodeManager;
+import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.server.cluster.ClusterConnection;
+import org.apache.activemq.artemis.core.server.cluster.RemoteQueueBinding;
+import org.apache.activemq.artemis.core.server.impl.Activation;
+import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
+import org.apache.activemq.artemis.core.server.impl.SharedNothingBackupActivation;
+import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
+import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
+import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManagerImpl;
+import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -251,12 +251,12 @@ public abstract class ServiceTestBase extends UnitTestCase
 
       if (netty)
       {
-         params.put(org.apache.activemq.core.remoting.impl.netty.TransportConstants.PORT_PROP_NAME,
-                    org.apache.activemq.core.remoting.impl.netty.TransportConstants.DEFAULT_PORT + node);
+         params.put(org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.PORT_PROP_NAME,
+                    org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.DEFAULT_PORT + node);
       }
       else
       {
-         params.put(org.apache.activemq.core.remoting.impl.invm.TransportConstants.SERVER_ID_PROP_NAME, node);
+         params.put(org.apache.activemq.artemis.core.remoting.impl.invm.TransportConstants.SERVER_ID_PROP_NAME, node);
       }
 
       return params;
@@ -271,8 +271,8 @@ public abstract class ServiceTestBase extends UnitTestCase
 
       Map<String, Object> server1Params = new HashMap<String, Object>();
 
-      server1Params.put(org.apache.activemq.core.remoting.impl.netty.TransportConstants.PORT_PROP_NAME,
-                        org.apache.activemq.core.remoting.impl.netty.TransportConstants.DEFAULT_PORT + 1);
+      server1Params.put(org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.PORT_PROP_NAME,
+                        org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.DEFAULT_PORT + 1);
 
       return new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, server1Params);
    }
@@ -286,8 +286,8 @@ public abstract class ServiceTestBase extends UnitTestCase
 
       Map<String, Object> server1Params = new HashMap<String, Object>();
 
-      server1Params.put(org.apache.activemq.core.remoting.impl.netty.TransportConstants.PORT_PROP_NAME,
-                        org.apache.activemq.core.remoting.impl.netty.TransportConstants.DEFAULT_PORT + 1);
+      server1Params.put(org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.PORT_PROP_NAME,
+                        org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.DEFAULT_PORT + 1);
       return new TransportConfiguration(NETTY_CONNECTOR_FACTORY, server1Params);
    }
 

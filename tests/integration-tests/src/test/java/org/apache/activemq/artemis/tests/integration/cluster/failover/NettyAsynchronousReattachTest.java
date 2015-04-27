@@ -14,12 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.cluster.failover;
+package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
-import org.apache.activemq.api.core.ActiveMQNotConnectedException;
-import org.apache.activemq.api.core.client.ClientSession;
-import org.apache.activemq.core.client.impl.ClientSessionInternal;
-import org.apache.activemq.tests.integration.IntegrationTestLogger;
+import org.apache.activemq.artemis.api.core.ActiveMQNotConnectedException;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.core.client.impl.ClientSessionInternal;
+import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 
 public class NettyAsynchronousReattachTest extends NettyAsynchronousFailoverTest
 {

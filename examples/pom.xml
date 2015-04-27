@@ -23,12 +23,12 @@ under the License.
 
    <parent>
       <groupId>org.apache.activemq</groupId>
-      <artifactId>activemq-pom</artifactId>
-      <version>10.0.0-SNAPSHOT</version>
+      <artifactId>artemis-pom</artifactId>
+      <version>1.0.0-SNAPSHOT</version>
    </parent>
 
    <groupId>org.apache.activemq.examples</groupId>
-   <artifactId>activemq-examples</artifactId>
+   <artifactId>artemis-examples</artifactId>
    <packaging>pom</packaging>
    <name>ActiveMQ Artemis Examples</name>
 

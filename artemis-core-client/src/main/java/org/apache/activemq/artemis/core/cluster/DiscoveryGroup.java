@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.cluster;
+package org.apache.activemq.artemis.core.cluster;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,19 +23,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.activemq.api.core.ActiveMQBuffer;
-import org.apache.activemq.api.core.ActiveMQBuffers;
-import org.apache.activemq.api.core.ActiveMQInterruptedException;
-import org.apache.activemq.api.core.BroadcastEndpoint;
-import org.apache.activemq.api.core.BroadcastEndpointFactory;
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.core.management.CoreNotificationType;
-import org.apache.activemq.core.client.ActiveMQClientLogger;
-import org.apache.activemq.core.server.ActiveMQComponent;
-import org.apache.activemq.core.server.management.Notification;
-import org.apache.activemq.core.server.management.NotificationService;
-import org.apache.activemq.utils.TypedProperties;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
+import org.apache.activemq.artemis.api.core.ActiveMQInterruptedException;
+import org.apache.activemq.artemis.api.core.BroadcastEndpoint;
+import org.apache.activemq.artemis.api.core.BroadcastEndpointFactory;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.management.CoreNotificationType;
+import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
+import org.apache.activemq.artemis.core.server.ActiveMQComponent;
+import org.apache.activemq.artemis.core.server.management.Notification;
+import org.apache.activemq.artemis.core.server.management.NotificationService;
+import org.apache.activemq.artemis.utils.TypedProperties;
 
 /**
  * This class is used to search for members on the cluster through the opaque interface {@link BroadcastEndpoint}.

@@ -14,15 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.transaction;
+package org.apache.activemq.artemis.core.transaction;
 
 import java.util.List;
 
 import javax.transaction.xa.Xid;
 
-import org.apache.activemq.api.core.ActiveMQException;
-import org.apache.activemq.core.server.Queue;
-import org.apache.activemq.core.server.impl.RefsOperation;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.server.impl.RefsOperation;
 
 /**
  * A ActiveMQ internal transaction

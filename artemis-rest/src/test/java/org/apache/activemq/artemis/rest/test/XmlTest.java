@@ -14,9 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.rest.test;
+package org.apache.activemq.artemis.rest.test;
 
-import org.apache.activemq.rest.queue.push.xml.PushRegistration;
+import org.apache.activemq.artemis.rest.queue.push.xml.PushRegistration;
 import org.junit.Test;
 
 import javax.xml.bind.JAXBContext;

@@ -36,15 +36,15 @@
    </license>
 
    <resourceadapter>
-      <resourceadapter-class>org.apache.activemq6.ra.ActiveMQResourceAdapter</resourceadapter-class>
+      <resourceadapter-class>org.apache.activemq.artemis.ra.ActiveMQResourceAdapter</resourceadapter-class>
       <config-property>
          <description>
             The transport type. Multiple connectors can be configured by using a comma separated list,
-            i.e. org.apache.activemq6.core.remoting.impl.invm.InVMConnectorFactory,org.apache.activemq6.core.remoting.impl.invm.InVMConnectorFactory.
+            i.e. org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory,org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory.
          </description>
          <config-property-name>ConnectorClassName</config-property-name>
          <config-property-type>java.lang.String</config-property-type>
-         <config-property-value>org.apache.activemq6.core.remoting.impl.invm.InVMConnectorFactory</config-property-value>
+         <config-property-value>org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory</config-property-value>
       </config-property>
       <config-property>
          <description>The transport configuration. These values must be in the form of key=val;key=val;,
@@ -219,7 +219,7 @@
         <config-property-value></config-property-value>
       </config-property>
       <config-property>
-        <description>The max connections</description>        
+        <description>The max connections</description>
         <config-property-type>java.lang.Integer</config-property-type>
         <config-property-value></config-property-value>
       </config-property>
@@ -257,12 +257,12 @@
         <description>The class definition (full qualified name and its properties) used to encrypt the password</description>
         <config-property-name>PasswordCodec</config-property-name>
         <config-property-type>java.lang.String</config-property-type>
-        <config-property-value>org.apache.activemq6.utils.DefaultSensitiveStringCodec;key=clusterpassword;algorithm=something</config-property-value>
+        <config-property-value>org.apache.activemq.artemis.utils.DefaultSensitiveStringCodec;key=clusterpassword;algorithm=something</config-property-value>
       </config-property>-->
 
       <outbound-resourceadapter>
          <connection-definition>
-            <managedconnectionfactory-class>org.apache.activemq6.ra.ActiveMQRAManagedConnectionFactory</managedconnectionfactory-class>
+            <managedconnectionfactory-class>org.apache.activemq.artemis.ra.ActiveMQRAManagedConnectionFactory</managedconnectionfactory-class>
 
             <config-property>
                <description>The default session type</description>
@@ -277,10 +277,10 @@
                <config-property-value>0</config-property-value>
             </config-property>
 
-            <connectionfactory-interface>org.apache.activemq6.ra.ActiveMQRAConnectionFactory</connectionfactory-interface>
-            <connectionfactory-impl-class>org.apache.activemq6.ra.ActiveMQRAConnectionFactoryImpl</connectionfactory-impl-class>
+            <connectionfactory-interface>org.apache.activemq.artemis.ra.ActiveMQRAConnectionFactory</connectionfactory-interface>
+            <connectionfactory-impl-class>org.apache.activemq.artemis.ra.ActiveMQRAConnectionFactoryImpl</connectionfactory-impl-class>
             <connection-interface>javax.jms.Session</connection-interface>
-            <connection-impl-class>org.apache.activemq6.ra.ActiveMQRASession</connection-impl-class>
+            <connection-impl-class>org.apache.activemq.artemis.ra.ActiveMQRASession</connection-impl-class>
          </connection-definition>
          <transaction-support>XATransaction</transaction-support>
          <authentication-mechanism>
@@ -295,7 +295,7 @@
             <messagelistener>
                <messagelistener-type>javax.jms.MessageListener</messagelistener-type>
                <activationspec>
-                  <activationspec-class>org.apache.activemq6.ra.inflow.ActiveMQActivationSpec</activationspec-class>
+                  <activationspec-class>org.apache.activemq.artemis.ra.inflow.ActiveMQActivationSpec</activationspec-class>
                   <required-config-property>
                       <config-property-name>destination</config-property-name>
                   </required-config-property>

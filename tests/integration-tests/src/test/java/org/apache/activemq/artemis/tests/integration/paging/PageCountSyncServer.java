@@ -14,13 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.paging;
+package org.apache.activemq.artemis.tests.integration.paging;
 
-import org.apache.activemq.core.server.ActiveMQServer;
-import org.apache.activemq.tests.util.SpawnedVMSupport;
+import org.apache.activemq.artemis.tests.util.SpawnedVMSupport;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
 
 /**
- * This is a sub process of the test {@link org.apache.activemq.tests.integration.paging.PageCountSyncOnNonTXTest}
+ * This is a sub process of the test {@link PageCountSyncOnNonTXTest}
  *  The System.out calls here are meant to be here as they will appear on the process output and test output.
  *  It helps to identify what happened on the test in case of failures.
  */

@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.selector.filter;
+package org.apache.activemq.artemis.selector.filter;
 
 /**
  * A Filterable is the object being evaluated by the filters.  It provides

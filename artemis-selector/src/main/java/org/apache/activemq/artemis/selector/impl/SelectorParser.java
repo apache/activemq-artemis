@@ -14,15 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.selector.impl;
+package org.apache.activemq.artemis.selector.impl;
 
 import java.io.StringReader;
 
-import org.apache.activemq.selector.filter.BooleanExpression;
-import org.apache.activemq.selector.filter.ComparisonExpression;
-import org.apache.activemq.selector.filter.FilterException;
-import org.apache.activemq.selector.hyphenated.HyphenatedParser;
-import org.apache.activemq.selector.strict.StrictParser;
+import org.apache.activemq.artemis.selector.filter.BooleanExpression;
+import org.apache.activemq.artemis.selector.filter.ComparisonExpression;
+import org.apache.activemq.artemis.selector.filter.FilterException;
+import org.apache.activemq.artemis.selector.hyphenated.HyphenatedParser;
+import org.apache.activemq.artemis.selector.strict.StrictParser;
 
 /**
  */

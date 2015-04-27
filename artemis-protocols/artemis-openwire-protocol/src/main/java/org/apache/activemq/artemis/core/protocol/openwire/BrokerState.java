@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.protocol.openwire;
+package org.apache.activemq.artemis.core.protocol.openwire;
 
 /**
  * The class holds related states of an activemq broker.

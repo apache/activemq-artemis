@@ -14,21 +14,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.paging;
+package org.apache.activemq.artemis.core.paging;
 
 import java.util.Collection;
 import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
 
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.core.paging.cursor.PageCursorProvider;
-import org.apache.activemq.core.paging.impl.Page;
-import org.apache.activemq.core.replication.ReplicationManager;
-import org.apache.activemq.core.server.ActiveMQComponent;
-import org.apache.activemq.core.server.RouteContextList;
-import org.apache.activemq.core.server.ServerMessage;
-import org.apache.activemq.core.settings.impl.AddressFullMessagePolicy;
-import org.apache.activemq.core.settings.impl.AddressSettings;
-import org.apache.activemq.core.transaction.Transaction;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.paging.cursor.PageCursorProvider;
+import org.apache.activemq.artemis.core.paging.impl.Page;
+import org.apache.activemq.artemis.core.replication.ReplicationManager;
+import org.apache.activemq.artemis.core.server.ActiveMQComponent;
+import org.apache.activemq.artemis.core.server.RouteContextList;
+import org.apache.activemq.artemis.core.server.ServerMessage;
+import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
+import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.core.transaction.Transaction;
 
 /**
  * <p>
@@ -157,7 +157,7 @@ public interface PagingStore extends ActiveMQComponent
    /**
     * Sends the pages with given IDs to the {@link ReplicationManager}.
     * <p/>
-    * Sending is done here to avoid exposing the internal {@link org.apache.activemq.core.journal.SequentialFile}s.
+    * Sending is done here to avoid exposing the internal {@link org.apache.activemq.artemis.core.journal.SequentialFile}s.
     *
     * @param replicator
     * @param pageIds

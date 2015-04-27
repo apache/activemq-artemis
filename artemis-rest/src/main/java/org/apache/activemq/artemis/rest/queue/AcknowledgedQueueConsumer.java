@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.rest.queue;
+package org.apache.activemq.artemis.rest.queue;
 
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.FormParam;
@@ -29,14 +29,14 @@ import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 import java.net.URI;
 
-import org.apache.activemq.api.core.ActiveMQException;
-import org.apache.activemq.api.core.client.ClientConsumer;
-import org.apache.activemq.api.core.client.ClientMessage;
-import org.apache.activemq.api.core.client.ClientSession;
-import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.rest.ActiveMQRestLogger;
-import org.apache.activemq.rest.util.Constants;
-import org.apache.activemq.rest.util.LinkStrategy;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.client.ClientConsumer;
+import org.apache.activemq.artemis.api.core.client.ClientMessage;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
+import org.apache.activemq.artemis.rest.util.Constants;
+import org.apache.activemq.artemis.rest.util.LinkStrategy;
+import org.apache.activemq.artemis.rest.ActiveMQRestLogger;
 
 public class AcknowledgedQueueConsumer extends QueueConsumer
 {

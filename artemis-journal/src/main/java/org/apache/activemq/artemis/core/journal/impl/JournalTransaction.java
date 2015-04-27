@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.journal.impl;
+package org.apache.activemq.artemis.core.journal.impl;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -24,8 +24,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq.api.core.ActiveMQExceptionType;
-import org.apache.activemq.core.journal.impl.dataformat.JournalInternalRecord;
+import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
+import org.apache.activemq.artemis.core.journal.impl.dataformat.JournalInternalRecord;
 
 public class JournalTransaction
 {

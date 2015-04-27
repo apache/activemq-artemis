@@ -14,13 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.jms.example;
+package org.apache.activemq.artemis.jms.example;
 
-import org.apache.activemq.jms.bridge.JMSBridge;
-import org.apache.activemq.jms.bridge.QualityOfServiceMode;
-import org.apache.activemq.jms.bridge.impl.JMSBridgeImpl;
-import org.apache.activemq.jms.bridge.impl.JNDIConnectionFactoryFactory;
-import org.apache.activemq.jms.bridge.impl.JNDIDestinationFactory;
+import org.apache.activemq.artemis.jms.bridge.JMSBridge;
+import org.apache.activemq.artemis.jms.bridge.QualityOfServiceMode;
+import org.apache.activemq.artemis.jms.bridge.impl.JMSBridgeImpl;
+import org.apache.activemq.artemis.jms.bridge.impl.JNDIConnectionFactoryFactory;
+import org.apache.activemq.artemis.jms.bridge.impl.JNDIDestinationFactory;
 
 import java.util.Hashtable;
 

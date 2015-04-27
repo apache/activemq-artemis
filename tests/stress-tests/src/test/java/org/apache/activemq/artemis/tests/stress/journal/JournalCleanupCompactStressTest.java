@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.stress.journal;
+package org.apache.activemq.artemis.tests.stress.journal;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -32,23 +32,23 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
-import org.apache.activemq.core.asyncio.impl.AsynchronousFileImpl;
-import org.apache.activemq.core.journal.IOAsyncTask;
-import org.apache.activemq.core.journal.PreparedTransactionInfo;
-import org.apache.activemq.core.journal.RecordInfo;
-import org.apache.activemq.core.journal.SequentialFileFactory;
-import org.apache.activemq.core.journal.TransactionFailureCallback;
-import org.apache.activemq.core.journal.impl.AIOSequentialFileFactory;
-import org.apache.activemq.core.journal.impl.JournalImpl;
-import org.apache.activemq.core.journal.impl.NIOSequentialFileFactory;
-import org.apache.activemq.core.persistence.impl.journal.OperationContextImpl;
-import org.apache.activemq.tests.util.RandomUtil;
-import org.apache.activemq.tests.util.ServiceTestBase;
-import org.apache.activemq.tests.util.UnitTestCase;
-import org.apache.activemq.utils.ActiveMQThreadFactory;
-import org.apache.activemq.utils.OrderedExecutorFactory;
-import org.apache.activemq.utils.SimpleIDGenerator;
+import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.core.asyncio.impl.AsynchronousFileImpl;
+import org.apache.activemq.artemis.core.journal.IOAsyncTask;
+import org.apache.activemq.artemis.core.journal.PreparedTransactionInfo;
+import org.apache.activemq.artemis.core.journal.RecordInfo;
+import org.apache.activemq.artemis.core.journal.SequentialFileFactory;
+import org.apache.activemq.artemis.core.journal.TransactionFailureCallback;
+import org.apache.activemq.artemis.core.journal.impl.AIOSequentialFileFactory;
+import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
+import org.apache.activemq.artemis.core.journal.impl.NIOSequentialFileFactory;
+import org.apache.activemq.artemis.core.persistence.impl.journal.OperationContextImpl;
+import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
+import org.apache.activemq.artemis.utils.OrderedExecutorFactory;
+import org.apache.activemq.artemis.utils.SimpleIDGenerator;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

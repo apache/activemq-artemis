@@ -14,15 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.settings.impl;
+package org.apache.activemq.artemis.core.settings.impl;
 
 import java.io.Serializable;
 
-import org.apache.activemq.api.core.ActiveMQBuffer;
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.core.journal.EncodingSupport;
-import org.apache.activemq.core.settings.Mergeable;
-import org.apache.activemq.utils.BufferHelper;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.journal.EncodingSupport;
+import org.apache.activemq.artemis.core.settings.Mergeable;
+import org.apache.activemq.artemis.utils.BufferHelper;
 
 /**
  * Configuration settings that are applied on the address level

@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.messagecounter;
+package org.apache.activemq.artemis.core.messagecounter;
 
 import java.text.DateFormat;
 import java.util.ArrayList;
@@ -22,7 +22,7 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
 
-import org.apache.activemq.core.server.Queue;
+import org.apache.activemq.artemis.core.server.Queue;
 
 /**
  * This class stores message count informations for a given queue

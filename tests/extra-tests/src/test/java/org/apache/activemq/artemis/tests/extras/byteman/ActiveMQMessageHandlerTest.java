@@ -14,22 +14,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.extras.byteman;
+package org.apache.activemq.artemis.tests.extras.byteman;
 
 import com.arjuna.ats.arjuna.coordinator.TransactionReaper;
 import com.arjuna.ats.arjuna.coordinator.TxControl;
 import com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionManagerImple;
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.api.core.client.ClientConsumer;
-import org.apache.activemq.api.core.client.ClientMessage;
-import org.apache.activemq.api.core.client.ClientProducer;
-import org.apache.activemq.api.core.client.ClientSession;
-import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.core.postoffice.Binding;
-import org.apache.activemq.core.server.Queue;
-import org.apache.activemq.ra.ActiveMQResourceAdapter;
-import org.apache.activemq.ra.inflow.ActiveMQActivationSpec;
-import org.apache.activemq.tests.integration.ra.ActiveMQRATestBase;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.client.ClientConsumer;
+import org.apache.activemq.artemis.api.core.client.ClientMessage;
+import org.apache.activemq.artemis.api.core.client.ClientProducer;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
+import org.apache.activemq.artemis.core.postoffice.Binding;
+import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.ra.ActiveMQResourceAdapter;
+import org.apache.activemq.artemis.ra.inflow.ActiveMQActivationSpec;
+import org.apache.activemq.artemis.tests.integration.ra.ActiveMQRATestBase;
 import org.jboss.byteman.contrib.bmunit.BMRule;
 import org.jboss.byteman.contrib.bmunit.BMRules;
 import org.jboss.byteman.contrib.bmunit.BMUnitRunner;
@@ -74,7 +74,7 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase
                @BMRule
                      (
                            name = "interrupt",
-                           targetClass = "org.apache.activemq.core.protocol.core.impl.ActiveMQSessionContext",
+                           targetClass = "org.apache.activemq.artemis.core.protocol.core.impl.ActiveMQSessionContext",
                            targetMethod = "xaEnd",
                            targetLocation = "ENTRY",
                            action = "org.apache.activemq.tests.extras.byteman.ActiveMQMessageHandlerTest.interrupt();"
@@ -151,7 +151,7 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase
                            @BMRule
                                  (
                                        name = "interrupt",
-                                       targetClass = "org.apache.activemq.core.protocol.core.impl.ActiveMQSessionContext",
+                                       targetClass = "org.apache.activemq.artemis.core.protocol.core.impl.ActiveMQSessionContext",
                                        targetMethod = "xaEnd",
                                        targetLocation = "ENTRY",
                                        action = "org.apache.activemq.tests.extras.byteman.ActiveMQMessageHandlerTest.interrupt();"

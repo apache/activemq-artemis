@@ -14,29 +14,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.protocol.proton;
+package org.apache.activemq.artemis.core.protocol.proton;
 
 import java.util.List;
 import java.util.concurrent.Executor;
 
 import io.netty.channel.ChannelPipeline;
-import org.apache.activemq.api.core.ActiveMQBuffer;
-import org.apache.activemq.api.core.BaseInterceptor;
-import org.apache.activemq.api.core.Interceptor;
-import org.apache.activemq.api.core.client.ActiveMQClient;
-import org.apache.activemq.core.protocol.proton.converter.ProtonMessageConverter;
-import org.apache.activemq.core.protocol.proton.plug.ActiveMQProtonConnectionCallback;
-import org.apache.activemq.core.remoting.impl.netty.NettyServerConnection;
-import org.apache.activemq.core.server.ActiveMQServer;
-import org.apache.activemq.core.server.management.Notification;
-import org.apache.activemq.core.server.management.NotificationListener;
-import org.apache.activemq.spi.core.protocol.ConnectionEntry;
-import org.apache.activemq.spi.core.protocol.MessageConverter;
-import org.apache.activemq.spi.core.protocol.ProtocolManager;
-import org.apache.activemq.spi.core.protocol.ProtocolManagerFactory;
-import org.apache.activemq.spi.core.protocol.RemotingConnection;
-import org.apache.activemq.spi.core.remoting.Acceptor;
-import org.apache.activemq.spi.core.remoting.Connection;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.BaseInterceptor;
+import org.apache.activemq.artemis.api.core.Interceptor;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
+import org.apache.activemq.artemis.core.protocol.proton.converter.ProtonMessageConverter;
+import org.apache.activemq.artemis.core.protocol.proton.plug.ActiveMQProtonConnectionCallback;
+import org.apache.activemq.artemis.core.remoting.impl.netty.NettyServerConnection;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.management.Notification;
+import org.apache.activemq.artemis.core.server.management.NotificationListener;
+import org.apache.activemq.artemis.spi.core.protocol.ConnectionEntry;
+import org.apache.activemq.artemis.spi.core.protocol.MessageConverter;
+import org.apache.activemq.artemis.spi.core.protocol.ProtocolManager;
+import org.apache.activemq.artemis.spi.core.protocol.ProtocolManagerFactory;
+import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
+import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.proton.plug.AMQPServerConnectionContext;
 import org.proton.plug.context.server.ProtonServerConnectionContextFactory;
 

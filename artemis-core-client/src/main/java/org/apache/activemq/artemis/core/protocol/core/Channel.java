@@ -14,19 +14,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.protocol.core;
+package org.apache.activemq.artemis.core.protocol.core;
 
 import java.util.concurrent.locks.Lock;
 
-import org.apache.activemq.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
 
 /**
- * A channel is a way of interleaving data meant for different endpoints over the same {@link org.apache.activemq.core.protocol.core.CoreRemotingConnection}.
+ * A channel is a way of interleaving data meant for different endpoints over the same {@link org.apache.activemq.artemis.core.protocol.core.CoreRemotingConnection}.
  * <p>
  * Any packet sent will have its channel id set to the specific channel sending so it can be routed to its correct channel
- * when received by the {@link org.apache.activemq.core.protocol.core.CoreRemotingConnection}. see {@link org.apache.activemq.core.protocol.core.Packet#setChannelID(long)}.
+ * when received by the {@link org.apache.activemq.artemis.core.protocol.core.CoreRemotingConnection}. see {@link org.apache.activemq.artemis.core.protocol.core.Packet#setChannelID(long)}.
  * <p>
- * Each Channel should will forward any packets received to its {@link org.apache.activemq.core.protocol.core.ChannelHandler}.
+ * Each Channel should will forward any packets received to its {@link org.apache.activemq.artemis.core.protocol.core.ChannelHandler}.
  * <p>
  * A Channel *does not* support concurrent access by more than one thread!
  */
@@ -71,19 +71,19 @@ public interface Channel
     * @param packet the packet to send
     * @param expectedPacket the packet being expected.
     * @return the response
-    * @throws org.apache.activemq.api.core.ActiveMQException if an error occurs during the send
+    * @throws ActiveMQException if an error occurs during the send
     */
    Packet sendBlocking(Packet packet, byte expectedPacket) throws ActiveMQException;
 
    /**
-    * Sets the {@link org.apache.activemq.core.protocol.core.ChannelHandler} that this channel should
+    * Sets the {@link org.apache.activemq.artemis.core.protocol.core.ChannelHandler} that this channel should
     * forward received packets to.
     * @param handler the handler
     */
    void setHandler(ChannelHandler handler);
 
    /**
-    * Gets the {@link org.apache.activemq.core.protocol.core.ChannelHandler} that this channel should
+    * Gets the {@link org.apache.activemq.artemis.core.protocol.core.ChannelHandler} that this channel should
     * forward received packets to.
     * @return the current channel handler
     */
@@ -133,12 +133,12 @@ public interface Channel
    void unlock();
 
    /**
-    * forces any {@link org.apache.activemq.core.protocol.core.Channel#sendBlocking(Packet, byte)} request to return with an exception.
+    * forces any {@link org.apache.activemq.artemis.core.protocol.core.Channel#sendBlocking(Packet, byte)} request to return with an exception.
     */
    void returnBlocking();
 
    /**
-    * forces any {@link org.apache.activemq.core.protocol.core.Channel#sendBlocking(Packet, byte)} request to return with an exception.
+    * forces any {@link org.apache.activemq.artemis.core.protocol.core.Channel#sendBlocking(Packet, byte)} request to return with an exception.
     */
    void returnBlocking(Throwable cause);
 
@@ -174,9 +174,9 @@ public interface Channel
    void flushConfirmations();
 
    /**
-    * Called by {@link org.apache.activemq.core.protocol.core.CoreRemotingConnection} when a packet is received.
+    * Called by {@link org.apache.activemq.artemis.core.protocol.core.CoreRemotingConnection} when a packet is received.
     * <p>
-    * This method should then call its {@link org.apache.activemq.core.protocol.core.ChannelHandler} after appropriate processing of
+    * This method should then call its {@link org.apache.activemq.artemis.core.protocol.core.ChannelHandler} after appropriate processing of
     * the packet
     *
     * @param packet the packet to process.

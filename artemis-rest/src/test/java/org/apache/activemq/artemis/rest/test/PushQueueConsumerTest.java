@@ -14,13 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.rest.test;
+package org.apache.activemq.artemis.rest.test;
 
-import org.apache.activemq.rest.queue.QueueDeployment;
-import org.apache.activemq.rest.queue.push.ActiveMQPushStrategy;
-import org.apache.activemq.rest.queue.push.xml.PushRegistration;
-import org.apache.activemq.rest.queue.push.xml.XmlLink;
-import org.apache.activemq.rest.util.Constants;
+import org.apache.activemq.artemis.rest.util.Constants;
+import org.apache.activemq.artemis.rest.queue.QueueDeployment;
+import org.apache.activemq.artemis.rest.queue.push.ActiveMQPushStrategy;
+import org.apache.activemq.artemis.rest.queue.push.xml.PushRegistration;
+import org.apache.activemq.artemis.rest.queue.push.xml.XmlLink;
 import org.jboss.resteasy.client.ClientRequest;
 import org.jboss.resteasy.client.ClientResponse;
 import org.jboss.resteasy.spi.Link;
@@ -59,12 +59,12 @@ public class PushQueueConsumerTest extends MessageTestBase
          deployQueue(queueToPushTo);
 
          ClientResponse queueResponse = Util.head(new ClientRequest(generateURL(Util.getUrlPath(queue))));
-         Link destination = MessageTestBase.getLinkByTitle(manager.getQueueManager().getLinkStrategy(), queueResponse, "create");
-         Link pushSubscriptions = MessageTestBase.getLinkByTitle(manager.getQueueManager().getLinkStrategy(), queueResponse, "push-consumers");
+         Link destination = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), queueResponse, "create");
+         Link pushSubscriptions = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), queueResponse, "push-consumers");
 
          ClientResponse queueToPushToResponse = Util.head(new ClientRequest(generateURL(Util.getUrlPath(queueToPushTo))));
          ClientResponse autoAckResponse = setAutoAck(queueToPushToResponse, true);
-         destinationForConsumption = MessageTestBase.getLinkByTitle(manager.getQueueManager().getLinkStrategy(), autoAckResponse, "consume-next");
+         destinationForConsumption = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), autoAckResponse, "consume-next");
 
          pushSubscription = createPushRegistration(queueToPushTo, pushSubscriptions, PushRegistrationType.BRIDGE);
 
@@ -108,12 +108,12 @@ public class PushQueueConsumerTest extends MessageTestBase
          deployQueue(queueToPushTo);
 
          ClientResponse queueResponse = Util.head(new ClientRequest(generateURL(Util.getUrlPath(queue))));
-         Link destinationForSend = MessageTestBase.getLinkByTitle(manager.getQueueManager().getLinkStrategy(), queueResponse, "create");
-         Link pushSubscriptions = MessageTestBase.getLinkByTitle(manager.getQueueManager().getLinkStrategy(), queueResponse, "push-consumers");
+         Link destinationForSend = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), queueResponse, "create");
+         Link pushSubscriptions = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), queueResponse, "push-consumers");
 
          ClientResponse queueToPushToResponse = Util.head(new ClientRequest(generateURL(Util.getUrlPath(queueToPushTo))));
          ClientResponse autoAckResponse = setAutoAck(queueToPushToResponse, true);
-         destinationForConsumption = MessageTestBase.getLinkByTitle(manager.getQueueManager().getLinkStrategy(), autoAckResponse, "consume-next");
+         destinationForConsumption = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), autoAckResponse, "consume-next");
 
          pushSubscription = createPushRegistration(queueToPushTo, pushSubscriptions, PushRegistrationType.CLASS);
 
@@ -147,14 +147,14 @@ public class PushQueueConsumerTest extends MessageTestBase
          deployQueue(queueToPushTo);
 
          ClientResponse queueResponse = Util.head(new ClientRequest(generateURL(Util.getUrlPath(queue))));
-         Link destinationForSend = MessageTestBase.getLinkByTitle(manager.getQueueManager().getLinkStrategy(), queueResponse, "create");
-         Link pushSubscriptions = MessageTestBase.getLinkByTitle(manager.getQueueManager().getLinkStrategy(), queueResponse, "push-consumers");
+         Link destinationForSend = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), queueResponse, "create");
+         Link pushSubscriptions = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), queueResponse, "push-consumers");
 
          ClientResponse queueToPushToResponse = Util.head(new ClientRequest(generateURL(Util.getUrlPath(queueToPushTo))));
-         Link consumers = MessageTestBase.getLinkByTitle(manager.getQueueManager().getLinkStrategy(), queueToPushToResponse, "pull-consumers");
-         Link createWithId = MessageTestBase.getLinkByTitle(manager.getQueueManager().getLinkStrategy(), queueToPushToResponse, "create-with-id");
+         Link consumers = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), queueToPushToResponse, "pull-consumers");
+         Link createWithId = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), queueToPushToResponse, "create-with-id");
          ClientResponse autoAckResponse = Util.setAutoAck(consumers, true);
-         destinationForConsumption = MessageTestBase.getLinkByTitle(manager.getQueueManager().getLinkStrategy(), autoAckResponse, "consume-next");
+         destinationForConsumption = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), autoAckResponse, "consume-next");
 
          pushSubscription = createPushRegistration(createWithId.getHref(), pushSubscriptions, PushRegistrationType.TEMPLATE);
 
@@ -228,8 +228,8 @@ public class PushQueueConsumerTest extends MessageTestBase
          server.getJaxrsServer().getDeployment().getRegistry().addPerRequestResource(MyResource.class);
 
          ClientResponse queueResponse = Util.head(new ClientRequest(generateURL(Util.getUrlPath(queue))));
-         Link destinationForSend = MessageTestBase.getLinkByTitle(manager.getQueueManager().getLinkStrategy(), queueResponse, "create");
-         Link pushSubscriptions = MessageTestBase.getLinkByTitle(manager.getQueueManager().getLinkStrategy(), queueResponse, "push-consumers");
+         Link destinationForSend = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), queueResponse, "create");
+         Link pushSubscriptions = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), queueResponse, "push-consumers");
 
          pushSubscription = createPushRegistration(generateURL("/my"), pushSubscriptions, PushRegistrationType.URI);
 
@@ -264,8 +264,8 @@ public class PushQueueConsumerTest extends MessageTestBase
          server.getJaxrsServer().getDeployment().getRegistry().addPerRequestResource(MyConcurrentResource.class);
 
          ClientResponse queueResponse = Util.head(new ClientRequest(generateURL(Util.getUrlPath(queue))));
-         Link destinationForSend = MessageTestBase.getLinkByTitle(manager.getQueueManager().getLinkStrategy(), queueResponse, "create");
-         Link pushSubscriptions = MessageTestBase.getLinkByTitle(manager.getQueueManager().getLinkStrategy(), queueResponse, "push-consumers");
+         Link destinationForSend = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), queueResponse, "create");
+         Link pushSubscriptions = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), queueResponse, "push-consumers");
 
          pushSubscription = createPushRegistration(generateURL("/myConcurrent"), pushSubscriptions, PushRegistrationType.URI, CONCURRENT);
 
@@ -316,7 +316,7 @@ public class PushQueueConsumerTest extends MessageTestBase
 
    private ClientResponse setAutoAck(ClientResponse response, boolean ack) throws Exception
    {
-      Link pullConsumers = MessageTestBase.getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "pull-consumers");
+      Link pullConsumers = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "pull-consumers");
       ClientResponse autoAckResponse = pullConsumers.request().formParameter("autoAck", Boolean.toString(ack)).post();
       autoAckResponse.releaseConnection();
       Assert.assertEquals(201, autoAckResponse.getStatus());
@@ -327,7 +327,7 @@ public class PushQueueConsumerTest extends MessageTestBase
    {
       if (consumerResponse != null)
       {
-         Link consumer = MessageTestBase.getLinkByTitle(manager.getQueueManager().getLinkStrategy(), consumerResponse, "consumer");
+         Link consumer = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), consumerResponse, "consumer");
          ClientResponse<?> response = consumer.request().delete();
          response.releaseConnection();
          Assert.assertEquals(204, response.getStatus());

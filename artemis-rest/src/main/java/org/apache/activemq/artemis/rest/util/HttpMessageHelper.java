@@ -14,12 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.rest.util;
+package org.apache.activemq.artemis.rest.util;
 
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.api.core.client.ClientMessage;
-import org.apache.activemq.rest.ActiveMQRestLogger;
-import org.apache.activemq.rest.HttpHeaderProperty;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.client.ClientMessage;
+import org.apache.activemq.artemis.rest.HttpHeaderProperty;
+import org.apache.activemq.artemis.rest.ActiveMQRestLogger;
 import org.jboss.resteasy.client.ClientRequest;
 
 import javax.ws.rs.core.HttpHeaders;

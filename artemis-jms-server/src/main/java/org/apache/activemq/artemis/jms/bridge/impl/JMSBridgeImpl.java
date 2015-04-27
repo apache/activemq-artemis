@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.jms.bridge.impl;
+package org.apache.activemq.artemis.jms.bridge.impl;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -49,28 +49,28 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq.api.core.ActiveMQException;
-import org.apache.activemq.api.core.ActiveMQInterruptedException;
-import org.apache.activemq.api.core.client.FailoverEventListener;
-import org.apache.activemq.api.core.client.FailoverEventType;
-import org.apache.activemq.api.jms.ActiveMQJMSConstants;
-import org.apache.activemq.jms.bridge.ConnectionFactoryFactory;
-import org.apache.activemq.jms.bridge.DestinationFactory;
-import org.apache.activemq.jms.bridge.ActiveMQJMSBridgeLogger;
-import org.apache.activemq.jms.bridge.JMSBridge;
-import org.apache.activemq.jms.bridge.JMSBridgeControl;
-import org.apache.activemq.jms.bridge.QualityOfServiceMode;
-import org.apache.activemq.jms.client.ActiveMQConnection;
-import org.apache.activemq.jms.client.ActiveMQConnectionFactory;
-import org.apache.activemq.jms.client.ActiveMQMessage;
-import org.apache.activemq.jms.server.ActiveMQJMSServerBundle;
-import org.apache.activemq.service.extensions.ServiceUtils;
-import org.apache.activemq.service.extensions.xa.recovery.ActiveMQRegistry;
-import org.apache.activemq.service.extensions.xa.recovery.XARecoveryConfig;
-import org.apache.activemq.utils.ClassloadingUtil;
-import org.apache.activemq.utils.DefaultSensitiveStringCodec;
-import org.apache.activemq.utils.PasswordMaskingUtil;
-import org.apache.activemq.utils.SensitiveDataCodec;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.ActiveMQInterruptedException;
+import org.apache.activemq.artemis.api.core.client.FailoverEventListener;
+import org.apache.activemq.artemis.api.core.client.FailoverEventType;
+import org.apache.activemq.artemis.api.jms.ActiveMQJMSConstants;
+import org.apache.activemq.artemis.jms.bridge.ActiveMQJMSBridgeLogger;
+import org.apache.activemq.artemis.jms.bridge.ConnectionFactoryFactory;
+import org.apache.activemq.artemis.jms.bridge.DestinationFactory;
+import org.apache.activemq.artemis.jms.bridge.JMSBridge;
+import org.apache.activemq.artemis.jms.bridge.JMSBridgeControl;
+import org.apache.activemq.artemis.jms.bridge.QualityOfServiceMode;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnection;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.jms.client.ActiveMQMessage;
+import org.apache.activemq.artemis.jms.server.ActiveMQJMSServerBundle;
+import org.apache.activemq.artemis.service.extensions.ServiceUtils;
+import org.apache.activemq.artemis.service.extensions.xa.recovery.ActiveMQRegistry;
+import org.apache.activemq.artemis.service.extensions.xa.recovery.XARecoveryConfig;
+import org.apache.activemq.artemis.utils.ClassloadingUtil;
+import org.apache.activemq.artemis.utils.DefaultSensitiveStringCodec;
+import org.apache.activemq.artemis.utils.PasswordMaskingUtil;
+import org.apache.activemq.artemis.utils.SensitiveDataCodec;
 
 public final class JMSBridgeImpl implements JMSBridge
 {

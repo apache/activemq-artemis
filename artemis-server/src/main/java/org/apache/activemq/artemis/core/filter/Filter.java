@@ -14,10 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.filter;
+package org.apache.activemq.artemis.core.filter;
 
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.core.server.ServerMessage;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.server.ServerMessage;
 
 public interface Filter
 {

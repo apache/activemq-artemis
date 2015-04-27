@@ -14,14 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.api.core.client;
+package org.apache.activemq.artemis.api.core.client;
 
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import org.apache.activemq.api.core.ActiveMQException;
-import org.apache.activemq.api.core.Message;
-import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.Message;
 
 /**
  *
@@ -49,7 +49,7 @@ public interface ClientMessage extends Message
     * If the session responsible to acknowledge this message has {@code autoCommitAcks} set to
     * {@code true}, the transaction will automatically commit the current transaction. Otherwise,
     * this acknowledgement will not be committed until the client commits the session transaction.
-    * @throws org.apache.activemq.api.core.ActiveMQException if an error occurred while acknowledging the message.
+    * @throws ActiveMQException if an error occurred while acknowledging the message.
     * @see ClientSession#isAutoCommitAcks()
     */
    ClientMessage acknowledge() throws ActiveMQException;
@@ -60,7 +60,7 @@ public interface ClientMessage extends Message
     * If the session responsible to acknowledge this message has {@code autoCommitAcks} set to
     * {@code true}, the transaction will automatically commit the current transaction. Otherwise,
     * this acknowledgement will not be committed until the client commits the session transaction.
-    * @throws org.apache.activemq.api.core.ActiveMQException if an error occurred while acknowledging the message.
+    * @throws ActiveMQException if an error occurred while acknowledging the message.
     * @see ClientSession#isAutoCommitAcks()
     */
    ClientMessage individualAcknowledge() throws ActiveMQException;
@@ -71,7 +71,7 @@ public interface ClientMessage extends Message
     * The use case for this is to make sure there won't be an exception while getting the buffer.
     * Using getBodyBuffer directly would have the same effect but you could get a Runtime non checked Exception
     * instead
-    * @throws org.apache.activemq.api.core.ActiveMQException
+    * @throws ActiveMQException
     */
    void checkCompletion() throws ActiveMQException;
 
@@ -85,7 +85,7 @@ public interface ClientMessage extends Message
     * <br>
     * This method is used when consuming large messages
     *
-    * @throws org.apache.activemq.api.core.ActiveMQException
+    * @throws ActiveMQException
     * @return this ClientMessage
     */
    ClientMessage setOutputStream(OutputStream out) throws ActiveMQException;
@@ -95,7 +95,7 @@ public interface ClientMessage extends Message
     * It will block until the entire content is transferred to the OutputStream.
     * <br>
     *
-    * @throws org.apache.activemq.api.core.ActiveMQException
+    * @throws ActiveMQException
     */
    void saveToOutputStream(OutputStream out) throws ActiveMQException;
 
@@ -106,7 +106,7 @@ public interface ClientMessage extends Message
     *
     * @param timeMilliseconds - 0 means wait forever
     * @return true if it reached the end
-    * @throws org.apache.activemq.api.core.ActiveMQException
+    * @throws ActiveMQException
     */
    boolean waitOutputStreamCompletion(long timeMilliseconds) throws ActiveMQException;
 
@@ -120,112 +120,112 @@ public interface ClientMessage extends Message
 
 
    /**
-    * Overridden from {@link org.apache.activemq.api.core.Message} to enable fluent API
+    * Overridden from {@link Message} to enable fluent API
     */
    ClientMessage putBooleanProperty(SimpleString key, boolean value);
 
    /**
-    * Overridden from {@link org.apache.activemq.api.core.Message} to enable fluent API
+    * Overridden from {@link Message} to enable fluent API
     */
    ClientMessage putBooleanProperty(String key, boolean value);
 
    /**
-    * Overridden from {@link org.apache.activemq.api.core.Message} to enable fluent API
+    * Overridden from {@link Message} to enable fluent API
     */
    ClientMessage putByteProperty(SimpleString key, byte value);
 
    /**
-    * Overridden from {@link org.apache.activemq.api.core.Message} to enable fluent API
+    * Overridden from {@link Message} to enable fluent API
     */
    ClientMessage putByteProperty(String key, byte value);
 
    /**
-    * Overridden from {@link org.apache.activemq.api.core.Message} to enable fluent API
+    * Overridden from {@link Message} to enable fluent API
     */
    ClientMessage putBytesProperty(SimpleString key, byte[] value);
 
    /**
-    * Overridden from {@link org.apache.activemq.api.core.Message} to enable fluent API
+    * Overridden from {@link Message} to enable fluent API
     */
    ClientMessage putBytesProperty(String key, byte[] value);
 
    /**
-    * Overridden from {@link org.apache.activemq.api.core.Message} to enable fluent API
+    * Overridden from {@link Message} to enable fluent API
     */
    ClientMessage putShortProperty(SimpleString key, short value);
 
    /**
-    * Overridden from {@link org.apache.activemq.api.core.Message} to enable fluent API
+    * Overridden from {@link Message} to enable fluent API
     */
    ClientMessage putShortProperty(String key, short value);
 
    /**
-    * Overridden from {@link org.apache.activemq.api.core.Message} to enable fluent API
+    * Overridden from {@link Message} to enable fluent API
     */
    ClientMessage putCharProperty(SimpleString key, char value);
 
    /**
-    * Overridden from {@link org.apache.activemq.api.core.Message} to enable fluent API
+    * Overridden from {@link Message} to enable fluent API
     */
    ClientMessage putCharProperty(String key, char value);
 
    /**
-    * Overridden from {@link org.apache.activemq.api.core.Message} to enable fluent API
+    * Overridden from {@link Message} to enable fluent API
     */
    ClientMessage putIntProperty(SimpleString key, int value);
 
    /**
-    * Overridden from {@link org.apache.activemq.api.core.Message} to enable fluent API
+    * Overridden from {@link Message} to enable fluent API
     */
    ClientMessage putIntProperty(String key, int value);
 
    /**
-    * Overridden from {@link org.apache.activemq.api.core.Message} to enable fluent API
+    * Overridden from {@link Message} to enable fluent API
     */
    ClientMessage putLongProperty(SimpleString key, long value);
 
    /**
-    * Overridden from {@link org.apache.activemq.api.core.Message} to enable fluent API
+    * Overridden from {@link Message} to enable fluent API
     */
    ClientMessage putLongProperty(String key, long value);
 
    /**
-    * Overridden from {@link org.apache.activemq.api.core.Message} to enable fluent API
+    * Overridden from {@link Message} to enable fluent API
     */
    ClientMessage putFloatProperty(SimpleString key, float value);
 
    /**
-    * Overridden from {@link org.apache.activemq.api.core.Message} to enable fluent API
+    * Overridden from {@link Message} to enable fluent API
     */
    ClientMessage putFloatProperty(String key, float value);
 
    /**
-    * Overridden from {@link org.apache.activemq.api.core.Message} to enable fluent API
+    * Overridden from {@link Message} to enable fluent API
     */
    ClientMessage putDoubleProperty(SimpleString key, double value);
 
    /**
-    * Overridden from {@link org.apache.activemq.api.core.Message} to enable fluent API
+    * Overridden from {@link Message} to enable fluent API
     */
    ClientMessage putDoubleProperty(String key, double value);
 
    /**
-    * Overridden from {@link org.apache.activemq.api.core.Message} to enable fluent API
+    * Overridden from {@link Message} to enable fluent API
     */
    ClientMessage putStringProperty(SimpleString key, SimpleString value);
 
    /**
-    * Overridden from {@link org.apache.activemq.api.core.Message} to enable fluent API
+    * Overridden from {@link Message} to enable fluent API
     */
    ClientMessage putStringProperty(String key, String value);
 
    /**
-    * Overridden from {@link org.apache.activemq.api.core.Message} to enable fluent API
+    * Overridden from {@link Message} to enable fluent API
     */
    ClientMessage writeBodyBufferBytes(byte[] bytes);
 
    /**
-    * Overridden from {@link org.apache.activemq.api.core.Message} to enable fluent API
+    * Overridden from {@link Message} to enable fluent API
     */
    ClientMessage writeBodyBufferString(String string);
 

@@ -14,28 +14,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.client.impl;
+package org.apache.activemq.artemis.core.client.impl;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.apache.activemq.api.core.ActiveMQBuffer;
-import org.apache.activemq.api.core.ActiveMQBuffers;
-import org.apache.activemq.api.core.ActiveMQException;
-import org.apache.activemq.api.core.ActiveMQInterruptedException;
-import org.apache.activemq.api.core.Message;
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.api.core.client.SendAcknowledgementHandler;
-import org.apache.activemq.core.client.ActiveMQClientMessageBundle;
-import org.apache.activemq.core.message.BodyEncoder;
-import org.apache.activemq.core.message.impl.MessageInternal;
-import org.apache.activemq.core.protocol.core.impl.wireformat.SessionSendContinuationMessage;
-import org.apache.activemq.spi.core.remoting.SessionContext;
-import org.apache.activemq.utils.DeflaterReader;
-import org.apache.activemq.utils.ActiveMQBufferInputStream;
-import org.apache.activemq.utils.TokenBucketLimiter;
-import org.apache.activemq.utils.UUIDGenerator;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.ActiveMQInterruptedException;
+import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.client.SendAcknowledgementHandler;
+import org.apache.activemq.artemis.core.client.ActiveMQClientMessageBundle;
+import org.apache.activemq.artemis.core.message.BodyEncoder;
+import org.apache.activemq.artemis.core.message.impl.MessageInternal;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionSendContinuationMessage;
+import org.apache.activemq.artemis.spi.core.remoting.SessionContext;
+import org.apache.activemq.artemis.utils.DeflaterReader;
+import org.apache.activemq.artemis.utils.ActiveMQBufferInputStream;
+import org.apache.activemq.artemis.utils.TokenBucketLimiter;
+import org.apache.activemq.artemis.utils.UUIDGenerator;
 
 /**
  * The client-side Producer.
@@ -342,7 +342,7 @@ public class ClientProducerImpl implements ClientProducerInternal
    /**
     * @param msgI
     * @param handler
-    * @throws org.apache.activemq.api.core.ActiveMQException
+    * @throws ActiveMQException
     */
    private void largeMessageSend(final boolean sendBlocking, final MessageInternal msgI,
                                  final ClientProducerCredits credits, SendAcknowledgementHandler handler) throws ActiveMQException
@@ -400,7 +400,7 @@ public class ClientProducerImpl implements ClientProducerInternal
     * @param sendBlocking
     * @param msgI
     * @param handler
-    * @throws org.apache.activemq.api.core.ActiveMQException
+    * @throws ActiveMQException
     */
    private void largeMessageSendServer(final boolean sendBlocking, final MessageInternal msgI,
                                        final ClientProducerCredits credits, SendAcknowledgementHandler handler) throws ActiveMQException
@@ -415,11 +415,11 @@ public class ClientProducerImpl implements ClientProducerInternal
       try
       {
 
-         for (long pos = 0; pos < bodySize; )
+         for (int pos = 0; pos < bodySize; )
          {
             final boolean lastChunk;
 
-            final int chunkLength = (int)Math.min((bodySize - pos), (long)minLargeMessageSize);
+            final int chunkLength = Math.min((int) (bodySize - pos), minLargeMessageSize);
 
             final ActiveMQBuffer bodyBuffer = ActiveMQBuffers.fixedBuffer(chunkLength);
 
@@ -430,7 +430,7 @@ public class ClientProducerImpl implements ClientProducerInternal
             lastChunk = pos >= bodySize;
             SendAcknowledgementHandler messageHandler = lastChunk ? handler : null;
 
-            int creditsUsed = sessionContext.sendServerLargeMessageChunk(msgI, -1, sendBlocking, lastChunk, bodyBuffer.toByteBuffer().array(), messageHandler);
+            int creditsUsed = sessionContext.sendLargeMessageChunk(msgI, -1, sendBlocking, lastChunk, bodyBuffer.toByteBuffer().array(), messageHandler);
 
             try
             {
@@ -452,7 +452,7 @@ public class ClientProducerImpl implements ClientProducerInternal
     * @param sendBlocking
     * @param msgI
     * @param handler
-    * @throws org.apache.activemq.api.core.ActiveMQException
+    * @throws ActiveMQException
     */
    private void
    largeMessageSendBuffered(final boolean sendBlocking, final MessageInternal msgI,
@@ -468,7 +468,7 @@ public class ClientProducerImpl implements ClientProducerInternal
     * @param msgI
     * @param inputStreamParameter
     * @param credits
-    * @throws org.apache.activemq.api.core.ActiveMQException
+    * @throws ActiveMQException
     */
    private void largeMessageSendStreamed(final boolean sendBlocking, final MessageInternal msgI,
                                          final InputStream inputStreamParameter, final ClientProducerCredits credits,

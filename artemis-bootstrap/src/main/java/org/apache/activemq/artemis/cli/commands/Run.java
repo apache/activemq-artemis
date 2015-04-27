@@ -14,21 +14,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.cli.commands;
+package org.apache.activemq.artemis.cli.commands;
 
 import io.airlift.command.Arguments;
 import io.airlift.command.Command;
 
-import org.apache.activemq.cli.ActiveMQ;
-import org.apache.activemq.components.ExternalComponent;
-import org.apache.activemq.core.server.ActiveMQComponent;
-import org.apache.activemq.dto.BrokerDTO;
-import org.apache.activemq.dto.ComponentDTO;
-import org.apache.activemq.factory.BrokerFactory;
-import org.apache.activemq.factory.SecurityManagerFactory;
-import org.apache.activemq.integration.Broker;
-import org.apache.activemq.integration.bootstrap.ActiveMQBootstrapLogger;
-import org.apache.activemq.spi.core.security.ActiveMQSecurityManager;
+import org.apache.activemq.artemis.cli.ActiveMQ;
+import org.apache.activemq.artemis.components.ExternalComponent;
+import org.apache.activemq.artemis.core.server.ActiveMQComponent;
+import org.apache.activemq.artemis.dto.BrokerDTO;
+import org.apache.activemq.artemis.dto.ComponentDTO;
+import org.apache.activemq.artemis.factory.BrokerFactory;
+import org.apache.activemq.artemis.factory.SecurityManagerFactory;
+import org.apache.activemq.artemis.integration.Broker;
+import org.apache.activemq.artemis.integration.bootstrap.ActiveMQBootstrapLogger;
+import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
 
 import java.io.File;
 import java.net.URI;

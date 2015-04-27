@@ -15,9 +15,9 @@
  * limitations under the License.
  */
 
-package org.apache.activemq.core.paging.cursor;
+package org.apache.activemq.artemis.core.paging.cursor;
 
-import org.apache.activemq.utils.LinkedListIterator;
+import org.apache.activemq.artemis.utils.LinkedListIterator;
 
 public interface PageIterator extends LinkedListIterator<PagedReference>
 {

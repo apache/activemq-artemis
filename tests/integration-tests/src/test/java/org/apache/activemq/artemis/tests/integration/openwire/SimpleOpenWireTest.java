@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.openwire;
+package org.apache.activemq.artemis.tests.integration.openwire;
 
 import javax.jms.Connection;
 import javax.jms.Destination;
@@ -31,8 +31,7 @@ import javax.jms.TextMessage;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.command.ActiveMQQueue;
 import org.apache.activemq.command.ActiveMQTopic;
-import org.apache.activemq.core.settings.impl.AddressSettings;
-import org.junit.Assert;
+import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -312,7 +311,7 @@ public class SimpleOpenWireTest extends BasicOpenWireTest
       try
       {
          MessageConsumer consumer = session.createConsumer(queue);
-         Assert.fail("supposed to throw an exception here");
+         fail("supposed to throw an exception here");
       }
       catch (JMSException e)
       {

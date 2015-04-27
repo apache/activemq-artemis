@@ -14,14 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.unit.core.remoting.impl.netty;
+package org.apache.activemq.artemis.tests.unit.core.remoting.impl.netty;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.core.remoting.impl.netty.NettyConnector;
-import org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnector;
+import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory;
 import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;

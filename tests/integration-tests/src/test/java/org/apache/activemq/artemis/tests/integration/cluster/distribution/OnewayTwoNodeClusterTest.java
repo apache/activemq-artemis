@@ -14,15 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.cluster.distribution;
-import org.apache.activemq.core.server.ActiveMQServer;
+package org.apache.activemq.artemis.tests.integration.cluster.distribution;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.junit.Before;
 
 import org.junit.Test;
 
 import org.junit.Assert;
 
-import org.apache.activemq.tests.integration.IntegrationTestLogger;
+import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 
 
 public class OnewayTwoNodeClusterTest extends ClusterTestBase

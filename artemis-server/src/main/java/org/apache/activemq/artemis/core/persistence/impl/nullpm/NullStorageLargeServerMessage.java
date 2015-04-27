@@ -14,13 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.persistence.impl.nullpm;
+package org.apache.activemq.artemis.core.persistence.impl.nullpm;
 
-import org.apache.activemq.api.core.ActiveMQBuffers;
-import org.apache.activemq.core.journal.SequentialFile;
-import org.apache.activemq.core.server.LargeServerMessage;
-import org.apache.activemq.core.server.ServerMessage;
-import org.apache.activemq.core.server.impl.ServerMessageImpl;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
+import org.apache.activemq.artemis.core.journal.SequentialFile;
+import org.apache.activemq.artemis.core.server.LargeServerMessage;
+import org.apache.activemq.artemis.core.server.ServerMessage;
+import org.apache.activemq.artemis.core.server.impl.ServerMessageImpl;
 
 class NullStorageLargeServerMessage extends ServerMessageImpl implements LargeServerMessage
 {

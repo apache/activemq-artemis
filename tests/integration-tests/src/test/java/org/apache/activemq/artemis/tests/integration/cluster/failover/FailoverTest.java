@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.cluster.failover;
+package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
 import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
@@ -27,38 +27,38 @@ import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq.api.core.ActiveMQDuplicateIdException;
-import org.apache.activemq.api.core.ActiveMQException;
-import org.apache.activemq.api.core.ActiveMQExceptionType;
-import org.apache.activemq.api.core.ActiveMQObjectClosedException;
-import org.apache.activemq.api.core.ActiveMQTransactionOutcomeUnknownException;
-import org.apache.activemq.api.core.ActiveMQTransactionRolledBackException;
-import org.apache.activemq.api.core.Interceptor;
-import org.apache.activemq.api.core.Message;
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.core.client.ClientConsumer;
-import org.apache.activemq.api.core.client.ClientMessage;
-import org.apache.activemq.api.core.client.ClientProducer;
-import org.apache.activemq.api.core.client.ClientSession;
-import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.MessageHandler;
-import org.apache.activemq.api.core.client.ServerLocator;
-import org.apache.activemq.core.client.impl.ClientSessionFactoryInternal;
-import org.apache.activemq.core.server.cluster.ha.BackupPolicy;
-import org.apache.activemq.core.server.cluster.ha.HAPolicy;
-import org.apache.activemq.core.server.cluster.ha.ReplicaPolicy;
-import org.apache.activemq.core.server.cluster.ha.ReplicatedPolicy;
-import org.apache.activemq.core.server.cluster.ha.SharedStoreMasterPolicy;
-import org.apache.activemq.core.server.cluster.ha.SharedStoreSlavePolicy;
-import org.apache.activemq.core.server.impl.InVMNodeManager;
-import org.apache.activemq.core.transaction.impl.XidImpl;
-import org.apache.activemq.jms.client.ActiveMQTextMessage;
-import org.apache.activemq.tests.integration.IntegrationTestLogger;
-import org.apache.activemq.tests.integration.cluster.util.TestableServer;
-import org.apache.activemq.tests.util.CountDownSessionFailureListener;
-import org.apache.activemq.tests.util.RandomUtil;
-import org.apache.activemq.tests.util.TransportConfigurationUtils;
+import org.apache.activemq.artemis.api.core.ActiveMQDuplicateIdException;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
+import org.apache.activemq.artemis.api.core.ActiveMQObjectClosedException;
+import org.apache.activemq.artemis.api.core.ActiveMQTransactionOutcomeUnknownException;
+import org.apache.activemq.artemis.api.core.ActiveMQTransactionRolledBackException;
+import org.apache.activemq.artemis.api.core.Interceptor;
+import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.client.ClientConsumer;
+import org.apache.activemq.artemis.api.core.client.ClientMessage;
+import org.apache.activemq.artemis.api.core.client.ClientProducer;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
+import org.apache.activemq.artemis.api.core.client.MessageHandler;
+import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
+import org.apache.activemq.artemis.tests.integration.cluster.util.TestableServer;
+import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal;
+import org.apache.activemq.artemis.core.server.cluster.ha.BackupPolicy;
+import org.apache.activemq.artemis.core.server.cluster.ha.HAPolicy;
+import org.apache.activemq.artemis.core.server.cluster.ha.ReplicaPolicy;
+import org.apache.activemq.artemis.core.server.cluster.ha.ReplicatedPolicy;
+import org.apache.activemq.artemis.core.server.cluster.ha.SharedStoreMasterPolicy;
+import org.apache.activemq.artemis.core.server.cluster.ha.SharedStoreSlavePolicy;
+import org.apache.activemq.artemis.core.server.impl.InVMNodeManager;
+import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
+import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
+import org.apache.activemq.artemis.tests.util.CountDownSessionFailureListener;
+import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.tests.util.TransportConfigurationUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -168,22 +168,22 @@ public class FailoverTest extends FailoverTestBase
       };
       Thread t = new Thread(r);
       t.start();
-      assertTrue("latch released", latch.await(10, TimeUnit.SECONDS));
+      Assert.assertTrue("latch released", latch.await(10, TimeUnit.SECONDS));
       crash(session);
       latchFailed.countDown();
       t.join(30000);
       if (t.isAlive())
       {
          t.interrupt();
-         fail("Thread still alive");
+         Assert.fail("Thread still alive");
       }
-      assertTrue(backupServer.getServer().waitForActivation(5, TimeUnit.SECONDS));
+      Assert.assertTrue(backupServer.getServer().waitForActivation(5, TimeUnit.SECONDS));
       ClientConsumer consumer = session.createConsumer(FailoverTestBase.ADDRESS);
       session.start();
       for (int i = 0; i < 500; i++)
       {
          ClientMessage m = consumer.receive(1000);
-         assertNotNull("message #=" + i, m);
+         Assert.assertNotNull("message #=" + i, m);
          // assertEquals(i, m.getIntProperty("counter").intValue());
       }
    }
@@ -258,7 +258,7 @@ public class FailoverTest extends FailoverTestBase
       log.info("crashing session");
       crash(session);
       endLatch.await(60, TimeUnit.SECONDS);
-      assertTrue("received only " + received.size(), received.size() == 500);
+      Assert.assertTrue("received only " + received.size(), received.size() == 500);
 
       session.close();
    }
@@ -342,7 +342,7 @@ public class FailoverTest extends FailoverTestBase
             }
             catch (Exception e)
             {
-               fail("failing due to exception " + e);
+               Assert.fail("failing due to exception " + e);
             }
 
          }
@@ -378,7 +378,7 @@ public class FailoverTest extends FailoverTestBase
       crash(session);
       endLatch.await(60, TimeUnit.SECONDS);
       t.join();
-      assertTrue("received only " + received.size(), received.size() == 500);
+      Assert.assertTrue("received only " + received.size(), received.size() == 500);
 
       session.close();
    }
@@ -433,8 +433,8 @@ public class FailoverTest extends FailoverTestBase
       for (int i = 0; i < 500; i++)
       {
          ClientMessage m = consumer.receive(1000);
-         assertNotNull(m);
-         assertEquals(i, m.getIntProperty("counter").intValue());
+         Assert.assertNotNull(m);
+         Assert.assertEquals(i, m.getIntProperty("counter").intValue());
       }
    }
 
@@ -487,7 +487,7 @@ public class FailoverTest extends FailoverTestBase
       session.start();
 
       ClientMessage m = consumer.receive(1000);
-      assertNull(m);
+      Assert.assertNull(m);
 
    }
 
@@ -541,7 +541,7 @@ public class FailoverTest extends FailoverTestBase
 
       crash(session);
 
-      assertTrue(latch.await(1, TimeUnit.SECONDS));
+      Assert.assertTrue(latch.await(1, TimeUnit.SECONDS));
 
    }
 
@@ -620,18 +620,18 @@ public class FailoverTest extends FailoverTestBase
       consumer.close();
       session.commit();
 
-      assertEquals("backup must be running with the same nodeID", liveId, backupServer.getServer().getNodeID());
+      Assert.assertEquals("backup must be running with the same nodeID", liveId, backupServer.getServer().getNodeID());
       sf.close();
 
       backupServer.crash();
       Thread.sleep(100);
-      assertFalse("backup is not running", backupServer.isStarted());
+      Assert.assertFalse("backup is not running", backupServer.isStarted());
 
-      assertFalse("must NOT be a backup", liveServer.getServer().getHAPolicy() instanceof BackupPolicy);
+      Assert.assertFalse("must NOT be a backup", liveServer.getServer().getHAPolicy() instanceof BackupPolicy);
       adaptLiveConfigForReplicatedFailBack(liveServer);
       beforeRestart(liveServer);
       liveServer.start();
-      assertTrue("live initialized...", liveServer.getServer().waitForActivation(15, TimeUnit.SECONDS));
+      Assert.assertTrue("live initialized...", liveServer.getServer().waitForActivation(15, TimeUnit.SECONDS));
 
       sf = (ClientSessionFactoryInternal) createSessionFactory(locator);
 
@@ -730,27 +730,27 @@ public class FailoverTest extends FailoverTestBase
       producer.close();
       session.commit();
 
-      assertEquals("backup must be running with the same nodeID", liveId, backupServer.getServer().getNodeID());
+      Assert.assertEquals("backup must be running with the same nodeID", liveId, backupServer.getServer().getNodeID());
       if (doFailBack)
       {
-         assertFalse("must NOT be a backup", liveServer.getServer().getHAPolicy().isBackup());
+         Assert.assertFalse("must NOT be a backup", liveServer.getServer().getHAPolicy().isBackup());
          adaptLiveConfigForReplicatedFailBack(liveServer);
          beforeRestart(liveServer);
          liveServer.start();
-         assertTrue("live initialized...", liveServer.getServer().waitForActivation(40, TimeUnit.SECONDS));
+         Assert.assertTrue("live initialized...", liveServer.getServer().waitForActivation(40, TimeUnit.SECONDS));
          int i = 0;
          while (backupServer.isStarted() && i++ < 100)
          {
             Thread.sleep(100);
          }
-         assertFalse("Backup should stop!", backupServer.isStarted());
+         Assert.assertFalse("Backup should stop!", backupServer.isStarted());
       }
       else
       {
          backupServer.stop();
          beforeRestart(backupServer);
          backupServer.start();
-         assertTrue(backupServer.getServer().waitForActivation(10, TimeUnit.SECONDS));
+         Assert.assertTrue(backupServer.getServer().waitForActivation(10, TimeUnit.SECONDS));
       }
 
       ClientSession session2 = createSession(sf, false, false);
@@ -763,12 +763,12 @@ public class FailoverTest extends FailoverTestBase
 
    /**
     * @param consumer
-    * @throws org.apache.activemq.api.core.ActiveMQException
+    * @throws ActiveMQException
     */
    private void assertNoMoreMessages(ClientConsumer consumer) throws ActiveMQException
    {
       ClientMessage msg = consumer.receiveImmediate();
-      assertNull("there should be no more messages to receive! " + msg, msg);
+      Assert.assertNull("there should be no more messages to receive! " + msg, msg);
    }
 
    protected void createSessionFactory() throws Exception
@@ -802,7 +802,7 @@ public class FailoverTest extends FailoverTestBase
       for (int i = 0; i < numMessages; i++)
       {
          ClientMessage message = consumer.receive(1000);
-         assertNotNull("Just crashed? " + (i == 6) + " " + i, message);
+         Assert.assertNotNull("Just crashed? " + (i == 6) + " " + i, message);
 
          message.acknowledge();
 
@@ -818,7 +818,7 @@ public class FailoverTest extends FailoverTestBase
       try
       {
          session.commit();
-         fail("session must have rolled back on failover");
+         Assert.fail("session must have rolled back on failover");
       }
       catch (ActiveMQTransactionRolledBackException trbe)
       {
@@ -826,7 +826,7 @@ public class FailoverTest extends FailoverTestBase
       }
       catch (ActiveMQException e)
       {
-         fail("Invalid Exception type:" + e.getType());
+         Assert.fail("Invalid Exception type:" + e.getType());
       }
 
       consumer.close();
@@ -839,7 +839,7 @@ public class FailoverTest extends FailoverTestBase
       {
          ClientMessage message = consumer.receive(1000);
 
-         assertNotNull("Expecting message #" + i, message);
+         Assert.assertNotNull("Expecting message #" + i, message);
 
          message.acknowledge();
       }
@@ -920,7 +920,7 @@ public class FailoverTest extends FailoverTestBase
       }
       catch (ActiveMQException e)
       {
-         fail("Invalid Exception type:" + e.getType());
+         Assert.fail("Invalid Exception type:" + e.getType());
       }
 
       ClientConsumer consumer = session.createConsumer(FailoverTestBase.ADDRESS);
@@ -965,7 +965,7 @@ public class FailoverTest extends FailoverTestBase
       }
       catch (ActiveMQException e)
       {
-         fail("Invalid Exception type:" + e.getType());
+         Assert.fail("Invalid Exception type:" + e.getType());
       }
 
       ClientMessage message = session.createMessage(false);
@@ -1101,7 +1101,7 @@ public class FailoverTest extends FailoverTestBase
       }
       catch (ActiveMQException e)
       {
-         fail("Invalid Exception type:" + e.getType());
+         Assert.fail("Invalid Exception type:" + e.getType());
       }
    }
 
@@ -1728,7 +1728,7 @@ public class FailoverTest extends FailoverTestBase
             if (msgInternalCounter == i + 1)
             {
                // The test can only jump to the next message if the current iteration is meant for non-durable
-               assertFalse("a message on counter=" + i + " was expected", isDurable(i));
+               Assert.assertFalse("a message on counter=" + i + " was expected", isDurable(i));
                // message belongs to the next iteration.. let's just ignore it
                repeatMessage = message;
                continue;
@@ -2007,7 +2007,7 @@ public class FailoverTest extends FailoverTestBase
       committer.start();
 
       // Wait for the commit to occur and the response to be discarded
-      assertTrue(committer.interceptor.await());
+      Assert.assertTrue(committer.interceptor.await());
 
       crash(session);
 
@@ -2044,7 +2044,7 @@ public class FailoverTest extends FailoverTestBase
       try
       {
          session2.commit();
-         fail("expecting DUPLICATE_ID_REJECTED exception");
+         Assert.fail("expecting DUPLICATE_ID_REJECTED exception");
       }
       catch (ActiveMQDuplicateIdException dide)
       {
@@ -2052,7 +2052,7 @@ public class FailoverTest extends FailoverTestBase
       }
       catch (ActiveMQException e)
       {
-         fail("Invalid Exception type:" + e.getType());
+         Assert.fail("Invalid Exception type:" + e.getType());
       }
 
       ClientConsumer consumer = session2.createConsumer(FailoverTestBase.ADDRESS);
@@ -2195,7 +2195,7 @@ public class FailoverTest extends FailoverTestBase
 
       backupServer.start();
 
-      assertTrue("session failure listener", listener.getLatch().await(5, TimeUnit.SECONDS));
+      Assert.assertTrue("session failure listener", listener.getLatch().await(5, TimeUnit.SECONDS));
 
       ClientProducer producer = session.createProducer(FailoverTestBase.ADDRESS);
 
@@ -2228,7 +2228,7 @@ public class FailoverTest extends FailoverTestBase
 
       liveServer.start();
 
-      assertTrue(latch.await(5, TimeUnit.SECONDS));
+      Assert.assertTrue(latch.await(5, TimeUnit.SECONDS));
 
       ClientProducer producer = session.createProducer(FailoverTestBase.ADDRESS);
 
@@ -2260,7 +2260,7 @@ public class FailoverTest extends FailoverTestBase
 
       liveServer.start();
 
-      assertTrue(latch.await(5, TimeUnit.SECONDS));
+      Assert.assertTrue(latch.await(5, TimeUnit.SECONDS));
 
       ClientProducer producer = session.createProducer(FailoverTestBase.ADDRESS);
 
@@ -2284,7 +2284,7 @@ public class FailoverTest extends FailoverTestBase
 
       ClientMessage cm = cc.receive(5000);
 
-      assertNotNull(cm);
+      Assert.assertNotNull(cm);
 
       Assert.assertEquals("message0", cm.getBodyBuffer().readString());
    }
@@ -2320,7 +2320,7 @@ public class FailoverTest extends FailoverTestBase
 
       backupServer.start();
 
-      assertTrue("session failure listener", listener.getLatch().await(5, TimeUnit.SECONDS));
+      Assert.assertTrue("session failure listener", listener.getLatch().await(5, TimeUnit.SECONDS));
 
       ClientProducer producer = session.createProducer(FailoverTestBase.ADDRESS);
 
@@ -2344,7 +2344,7 @@ public class FailoverTest extends FailoverTestBase
 
       ClientMessage cm = cc.receive(5000);
 
-      assertNotNull(cm);
+      Assert.assertNotNull(cm);
 
       Assert.assertEquals("message0", cm.getBodyBuffer().readString());
    }

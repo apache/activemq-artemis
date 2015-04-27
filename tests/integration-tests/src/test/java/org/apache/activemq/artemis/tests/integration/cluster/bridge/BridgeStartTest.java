@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.cluster.bridge;
+package org.apache.activemq.artemis.tests.integration.cluster.bridge;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -23,22 +23,22 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.core.client.ClientConsumer;
-import org.apache.activemq.api.core.client.ClientMessage;
-import org.apache.activemq.api.core.client.ClientProducer;
-import org.apache.activemq.api.core.client.ClientSession;
-import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.ActiveMQClient;
-import org.apache.activemq.api.core.client.ServerLocator;
-import org.apache.activemq.core.config.BridgeConfiguration;
-import org.apache.activemq.core.config.CoreQueueConfiguration;
-import org.apache.activemq.core.remoting.impl.invm.TransportConstants;
-import org.apache.activemq.core.server.ActiveMQServer;
-import org.apache.activemq.core.server.cluster.Bridge;
-import org.apache.activemq.tests.integration.IntegrationTestLogger;
-import org.apache.activemq.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.client.ClientConsumer;
+import org.apache.activemq.artemis.api.core.client.ClientMessage;
+import org.apache.activemq.artemis.api.core.client.ClientProducer;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
+import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.core.config.BridgeConfiguration;
+import org.apache.activemq.artemis.core.config.CoreQueueConfiguration;
+import org.apache.activemq.artemis.core.remoting.impl.invm.TransportConstants;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.cluster.Bridge;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -89,7 +89,7 @@ public class BridgeStartTest extends ServiceTestBase
       Map<String, Object> server1Params = new HashMap<String, Object>();
       if (isNetty())
       {
-         server1Params.put("port", org.apache.activemq.core.remoting.impl.netty.TransportConstants.DEFAULT_PORT + 1);
+         server1Params.put("port", org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.DEFAULT_PORT + 1);
       }
       else
       {
@@ -258,7 +258,7 @@ public class BridgeStartTest extends ServiceTestBase
       Map<String, Object> server1Params = new HashMap<String, Object>();
       if (isNetty())
       {
-         server1Params.put("port", org.apache.activemq.core.remoting.impl.netty.TransportConstants.DEFAULT_PORT + 1);
+         server1Params.put("port", org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.DEFAULT_PORT + 1);
       }
       else
       {
@@ -469,7 +469,7 @@ public class BridgeStartTest extends ServiceTestBase
       Map<String, Object> server1Params = new HashMap<String, Object>();
       if (isNetty())
       {
-         server1Params.put("port", org.apache.activemq.core.remoting.impl.netty.TransportConstants.DEFAULT_PORT + 1);
+         server1Params.put("port", org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.DEFAULT_PORT + 1);
       }
       else
       {
@@ -623,7 +623,7 @@ public class BridgeStartTest extends ServiceTestBase
       Map<String, Object> server1Params = new HashMap<String, Object>();
       if (isNetty())
       {
-         server1Params.put("port", org.apache.activemq.core.remoting.impl.netty.TransportConstants.DEFAULT_PORT + 1);
+         server1Params.put("port", org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.DEFAULT_PORT + 1);
       }
       else
       {

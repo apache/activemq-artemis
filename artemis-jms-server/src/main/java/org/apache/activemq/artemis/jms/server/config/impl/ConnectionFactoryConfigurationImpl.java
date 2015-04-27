@@ -14,18 +14,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.jms.server.config.impl;
+package org.apache.activemq.artemis.jms.server.config.impl;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.activemq.api.core.ActiveMQBuffer;
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.api.core.client.ActiveMQClient;
-import org.apache.activemq.api.jms.JMSFactoryType;
-import org.apache.activemq.jms.server.config.ConnectionFactoryConfiguration;
-import org.apache.activemq.utils.BufferHelper;
-import org.apache.activemq.utils.DataConstants;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
+import org.apache.activemq.artemis.api.jms.JMSFactoryType;
+import org.apache.activemq.artemis.jms.server.config.ConnectionFactoryConfiguration;
+import org.apache.activemq.artemis.utils.BufferHelper;
+import org.apache.activemq.artemis.utils.DataConstants;
 
 /**
  * This class contains the configuration properties of a connection factory.

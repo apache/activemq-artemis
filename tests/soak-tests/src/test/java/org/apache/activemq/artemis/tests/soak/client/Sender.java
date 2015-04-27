@@ -14,11 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.soak.client;
+package org.apache.activemq.artemis.tests.soak.client;
 
-import org.apache.activemq.api.core.client.ClientMessage;
-import org.apache.activemq.api.core.client.ClientProducer;
-import org.apache.activemq.api.core.client.ClientSessionFactory;
+import org.apache.activemq.artemis.api.core.client.ClientMessage;
+import org.apache.activemq.artemis.api.core.client.ClientProducer;
+import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 
 public class Sender extends ClientAbstract
 {
@@ -82,7 +82,7 @@ public class Sender extends ClientAbstract
    }
 
    /* (non-Javadoc)
-    * @see org.apache.activemq.jms.example.ClientAbstract#onCommit()
+    * @see org.apache.activemq.artemis.jms.example.ClientAbstract#onCommit()
     */
    @Override
    protected void onCommit()
@@ -97,7 +97,7 @@ public class Sender extends ClientAbstract
    }
 
    /* (non-Javadoc)
-    * @see org.apache.activemq.jms.example.ClientAbstract#onRollback()
+    * @see org.apache.activemq.artemis.jms.example.ClientAbstract#onRollback()
     */
    @Override
    protected void onRollback()

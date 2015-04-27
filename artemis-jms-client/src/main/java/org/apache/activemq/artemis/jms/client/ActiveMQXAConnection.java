@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.jms.client;
+package org.apache.activemq.artemis.jms.client;
 
 import javax.jms.JMSException;
 import javax.jms.Session;
@@ -24,7 +24,7 @@ import javax.jms.XASession;
 import javax.jms.XATopicConnection;
 import javax.jms.XATopicSession;
 
-import org.apache.activemq.api.core.client.ClientSessionFactory;
+import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 
 /**
  * ActiveMQ implementation of a JMS XAConnection.

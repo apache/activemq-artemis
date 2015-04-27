@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.client.impl;
+package org.apache.activemq.artemis.core.client.impl;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -30,19 +30,19 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 import io.netty.buffer.ByteBuf;
-import org.apache.activemq.api.core.ActiveMQBuffer;
-import org.apache.activemq.api.core.ActiveMQBuffers;
-import org.apache.activemq.api.core.ActiveMQException;
-import org.apache.activemq.api.core.ActiveMQExceptionType;
-import org.apache.activemq.api.core.ActiveMQInterruptedException;
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.core.client.ActiveMQClientLogger;
-import org.apache.activemq.core.client.ActiveMQClientMessageBundle;
-import org.apache.activemq.utils.DataConstants;
-import org.apache.activemq.utils.UTF8Util;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
+import org.apache.activemq.artemis.api.core.ActiveMQInterruptedException;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
+import org.apache.activemq.artemis.core.client.ActiveMQClientMessageBundle;
+import org.apache.activemq.artemis.utils.DataConstants;
+import org.apache.activemq.artemis.utils.UTF8Util;
 
 /**
- * This class aggregates several {@link org.apache.activemq.core.protocol.core.impl.wireformat.SessionReceiveContinuationMessage}
+ * This class aggregates several {@link org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionReceiveContinuationMessage}
  * as it was being handled
  * by a single buffer. This buffer can be consumed as messages are arriving, and it will hold the
  * packets until they are read using the ChannelBuffer interface, or the setOutputStream or
@@ -318,7 +318,7 @@ public class LargeMessageControllerImpl implements LargeMessageController
 
    /**
     * @param timeWait Milliseconds to Wait. 0 means forever
-    * @throws org.apache.activemq.api.core.ActiveMQException
+    * @throws ActiveMQException
     */
    public synchronized boolean waitCompletion(final long timeWait) throws ActiveMQException
    {
@@ -372,7 +372,7 @@ public class LargeMessageControllerImpl implements LargeMessageController
    }
 
    /**
-    * @throws org.apache.activemq.api.core.ActiveMQException
+    * @throws ActiveMQException
     */
    private void checkException() throws ActiveMQException
    {
@@ -1186,7 +1186,7 @@ public class LargeMessageControllerImpl implements LargeMessageController
    /**
     * @param output
     * @param packet
-    * @throws org.apache.activemq.api.core.ActiveMQException
+    * @throws ActiveMQException
     */
    private void sendPacketToOutput(final OutputStream output, final LargeData packet) throws ActiveMQException
    {

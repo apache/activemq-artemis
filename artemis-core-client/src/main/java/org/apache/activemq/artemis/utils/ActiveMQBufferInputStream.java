@@ -14,12 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.utils;
+package org.apache.activemq.artemis.utils;
 
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.apache.activemq.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 
 /**
  * Used to send large messages

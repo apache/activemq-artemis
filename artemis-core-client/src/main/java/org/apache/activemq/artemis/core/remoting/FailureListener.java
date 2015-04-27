@@ -14,9 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.remoting;
+package org.apache.activemq.artemis.core.remoting;
 
-import org.apache.activemq.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
 
 /**
  * A FailureListener notifies the user when a connection failure occurred.

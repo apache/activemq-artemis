@@ -15,9 +15,9 @@
  * limitations under the License.
  */
 
-package org.apache.activemq.core.server;
+package org.apache.activemq.artemis.core.server;
 
-import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.SimpleString;
 
 public interface QueueCreator
 {

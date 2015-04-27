@@ -14,11 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.protocol.core.impl.wireformat;
+package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
-import org.apache.activemq.api.core.ActiveMQBuffer;
-import org.apache.activemq.api.core.client.SendAcknowledgementHandler;
-import org.apache.activemq.core.message.impl.MessageInternal;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.client.SendAcknowledgementHandler;
+import org.apache.activemq.artemis.core.message.impl.MessageInternal;
 
 /**
  * A SessionSendContinuationMessage<br>
@@ -30,12 +30,12 @@ public class SessionSendContinuationMessage extends SessionContinuationMessage
    // Used on confirmation handling
    private MessageInternal message;
    /**
-    * In case, we are using a different handler than the one set on the {@link org.apache.activemq.api.core.client.ClientSession}
+    * In case, we are using a different handler than the one set on the {@link org.apache.activemq.artemis.api.core.client.ClientSession}
     * <p/>
     * This field is only used at the client side.
     *
-    * @see org.apache.activemq.api.core.client.ClientSession#setSendAcknowledgementHandler(SendAcknowledgementHandler)
-    * @see org.apache.activemq.api.core.client.ClientProducer#send(org.apache.activemq.api.core.SimpleString, org.apache.activemq.api.core.Message, SendAcknowledgementHandler)
+    * @see org.apache.activemq.artemis.api.core.client.ClientSession#setSendAcknowledgementHandler(SendAcknowledgementHandler)
+    * @see org.apache.activemq.artemis.api.core.client.ClientProducer#send(org.apache.activemq.artemis.api.core.SimpleString, org.apache.activemq.artemis.api.core.Message, SendAcknowledgementHandler)
     */
    private final transient SendAcknowledgementHandler handler;
 

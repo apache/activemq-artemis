@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.replication;
+package org.apache.activemq.artemis.core.replication;
 
 import java.io.FileInputStream;
 import java.nio.ByteBuffer;
@@ -26,44 +26,44 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import org.apache.activemq.api.core.ActiveMQBuffer;
-import org.apache.activemq.api.core.ActiveMQException;
-import org.apache.activemq.api.core.ActiveMQExceptionType;
-import org.apache.activemq.api.core.Pair;
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.api.core.client.SessionFailureListener;
-import org.apache.activemq.core.journal.EncodingSupport;
-import org.apache.activemq.core.journal.SequentialFile;
-import org.apache.activemq.core.journal.impl.JournalFile;
-import org.apache.activemq.core.paging.PagedMessage;
-import org.apache.activemq.core.persistence.OperationContext;
-import org.apache.activemq.core.persistence.impl.journal.JournalStorageManager.JournalContent;
-import org.apache.activemq.core.persistence.impl.journal.OperationContextImpl;
-import org.apache.activemq.core.protocol.core.Channel;
-import org.apache.activemq.core.protocol.core.ChannelHandler;
-import org.apache.activemq.core.protocol.core.CoreRemotingConnection;
-import org.apache.activemq.core.protocol.core.Packet;
-import org.apache.activemq.core.protocol.core.impl.ChannelImpl.CHANNEL_ID;
-import org.apache.activemq.core.protocol.core.impl.PacketImpl;
-import org.apache.activemq.core.protocol.core.impl.wireformat.ReplicationAddMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.ReplicationAddTXMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.ReplicationCommitMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.ReplicationDeleteMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.ReplicationDeleteTXMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.ReplicationLargeMessageBeginMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.ReplicationLargeMessageEndMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.ReplicationLargeMessageWriteMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.ReplicationLiveIsStoppingMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.ReplicationLiveIsStoppingMessage.LiveStopping;
-import org.apache.activemq.core.protocol.core.impl.wireformat.ReplicationPageEventMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.ReplicationPageWriteMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.ReplicationPrepareMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.ReplicationStartSyncMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.ReplicationSyncFileMessage;
-import org.apache.activemq.core.server.ActiveMQComponent;
-import org.apache.activemq.core.server.ActiveMQServerLogger;
-import org.apache.activemq.spi.core.protocol.RemotingConnection;
-import org.apache.activemq.utils.ExecutorFactory;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
+import org.apache.activemq.artemis.api.core.Pair;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.client.SessionFailureListener;
+import org.apache.activemq.artemis.core.journal.EncodingSupport;
+import org.apache.activemq.artemis.core.journal.SequentialFile;
+import org.apache.activemq.artemis.core.journal.impl.JournalFile;
+import org.apache.activemq.artemis.core.paging.PagedMessage;
+import org.apache.activemq.artemis.core.persistence.OperationContext;
+import org.apache.activemq.artemis.core.persistence.impl.journal.JournalStorageManager.JournalContent;
+import org.apache.activemq.artemis.core.persistence.impl.journal.OperationContextImpl;
+import org.apache.activemq.artemis.core.protocol.core.Channel;
+import org.apache.activemq.artemis.core.protocol.core.ChannelHandler;
+import org.apache.activemq.artemis.core.protocol.core.CoreRemotingConnection;
+import org.apache.activemq.artemis.core.protocol.core.Packet;
+import org.apache.activemq.artemis.core.protocol.core.impl.ChannelImpl.CHANNEL_ID;
+import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationAddMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationAddTXMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationCommitMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationDeleteMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationDeleteTXMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationLargeMessageBeginMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationLargeMessageEndMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationLargeMessageWriteMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationLiveIsStoppingMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationLiveIsStoppingMessage.LiveStopping;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationPageEventMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationPageWriteMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationPrepareMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationStartSyncMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationSyncFileMessage;
+import org.apache.activemq.artemis.core.server.ActiveMQComponent;
+import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.artemis.utils.ExecutorFactory;
 
 /**
  * Manages replication tasks on the live server (that is the live server side of a "remote backup"
@@ -481,7 +481,7 @@ public final class ReplicationManager implements ActiveMQComponent
    /**
     * Sends the whole content of the file to be duplicated.
     *
-    * @throws org.apache.activemq.api.core.ActiveMQException
+    * @throws ActiveMQException
     * @throws Exception
     */
    public void syncJournalFile(JournalFile jf, JournalContent content) throws Exception
@@ -596,7 +596,7 @@ public final class ReplicationManager implements ActiveMQComponent
     *
     * @param datafiles
     * @param contentType
-    * @throws org.apache.activemq.api.core.ActiveMQException
+    * @throws ActiveMQException
     */
    public void sendStartSyncMessage(JournalFile[] datafiles, JournalContent contentType, String nodeID,
                                     boolean allowsAutoFailBack) throws ActiveMQException

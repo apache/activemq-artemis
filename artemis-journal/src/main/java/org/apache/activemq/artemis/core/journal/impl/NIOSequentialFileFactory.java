@@ -14,13 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.journal.impl;
+package org.apache.activemq.artemis.core.journal.impl;
 
 import java.lang.ref.WeakReference;
 import java.nio.ByteBuffer;
 
-import org.apache.activemq.core.journal.IOCriticalErrorListener;
-import org.apache.activemq.core.journal.SequentialFile;
+import org.apache.activemq.artemis.core.journal.IOCriticalErrorListener;
+import org.apache.activemq.artemis.core.journal.SequentialFile;
 
 public class NIOSequentialFileFactory extends AbstractSequentialFileFactory
 {

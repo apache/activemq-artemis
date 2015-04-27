@@ -14,19 +14,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.client;
+package org.apache.activemq.artemis.tests.integration.client;
 
-import org.apache.activemq.api.core.ActiveMQInvalidTransientQueueUseException;
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.api.core.client.ClientConsumer;
-import org.apache.activemq.api.core.client.ClientMessage;
-import org.apache.activemq.api.core.client.ClientProducer;
-import org.apache.activemq.api.core.client.ClientSession;
-import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.ServerLocator;
-import org.apache.activemq.tests.util.RandomUtil;
-import org.apache.activemq.tests.util.SingleServerTestBase;
-import org.junit.Assert;
+import org.apache.activemq.artemis.api.core.ActiveMQInvalidTransientQueueUseException;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.client.ClientConsumer;
+import org.apache.activemq.artemis.api.core.client.ClientMessage;
+import org.apache.activemq.artemis.api.core.client.ClientProducer;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
+import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.tests.util.SingleServerTestBase;
+import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.junit.Test;
 
 public class TransientQueueTest extends SingleServerTestBase
@@ -39,7 +38,7 @@ public class TransientQueueTest extends SingleServerTestBase
       SimpleString address = RandomUtil.randomSimpleString();
 
       session.createSharedQueue(address, queue, false);
-      Assert.assertEquals(1, server.getConnectionCount());
+      assertEquals(1, server.getConnectionCount());
 
       // we create a second session. the temp queue must be present
       // even after we closed the session which created it
@@ -61,7 +60,7 @@ public class TransientQueueTest extends SingleServerTestBase
       SimpleString address = SimpleString.toSimpleString("address");
 
       session.createSharedQueue(address, queue, false);
-      Assert.assertEquals(1, server.getConnectionCount());
+      assertEquals(1, server.getConnectionCount());
 
       assertNotNull(server.locateQueue(queue));
 
@@ -153,7 +152,7 @@ public class TransientQueueTest extends SingleServerTestBase
       SimpleString address2 = RandomUtil.randomSimpleString();
 
       session.createSharedQueue(address, queue, false);
-      Assert.assertEquals(1, server.getConnectionCount());
+      assertEquals(1, server.getConnectionCount());
 
 
       ServerLocator locator2 = createLocator();

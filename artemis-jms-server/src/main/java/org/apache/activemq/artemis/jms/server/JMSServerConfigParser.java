@@ -14,13 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.jms.server;
+package org.apache.activemq.artemis.jms.server;
 
 import java.io.InputStream;
 
-import org.apache.activemq.jms.server.config.JMSConfiguration;
-import org.apache.activemq.jms.server.config.JMSQueueConfiguration;
-import org.apache.activemq.jms.server.config.TopicConfiguration;
+import org.apache.activemq.artemis.jms.server.config.JMSConfiguration;
+import org.apache.activemq.artemis.jms.server.config.JMSQueueConfiguration;
+import org.apache.activemq.artemis.jms.server.config.TopicConfiguration;
 import org.w3c.dom.Node;
 
 public interface JMSServerConfigParser

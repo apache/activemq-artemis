@@ -14,9 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.stress.failover;
+package org.apache.activemq.artemis.tests.stress.failover;
 
-import org.apache.activemq.tests.integration.cluster.reattach.MultiThreadRandomReattachTest;
+import org.apache.activemq.artemis.tests.integration.cluster.reattach.MultiThreadRandomReattachTest;
 
 public class MultiThreadRandomReattachStressTest extends MultiThreadRandomReattachTest
 {

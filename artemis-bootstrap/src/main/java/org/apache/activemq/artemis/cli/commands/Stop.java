@@ -14,12 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.cli.commands;
+package org.apache.activemq.artemis.cli.commands;
 
 import io.airlift.command.Arguments;
 import io.airlift.command.Command;
-import org.apache.activemq.dto.BrokerDTO;
-import org.apache.activemq.factory.BrokerFactory;
+import org.apache.activemq.artemis.dto.BrokerDTO;
+import org.apache.activemq.artemis.factory.BrokerFactory;
 
 import java.io.File;
 import java.net.URI;

@@ -14,15 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.cluster.distribution;
+package org.apache.activemq.artemis.tests.integration.cluster.distribution;
 import org.junit.Before;
 
 import org.junit.Test;
 
-import org.apache.activemq.core.server.cluster.ClusterConnection;
-import org.apache.activemq.core.server.cluster.MessageFlowRecord;
-import org.apache.activemq.core.server.cluster.impl.ClusterConnectionImpl;
-import org.apache.activemq.tests.integration.IntegrationTestLogger;
+import org.apache.activemq.artemis.core.server.cluster.ClusterConnection;
+import org.apache.activemq.artemis.core.server.cluster.MessageFlowRecord;
+import org.apache.activemq.artemis.core.server.cluster.impl.ClusterConnectionImpl;
+import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 
 import java.util.Map;
 import java.util.Set;

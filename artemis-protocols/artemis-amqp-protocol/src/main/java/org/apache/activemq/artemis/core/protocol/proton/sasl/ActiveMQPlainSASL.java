@@ -14,10 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.protocol.proton.sasl;
+package org.apache.activemq.artemis.core.protocol.proton.sasl;
 
-import org.apache.activemq.core.security.SecurityStore;
-import org.apache.activemq.spi.core.security.ActiveMQSecurityManager;
+import org.apache.activemq.artemis.core.security.SecurityStore;
+import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
 import org.proton.plug.sasl.ServerSASLPlain;
 
 public class ActiveMQPlainSASL extends ServerSASLPlain

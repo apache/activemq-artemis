@@ -14,34 +14,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.extras.byteman;
+package org.apache.activemq.artemis.tests.extras.byteman;
 
 import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 
-import org.apache.activemq.api.core.ActiveMQTransactionOutcomeUnknownException;
-import org.apache.activemq.api.core.ActiveMQTransactionRolledBackException;
-import org.apache.activemq.api.core.ActiveMQUnBlockedException;
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.core.client.ClientConsumer;
-import org.apache.activemq.api.core.client.ClientMessage;
-import org.apache.activemq.api.core.client.ClientProducer;
-import org.apache.activemq.api.core.client.ClientSession;
-import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.ServerLocator;
-import org.apache.activemq.core.client.ActiveMQClientMessageBundle;
-import org.apache.activemq.core.client.impl.ClientMessageImpl;
-import org.apache.activemq.core.client.impl.ClientSessionFactoryInternal;
-import org.apache.activemq.core.client.impl.ClientSessionInternal;
-import org.apache.activemq.core.postoffice.Binding;
-import org.apache.activemq.core.server.Queue;
-import org.apache.activemq.core.transaction.impl.XidImpl;
-import org.apache.activemq.tests.integration.cluster.failover.FailoverTestBase;
-import org.apache.activemq.tests.integration.cluster.util.TestableServer;
-import org.apache.activemq.tests.util.RandomUtil;
-import org.apache.activemq.utils.UUIDGenerator;
+import org.apache.activemq.artemis.api.core.ActiveMQTransactionOutcomeUnknownException;
+import org.apache.activemq.artemis.api.core.ActiveMQTransactionRolledBackException;
+import org.apache.activemq.artemis.api.core.ActiveMQUnBlockedException;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.client.ClientConsumer;
+import org.apache.activemq.artemis.api.core.client.ClientMessage;
+import org.apache.activemq.artemis.api.core.client.ClientProducer;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
+import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.core.client.ActiveMQClientMessageBundle;
+import org.apache.activemq.artemis.core.client.impl.ClientMessageImpl;
+import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal;
+import org.apache.activemq.artemis.core.client.impl.ClientSessionInternal;
+import org.apache.activemq.artemis.core.postoffice.Binding;
+import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
+import org.apache.activemq.artemis.tests.integration.cluster.failover.FailoverTestBase;
+import org.apache.activemq.artemis.tests.integration.cluster.util.TestableServer;
+import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.jboss.byteman.contrib.bmunit.BMRule;
 import org.jboss.byteman.contrib.bmunit.BMRules;
 import org.jboss.byteman.contrib.bmunit.BMUnitRunner;
@@ -108,7 +108,7 @@ public class BMFailoverTest extends FailoverTestBase
                      @BMRule
                            (
                                  name = "trace ActiveMQSessionContext xaEnd",
-                                 targetClass = "org.apache.activemq.core.protocol.core.impl.ActiveMQSessionContext",
+                                 targetClass = "org.apache.activemq.artemis.core.protocol.core.impl.ActiveMQSessionContext",
                                  targetMethod = "xaEnd",
                                  targetLocation = "AT EXIT",
                                  action = "org.apache.activemq.tests.extras.byteman.BMFailoverTest.stopAndThrow()"
@@ -199,7 +199,7 @@ public class BMFailoverTest extends FailoverTestBase
                @BMRule
                   (
                      name = "trace clientsessionimpl commit",
-                     targetClass = "org.apache.activemq.core.client.impl.ClientSessionImpl",
+                     targetClass = "org.apache.activemq.artemis.core.client.impl.ClientSessionImpl",
                      targetMethod = "start(javax.transaction.xa.Xid, int)",
                      targetLocation = "AT EXIT",
                      action = "org.apache.activemq.tests.extras.byteman.BMFailoverTest.serverToStop.getServer().stop(true)"
@@ -302,7 +302,7 @@ public class BMFailoverTest extends FailoverTestBase
                @BMRule
                   (
                      name = "trace clientsessionimpl commit",
-                     targetClass = "org.apache.activemq.core.client.impl.ClientSessionImpl",
+                     targetClass = "org.apache.activemq.artemis.core.client.impl.ClientSessionImpl",
                      targetMethod = "commit",
                      targetLocation = "ENTRY",
                      action = "org.apache.activemq.tests.extras.byteman.BMFailoverTest.serverToStop.getServer().stop(true)"
@@ -343,7 +343,7 @@ public class BMFailoverTest extends FailoverTestBase
                @BMRule
                   (
                      name = "trace clientsessionimpl commit",
-                     targetClass = "org.apache.activemq.core.client.impl.ClientSessionImpl",
+                     targetClass = "org.apache.activemq.artemis.core.client.impl.ClientSessionImpl",
                      targetMethod = "commit",
                      targetLocation = "ENTRY",
                      action = "org.apache.activemq.tests.extras.byteman.BMFailoverTest.serverToStop.getServer().stop(true)"

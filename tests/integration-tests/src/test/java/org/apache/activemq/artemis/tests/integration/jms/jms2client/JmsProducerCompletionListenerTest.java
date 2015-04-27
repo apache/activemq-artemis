@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.jms.jms2client;
+package org.apache.activemq.artemis.tests.integration.jms.jms2client;
 
 import javax.jms.CompletionListener;
 import javax.jms.Connection;
@@ -32,8 +32,8 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq.jms.server.config.ConnectionFactoryConfiguration;
-import org.apache.activemq.tests.util.JMSTestBase;
+import org.apache.activemq.artemis.tests.util.JMSTestBase;
+import org.apache.activemq.artemis.jms.server.config.ConnectionFactoryConfiguration;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -92,7 +92,7 @@ public class JmsProducerCompletionListenerTest extends JMSTestBase
       receiveMessages(consumer, 0, TOTAL_MSGS, true);
 
       context.close();
-      assertTrue("completion listener should be called", cl.completionLatch.await(3, TimeUnit.SECONDS));
+      Assert.assertTrue("completion listener should be called", cl.completionLatch.await(3, TimeUnit.SECONDS));
    }
 
    @Test
@@ -105,7 +105,7 @@ public class JmsProducerCompletionListenerTest extends JMSTestBase
          Session session = connection.createSession();
          MessageProducer prod = session.createProducer(queue);
          prod.send(session.createMessage(), null);
-         fail("Didn't get expected exception!");
+         Assert.fail("Didn't get expected exception!");
       }
       catch (IllegalArgumentException expected)
       {

@@ -14,20 +14,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.config;
+package org.apache.activemq.artemis.core.config;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.activemq.api.core.BroadcastGroupConfiguration;
-import org.apache.activemq.api.core.DiscoveryGroupConfiguration;
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.core.security.Role;
-import org.apache.activemq.core.server.JournalType;
-import org.apache.activemq.core.server.group.impl.GroupingHandlerConfiguration;
-import org.apache.activemq.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.api.core.BroadcastGroupConfiguration;
+import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.core.security.Role;
+import org.apache.activemq.artemis.core.server.JournalType;
+import org.apache.activemq.artemis.core.server.group.impl.GroupingHandlerConfiguration;
+import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 
 /**
  * A Configuration is used to configure ActiveMQ servers.
@@ -53,7 +53,7 @@ public interface Configuration
    /**
     * Returns whether delivery count is persisted before messages are delivered to the consumers. <br>
     * Default value is
-    * {@value org.apache.activemq.api.config.ActiveMQDefaultConfiguration#DEFAULT_PERSIST_DELIVERY_COUNT_BEFORE_DELIVERY}.
+    * {@value org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration#DEFAULT_PERSIST_DELIVERY_COUNT_BEFORE_DELIVERY}.
     */
    boolean isPersistDeliveryCountBeforeDelivery();
 
@@ -64,7 +64,7 @@ public interface Configuration
 
    /**
     * Returns whether this server is using persistence and store data. <br>
-    * Default value is {@value org.apache.activemq.api.config.ActiveMQDefaultConfiguration#DEFAULT_PERSISTENCE_ENABLED}.
+    * Default value is {@value org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration#DEFAULT_PERSISTENCE_ENABLED}.
     */
    boolean isPersistenceEnabled();
 
@@ -75,7 +75,7 @@ public interface Configuration
 
    /**
     * Returns the period (in milliseconds) to scan configuration files used by deployment. <br>
-    * Default value is {@value org.apache.activemq.api.config.ActiveMQDefaultConfiguration#DEFAULT_FILE_DEPLOYER_SCAN_PERIOD}.
+    * Default value is {@value org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration#DEFAULT_FILE_DEPLOYER_SCAN_PERIOD}.
     */
    long getFileDeployerScanPeriod();
 
@@ -86,7 +86,7 @@ public interface Configuration
 
    /**
     * Returns the maximum number of threads in the thread pool of this server. <br>
-    * Default value is {@value org.apache.activemq.api.config.ActiveMQDefaultConfiguration#DEFAULT_THREAD_POOL_MAX_SIZE}.
+    * Default value is {@value org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration#DEFAULT_THREAD_POOL_MAX_SIZE}.
     */
    int getThreadPoolMaxSize();
 
@@ -97,7 +97,7 @@ public interface Configuration
 
    /**
     * Returns the maximum number of threads in the <em>scheduled</em> thread pool of this server. <br>
-    * Default value is {@value org.apache.activemq.api.config.ActiveMQDefaultConfiguration#DEFAULT_SCHEDULED_THREAD_POOL_MAX_SIZE}.
+    * Default value is {@value org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration#DEFAULT_SCHEDULED_THREAD_POOL_MAX_SIZE}.
     */
    int getScheduledThreadPoolMaxSize();
 
@@ -108,7 +108,7 @@ public interface Configuration
 
    /**
     * Returns the interval time (in milliseconds) to invalidate security credentials. <br>
-    * Default value is {@value org.apache.activemq.api.config.ActiveMQDefaultConfiguration#DEFAULT_SECURITY_INVALIDATION_INTERVAL}.
+    * Default value is {@value org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration#DEFAULT_SECURITY_INVALIDATION_INTERVAL}.
     */
    long getSecurityInvalidationInterval();
 
@@ -119,7 +119,7 @@ public interface Configuration
 
    /**
     * Returns whether security is enabled for this server. <br>
-    * Default value is {@value org.apache.activemq.api.config.ActiveMQDefaultConfiguration#DEFAULT_SECURITY_ENABLED}.
+    * Default value is {@value org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration#DEFAULT_SECURITY_ENABLED}.
     */
    boolean isSecurityEnabled();
 
@@ -130,7 +130,7 @@ public interface Configuration
 
    /**
     * Returns whether graceful shutdown is enabled for this server. <br>
-    * Default value is {@value org.apache.activemq.api.config.ActiveMQDefaultConfiguration#DEFAULT_SECURITY_ENABLED}.
+    * Default value is {@value org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration#DEFAULT_SECURITY_ENABLED}.
     */
    boolean isGracefulShutdownEnabled();
 
@@ -141,7 +141,7 @@ public interface Configuration
 
    /**
     * Returns the graceful shutdown timeout for this server. <br>
-    * Default value is {@value org.apache.activemq.api.config.ActiveMQDefaultConfiguration#DEFAULT_GRACEFUL_SHUTDOWN_TIMEOUT}.
+    * Default value is {@value org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration#DEFAULT_GRACEFUL_SHUTDOWN_TIMEOUT}.
     */
    long getGracefulShutdownTimeout();
 
@@ -152,19 +152,19 @@ public interface Configuration
 
    /**
     * Returns whether this server is manageable using JMX or not. <br>
-    * Default value is {@value org.apache.activemq.api.config.ActiveMQDefaultConfiguration#DEFAULT_JMX_MANAGEMENT_ENABLED}.
+    * Default value is {@value org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration#DEFAULT_JMX_MANAGEMENT_ENABLED}.
     */
    boolean isJMXManagementEnabled();
 
    /**
     * Sets whether this server is manageable using JMX or not. <br>
-    * Default value is {@value org.apache.activemq.api.config.ActiveMQDefaultConfiguration#DEFAULT_JMX_MANAGEMENT_ENABLED}.
+    * Default value is {@value org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration#DEFAULT_JMX_MANAGEMENT_ENABLED}.
     */
    Configuration setJMXManagementEnabled(boolean enabled);
 
    /**
     * Returns the domain used by JMX MBeans (provided JMX management is enabled). <br>
-    * Default value is {@value org.apache.activemq.api.config.ActiveMQDefaultConfiguration#DEFAULT_JMX_DOMAIN}.
+    * Default value is {@value org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration#DEFAULT_JMX_DOMAIN}.
     */
    String getJMXDomain();
 
@@ -192,7 +192,7 @@ public interface Configuration
     * Sets the list of interceptors classes used by this server for incoming messages (i.e. those being delivered to
     * the server from clients).
     * <br />
-    * Classes must implement {@link org.apache.activemq.api.core.Interceptor}.
+    * Classes must implement {@link org.apache.activemq.artemis.api.core.Interceptor}.
     */
    Configuration setIncomingInterceptorClassNames(List<String> interceptors);
 
@@ -200,14 +200,14 @@ public interface Configuration
     * Sets the list of interceptors classes used by this server for outgoing messages (i.e. those being delivered to
     * clients from the server).
     * <br />
-    * Classes must implement {@link org.apache.activemq.api.core.Interceptor}.
+    * Classes must implement {@link org.apache.activemq.artemis.api.core.Interceptor}.
     */
    Configuration setOutgoingInterceptorClassNames(List<String> interceptors);
 
    /**
     * Returns the connection time to live. <br>
     * This value overrides the connection time to live <em>sent by the client</em>. <br>
-    * Default value is {@value org.apache.activemq.api.config.ActiveMQDefaultConfiguration#DEFAULT_CONNECTION_TTL_OVERRIDE}.
+    * Default value is {@value org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration#DEFAULT_CONNECTION_TTL_OVERRIDE}.
     */
    long getConnectionTTLOverride();
 
@@ -219,7 +219,7 @@ public interface Configuration
    /**
     * Returns whether code coming from connection is executed asynchronously or not. <br>
     * Default value is
-    * {@value org.apache.activemq.api.config.ActiveMQDefaultConfiguration#DEFAULT_ASYNC_CONNECTION_EXECUTION_ENABLED}.
+    * {@value org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration#DEFAULT_ASYNC_CONNECTION_EXECUTION_ENABLED}.
     */
    boolean isAsyncConnectionExecutionEnabled();
 
@@ -340,7 +340,7 @@ public interface Configuration
    /**
     * Returns the management address of this server. <br>
     * Clients can send management messages to this address to manage this server. <br>
-    * Default value is {@link org.apache.activemq.api.config.ActiveMQDefaultConfiguration#DEFAULT_MANAGEMENT_ADDRESS}.
+    * Default value is {@link org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration#DEFAULT_MANAGEMENT_ADDRESS}.
     */
    SimpleString getManagementAddress();
 
@@ -353,7 +353,7 @@ public interface Configuration
     * Returns the management notification address of this server. <br>
     * Clients can bind queues to this address to receive management notifications emitted by this
     * server. <br>
-    * Default value is {@link org.apache.activemq.api.config.ActiveMQDefaultConfiguration#DEFAULT_MANAGEMENT_NOTIFICATION_ADDRESS}.
+    * Default value is {@link org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration#DEFAULT_MANAGEMENT_NOTIFICATION_ADDRESS}.
     */
    SimpleString getManagementNotificationAddress();
 
@@ -364,7 +364,7 @@ public interface Configuration
 
    /**
     * Returns the cluster user for this server. <br>
-    * Default value is {@value org.apache.activemq.api.config.ActiveMQDefaultConfiguration#DEFAULT_CLUSTER_USER}.
+    * Default value is {@value org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration#DEFAULT_CLUSTER_USER}.
     */
    String getClusterUser();
 
@@ -375,7 +375,7 @@ public interface Configuration
 
    /**
     * Returns the cluster password for this server. <br>
-    * Default value is {@value org.apache.activemq.api.config.ActiveMQDefaultConfiguration#DEFAULT_CLUSTER_PASSWORD}.
+    * Default value is {@value org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration#DEFAULT_CLUSTER_PASSWORD}.
     */
    String getClusterPassword();
 
@@ -386,7 +386,7 @@ public interface Configuration
 
    /**
     * Returns the size of the cache for pre-creating message IDs. <br>
-    * Default value is {@value org.apache.activemq.api.config.ActiveMQDefaultConfiguration#DEFAULT_ID_CACHE_SIZE}.
+    * Default value is {@value org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration#DEFAULT_ID_CACHE_SIZE}.
     */
    int getIDCacheSize();
 
@@ -397,7 +397,7 @@ public interface Configuration
 
    /**
     * Returns whether message ID cache is persisted. <br>
-    * Default value is {@value org.apache.activemq.api.config.ActiveMQDefaultConfiguration#DEFAULT_PERSIST_ID_CACHE}.
+    * Default value is {@value org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration#DEFAULT_PERSIST_ID_CACHE}.
     */
    boolean isPersistIDCache();
 
@@ -410,7 +410,7 @@ public interface Configuration
 
    /**
     * Returns the file system directory used to store bindings. <br>
-    * Default value is {@value org.apache.activemq.api.config.ActiveMQDefaultConfiguration#DEFAULT_BINDINGS_DIRECTORY}.
+    * Default value is {@value org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration#DEFAULT_BINDINGS_DIRECTORY}.
     */
    String getBindingsDirectory();
 
@@ -422,7 +422,7 @@ public interface Configuration
    /**
     * The max number of concurrent reads allowed on paging.
     * <p/>
-    * Default value is {@value org.apache.activemq.api.config.ActiveMQDefaultConfiguration#DEFAULT_MAX_CONCURRENT_PAGE_IO}.
+    * Default value is {@value org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration#DEFAULT_MAX_CONCURRENT_PAGE_IO}.
     */
    int getPageMaxConcurrentIO();
 
@@ -435,7 +435,7 @@ public interface Configuration
 
    /**
     * Returns the file system directory used to store journal log. <br>
-    * Default value is {@value org.apache.activemq.api.config.ActiveMQDefaultConfiguration#DEFAULT_JOURNAL_DIR}.
+    * Default value is {@value org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration#DEFAULT_JOURNAL_DIR}.
     */
    String getJournalDirectory();
 
@@ -458,7 +458,7 @@ public interface Configuration
 
    /**
     * Returns whether the journal is synchronized when receiving transactional data. <br>
-    * Default value is {@value org.apache.activemq.api.config.ActiveMQDefaultConfiguration#DEFAULT_JOURNAL_SYNC_TRANSACTIONAL}.
+    * Default value is {@value org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration#DEFAULT_JOURNAL_SYNC_TRANSACTIONAL}.
     */
    boolean isJournalSyncTransactional();
 
@@ -469,7 +469,7 @@ public interface Configuration
 
    /**
     * Returns whether the journal is synchronized when receiving non-transactional data. <br>
-    * Default value is {@value org.apache.activemq.api.config.ActiveMQDefaultConfiguration#DEFAULT_JOURNAL_SYNC_NON_TRANSACTIONAL}.
+    * Default value is {@value org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration#DEFAULT_JOURNAL_SYNC_NON_TRANSACTIONAL}.
     */
    boolean isJournalSyncNonTransactional();
 
@@ -480,7 +480,7 @@ public interface Configuration
 
    /**
     * Returns the size (in bytes) of each journal files. <br>
-    * Default value is {@value org.apache.activemq.api.config.ActiveMQDefaultConfiguration#DEFAULT_JOURNAL_FILE_SIZE}.
+    * Default value is {@value org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration#DEFAULT_JOURNAL_FILE_SIZE}.
     */
    int getJournalFileSize();
 
@@ -491,7 +491,7 @@ public interface Configuration
 
    /**
     * Returns the minimal number of journal files before compacting. <br>
-    * Default value is {@value org.apache.activemq.api.config.ActiveMQDefaultConfiguration#DEFAULT_JOURNAL_COMPACT_MIN_FILES}.
+    * Default value is {@value org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration#DEFAULT_JOURNAL_COMPACT_MIN_FILES}.
     */
    int getJournalCompactMinFiles();
 
@@ -502,7 +502,7 @@ public interface Configuration
 
    /**
     * Returns the percentage of live data before compacting the journal. <br>
-    * Default value is {@value org.apache.activemq.api.config.ActiveMQDefaultConfiguration#DEFAULT_JOURNAL_COMPACT_PERCENTAGE}.
+    * Default value is {@value org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration#DEFAULT_JOURNAL_COMPACT_PERCENTAGE}.
     */
    int getJournalCompactPercentage();
 
@@ -513,7 +513,7 @@ public interface Configuration
 
    /**
     * Returns the number of journal files to pre-create. <br>
-    * Default value is {@value org.apache.activemq.api.config.ActiveMQDefaultConfiguration#DEFAULT_JOURNAL_MIN_FILES}.
+    * Default value is {@value org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration#DEFAULT_JOURNAL_MIN_FILES}.
     */
    int getJournalMinFiles();
 
@@ -526,7 +526,7 @@ public interface Configuration
 
    /**
     * Returns the maximum number of write requests that can be in the AIO queue at any given time. <br>
-    * Default value is {@value org.apache.activemq.api.config.ActiveMQDefaultConfiguration#DEFAULT_JOURNAL_MAX_IO_AIO}.
+    * Default value is {@value org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration#DEFAULT_JOURNAL_MAX_IO_AIO}.
     */
    int getJournalMaxIO_AIO();
 
@@ -538,7 +538,7 @@ public interface Configuration
    /**
     * Returns the timeout (in nanoseconds) used to flush buffers in the AIO queue.
     * <br>
-    * Default value is {@value org.apache.activemq.core.journal.impl.JournalConstants#DEFAULT_JOURNAL_BUFFER_TIMEOUT_AIO}.
+    * Default value is {@value org.apache.activemq.artemis.core.journal.impl.JournalConstants#DEFAULT_JOURNAL_BUFFER_TIMEOUT_AIO}.
     */
    int getJournalBufferTimeout_AIO();
 
@@ -550,7 +550,7 @@ public interface Configuration
    /**
     * Returns the buffer size (in bytes) for AIO.
     * <br>
-    * Default value is {@value org.apache.activemq.core.journal.impl.JournalConstants#DEFAULT_JOURNAL_BUFFER_SIZE_AIO}.
+    * Default value is {@value org.apache.activemq.artemis.core.journal.impl.JournalConstants#DEFAULT_JOURNAL_BUFFER_SIZE_AIO}.
     */
    int getJournalBufferSize_AIO();
 
@@ -561,7 +561,7 @@ public interface Configuration
 
    /**
     * Returns the maximum number of write requests for NIO journal. <br>
-    * Default value is {@value org.apache.activemq.api.config.ActiveMQDefaultConfiguration#DEFAULT_JOURNAL_MAX_IO_NIO}.
+    * Default value is {@value org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration#DEFAULT_JOURNAL_MAX_IO_NIO}.
     */
    int getJournalMaxIO_NIO();
 
@@ -573,7 +573,7 @@ public interface Configuration
    /**
     * Returns the timeout (in nanoseconds) used to flush buffers in the NIO.
     * <br>
-    * Default value is {@value org.apache.activemq.core.journal.impl.JournalConstants#DEFAULT_JOURNAL_BUFFER_TIMEOUT_NIO}.
+    * Default value is {@value org.apache.activemq.artemis.core.journal.impl.JournalConstants#DEFAULT_JOURNAL_BUFFER_TIMEOUT_NIO}.
     */
    int getJournalBufferTimeout_NIO();
 
@@ -585,7 +585,7 @@ public interface Configuration
    /**
     * Returns the buffer size (in bytes) for NIO.
     * <br>
-    * Default value is {@value org.apache.activemq.core.journal.impl.JournalConstants#DEFAULT_JOURNAL_BUFFER_SIZE_NIO}.
+    * Default value is {@value org.apache.activemq.artemis.core.journal.impl.JournalConstants#DEFAULT_JOURNAL_BUFFER_SIZE_NIO}.
     */
    int getJournalBufferSize_NIO();
 
@@ -596,7 +596,7 @@ public interface Configuration
 
    /**
     * Returns whether the bindings directory is created on this server startup. <br>
-    * Default value is {@value org.apache.activemq.api.config.ActiveMQDefaultConfiguration#DEFAULT_CREATE_BINDINGS_DIR}.
+    * Default value is {@value org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration#DEFAULT_CREATE_BINDINGS_DIR}.
     */
    boolean isCreateBindingsDir();
 
@@ -607,7 +607,7 @@ public interface Configuration
 
    /**
     * Returns whether the journal directory is created on this server startup. <br>
-    * Default value is {@value org.apache.activemq.api.config.ActiveMQDefaultConfiguration#DEFAULT_CREATE_JOURNAL_DIR}.
+    * Default value is {@value org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration#DEFAULT_CREATE_JOURNAL_DIR}.
     */
    boolean isCreateJournalDir();
 
@@ -646,7 +646,7 @@ public interface Configuration
 
    /**
     * Returns the file system directory used to store paging files. <br>
-    * Default value is {@value org.apache.activemq.api.config.ActiveMQDefaultConfiguration#DEFAULT_PAGING_DIR}.
+    * Default value is {@value org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration#DEFAULT_PAGING_DIR}.
     */
    String getPagingDirectory();
 
@@ -659,7 +659,7 @@ public interface Configuration
 
    /**
     * Returns the file system directory used to store large messages. <br>
-    * Default value is {@value org.apache.activemq.api.config.ActiveMQDefaultConfiguration#DEFAULT_LARGE_MESSAGES_DIR}.
+    * Default value is {@value org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration#DEFAULT_LARGE_MESSAGES_DIR}.
     */
    String getLargeMessagesDirectory();
 
@@ -672,7 +672,7 @@ public interface Configuration
 
    /**
     * Returns whether wildcard routing is supported by this server. <br>
-    * Default value is {@value org.apache.activemq.api.config.ActiveMQDefaultConfiguration#DEFAULT_WILDCARD_ROUTING_ENABLED}.
+    * Default value is {@value org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration#DEFAULT_WILDCARD_ROUTING_ENABLED}.
     */
    boolean isWildcardRoutingEnabled();
 
@@ -684,7 +684,7 @@ public interface Configuration
    /**
     * Returns the timeout (in milliseconds) after which transactions is removed from the resource
     * manager after it was created. <br>
-    * Default value is {@value org.apache.activemq.api.config.ActiveMQDefaultConfiguration#DEFAULT_TRANSACTION_TIMEOUT}.
+    * Default value is {@value org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration#DEFAULT_TRANSACTION_TIMEOUT}.
     */
    long getTransactionTimeout();
 
@@ -696,7 +696,7 @@ public interface Configuration
 
    /**
     * Returns whether message counter is enabled for this server. <br>
-    * Default value is {@value org.apache.activemq.api.config.ActiveMQDefaultConfiguration#DEFAULT_MESSAGE_COUNTER_ENABLED}.
+    * Default value is {@value org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration#DEFAULT_MESSAGE_COUNTER_ENABLED}.
     */
    boolean isMessageCounterEnabled();
 
@@ -707,7 +707,7 @@ public interface Configuration
 
    /**
     * Returns the sample period (in milliseconds) to take message counter snapshot. <br>
-    * Default value is {@value org.apache.activemq.api.config.ActiveMQDefaultConfiguration#DEFAULT_MESSAGE_COUNTER_SAMPLE_PERIOD}.
+    * Default value is {@value org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration#DEFAULT_MESSAGE_COUNTER_SAMPLE_PERIOD}.
     */
    long getMessageCounterSamplePeriod();
 
@@ -720,7 +720,7 @@ public interface Configuration
 
    /**
     * Returns the maximum number of days kept in memory for message counter. <br>
-    * Default value is {@value org.apache.activemq.api.config.ActiveMQDefaultConfiguration#DEFAULT_MESSAGE_COUNTER_MAX_DAY_HISTORY}.
+    * Default value is {@value org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration#DEFAULT_MESSAGE_COUNTER_MAX_DAY_HISTORY}.
     */
    int getMessageCounterMaxDayHistory();
 
@@ -734,7 +734,7 @@ public interface Configuration
    /**
     * Returns the frequency (in milliseconds) to scan transactions to detect which transactions have
     * timed out. <br>
-    * Default value is {@value org.apache.activemq.api.config.ActiveMQDefaultConfiguration#DEFAULT_TRANSACTION_TIMEOUT_SCAN_PERIOD}.
+    * Default value is {@value org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration#DEFAULT_TRANSACTION_TIMEOUT_SCAN_PERIOD}.
     */
    long getTransactionTimeoutScanPeriod();
 
@@ -747,7 +747,7 @@ public interface Configuration
    /**
     * Returns the frequency (in milliseconds) to scan messages to detect which messages have
     * expired. <br>
-    * Default value is {@value org.apache.activemq.api.config.ActiveMQDefaultConfiguration#DEFAULT_MESSAGE_EXPIRY_SCAN_PERIOD}.
+    * Default value is {@value org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration#DEFAULT_MESSAGE_EXPIRY_SCAN_PERIOD}.
     */
    long getMessageExpiryScanPeriod();
 
@@ -759,7 +759,7 @@ public interface Configuration
 
    /**
     * Returns the priority of the thread used to scan message expiration. <br>
-    * Default value is {@value org.apache.activemq.api.config.ActiveMQDefaultConfiguration#DEFAULT_MESSAGE_EXPIRY_THREAD_PRIORITY}.
+    * Default value is {@value org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration#DEFAULT_MESSAGE_EXPIRY_THREAD_PRIORITY}.
     */
    int getMessageExpiryThreadPriority();
 
@@ -829,7 +829,7 @@ public interface Configuration
    /*
    * @see #setResolveProtocols()
    * @return whether ActiveMQ should resolve and use any Protocols available on the classpath
-   * Default value is {@value org.apache.activemq.api.config.ActiveMQDefaultConfiguration#DEFAULT_RESOLVE_PROTOCOLS}.
+   * Default value is {@value org.apache.activemq.artemis.api.config.org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration#DEFAULT_RESOLVE_PROTOCOLS}.
    * */
    boolean isResolveProtocols();
 

@@ -14,11 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.remoting;
+package org.apache.activemq.artemis.tests.integration.remoting;
 
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
 import org.junit.Test;
-
-import org.apache.activemq.tests.util.ServiceTestBase;
 
 public class DestroyConsumerTest extends ServiceTestBase
 {

@@ -14,14 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.client.impl;
+package org.apache.activemq.artemis.core.client.impl;
 
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.spi.core.remoting.SessionContext;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.spi.core.remoting.SessionContext;
 
 public class ClientProducerCreditManagerImpl implements ClientProducerCreditManager
 {

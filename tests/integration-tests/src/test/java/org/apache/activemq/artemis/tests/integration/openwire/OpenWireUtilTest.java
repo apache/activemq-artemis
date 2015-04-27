@@ -14,11 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.openwire;
+package org.apache.activemq.artemis.tests.integration.openwire;
 
 import static org.junit.Assert.assertEquals;
 
-import org.apache.activemq.core.protocol.openwire.OpenWireUtil;
+import org.apache.activemq.artemis.core.protocol.openwire.OpenWireUtil;
 import org.junit.Test;
 
 public class OpenWireUtilTest

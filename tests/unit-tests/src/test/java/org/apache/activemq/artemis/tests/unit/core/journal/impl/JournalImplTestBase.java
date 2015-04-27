@@ -14,9 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.unit.core.journal.impl;
-import org.apache.activemq.tools.ExportJournal;
-import org.apache.activemq.tools.ImportJournal;
+package org.apache.activemq.artemis.tests.unit.core.journal.impl;
+import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.tools.ExportJournal;
+import org.apache.activemq.artemis.tools.ImportJournal;
 import org.junit.Before;
 import org.junit.After;
 
@@ -32,14 +33,13 @@ import java.util.Map;
 
 import org.junit.Assert;
 
-import org.apache.activemq.core.journal.EncodingSupport;
-import org.apache.activemq.core.journal.PreparedTransactionInfo;
-import org.apache.activemq.core.journal.RecordInfo;
-import org.apache.activemq.core.journal.SequentialFileFactory;
-import org.apache.activemq.core.journal.TestableJournal;
-import org.apache.activemq.core.journal.impl.JournalImpl;
-import org.apache.activemq.tests.util.UnitTestCase;
-import org.apache.activemq.utils.ReusableLatch;
+import org.apache.activemq.artemis.core.journal.EncodingSupport;
+import org.apache.activemq.artemis.core.journal.PreparedTransactionInfo;
+import org.apache.activemq.artemis.core.journal.RecordInfo;
+import org.apache.activemq.artemis.core.journal.SequentialFileFactory;
+import org.apache.activemq.artemis.core.journal.TestableJournal;
+import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
+import org.apache.activemq.artemis.utils.ReusableLatch;
 
 public abstract class JournalImplTestBase extends UnitTestCase
 {

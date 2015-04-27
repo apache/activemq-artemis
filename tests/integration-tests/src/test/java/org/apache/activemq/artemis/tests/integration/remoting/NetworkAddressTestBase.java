@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.remoting;
+package org.apache.activemq.artemis.tests.integration.remoting;
 
 import java.net.Inet4Address;
 import java.net.InetAddress;
@@ -27,14 +27,14 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.ActiveMQClient;
-import org.apache.activemq.api.core.client.ServerLocator;
-import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.server.ActiveMQServer;
-import org.apache.activemq.spi.core.protocol.RemotingConnection;
-import org.apache.activemq.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
+import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -230,9 +230,9 @@ public abstract class NetworkAddressTestBase extends ServiceTestBase
             if (localPort != 0)
             {
                Iterator<RemotingConnection> iterator = messagingService.getRemotingService().getConnections().iterator();
-               assertTrue("no connection created", iterator.hasNext());
+               Assert.assertTrue("no connection created", iterator.hasNext());
                String address = iterator.next().getTransportConnection().getRemoteAddress();
-               assertTrue(address.endsWith(":" + localPort));
+               Assert.assertTrue(address.endsWith(":" + localPort));
             }
             sf.close();
             System.out.println("connection OK");

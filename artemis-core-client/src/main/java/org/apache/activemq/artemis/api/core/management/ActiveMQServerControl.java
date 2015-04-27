@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.api.core.management;
+package org.apache.activemq.artemis.api.core.management;
 
 import javax.management.MBeanOperationInfo;
 
@@ -41,14 +41,14 @@ public interface ActiveMQServerControl
    /**
     * Returns the list of interceptors used by this server for incoming messages.
     *
-    * @see org.apache.activemq.api.core.Interceptor
+    * @see org.apache.activemq.artemis.api.core.Interceptor
     */
    String[] getIncomingInterceptorClassNames();
 
    /**
     * Returns the list of interceptors used by this server for outgoing messages.
     *
-    * @see org.apache.activemq.api.core.Interceptor
+    * @see org.apache.activemq.artemis.api.core.Interceptor
     */
    String[] getOutgoingInterceptorClassNames();
 
@@ -308,7 +308,7 @@ public interface ActiveMQServerControl
    /**
     * Create a durable queue.
     * <br>
-    * This method throws a {@link org.apache.activemq.api.core.ActiveMQQueueExistsException}) exception if the queue already exits.
+    * This method throws a {@link org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException}) exception if the queue already exits.
     *
     * @param address address to bind the queue to
     * @param name    name of the queue
@@ -320,7 +320,7 @@ public interface ActiveMQServerControl
    /**
     * Create a queue.
     * <br>
-    * This method throws a {@link org.apache.activemq.api.core.ActiveMQQueueExistsException}) exception if the queue already exits.
+    * This method throws a {@link org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException}) exception if the queue already exits.
     *
     * @param address address to bind the queue to
     * @param name    name of the queue
@@ -336,7 +336,7 @@ public interface ActiveMQServerControl
    /**
     * Create a queue.
     * <br>
-    * This method throws a {@link org.apache.activemq.api.core.ActiveMQQueueExistsException}) exception if the queue already exits.
+    * This method throws a {@link org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException}) exception if the queue already exits.
     *
     * @param address address to bind the queue to
     * @param name    name of the queue

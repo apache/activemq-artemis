@@ -14,14 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.unit.core.remoting.impl.invm;
+package org.apache.activemq.artemis.tests.unit.core.remoting.impl.invm;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.core.remoting.impl.invm.InVMConnector;
-import org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnector;
+import org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory;
 import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;

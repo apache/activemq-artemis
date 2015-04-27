@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.management.impl;
+package org.apache.activemq.artemis.core.management.impl;
 
 import java.text.DateFormat;
 import java.util.ArrayList;
@@ -40,58 +40,58 @@ import javax.management.NotificationFilter;
 import javax.management.NotificationListener;
 import javax.transaction.xa.Xid;
 
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.core.management.AddressControl;
-import org.apache.activemq.api.core.management.BridgeControl;
-import org.apache.activemq.api.core.management.CoreNotificationType;
-import org.apache.activemq.api.core.management.DivertControl;
-import org.apache.activemq.api.core.management.ActiveMQServerControl;
-import org.apache.activemq.api.core.management.QueueControl;
-import org.apache.activemq.core.config.BridgeConfiguration;
-import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.config.DivertConfiguration;
-import org.apache.activemq.core.messagecounter.MessageCounterManager;
-import org.apache.activemq.core.messagecounter.impl.MessageCounterManagerImpl;
-import org.apache.activemq.core.persistence.StorageManager;
-import org.apache.activemq.core.persistence.config.PersistedAddressSetting;
-import org.apache.activemq.core.persistence.config.PersistedRoles;
-import org.apache.activemq.core.postoffice.Binding;
-import org.apache.activemq.core.postoffice.DuplicateIDCache;
-import org.apache.activemq.core.postoffice.PostOffice;
-import org.apache.activemq.core.postoffice.impl.LocalQueueBinding;
-import org.apache.activemq.core.remoting.server.RemotingService;
-import org.apache.activemq.core.security.CheckType;
-import org.apache.activemq.core.security.Role;
-import org.apache.activemq.core.server.ActiveMQServerLogger;
-import org.apache.activemq.core.server.Consumer;
-import org.apache.activemq.core.server.ActiveMQMessageBundle;
-import org.apache.activemq.core.server.ActiveMQServer;
-import org.apache.activemq.core.server.JournalType;
-import org.apache.activemq.core.server.Queue;
-import org.apache.activemq.core.server.ServerConsumer;
-import org.apache.activemq.core.server.ServerSession;
-import org.apache.activemq.core.server.cluster.ha.HAPolicy;
-import org.apache.activemq.core.server.cluster.ha.LiveOnlyPolicy;
-import org.apache.activemq.core.server.cluster.ha.ScaleDownPolicy;
-import org.apache.activemq.core.server.cluster.ha.SharedStoreSlavePolicy;
-import org.apache.activemq.core.server.group.GroupingHandler;
-import org.apache.activemq.core.settings.impl.AddressFullMessagePolicy;
-import org.apache.activemq.core.settings.impl.AddressSettings;
-import org.apache.activemq.core.settings.impl.SlowConsumerPolicy;
-import org.apache.activemq.core.transaction.ResourceManager;
-import org.apache.activemq.core.transaction.Transaction;
-import org.apache.activemq.core.transaction.TransactionDetail;
-import org.apache.activemq.core.transaction.impl.CoreTransactionDetail;
-import org.apache.activemq.core.transaction.impl.XidImpl;
-import org.apache.activemq.spi.core.protocol.RemotingConnection;
-import org.apache.activemq.utils.SecurityFormatter;
-import org.apache.activemq.utils.TypedProperties;
-import org.apache.activemq.utils.json.JSONArray;
-import org.apache.activemq.utils.json.JSONObject;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.management.AddressControl;
+import org.apache.activemq.artemis.api.core.management.BridgeControl;
+import org.apache.activemq.artemis.api.core.management.CoreNotificationType;
+import org.apache.activemq.artemis.api.core.management.DivertControl;
+import org.apache.activemq.artemis.api.core.management.ActiveMQServerControl;
+import org.apache.activemq.artemis.api.core.management.QueueControl;
+import org.apache.activemq.artemis.core.config.BridgeConfiguration;
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.config.DivertConfiguration;
+import org.apache.activemq.artemis.core.messagecounter.MessageCounterManager;
+import org.apache.activemq.artemis.core.messagecounter.impl.MessageCounterManagerImpl;
+import org.apache.activemq.artemis.core.persistence.StorageManager;
+import org.apache.activemq.artemis.core.persistence.config.PersistedAddressSetting;
+import org.apache.activemq.artemis.core.persistence.config.PersistedRoles;
+import org.apache.activemq.artemis.core.postoffice.Binding;
+import org.apache.activemq.artemis.core.postoffice.DuplicateIDCache;
+import org.apache.activemq.artemis.core.postoffice.PostOffice;
+import org.apache.activemq.artemis.core.postoffice.impl.LocalQueueBinding;
+import org.apache.activemq.artemis.core.remoting.server.RemotingService;
+import org.apache.activemq.artemis.core.security.CheckType;
+import org.apache.activemq.artemis.core.security.Role;
+import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.apache.activemq.artemis.core.server.Consumer;
+import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.JournalType;
+import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.server.ServerConsumer;
+import org.apache.activemq.artemis.core.server.ServerSession;
+import org.apache.activemq.artemis.core.server.cluster.ha.HAPolicy;
+import org.apache.activemq.artemis.core.server.cluster.ha.LiveOnlyPolicy;
+import org.apache.activemq.artemis.core.server.cluster.ha.ScaleDownPolicy;
+import org.apache.activemq.artemis.core.server.cluster.ha.SharedStoreSlavePolicy;
+import org.apache.activemq.artemis.core.server.group.GroupingHandler;
+import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
+import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.core.settings.impl.SlowConsumerPolicy;
+import org.apache.activemq.artemis.core.transaction.ResourceManager;
+import org.apache.activemq.artemis.core.transaction.Transaction;
+import org.apache.activemq.artemis.core.transaction.TransactionDetail;
+import org.apache.activemq.artemis.core.transaction.impl.CoreTransactionDetail;
+import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
+import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.artemis.utils.SecurityFormatter;
+import org.apache.activemq.artemis.utils.TypedProperties;
+import org.apache.activemq.artemis.utils.json.JSONArray;
+import org.apache.activemq.artemis.utils.json.JSONObject;
 
 public class ActiveMQServerControlImpl extends AbstractControl implements ActiveMQServerControl, NotificationEmitter,
-                                                                         org.apache.activemq.core.server.management.NotificationListener
+                                                                         org.apache.activemq.artemis.core.server.management.NotificationListener
 {
    // Constants -----------------------------------------------------
 
@@ -1413,7 +1413,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
 
    /* (non-Javadoc)
-   * @see org.apache.activemq.api.core.management.ActiveMQServerControl#listProducersInfoAsJSON()
+   * @see org.apache.activemq.artemis.api.core.management.ActiveMQServerControl#listProducersInfoAsJSON()
    */
    public String listProducersInfoAsJSON() throws Exception
    {
@@ -2178,7 +2178,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
    }
 
    @Override
-   public void onNotification(org.apache.activemq.core.server.management.Notification notification)
+   public void onNotification(org.apache.activemq.artemis.core.server.management.Notification notification)
    {
       if (!(notification.getType() instanceof CoreNotificationType)) return;
       CoreNotificationType type = (CoreNotificationType) notification.getType();

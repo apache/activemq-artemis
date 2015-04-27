@@ -14,16 +14,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.protocol.core.impl;
+package org.apache.activemq.artemis.core.protocol.core.impl;
 
 import java.util.List;
 
-import org.apache.activemq.api.core.BaseInterceptor;
-import org.apache.activemq.api.core.Interceptor;
-import org.apache.activemq.api.core.client.ActiveMQClient;
-import org.apache.activemq.core.server.ActiveMQServer;
-import org.apache.activemq.spi.core.protocol.AbstractProtocolManagerFactory;
-import org.apache.activemq.spi.core.protocol.ProtocolManager;
+import org.apache.activemq.artemis.api.core.BaseInterceptor;
+import org.apache.activemq.artemis.api.core.Interceptor;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.spi.core.protocol.AbstractProtocolManagerFactory;
+import org.apache.activemq.artemis.spi.core.protocol.ProtocolManager;
 
 public class CoreProtocolManagerFactory extends AbstractProtocolManagerFactory<Interceptor>
 {

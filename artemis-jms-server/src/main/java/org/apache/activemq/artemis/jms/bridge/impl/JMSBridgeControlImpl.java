@@ -14,13 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.jms.bridge.impl;
+package org.apache.activemq.artemis.jms.bridge.impl;
+
+import org.apache.activemq.artemis.jms.bridge.JMSBridge;
+import org.apache.activemq.artemis.jms.bridge.JMSBridgeControl;
+import org.apache.activemq.artemis.jms.bridge.QualityOfServiceMode;
 
 import javax.management.StandardMBean;
-
-import org.apache.activemq.jms.bridge.JMSBridge;
-import org.apache.activemq.jms.bridge.JMSBridgeControl;
-import org.apache.activemq.jms.bridge.QualityOfServiceMode;
 
 public class JMSBridgeControlImpl extends StandardMBean implements JMSBridgeControl
 {

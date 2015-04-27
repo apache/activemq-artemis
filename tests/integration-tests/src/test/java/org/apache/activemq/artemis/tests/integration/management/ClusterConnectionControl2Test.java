@@ -14,7 +14,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.management;
+package org.apache.activemq.artemis.tests.integration.management;
+import org.apache.activemq.artemis.tests.util.UnitTestCase;
 import org.junit.Before;
 import org.junit.After;
 
@@ -30,18 +31,18 @@ import javax.management.MBeanServerFactory;
 
 import org.junit.Assert;
 
-import org.apache.activemq.api.core.BroadcastGroupConfiguration;
-import org.apache.activemq.api.core.DiscoveryGroupConfiguration;
-import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.core.UDPBroadcastEndpointFactory;
-import org.apache.activemq.api.core.management.ClusterConnectionControl;
-import org.apache.activemq.core.config.ClusterConnectionConfiguration;
-import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.config.CoreQueueConfiguration;
-import org.apache.activemq.core.remoting.impl.netty.TransportConstants;
-import org.apache.activemq.core.server.ActiveMQServer;
-import org.apache.activemq.core.server.ActiveMQServers;
-import org.apache.activemq.tests.util.RandomUtil;
+import org.apache.activemq.artemis.api.core.BroadcastGroupConfiguration;
+import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory;
+import org.apache.activemq.artemis.api.core.management.ClusterConnectionControl;
+import org.apache.activemq.artemis.core.config.ClusterConnectionConfiguration;
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.config.CoreQueueConfiguration;
+import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.ActiveMQServers;
+import org.apache.activemq.artemis.tests.util.RandomUtil;
 
 public class ClusterConnectionControl2Test extends ManagementTestBase
 {
@@ -107,12 +108,12 @@ public class ClusterConnectionControl2Test extends ManagementTestBase
 
       Map<String, Object> acceptorParams_1 = new HashMap<String, Object>();
       acceptorParams_1.put(TransportConstants.PORT_PROP_NAME, port_1);
-      TransportConfiguration acceptorConfig_0 = new TransportConfiguration(NETTY_ACCEPTOR_FACTORY);
+      TransportConfiguration acceptorConfig_0 = new TransportConfiguration(UnitTestCase.NETTY_ACCEPTOR_FACTORY);
 
-      TransportConfiguration acceptorConfig_1 = new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, acceptorParams_1);
+      TransportConfiguration acceptorConfig_1 = new TransportConfiguration(UnitTestCase.NETTY_ACCEPTOR_FACTORY, acceptorParams_1);
 
-      TransportConfiguration connectorConfig_1 = new TransportConfiguration(NETTY_CONNECTOR_FACTORY, acceptorParams_1);
-      TransportConfiguration connectorConfig_0 = new TransportConfiguration(NETTY_CONNECTOR_FACTORY);
+      TransportConfiguration connectorConfig_1 = new TransportConfiguration(UnitTestCase.NETTY_CONNECTOR_FACTORY, acceptorParams_1);
+      TransportConfiguration connectorConfig_0 = new TransportConfiguration(UnitTestCase.NETTY_CONNECTOR_FACTORY);
 
       CoreQueueConfiguration queueConfig = new CoreQueueConfiguration()
          .setAddress(RandomUtil.randomString())

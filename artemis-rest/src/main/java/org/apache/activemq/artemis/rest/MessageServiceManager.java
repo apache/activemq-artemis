@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.rest;
+package org.apache.activemq.artemis.rest;
 
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -26,21 +26,21 @@ import java.util.concurrent.Executors;
 
 import javax.xml.bind.JAXBContext;
 
-import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.ServerLocator;
-import org.apache.activemq.core.client.impl.ServerLocatorImpl;
-import org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory;
-import org.apache.activemq.core.remoting.impl.invm.TransportConstants;
-import org.apache.activemq.rest.queue.DestinationSettings;
-import org.apache.activemq.rest.queue.QueueServiceManager;
-import org.apache.activemq.rest.topic.TopicServiceManager;
-import org.apache.activemq.rest.util.CustomHeaderLinkStrategy;
-import org.apache.activemq.rest.util.LinkHeaderLinkStrategy;
-import org.apache.activemq.rest.util.LinkStrategy;
-import org.apache.activemq.rest.util.TimeoutTask;
-import org.apache.activemq.spi.core.naming.BindingRegistry;
-import org.apache.activemq.utils.XMLUtil;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
+import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.core.client.impl.ServerLocatorImpl;
+import org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory;
+import org.apache.activemq.artemis.core.remoting.impl.invm.TransportConstants;
+import org.apache.activemq.artemis.rest.queue.DestinationSettings;
+import org.apache.activemq.artemis.rest.queue.QueueServiceManager;
+import org.apache.activemq.artemis.rest.topic.TopicServiceManager;
+import org.apache.activemq.artemis.rest.util.CustomHeaderLinkStrategy;
+import org.apache.activemq.artemis.rest.util.LinkHeaderLinkStrategy;
+import org.apache.activemq.artemis.rest.util.LinkStrategy;
+import org.apache.activemq.artemis.rest.util.TimeoutTask;
+import org.apache.activemq.artemis.spi.core.naming.BindingRegistry;
+import org.apache.activemq.artemis.utils.XMLUtil;
 
 public class MessageServiceManager
 {

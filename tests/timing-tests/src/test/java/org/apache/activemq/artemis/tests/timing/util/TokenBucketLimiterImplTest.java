@@ -14,15 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.timing.util;
+package org.apache.activemq.artemis.tests.timing.util;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq.tests.unit.UnitTestLogger;
-import org.apache.activemq.tests.util.UnitTestCase;
-import org.apache.activemq.utils.TokenBucketLimiterImpl;
+import org.apache.activemq.artemis.tests.unit.UnitTestLogger;
+import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.utils.TokenBucketLimiterImpl;
 import org.junit.Assert;
 import org.junit.Test;
 

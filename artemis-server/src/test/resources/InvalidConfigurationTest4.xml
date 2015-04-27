@@ -66,8 +66,8 @@
       <memory-measure-interval>54321</memory-measure-interval>
 
       <remoting-incoming-interceptors>
-         <class-name>org.apache.activemq.tests.unit.core.config.impl.TestInterceptor1</class-name>
-         <class-name>org.apache.activemq.tests.unit.core.config.impl.TestInterceptor2</class-name>
+         <class-name>org.apache.activemq.artemis.tests.unit.core.config.impl.TestInterceptor1</class-name>
+         <class-name>org.apache.activemq.artemis.tests.unit.core.config.impl.TestInterceptor2</class-name>
       </remoting-incoming-interceptors>
 
       <connectors>

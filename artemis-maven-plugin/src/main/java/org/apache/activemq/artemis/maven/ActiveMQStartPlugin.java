@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.maven;
+package org.apache.activemq.artemis.maven;
 
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
@@ -23,10 +23,10 @@ import java.lang.management.ManagementFactory;
 import java.util.Arrays;
 import java.util.Properties;
 
-import org.apache.activemq.server.ActiveMQBootstrap;
-import org.apache.activemq.server.SpawnedActiveMQBootstrap;
-import org.apache.activemq.server.SpawnedVMSupport;
-import org.apache.activemq.spi.core.security.ActiveMQSecurityManager;
+import org.apache.activemq.artemis.server.ActiveMQBootstrap;
+import org.apache.activemq.artemis.server.SpawnedActiveMQBootstrap;
+import org.apache.activemq.artemis.server.SpawnedVMSupport;
+import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;

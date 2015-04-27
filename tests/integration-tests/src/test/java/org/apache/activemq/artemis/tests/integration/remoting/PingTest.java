@@ -14,10 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.remoting;
+package org.apache.activemq.artemis.tests.integration.remoting;
 
-import org.apache.activemq.api.core.ActiveMQException;
-import org.apache.activemq.core.protocol.core.impl.wireformat.Ping;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.Ping;
 import org.junit.Before;
 
 import org.junit.Test;
@@ -28,25 +30,23 @@ import java.util.concurrent.TimeUnit;
 
 import org.junit.Assert;
 
-import org.apache.activemq.api.core.Interceptor;
-import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.core.client.ClientSession;
-import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.ActiveMQClient;
-import org.apache.activemq.api.core.client.ServerLocator;
-import org.apache.activemq.api.core.client.SessionFailureListener;
-import org.apache.activemq.core.client.impl.ClientSessionFactoryImpl;
-import org.apache.activemq.core.client.impl.ClientSessionFactoryInternal;
-import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.protocol.core.CoreRemotingConnection;
-import org.apache.activemq.core.protocol.core.Packet;
-import org.apache.activemq.core.protocol.core.impl.PacketImpl;
-import org.apache.activemq.core.remoting.CloseListener;
-import org.apache.activemq.core.remoting.server.impl.RemotingServiceImpl;
-import org.apache.activemq.core.server.ActiveMQServer;
-import org.apache.activemq.spi.core.protocol.RemotingConnection;
-import org.apache.activemq.tests.integration.IntegrationTestLogger;
-import org.apache.activemq.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.api.core.Interceptor;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
+import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.api.core.client.SessionFailureListener;
+import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryImpl;
+import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal;
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.protocol.core.CoreRemotingConnection;
+import org.apache.activemq.artemis.core.protocol.core.Packet;
+import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
+import org.apache.activemq.artemis.core.remoting.CloseListener;
+import org.apache.activemq.artemis.core.remoting.server.impl.RemotingServiceImpl;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 
 public class PingTest extends ServiceTestBase
 {
@@ -170,7 +170,7 @@ public class PingTest extends ServiceTestBase
    @Test
    public void testNoFailureNoPinging() throws Exception
    {
-      TransportConfiguration transportConfig = new TransportConfiguration("org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory");
+      TransportConfiguration transportConfig = new TransportConfiguration("org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory");
       ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(transportConfig));
       locator.setClientFailureCheckPeriod(-1);
       locator.setConnectionTTL(-1);
@@ -247,7 +247,7 @@ public class PingTest extends ServiceTestBase
          }
       });
 
-      TransportConfiguration transportConfig = new TransportConfiguration("org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory");
+      TransportConfiguration transportConfig = new TransportConfiguration("org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory");
       ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(transportConfig));
       ClientSessionFactory csf = createSessionFactory(locator);
 
@@ -272,7 +272,7 @@ public class PingTest extends ServiceTestBase
    @Test
    public void testServerFailureNoPing() throws Exception
    {
-      TransportConfiguration transportConfig = new TransportConfiguration("org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory");
+      TransportConfiguration transportConfig = new TransportConfiguration("org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory");
       ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(transportConfig));
       locator.setClientFailureCheckPeriod(PingTest.CLIENT_FAILURE_CHECK_PERIOD);
       locator.setConnectionTTL(PingTest.CLIENT_FAILURE_CHECK_PERIOD * 2);
@@ -368,7 +368,7 @@ public class PingTest extends ServiceTestBase
          }
       });
 
-      TransportConfiguration transportConfig = new TransportConfiguration("org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory");
+      TransportConfiguration transportConfig = new TransportConfiguration("org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory");
       ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(transportConfig));
       locator.setClientFailureCheckPeriod(PingTest.CLIENT_FAILURE_CHECK_PERIOD);
       locator.setConnectionTTL(PingTest.CLIENT_FAILURE_CHECK_PERIOD * 2);

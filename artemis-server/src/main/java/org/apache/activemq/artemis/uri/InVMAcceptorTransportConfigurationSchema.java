@@ -14,9 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.uri;
+package org.apache.activemq.artemis.uri;
 
-import org.apache.activemq.core.remoting.impl.invm.InVMAcceptorFactory;
+import org.apache.activemq.artemis.core.remoting.impl.invm.InVMAcceptorFactory;
 
 public class InVMAcceptorTransportConfigurationSchema extends InVMTransportConfigurationSchema
 {

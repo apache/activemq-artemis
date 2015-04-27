@@ -14,31 +14,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.journal;
+package org.apache.activemq.artemis.tests.integration.journal;
+import org.apache.activemq.artemis.tests.unit.core.journal.impl.JournalImplTestBase;
+import org.apache.activemq.artemis.tests.unit.core.journal.impl.fakes.SimpleEncoding;
+import org.apache.activemq.artemis.tests.util.UnitTestCase;
 import org.junit.After;
 
 import org.junit.Test;
 
 import java.io.File;
 
-import org.apache.activemq.core.journal.EncodingSupport;
-import org.apache.activemq.core.journal.SequentialFileFactory;
-import org.apache.activemq.core.journal.impl.NIOSequentialFileFactory;
-import org.apache.activemq.tests.unit.core.journal.impl.JournalImplTestBase;
-import org.apache.activemq.tests.unit.core.journal.impl.fakes.SimpleEncoding;
+import org.apache.activemq.artemis.core.journal.EncodingSupport;
+import org.apache.activemq.artemis.core.journal.SequentialFileFactory;
+import org.apache.activemq.artemis.core.journal.impl.NIOSequentialFileFactory;
 
 public class NIOImportExportTest extends JournalImplTestBase
 {
 
    /* (non-Javadoc)
-    * @see org.apache.activemq.tests.unit.core.journal.impl.JournalImplTestBase#getFileFactory()
+    * @see JournalImplTestBase#getFileFactory()
     */
    @Override
    protected SequentialFileFactory getFileFactory() throws Exception
    {
       File file = new File(getTestDir());
 
-      deleteDirectory(file);
+      UnitTestCase.deleteDirectory(file);
 
       file.mkdir();
 

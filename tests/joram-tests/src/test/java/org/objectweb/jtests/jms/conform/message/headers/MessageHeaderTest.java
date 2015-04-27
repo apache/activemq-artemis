@@ -28,6 +28,7 @@ import javax.naming.NamingException;
 
 import java.util.Hashtable;
 
+import org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory;
 import org.junit.Assert;
 import org.junit.Test;
 import org.objectweb.jtests.jms.framework.PTPTestCase;
@@ -206,7 +207,7 @@ public class MessageHeaderTest extends PTPTestCase
          admin.createQueue("anotherQueue");
 
          Hashtable props = new Hashtable<>();
-         props.put(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.jndi.ActiveMQInitialContextFactory");
+         props.put(Context.INITIAL_CONTEXT_FACTORY, ActiveMQInitialContextFactory.class.getName());
          props.put("queue.anotherQueue", "anotherQueue");
 
          Context ctx = new InitialContext(props);

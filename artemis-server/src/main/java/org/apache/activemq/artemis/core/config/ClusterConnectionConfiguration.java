@@ -14,14 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.config;
+package org.apache.activemq.artemis.core.config;
 
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
-import org.apache.activemq.api.core.client.ActiveMQClient;
+import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 
 public final class ClusterConnectionConfiguration implements Serializable
 {
@@ -62,8 +62,6 @@ public final class ClusterConnectionConfiguration implements Serializable
    private int maxHops = ActiveMQDefaultConfiguration.getDefaultClusterMaxHops();
 
    private int confirmationWindowSize = ActiveMQDefaultConfiguration.getDefaultClusterConfirmationWindowSize();
-
-   private int producerWindowSize = ActiveMQDefaultConfiguration.getDefaultBridgeProducerWindowSize();
 
    private boolean allowDirectConnectionsOnly = false;
 
@@ -197,18 +195,6 @@ public final class ClusterConnectionConfiguration implements Serializable
    public ClusterConnectionConfiguration setConfirmationWindowSize(int confirmationWindowSize)
    {
       this.confirmationWindowSize = confirmationWindowSize;
-      return this;
-   }
-
-
-   public int getProducerWindowSize()
-   {
-      return producerWindowSize;
-   }
-
-   public ClusterConnectionConfiguration setProducerindowSize(int producerWindowSize)
-   {
-      this.producerWindowSize = producerWindowSize;
       return this;
    }
 

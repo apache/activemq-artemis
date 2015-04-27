@@ -14,17 +14,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.cluster;
+package org.apache.activemq.artemis.tests.integration.cluster;
 
-import org.apache.activemq.api.core.ActiveMQClusterSecurityException;
-import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.core.client.ActiveMQClient;
-import org.apache.activemq.core.client.impl.ClientSessionFactoryInternal;
-import org.apache.activemq.core.client.impl.ServerLocatorImpl;
-import org.apache.activemq.core.server.cluster.ClusterControl;
-import org.apache.activemq.core.server.cluster.ClusterController;
-import org.apache.activemq.core.server.cluster.ActiveMQServerSideProtocolManagerFactory;
-import org.apache.activemq.tests.integration.cluster.distribution.ClusterTestBase;
+import org.apache.activemq.artemis.api.core.ActiveMQClusterSecurityException;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
+import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal;
+import org.apache.activemq.artemis.core.client.impl.ServerLocatorImpl;
+import org.apache.activemq.artemis.core.server.cluster.ClusterControl;
+import org.apache.activemq.artemis.core.server.cluster.ClusterController;
+import org.apache.activemq.artemis.core.server.cluster.ActiveMQServerSideProtocolManagerFactory;
+import org.apache.activemq.artemis.tests.integration.cluster.distribution.ClusterTestBase;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

@@ -14,14 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.remoting.impl.netty;
+package org.apache.activemq.artemis.core.remoting.impl.netty;
 
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
 import io.netty.util.Version;
-import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
+import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 
 public class TransportConstants
 {

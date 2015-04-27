@@ -14,9 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.jms.server.config;
+package org.apache.activemq.artemis.tests.integration.jms.server.config;
 
-import org.apache.activemq.core.registry.JndiBindingRegistry;
+import org.apache.activemq.artemis.tests.unit.util.InVMNamingContext;
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.core.registry.JndiBindingRegistry;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -30,23 +32,21 @@ import javax.naming.Context;
 
 import org.junit.Assert;
 
-import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory;
-import org.apache.activemq.core.server.ActiveMQServer;
-import org.apache.activemq.core.server.impl.ActiveMQServerImpl;
-import org.apache.activemq.jms.server.JMSServerManager;
-import org.apache.activemq.jms.server.config.ConnectionFactoryConfiguration;
-import org.apache.activemq.jms.server.config.JMSConfiguration;
-import org.apache.activemq.jms.server.config.TopicConfiguration;
-import org.apache.activemq.jms.server.config.impl.ConnectionFactoryConfigurationImpl;
-import org.apache.activemq.jms.server.config.impl.JMSConfigurationImpl;
-import org.apache.activemq.jms.server.config.impl.JMSQueueConfigurationImpl;
-import org.apache.activemq.jms.server.config.impl.TopicConfigurationImpl;
-import org.apache.activemq.jms.server.impl.JMSServerManagerImpl;
-import org.apache.activemq.tests.unit.util.InVMNamingContext;
-import org.apache.activemq.tests.util.RandomUtil;
-import org.apache.activemq.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
+import org.apache.activemq.artemis.jms.server.JMSServerManager;
+import org.apache.activemq.artemis.jms.server.config.ConnectionFactoryConfiguration;
+import org.apache.activemq.artemis.jms.server.config.JMSConfiguration;
+import org.apache.activemq.artemis.jms.server.config.TopicConfiguration;
+import org.apache.activemq.artemis.jms.server.config.impl.ConnectionFactoryConfigurationImpl;
+import org.apache.activemq.artemis.jms.server.config.impl.JMSConfigurationImpl;
+import org.apache.activemq.artemis.jms.server.config.impl.JMSQueueConfigurationImpl;
+import org.apache.activemq.artemis.jms.server.config.impl.TopicConfigurationImpl;
+import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
+import org.apache.activemq.artemis.tests.util.RandomUtil;
 
 public class JMSConfigurationTest extends ServiceTestBase
 {

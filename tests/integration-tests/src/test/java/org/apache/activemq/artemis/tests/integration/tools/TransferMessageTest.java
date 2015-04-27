@@ -14,25 +14,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.tools;
+package org.apache.activemq.artemis.tests.integration.tools;
 
 import java.util.ArrayList;
 import java.util.Map;
 
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.api.core.client.ClientConsumer;
-import org.apache.activemq.api.core.client.ClientMessage;
-import org.apache.activemq.api.core.client.ClientSession;
-import org.apache.activemq.core.postoffice.Binding;
-import org.apache.activemq.core.postoffice.impl.LocalQueueBinding;
-import org.apache.activemq.core.postoffice.impl.PostOfficeImpl;
-import org.apache.activemq.core.remoting.impl.netty.TransportConstants;
-import org.apache.activemq.core.server.Consumer;
-import org.apache.activemq.core.server.cluster.impl.ClusterConnectionBridge;
-import org.apache.activemq.core.server.impl.QueueImpl;
-import org.apache.activemq.tests.integration.cluster.distribution.ClusterTestBase;
-import org.apache.activemq.tools.Main;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.client.ClientConsumer;
+import org.apache.activemq.artemis.api.core.client.ClientMessage;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.tests.integration.cluster.distribution.ClusterTestBase;
+import org.apache.activemq.artemis.core.postoffice.Binding;
+import org.apache.activemq.artemis.core.postoffice.impl.LocalQueueBinding;
+import org.apache.activemq.artemis.core.postoffice.impl.PostOfficeImpl;
+import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
+import org.apache.activemq.artemis.core.server.Consumer;
+import org.apache.activemq.artemis.core.server.cluster.impl.ClusterConnectionBridge;
+import org.apache.activemq.artemis.core.server.impl.QueueImpl;
+import org.apache.activemq.artemis.tools.Main;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -174,7 +175,7 @@ public class TransferMessageTest extends ClusterTestBase
          for (int i = 0; i < NUM_MESSAGES; i++)
          {
             ClientMessage msg = consumer.receive(5000);
-            assertNotNull(msg);
+            Assert.assertNotNull(msg);
             msg.acknowledge();
 
             if (i % 100 == 0)
@@ -183,7 +184,7 @@ public class TransferMessageTest extends ClusterTestBase
             }
          }
 
-         assertNull(consumer.receiveImmediate());
+         Assert.assertNull(consumer.receiveImmediate());
 
          session.commit();
 
@@ -346,7 +347,7 @@ public class TransferMessageTest extends ClusterTestBase
          for (int i = 0; i < NUM_MESSAGES; i++)
          {
             ClientMessage msg = consumer.receive(5000);
-            assertNotNull(msg);
+            Assert.assertNotNull(msg);
             msg.acknowledge();
 
             if (i % 100 == 0)
@@ -356,7 +357,7 @@ public class TransferMessageTest extends ClusterTestBase
          }
 
 
-         assertNull(consumer.receiveImmediate());
+         Assert.assertNull(consumer.receiveImmediate());
 
          session.commit();
 
@@ -379,7 +380,7 @@ public class TransferMessageTest extends ClusterTestBase
          for (int i = 0; i < 1000; i++)
          {
             ClientMessage msg = consumer.receive(5000);
-            assertNotNull(msg);
+            Assert.assertNotNull(msg);
             msg.acknowledge();
 
             if (i % 100 == 0)
@@ -388,7 +389,7 @@ public class TransferMessageTest extends ClusterTestBase
             }
          }
 
-         assertNull(consumer.receiveImmediate());
+         Assert.assertNull(consumer.receiveImmediate());
 
          session.commit();
 

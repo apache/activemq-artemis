@@ -14,19 +14,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.persistence.impl.journal;
+package org.apache.activemq.artemis.core.persistence.impl.journal;
 
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.apache.activemq.api.core.ActiveMQBuffer;
-import org.apache.activemq.core.journal.EncodingSupport;
-import org.apache.activemq.core.persistence.StorageManager;
-import org.apache.activemq.core.server.ActiveMQServerLogger;
-import org.apache.activemq.utils.DataConstants;
-import org.apache.activemq.utils.IDGenerator;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.core.journal.EncodingSupport;
+import org.apache.activemq.artemis.core.persistence.StorageManager;
+import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.apache.activemq.artemis.utils.DataConstants;
+import org.apache.activemq.artemis.utils.IDGenerator;
 
 /**
  * An ID generator that allocates a batch of IDs of size {@link #checkpointSize} and records the ID

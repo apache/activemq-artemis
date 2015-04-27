@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.deployers.impl;
+package org.apache.activemq.artemis.core.deployers.impl;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -26,47 +26,47 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
-import org.apache.activemq.api.core.BroadcastEndpointFactory;
-import org.apache.activemq.api.core.BroadcastGroupConfiguration;
-import org.apache.activemq.api.core.DiscoveryGroupConfiguration;
-import org.apache.activemq.api.core.JGroupsFileBroadcastEndpointFactory;
-import org.apache.activemq.api.core.Pair;
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.core.UDPBroadcastEndpointFactory;
-import org.apache.activemq.api.core.client.ActiveMQClient;
-import org.apache.activemq.core.config.BridgeConfiguration;
-import org.apache.activemq.core.config.ClusterConnectionConfiguration;
-import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.config.ConnectorServiceConfiguration;
-import org.apache.activemq.core.config.CoreQueueConfiguration;
-import org.apache.activemq.core.config.DivertConfiguration;
-import org.apache.activemq.core.config.ScaleDownConfiguration;
-import org.apache.activemq.core.config.ha.ColocatedPolicyConfiguration;
-import org.apache.activemq.core.config.ha.LiveOnlyPolicyConfiguration;
-import org.apache.activemq.core.config.ha.ReplicaPolicyConfiguration;
-import org.apache.activemq.core.config.ha.ReplicatedPolicyConfiguration;
-import org.apache.activemq.core.config.ha.SharedStoreMasterPolicyConfiguration;
-import org.apache.activemq.core.config.ha.SharedStoreSlavePolicyConfiguration;
-import org.apache.activemq.core.config.impl.ConfigurationImpl;
-import org.apache.activemq.core.config.impl.Validators;
-import org.apache.activemq.core.journal.impl.AIOSequentialFileFactory;
-import org.apache.activemq.core.journal.impl.JournalConstants;
-import org.apache.activemq.core.security.Role;
-import org.apache.activemq.core.server.ActiveMQServerLogger;
-import org.apache.activemq.core.server.JournalType;
-import org.apache.activemq.core.server.group.impl.GroupingHandlerConfiguration;
-import org.apache.activemq.core.settings.impl.AddressFullMessagePolicy;
-import org.apache.activemq.core.settings.impl.AddressSettings;
-import org.apache.activemq.core.settings.impl.SlowConsumerPolicy;
-import org.apache.activemq.uri.AcceptorTransportConfigurationParser;
-import org.apache.activemq.uri.ConnectorTransportConfigurationParser;
-import org.apache.activemq.utils.DefaultSensitiveStringCodec;
-import org.apache.activemq.utils.PasswordMaskingUtil;
-import org.apache.activemq.utils.SensitiveDataCodec;
-import org.apache.activemq.utils.XMLConfigurationUtil;
-import org.apache.activemq.utils.XMLUtil;
+import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
+import org.apache.activemq.artemis.api.core.BroadcastEndpointFactory;
+import org.apache.activemq.artemis.api.core.BroadcastGroupConfiguration;
+import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
+import org.apache.activemq.artemis.api.core.JGroupsFileBroadcastEndpointFactory;
+import org.apache.activemq.artemis.api.core.Pair;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
+import org.apache.activemq.artemis.core.config.BridgeConfiguration;
+import org.apache.activemq.artemis.core.config.ClusterConnectionConfiguration;
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.config.ConnectorServiceConfiguration;
+import org.apache.activemq.artemis.core.config.CoreQueueConfiguration;
+import org.apache.activemq.artemis.core.config.DivertConfiguration;
+import org.apache.activemq.artemis.core.config.ScaleDownConfiguration;
+import org.apache.activemq.artemis.core.config.ha.ColocatedPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.LiveOnlyPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.ReplicaPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.ReplicatedPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.SharedStoreMasterPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.SharedStoreSlavePolicyConfiguration;
+import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
+import org.apache.activemq.artemis.core.config.impl.Validators;
+import org.apache.activemq.artemis.core.journal.impl.AIOSequentialFileFactory;
+import org.apache.activemq.artemis.core.journal.impl.JournalConstants;
+import org.apache.activemq.artemis.core.security.Role;
+import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.apache.activemq.artemis.core.server.JournalType;
+import org.apache.activemq.artemis.core.server.group.impl.GroupingHandlerConfiguration;
+import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
+import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.core.settings.impl.SlowConsumerPolicy;
+import org.apache.activemq.artemis.uri.AcceptorTransportConfigurationParser;
+import org.apache.activemq.artemis.uri.ConnectorTransportConfigurationParser;
+import org.apache.activemq.artemis.utils.DefaultSensitiveStringCodec;
+import org.apache.activemq.artemis.utils.PasswordMaskingUtil;
+import org.apache.activemq.artemis.utils.SensitiveDataCodec;
+import org.apache.activemq.artemis.utils.XMLConfigurationUtil;
+import org.apache.activemq.artemis.utils.XMLUtil;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -171,9 +171,9 @@ public final class FileConfigurationParser extends XMLConfigurationUtil
    {
 
       Reader reader = new InputStreamReader(input);
-      String xml = org.apache.activemq.utils.XMLUtil.readerToString(reader);
+      String xml = XMLUtil.readerToString(reader);
       xml = XMLUtil.replaceSystemProps(xml);
-      Element e = org.apache.activemq.utils.XMLUtil.stringToElement(xml);
+      Element e = XMLUtil.stringToElement(xml);
 
       Configuration config = new ConfigurationImpl();
 
@@ -1417,10 +1417,6 @@ public final class FileConfigurationParser extends XMLConfigurationUtil
          getInteger(e, "confirmation-window-size", ActiveMQDefaultConfiguration.getDefaultClusterConfirmationWindowSize(),
                     Validators.GT_ZERO);
 
-      int producerWindowSize =
-         getInteger(e, "producer-window-size", ActiveMQDefaultConfiguration.getDefaultBridgeConfirmationWindowSize(),
-                    Validators.MINUS_ONE_OR_GT_ZERO);
-
       long clusterNotificationInterval = getLong(e, "notification-interval", ActiveMQDefaultConfiguration.getDefaultClusterNotificationInterval(), Validators.GT_ZERO);
 
       int clusterNotificationAttempts = getInteger(e, "notification-attempts", ActiveMQDefaultConfiguration.getDefaultClusterNotificationAttempts(), Validators.GT_ZERO);
@@ -1472,7 +1468,6 @@ public final class FileConfigurationParser extends XMLConfigurationUtil
          .setForwardWhenNoConsumers(forwardWhenNoConsumers)
          .setMaxHops(maxHops)
          .setConfirmationWindowSize(confirmationWindowSize)
-         .setProducerindowSize(producerWindowSize)
          .setAllowDirectConnectionsOnly(allowDirectConnectionsOnly)
          .setClusterNotificationInterval(clusterNotificationInterval)
          .setClusterNotificationAttempts(clusterNotificationAttempts);
@@ -1552,10 +1547,6 @@ public final class FileConfigurationParser extends XMLConfigurationUtil
 
       int reconnectAttemptsSameNode =
          getInteger(brNode, "reconnect-attempts-same-node", ActiveMQDefaultConfiguration.getDefaultBridgeConnectSameNode(),
-                    Validators.MINUS_ONE_OR_GE_ZERO);
-
-      int producerWindowSize =
-         getInteger(brNode, "producer-window-size", ActiveMQDefaultConfiguration.getDefaultBridgeProducerWindowSize(),
                     Validators.MINUS_ONE_OR_GE_ZERO);
 
       boolean useDuplicateDetection = getBoolean(brNode,
@@ -1639,8 +1630,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil
          .setConfirmationWindowSize(confirmationWindowSize)
          .setHA(ha)
          .setUser(user)
-         .setPassword(password)
-         .setProducerWindowSize(producerWindowSize);
+         .setPassword(password);
 
       if (!staticConnectorNames.isEmpty())
       {

@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.jms.client;
+package org.apache.activemq.artemis.tests.integration.jms.client;
 
 import javax.jms.Connection;
 import javax.jms.QueueConnection;
@@ -22,8 +22,8 @@ import javax.jms.QueueSession;
 import javax.jms.Session;
 import javax.jms.Topic;
 
-import org.apache.activemq.jms.client.ActiveMQConnectionFactory;
-import org.apache.activemq.tests.util.JMSTestBase;
+import org.apache.activemq.artemis.tests.util.JMSTestBase;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.junit.Test;
 
 public class SessionTest extends JMSTestBase

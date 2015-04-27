@@ -14,15 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.protocol.proton;
+package org.apache.activemq.artemis.core.protocol.proton;
 
 import java.util.concurrent.Executor;
 
-import org.apache.activemq.api.core.ActiveMQBuffer;
-import org.apache.activemq.api.core.ActiveMQException;
-import org.apache.activemq.core.client.ActiveMQClientLogger;
-import org.apache.activemq.spi.core.protocol.AbstractRemotingConnection;
-import org.apache.activemq.spi.core.remoting.Connection;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
+import org.apache.activemq.artemis.spi.core.protocol.AbstractRemotingConnection;
+import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.proton.plug.AMQPConnectionContext;
 
 /**

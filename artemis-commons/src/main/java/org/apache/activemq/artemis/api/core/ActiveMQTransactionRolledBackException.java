@@ -14,9 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.api.core;
-
-import static org.apache.activemq.api.core.ActiveMQExceptionType.TRANSACTION_ROLLED_BACK;
+package org.apache.activemq.artemis.api.core;
 
 /**
  * A transaction was rolled back.
@@ -27,11 +25,11 @@ public final class ActiveMQTransactionRolledBackException extends ActiveMQExcept
 
    public ActiveMQTransactionRolledBackException()
    {
-      super(TRANSACTION_ROLLED_BACK);
+      super(ActiveMQExceptionType.TRANSACTION_ROLLED_BACK);
    }
 
    public ActiveMQTransactionRolledBackException(String msg)
    {
-      super(TRANSACTION_ROLLED_BACK, msg);
+      super(ActiveMQExceptionType.TRANSACTION_ROLLED_BACK, msg);
    }
 }

@@ -14,13 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.uri;
+package org.apache.activemq.artemis.uri;
 
-import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.core.client.ActiveMQClient;
-import org.apache.activemq.api.core.client.ServerLocator;
-import org.apache.activemq.utils.uri.SchemaConstants;
-import org.apache.activemq.utils.uri.URISchema;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
+import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.utils.uri.SchemaConstants;
+import org.apache.activemq.artemis.utils.uri.URISchema;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -37,7 +37,7 @@ public class InVMServerLocatorSchema extends AbstractServerLocatorSchema
    @Override
    protected ServerLocator internalNewObject(URI uri, Map<String, String> query, String name) throws Exception
    {
-      TransportConfiguration tc = InVMTransportConfigurationSchema.createTransportConfiguration(uri, name, "org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory");
+      TransportConfiguration tc = InVMTransportConfigurationSchema.createTransportConfiguration(uri, name, "org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory");
       ServerLocator factory = ActiveMQClient.createServerLocatorWithoutHA(tc);
       return URISchema.setData(uri, factory, query);
    }

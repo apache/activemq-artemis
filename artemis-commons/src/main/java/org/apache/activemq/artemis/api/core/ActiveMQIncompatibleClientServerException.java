@@ -14,9 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.api.core;
-
-import static org.apache.activemq.api.core.ActiveMQExceptionType.INCOMPATIBLE_CLIENT_SERVER_VERSIONS;
+package org.apache.activemq.artemis.api.core;
 
 /**
  * The server version and the client version are incompatible.
@@ -29,11 +27,11 @@ public final class ActiveMQIncompatibleClientServerException extends ActiveMQExc
 
    public ActiveMQIncompatibleClientServerException()
    {
-      super(INCOMPATIBLE_CLIENT_SERVER_VERSIONS);
+      super(ActiveMQExceptionType.INCOMPATIBLE_CLIENT_SERVER_VERSIONS);
    }
 
    public ActiveMQIncompatibleClientServerException(String msg)
    {
-      super(INCOMPATIBLE_CLIENT_SERVER_VERSIONS, msg);
+      super(ActiveMQExceptionType.INCOMPATIBLE_CLIENT_SERVER_VERSIONS, msg);
    }
 }

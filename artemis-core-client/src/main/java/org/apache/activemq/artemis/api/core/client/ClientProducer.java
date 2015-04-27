@@ -14,11 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.api.core.client;
+package org.apache.activemq.artemis.api.core.client;
 
-import org.apache.activemq.api.core.ActiveMQException;
-import org.apache.activemq.api.core.Message;
-import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.SimpleString;
 
 /**
  * A ClientProducer is used to send messages to a specific address. Messages are then routed on the
@@ -28,13 +28,13 @@ import org.apache.activemq.api.core.SimpleString;
  * <p>
  * The sending semantics can change depending on what blocking semantics are set via
  * {@link ServerLocator#setBlockOnDurableSend(boolean)} and
- * {@link org.apache.activemq.api.core.client.ServerLocator#setBlockOnNonDurableSend(boolean)} . If set to
+ * {@link ServerLocator#setBlockOnNonDurableSend(boolean)} . If set to
  * true then for each message type, durable and non durable respectively, any exceptions such as the
  * address not existing or security exceptions will be thrown at the time of send. Alternatively if
  * set to false then exceptions will only be logged on the server. <br>
  * <p>
  * The send rate can also be controlled via {@link ServerLocator#setProducerMaxRate(int)} and the
- * {@link org.apache.activemq.api.core.client.ServerLocator#setProducerWindowSize(int)}. <br>
+ * {@link ServerLocator#setProducerWindowSize(int)}. <br>
  * <br>
  */
 public interface ClientProducer extends AutoCloseable
@@ -59,7 +59,7 @@ public interface ClientProducer extends AutoCloseable
     * {@link ServerLocator#setBlockOnNonDurableSend(boolean)} are set to <code>true</code> for the
     * specified message type.
     * @param message the message to send
-    * @throws org.apache.activemq.api.core.ActiveMQException if an exception occurs while sending the message
+    * @throws ActiveMQException if an exception occurs while sending the message
     */
    void send(Message message) throws ActiveMQException;
 
@@ -71,7 +71,7 @@ public interface ClientProducer extends AutoCloseable
     * The handler will only get called if {@link ServerLocator#setConfirmationWindowSize(int) -1}.
     * @param message the message to send
     * @param handler handler to call after receiving a SEND acknowledgement from the server
-    * @throws org.apache.activemq.api.core.ActiveMQException if an exception occurs while sending the message
+    * @throws ActiveMQException if an exception occurs while sending the message
     */
    void send(Message message, SendAcknowledgementHandler handler) throws ActiveMQException;
 
@@ -84,7 +84,7 @@ public interface ClientProducer extends AutoCloseable
     * message type.
     * @param address the address where the message will be sent
     * @param message the message to send
-    * @throws org.apache.activemq.api.core.ActiveMQException if an exception occurs while sending the message
+    * @throws ActiveMQException if an exception occurs while sending the message
     */
    void send(SimpleString address, Message message) throws ActiveMQException;
 
@@ -97,7 +97,7 @@ public interface ClientProducer extends AutoCloseable
     * @param address the address where the message will be sent
     * @param message the message to send
     * @param handler handler to call after receiving a SEND acknowledgement from the server
-    * @throws org.apache.activemq.api.core.ActiveMQException if an exception occurs while sending the message
+    * @throws ActiveMQException if an exception occurs while sending the message
     */
    void send(SimpleString address, Message message, SendAcknowledgementHandler handler) throws ActiveMQException;
 
@@ -110,14 +110,14 @@ public interface ClientProducer extends AutoCloseable
     * message type.
     * @param address the address where the message will be sent
     * @param message the message to send
-    * @throws org.apache.activemq.api.core.ActiveMQException if an exception occurs while sending the message
+    * @throws ActiveMQException if an exception occurs while sending the message
     */
    void send(String address, Message message) throws ActiveMQException;
 
    /**
     * Closes the ClientProducer. If already closed nothing is done.
     *
-    * @throws org.apache.activemq.api.core.ActiveMQException if an exception occurs while closing the producer
+    * @throws ActiveMQException if an exception occurs while closing the producer
     */
    void close() throws ActiveMQException;
 

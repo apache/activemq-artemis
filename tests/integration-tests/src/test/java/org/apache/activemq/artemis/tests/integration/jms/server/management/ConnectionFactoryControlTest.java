@@ -14,30 +14,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.jms.server.management;
+package org.apache.activemq.artemis.tests.integration.jms.server.management;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.management.Notification;
 
-import org.apache.activemq.core.registry.JndiBindingRegistry;
+import org.apache.activemq.artemis.tests.integration.management.ManagementControlHelper;
+import org.apache.activemq.artemis.tests.integration.management.ManagementTestBase;
+import org.apache.activemq.artemis.tests.unit.util.InVMNamingContext;
+import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.core.registry.JndiBindingRegistry;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.After;
 import org.junit.Test;
-import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.core.management.ObjectNameBuilder;
-import org.apache.activemq.api.jms.JMSFactoryType;
-import org.apache.activemq.api.jms.management.ConnectionFactoryControl;
-import org.apache.activemq.api.jms.management.JMSServerControl;
-import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.server.ActiveMQServer;
-import org.apache.activemq.core.server.ActiveMQServers;
-import org.apache.activemq.jms.client.ActiveMQConnectionFactory;
-import org.apache.activemq.jms.server.impl.JMSServerManagerImpl;
-import org.apache.activemq.jms.server.management.JMSNotificationType;
-import org.apache.activemq.tests.integration.management.ManagementControlHelper;
-import org.apache.activemq.tests.integration.management.ManagementTestBase;
-import org.apache.activemq.tests.unit.util.InVMNamingContext;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
+import org.apache.activemq.artemis.api.jms.JMSFactoryType;
+import org.apache.activemq.artemis.api.jms.management.ConnectionFactoryControl;
+import org.apache.activemq.artemis.api.jms.management.JMSServerControl;
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.ActiveMQServers;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
+import org.apache.activemq.artemis.jms.server.management.JMSNotificationType;
 
 /**
  * A Connection Factory Control Test
@@ -71,12 +73,12 @@ public class ConnectionFactoryControlTest extends ManagementTestBase
 
       ActiveMQConnectionFactory cf = (ActiveMQConnectionFactory)ctx.lookup("test");
 
-      assertFalse(cf.isCompressLargeMessage());
+      Assert.assertFalse(cf.isCompressLargeMessage());
 
       controlCF.setCompressLargeMessages(true);
 
       cf = (ActiveMQConnectionFactory)ctx.lookup("test");
-      assertTrue(cf.isCompressLargeMessage());
+      Assert.assertTrue(cf.isCompressLargeMessage());
 
       stopServer();
 
@@ -85,7 +87,7 @@ public class ConnectionFactoryControlTest extends ManagementTestBase
       startServer();
 
       cf = (ActiveMQConnectionFactory)ctx.lookup("test");
-      assertTrue(cf.isCompressLargeMessage());
+      Assert.assertTrue(cf.isCompressLargeMessage());
 
    }
 
@@ -108,28 +110,28 @@ public class ConnectionFactoryControlTest extends ManagementTestBase
 
       Notification notif = listener.getNotification();
 
-      assertEquals(JMSNotificationType.CONNECTION_FACTORY_CREATED.toString(), notif.getType());
-      assertEquals("NewCF", notif.getMessage());
+      Assert.assertEquals(JMSNotificationType.CONNECTION_FACTORY_CREATED.toString(), notif.getType());
+      Assert.assertEquals("NewCF", notif.getMessage());
 
       this.serverManager.destroyConnectionFactory("NewCF");
 
       notif = listener.getNotification();
-      assertEquals(JMSNotificationType.CONNECTION_FACTORY_DESTROYED.toString(), notif.getType());
-      assertEquals("NewCF", notif.getMessage());
+      Assert.assertEquals(JMSNotificationType.CONNECTION_FACTORY_DESTROYED.toString(), notif.getType());
+      Assert.assertEquals("NewCF", notif.getMessage());
 
       JMSServerControl control = createJMSControl();
 
       control.createConnectionFactory("test", false, false, 0, "invm", "test");
 
       notif = listener.getNotification();
-      assertEquals(JMSNotificationType.CONNECTION_FACTORY_CREATED.toString(), notif.getType());
-      assertEquals("test", notif.getMessage());
+      Assert.assertEquals(JMSNotificationType.CONNECTION_FACTORY_CREATED.toString(), notif.getType());
+      Assert.assertEquals("test", notif.getMessage());
 
       control.destroyConnectionFactory("test");
 
       notif = listener.getNotification();
-      assertEquals(JMSNotificationType.CONNECTION_FACTORY_DESTROYED.toString(), notif.getType());
-      assertEquals("test", notif.getMessage());
+      Assert.assertEquals(JMSNotificationType.CONNECTION_FACTORY_DESTROYED.toString(), notif.getType());
+      Assert.assertEquals("test", notif.getMessage());
    }
 
 
@@ -154,10 +156,10 @@ public class ConnectionFactoryControlTest extends ManagementTestBase
    protected void startServer() throws Exception
    {
       Configuration conf = createDefaultConfig(false)
-         .addConnectorConfiguration("invm", new TransportConfiguration(INVM_CONNECTOR_FACTORY))
+         .addConnectorConfiguration("invm", new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY))
          .setSecurityEnabled(false)
          .setJMXManagementEnabled(true)
-         .addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY));
+         .addAcceptorConfiguration(new TransportConfiguration(UnitTestCase.INVM_ACCEPTOR_FACTORY));
       server = ActiveMQServers.newActiveMQServer(conf, mbeanServer, true);
       server.start();
 

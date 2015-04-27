@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.unit.core.remoting.server.impl;
+package org.apache.activemq.artemis.tests.unit.core.remoting.server.impl;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -22,13 +22,13 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
-import org.apache.activemq.api.core.Interceptor;
-import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.config.impl.ConfigurationImpl;
-import org.apache.activemq.core.remoting.server.impl.RemotingServiceImpl;
-import org.apache.activemq.core.server.impl.ServiceRegistry;
-import org.apache.activemq.tests.unit.core.remoting.server.impl.fake.FakeInterceptor;
+import org.apache.activemq.artemis.api.core.Interceptor;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.tests.unit.core.remoting.server.impl.fake.FakeInterceptor;
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
+import org.apache.activemq.artemis.core.remoting.server.impl.RemotingServiceImpl;
+import org.apache.activemq.artemis.core.server.impl.ServiceRegistry;
 import org.junit.Before;
 import org.junit.Test;
 

@@ -14,9 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.api.core;
-
-import static org.apache.activemq.api.core.ActiveMQExceptionType.ILLEGAL_STATE;
+package org.apache.activemq.artemis.api.core;
 
 /**
  * A ActiveMQ resource is not in a legal state (e.g. calling ClientConsumer.receive() if a
@@ -28,11 +26,11 @@ public final class ActiveMQIllegalStateException extends ActiveMQException
 
    public ActiveMQIllegalStateException()
    {
-      super(ILLEGAL_STATE);
+      super(ActiveMQExceptionType.ILLEGAL_STATE);
    }
 
    public ActiveMQIllegalStateException(String message)
    {
-      super(ILLEGAL_STATE, message);
+      super(ActiveMQExceptionType.ILLEGAL_STATE, message);
    }
 }

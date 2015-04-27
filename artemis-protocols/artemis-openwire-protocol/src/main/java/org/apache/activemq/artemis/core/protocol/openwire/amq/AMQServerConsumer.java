@@ -14,22 +14,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.protocol.openwire.amq;
+package org.apache.activemq.artemis.core.protocol.openwire.amq;
 
 import java.util.List;
 
-import org.apache.activemq.core.filter.Filter;
-import org.apache.activemq.core.persistence.StorageManager;
-import org.apache.activemq.core.postoffice.QueueBinding;
-import org.apache.activemq.core.protocol.openwire.OpenWireMessageConverter;
-import org.apache.activemq.core.server.ActiveMQServerLogger;
-import org.apache.activemq.core.server.HandleStatus;
-import org.apache.activemq.core.server.MessageReference;
-import org.apache.activemq.core.server.ServerMessage;
-import org.apache.activemq.core.server.impl.QueueImpl;
-import org.apache.activemq.core.server.impl.ServerConsumerImpl;
-import org.apache.activemq.core.server.management.ManagementService;
-import org.apache.activemq.spi.core.protocol.SessionCallback;
+import org.apache.activemq.artemis.core.filter.Filter;
+import org.apache.activemq.artemis.core.persistence.StorageManager;
+import org.apache.activemq.artemis.core.postoffice.QueueBinding;
+import org.apache.activemq.artemis.core.protocol.openwire.OpenWireMessageConverter;
+import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.apache.activemq.artemis.core.server.HandleStatus;
+import org.apache.activemq.artemis.core.server.MessageReference;
+import org.apache.activemq.artemis.core.server.ServerMessage;
+import org.apache.activemq.artemis.core.server.impl.QueueImpl;
+import org.apache.activemq.artemis.core.server.impl.ServerConsumerImpl;
+import org.apache.activemq.artemis.core.server.management.ManagementService;
+import org.apache.activemq.artemis.spi.core.protocol.SessionCallback;
 
 public class AMQServerConsumer extends ServerConsumerImpl
 {

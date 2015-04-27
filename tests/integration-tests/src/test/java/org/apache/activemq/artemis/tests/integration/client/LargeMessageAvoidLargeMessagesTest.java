@@ -14,20 +14,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.client;
+package org.apache.activemq.artemis.tests.integration.client;
 
-import org.apache.activemq.api.core.Message;
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.api.core.client.ClientConsumer;
-import org.apache.activemq.api.core.client.ClientMessage;
-import org.apache.activemq.api.core.client.ClientProducer;
-import org.apache.activemq.api.core.client.ClientSession;
-import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.ActiveMQClient;
-import org.apache.activemq.api.core.client.ServerLocator;
-import org.apache.activemq.core.server.ActiveMQServer;
-import org.apache.activemq.core.settings.impl.AddressSettings;
-import org.apache.activemq.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.client.ClientConsumer;
+import org.apache.activemq.artemis.api.core.client.ClientMessage;
+import org.apache.activemq.artemis.api.core.client.ClientProducer;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
+import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -94,7 +94,7 @@ public class LargeMessageAvoidLargeMessagesTest extends LargeMessageTest
       for (int i = 0; i < input.getSize(); i++)
       {
          byte b = msg1.getBodyBuffer().readByte();
-         assertEquals("incorrect char ", input.getChar(i), b);
+         Assert.assertEquals("incorrect char ", input.getChar(i), b);
       }
       msg1.acknowledge();
       consumer.close();
@@ -147,7 +147,7 @@ public class LargeMessageAvoidLargeMessagesTest extends LargeMessageTest
          for (int i = 0; i < input.getSize(); i++)
          {
             byte b = msg1.getBodyBuffer().readByte();
-            assertEquals("incorrect char ", input.getChar(i), b);
+            Assert.assertEquals("incorrect char ", input.getChar(i), b);
          }
          msg1.acknowledge();
       }
@@ -205,7 +205,7 @@ public class LargeMessageAvoidLargeMessagesTest extends LargeMessageTest
          for (int i = 0; i < input.getSize(); i++)
          {
             byte b = msg1.getBodyBuffer().readByte();
-            assertEquals("incorrect char", input.getChar(i), b);
+            Assert.assertEquals("incorrect char", input.getChar(i), b);
          }
          msg1.acknowledge();
       }
@@ -272,7 +272,7 @@ public class LargeMessageAvoidLargeMessagesTest extends LargeMessageTest
             for (int i = 0; i < regularInput.getSize(); i++)
             {
                byte b = msg1.getBodyBuffer().readByte();
-               assertEquals("incorrect char ", regularInput.getChar(i), b);
+               Assert.assertEquals("incorrect char ", regularInput.getChar(i), b);
             }
          }
          else
@@ -280,7 +280,7 @@ public class LargeMessageAvoidLargeMessagesTest extends LargeMessageTest
             for (int i = 0; i < largeInput.getSize(); i++)
             {
                byte b = msg1.getBodyBuffer().readByte();
-               assertEquals("incorrect char ", largeInput.getChar(i), b);
+               Assert.assertEquals("incorrect char ", largeInput.getChar(i), b);
             }
          }
          msg1.acknowledge();

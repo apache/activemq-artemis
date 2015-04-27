@@ -14,16 +14,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.jms.server.config.impl;
+package org.apache.activemq.artemis.jms.server.config.impl;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
-import org.apache.activemq.jms.server.config.ConnectionFactoryConfiguration;
-import org.apache.activemq.jms.server.config.JMSConfiguration;
-import org.apache.activemq.jms.server.config.JMSQueueConfiguration;
-import org.apache.activemq.jms.server.config.TopicConfiguration;
+import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
+import org.apache.activemq.artemis.jms.server.config.ConnectionFactoryConfiguration;
+import org.apache.activemq.artemis.jms.server.config.JMSConfiguration;
+import org.apache.activemq.artemis.jms.server.config.JMSQueueConfiguration;
+import org.apache.activemq.artemis.jms.server.config.TopicConfiguration;
 
 
 public class JMSConfigurationImpl implements JMSConfiguration

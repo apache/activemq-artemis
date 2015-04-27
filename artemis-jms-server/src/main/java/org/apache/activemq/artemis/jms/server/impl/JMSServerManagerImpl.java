@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.jms.server.impl;
+package org.apache.activemq.artemis.jms.server.impl;
 
 import javax.naming.NamingException;
 import javax.transaction.xa.Xid;
@@ -32,59 +32,59 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.apache.activemq.api.core.ActiveMQException;
-import org.apache.activemq.api.core.DiscoveryGroupConfiguration;
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.core.management.AddressControl;
-import org.apache.activemq.api.core.management.ResourceNames;
-import org.apache.activemq.api.jms.ActiveMQJMSClient;
-import org.apache.activemq.api.jms.JMSFactoryType;
-import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.postoffice.Binding;
-import org.apache.activemq.core.postoffice.BindingType;
-import org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory;
-import org.apache.activemq.core.remoting.impl.netty.TransportConstants;
-import org.apache.activemq.core.security.Role;
-import org.apache.activemq.core.server.ActivateCallback;
-import org.apache.activemq.core.server.ActiveMQServer;
-import org.apache.activemq.core.server.Queue;
-import org.apache.activemq.core.server.QueueCreator;
-import org.apache.activemq.core.server.impl.ActiveMQServerImpl;
-import org.apache.activemq.core.server.management.Notification;
-import org.apache.activemq.core.settings.impl.AddressSettings;
-import org.apache.activemq.core.transaction.ResourceManager;
-import org.apache.activemq.core.transaction.Transaction;
-import org.apache.activemq.core.transaction.TransactionDetail;
-import org.apache.activemq.jms.client.ActiveMQConnectionFactory;
-import org.apache.activemq.jms.client.ActiveMQDestination;
-import org.apache.activemq.jms.client.ActiveMQQueue;
-import org.apache.activemq.jms.client.ActiveMQTopic;
-import org.apache.activemq.jms.client.SelectorTranslator;
-import org.apache.activemq.jms.persistence.JMSStorageManager;
-import org.apache.activemq.jms.persistence.config.PersistedBindings;
-import org.apache.activemq.jms.persistence.config.PersistedConnectionFactory;
-import org.apache.activemq.jms.persistence.config.PersistedDestination;
-import org.apache.activemq.jms.persistence.config.PersistedType;
-import org.apache.activemq.jms.persistence.impl.journal.JMSJournalStorageManagerImpl;
-import org.apache.activemq.jms.persistence.impl.nullpm.NullJMSStorageManagerImpl;
-import org.apache.activemq.jms.server.ActiveMQJMSServerBundle;
-import org.apache.activemq.jms.server.ActiveMQJMSServerLogger;
-import org.apache.activemq.jms.server.JMSServerManager;
-import org.apache.activemq.jms.server.config.ConnectionFactoryConfiguration;
-import org.apache.activemq.jms.server.config.JMSConfiguration;
-import org.apache.activemq.jms.server.config.JMSQueueConfiguration;
-import org.apache.activemq.jms.server.config.TopicConfiguration;
-import org.apache.activemq.jms.server.config.impl.ConnectionFactoryConfigurationImpl;
-import org.apache.activemq.jms.server.management.JMSManagementService;
-import org.apache.activemq.jms.server.management.JMSNotificationType;
-import org.apache.activemq.jms.server.management.impl.JMSManagementServiceImpl;
-import org.apache.activemq.jms.transaction.JMSTransactionDetail;
-import org.apache.activemq.spi.core.naming.BindingRegistry;
-import org.apache.activemq.utils.TimeAndCounterIDGenerator;
-import org.apache.activemq.utils.TypedProperties;
-import org.apache.activemq.utils.json.JSONArray;
-import org.apache.activemq.utils.json.JSONObject;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.management.AddressControl;
+import org.apache.activemq.artemis.api.core.management.ResourceNames;
+import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
+import org.apache.activemq.artemis.api.jms.JMSFactoryType;
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.postoffice.Binding;
+import org.apache.activemq.artemis.core.postoffice.BindingType;
+import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory;
+import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
+import org.apache.activemq.artemis.core.security.Role;
+import org.apache.activemq.artemis.core.server.ActivateCallback;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.server.QueueCreator;
+import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
+import org.apache.activemq.artemis.core.server.management.Notification;
+import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.core.transaction.ResourceManager;
+import org.apache.activemq.artemis.core.transaction.Transaction;
+import org.apache.activemq.artemis.core.transaction.TransactionDetail;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
+import org.apache.activemq.artemis.jms.client.ActiveMQQueue;
+import org.apache.activemq.artemis.jms.client.ActiveMQTopic;
+import org.apache.activemq.artemis.jms.client.SelectorTranslator;
+import org.apache.activemq.artemis.jms.persistence.JMSStorageManager;
+import org.apache.activemq.artemis.jms.persistence.config.PersistedBindings;
+import org.apache.activemq.artemis.jms.persistence.config.PersistedConnectionFactory;
+import org.apache.activemq.artemis.jms.persistence.config.PersistedDestination;
+import org.apache.activemq.artemis.jms.persistence.config.PersistedType;
+import org.apache.activemq.artemis.jms.persistence.impl.journal.JMSJournalStorageManagerImpl;
+import org.apache.activemq.artemis.jms.persistence.impl.nullpm.NullJMSStorageManagerImpl;
+import org.apache.activemq.artemis.jms.server.ActiveMQJMSServerBundle;
+import org.apache.activemq.artemis.jms.server.ActiveMQJMSServerLogger;
+import org.apache.activemq.artemis.jms.server.JMSServerManager;
+import org.apache.activemq.artemis.jms.server.config.ConnectionFactoryConfiguration;
+import org.apache.activemq.artemis.jms.server.config.JMSConfiguration;
+import org.apache.activemq.artemis.jms.server.config.JMSQueueConfiguration;
+import org.apache.activemq.artemis.jms.server.config.TopicConfiguration;
+import org.apache.activemq.artemis.jms.server.config.impl.ConnectionFactoryConfigurationImpl;
+import org.apache.activemq.artemis.jms.server.management.JMSManagementService;
+import org.apache.activemq.artemis.jms.server.management.JMSNotificationType;
+import org.apache.activemq.artemis.jms.server.management.impl.JMSManagementServiceImpl;
+import org.apache.activemq.artemis.jms.transaction.JMSTransactionDetail;
+import org.apache.activemq.artemis.spi.core.naming.BindingRegistry;
+import org.apache.activemq.artemis.utils.TimeAndCounterIDGenerator;
+import org.apache.activemq.artemis.utils.TypedProperties;
+import org.apache.activemq.artemis.utils.json.JSONArray;
+import org.apache.activemq.artemis.utils.json.JSONObject;
 
 /**
  * A Deployer used to create and add to Bindings queues, topics and connection
@@ -387,8 +387,8 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
     * This method and {@code server.start()} are interdependent in the following way:
     * <ol>
     * <li>{@link JMSServerManagerImpl#start()} is called, it sets {@code start_called=true}, and
-    * calls {@link org.apache.activemq.core.server.impl.ActiveMQServerImpl#start()}
-    * <li>{@link org.apache.activemq.core.server.impl.ActiveMQServerImpl#start()} will call {@link JMSServerManagerImpl#activated()}
+    * calls {@link org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl#start()}
+    * <li>{@link org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl#start()} will call {@link JMSServerManagerImpl#activated()}
     * <li>{@link JMSServerManagerImpl#activated()} checks the value of {@link #startCalled}, which
     * must already be true.
     * </ol>
@@ -1328,7 +1328,7 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
    /**
     * @param cfConfig
     * @return
-    * @throws org.apache.activemq.api.core.ActiveMQException
+    * @throws ActiveMQException
     */
    protected ActiveMQConnectionFactory internalCreateCFPOJO(final ConnectionFactoryConfiguration cfConfig) throws ActiveMQException
    {

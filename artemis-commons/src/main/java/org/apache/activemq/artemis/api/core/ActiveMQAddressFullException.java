@@ -14,9 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.api.core;
-
-import static org.apache.activemq.api.core.ActiveMQExceptionType.ADDRESS_FULL;
+package org.apache.activemq.artemis.api.core;
 
 /**
  * An address is full.
@@ -27,11 +25,11 @@ public final class ActiveMQAddressFullException extends ActiveMQException
 
    public ActiveMQAddressFullException(String message)
    {
-      super(ADDRESS_FULL, message);
+      super(ActiveMQExceptionType.ADDRESS_FULL, message);
    }
 
    public ActiveMQAddressFullException()
    {
-      super(ADDRESS_FULL);
+      super(ActiveMQExceptionType.ADDRESS_FULL);
    }
 }

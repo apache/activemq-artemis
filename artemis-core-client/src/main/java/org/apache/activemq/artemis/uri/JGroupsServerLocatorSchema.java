@@ -14,16 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.uri;
+package org.apache.activemq.artemis.uri;
 
-import org.apache.activemq.api.core.BroadcastEndpointFactory;
-import org.apache.activemq.api.core.DiscoveryGroupConfiguration;
-import org.apache.activemq.api.core.JGroupsFileBroadcastEndpointFactory;
-import org.apache.activemq.api.core.JGroupsPropertiesBroadcastEndpointFactory;
-import org.apache.activemq.api.core.client.ActiveMQClient;
-import org.apache.activemq.api.core.client.ServerLocator;
-import org.apache.activemq.utils.uri.SchemaConstants;
-import org.apache.activemq.utils.uri.URISchema;
+import org.apache.activemq.artemis.api.core.BroadcastEndpointFactory;
+import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
+import org.apache.activemq.artemis.api.core.JGroupsFileBroadcastEndpointFactory;
+import org.apache.activemq.artemis.api.core.JGroupsPropertiesBroadcastEndpointFactory;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
+import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.utils.uri.SchemaConstants;
 
 import java.io.NotSerializableException;
 import java.net.URI;
@@ -72,7 +71,7 @@ public class JGroupsServerLocatorSchema extends AbstractServerLocatorSchema
       {
          throw new NotSerializableException(endpoint + "not serializable");
       }
-      String query = URISchema.getData(null, bean, dgc, endpoint);
+      String query = getData(null, bean, dgc, endpoint);
       dgc.setBroadcastEndpointFactory(endpoint);
       return new URI(SchemaConstants.JGROUPS, null,  auth, -1, null, query, null);
    }
@@ -89,11 +88,11 @@ public class JGroupsServerLocatorSchema extends AbstractServerLocatorSchema
          endpointFactory = new JGroupsPropertiesBroadcastEndpointFactory().setChannelName(uri.getAuthority());
       }
 
-      URISchema.setData(uri, endpointFactory, query);
+      setData(uri, endpointFactory, query);
 
       DiscoveryGroupConfiguration dcConfig = new DiscoveryGroupConfiguration().setName(name).setBroadcastEndpointFactory(endpointFactory);
 
-      URISchema.setData(uri, dcConfig, query);
+      setData(uri, dcConfig, query);
       return dcConfig;
    }
 }

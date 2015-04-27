@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.api.core.management;
+package org.apache.activemq.artemis.api.core.management;
 
 /**
  * A ActiveMQComponentControl is used to manage the life cycle of a ActiveMQ component.

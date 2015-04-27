@@ -14,9 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.rest.test;
+package org.apache.activemq.artemis.rest.test;
 
-import org.apache.activemq.rest.queue.QueueDeployment;
+import org.apache.activemq.artemis.rest.queue.QueueDeployment;
 import org.jboss.resteasy.client.ClientRequest;
 import org.jboss.resteasy.client.ClientResponse;
 import org.jboss.resteasy.spi.Link;
@@ -41,12 +41,12 @@ public class RoundtripTimeTest extends MessageTestBase
       ClientResponse<?> response = request.head();
       response.releaseConnection();
       Assert.assertEquals(200, response.getStatus());
-      Link sender = MessageTestBase.getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "create");
+      Link sender = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "create");
       System.out.println("create: " + sender);
-      Link consumers = MessageTestBase.getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "pull-consumers");
+      Link consumers = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "pull-consumers");
       System.out.println("pull: " + consumers);
       response = Util.setAutoAck(consumers, true);
-      Link consumeNext = MessageTestBase.getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "consume-next");
+      Link consumeNext = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "consume-next");
       System.out.println("consume-next: " + consumeNext);
 
 
@@ -63,7 +63,7 @@ public class RoundtripTimeTest extends MessageTestBase
       for (int i = 0; i < num; i++)
       {
          response = consumeNext.request().post(String.class);
-         consumeNext = MessageTestBase.getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "consume-next");
+         consumeNext = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "consume-next");
          Assert.assertEquals(200, response.getStatus());
          Assert.assertEquals(Integer.toString(i + 1), response.getEntity(String.class));
          response.releaseConnection();

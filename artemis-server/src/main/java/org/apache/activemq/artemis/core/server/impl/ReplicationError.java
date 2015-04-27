@@ -14,25 +14,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.server.impl;
+package org.apache.activemq.artemis.core.server.impl;
 
-import org.apache.activemq.api.core.ActiveMQException;
-import org.apache.activemq.api.core.ActiveMQInternalErrorException;
-import org.apache.activemq.api.core.Interceptor;
-import org.apache.activemq.core.protocol.core.Packet;
-import org.apache.activemq.core.protocol.core.impl.PacketImpl;
-import org.apache.activemq.core.protocol.core.impl.wireformat.BackupReplicationStartFailedMessage;
-import org.apache.activemq.core.server.ActiveMQServerLogger;
-import org.apache.activemq.core.server.ActiveMQServer;
-import org.apache.activemq.core.server.LiveNodeLocator;
-import org.apache.activemq.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.ActiveMQInternalErrorException;
+import org.apache.activemq.artemis.api.core.Interceptor;
+import org.apache.activemq.artemis.core.protocol.core.Packet;
+import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.BackupReplicationStartFailedMessage;
+import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.LiveNodeLocator;
+import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 
 /**
  * Stops the backup in case of an error at the start of Replication.
  * <p>
  * Using an interceptor for the task to avoid a server reference inside of the 'basic' channel-0
- * handler at {@link org.apache.activemq.core.protocol.core.impl.ActiveMQClientProtocolManager.Channel0Handler}. As {@link org.apache.activemq.core.protocol.core.impl.ActiveMQClientProtocolManager}
- * is also shipped in the activemq-core-client JAR (which does not include {@link org.apache.activemq.core.server.ActiveMQServer}).
+ * handler at {@link org.apache.activemq.artemis.core.protocol.core.impl.ActiveMQClientProtocolManager.Channel0Handler}. As {@link org.apache.activemq.artemis.core.protocol.core.impl.ActiveMQClientProtocolManager}
+ * is also shipped in the activemq-core-client JAR (which does not include {@link org.apache.activemq.artemis.core.server.ActiveMQServer}).
  */
 final class ReplicationError implements Interceptor
 {

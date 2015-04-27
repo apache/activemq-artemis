@@ -14,11 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.api.jms.management;
+package org.apache.activemq.artemis.api.jms.management;
 
-import org.apache.activemq.utils.json.JSONArray;
-import org.apache.activemq.utils.json.JSONException;
-import org.apache.activemq.utils.json.JSONObject;
+import org.apache.activemq.artemis.utils.json.JSONArray;
+import org.apache.activemq.artemis.utils.json.JSONException;
+import org.apache.activemq.artemis.utils.json.JSONObject;
 
 public class JMSSessionInfo
 {

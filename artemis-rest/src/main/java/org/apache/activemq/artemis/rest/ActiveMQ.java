@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.rest;
+package org.apache.activemq.artemis.rest;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.ext.MessageBodyReader;
@@ -26,8 +26,8 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.lang.reflect.Type;
 
-import org.apache.activemq.api.core.client.ClientMessage;
-import org.apache.activemq.rest.util.HttpMessageHelper;
+import org.apache.activemq.artemis.api.core.client.ClientMessage;
+import org.apache.activemq.artemis.rest.util.HttpMessageHelper;
 import org.jboss.resteasy.core.Headers;
 import org.jboss.resteasy.spi.ResteasyProviderFactory;
 import org.jboss.resteasy.util.GenericType;

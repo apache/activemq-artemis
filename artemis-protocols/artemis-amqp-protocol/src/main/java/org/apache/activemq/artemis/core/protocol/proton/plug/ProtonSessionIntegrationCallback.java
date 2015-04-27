@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.protocol.proton.plug;
+package org.apache.activemq.artemis.core.protocol.proton.plug;
 
 
 import java.util.concurrent.Executor;
@@ -28,20 +28,20 @@ import org.apache.qpid.proton.engine.Link;
 import org.apache.qpid.proton.engine.Receiver;
 import org.apache.qpid.proton.jms.EncodedMessage;
 import org.apache.qpid.proton.message.ProtonJMessage;
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.api.core.client.ActiveMQClient;
-import org.apache.activemq.core.journal.IOAsyncTask;
-import org.apache.activemq.core.protocol.proton.ProtonProtocolManager;
-import org.apache.activemq.core.server.QueueQueryResult;
-import org.apache.activemq.core.server.ServerConsumer;
-import org.apache.activemq.core.server.ServerMessage;
-import org.apache.activemq.core.server.ServerSession;
-import org.apache.activemq.spi.core.protocol.SessionCallback;
-import org.apache.activemq.spi.core.remoting.ReadyListener;
-import org.apache.activemq.utils.ByteUtil;
-import org.apache.activemq.utils.IDGenerator;
-import org.apache.activemq.utils.SimpleIDGenerator;
-import org.apache.activemq.utils.UUIDGenerator;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
+import org.apache.activemq.artemis.core.journal.IOAsyncTask;
+import org.apache.activemq.artemis.core.protocol.proton.ProtonProtocolManager;
+import org.apache.activemq.artemis.core.server.QueueQueryResult;
+import org.apache.activemq.artemis.core.server.ServerConsumer;
+import org.apache.activemq.artemis.core.server.ServerMessage;
+import org.apache.activemq.artemis.core.server.ServerSession;
+import org.apache.activemq.artemis.spi.core.protocol.SessionCallback;
+import org.apache.activemq.artemis.spi.core.remoting.ReadyListener;
+import org.apache.activemq.artemis.utils.ByteUtil;
+import org.apache.activemq.artemis.utils.IDGenerator;
+import org.apache.activemq.artemis.utils.SimpleIDGenerator;
+import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.proton.plug.AMQPConnectionContext;
 import org.proton.plug.AMQPSessionCallback;
 import org.proton.plug.AMQPSessionContext;

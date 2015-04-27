@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.jms.tests;
+package org.apache.activemq.artemis.jms.tests;
 
 import javax.jms.CompletionListener;
 import javax.jms.Connection;
@@ -31,10 +31,10 @@ import java.io.Serializable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq.api.jms.ActiveMQJMSClient;
-import org.apache.activemq.jms.tests.message.SimpleJMSMessage;
-import org.apache.activemq.jms.tests.message.SimpleJMSTextMessage;
-import org.apache.activemq.jms.tests.util.ProxyAssertSupport;
+import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
+import org.apache.activemq.artemis.jms.tests.message.SimpleJMSMessage;
+import org.apache.activemq.artemis.jms.tests.message.SimpleJMSTextMessage;
+import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
 import org.junit.Test;
 
 public class MessageProducerTest extends JMSTestCase

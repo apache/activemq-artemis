@@ -14,31 +14,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.protocol.core.impl;
+package org.apache.activemq.artemis.core.protocol.core.impl;
 
-import org.apache.activemq.api.core.ActiveMQException;
-import org.apache.activemq.api.core.ActiveMQExceptionType;
-import org.apache.activemq.api.core.ActiveMQInternalErrorException;
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.core.protocol.core.Channel;
-import org.apache.activemq.core.protocol.core.ChannelHandler;
-import org.apache.activemq.core.protocol.core.CoreRemotingConnection;
-import org.apache.activemq.core.protocol.core.Packet;
-import org.apache.activemq.core.protocol.core.ServerSessionPacketHandler;
-import org.apache.activemq.core.protocol.core.impl.wireformat.CheckFailoverMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.CheckFailoverReplyMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.CreateQueueMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.CreateSessionMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.CreateSessionResponseMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.ActiveMQExceptionMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.ReattachSessionMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.ReattachSessionResponseMessage;
-import org.apache.activemq.core.security.ActiveMQPrincipal;
-import org.apache.activemq.core.server.ActiveMQMessageBundle;
-import org.apache.activemq.core.server.ActiveMQServer;
-import org.apache.activemq.core.server.ActiveMQServerLogger;
-import org.apache.activemq.core.server.ServerSession;
-import org.apache.activemq.core.version.Version;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
+import org.apache.activemq.artemis.api.core.ActiveMQInternalErrorException;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.protocol.core.Channel;
+import org.apache.activemq.artemis.core.protocol.core.ChannelHandler;
+import org.apache.activemq.artemis.core.protocol.core.CoreRemotingConnection;
+import org.apache.activemq.artemis.core.protocol.core.Packet;
+import org.apache.activemq.artemis.core.protocol.core.ServerSessionPacketHandler;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CheckFailoverMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CheckFailoverReplyMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CreateQueueMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CreateSessionMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CreateSessionResponseMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ActiveMQExceptionMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReattachSessionMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReattachSessionResponseMessage;
+import org.apache.activemq.artemis.core.security.ActiveMQPrincipal;
+import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.apache.activemq.artemis.core.server.ServerSession;
+import org.apache.activemq.artemis.core.version.Version;
 
 /**
  * A packet handler for all packets that need to be handled at the server level

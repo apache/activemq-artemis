@@ -14,13 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.journal;
+package org.apache.activemq.artemis.core.journal;
 
-import org.apache.activemq.core.asyncio.AIOCallback;
+import org.apache.activemq.artemis.core.asyncio.AIOCallback;
 
 /**
  * This class is just a direct extension of AIOCallback.
- * Just to avoid the direct dependency of org.apache.activemq.core.asynciio.AIOCallback from the journal.
+ * Just to avoid the direct dependency of org.apache.activemq.artemis.core.asynciio.AIOCallback from the journal.
  */
 public interface IOAsyncTask extends AIOCallback
 {

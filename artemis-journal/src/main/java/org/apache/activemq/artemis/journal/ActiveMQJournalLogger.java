@@ -14,9 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.journal;
+package org.apache.activemq.artemis.journal;
 
-import org.apache.activemq.core.journal.impl.JournalFile;
+import org.apache.activemq.artemis.core.journal.impl.JournalFile;
 import org.jboss.logging.BasicLogger;
 import org.jboss.logging.Logger;
 import org.jboss.logging.annotations.Cause;

@@ -14,14 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.management.impl;
+package org.apache.activemq.artemis.core.management.impl;
 
 import javax.management.MBeanInfo;
 import javax.management.MBeanOperationInfo;
 import javax.management.NotCompliantMBeanException;
 import javax.management.StandardMBean;
 
-import org.apache.activemq.core.persistence.StorageManager;
+import org.apache.activemq.artemis.core.persistence.StorageManager;
 
 public abstract class AbstractControl extends StandardMBean
 {

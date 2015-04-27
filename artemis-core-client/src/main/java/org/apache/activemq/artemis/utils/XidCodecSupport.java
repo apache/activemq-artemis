@@ -14,12 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.utils;
+package org.apache.activemq.artemis.utils;
 
 import javax.transaction.xa.Xid;
 
-import org.apache.activemq.api.core.ActiveMQBuffer;
-import org.apache.activemq.core.transaction.impl.XidImpl;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
 
 public class XidCodecSupport
 {

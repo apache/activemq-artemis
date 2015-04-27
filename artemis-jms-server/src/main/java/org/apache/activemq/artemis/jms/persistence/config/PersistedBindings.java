@@ -14,15 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.jms.persistence.config;
+package org.apache.activemq.artemis.jms.persistence.config;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.activemq.api.core.ActiveMQBuffer;
-import org.apache.activemq.core.journal.EncodingSupport;
-import org.apache.activemq.utils.BufferHelper;
-import org.apache.activemq.utils.DataConstants;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.core.journal.EncodingSupport;
+import org.apache.activemq.artemis.utils.BufferHelper;
+import org.apache.activemq.artemis.utils.DataConstants;
 
 public class PersistedBindings implements EncodingSupport
 {

@@ -14,12 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.protocol.core.impl.wireformat;
+package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
 import java.util.List;
 
-import org.apache.activemq.api.core.ActiveMQBuffer;
-import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.SimpleString;
 
 public class SessionBindingQueryResponseMessage_V2 extends SessionBindingQueryResponseMessage
 {

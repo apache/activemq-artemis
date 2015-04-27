@@ -14,10 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.api.core.client;
+package org.apache.activemq.artemis.api.core.client;
 
-import org.apache.activemq.api.core.ActiveMQException;
-import org.apache.activemq.spi.core.remoting.ConsumerContext;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.spi.core.remoting.ConsumerContext;
 
 /**
  * A ClientConsumer receives messages from ActiveMQ queues.
@@ -48,7 +48,7 @@ public interface ClientConsumer extends AutoCloseable
     * <p>
     * Calling this method on a closed consumer will throw a ActiveMQException.
     * @return a ClientMessage
-    * @throws org.apache.activemq.api.core.ActiveMQException if an exception occurs while waiting to receive a message
+    * @throws ActiveMQException if an exception occurs while waiting to receive a message
     */
    ClientMessage receive() throws ActiveMQException;
 
@@ -60,7 +60,7 @@ public interface ClientConsumer extends AutoCloseable
     * Calling this method on a closed consumer will throw a ActiveMQException.
     * @param timeout time (in milliseconds) to wait to receive a message
     * @return a message or {@code null} if the time out expired
-    * @throws org.apache.activemq.api.core.ActiveMQException if an exception occurs while waiting to receive a message
+    * @throws ActiveMQException if an exception occurs while waiting to receive a message
     */
    ClientMessage receive(long timeout) throws ActiveMQException;
 
@@ -76,7 +76,7 @@ public interface ClientConsumer extends AutoCloseable
     * <p>
     * Calling this method on a closed consumer will throw a ActiveMQException.
     * @return a message or {@code null} if there are no messages in the queue for this consumer
-    * @throws org.apache.activemq.api.core.ActiveMQException if an exception occurs while waiting to receive a message
+    * @throws ActiveMQException if an exception occurs while waiting to receive a message
     */
    ClientMessage receiveImmediate() throws ActiveMQException;
 
@@ -85,7 +85,7 @@ public interface ClientConsumer extends AutoCloseable
     * <p>
     * Calling this method on a closed consumer will throw a ActiveMQException.
     * @return the MessageHandler associated to this consumer or {@code null}
-    * @throws org.apache.activemq.api.core.ActiveMQException if an exception occurs while getting the MessageHandler
+    * @throws ActiveMQException if an exception occurs while getting the MessageHandler
     */
    MessageHandler getMessageHandler() throws ActiveMQException;
 
@@ -94,7 +94,7 @@ public interface ClientConsumer extends AutoCloseable
     * <p>
     * Calling this method on a closed consumer will throw a ActiveMQException.
     * @param handler a MessageHandler
-    * @throws org.apache.activemq.api.core.ActiveMQException if an exception occurs while setting the MessageHandler
+    * @throws ActiveMQException if an exception occurs while setting the MessageHandler
     */
    ClientConsumer setMessageHandler(MessageHandler handler) throws ActiveMQException;
 
@@ -103,7 +103,7 @@ public interface ClientConsumer extends AutoCloseable
     * <p>
     * Once this consumer is closed, it can not receive messages, whether synchronously or
     * asynchronously.
-    * @throws org.apache.activemq.api.core.ActiveMQException
+    * @throws ActiveMQException
     */
    void close() throws ActiveMQException;
 

@@ -14,27 +14,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.extras.byteman;
+package org.apache.activemq.artemis.tests.extras.byteman;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.core.client.ClientConsumer;
-import org.apache.activemq.api.core.client.ClientMessage;
-import org.apache.activemq.api.core.client.ClientProducer;
-import org.apache.activemq.api.core.client.ClientSession;
-import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.ServerLocator;
-import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.paging.cursor.impl.PagePositionImpl;
-import org.apache.activemq.core.server.ActiveMQServer;
-import org.apache.activemq.core.server.ActiveMQServers;
-import org.apache.activemq.core.settings.impl.AddressFullMessagePolicy;
-import org.apache.activemq.core.settings.impl.AddressSettings;
-import org.apache.activemq.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.client.ClientConsumer;
+import org.apache.activemq.artemis.api.core.client.ClientMessage;
+import org.apache.activemq.artemis.api.core.client.ClientProducer;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
+import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.paging.cursor.impl.PagePositionImpl;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.ActiveMQServers;
+import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
+import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
 import org.jboss.byteman.contrib.bmunit.BMRule;
 import org.jboss.byteman.contrib.bmunit.BMRules;
 import org.jboss.byteman.contrib.bmunit.BMUnitRunner;
@@ -73,7 +73,7 @@ public class PagingLeakTest extends ServiceTestBase
                @BMRule
                   (
                      name = "newPosition",
-                     targetClass = "org.apache.activemq.core.paging.cursor.impl.PagePositionImpl",
+                     targetClass = "org.apache.activemq.artemis.core.paging.cursor.impl.PagePositionImpl",
                      targetMethod = "<init>()",
                      targetLocation = "ENTRY",
                      action = "org.apache.activemq.tests.extras.byteman.PagingLeakTest.newPosition()"
@@ -81,7 +81,7 @@ public class PagingLeakTest extends ServiceTestBase
                @BMRule
                   (
                      name = "finalPosition",
-                     targetClass = "org.apache.activemq.core.paging.cursor.impl.PagePositionImpl",
+                     targetClass = "org.apache.activemq.artemis.core.paging.cursor.impl.PagePositionImpl",
                      targetMethod = "finalize",
                      targetLocation = "ENTRY",
                      action = "org.apache.activemq.tests.extras.byteman.PagingLeakTest.deletePosition()"

@@ -14,16 +14,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.management.impl;
+package org.apache.activemq.artemis.core.management.impl;
 
 import java.util.Map;
 
 import javax.management.MBeanOperationInfo;
 
-import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.core.management.AcceptorControl;
-import org.apache.activemq.core.persistence.StorageManager;
-import org.apache.activemq.spi.core.remoting.Acceptor;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.management.AcceptorControl;
+import org.apache.activemq.artemis.core.persistence.StorageManager;
+import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
 
 public class AcceptorControlImpl extends AbstractControl implements AcceptorControl
 {

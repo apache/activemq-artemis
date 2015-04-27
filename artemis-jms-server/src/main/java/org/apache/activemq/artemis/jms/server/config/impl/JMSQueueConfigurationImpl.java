@@ -14,9 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.jms.server.config.impl;
+package org.apache.activemq.artemis.jms.server.config.impl;
 
-import org.apache.activemq.jms.server.config.JMSQueueConfiguration;
+import org.apache.activemq.artemis.jms.server.config.JMSQueueConfiguration;
 
 
 public class JMSQueueConfigurationImpl implements JMSQueueConfiguration

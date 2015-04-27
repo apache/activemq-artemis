@@ -14,11 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.libaio;
+package org.apache.activemq.artemis.core.libaio;
 
 import java.nio.ByteBuffer;
 
-import org.apache.activemq.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
 
 public class Native
 {
@@ -53,7 +53,7 @@ public class Native
    public static native void writeInternal(ByteBuffer handle, long positionToWrite, long size, ByteBuffer bytes) throws ActiveMQException;
 
    /**
-    *This is using org.apache.activemq.core.asyncio.AIOCallback
+    *This is using org.apache.activemq.artemis.core.asyncio.AIOCallback
      */
    public static native void read(Object thisObject, ByteBuffer handle, long position, long size, ByteBuffer buffer, Object aioPackageCallback) throws ActiveMQException;
 

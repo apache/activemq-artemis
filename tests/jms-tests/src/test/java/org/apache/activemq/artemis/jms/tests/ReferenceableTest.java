@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.jms.tests;
+package org.apache.activemq.artemis.jms.tests;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -27,14 +27,14 @@ import javax.naming.Reference;
 import javax.naming.Referenceable;
 import java.io.Serializable;
 
-import org.apache.activemq.jms.client.ActiveMQConnectionFactory;
-import org.apache.activemq.jms.client.ActiveMQDestination;
-import org.apache.activemq.jms.client.ActiveMQJMSConnectionFactory;
-import org.apache.activemq.jms.client.ActiveMQQueue;
-import org.apache.activemq.jms.client.ActiveMQTopic;
-import org.apache.activemq.jms.referenceable.ConnectionFactoryObjectFactory;
-import org.apache.activemq.jms.referenceable.DestinationObjectFactory;
-import org.apache.activemq.jms.tests.util.ProxyAssertSupport;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
+import org.apache.activemq.artemis.jms.client.ActiveMQJMSConnectionFactory;
+import org.apache.activemq.artemis.jms.client.ActiveMQQueue;
+import org.apache.activemq.artemis.jms.client.ActiveMQTopic;
+import org.apache.activemq.artemis.jms.referenceable.ConnectionFactoryObjectFactory;
+import org.apache.activemq.artemis.jms.referenceable.DestinationObjectFactory;
+import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
 import org.junit.Test;
 
 /**

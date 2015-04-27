@@ -14,14 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.spi.core.remoting;
+package org.apache.activemq.artemis.spi.core.remoting;
 
-import org.apache.activemq.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 
 public interface BufferDecoder
 {
    /**
-    * called by the remoting system prior to {@link org.apache.activemq.spi.core.remoting.BufferHandler#bufferReceived(Object, org.apache.activemq.api.core.ActiveMQBuffer)}.
+    * called by the remoting system prior to {@link org.apache.activemq.artemis.spi.core.remoting.BufferHandler#bufferReceived(Object, ActiveMQBuffer)}.
     * <p>
     * The implementation should return true if there is enough data in the buffer to decode. otherwise false.
     *                  * @param buffer the buffer

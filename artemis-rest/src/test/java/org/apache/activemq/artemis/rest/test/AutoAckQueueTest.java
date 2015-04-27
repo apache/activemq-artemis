@@ -14,10 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.rest.test;
+package org.apache.activemq.artemis.rest.test;
 
-import org.apache.activemq.rest.queue.QueueDeployment;
-import org.apache.activemq.rest.util.Constants;
+import org.apache.activemq.artemis.rest.queue.QueueDeployment;
+import org.apache.activemq.artemis.rest.util.Constants;
 import org.jboss.resteasy.client.ClientRequest;
 import org.jboss.resteasy.client.ClientResponse;
 import org.jboss.resteasy.spi.Link;
@@ -42,19 +42,19 @@ public class AutoAckQueueTest extends MessageTestBase
       ClientResponse<?> response = request.head();
       response.releaseConnection();
       Assert.assertEquals(200, response.getStatus());
-      Link sender = MessageTestBase.getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "create");
+      Link sender = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "create");
       System.out.println("create: " + sender);
-      Link consumers = MessageTestBase.getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "pull-consumers");
+      Link consumers = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "pull-consumers");
       System.out.println("pull: " + consumers);
-      System.out.println("create-with-id: " + MessageTestBase.getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "create-with-id"));
+      System.out.println("create-with-id: " + getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "create-with-id"));
       response = Util.setAutoAck(consumers, true);
-      Link consumeNext = MessageTestBase.getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "consume-next");
+      Link consumeNext = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "consume-next");
       System.out.println("poller: " + consumeNext);
 
       ClientResponse<?> res = sender.request().body("text/plain", Integer.toString(1)).post();
       res.releaseConnection();
       Assert.assertEquals(201, res.getStatus());
-      System.out.println("create-next: " + MessageTestBase.getLinkByTitle(manager.getQueueManager().getLinkStrategy(), res, "create-next"));
+      System.out.println("create-next: " + getLinkByTitle(manager.getQueueManager().getLinkStrategy(), res, "create-next"));
 
       res = sender.request().body("text/plain", Integer.toString(2)).post();
       res.releaseConnection();
@@ -64,9 +64,9 @@ public class AutoAckQueueTest extends MessageTestBase
       Assert.assertEquals(200, res.getStatus());
       Assert.assertEquals("1", res.getEntity(String.class));
       res.releaseConnection();
-      Link session = MessageTestBase.getLinkByTitle(manager.getQueueManager().getLinkStrategy(), res, "consumer");
+      Link session = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), res, "consumer");
       System.out.println("session: " + session);
-      consumeNext = MessageTestBase.getLinkByTitle(manager.getQueueManager().getLinkStrategy(), res, "consume-next");
+      consumeNext = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), res, "consume-next");
       System.out.println("consumeNext: " + consumeNext);
 
       System.out.println(consumeNext);
@@ -74,9 +74,9 @@ public class AutoAckQueueTest extends MessageTestBase
       Assert.assertEquals(200, res.getStatus());
       Assert.assertEquals("2", res.getEntity(String.class));
       res.releaseConnection();
-      session = MessageTestBase.getLinkByTitle(manager.getQueueManager().getLinkStrategy(), res, "consumer");
+      session = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), res, "consumer");
       System.out.println("session: " + session);
-      MessageTestBase.getLinkByTitle(manager.getQueueManager().getLinkStrategy(), res, "consume-next");
+      getLinkByTitle(manager.getQueueManager().getLinkStrategy(), res, "consume-next");
       System.out.println("consumeNext: " + consumeNext);
 
       res = session.request().delete();

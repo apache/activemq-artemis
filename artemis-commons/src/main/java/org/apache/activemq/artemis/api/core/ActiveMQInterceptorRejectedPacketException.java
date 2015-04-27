@@ -14,13 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.api.core;
-
-import static org.apache.activemq.api.core.ActiveMQExceptionType.INTERCEPTOR_REJECTED_PACKET;
+package org.apache.activemq.artemis.api.core;
 
 /**
  * An outgoing interceptor returned false.
- * See org.apache.activemq.api.core.client.ServerLocator#addOutgoingInterceptor(org.apache.activemq.api.core.Interceptor)
+ * See org.apache.activemq.artemis.api.core.client.ServerLocator#addOutgoingInterceptor(org.apache.activemq.artemis.api.core.Interceptor)
  */
 // XXX I doubt any reader will make much sense of this Javadoc's text.
 public final class ActiveMQInterceptorRejectedPacketException extends ActiveMQException
@@ -29,11 +27,11 @@ public final class ActiveMQInterceptorRejectedPacketException extends ActiveMQEx
 
    public ActiveMQInterceptorRejectedPacketException()
    {
-      super(INTERCEPTOR_REJECTED_PACKET);
+      super(ActiveMQExceptionType.INTERCEPTOR_REJECTED_PACKET);
    }
 
    public ActiveMQInterceptorRejectedPacketException(String msg)
    {
-      super(INTERCEPTOR_REJECTED_PACKET, msg);
+      super(ActiveMQExceptionType.INTERCEPTOR_REJECTED_PACKET, msg);
    }
 }

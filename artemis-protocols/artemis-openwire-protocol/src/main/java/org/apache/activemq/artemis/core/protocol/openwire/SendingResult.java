@@ -14,11 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.protocol.openwire;
+package org.apache.activemq.artemis.core.protocol.openwire;
 
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.core.paging.impl.PagingStoreImpl;
-import org.apache.activemq.core.settings.impl.AddressFullMessagePolicy;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.paging.impl.PagingStoreImpl;
+import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 
 public class SendingResult
 {

@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.extras.jms.bridge;
+package org.apache.activemq.artemis.tests.extras.jms.bridge;
 
 import javax.jms.Connection;
 import javax.jms.DeliveryMode;
@@ -34,15 +34,15 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.activemq.api.jms.ActiveMQJMSConstants;
-import org.apache.activemq.jms.bridge.ConnectionFactoryFactory;
-import org.apache.activemq.jms.bridge.QualityOfServiceMode;
-import org.apache.activemq.jms.bridge.impl.JMSBridgeImpl;
-import org.apache.activemq.jms.client.ActiveMQMessage;
-import org.apache.activemq.service.extensions.ServiceUtils;
-import org.apache.activemq.tests.integration.IntegrationTestLogger;
-import org.apache.activemq.tests.integration.ra.DummyTransactionManager;
-import org.apache.activemq.utils.DefaultSensitiveStringCodec;
+import org.apache.activemq.artemis.api.jms.ActiveMQJMSConstants;
+import org.apache.activemq.artemis.jms.bridge.ConnectionFactoryFactory;
+import org.apache.activemq.artemis.jms.bridge.QualityOfServiceMode;
+import org.apache.activemq.artemis.jms.bridge.impl.JMSBridgeImpl;
+import org.apache.activemq.artemis.jms.client.ActiveMQMessage;
+import org.apache.activemq.artemis.service.extensions.ServiceUtils;
+import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
+import org.apache.activemq.artemis.tests.integration.ra.DummyTransactionManager;
+import org.apache.activemq.artemis.utils.DefaultSensitiveStringCodec;
 import org.junit.Assert;
 import org.junit.Test;
 

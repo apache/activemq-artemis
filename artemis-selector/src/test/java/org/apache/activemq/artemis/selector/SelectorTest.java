@@ -14,14 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.selector;
+package org.apache.activemq.artemis.selector;
 
 import java.util.HashMap;
 
-import org.apache.activemq.selector.filter.BooleanExpression;
-import org.apache.activemq.selector.filter.FilterException;
-import org.apache.activemq.selector.filter.Filterable;
-import org.apache.activemq.selector.impl.SelectorParser;
+import org.apache.activemq.artemis.selector.filter.BooleanExpression;
+import org.apache.activemq.artemis.selector.filter.FilterException;
+import org.apache.activemq.artemis.selector.filter.Filterable;
+import org.apache.activemq.artemis.selector.impl.SelectorParser;
 import org.junit.Assert;
 import org.junit.Test;
 

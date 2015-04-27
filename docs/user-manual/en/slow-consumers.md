@@ -1,6 +1,6 @@
 #Detecting Slow Consumers
 
-In this section we will discuss how Apache ActiveMQ can be configured to deal
+In this section we will discuss how Apache ActiveMQ Artemis can be configured to deal
 with slow consumers. A slow consumer with a server-side queue (e.g. JMS
 topic subscriber) can pose a significant problem for broker performance.
 If messages build up in the consumer's server-side queue then memory

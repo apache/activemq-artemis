@@ -1,6 +1,6 @@
 # Client Reconnection and Session Reattachment
 
-Apache ActiveMQ clients can be configured to automatically reconnect or
+Apache ActiveMQ Artemis clients can be configured to automatically reconnect or
 re-attach to the server in the event that a failure is detected in the
 connection between the client and the server.
 
@@ -11,14 +11,14 @@ network failure, and the target server was not restarted, then the
 sessions will still be existent on the server, assuming the client
 hasn't been disconnected for more than connection-ttl [Detecting Dead Connections](connection-ttl.md)
 
-In this scenario, Apache ActiveMQ will automatically re-attach the client
+In this scenario, Apache ActiveMQ Artemis will automatically re-attach the client
 sessions to the server sessions when the connection reconnects. This is
 done 100% transparently and the client can continue exactly as if
 nothing had happened.
 
 The way this works is as follows:
 
-As Apache ActiveMQ clients send commands to their servers they store each sent
+As Apache ActiveMQ Artemis clients send commands to their servers they store each sent
 command in an in-memory buffer. In the case that connection failure
 occurs and the client subsequently reattaches to the same server, as
 part of the reattachment protocol the server informs the client during
@@ -59,7 +59,7 @@ crashing or being stopped. In this case any sessions will no longer be
 existent on the server and it won't be possible to 100% transparently
 re-attach to them.
 
-In this case, Apache ActiveMQ will automatically reconnect the connection and
+In this case, Apache ActiveMQ Artemis will automatically reconnect the connection and
 *recreate* any sessions and consumers on the server corresponding to the
 sessions and consumers on the client. This process is exactly the same
 as what happens during failover onto a backup server.
@@ -114,7 +114,7 @@ If you're using JMS and you're using JNDI on the client to look up your
 JMS connection factory instances then you can specify these parameters
 in the JNDI context environment in, e.g. `jndi.properties`:
 
-    java.naming.factory.initial = org.apache.activemq.jndi.ActiveMQInitialContextFactory
+    java.naming.factory.initial = ActiveMQInitialContextFactory
     connection.ConnectionFactory=tcp://localhost:61616?retryInterval=1000&retryIntervalMultiplier=1.5&maxRetryInterval=60000&reconnectAttempts=1000
 
 If you're using JMS, but instantiating your JMS connection factory

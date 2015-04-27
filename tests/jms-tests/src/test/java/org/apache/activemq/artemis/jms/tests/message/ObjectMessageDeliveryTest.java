@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.jms.tests.message;
+package org.apache.activemq.artemis.jms.tests.message;
 
 import org.junit.Test;
 
@@ -27,8 +27,8 @@ import javax.jms.TopicPublisher;
 import javax.jms.TopicSession;
 import javax.jms.TopicSubscriber;
 
-import org.apache.activemq.jms.tests.ActiveMQServerTestCase;
-import org.apache.activemq.jms.tests.util.ProxyAssertSupport;
+import org.apache.activemq.artemis.jms.tests.ActiveMQServerTestCase;
+import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
 
 /**
  *

@@ -14,7 +14,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.jms.server.management;
+package org.apache.activemq.artemis.tests.integration.jms.server.management;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.After;
 
@@ -24,16 +25,16 @@ import javax.jms.QueueConnection;
 import javax.jms.QueueSession;
 import javax.jms.Session;
 
-import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.core.client.ActiveMQClient;
-import org.apache.activemq.api.core.management.ResourceNames;
-import org.apache.activemq.api.jms.ActiveMQJMSClient;
-import org.apache.activemq.api.jms.JMSFactoryType;
-import org.apache.activemq.api.jms.management.JMSServerControl;
-import org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory;
-import org.apache.activemq.jms.client.ActiveMQConnectionFactory;
-import org.apache.activemq.jms.client.ActiveMQQueue;
-import org.apache.activemq.jms.client.ActiveMQQueueConnectionFactory;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
+import org.apache.activemq.artemis.api.core.management.ResourceNames;
+import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
+import org.apache.activemq.artemis.api.jms.JMSFactoryType;
+import org.apache.activemq.artemis.api.jms.management.JMSServerControl;
+import org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.jms.client.ActiveMQQueue;
+import org.apache.activemq.artemis.jms.client.ActiveMQQueueConnectionFactory;
 
 public class JMSServerControlUsingJMSTest extends JMSServerControlTest
 {
@@ -103,35 +104,35 @@ public class JMSServerControlUsingJMSTest extends JMSServerControlTest
 
       ActiveMQQueueConnectionFactory cf = (ActiveMQQueueConnectionFactory)context.lookup("tst");
 
-      assertEquals(true, cf.isHA());
-      assertEquals("tst", cf.getClientID());
-      assertEquals(1, cf.getClientFailureCheckPeriod());
-      assertEquals(1, cf.getConnectionTTL());
-      assertEquals(1, cf.getCallTimeout());
-      assertEquals(1, cf.getCallFailoverTimeout());
-      assertEquals(1, cf.getMinLargeMessageSize());
-      assertEquals(true, cf.isCompressLargeMessage());
-      assertEquals(1, cf.getConsumerWindowSize());
-      assertEquals(1, cf.getConfirmationWindowSize());
-      assertEquals(1, cf.getProducerWindowSize());
-      assertEquals(1, cf.getProducerMaxRate());
-      assertEquals(true, cf.isBlockOnAcknowledge());
-      assertEquals(true, cf.isBlockOnDurableSend());
-      assertEquals(true, cf.isBlockOnNonDurableSend());
-      assertEquals(true, cf.isAutoGroup());
-      assertEquals(true, cf.isPreAcknowledge());
-      assertEquals(ActiveMQClient.DEFAULT_CONNECTION_LOAD_BALANCING_POLICY_CLASS_NAME, cf.getConnectionLoadBalancingPolicyClassName());
-      assertEquals(1, cf.getTransactionBatchSize());
-      assertEquals(1, cf.getDupsOKBatchSize());
-      assertEquals(true, cf.isUseGlobalPools());
-      assertEquals(1, cf.getScheduledThreadPoolMaxSize());
-      assertEquals(1, cf.getThreadPoolMaxSize());
-      assertEquals(1, cf.getRetryInterval());
-      assertEquals(1.0, cf.getRetryIntervalMultiplier(), 0.000001);
-      assertEquals(1, cf.getMaxRetryInterval());
-      assertEquals(1, cf.getReconnectAttempts());
-      assertEquals(true, cf.isFailoverOnInitialConnection());
-      assertEquals("tst", cf.getGroupID());
+      Assert.assertEquals(true, cf.isHA());
+      Assert.assertEquals("tst", cf.getClientID());
+      Assert.assertEquals(1, cf.getClientFailureCheckPeriod());
+      Assert.assertEquals(1, cf.getConnectionTTL());
+      Assert.assertEquals(1, cf.getCallTimeout());
+      Assert.assertEquals(1, cf.getCallFailoverTimeout());
+      Assert.assertEquals(1, cf.getMinLargeMessageSize());
+      Assert.assertEquals(true, cf.isCompressLargeMessage());
+      Assert.assertEquals(1, cf.getConsumerWindowSize());
+      Assert.assertEquals(1, cf.getConfirmationWindowSize());
+      Assert.assertEquals(1, cf.getProducerWindowSize());
+      Assert.assertEquals(1, cf.getProducerMaxRate());
+      Assert.assertEquals(true, cf.isBlockOnAcknowledge());
+      Assert.assertEquals(true, cf.isBlockOnDurableSend());
+      Assert.assertEquals(true, cf.isBlockOnNonDurableSend());
+      Assert.assertEquals(true, cf.isAutoGroup());
+      Assert.assertEquals(true, cf.isPreAcknowledge());
+      Assert.assertEquals(ActiveMQClient.DEFAULT_CONNECTION_LOAD_BALANCING_POLICY_CLASS_NAME, cf.getConnectionLoadBalancingPolicyClassName());
+      Assert.assertEquals(1, cf.getTransactionBatchSize());
+      Assert.assertEquals(1, cf.getDupsOKBatchSize());
+      Assert.assertEquals(true, cf.isUseGlobalPools());
+      Assert.assertEquals(1, cf.getScheduledThreadPoolMaxSize());
+      Assert.assertEquals(1, cf.getThreadPoolMaxSize());
+      Assert.assertEquals(1, cf.getRetryInterval());
+      Assert.assertEquals(1.0, cf.getRetryIntervalMultiplier(), 0.000001);
+      Assert.assertEquals(1, cf.getMaxRetryInterval());
+      Assert.assertEquals(1, cf.getReconnectAttempts());
+      Assert.assertEquals(true, cf.isFailoverOnInitialConnection());
+      Assert.assertEquals("tst", cf.getGroupID());
 
    }
    // Constructors --------------------------------------------------

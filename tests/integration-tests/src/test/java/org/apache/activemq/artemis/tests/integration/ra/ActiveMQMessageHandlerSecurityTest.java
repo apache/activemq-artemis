@@ -14,18 +14,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.ra;
+package org.apache.activemq.artemis.tests.integration.ra;
 
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 
-import org.apache.activemq.core.postoffice.Binding;
-import org.apache.activemq.core.postoffice.impl.LocalQueueBinding;
-import org.apache.activemq.core.security.Role;
-import org.apache.activemq.ra.ActiveMQResourceAdapter;
-import org.apache.activemq.ra.inflow.ActiveMQActivationSpec;
-import org.apache.activemq.spi.core.security.ActiveMQSecurityManagerImpl;
+import org.apache.activemq.artemis.core.postoffice.Binding;
+import org.apache.activemq.artemis.core.postoffice.impl.LocalQueueBinding;
+import org.apache.activemq.artemis.core.security.Role;
+import org.apache.activemq.artemis.ra.ActiveMQResourceAdapter;
+import org.apache.activemq.artemis.ra.inflow.ActiveMQActivationSpec;
+import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManagerImpl;
 import org.junit.Test;
 
 public class ActiveMQMessageHandlerSecurityTest extends ActiveMQRATestBase

@@ -14,11 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.settings.impl;
+package org.apache.activemq.artemis.core.settings.impl;
 
 import java.util.regex.Pattern;
 
-import org.apache.activemq.core.server.ActiveMQMessageBundle;
+import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 
 /**
     a Match is the holder for the match string and the object to hold against it.

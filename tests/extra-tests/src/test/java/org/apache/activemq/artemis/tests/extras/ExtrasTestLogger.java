@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.extras;
+package org.apache.activemq.artemis.tests.extras;
 
 import org.jboss.logging.BasicLogger;
 import org.jboss.logging.Logger;

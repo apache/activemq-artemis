@@ -14,26 +14,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.unit.core.server.impl.fakes;
+package org.apache.activemq.artemis.tests.unit.core.server.impl.fakes;
 
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.activemq.api.core.Pair;
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.core.persistence.impl.nullpm.NullStorageManager;
-import org.apache.activemq.core.postoffice.Binding;
-import org.apache.activemq.core.postoffice.Bindings;
-import org.apache.activemq.core.postoffice.DuplicateIDCache;
-import org.apache.activemq.core.postoffice.PostOffice;
-import org.apache.activemq.core.postoffice.impl.DuplicateIDCacheImpl;
-import org.apache.activemq.core.server.MessageReference;
-import org.apache.activemq.core.server.Queue;
-import org.apache.activemq.core.server.QueueCreator;
-import org.apache.activemq.core.server.RoutingContext;
-import org.apache.activemq.core.server.ServerMessage;
-import org.apache.activemq.core.server.impl.MessageReferenceImpl;
-import org.apache.activemq.core.transaction.Transaction;
+import org.apache.activemq.artemis.api.core.Pair;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.persistence.impl.nullpm.NullStorageManager;
+import org.apache.activemq.artemis.core.postoffice.Binding;
+import org.apache.activemq.artemis.core.postoffice.Bindings;
+import org.apache.activemq.artemis.core.postoffice.DuplicateIDCache;
+import org.apache.activemq.artemis.core.postoffice.PostOffice;
+import org.apache.activemq.artemis.core.postoffice.impl.DuplicateIDCacheImpl;
+import org.apache.activemq.artemis.core.server.MessageReference;
+import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.server.QueueCreator;
+import org.apache.activemq.artemis.core.server.RoutingContext;
+import org.apache.activemq.artemis.core.server.ServerMessage;
+import org.apache.activemq.artemis.core.server.impl.MessageReferenceImpl;
+import org.apache.activemq.artemis.core.transaction.Transaction;
 
 public class FakePostOffice implements PostOffice
 {

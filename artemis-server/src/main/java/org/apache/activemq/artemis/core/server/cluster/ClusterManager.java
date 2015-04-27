@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.server.cluster;
+package org.apache.activemq.artemis.core.server.cluster;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -28,50 +28,50 @@ import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 
-import org.apache.activemq.api.core.ActiveMQException;
-import org.apache.activemq.api.core.ActiveMQExceptionType;
-import org.apache.activemq.api.core.BroadcastGroupConfiguration;
-import org.apache.activemq.api.core.DiscoveryGroupConfiguration;
-import org.apache.activemq.api.core.Interceptor;
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.core.client.ActiveMQClient;
-import org.apache.activemq.core.client.impl.ServerLocatorInternal;
-import org.apache.activemq.core.config.BridgeConfiguration;
-import org.apache.activemq.core.config.ClusterConnectionConfiguration;
-import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.filter.impl.FilterImpl;
-import org.apache.activemq.core.postoffice.Binding;
-import org.apache.activemq.core.postoffice.PostOffice;
-import org.apache.activemq.core.protocol.core.Channel;
-import org.apache.activemq.core.protocol.core.CoreRemotingConnection;
-import org.apache.activemq.core.protocol.core.Packet;
-import org.apache.activemq.core.protocol.core.impl.PacketImpl;
-import org.apache.activemq.core.protocol.core.impl.wireformat.ActiveMQExceptionMessage;
-import org.apache.activemq.core.server.ActiveMQComponent;
-import org.apache.activemq.core.server.ActiveMQMessageBundle;
-import org.apache.activemq.core.server.ActiveMQServer;
-import org.apache.activemq.core.server.ActiveMQServerLogger;
-import org.apache.activemq.core.server.NodeManager;
-import org.apache.activemq.core.server.Queue;
-import org.apache.activemq.core.server.cluster.ha.HAManager;
-import org.apache.activemq.core.server.cluster.impl.BridgeImpl;
-import org.apache.activemq.core.server.cluster.impl.BroadcastGroupImpl;
-import org.apache.activemq.core.server.cluster.impl.ClusterConnectionImpl;
-import org.apache.activemq.core.server.cluster.qourum.QuorumManager;
-import org.apache.activemq.core.server.impl.Activation;
-import org.apache.activemq.core.server.management.ManagementService;
-import org.apache.activemq.spi.core.protocol.RemotingConnection;
-import org.apache.activemq.spi.core.remoting.Acceptor;
-import org.apache.activemq.utils.ConcurrentHashSet;
-import org.apache.activemq.utils.ExecutorFactory;
-import org.apache.activemq.utils.FutureLatch;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
+import org.apache.activemq.artemis.api.core.BroadcastGroupConfiguration;
+import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
+import org.apache.activemq.artemis.api.core.Interceptor;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
+import org.apache.activemq.artemis.core.client.impl.ServerLocatorInternal;
+import org.apache.activemq.artemis.core.config.BridgeConfiguration;
+import org.apache.activemq.artemis.core.config.ClusterConnectionConfiguration;
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.filter.impl.FilterImpl;
+import org.apache.activemq.artemis.core.postoffice.Binding;
+import org.apache.activemq.artemis.core.postoffice.PostOffice;
+import org.apache.activemq.artemis.core.protocol.core.Channel;
+import org.apache.activemq.artemis.core.protocol.core.CoreRemotingConnection;
+import org.apache.activemq.artemis.core.protocol.core.Packet;
+import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ActiveMQExceptionMessage;
+import org.apache.activemq.artemis.core.server.ActiveMQComponent;
+import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.apache.activemq.artemis.core.server.NodeManager;
+import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.server.cluster.ha.HAManager;
+import org.apache.activemq.artemis.core.server.cluster.impl.BridgeImpl;
+import org.apache.activemq.artemis.core.server.cluster.impl.BroadcastGroupImpl;
+import org.apache.activemq.artemis.core.server.cluster.impl.ClusterConnectionImpl;
+import org.apache.activemq.artemis.core.server.cluster.qourum.QuorumManager;
+import org.apache.activemq.artemis.core.server.impl.Activation;
+import org.apache.activemq.artemis.core.server.management.ManagementService;
+import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
+import org.apache.activemq.artemis.utils.ConcurrentHashSet;
+import org.apache.activemq.artemis.utils.ExecutorFactory;
+import org.apache.activemq.artemis.utils.FutureLatch;
 
 /**
  * A ClusterManager manages {@link ClusterConnection}s, {@link BroadcastGroup}s and {@link Bridge}s.
  * <p/>
- * Note that {@link org.apache.activemq.core.server.cluster.impl.ClusterConnectionBridge}s extend Bridges but are controlled over through
- * {@link ClusterConnectionImpl}. As a node is discovered a new {@link org.apache.activemq.core.server.cluster.impl.ClusterConnectionBridge} is
+ * Note that {@link org.apache.activemq.artemis.core.server.cluster.impl.ClusterConnectionBridge}s extend Bridges but are controlled over through
+ * {@link ClusterConnectionImpl}. As a node is discovered a new {@link org.apache.activemq.artemis.core.server.cluster.impl.ClusterConnectionBridge} is
  * deployed.
  */
 public final class ClusterManager implements ActiveMQComponent
@@ -529,7 +529,8 @@ public final class ClusterManager implements ActiveMQComponent
       serverLocator.setBlockOnDurableSend(!config.isUseDuplicateDetection());
       serverLocator.setBlockOnNonDurableSend(!config.isUseDuplicateDetection());
       serverLocator.setMinLargeMessageSize(config.getMinLargeMessageSize());
-      serverLocator.setProducerWindowSize(config.getProducerWindowSize());
+      //disable flow control
+      serverLocator.setProducerWindowSize(-1);
 
       // This will be set to 30s unless it's changed from embedded / testing
       // there is no reason to exception the config for this timeout
@@ -734,7 +735,6 @@ public final class ClusterManager implements ActiveMQComponent
                                                        config.isDuplicateDetection(),
                                                        config.isForwardWhenNoConsumers(),
                                                        config.getConfirmationWindowSize(),
-                                                       config.getProducerWindowSize(),
                                                        executorFactory,
                                                        server,
                                                        postOffice,
@@ -777,7 +777,6 @@ public final class ClusterManager implements ActiveMQComponent
                                                        config.isDuplicateDetection(),
                                                        config.isForwardWhenNoConsumers(),
                                                        config.getConfirmationWindowSize(),
-                                                       config.getProducerWindowSize(),
                                                        executorFactory,
                                                        server,
                                                        postOffice,

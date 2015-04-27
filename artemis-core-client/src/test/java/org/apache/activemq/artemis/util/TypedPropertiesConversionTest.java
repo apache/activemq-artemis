@@ -14,11 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.util;
-import org.apache.activemq.api.core.ActiveMQPropertyConversionException;
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.tests.util.RandomUtil;
-import org.apache.activemq.utils.TypedProperties;
+package org.apache.activemq.artemis.util;
+import org.apache.activemq.artemis.api.core.ActiveMQPropertyConversionException;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.TypedProperties;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;

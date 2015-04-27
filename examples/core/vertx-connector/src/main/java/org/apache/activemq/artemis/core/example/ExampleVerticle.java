@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.example;
+package org.apache.activemq.artemis.core.example;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -34,7 +34,7 @@ public class ExampleVerticle extends Verticle
       final CountDownLatch latch0 = new CountDownLatch(1);
 
       // Register a handler on the outgoing connector's address
-      eventBus.registerHandler(VertxConnectorExample.OUTGOING, 
+      eventBus.registerHandler(VertxConnectorExample.OUTGOING,
                new Handler<Message<?>>() {
                   @Override
                   public void handle(Message<?> startMsg)

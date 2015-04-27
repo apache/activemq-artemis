@@ -14,17 +14,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.stress.journal;
+package org.apache.activemq.artemis.tests.stress.journal;
 
 import java.io.File;
 import java.io.FilenameFilter;
 
-import org.apache.activemq.core.journal.SequentialFileFactory;
-import org.apache.activemq.core.journal.impl.JournalImpl;
-import org.apache.activemq.core.journal.impl.NIOSequentialFileFactory;
-import org.apache.activemq.tests.unit.core.journal.impl.JournalImplTestBase;
-import org.apache.activemq.utils.ReusableLatch;
-import org.apache.activemq.utils.SimpleIDGenerator;
+import org.apache.activemq.artemis.tests.unit.core.journal.impl.JournalImplTestBase;
+import org.apache.activemq.artemis.core.journal.SequentialFileFactory;
+import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
+import org.apache.activemq.artemis.core.journal.impl.NIOSequentialFileFactory;
+import org.apache.activemq.artemis.utils.ReusableLatch;
+import org.apache.activemq.artemis.utils.SimpleIDGenerator;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;

@@ -14,10 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.server;
+package org.apache.activemq.artemis.core.server;
 
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.utils.ReferenceCounter;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.utils.ReferenceCounter;
 
 public interface TransientQueueManager extends ReferenceCounter
 {

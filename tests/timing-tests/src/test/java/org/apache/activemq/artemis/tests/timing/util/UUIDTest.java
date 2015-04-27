@@ -14,11 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.timing.util;
+package org.apache.activemq.artemis.tests.timing.util;
 
-import org.apache.activemq.utils.UUIDGenerator;
+import org.apache.activemq.artemis.utils.UUIDGenerator;
 
-public class UUIDTest extends org.apache.activemq.tests.unit.util.UUIDTest
+public class UUIDTest extends org.apache.activemq.artemis.tests.unit.util.UUIDTest
 {
 
    // Constants -----------------------------------------------------

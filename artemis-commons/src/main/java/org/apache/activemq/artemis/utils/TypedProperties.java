@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.utils;
+package org.apache.activemq.artemis.utils;
 
 import java.nio.ByteBuffer;
 import java.util.Collections;
@@ -24,22 +24,22 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.apache.activemq.api.core.ActiveMQBuffer;
-import org.apache.activemq.api.core.ActiveMQPropertyConversionException;
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.logs.ActiveMQUtilBundle;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.ActiveMQPropertyConversionException;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.logs.ActiveMQUtilBundle;
 
-import static org.apache.activemq.utils.DataConstants.BOOLEAN;
-import static org.apache.activemq.utils.DataConstants.BYTE;
-import static org.apache.activemq.utils.DataConstants.BYTES;
-import static org.apache.activemq.utils.DataConstants.CHAR;
-import static org.apache.activemq.utils.DataConstants.DOUBLE;
-import static org.apache.activemq.utils.DataConstants.FLOAT;
-import static org.apache.activemq.utils.DataConstants.INT;
-import static org.apache.activemq.utils.DataConstants.LONG;
-import static org.apache.activemq.utils.DataConstants.NULL;
-import static org.apache.activemq.utils.DataConstants.SHORT;
-import static org.apache.activemq.utils.DataConstants.STRING;
+import static org.apache.activemq.artemis.utils.DataConstants.BOOLEAN;
+import static org.apache.activemq.artemis.utils.DataConstants.BYTE;
+import static org.apache.activemq.artemis.utils.DataConstants.BYTES;
+import static org.apache.activemq.artemis.utils.DataConstants.CHAR;
+import static org.apache.activemq.artemis.utils.DataConstants.DOUBLE;
+import static org.apache.activemq.artemis.utils.DataConstants.FLOAT;
+import static org.apache.activemq.artemis.utils.DataConstants.INT;
+import static org.apache.activemq.artemis.utils.DataConstants.LONG;
+import static org.apache.activemq.artemis.utils.DataConstants.NULL;
+import static org.apache.activemq.artemis.utils.DataConstants.SHORT;
+import static org.apache.activemq.artemis.utils.DataConstants.STRING;
 
 /**
  * Property Value Conversion.

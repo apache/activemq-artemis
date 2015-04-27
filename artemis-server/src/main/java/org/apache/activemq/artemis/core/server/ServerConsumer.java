@@ -14,11 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.server;
+package org.apache.activemq.artemis.core.server;
 
 import java.util.List;
 
-import org.apache.activemq.core.transaction.Transaction;
+import org.apache.activemq.artemis.core.transaction.Transaction;
 
 /**
  *

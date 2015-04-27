@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.jms.client;
+package org.apache.activemq.artemis.jms.client;
 
 import java.io.Serializable;
 import java.util.HashSet;
@@ -49,16 +49,16 @@ import javax.jms.TopicSubscriber;
 import javax.jms.TransactionInProgressException;
 import javax.transaction.xa.XAResource;
 
-import org.apache.activemq.api.core.ActiveMQException;
-import org.apache.activemq.api.core.ActiveMQQueueExistsException;
-import org.apache.activemq.selector.filter.FilterException;
-import org.apache.activemq.selector.impl.SelectorParser;
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.api.core.client.ClientConsumer;
-import org.apache.activemq.api.core.client.ClientProducer;
-import org.apache.activemq.api.core.client.ClientSession;
-import org.apache.activemq.api.core.client.ClientSession.AddressQuery;
-import org.apache.activemq.api.core.client.ClientSession.QueueQuery;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException;
+import org.apache.activemq.artemis.selector.filter.FilterException;
+import org.apache.activemq.artemis.selector.impl.SelectorParser;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.client.ClientConsumer;
+import org.apache.activemq.artemis.api.core.client.ClientProducer;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.api.core.client.ClientSession.AddressQuery;
+import org.apache.activemq.artemis.api.core.client.ClientSession.QueueQuery;
 
 /**
  * ActiveMQ implementation of a JMS Session.

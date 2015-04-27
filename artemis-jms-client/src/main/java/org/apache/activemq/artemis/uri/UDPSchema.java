@@ -15,17 +15,17 @@
  * limitations under the License.
  */
 
-package org.apache.activemq.uri;
+package org.apache.activemq.artemis.uri;
 
 import java.net.URI;
 import java.util.Map;
 
-import org.apache.activemq.api.core.DiscoveryGroupConfiguration;
-import org.apache.activemq.api.core.UDPBroadcastEndpointFactory;
-import org.apache.activemq.api.jms.ActiveMQJMSClient;
-import org.apache.activemq.jms.client.ActiveMQConnectionFactory;
-import org.apache.activemq.utils.uri.SchemaConstants;
-import org.apache.activemq.utils.uri.URISchema;
+import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
+import org.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory;
+import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.utils.uri.SchemaConstants;
+import org.apache.activemq.artemis.utils.uri.URISchema;
 
 public class UDPSchema extends AbstractCFSchema
 {

@@ -14,32 +14,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.replication;
+package org.apache.activemq.artemis.core.replication;
 
 import java.util.List;
 import java.util.Map;
 
-import org.apache.activemq.core.journal.EncodingSupport;
-import org.apache.activemq.core.journal.IOCompletion;
-import org.apache.activemq.core.journal.Journal;
-import org.apache.activemq.core.journal.JournalLoadInformation;
-import org.apache.activemq.core.journal.LoaderCallback;
-import org.apache.activemq.core.journal.PreparedTransactionInfo;
-import org.apache.activemq.core.journal.RecordInfo;
-import org.apache.activemq.core.journal.SequentialFileFactory;
-import org.apache.activemq.core.journal.TransactionFailureCallback;
-import org.apache.activemq.core.journal.impl.JournalFile;
-import org.apache.activemq.core.journal.impl.dataformat.ByteArrayEncoding;
-import org.apache.activemq.core.persistence.OperationContext;
-import org.apache.activemq.core.replication.ReplicationManager.ADD_OPERATION_TYPE;
+import org.apache.activemq.artemis.core.journal.EncodingSupport;
+import org.apache.activemq.artemis.core.journal.IOCompletion;
+import org.apache.activemq.artemis.core.journal.Journal;
+import org.apache.activemq.artemis.core.journal.JournalLoadInformation;
+import org.apache.activemq.artemis.core.journal.LoaderCallback;
+import org.apache.activemq.artemis.core.journal.PreparedTransactionInfo;
+import org.apache.activemq.artemis.core.journal.RecordInfo;
+import org.apache.activemq.artemis.core.journal.SequentialFileFactory;
+import org.apache.activemq.artemis.core.journal.TransactionFailureCallback;
+import org.apache.activemq.artemis.core.journal.impl.JournalFile;
+import org.apache.activemq.artemis.core.journal.impl.dataformat.ByteArrayEncoding;
+import org.apache.activemq.artemis.core.persistence.OperationContext;
+import org.apache.activemq.artemis.core.replication.ReplicationManager.ADD_OPERATION_TYPE;
 
 /**
- * Used by the {@link org.apache.activemq.core.persistence.impl.journal.JournalStorageManager} to replicate journal calls.
+ * Used by the {@link org.apache.activemq.artemis.core.persistence.impl.journal.JournalStorageManager} to replicate journal calls.
  * <p>
  * This class wraps a {@link ReplicationManager} and the local {@link Journal}. Every call will be
  * relayed to both instances.
  *
- * @see org.apache.activemq.core.persistence.impl.journal.JournalStorageManager
+ * @see org.apache.activemq.artemis.core.persistence.impl.journal.JournalStorageManager
  */
 public class ReplicatedJournal implements Journal
 {
@@ -72,7 +72,7 @@ public class ReplicatedJournal implements Journal
     * @param record
     * @param sync
     * @throws Exception
-    * @see org.apache.activemq.core.journal.Journal#appendAddRecord(long, byte, byte[], boolean)
+    * @see org.apache.activemq.artemis.core.journal.Journal#appendAddRecord(long, byte, byte[], boolean)
     */
    public void appendAddRecord(final long id, final byte recordType, final byte[] record, final boolean sync) throws Exception
    {
@@ -95,7 +95,7 @@ public class ReplicatedJournal implements Journal
     * @param record
     * @param sync
     * @throws Exception
-    * @see org.apache.activemq.core.journal.Journal#appendAddRecord(long, byte, org.apache.activemq.core.journal.EncodingSupport, boolean)
+    * @see org.apache.activemq.artemis.core.journal.Journal#appendAddRecord(long, byte, org.apache.activemq.artemis.core.journal.EncodingSupport, boolean)
     */
    public void appendAddRecord(final long id,
                                final byte recordType,
@@ -117,7 +117,7 @@ public class ReplicatedJournal implements Journal
     * @param recordType
     * @param record
     * @throws Exception
-    * @see org.apache.activemq.core.journal.Journal#appendAddRecordTransactional(long, long, byte, byte[])
+    * @see org.apache.activemq.artemis.core.journal.Journal#appendAddRecordTransactional(long, long, byte, byte[])
     */
    public void appendAddRecordTransactional(final long txID, final long id, final byte recordType, final byte[] record) throws Exception
    {
@@ -130,7 +130,7 @@ public class ReplicatedJournal implements Journal
     * @param recordType
     * @param record
     * @throws Exception
-    * @see org.apache.activemq.core.journal.Journal#appendAddRecordTransactional(long, long, byte, org.apache.activemq.core.journal.EncodingSupport)
+    * @see org.apache.activemq.artemis.core.journal.Journal#appendAddRecordTransactional(long, long, byte, org.apache.activemq.artemis.core.journal.EncodingSupport)
     */
    public void appendAddRecordTransactional(final long txID,
                                             final long id,
@@ -149,7 +149,7 @@ public class ReplicatedJournal implements Journal
     * @param txID
     * @param sync
     * @throws Exception
-    * @see org.apache.activemq.core.journal.Journal#appendCommitRecord(long, boolean)
+    * @see org.apache.activemq.artemis.core.journal.Journal#appendCommitRecord(long, boolean)
     */
    public void appendCommitRecord(final long txID, final boolean sync) throws Exception
    {
@@ -186,7 +186,7 @@ public class ReplicatedJournal implements Journal
     * @param id
     * @param sync
     * @throws Exception
-    * @see org.apache.activemq.core.journal.Journal#appendDeleteRecord(long, boolean)
+    * @see org.apache.activemq.artemis.core.journal.Journal#appendDeleteRecord(long, boolean)
     */
    @Override
    public void appendDeleteRecord(final long id, final boolean sync) throws Exception
@@ -215,7 +215,7 @@ public class ReplicatedJournal implements Journal
     * @param id
     * @param record
     * @throws Exception
-    * @see org.apache.activemq.core.journal.Journal#appendDeleteRecordTransactional(long, long, byte[])
+    * @see org.apache.activemq.artemis.core.journal.Journal#appendDeleteRecordTransactional(long, long, byte[])
     */
    public void appendDeleteRecordTransactional(final long txID, final long id, final byte[] record) throws Exception
    {
@@ -227,7 +227,7 @@ public class ReplicatedJournal implements Journal
     * @param id
     * @param record
     * @throws Exception
-    * @see org.apache.activemq.core.journal.Journal#appendDeleteRecordTransactional(long, long, org.apache.activemq.core.journal.EncodingSupport)
+    * @see org.apache.activemq.artemis.core.journal.Journal#appendDeleteRecordTransactional(long, long, org.apache.activemq.artemis.core.journal.EncodingSupport)
     */
    public void appendDeleteRecordTransactional(final long txID, final long id, final EncodingSupport record) throws Exception
    {
@@ -243,7 +243,7 @@ public class ReplicatedJournal implements Journal
     * @param txID
     * @param id
     * @throws Exception
-    * @see org.apache.activemq.core.journal.Journal#appendDeleteRecordTransactional(long, long)
+    * @see org.apache.activemq.artemis.core.journal.Journal#appendDeleteRecordTransactional(long, long)
     */
    public void appendDeleteRecordTransactional(final long txID, final long id) throws Exception
    {
@@ -260,7 +260,7 @@ public class ReplicatedJournal implements Journal
     * @param transactionData
     * @param sync
     * @throws Exception
-    * @see org.apache.activemq.core.journal.Journal#appendPrepareRecord(long, byte[], boolean)
+    * @see org.apache.activemq.artemis.core.journal.Journal#appendPrepareRecord(long, byte[], boolean)
     */
    public void appendPrepareRecord(final long txID, final byte[] transactionData, final boolean sync) throws Exception
    {
@@ -272,7 +272,7 @@ public class ReplicatedJournal implements Journal
     * @param transactionData
     * @param sync
     * @throws Exception
-    * @see org.apache.activemq.core.journal.Journal#appendPrepareRecord(long, org.apache.activemq.core.journal.EncodingSupport, boolean)
+    * @see org.apache.activemq.artemis.core.journal.Journal#appendPrepareRecord(long, org.apache.activemq.artemis.core.journal.EncodingSupport, boolean)
     */
    public void appendPrepareRecord(final long txID, final EncodingSupport transactionData, final boolean sync) throws Exception
    {
@@ -302,7 +302,7 @@ public class ReplicatedJournal implements Journal
     * @param txID
     * @param sync
     * @throws Exception
-    * @see org.apache.activemq.core.journal.Journal#appendRollbackRecord(long, boolean)
+    * @see org.apache.activemq.artemis.core.journal.Journal#appendRollbackRecord(long, boolean)
     */
    public void appendRollbackRecord(final long txID, final boolean sync) throws Exception
    {
@@ -330,7 +330,7 @@ public class ReplicatedJournal implements Journal
     * @param record
     * @param sync
     * @throws Exception
-    * @see org.apache.activemq.core.journal.Journal#appendUpdateRecord(long, byte, byte[], boolean)
+    * @see org.apache.activemq.artemis.core.journal.Journal#appendUpdateRecord(long, byte, byte[], boolean)
     */
    public void appendUpdateRecord(final long id, final byte recordType, final byte[] record, final boolean sync) throws Exception
    {
@@ -343,7 +343,7 @@ public class ReplicatedJournal implements Journal
     * @param record
     * @param sync
     * @throws Exception
-    * @see org.apache.activemq.core.journal.Journal#appendUpdateRecord(long, byte, org.apache.activemq.core.journal.EncodingSupport, boolean)
+    * @see org.apache.activemq.artemis.core.journal.Journal#appendUpdateRecord(long, byte, org.apache.activemq.artemis.core.journal.EncodingSupport, boolean)
     */
    @Override
    public void appendUpdateRecord(final long id, final byte recordType, final EncodingSupport record, final boolean sync) throws Exception
@@ -377,7 +377,7 @@ public class ReplicatedJournal implements Journal
     * @param recordType
     * @param record
     * @throws Exception
-    * @see org.apache.activemq.core.journal.Journal#appendUpdateRecordTransactional(long, long, byte, byte[])
+    * @see org.apache.activemq.artemis.core.journal.Journal#appendUpdateRecordTransactional(long, long, byte, byte[])
     */
    public void appendUpdateRecordTransactional(final long txID, final long id, final byte recordType,
                                                final byte[] record) throws Exception
@@ -391,7 +391,7 @@ public class ReplicatedJournal implements Journal
     * @param recordType
     * @param record
     * @throws Exception
-    * @see org.apache.activemq.core.journal.Journal#appendUpdateRecordTransactional(long, long, byte, org.apache.activemq.core.journal.EncodingSupport)
+    * @see org.apache.activemq.artemis.core.journal.Journal#appendUpdateRecordTransactional(long, long, byte, org.apache.activemq.artemis.core.journal.EncodingSupport)
     */
    public void appendUpdateRecordTransactional(final long txID, final long id, final byte recordType,
                                                final EncodingSupport record) throws Exception
@@ -411,7 +411,7 @@ public class ReplicatedJournal implements Journal
     * @param transactionFailure
     *
     * @throws Exception
-    * @see org.apache.activemq.core.journal.Journal#load(java.util.List, java.util.List, org.apache.activemq.core.journal.TransactionFailureCallback)
+    * @see org.apache.activemq.artemis.core.journal.Journal#load(java.util.List, java.util.List, org.apache.activemq.artemis.core.journal.TransactionFailureCallback)
     */
    public JournalLoadInformation load(final List<RecordInfo> committedRecords,
                                       final List<PreparedTransactionInfo> preparedTransactions,
@@ -424,7 +424,7 @@ public class ReplicatedJournal implements Journal
     * @param reloadManager
     *
     * @throws Exception
-    * @see org.apache.activemq.core.journal.Journal#load(org.apache.activemq.core.journal.LoaderCallback)
+    * @see org.apache.activemq.artemis.core.journal.Journal#load(org.apache.activemq.artemis.core.journal.LoaderCallback)
     */
    public JournalLoadInformation load(final LoaderCallback reloadManager) throws Exception
    {
@@ -434,7 +434,7 @@ public class ReplicatedJournal implements Journal
    /**
     * @param pages
     * @throws Exception
-    * @see org.apache.activemq.core.journal.Journal#perfBlast(int)
+    * @see org.apache.activemq.artemis.core.journal.Journal#perfBlast(int)
     */
    public void perfBlast(final int pages)
    {
@@ -443,7 +443,7 @@ public class ReplicatedJournal implements Journal
 
    /**
     * @throws Exception
-    * @see org.apache.activemq.core.server.ActiveMQComponent#start()
+    * @see org.apache.activemq.artemis.core.server.ActiveMQComponent#start()
     */
    public void start() throws Exception
    {
@@ -452,7 +452,7 @@ public class ReplicatedJournal implements Journal
 
    /**
     * @throws Exception
-    * @see org.apache.activemq.core.server.ActiveMQComponent#stop()
+    * @see org.apache.activemq.artemis.core.server.ActiveMQComponent#stop()
     */
    public void stop() throws Exception
    {

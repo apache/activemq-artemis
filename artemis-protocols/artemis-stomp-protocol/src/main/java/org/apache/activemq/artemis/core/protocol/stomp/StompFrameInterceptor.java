@@ -14,9 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.protocol.stomp;
+package org.apache.activemq.artemis.core.protocol.stomp;
 
-import org.apache.activemq.api.core.BaseInterceptor;
+import org.apache.activemq.artemis.api.core.BaseInterceptor;
 
 /**
  * This class is a simple way to intercepting client calls on ActiveMQ using STOMP protocol.

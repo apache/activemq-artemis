@@ -14,17 +14,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.unit.core.asyncio;
+package org.apache.activemq.artemis.tests.unit.core.asyncio;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq.api.core.ActiveMQException;
-import org.apache.activemq.core.asyncio.AIOCallback;
-import org.apache.activemq.core.asyncio.impl.AsynchronousFileImpl;
-import org.apache.activemq.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.core.asyncio.AIOCallback;
+import org.apache.activemq.artemis.core.asyncio.impl.AsynchronousFileImpl;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;

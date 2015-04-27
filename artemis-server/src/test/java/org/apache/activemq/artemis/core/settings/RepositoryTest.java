@@ -14,15 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.settings;
+package org.apache.activemq.artemis.core.settings;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq.core.security.Role;
-import org.apache.activemq.core.settings.impl.HierarchicalObjectRepository;
-import org.apache.activemq.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.core.security.Role;
+import org.apache.activemq.artemis.core.settings.impl.HierarchicalObjectRepository;
+import org.apache.activemq.artemis.tests.util.UnitTestCase;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

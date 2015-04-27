@@ -14,27 +14,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.management.impl;
+package org.apache.activemq.artemis.core.management.impl;
 
 import javax.management.MBeanOperationInfo;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.api.core.management.AddressControl;
-import org.apache.activemq.core.paging.PagingManager;
-import org.apache.activemq.core.paging.PagingStore;
-import org.apache.activemq.core.persistence.StorageManager;
-import org.apache.activemq.core.postoffice.Binding;
-import org.apache.activemq.core.postoffice.Bindings;
-import org.apache.activemq.core.postoffice.PostOffice;
-import org.apache.activemq.core.postoffice.QueueBinding;
-import org.apache.activemq.core.security.CheckType;
-import org.apache.activemq.core.security.Role;
-import org.apache.activemq.core.settings.HierarchicalRepository;
-import org.apache.activemq.utils.json.JSONArray;
-import org.apache.activemq.utils.json.JSONObject;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.management.AddressControl;
+import org.apache.activemq.artemis.core.paging.PagingManager;
+import org.apache.activemq.artemis.core.paging.PagingStore;
+import org.apache.activemq.artemis.core.persistence.StorageManager;
+import org.apache.activemq.artemis.core.postoffice.Binding;
+import org.apache.activemq.artemis.core.postoffice.Bindings;
+import org.apache.activemq.artemis.core.postoffice.PostOffice;
+import org.apache.activemq.artemis.core.postoffice.QueueBinding;
+import org.apache.activemq.artemis.core.security.CheckType;
+import org.apache.activemq.artemis.core.security.Role;
+import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
+import org.apache.activemq.artemis.utils.json.JSONArray;
+import org.apache.activemq.artemis.utils.json.JSONObject;
 
 public class AddressControlImpl extends AbstractControl implements AddressControl
 {

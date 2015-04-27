@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.jms.tests.message.foreign;
+package org.apache.activemq.artemis.jms.tests.message.foreign;
 
 import java.io.Serializable;
 

@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.protocol.openwire;
+package org.apache.activemq.artemis.core.protocol.openwire;
 
 import javax.jms.InvalidDestinationException;
 import javax.jms.JMSSecurityException;
@@ -34,12 +34,12 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import org.apache.activemq.api.core.ActiveMQBuffer;
-import org.apache.activemq.api.core.ActiveMQBuffers;
-import org.apache.activemq.api.core.ActiveMQException;
-import org.apache.activemq.api.core.ActiveMQNonExistentQueueException;
-import org.apache.activemq.api.core.ActiveMQSecurityException;
-import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.ActiveMQNonExistentQueueException;
+import org.apache.activemq.artemis.api.core.ActiveMQSecurityException;
+import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.command.ActiveMQMessage;
 import org.apache.activemq.command.BrokerInfo;
@@ -74,24 +74,24 @@ import org.apache.activemq.command.ShutdownInfo;
 import org.apache.activemq.command.TransactionId;
 import org.apache.activemq.command.TransactionInfo;
 import org.apache.activemq.command.WireFormatInfo;
-import org.apache.activemq.core.protocol.openwire.amq.AMQBrokerStoppedException;
-import org.apache.activemq.core.protocol.openwire.amq.AMQConnectionContext;
-import org.apache.activemq.core.protocol.openwire.amq.AMQConsumerBrokerExchange;
-import org.apache.activemq.core.protocol.openwire.amq.AMQMapTransportConnectionStateRegister;
-import org.apache.activemq.core.protocol.openwire.amq.AMQMessageAuthorizationPolicy;
-import org.apache.activemq.core.protocol.openwire.amq.AMQProducerBrokerExchange;
-import org.apache.activemq.core.protocol.openwire.amq.AMQSession;
-import org.apache.activemq.core.protocol.openwire.amq.AMQSingleTransportConnectionStateRegister;
-import org.apache.activemq.core.protocol.openwire.amq.AMQTransaction;
-import org.apache.activemq.core.protocol.openwire.amq.AMQTransportConnectionState;
-import org.apache.activemq.core.protocol.openwire.amq.AMQTransportConnectionStateRegister;
-import org.apache.activemq.core.remoting.CloseListener;
-import org.apache.activemq.core.remoting.FailureListener;
-import org.apache.activemq.core.server.ActiveMQServerLogger;
+import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQBrokerStoppedException;
+import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQConnectionContext;
+import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQConsumerBrokerExchange;
+import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQMapTransportConnectionStateRegister;
+import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQMessageAuthorizationPolicy;
+import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQProducerBrokerExchange;
+import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQSession;
+import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQSingleTransportConnectionStateRegister;
+import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQTransaction;
+import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQTransportConnectionState;
+import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQTransportConnectionStateRegister;
+import org.apache.activemq.artemis.core.remoting.CloseListener;
+import org.apache.activemq.artemis.core.remoting.FailureListener;
+import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.openwire.OpenWireFormat;
-import org.apache.activemq.spi.core.protocol.RemotingConnection;
-import org.apache.activemq.spi.core.remoting.Acceptor;
-import org.apache.activemq.spi.core.remoting.Connection;
+import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
+import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.activemq.state.CommandVisitor;
 import org.apache.activemq.state.ConnectionState;
 import org.apache.activemq.state.ConsumerState;
@@ -101,7 +101,7 @@ import org.apache.activemq.thread.TaskRunner;
 import org.apache.activemq.thread.TaskRunnerFactory;
 import org.apache.activemq.transport.TransmitCallback;
 import org.apache.activemq.util.ByteSequence;
-import org.apache.activemq.utils.ConcurrentHashSet;
+import org.apache.activemq.artemis.utils.ConcurrentHashSet;
 import org.apache.activemq.wireformat.WireFormat;
 
 /**

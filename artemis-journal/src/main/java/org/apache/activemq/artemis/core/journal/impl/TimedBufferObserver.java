@@ -14,12 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.journal.impl;
+package org.apache.activemq.artemis.core.journal.impl;
 
 import java.nio.ByteBuffer;
 import java.util.List;
 
-import org.apache.activemq.core.journal.IOAsyncTask;
+import org.apache.activemq.artemis.core.journal.IOAsyncTask;
 
 public interface TimedBufferObserver
 {

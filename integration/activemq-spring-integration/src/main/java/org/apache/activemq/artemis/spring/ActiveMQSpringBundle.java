@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.spring;
+package org.apache.activemq.artemis.spring;
 
 
 import org.jboss.logging.annotations.MessageBundle;

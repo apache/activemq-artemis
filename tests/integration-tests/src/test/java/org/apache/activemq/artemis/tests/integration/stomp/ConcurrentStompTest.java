@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.stomp;
+package org.apache.activemq.artemis.tests.integration.stomp;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -25,7 +25,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq.core.protocol.stomp.Stomp;
+import org.apache.activemq.artemis.core.protocol.stomp.Stomp;
 import org.junit.Assert;
 import org.junit.Test;
 

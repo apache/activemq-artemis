@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.example;
+package org.apache.activemq.artemis.core.example;
 
 import java.net.URL;
 import java.util.concurrent.CountDownLatch;
@@ -57,7 +57,7 @@ public class VertxConnectorExample
          final CountDownLatch latch0 = new CountDownLatch(1);
 
          // Step 2 Deploy a Verticle to receive message
-         String verticle = "org.apache.activemq.core.example.ExampleVerticle";
+         String verticle = "org.apache.activemq.artemis.core.example.ExampleVerticle";
          platformManager.deployVerticle(verticle, null, new URL[0], 1, null,
                   new Handler<AsyncResult<String>>(){
 

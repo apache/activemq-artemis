@@ -14,11 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.asyncio;
+package org.apache.activemq.artemis.core.asyncio;
 
 import java.nio.ByteBuffer;
 
-import org.apache.activemq.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
 
 public interface AsynchronousFile
 {
@@ -29,13 +29,13 @@ public interface AsynchronousFile
     * Note: If you are using a native Linux implementation, maxIO can't be higher than what's defined on /proc/sys/fs/aio-max-nr, or you would get an error
     * @param fileName
     * @param maxIO The number of max concurrent asynchronous IO operations. It has to be balanced between the size of your writes and the capacity of your disk.
-    * @throws org.apache.activemq.api.core.ActiveMQException
+    * @throws ActiveMQException
     */
    void open(String fileName, int maxIO) throws ActiveMQException;
 
    /**
     * Warning: This function will perform a synchronous IO, probably translating to a fstat call
-    * @throws org.apache.activemq.api.core.ActiveMQException
+    * @throws ActiveMQException
     * */
    long size() throws ActiveMQException;
 
@@ -44,7 +44,7 @@ public interface AsynchronousFile
 
    /**
     * Performs an internal direct write.
-    * @throws org.apache.activemq.api.core.ActiveMQException
+    * @throws ActiveMQException
     */
    void writeInternal(long positionToWrite, long size, ByteBuffer bytes) throws ActiveMQException;
 

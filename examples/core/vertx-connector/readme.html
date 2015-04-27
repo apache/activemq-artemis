@@ -28,21 +28,21 @@ under the License.
      <h1>Vert.x Connector Service Example</h1>
 
      <p>This example shows you how to configure ActiveMQ to use the Vert.x Connector Service.</p>
-     
+
      <p>ActiveMQ supports 2 types of Vert.x connector, incoming and outgoing.
      Incoming connector consumes from Vert.x event bus and forwards to a configurable address.
      Outgoing connector consumes from a configurable address and forwards to a configurable Vert.x event bus.
      </p>
-     
+
      <p>In this example, an incoming connector and an outgoing connector are configured. A simple java Verticle
      is deployed. The verticle registers a message handler on the outgoing connector's address ("outgoing.vertx.address").
-     A String message is sent to Vert.x event bus on the incoming connector's address("incoming.vertx.address"). 
-     The message then will be forwarded to a ActiveMQ queue by the incoming connector. The outgoing connector listens to 
+     A String message is sent to Vert.x event bus on the incoming connector's address("incoming.vertx.address").
+     The message then will be forwarded to a ActiveMQ queue by the incoming connector. The outgoing connector listens to
      the ActiveMQ queue and forwards the message from ActiveMQ to Vert.x event bus on the outgoing connector's address.
      The verticle finally receives the message from it's event bus.</p>
-     
+
      <p>For more information on Vert.x concept please visit the <a href="http://vertx.io/">Vertx site</a></p>
-     
+
      <h2>Example step-by-step</h2>
      <p><i>To run the server, simply type <code>mvn verify</code>
          from this directory.</p>
@@ -55,8 +55,8 @@ under the License.
 
         <li>We deploy a Verticle using the platformManager</li>
         <pre class="prettyprint">
-           <code>String verticle = "org.apache.activemq.core.example.ExampleVerticle";
-           platformManager.deployVerticle(verticle, null, new URL[0], 1, null, 
+           <code>String verticle = "org.apache.activemq.artemis.core.example.ExampleVerticle";
+           platformManager.deployVerticle(verticle, null, new URL[0], 1, null,
                   new Handler<AsyncResult<String>>(){
 
                      @Override
@@ -68,14 +68,14 @@ under the License.
                         }
                         latch0.countDown();
                      }
-            
+
            });</code>
         </pre>
 
         <li>We register a message handler with the event bus in the Verticle to listen on the outgoing connector's address.</li>
         <pre class="prettyprint">
            <code>EventBus eventBus = vertx.eventBus();
-           eventBus.registerHandler(VertxConnectorExample.OUTGOING, 
+           eventBus.registerHandler(VertxConnectorExample.OUTGOING,
                       new Handler<Message<?>>() {
                          @Override
                          public void handle(Message<?> startMsg)

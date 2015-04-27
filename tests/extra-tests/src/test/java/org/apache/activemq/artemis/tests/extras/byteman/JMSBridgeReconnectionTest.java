@@ -14,18 +14,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.extras.byteman;
+package org.apache.activemq.artemis.tests.extras.byteman;
 
-import org.apache.activemq.core.client.impl.ClientProducerCredits;
-import org.apache.activemq.core.message.impl.MessageInternal;
-import org.apache.activemq.core.protocol.core.Packet;
-import org.apache.activemq.core.protocol.core.impl.PacketImpl;
-import org.apache.activemq.core.protocol.core.impl.wireformat.SessionSendMessage;
-import org.apache.activemq.jms.bridge.ConnectionFactoryFactory;
-import org.apache.activemq.jms.bridge.QualityOfServiceMode;
-import org.apache.activemq.jms.bridge.impl.JMSBridgeImpl;
-import org.apache.activemq.jms.server.JMSServerManager;
-import org.apache.activemq.tests.extras.jms.bridge.BridgeTestBase;
+import org.apache.activemq.artemis.core.client.impl.ClientProducerCredits;
+import org.apache.activemq.artemis.core.message.impl.MessageInternal;
+import org.apache.activemq.artemis.core.protocol.core.Packet;
+import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionSendMessage;
+import org.apache.activemq.artemis.jms.bridge.ConnectionFactoryFactory;
+import org.apache.activemq.artemis.jms.bridge.QualityOfServiceMode;
+import org.apache.activemq.artemis.jms.bridge.impl.JMSBridgeImpl;
+import org.apache.activemq.artemis.jms.server.JMSServerManager;
+import org.apache.activemq.artemis.tests.extras.jms.bridge.BridgeTestBase;
 import org.jboss.byteman.contrib.bmunit.BMRule;
 import org.jboss.byteman.contrib.bmunit.BMRules;
 import org.jboss.byteman.contrib.bmunit.BMUnitRunner;
@@ -46,7 +46,7 @@ public class JMSBridgeReconnectionTest extends BridgeTestBase
                            @BMRule
                                  (
                                        name = "trace clientsessionimpl send",
-                                       targetClass = "org.apache.activemq.core.protocol.core.impl.ChannelImpl",
+                                       targetClass = "org.apache.activemq.artemis.core.protocol.core.impl.ChannelImpl",
                                        targetMethod = "send",
                                        targetLocation = "ENTRY",
                                        action = "org.apache.activemq.tests.extras.byteman.JMSBridgeReconnectionTest.pause($1);"
@@ -54,7 +54,7 @@ public class JMSBridgeReconnectionTest extends BridgeTestBase
                            @BMRule
                                  (
                                        name = "trace sendRegularMessage",
-                                       targetClass = "org.apache.activemq.core.client.impl.ClientProducerImpl",
+                                       targetClass = "org.apache.activemq.artemis.core.client.impl.ClientProducerImpl",
                                        targetMethod = "sendRegularMessage",
                                        targetLocation = "ENTRY",
                                        action = "org.apache.activemq.tests.extras.byteman.JMSBridgeReconnectionTest.pause2($1,$2,$3);"

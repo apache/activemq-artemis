@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.discovery;
+package org.apache.activemq.artemis.tests.integration.discovery;
 
 import java.net.InetAddress;
 import java.util.ArrayList;
@@ -24,19 +24,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.core.UDPBroadcastEndpointFactory;
-import org.apache.activemq.core.cluster.DiscoveryEntry;
-import org.apache.activemq.core.cluster.DiscoveryGroup;
-import org.apache.activemq.core.cluster.DiscoveryListener;
-import org.apache.activemq.core.server.NodeManager;
-import org.apache.activemq.core.server.cluster.BroadcastGroup;
-import org.apache.activemq.core.server.cluster.impl.BroadcastGroupImpl;
-import org.apache.activemq.core.server.management.NotificationService;
-import org.apache.activemq.tests.integration.IntegrationTestLogger;
-import org.apache.activemq.tests.util.UnitTestCase;
-import org.apache.activemq.utils.UUIDGenerator;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory;
+import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
+import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.core.cluster.DiscoveryEntry;
+import org.apache.activemq.artemis.core.cluster.DiscoveryGroup;
+import org.apache.activemq.artemis.core.cluster.DiscoveryListener;
+import org.apache.activemq.artemis.core.server.NodeManager;
+import org.apache.activemq.artemis.core.server.cluster.BroadcastGroup;
+import org.apache.activemq.artemis.core.server.cluster.impl.BroadcastGroupImpl;
+import org.apache.activemq.artemis.core.server.management.NotificationService;
+import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.junit.Assert;
 
 public class DiscoveryBaseTest extends UnitTestCase

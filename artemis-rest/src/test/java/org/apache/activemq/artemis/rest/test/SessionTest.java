@@ -14,11 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.rest.test;
+package org.apache.activemq.artemis.rest.test;
 
-import org.apache.activemq.rest.queue.QueueDeployment;
-import org.apache.activemq.rest.topic.TopicDeployment;
-import org.apache.activemq.rest.util.Constants;
+import org.apache.activemq.artemis.rest.topic.TopicDeployment;
+import org.apache.activemq.artemis.rest.util.Constants;
+import org.apache.activemq.artemis.rest.queue.QueueDeployment;
 import org.jboss.resteasy.client.ClientRequest;
 import org.jboss.resteasy.client.ClientResponse;
 import org.jboss.resteasy.spi.Link;
@@ -51,15 +51,15 @@ public class SessionTest extends MessageTestBase
       ClientResponse<?> response = request.head();
       response.releaseConnection();
       Assert.assertEquals(200, response.getStatus());
-      Link sender = MessageTestBase.getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "create");
+      Link sender = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "create");
       System.out.println("create: " + sender);
-      Link consumers = MessageTestBase.getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "pull-consumers");
+      Link consumers = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "pull-consumers");
       System.out.println("pull: " + consumers);
       response = Util.setAutoAck(consumers, true);
       Link session = response.getLocationLink();
       response = session.request().head();
       response.releaseConnection();
-      Link consumeNext = MessageTestBase.getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "consume-next");
+      Link consumeNext = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "consume-next");
       System.out.println("consume-next: " + consumeNext);
 
       response = sender.request().body("text/plain", Integer.toString(1)).post();
@@ -71,7 +71,7 @@ public class SessionTest extends MessageTestBase
       Assert.assertEquals("1", response.getEntity(String.class));
       response.releaseConnection();
       response = session.request().get();
-      consumeNext = MessageTestBase.getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "consume-next");
+      consumeNext = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "consume-next");
 
       response = sender.request().body("text/plain", Integer.toString(2)).post();
       response.releaseConnection();
@@ -82,7 +82,7 @@ public class SessionTest extends MessageTestBase
       Assert.assertEquals("2", response.getEntity(String.class));
       response.releaseConnection();
       response = session.request().head();
-      consumeNext = MessageTestBase.getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "consume-next");
+      consumeNext = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "consume-next");
 
       response = sender.request().body("text/plain", Integer.toString(3)).post();
       response.releaseConnection();
@@ -107,15 +107,15 @@ public class SessionTest extends MessageTestBase
       ClientResponse<?> response = request.head();
       response.releaseConnection();
       Assert.assertEquals(200, response.getStatus());
-      Link sender = MessageTestBase.getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "create");
+      Link sender = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "create");
       System.out.println("create: " + sender);
-      Link consumers = MessageTestBase.getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "pull-subscriptions");
+      Link consumers = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "pull-subscriptions");
       System.out.println("pull: " + consumers);
       response = Util.setAutoAck(consumers, true);
       Link session = response.getLocationLink();
       response = session.request().head();
       response.releaseConnection();
-      Link consumeNext = MessageTestBase.getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "consume-next");
+      Link consumeNext = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "consume-next");
       System.out.println("consume-next: " + consumeNext);
 
       response = sender.request().body("text/plain", Integer.toString(1)).post();
@@ -128,7 +128,7 @@ public class SessionTest extends MessageTestBase
       response.releaseConnection();
       response = session.request().get();
       response.releaseConnection();
-      consumeNext = MessageTestBase.getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "consume-next");
+      consumeNext = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "consume-next");
 
       response = sender.request().body("text/plain", Integer.toString(2)).post();
       response.releaseConnection();
@@ -140,7 +140,7 @@ public class SessionTest extends MessageTestBase
       response.releaseConnection();
       response = session.request().head();
       response.releaseConnection();
-      consumeNext = MessageTestBase.getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "consume-next");
+      consumeNext = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "consume-next");
 
       response = sender.request().body("text/plain", Integer.toString(3)).post();
       response.releaseConnection();
@@ -165,15 +165,15 @@ public class SessionTest extends MessageTestBase
       ClientResponse<?> response = request.head();
       response.releaseConnection();
       Assert.assertEquals(200, response.getStatus());
-      Link sender = MessageTestBase.getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "create");
+      Link sender = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "create");
       System.out.println("create: " + sender);
-      Link consumers = MessageTestBase.getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "pull-consumers");
+      Link consumers = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "pull-consumers");
       System.out.println("pull: " + consumers);
       response = Util.setAutoAck(consumers, false);
       Link session = response.getLocationLink();
       response = session.request().head();
       response.releaseConnection();
-      Link consumeNext = MessageTestBase.getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "acknowledge-next");
+      Link consumeNext = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "acknowledge-next");
       System.out.println("consume-next: " + consumeNext);
       Link ack = null;
 
@@ -188,9 +188,9 @@ public class SessionTest extends MessageTestBase
       response.releaseConnection();
       response = session.request().get();
       response.releaseConnection();
-      consumeNext = MessageTestBase.getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "acknowledge-next");
+      consumeNext = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "acknowledge-next");
       Assert.assertNull(consumeNext);
-      ack = MessageTestBase.getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "acknowledgement");
+      ack = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "acknowledgement");
       Assert.assertNotNull(ack);
 
       // acknowledge
@@ -198,9 +198,9 @@ public class SessionTest extends MessageTestBase
       response.releaseConnection();
       response = session.request().head();
       response.releaseConnection();
-      consumeNext = MessageTestBase.getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "acknowledge-next");
+      consumeNext = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "acknowledge-next");
       Assert.assertNotNull(consumeNext);
-      ack = MessageTestBase.getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "acknowledgement");
+      ack = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "acknowledgement");
       Assert.assertNull(ack);
 
       response = sender.request().body("text/plain", Integer.toString(2)).post();
@@ -214,9 +214,9 @@ public class SessionTest extends MessageTestBase
       response.releaseConnection();
       response = session.request().get();
       response.releaseConnection();
-      consumeNext = MessageTestBase.getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "acknowledge-next");
+      consumeNext = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "acknowledge-next");
       Assert.assertNull(consumeNext);
-      ack = MessageTestBase.getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "acknowledgement");
+      ack = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "acknowledgement");
       Assert.assertNotNull(ack);
 
       // acknowledge
@@ -224,9 +224,9 @@ public class SessionTest extends MessageTestBase
       response.releaseConnection();
       response = session.request().head();
       response.releaseConnection();
-      consumeNext = MessageTestBase.getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "acknowledge-next");
+      consumeNext = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "acknowledge-next");
       Assert.assertNotNull(consumeNext);
-      ack = MessageTestBase.getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "acknowledgement");
+      ack = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "acknowledgement");
       Assert.assertNull(ack);
 
       response = session.request().delete();
@@ -242,15 +242,15 @@ public class SessionTest extends MessageTestBase
       ClientResponse<?> response = request.head();
       response.releaseConnection();
       Assert.assertEquals(200, response.getStatus());
-      Link sender = MessageTestBase.getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "create");
+      Link sender = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "create");
       System.out.println("create: " + sender);
-      Link consumers = MessageTestBase.getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "pull-subscriptions");
+      Link consumers = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "pull-subscriptions");
       System.out.println("pull: " + consumers);
       response = Util.setAutoAck(consumers, false);
       Link session = response.getLocationLink();
       response = session.request().head();
       response.releaseConnection();
-      Link consumeNext = MessageTestBase.getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "acknowledge-next");
+      Link consumeNext = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "acknowledge-next");
       System.out.println("consume-next: " + consumeNext);
       Link ack = null;
 
@@ -265,9 +265,9 @@ public class SessionTest extends MessageTestBase
       response.releaseConnection();
       response = session.request().get();
       response.releaseConnection();
-      consumeNext = MessageTestBase.getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "acknowledge-next");
+      consumeNext = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "acknowledge-next");
       Assert.assertNull(consumeNext);
-      ack = MessageTestBase.getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "acknowledgement");
+      ack = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "acknowledgement");
       Assert.assertNotNull(ack);
 
       // acknowledge
@@ -275,9 +275,9 @@ public class SessionTest extends MessageTestBase
       response.releaseConnection();
       response = session.request().head();
       response.releaseConnection();
-      consumeNext = MessageTestBase.getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "acknowledge-next");
+      consumeNext = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "acknowledge-next");
       Assert.assertNotNull(consumeNext);
-      ack = MessageTestBase.getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "acknowledgement");
+      ack = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "acknowledgement");
       Assert.assertNull(ack);
 
       response = sender.request().body("text/plain", Integer.toString(2)).post();
@@ -291,9 +291,9 @@ public class SessionTest extends MessageTestBase
       response.releaseConnection();
       response = session.request().get();
       response.releaseConnection();
-      consumeNext = MessageTestBase.getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "acknowledge-next");
+      consumeNext = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "acknowledge-next");
       Assert.assertNull(consumeNext);
-      ack = MessageTestBase.getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "acknowledgement");
+      ack = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "acknowledgement");
       Assert.assertNotNull(ack);
 
       // acknowledge
@@ -301,9 +301,9 @@ public class SessionTest extends MessageTestBase
       response.releaseConnection();
       response = session.request().head();
       response.releaseConnection();
-      consumeNext = MessageTestBase.getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "acknowledge-next");
+      consumeNext = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "acknowledge-next");
       Assert.assertNotNull(consumeNext);
-      ack = MessageTestBase.getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "acknowledgement");
+      ack = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "acknowledgement");
       Assert.assertNull(ack);
 
       response = session.request().delete();

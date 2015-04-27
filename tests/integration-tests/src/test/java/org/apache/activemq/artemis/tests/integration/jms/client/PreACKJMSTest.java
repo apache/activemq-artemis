@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.jms.client;
+package org.apache.activemq.artemis.tests.integration.jms.client;
 
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
@@ -24,12 +24,11 @@ import javax.jms.TextMessage;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.core.client.ActiveMQClient;
-import org.apache.activemq.api.jms.JMSFactoryType;
-import org.apache.activemq.tests.util.JMSTestBase;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
+import org.apache.activemq.artemis.api.jms.JMSFactoryType;
+import org.apache.activemq.artemis.tests.util.JMSTestBase;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -83,9 +82,9 @@ public class PreACKJMSTest extends JMSTestBase
 
       TextMessage msg2 = (TextMessage) cons.receive(1000);
 
-      Assert.assertNotNull(msg2);
+      assertNotNull(msg2);
 
-      Assert.assertEquals(msg1.getText(), msg2.getText());
+      assertEquals(msg1.getText(), msg2.getText());
 
       conn.close();
 
@@ -99,7 +98,7 @@ public class PreACKJMSTest extends JMSTestBase
 
       msg2 = (TextMessage) cons.receiveNoWait();
 
-      Assert.assertNull("ConnectionFactory is on PreACK mode, the message shouldn't be received", msg2);
+      assertNull("ConnectionFactory is on PreACK mode, the message shouldn't be received", msg2);
    }
 
    public void disabled_testPreACKTransactional() throws Exception
@@ -121,9 +120,9 @@ public class PreACKJMSTest extends JMSTestBase
 
       TextMessage msg2 = (TextMessage) cons.receive(1000);
 
-      Assert.assertNotNull(msg2);
+      assertNotNull(msg2);
 
-      Assert.assertEquals(msg1.getText(), msg2.getText());
+      assertEquals(msg1.getText(), msg2.getText());
 
       sess.rollback();
 
@@ -139,7 +138,7 @@ public class PreACKJMSTest extends JMSTestBase
 
       msg2 = (TextMessage) cons.receive(10);
 
-      Assert.assertNotNull("ConnectionFactory is on PreACK mode but it is transacted", msg2);
+      assertNotNull("ConnectionFactory is on PreACK mode but it is transacted", msg2);
    }
 
    // Package protected ---------------------------------------------

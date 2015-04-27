@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.jms.server.management;
+package org.apache.activemq.artemis.tests.integration.jms.server.management;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -32,31 +32,32 @@ import java.util.Arrays;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.core.management.QueueControl;
-import org.apache.activemq.api.jms.ActiveMQJMSClient;
-import org.apache.activemq.api.jms.management.JMSConnectionInfo;
-import org.apache.activemq.api.jms.management.JMSConsumerInfo;
-import org.apache.activemq.api.jms.management.JMSServerControl;
-import org.apache.activemq.api.jms.management.JMSSessionInfo;
-import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.registry.JndiBindingRegistry;
-import org.apache.activemq.core.remoting.impl.invm.InVMAcceptorFactory;
-import org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory;
-import org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory;
-import org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory;
-import org.apache.activemq.core.server.ActiveMQServer;
-import org.apache.activemq.core.server.ActiveMQServers;
-import org.apache.activemq.jms.client.ActiveMQMessage;
-import org.apache.activemq.jms.server.impl.JMSServerManagerImpl;
-import org.apache.activemq.ra.ActiveMQResourceAdapter;
-import org.apache.activemq.ra.inflow.ActiveMQActivation;
-import org.apache.activemq.ra.inflow.ActiveMQActivationSpec;
-import org.apache.activemq.tests.integration.management.ManagementControlHelper;
-import org.apache.activemq.tests.integration.management.ManagementTestBase;
-import org.apache.activemq.tests.unit.ra.MessageEndpointFactory;
-import org.apache.activemq.tests.unit.util.InVMNamingContext;
-import org.apache.activemq.tests.util.RandomUtil;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.management.QueueControl;
+import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
+import org.apache.activemq.artemis.api.jms.management.JMSConnectionInfo;
+import org.apache.activemq.artemis.api.jms.management.JMSConsumerInfo;
+import org.apache.activemq.artemis.api.jms.management.JMSServerControl;
+import org.apache.activemq.artemis.api.jms.management.JMSSessionInfo;
+import org.apache.activemq.artemis.tests.unit.ra.BootstrapContext;
+import org.apache.activemq.artemis.tests.unit.ra.MessageEndpointFactory;
+import org.apache.activemq.artemis.tests.unit.util.InVMNamingContext;
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.registry.JndiBindingRegistry;
+import org.apache.activemq.artemis.core.remoting.impl.invm.InVMAcceptorFactory;
+import org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory;
+import org.apache.activemq.artemis.core.remoting.impl.netty.NettyAcceptorFactory;
+import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.ActiveMQServers;
+import org.apache.activemq.artemis.jms.client.ActiveMQMessage;
+import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
+import org.apache.activemq.artemis.ra.ActiveMQResourceAdapter;
+import org.apache.activemq.artemis.ra.inflow.ActiveMQActivation;
+import org.apache.activemq.artemis.ra.inflow.ActiveMQActivationSpec;
+import org.apache.activemq.artemis.tests.integration.management.ManagementControlHelper;
+import org.apache.activemq.artemis.tests.integration.management.ManagementTestBase;
+import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
@@ -521,10 +522,10 @@ public class JMSServerControl2Test extends ManagementTestBase
 
          ra = new ActiveMQResourceAdapter();
 
-         ra.setConnectorClassName("org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory");
+         ra.setConnectorClassName("org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory");
          ra.setUserName("userGlobal");
          ra.setPassword("passwordGlobal");
-         ra.start(new org.apache.activemq.tests.unit.ra.BootstrapContext());
+         ra.start(new BootstrapContext());
          ra.setClientID("my-client-id");
          ra.setUserName("user");
          Connection conn = ra.getDefaultActiveMQConnectionFactory().createConnection();
@@ -608,10 +609,10 @@ public class JMSServerControl2Test extends ManagementTestBase
 
          ra = new ActiveMQResourceAdapter();
 
-         ra.setConnectorClassName("org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory");
+         ra.setConnectorClassName("org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory");
          ra.setUserName("userGlobal");
          ra.setPassword("passwordGlobal");
-         ra.start(new org.apache.activemq.tests.unit.ra.BootstrapContext());
+         ra.start(new BootstrapContext());
 
          Connection conn = ra.getDefaultActiveMQConnectionFactory().createConnection();
 

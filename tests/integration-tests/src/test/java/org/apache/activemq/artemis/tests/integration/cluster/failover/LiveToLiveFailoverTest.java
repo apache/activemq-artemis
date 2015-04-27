@@ -14,21 +14,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.cluster.failover;
+package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
-import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.core.client.ClientConsumer;
-import org.apache.activemq.api.core.client.ClientProducer;
-import org.apache.activemq.api.core.client.ClientSession;
-import org.apache.activemq.api.core.client.ServerLocator;
-import org.apache.activemq.core.client.impl.ClientSessionFactoryInternal;
-import org.apache.activemq.core.config.ScaleDownConfiguration;
-import org.apache.activemq.core.config.ha.ColocatedPolicyConfiguration;
-import org.apache.activemq.core.config.ha.SharedStoreMasterPolicyConfiguration;
-import org.apache.activemq.core.config.ha.SharedStoreSlavePolicyConfiguration;
-import org.apache.activemq.core.server.ActiveMQServer;
-import org.apache.activemq.core.server.impl.InVMNodeManager;
-import org.apache.activemq.tests.util.TransportConfigurationUtils;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.client.ClientConsumer;
+import org.apache.activemq.artemis.api.core.client.ClientProducer;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal;
+import org.apache.activemq.artemis.core.config.ScaleDownConfiguration;
+import org.apache.activemq.artemis.core.config.ha.ColocatedPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.SharedStoreMasterPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.SharedStoreSlavePolicyConfiguration;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.impl.InVMNodeManager;
+import org.apache.activemq.artemis.tests.util.TransportConfigurationUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -153,7 +153,7 @@ public class LiveToLiveFailoverTest extends FailoverTest
          sf2 = (ClientSessionFactoryInternal) locator.createSessionFactory(backupServer.getServer().getNodeID().toString());
 
          ClientSession session2 = createSession(sf2, false, false);
-         session2.createQueue(FailoverTestBase.ADDRESS, FailoverTestBase.ADDRESS, null, true);
+         session2.createQueue(ADDRESS, ADDRESS, null, true);
          addSessionFactory(sf2);
       }
 
@@ -182,7 +182,7 @@ public class LiveToLiveFailoverTest extends FailoverTest
          sf2 = (ClientSessionFactoryInternal) locator.createSessionFactory(backupServer.getServer().getNodeID().toString());
 
          ClientSession session2 = createSession(sf2, false, false);
-         session2.createQueue(FailoverTestBase.ADDRESS, FailoverTestBase.ADDRESS, null, true);
+         session2.createQueue(ADDRESS, ADDRESS, null, true);
          addSessionFactory(sf2);
       }
       return sf;
@@ -214,7 +214,7 @@ public class LiveToLiveFailoverTest extends FailoverTest
          sf2 = (ClientSessionFactoryInternal) locator.createSessionFactory(backupServer.getServer().getNodeID().toString());
          addSessionFactory(sf2);
          ClientSession session2 = createSession(sf2, false, false);
-         session2.createQueue(FailoverTestBase.ADDRESS, FailoverTestBase.ADDRESS, null, true);
+         session2.createQueue(ADDRESS, ADDRESS, null, true);
       }
    }
 
@@ -235,16 +235,16 @@ public class LiveToLiveFailoverTest extends FailoverTest
 
       ClientSession session = createSession(sf, true, true);
 
-      session.createQueue(FailoverTestBase.ADDRESS, FailoverTestBase.ADDRESS, null, true);
+      session.createQueue(ADDRESS, ADDRESS, null, true);
 
-      ClientProducer producer = session.createProducer(FailoverTestBase.ADDRESS);
+      ClientProducer producer = session.createProducer(ADDRESS);
 
       //send enough messages to ensure that when the client fails over scaledown hasn't complete
       sendMessages(session, producer, 1000);
 
       crash(session);
 
-      ClientConsumer consumer = session.createConsumer(FailoverTestBase.ADDRESS);
+      ClientConsumer consumer = session.createConsumer(ADDRESS);
 
       session.start();
 
@@ -277,12 +277,12 @@ public class LiveToLiveFailoverTest extends FailoverTest
 
       //session.createQueue(FailoverTestBase.ADDRESS, FailoverTestBase.ADDRESS, null, true);
 
-      ClientProducer producer = session.createProducer(FailoverTestBase.ADDRESS);
+      ClientProducer producer = session.createProducer(ADDRESS);
 
 
       sendMessages(session, producer, NUM_MESSAGES);
 
-      ClientConsumer consumer = session.createConsumer(FailoverTestBase.ADDRESS);
+      ClientConsumer consumer = session.createConsumer(ADDRESS);
 
       session.start();
 

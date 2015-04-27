@@ -14,9 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.cluster.failover;
+package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
-import org.apache.activemq.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
 
 public class NettyAsynchronousFailoverTest extends AsynchronousFailoverTest
 {

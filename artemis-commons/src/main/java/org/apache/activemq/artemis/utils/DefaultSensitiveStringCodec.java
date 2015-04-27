@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.utils;
+package org.apache.activemq.artemis.utils;
 
 import java.math.BigInteger;
 import java.security.InvalidKeyException;
@@ -107,7 +107,7 @@ public class DefaultSensitiveStringCodec implements SensitiveDataCodec<String>
    {
       if (args.length != 1)
       {
-         System.err.println("Use: java -cp <classPath> org.apache.activemq.utils.DefaultSensitiveStringCodec password-to-encode");
+         System.err.println("Use: java -cp <classPath> org.apache.activemq.artemis.utils.DefaultSensitiveStringCodec password-to-encode");
          System.err.println("Error: no password on the args");
          System.exit(-1);
       }

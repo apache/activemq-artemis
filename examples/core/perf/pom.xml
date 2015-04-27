@@ -24,22 +24,22 @@ under the License.
    <parent>
       <groupId>org.apache.activemq.examples.core</groupId>
       <artifactId>core-examples</artifactId>
-      <version>10.0.0-SNAPSHOT</version>
+      <version>1.0.0-SNAPSHOT</version>
    </parent>
 
-   <artifactId>activemq-core-perf-example</artifactId>
+   <artifactId>artemis-core-perf-example</artifactId>
    <packaging>jar</packaging>
    <name>ActiveMQ Artemis Perf Example</name>
 
    <dependencies>
       <dependency>
          <groupId>org.apache.activemq</groupId>
-         <artifactId>activemq-core-client</artifactId>
+         <artifactId>artemis-core-client</artifactId>
          <version>${project.version}</version>
       </dependency>
       <dependency>
          <groupId>org.apache.activemq</groupId>
-         <artifactId>activemq-commons</artifactId>
+         <artifactId>artemis-commons</artifactId>
          <version>${project.version}</version>
       </dependency>
       <dependency>
@@ -49,7 +49,7 @@ under the License.
       </dependency>
       <dependency>
          <groupId>org.apache.activemq.examples.jms</groupId>
-         <artifactId>activemq-jms-examples-common</artifactId>
+         <artifactId>artemis-jms-examples-common</artifactId>
          <version>${project.version}</version>
       </dependency>
       <dependency>
@@ -65,7 +65,7 @@ under the License.
             <plugins>
                <plugin>
                   <groupId>org.apache.activemq</groupId>
-                  <artifactId>activemq-maven-plugin</artifactId>
+                  <artifactId>artemis-maven-plugin</artifactId>
                   <executions>
                      <execution>
                         <id>start</id>
@@ -91,27 +91,27 @@ under the License.
                   <dependencies>
                      <dependency>
                         <groupId>org.apache.activemq.examples.core</groupId>
-                        <artifactId>activemq-core-perf-example</artifactId>
+                        <artifactId>artemis-core-perf-example</artifactId>
                         <version>${project.version}</version>
                      </dependency>
                      <dependency>
                         <groupId>org.apache.activemq</groupId>
-                        <artifactId>activemq-core-client</artifactId>
+                        <artifactId>artemis-core-client</artifactId>
                         <version>${project.version}</version>
                      </dependency>
                      <dependency>
                         <groupId>org.apache.activemq</groupId>
-                        <artifactId>activemq-server</artifactId>
+                        <artifactId>artemis-server</artifactId>
                         <version>${project.version}</version>
                      </dependency>
                      <dependency>
                         <groupId>org.apache.activemq</groupId>
-                        <artifactId>activemq-jms-client</artifactId>
+                        <artifactId>artemis-jms-client</artifactId>
                         <version>${project.version}</version>
                      </dependency>
                      <dependency>
                         <groupId>org.apache.activemq</groupId>
-                        <artifactId>activemq-jms-server</artifactId>
+                        <artifactId>artemis-jms-server</artifactId>
                         <version>${project.version}</version>
                      </dependency>
                      <dependency>
@@ -141,7 +141,7 @@ under the License.
                      </execution>
                   </executions>
                   <configuration>
-                     <mainClass>org.apache.activemq.core.example.PerfListener</mainClass>
+                     <mainClass>org.apache.activemq.artemis.core.example.PerfListener</mainClass>
                   </configuration>
                </plugin>
             </plugins>
@@ -164,7 +164,7 @@ under the License.
                      </execution>
                   </executions>
                   <configuration>
-                     <mainClass>org.apache.activemq.core.example.PerfSender</mainClass>
+                     <mainClass>org.apache.activemq.artemis.core.example.PerfSender</mainClass>
                   </configuration>
                </plugin>
             </plugins>

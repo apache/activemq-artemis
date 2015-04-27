@@ -14,9 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.api.core;
-
-import static org.apache.activemq.api.core.ActiveMQExceptionType.UNSUPPORTED_PACKET;
+package org.apache.activemq.artemis.api.core;
 
 /**
  * A packet of unsupported type was received by ActiveMQ PacketHandler.
@@ -27,11 +25,11 @@ public final class ActiveMQUnsupportedPacketException extends ActiveMQException
 
    public ActiveMQUnsupportedPacketException()
    {
-      super(UNSUPPORTED_PACKET);
+      super(ActiveMQExceptionType.UNSUPPORTED_PACKET);
    }
 
    public ActiveMQUnsupportedPacketException(String msg)
    {
-      super(UNSUPPORTED_PACKET, msg);
+      super(ActiveMQExceptionType.UNSUPPORTED_PACKET, msg);
    }
 }

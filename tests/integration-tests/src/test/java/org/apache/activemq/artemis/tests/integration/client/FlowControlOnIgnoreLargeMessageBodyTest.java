@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.client;
+package org.apache.activemq.artemis.tests.integration.client;
 import org.junit.Before;
 
 import org.junit.Test;
@@ -33,8 +33,8 @@ import javax.jms.TopicSubscriber;
 import javax.naming.Context;
 import javax.naming.NamingException;
 
-import org.apache.activemq.tests.integration.IntegrationTestLogger;
-import org.apache.activemq.tests.util.JMSTestBase;
+import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
+import org.apache.activemq.artemis.tests.util.JMSTestBase;
 
 public class FlowControlOnIgnoreLargeMessageBodyTest extends JMSTestBase
 {

@@ -14,15 +14,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.cluster;
+package org.apache.activemq.artemis.tests.integration.cluster;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.activemq.core.server.NodeManager;
-import org.apache.activemq.core.server.impl.FileLockNodeManager;
-import org.apache.activemq.tests.util.SpawnedVMSupport;
-import org.apache.activemq.utils.UUID;
+import org.apache.activemq.artemis.tests.util.SpawnedVMSupport;
+import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.core.server.NodeManager;
+import org.apache.activemq.artemis.core.server.impl.FileLockNodeManager;
+import org.apache.activemq.artemis.utils.UUID;
+import org.junit.Assert;
 import org.junit.Test;
 
 public class RealNodeManagerTest extends NodeManagerTest
@@ -35,7 +37,7 @@ public class RealNodeManagerTest extends NodeManagerTest
       UUID id1 = nodeManager.getUUID();
       nodeManager.stop();
       nodeManager.start();
-      assertEqualsByteArrays(id1.asBytes(), nodeManager.getUUID().asBytes());
+      UnitTestCase.assertEqualsByteArrays(id1.asBytes(), nodeManager.getUUID().asBytes());
       nodeManager.stop();
    }
 
@@ -56,7 +58,7 @@ public class RealNodeManagerTest extends NodeManagerTest
       {
          if (process.exitValue() == 9)
          {
-            fail("failed see output");
+            Assert.fail("failed see output");
          }
       }
 

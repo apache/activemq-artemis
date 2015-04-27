@@ -14,16 +14,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.unit.core.server.impl.fakes;
+package org.apache.activemq.artemis.tests.unit.core.server.impl.fakes;
 
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.apache.activemq.core.filter.Filter;
-import org.apache.activemq.core.server.Consumer;
-import org.apache.activemq.core.server.HandleStatus;
-import org.apache.activemq.core.server.MessageReference;
+import org.apache.activemq.artemis.core.filter.Filter;
+import org.apache.activemq.artemis.core.server.Consumer;
+import org.apache.activemq.artemis.core.server.HandleStatus;
+import org.apache.activemq.artemis.core.server.MessageReference;
 
 public class FakeConsumer implements Consumer
 {

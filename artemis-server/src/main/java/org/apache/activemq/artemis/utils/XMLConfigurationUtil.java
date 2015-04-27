@@ -14,9 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.utils;
+package org.apache.activemq.artemis.utils;
 
-import org.apache.activemq.core.config.impl.Validators;
+import org.apache.activemq.artemis.core.config.impl.Validators;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -116,7 +116,7 @@ public class XMLConfigurationUtil
       NodeList nl = e.getElementsByTagName(name);
       if (nl.getLength() > 0)
       {
-         return org.apache.activemq.utils.XMLUtil.parseBoolean(nl.item(0));
+         return XMLUtil.parseBoolean(nl.item(0));
       }
       else
       {

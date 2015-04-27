@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.rest.test;
+package org.apache.activemq.artemis.rest.test;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -30,11 +30,11 @@ import java.io.Serializable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq.jms.client.ActiveMQDestination;
-import org.apache.activemq.jms.client.ActiveMQJMSConnectionFactory;
-import org.apache.activemq.rest.HttpHeaderProperty;
-import org.apache.activemq.rest.Jms;
-import org.apache.activemq.rest.queue.QueueDeployment;
+import org.apache.activemq.artemis.rest.HttpHeaderProperty;
+import org.apache.activemq.artemis.rest.Jms;
+import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
+import org.apache.activemq.artemis.jms.client.ActiveMQJMSConnectionFactory;
+import org.apache.activemq.artemis.rest.queue.QueueDeployment;
 import org.jboss.resteasy.client.ClientRequest;
 import org.jboss.resteasy.client.ClientResponse;
 import org.jboss.resteasy.spi.Link;
@@ -193,9 +193,9 @@ public class JMSTest extends MessageTestBase
          ClientResponse<?> response = request.head();
          response.releaseConnection();
          Assert.assertEquals(200, response.getStatus());
-         Link sender = MessageTestBase.getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "create");
+         Link sender = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "create");
          System.out.println("create: " + sender);
-         Link consumeNext = MessageTestBase.getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "consume-next");
+         Link consumeNext = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "consume-next");
          System.out.println("consume-next: " + consumeNext);
 
          // test that Accept header is used to set content-type
@@ -235,12 +235,12 @@ public class JMSTest extends MessageTestBase
       ClientResponse<?> response = request.head();
       response.releaseConnection();
       Assert.assertEquals(200, response.getStatus());
-      Link sender = MessageTestBase.getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "create");
+      Link sender = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "create");
       System.out.println("create: " + sender);
-      Link consumers = MessageTestBase.getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "pull-consumers");
+      Link consumers = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "pull-consumers");
       System.out.println("pull: " + consumers);
       response = Util.setAutoAck(consumers, true);
-      Link consumeNext = MessageTestBase.getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "consume-next");
+      Link consumeNext = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "consume-next");
       System.out.println("consume-next: " + consumeNext);
 
       // test that Accept header is used to set content-type
@@ -257,7 +257,7 @@ public class JMSTest extends MessageTestBase
          Order order2 = res.getEntity(Order.class);
          res.releaseConnection();
          Assert.assertEquals(order, order2);
-         consumeNext = MessageTestBase.getLinkByTitle(manager.getQueueManager().getLinkStrategy(), res, "consume-next");
+         consumeNext = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), res, "consume-next");
          Assert.assertNotNull(consumeNext);
       }
 
@@ -274,7 +274,7 @@ public class JMSTest extends MessageTestBase
          Order order2 = res.getEntity(Order.class);
          res.releaseConnection();
          Assert.assertEquals(order, order2);
-         consumeNext = MessageTestBase.getLinkByTitle(manager.getQueueManager().getLinkStrategy(), res, "consume-next");
+         consumeNext = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), res, "consume-next");
          Assert.assertNotNull(consumeNext);
       }
 
@@ -291,7 +291,7 @@ public class JMSTest extends MessageTestBase
          Order order2 = res.getEntity(Order.class);
          res.releaseConnection();
          Assert.assertEquals(order, order2);
-         consumeNext = MessageTestBase.getLinkByTitle(manager.getQueueManager().getLinkStrategy(), res, "consume-next");
+         consumeNext = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), res, "consume-next");
          Assert.assertNotNull(consumeNext);
       }
    }

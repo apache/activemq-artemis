@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.client;
+package org.apache.activemq.artemis.tests.integration.client;
 
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
@@ -25,37 +25,39 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq.api.core.ActiveMQException;
-import org.apache.activemq.api.core.Interceptor;
-import org.apache.activemq.api.core.Message;
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.api.core.client.ClientConsumer;
-import org.apache.activemq.api.core.client.ClientMessage;
-import org.apache.activemq.api.core.client.ClientProducer;
-import org.apache.activemq.api.core.client.ClientSession;
-import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.ActiveMQClient;
-import org.apache.activemq.api.core.client.ServerLocator;
-import org.apache.activemq.core.filter.Filter;
-import org.apache.activemq.core.paging.cursor.PageSubscription;
-import org.apache.activemq.core.persistence.StorageManager;
-import org.apache.activemq.core.postoffice.PostOffice;
-import org.apache.activemq.core.protocol.core.Packet;
-import org.apache.activemq.core.protocol.core.impl.wireformat.SessionContinuationMessage;
-import org.apache.activemq.core.server.ActiveMQServer;
-import org.apache.activemq.core.server.MessageReference;
-import org.apache.activemq.core.server.Queue;
-import org.apache.activemq.core.server.QueueFactory;
-import org.apache.activemq.core.server.ServerSession;
-import org.apache.activemq.core.server.impl.ActiveMQServerImpl;
-import org.apache.activemq.core.server.impl.QueueImpl;
-import org.apache.activemq.core.server.impl.ServerSessionImpl;
-import org.apache.activemq.core.settings.HierarchicalRepository;
-import org.apache.activemq.core.settings.impl.AddressSettings;
-import org.apache.activemq.spi.core.protocol.RemotingConnection;
-import org.apache.activemq.tests.integration.IntegrationTestLogger;
-import org.apache.activemq.tests.integration.largemessage.LargeMessageTestBase;
-import org.apache.activemq.utils.ExecutorFactory;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.Interceptor;
+import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.client.ClientConsumer;
+import org.apache.activemq.artemis.api.core.client.ClientMessage;
+import org.apache.activemq.artemis.api.core.client.ClientProducer;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
+import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
+import org.apache.activemq.artemis.tests.integration.largemessage.LargeMessageTestBase;
+import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.core.filter.Filter;
+import org.apache.activemq.artemis.core.paging.cursor.PageSubscription;
+import org.apache.activemq.artemis.core.persistence.StorageManager;
+import org.apache.activemq.artemis.core.postoffice.PostOffice;
+import org.apache.activemq.artemis.core.protocol.core.Packet;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionContinuationMessage;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.MessageReference;
+import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.server.QueueFactory;
+import org.apache.activemq.artemis.core.server.ServerSession;
+import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
+import org.apache.activemq.artemis.core.server.impl.QueueImpl;
+import org.apache.activemq.artemis.core.server.impl.ServerSessionImpl;
+import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
+import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.artemis.utils.ExecutorFactory;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -126,7 +128,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase
 
       server.stop(false);
 
-      forceGC();
+      UnitTestCase.forceGC();
 
       server.start();
 
@@ -204,8 +206,8 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase
 
       t.join();
 
-      assertEquals(0, unexpectedErrors.get());
-      assertEquals(1, expectedErrors.get());
+      Assert.assertEquals(0, unexpectedErrors.get());
+      Assert.assertEquals(1, expectedErrors.get());
 
       session.close();
 
@@ -256,10 +258,10 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase
          for (int i = 0; i < 10; i++)
          {
             ClientMessage clientMessage = cons.receive(5000);
-            assertNotNull(clientMessage);
+            Assert.assertNotNull(clientMessage);
             for (int countByte = 0; countByte < LARGE_MESSAGE_SIZE; countByte++)
             {
-               assertEquals(getSamplebyte(countByte), clientMessage.getBodyBuffer().readByte());
+               Assert.assertEquals(UnitTestCase.getSamplebyte(countByte), clientMessage.getBodyBuffer().readByte());
             }
             clientMessage.acknowledge();
          }
@@ -335,10 +337,10 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase
          for (int i = 0; i < 10; i++)
          {
             ClientMessage clientMessage = cons.receive(5000);
-            assertNotNull(clientMessage);
+            Assert.assertNotNull(clientMessage);
             for (int countByte = 0; countByte < LARGE_MESSAGE_SIZE; countByte++)
             {
-               assertEquals(getSamplebyte(countByte), clientMessage.getBodyBuffer().readByte());
+               Assert.assertEquals(UnitTestCase.getSamplebyte(countByte), clientMessage.getBodyBuffer().readByte());
             }
             clientMessage.acknowledge();
          }
@@ -445,8 +447,8 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase
          {
             log.info("I = " + i);
             ClientMessage msg = cons1.receive(5000);
-            assertNotNull(msg);
-            assertEquals(1, msg.getIntProperty("txid").intValue());
+            Assert.assertNotNull(msg);
+            Assert.assertEquals(1, msg.getIntProperty("txid").intValue());
             msg.acknowledge();
          }
 
@@ -585,7 +587,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase
          }
 
          /* (non-Javadoc)
-          * @see org.apache.activemq.core.server.QueueFactory#setPostOffice(org.apache.activemq.core.postoffice.PostOffice)
+          * @see org.apache.activemq.artemis.core.server.QueueFactory#setPostOffice(org.apache.activemq.artemis.core.postoffice.PostOffice)
           */
          public void setPostOffice(PostOffice postOffice)
          {
@@ -639,7 +641,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase
       for (int i = 0; i < 10; i++)
       {
          ClientMessage msg = cons.receive(5000);
-         assertNotNull(msg);
+         Assert.assertNotNull(msg);
          msg.saveToOutputStream(new java.io.OutputStream()
          {
             @Override
@@ -708,7 +710,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase
       for (int i = 0; i < 10; i++)
       {
          ClientMessage msg = cons.receive(5000);
-         assertNotNull(msg);
+         Assert.assertNotNull(msg);
          msg.saveToOutputStream(new java.io.OutputStream()
          {
             @Override

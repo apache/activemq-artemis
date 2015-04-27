@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.jms.tests;
+package org.apache.activemq.artemis.jms.tests;
 
 import javax.jms.Connection;
 import javax.jms.DeliveryMode;
@@ -33,9 +33,9 @@ import javax.jms.TopicSession;
 import javax.jms.XAConnection;
 import javax.jms.XASession;
 
-import org.apache.activemq.api.jms.JMSFactoryType;
-import org.apache.activemq.core.settings.impl.AddressSettings;
-import org.apache.activemq.jms.tests.util.ProxyAssertSupport;
+import org.apache.activemq.artemis.api.jms.JMSFactoryType;
+import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
 import org.junit.Test;
 
 public class SessionTest extends ActiveMQServerTestCase

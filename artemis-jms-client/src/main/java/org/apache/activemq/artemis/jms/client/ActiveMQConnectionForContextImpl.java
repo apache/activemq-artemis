@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.jms.client;
+package org.apache.activemq.artemis.jms.client;
 
 import javax.jms.JMSContext;
 import javax.jms.JMSException;
@@ -22,9 +22,9 @@ import javax.jms.JMSRuntimeException;
 import javax.jms.Session;
 import javax.jms.XAJMSContext;
 
-import org.apache.activemq.api.jms.ActiveMQJMSConstants;
-import org.apache.activemq.utils.ReferenceCounter;
-import org.apache.activemq.utils.ReferenceCounterUtil;
+import org.apache.activemq.artemis.api.jms.ActiveMQJMSConstants;
+import org.apache.activemq.artemis.utils.ReferenceCounter;
+import org.apache.activemq.artemis.utils.ReferenceCounterUtil;
 
 public abstract class ActiveMQConnectionForContextImpl implements ActiveMQConnectionForContext
 {

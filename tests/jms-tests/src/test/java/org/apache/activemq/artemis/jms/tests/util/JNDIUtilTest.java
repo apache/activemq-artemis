@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.jms.tests.util;
+package org.apache.activemq.artemis.jms.tests.util;
 import org.junit.Before;
 
 import org.junit.Test;
@@ -22,8 +22,8 @@ import org.junit.Test;
 import javax.naming.InitialContext;
 import javax.naming.NameNotFoundException;
 
-import org.apache.activemq.jms.tests.ActiveMQServerTestCase;
-import org.apache.activemq.utils.JNDIUtil;
+import org.apache.activemq.artemis.jms.tests.ActiveMQServerTestCase;
+import org.apache.activemq.artemis.utils.JNDIUtil;
 
 public class JNDIUtilTest extends ActiveMQServerTestCase
 {

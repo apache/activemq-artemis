@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.journal.impl;
+package org.apache.activemq.artemis.core.journal.impl;
 
 import java.nio.ByteBuffer;
 import java.security.AccessController;
@@ -24,14 +24,14 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq.api.core.ActiveMQInterruptedException;
-import org.apache.activemq.core.asyncio.BufferCallback;
-import org.apache.activemq.core.asyncio.impl.AsynchronousFileImpl;
-import org.apache.activemq.core.journal.IOCriticalErrorListener;
-import org.apache.activemq.core.journal.SequentialFile;
-import org.apache.activemq.core.libaio.Native;
-import org.apache.activemq.journal.ActiveMQJournalLogger;
-import org.apache.activemq.utils.ActiveMQThreadFactory;
+import org.apache.activemq.artemis.api.core.ActiveMQInterruptedException;
+import org.apache.activemq.artemis.core.asyncio.BufferCallback;
+import org.apache.activemq.artemis.core.asyncio.impl.AsynchronousFileImpl;
+import org.apache.activemq.artemis.core.journal.IOCriticalErrorListener;
+import org.apache.activemq.artemis.core.journal.SequentialFile;
+import org.apache.activemq.artemis.core.libaio.Native;
+import org.apache.activemq.artemis.journal.ActiveMQJournalLogger;
+import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 
 public final class AIOSequentialFileFactory extends AbstractSequentialFileFactory
 {
@@ -167,7 +167,7 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
    }
 
    /* (non-Javadoc)
-    * @see org.apache.activemq.core.journal.SequentialFileFactory#releaseBuffer(java.nio.ByteBuffer)
+    * @see org.apache.activemq.artemis.core.journal.SequentialFileFactory#releaseBuffer(java.nio.ByteBuffer)
     */
    @Override
    public synchronized void releaseBuffer(final ByteBuffer buffer)
@@ -225,7 +225,7 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
       private volatile long bufferReuseLastTime = System.currentTimeMillis();
 
       /**
-       * This queue is fed by {@link org.apache.activemq.core.journal.impl.AIOSequentialFileFactory.ReuseBuffersController.LocalBufferCallback}
+       * This queue is fed by {@link org.apache.activemq.artemis.core.journal.impl.AIOSequentialFileFactory.ReuseBuffersController.LocalBufferCallback}
        * which is called directly by NIO or NIO. On the case of the AIO this is almost called by the native layer as
        * soon as the buffer is not being used any more and ready to be reused or GCed
        */

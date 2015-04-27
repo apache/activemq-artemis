@@ -1,12 +1,12 @@
 # Using the Server
 
-This chapter will familiarise you with how to use the Apache ActiveMQ server.
+This chapter will familiarise you with how to use the Apache ActiveMQ Artemis server.
 
 We'll show where it is, how to start and stop it, and we'll describe the
 directory layout and what all the files are and what they do.
 
-For the remainder of this chapter when we talk about the Apache ActiveMQ server
-we mean the Apache ActiveMQ standalone server, in its default configuration
+For the remainder of this chapter when we talk about the Apache ActiveMQ Artemis server
+we mean the Apache ActiveMQ Artemis standalone server, in its default configuration
 with a JMS Service enabled.
 
 This document will refer to the full path of the directory where the ActiveMQ
@@ -47,12 +47,12 @@ to do start running the broker instance is execute:
 Now that the broker is running, you can optionally run some of the included 
 examples to verify the the broker is running properly.
 
-To stop the Apache ActiveMQ instance you will use the same `activemq` script, but with 
+To stop the Apache ActiveMQ Artemis instance you will use the same `activemq` script, but with 
 the `stop argument`.  Example:
 
     /var/lib/mybroker/bin/activemq stop
 
-Please note that Apache ActiveMQ requires a Java 7 or later runtime to run.
+Please note that Apache ActiveMQ Artemis requires a Java 7 or later runtime to run.
 
 By default the `etc/bootstrap.xml` configuration is
 used. The configuration can be changed e.g. by running
@@ -69,7 +69,7 @@ The run scripts set some JVM settings for tuning the garbage collection
 policy and heap size. We recommend using a parallel garbage collection
 algorithm to smooth out latency and minimise large GC pauses.
 
-By default Apache ActiveMQ runs in a maximum of 1GiB of RAM. To increase the
+By default Apache ActiveMQ Artemis runs in a maximum of 1GiB of RAM. To increase the
 memory settings change the `-Xms` and `-Xmx` memory settings as you
 would for any Java program.
 
@@ -103,7 +103,7 @@ JVM will use the environment variable `LD_LIBRARY_PATH`.
 
 ## System properties
 
-Apache ActiveMQ can take a system property on the command line for configuring
+Apache ActiveMQ Artemis can take a system property on the command line for configuring
 logging.
 
 For more information on configuring logging, please see the section on
@@ -155,11 +155,11 @@ The bootstrap file is very simple. Let's take a look at an example:
 
 ## The main configuration file.
 
-The configuration for the Apache ActiveMQ core server is contained in
+The configuration for the Apache ActiveMQ Artemis core server is contained in
 `activemq-configuration.xml`. This is what the FileConfiguration bean
 uses to configure the messaging server.
 
-There are many attributes which you can configure Apache ActiveMQ. In most
+There are many attributes which you can configure Apache ActiveMQ Artemis. In most
 cases the defaults will do fine, in fact every attribute can be
 defaulted which means a file with a single empty `configuration` element
 is a valid configuration file. The different configuration will be

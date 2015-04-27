@@ -14,13 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.rest.integration;
+package org.apache.activemq.artemis.rest.integration;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
-import org.apache.activemq.rest.MessageServiceManager;
+import org.apache.activemq.artemis.rest.MessageServiceManager;
 import org.jboss.resteasy.spi.Registry;
 
 public class RestMessagingBootstrapListener implements ServletContextListener

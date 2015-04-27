@@ -14,40 +14,40 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.client;
+package org.apache.activemq.artemis.tests.integration.client;
 
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.util.Properties;
 
-import org.apache.activemq.api.core.ActiveMQException;
-import org.apache.activemq.api.core.ActiveMQIncompatibleClientServerException;
-import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.core.client.ClientSession;
-import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.ActiveMQClient;
-import org.apache.activemq.api.core.client.ServerLocator;
-import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.config.impl.ConfigurationImpl;
-import org.apache.activemq.core.protocol.core.Channel;
-import org.apache.activemq.core.protocol.core.CoreRemotingConnection;
-import org.apache.activemq.core.protocol.core.Packet;
-import org.apache.activemq.core.protocol.core.impl.PacketImpl;
-import org.apache.activemq.core.protocol.core.impl.wireformat.CreateSessionMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.CreateSessionResponseMessage;
-import org.apache.activemq.core.remoting.server.impl.RemotingServiceImpl;
-import org.apache.activemq.core.server.ActiveMQServer;
-import org.apache.activemq.core.server.ActiveMQServers;
-import org.apache.activemq.core.version.impl.VersionImpl;
-import org.apache.activemq.tests.integration.IntegrationTestLogger;
-import org.apache.activemq.tests.util.ServiceTestBase;
-import org.apache.activemq.tests.util.SpawnedVMSupport;
-import org.apache.activemq.utils.VersionLoader;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.ActiveMQIncompatibleClientServerException;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
+import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.tests.util.SpawnedVMSupport;
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
+import org.apache.activemq.artemis.core.protocol.core.Channel;
+import org.apache.activemq.artemis.core.protocol.core.CoreRemotingConnection;
+import org.apache.activemq.artemis.core.protocol.core.Packet;
+import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CreateSessionMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CreateSessionResponseMessage;
+import org.apache.activemq.artemis.core.remoting.server.impl.RemotingServiceImpl;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.ActiveMQServers;
+import org.apache.activemq.artemis.core.version.impl.VersionImpl;
+import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.utils.VersionLoader;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.apache.activemq.tests.util.RandomUtil.randomString;
+import static org.apache.activemq.artemis.tests.util.RandomUtil.randomString;
 
 public class IncompatibleVersionTest extends ServiceTestBase
 {
@@ -214,13 +214,13 @@ public class IncompatibleVersionTest extends ServiceTestBase
       boolean result = false;
       try
       {
-         serverProcess = SpawnedVMSupport.spawnVM("org.apache.activemq.tests.integration.client.IncompatibleVersionTest",
-                                                  new String[]{"-D" + VersionLoader.VERSION_PROP_FILE_KEY + "=" + propFileName},
-                                                  "server",
-                                                  serverStartedString);
+         serverProcess = SpawnedVMSupport.spawnVM("org.apache.activemq.artemis.tests.integration.client.IncompatibleVersionTest",
+                 new String[]{"-D" + VersionLoader.VERSION_PROP_FILE_KEY + "=" + propFileName},
+                 "server",
+                 serverStartedString);
          Thread.sleep(2000);
 
-         Process client = SpawnedVMSupport.spawnVM("org.apache.activemq.tests.integration.client.IncompatibleVersionTest",
+         Process client = SpawnedVMSupport.spawnVM("org.apache.activemq.artemis.tests.integration.client.IncompatibleVersionTest",
                                                    new String[]{"-D" + VersionLoader.VERSION_PROP_FILE_KEY + "=" + propFileName},
                                                    "client");
 
@@ -253,7 +253,7 @@ public class IncompatibleVersionTest extends ServiceTestBase
       {
          Configuration conf = new ConfigurationImpl()
             .setSecurityEnabled(false)
-            .addAcceptorConfiguration(new TransportConfiguration("org.apache.activemq.core.remoting.impl.netty.NettyAcceptorFactory"));
+            .addAcceptorConfiguration(new TransportConfiguration("org.apache.activemq.artemis.core.remoting.impl.netty.NettyAcceptorFactory"));
          ActiveMQServer server = ActiveMQServers.newActiveMQServer(conf, false);
          server.start();
 

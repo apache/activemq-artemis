@@ -14,18 +14,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.protocol.openwire;
+package org.apache.activemq.artemis.core.protocol.openwire;
 
 
-import org.apache.activemq.api.core.ActiveMQBuffer;
-import org.apache.activemq.api.core.ActiveMQBuffers;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.command.ActiveMQDestination;
-import org.apache.activemq.core.protocol.openwire.amq.AMQServerSession;
-import org.apache.activemq.core.protocol.openwire.amq.AMQSession;
-import org.apache.activemq.core.server.ActiveMQMessageBundle;
-import org.apache.activemq.core.server.BindingQueryResult;
+import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQServerSession;
+import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQSession;
+import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
+import org.apache.activemq.artemis.core.server.BindingQueryResult;
 import org.apache.activemq.util.ByteSequence;
-import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.SimpleString;
 
 public class OpenWireUtil
 {

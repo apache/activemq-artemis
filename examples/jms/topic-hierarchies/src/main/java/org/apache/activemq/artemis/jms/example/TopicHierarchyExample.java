@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.jms.example;
+package org.apache.activemq.artemis.jms.example;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -26,8 +26,8 @@ import javax.jms.TextMessage;
 import javax.jms.Topic;
 import javax.naming.InitialContext;
 
-import org.apache.activemq.api.jms.ActiveMQJMSClient;
-import org.apache.activemq.common.example.ActiveMQExample;
+import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
+import org.apache.activemq.artemis.common.example.ActiveMQExample;
 
 /**
  * This example demonstrates how a JMS TopicSubscriber can be created to subscribe to a wild-card Topic.

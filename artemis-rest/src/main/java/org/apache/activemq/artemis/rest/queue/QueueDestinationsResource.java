@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.rest.queue;
+package org.apache.activemq.artemis.rest.queue;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -29,17 +29,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.activemq.api.core.ActiveMQException;
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.api.core.client.ClientSession;
-import org.apache.activemq.jms.client.ActiveMQDestination;
-import org.apache.activemq.jms.client.ActiveMQQueue;
-import org.apache.activemq.jms.server.config.JMSQueueConfiguration;
-import org.apache.activemq.jms.server.config.impl.FileJMSConfiguration;
-import org.apache.activemq.rest.ActiveMQRestLogger;
-import org.apache.activemq.rest.queue.push.PushConsumerResource;
-import org.apache.activemq.rest.queue.push.xml.PushRegistration;
-import org.apache.activemq.rest.util.Constants;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.rest.ActiveMQRestLogger;
+import org.apache.activemq.artemis.rest.queue.push.PushConsumerResource;
+import org.apache.activemq.artemis.rest.queue.push.xml.PushRegistration;
+import org.apache.activemq.artemis.rest.util.Constants;
+import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
+import org.apache.activemq.artemis.jms.client.ActiveMQQueue;
+import org.apache.activemq.artemis.jms.server.config.JMSQueueConfiguration;
+import org.apache.activemq.artemis.jms.server.config.impl.FileJMSConfiguration;
 import org.w3c.dom.Document;
 
 @Path(Constants.PATH_FOR_QUEUES)

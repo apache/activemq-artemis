@@ -14,9 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.config;
+package org.apache.activemq.artemis.core.config;
 
-import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
+import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 
 import java.io.Serializable;
 import java.util.ArrayList;

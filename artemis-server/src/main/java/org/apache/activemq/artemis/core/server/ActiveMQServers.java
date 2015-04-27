@@ -14,16 +14,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.server;
+package org.apache.activemq.artemis.core.server;
 
 import java.lang.management.ManagementFactory;
 
 import javax.management.MBeanServer;
 
-import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.server.impl.ActiveMQServerImpl;
-import org.apache.activemq.spi.core.security.ActiveMQSecurityManager;
-import org.apache.activemq.spi.core.security.ActiveMQSecurityManagerImpl;
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
+import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
+import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManagerImpl;
 
 /**
  * ActiveMQServers is a factory class for instantiating ActiveMQServer instances.

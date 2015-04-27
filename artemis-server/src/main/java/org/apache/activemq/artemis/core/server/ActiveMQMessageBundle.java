@@ -14,28 +14,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.server;
+package org.apache.activemq.artemis.core.server;
 
-import org.apache.activemq.api.core.ActiveMQAddressFullException;
-import org.apache.activemq.api.core.ActiveMQClusterSecurityException;
-import org.apache.activemq.api.core.ActiveMQConnectionTimedOutException;
-import org.apache.activemq.api.core.ActiveMQDisconnectedException;
-import org.apache.activemq.api.core.ActiveMQDuplicateMetaDataException;
-import org.apache.activemq.api.core.ActiveMQException;
-import org.apache.activemq.api.core.ActiveMQIllegalStateException;
-import org.apache.activemq.api.core.ActiveMQIncompatibleClientServerException;
-import org.apache.activemq.api.core.ActiveMQInternalErrorException;
-import org.apache.activemq.api.core.ActiveMQInvalidFilterExpressionException;
-import org.apache.activemq.api.core.ActiveMQInvalidTransientQueueUseException;
-import org.apache.activemq.api.core.ActiveMQNonExistentQueueException;
-import org.apache.activemq.api.core.ActiveMQQueueExistsException;
-import org.apache.activemq.api.core.ActiveMQSecurityException;
-import org.apache.activemq.api.core.ActiveMQSessionCreationException;
-import org.apache.activemq.api.core.DiscoveryGroupConfiguration;
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.core.postoffice.Binding;
-import org.apache.activemq.core.protocol.core.impl.wireformat.ReplicationSyncFileMessage;
-import org.apache.activemq.core.security.CheckType;
+import org.apache.activemq.artemis.api.core.ActiveMQAddressFullException;
+import org.apache.activemq.artemis.api.core.ActiveMQClusterSecurityException;
+import org.apache.activemq.artemis.api.core.ActiveMQConnectionTimedOutException;
+import org.apache.activemq.artemis.api.core.ActiveMQDisconnectedException;
+import org.apache.activemq.artemis.api.core.ActiveMQDuplicateMetaDataException;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.ActiveMQIllegalStateException;
+import org.apache.activemq.artemis.api.core.ActiveMQIncompatibleClientServerException;
+import org.apache.activemq.artemis.api.core.ActiveMQInternalErrorException;
+import org.apache.activemq.artemis.api.core.ActiveMQInvalidFilterExpressionException;
+import org.apache.activemq.artemis.api.core.ActiveMQInvalidTransientQueueUseException;
+import org.apache.activemq.artemis.api.core.ActiveMQNonExistentQueueException;
+import org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException;
+import org.apache.activemq.artemis.api.core.ActiveMQSecurityException;
+import org.apache.activemq.artemis.api.core.ActiveMQSessionCreationException;
+import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.postoffice.Binding;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationSyncFileMessage;
+import org.apache.activemq.artemis.core.security.CheckType;
 import org.jboss.logging.annotations.Cause;
 import org.jboss.logging.annotations.Message;
 import org.jboss.logging.annotations.MessageBundle;
@@ -280,25 +280,25 @@ public interface ActiveMQMessageBundle
    IllegalArgumentException autoConvertError(Class<? extends Object> aClass);
 
    /**
-    * Message used on on {@link org.apache.activemq.core.server.impl.ActiveMQServerImpl#destroyConnectionWithSessionMetadata(String, String)}
+    * Message used on on {@link org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl#destroyConnectionWithSessionMetadata(String, String)}
     */
    @Message(id = 119076, value = "Executing destroyConnection with {0}={1} through management''s request", format = Message.Format.MESSAGE_FORMAT)
    String destroyConnectionWithSessionMetadataHeader(String key, String value);
 
    /**
-    * Message used on on {@link org.apache.activemq.core.server.impl.ActiveMQServerImpl#destroyConnectionWithSessionMetadata(String, String)}
+    * Message used on on {@link org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl#destroyConnectionWithSessionMetadata(String, String)}
     */
    @Message(id = 119077, value = "Closing connection {0}", format = Message.Format.MESSAGE_FORMAT)
    String destroyConnectionWithSessionMetadataClosingConnection(String serverSessionString);
 
    /**
-    * Exception used on on {@link org.apache.activemq.core.server.impl.ActiveMQServerImpl#destroyConnectionWithSessionMetadata(String, String)}
+    * Exception used on on {@link org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl#destroyConnectionWithSessionMetadata(String, String)}
     */
    @Message(id = 119078, value = "Disconnected per admin''s request on {0}={1}", format = Message.Format.MESSAGE_FORMAT)
    ActiveMQDisconnectedException destroyConnectionWithSessionMetadataSendException(String key, String value);
 
    /**
-    * Message used on on {@link org.apache.activemq.core.server.impl.ActiveMQServerImpl#destroyConnectionWithSessionMetadata(String, String)}
+    * Message used on on {@link org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl#destroyConnectionWithSessionMetadata(String, String)}
     */
    @Message(id = 119079, value = "No session found with {0}={1}", format = Message.Format.MESSAGE_FORMAT)
    String destroyConnectionWithSessionMetadataNoSessionFound(String key, String value);

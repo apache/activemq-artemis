@@ -14,13 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.test;
+package org.apache.activemq.artemis.test;
 
-import org.apache.activemq.core.server.impl.ActiveMQServerImpl;
-import org.apache.activemq.dto.ServerDTO;
-import org.apache.activemq.integration.FileBroker;
-import org.apache.activemq.jms.server.impl.JMSServerManagerImpl;
-import org.apache.activemq.spi.core.security.ActiveMQSecurityManagerImpl;
+import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
+import org.apache.activemq.artemis.dto.ServerDTO;
+import org.apache.activemq.artemis.integration.FileBroker;
+import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
+import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManagerImpl;
 import org.junit.Assert;
 import org.junit.Test;
 

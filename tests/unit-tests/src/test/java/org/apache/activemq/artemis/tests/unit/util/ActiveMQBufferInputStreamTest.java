@@ -14,12 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.unit.util;
+package org.apache.activemq.artemis.tests.unit.util;
 
-import org.apache.activemq.api.core.ActiveMQBuffer;
-import org.apache.activemq.api.core.ActiveMQBuffers;
-import org.apache.activemq.tests.util.UnitTestCase;
-import org.apache.activemq.utils.ActiveMQBufferInputStream;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
+import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.utils.ActiveMQBufferInputStream;
 import org.junit.Test;
 
 public class ActiveMQBufferInputStreamTest extends UnitTestCase

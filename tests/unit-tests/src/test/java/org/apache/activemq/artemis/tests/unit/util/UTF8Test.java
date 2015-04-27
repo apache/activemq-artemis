@@ -14,9 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.unit.util;
-import org.apache.activemq.api.core.ActiveMQBuffer;
-import org.apache.activemq.api.core.ActiveMQBuffers;
+package org.apache.activemq.artemis.tests.unit.util;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
+import org.apache.activemq.artemis.tests.util.UnitTestCase;
 import org.junit.After;
 
 import org.junit.Test;
@@ -29,11 +30,10 @@ import java.nio.ByteBuffer;
 
 import org.junit.Assert;
 
-import org.apache.activemq.tests.util.RandomUtil;
-import org.apache.activemq.tests.util.UnitTestCase;
-import org.apache.activemq.utils.DataConstants;
-import org.apache.activemq.utils.Random;
-import org.apache.activemq.utils.UTF8Util;
+import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.DataConstants;
+import org.apache.activemq.artemis.utils.Random;
+import org.apache.activemq.artemis.utils.UTF8Util;
 
 public class UTF8Test extends UnitTestCase
 {

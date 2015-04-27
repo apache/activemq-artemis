@@ -14,9 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.journal.impl;
+package org.apache.activemq.artemis.core.journal.impl;
 
-import org.apache.activemq.journal.ActiveMQJournalLogger;
+import org.apache.activemq.artemis.journal.ActiveMQJournalLogger;
 
 class DummyCallback extends SyncIOCompletion
 {

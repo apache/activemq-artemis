@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.persistence.impl.journal;
+package org.apache.activemq.artemis.core.persistence.impl.journal;
 
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -23,13 +23,13 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.apache.activemq.api.core.ActiveMQException;
-import org.apache.activemq.api.core.ActiveMQExceptionType;
-import org.apache.activemq.core.journal.IOAsyncTask;
-import org.apache.activemq.core.journal.impl.SimpleWaitIOCallback;
-import org.apache.activemq.core.persistence.OperationContext;
-import org.apache.activemq.core.server.ActiveMQServerLogger;
-import org.apache.activemq.utils.ExecutorFactory;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
+import org.apache.activemq.artemis.core.journal.IOAsyncTask;
+import org.apache.activemq.artemis.core.journal.impl.SimpleWaitIOCallback;
+import org.apache.activemq.artemis.core.persistence.OperationContext;
+import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.apache.activemq.artemis.utils.ExecutorFactory;
 
 /**
  *
@@ -252,7 +252,7 @@ public class OperationContextImpl implements OperationContext
 
    /*
     * (non-Javadoc)
-    * @see org.apache.activemq.core.replication.ReplicationToken#complete()
+    * @see org.apache.activemq.artemis.core.replication.ReplicationToken#complete()
     */
    public void complete()
    {

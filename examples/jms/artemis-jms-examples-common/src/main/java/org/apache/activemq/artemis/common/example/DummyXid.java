@@ -14,11 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.common.example;
+package org.apache.activemq.artemis.common.example;
 
 import javax.transaction.xa.Xid;
 
-import org.apache.activemq.utils.Base64;
+import org.apache.activemq.artemis.utils.Base64;
 
 public class DummyXid implements Xid
 {

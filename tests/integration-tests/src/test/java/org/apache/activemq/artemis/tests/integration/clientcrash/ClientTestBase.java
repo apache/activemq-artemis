@@ -14,14 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.clientcrash;
+package org.apache.activemq.artemis.tests.integration.clientcrash;
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
 import org.junit.Before;
 
 import org.junit.Assert;
 
-import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.server.ActiveMQServer;
-import org.apache.activemq.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
 
 public abstract class ClientTestBase extends ServiceTestBase
 {

@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.remoting;
+package org.apache.activemq.artemis.tests.integration.remoting;
 
 public class NettySynchronousCloseTest extends SynchronousCloseTest
 {

@@ -14,10 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.persistence;
+package org.apache.activemq.artemis.core.persistence;
 
-import org.apache.activemq.core.journal.IOAsyncTask;
-import org.apache.activemq.core.journal.IOCompletion;
+import org.apache.activemq.artemis.core.journal.IOAsyncTask;
+import org.apache.activemq.artemis.core.journal.IOCompletion;
 
 /**
  * This represents a set of operations done as part of replication.

@@ -14,16 +14,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.jms.tests.message.foreign;
+package org.apache.activemq.artemis.jms.tests.message.foreign;
 
 import javax.jms.Message;
 import javax.jms.TextMessage;
 
-import org.apache.activemq.api.jms.ActiveMQJMSConstants;
-import org.apache.activemq.jms.tests.message.MessageTestBase;
-import org.apache.activemq.jms.tests.message.SimpleJMSMessage;
-import org.apache.activemq.jms.tests.message.SimpleJMSTextMessage;
-import org.apache.activemq.jms.tests.util.ProxyAssertSupport;
+import org.apache.activemq.artemis.api.jms.ActiveMQJMSConstants;
+import org.apache.activemq.artemis.jms.tests.message.MessageTestBase;
+import org.apache.activemq.artemis.jms.tests.message.SimpleJMSMessage;
+import org.apache.activemq.artemis.jms.tests.message.SimpleJMSTextMessage;
+import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;

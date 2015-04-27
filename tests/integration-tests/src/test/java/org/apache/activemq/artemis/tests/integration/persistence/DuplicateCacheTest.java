@@ -14,13 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.persistence;
+package org.apache.activemq.artemis.tests.integration.persistence;
 
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.core.postoffice.DuplicateIDCache;
-import org.apache.activemq.core.postoffice.impl.DuplicateIDCacheImpl;
-import org.apache.activemq.core.transaction.impl.TransactionImpl;
-import org.apache.activemq.tests.util.RandomUtil;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.postoffice.DuplicateIDCache;
+import org.apache.activemq.artemis.core.postoffice.impl.DuplicateIDCacheImpl;
+import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
+import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.junit.Assert;
 import org.junit.Test;
 
 public class DuplicateCacheTest extends StorageManagerTestBase
@@ -57,15 +58,15 @@ public class DuplicateCacheTest extends StorageManagerTestBase
 
       byte[] id = RandomUtil.randomBytes();
 
-      assertFalse(cache.contains(id));
+      Assert.assertFalse(cache.contains(id));
 
       cache.addToCache(id, null);
 
-      assertTrue(cache.contains(id));
+      Assert.assertTrue(cache.contains(id));
 
       cache.deleteFromCache(id);
 
-      assertFalse(cache.contains(id));
+      Assert.assertFalse(cache.contains(id));
    }
 
 

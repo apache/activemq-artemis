@@ -14,18 +14,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.server;
+package org.apache.activemq.artemis.core.server;
 
 import javax.transaction.xa.Xid;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.core.message.impl.MessageInternal;
-import org.apache.activemq.core.persistence.OperationContext;
-import org.apache.activemq.core.transaction.Transaction;
-import org.apache.activemq.spi.core.protocol.RemotingConnection;
-import org.apache.activemq.utils.json.JSONArray;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.message.impl.MessageInternal;
+import org.apache.activemq.artemis.core.persistence.OperationContext;
+import org.apache.activemq.artemis.core.transaction.Transaction;
+import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.artemis.utils.json.JSONArray;
 
 public interface ServerSession
 {

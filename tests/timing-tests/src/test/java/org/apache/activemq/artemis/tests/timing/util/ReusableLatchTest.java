@@ -14,14 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.timing.util;
+package org.apache.activemq.artemis.tests.timing.util;
 
+import org.apache.activemq.artemis.tests.util.UnitTestCase;
 import org.junit.Test;
 
 import org.junit.Assert;
 
-import org.apache.activemq.tests.util.UnitTestCase;
-import org.apache.activemq.utils.ReusableLatch;
+import org.apache.activemq.artemis.utils.ReusableLatch;
 
 public class ReusableLatchTest extends UnitTestCase
 {

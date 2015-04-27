@@ -14,9 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.unit.core.config.impl.fakes;
+package org.apache.activemq.artemis.tests.unit.core.config.impl.fakes;
 
-import org.apache.activemq.core.server.ConnectorService;
+import org.apache.activemq.artemis.core.server.ConnectorService;
 
 public class FakeConnectorService implements ConnectorService
 {

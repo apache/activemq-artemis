@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.journal.impl;
+package org.apache.activemq.artemis.core.journal.impl;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -28,12 +28,12 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq.api.core.ActiveMQInterruptedException;
-import org.apache.activemq.core.journal.IOCriticalErrorListener;
-import org.apache.activemq.core.journal.SequentialFile;
-import org.apache.activemq.core.journal.SequentialFileFactory;
-import org.apache.activemq.journal.ActiveMQJournalLogger;
-import org.apache.activemq.utils.ActiveMQThreadFactory;
+import org.apache.activemq.artemis.api.core.ActiveMQInterruptedException;
+import org.apache.activemq.artemis.core.journal.IOCriticalErrorListener;
+import org.apache.activemq.artemis.core.journal.SequentialFile;
+import org.apache.activemq.artemis.core.journal.SequentialFileFactory;
+import org.apache.activemq.artemis.journal.ActiveMQJournalLogger;
+import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 
 /**
  * An abstract SequentialFileFactory containing basic functionality for both AIO and NIO SequentialFactories

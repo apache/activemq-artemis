@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.util;
+package org.apache.activemq.artemis.util;
 
 import org.junit.Test;
 
@@ -27,9 +27,9 @@ import java.util.zip.Deflater;
 
 import org.junit.Assert;
 
-import org.apache.activemq.utils.DeflaterReader;
-import org.apache.activemq.utils.InflaterReader;
-import org.apache.activemq.utils.InflaterWriter;
+import org.apache.activemq.artemis.utils.DeflaterReader;
+import org.apache.activemq.artemis.utils.InflaterReader;
+import org.apache.activemq.artemis.utils.InflaterWriter;
 
 public class CompressionUtilTest extends Assert
 {

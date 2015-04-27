@@ -14,13 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.api.core.client;
+package org.apache.activemq.artemis.api.core.client;
 
 import javax.transaction.xa.XAResource;
 import java.util.List;
 
-import org.apache.activemq.api.core.ActiveMQException;
-import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.SimpleString;
 
 /**
  * A ClientSession is a single-thread object required for producing and consuming messages.
@@ -37,7 +37,7 @@ public interface ClientSession extends XAResource, AutoCloseable
 
 
    /**
-    * Just like {@link org.apache.activemq.api.core.client.ClientSession.AddressQuery#JMS_SESSION_IDENTIFIER_PROPERTY} this is
+    * Just like {@link ClientSession.AddressQuery#JMS_SESSION_IDENTIFIER_PROPERTY} this is
     * used to identify the ClientID over JMS Session.
     * However this is only used when the JMS Session.clientID is set (which is optional).
     * With this property management tools and the server can identify the jms-client-id used over JMS
@@ -132,7 +132,7 @@ public interface ClientSession extends XAResource, AutoCloseable
     * Starts the session.
     * The session must be started before ClientConsumers created by the session can consume messages from the queue.
     *
-    * @throws org.apache.activemq.api.core.ActiveMQException if an exception occurs while starting the session
+    * @throws ActiveMQException if an exception occurs while starting the session
     */
    ClientSession start() throws ActiveMQException;
 
@@ -140,14 +140,14 @@ public interface ClientSession extends XAResource, AutoCloseable
     * Stops the session.
     * ClientConsumers created by the session can not consume messages when the session is stopped.
     *
-    * @throws org.apache.activemq.api.core.ActiveMQException if an exception occurs while stopping the session
+    * @throws ActiveMQException if an exception occurs while stopping the session
     */
    void stop() throws ActiveMQException;
 
    /**
     * Closes the session.
     *
-    * @throws org.apache.activemq.api.core.ActiveMQException if an exception occurs while closing the session
+    * @throws ActiveMQException if an exception occurs while closing the session
     */
    void close() throws ActiveMQException;
 
@@ -204,7 +204,7 @@ public interface ClientSession extends XAResource, AutoCloseable
     * @param address   the queue will be bound to this address
     * @param queueName the name of the queue
     * @param durable   whether the queue is durable or not
-    * @throws org.apache.activemq.api.core.ActiveMQException in an exception occurs while creating the queue
+    * @throws ActiveMQException in an exception occurs while creating the queue
     */
    void createQueue(SimpleString address, SimpleString queueName, boolean durable) throws ActiveMQException;
 
@@ -216,7 +216,7 @@ public interface ClientSession extends XAResource, AutoCloseable
     * @param address   the queue will be bound to this address
     * @param queueName the name of the queue
     * @param durable   if the queue is durable
-    * @throws org.apache.activemq.api.core.ActiveMQException in an exception occurs while creating the queue
+    * @throws ActiveMQException in an exception occurs while creating the queue
     */
    void createSharedQueue(SimpleString address, SimpleString queueName, boolean durable) throws ActiveMQException;
 
@@ -229,7 +229,7 @@ public interface ClientSession extends XAResource, AutoCloseable
     * @param queueName the name of the queue
     * @param filter    whether the queue is durable or not
     * @param durable   if the queue is durable
-    * @throws org.apache.activemq.api.core.ActiveMQException in an exception occurs while creating the queue
+    * @throws ActiveMQException in an exception occurs while creating the queue
     */
    void createSharedQueue(SimpleString address, SimpleString queueName, SimpleString filter, boolean durable) throws ActiveMQException;
 
@@ -239,7 +239,7 @@ public interface ClientSession extends XAResource, AutoCloseable
     * @param address   the queue will be bound to this address
     * @param queueName the name of the queue
     * @param durable   whether the queue is durable or not
-    * @throws org.apache.activemq.api.core.ActiveMQException in an exception occurs while creating the queue
+    * @throws ActiveMQException in an exception occurs while creating the queue
     */
    void createQueue(String address, String queueName, boolean durable) throws ActiveMQException;
 
@@ -248,7 +248,7 @@ public interface ClientSession extends XAResource, AutoCloseable
     *
     * @param address   the queue will be bound to this address
     * @param queueName the name of the queue
-    * @throws org.apache.activemq.api.core.ActiveMQException in an exception occurs while creating the queue
+    * @throws ActiveMQException in an exception occurs while creating the queue
     */
    void createQueue(String address, String queueName) throws ActiveMQException;
 
@@ -257,7 +257,7 @@ public interface ClientSession extends XAResource, AutoCloseable
     *
     * @param address   the queue will be bound to this address
     * @param queueName the name of the queue
-    * @throws org.apache.activemq.api.core.ActiveMQException in an exception occurs while creating the queue
+    * @throws ActiveMQException in an exception occurs while creating the queue
     */
    void createQueue(SimpleString address, SimpleString queueName) throws ActiveMQException;
 
@@ -268,7 +268,7 @@ public interface ClientSession extends XAResource, AutoCloseable
     * @param queueName the name of the queue
     * @param filter    only messages which match this filter will be put in the queue
     * @param durable   whether the queue is durable or not
-    * @throws org.apache.activemq.api.core.ActiveMQException in an exception occurs while creating the queue
+    * @throws ActiveMQException in an exception occurs while creating the queue
     */
    void createQueue(SimpleString address, SimpleString queueName, SimpleString filter, boolean durable) throws ActiveMQException;
 
@@ -279,7 +279,7 @@ public interface ClientSession extends XAResource, AutoCloseable
     * @param queueName the name of the queue
     * @param durable   whether the queue is durable or not
     * @param filter    only messages which match this filter will be put in the queue
-    * @throws org.apache.activemq.api.core.ActiveMQException in an exception occurs while creating the queue
+    * @throws ActiveMQException in an exception occurs while creating the queue
     */
    void createQueue(String address, String queueName, String filter, boolean durable) throws ActiveMQException;
 
@@ -288,7 +288,7 @@ public interface ClientSession extends XAResource, AutoCloseable
     *
     * @param address   the queue will be bound to this address
     * @param queueName the name of the queue
-    * @throws org.apache.activemq.api.core.ActiveMQException in an exception occurs while creating the queue
+    * @throws ActiveMQException in an exception occurs while creating the queue
     */
    void createTemporaryQueue(SimpleString address, SimpleString queueName) throws ActiveMQException;
 
@@ -297,7 +297,7 @@ public interface ClientSession extends XAResource, AutoCloseable
     *
     * @param address   the queue will be bound to this address
     * @param queueName the name of the queue
-    * @throws org.apache.activemq.api.core.ActiveMQException in an exception occurs while creating the queue
+    * @throws ActiveMQException in an exception occurs while creating the queue
     */
    void createTemporaryQueue(String address, String queueName) throws ActiveMQException;
 
@@ -307,7 +307,7 @@ public interface ClientSession extends XAResource, AutoCloseable
     * @param address   the queue will be bound to this address
     * @param queueName the name of the queue
     * @param filter    only messages which match this filter will be put in the queue
-    * @throws org.apache.activemq.api.core.ActiveMQException in an exception occurs while creating the queue
+    * @throws ActiveMQException in an exception occurs while creating the queue
     */
    void createTemporaryQueue(SimpleString address, SimpleString queueName, SimpleString filter) throws ActiveMQException;
 
@@ -317,7 +317,7 @@ public interface ClientSession extends XAResource, AutoCloseable
     * @param address   the queue will be bound to this address
     * @param queueName the name of the queue
     * @param filter    only messages which match this filter will be put in the queue
-    * @throws org.apache.activemq.api.core.ActiveMQException in an exception occurs while creating the queue
+    * @throws ActiveMQException in an exception occurs while creating the queue
     */
    void createTemporaryQueue(String address, String queueName, String filter) throws ActiveMQException;
 
@@ -325,7 +325,7 @@ public interface ClientSession extends XAResource, AutoCloseable
     * Deletes the queue.
     *
     * @param queueName the name of the queue to delete
-    * @throws org.apache.activemq.api.core.ActiveMQException if there is no queue for the given name or if the queue has consumers
+    * @throws ActiveMQException if there is no queue for the given name or if the queue has consumers
     */
    void deleteQueue(SimpleString queueName) throws ActiveMQException;
 
@@ -333,7 +333,7 @@ public interface ClientSession extends XAResource, AutoCloseable
     * Deletes the queue.
     *
     * @param queueName the name of the queue to delete
-    * @throws org.apache.activemq.api.core.ActiveMQException if there is no queue for the given name or if the queue has consumers
+    * @throws ActiveMQException if there is no queue for the given name or if the queue has consumers
     */
    void deleteQueue(String queueName) throws ActiveMQException;
 
@@ -344,7 +344,7 @@ public interface ClientSession extends XAResource, AutoCloseable
     *
     * @param queueName name of the queue to consume messages from
     * @return a ClientConsumer
-    * @throws org.apache.activemq.api.core.ActiveMQException if an exception occurs while creating the ClientConsumer
+    * @throws ActiveMQException if an exception occurs while creating the ClientConsumer
     */
    ClientConsumer createConsumer(SimpleString queueName) throws ActiveMQException;
 
@@ -353,7 +353,7 @@ public interface ClientSession extends XAResource, AutoCloseable
     *
     * @param queueName name of the queue to consume messages from
     * @return a ClientConsumer
-    * @throws org.apache.activemq.api.core.ActiveMQException if an exception occurs while creating the ClientConsumer
+    * @throws ActiveMQException if an exception occurs while creating the ClientConsumer
     */
    ClientConsumer createConsumer(String queueName) throws ActiveMQException;
 
@@ -363,7 +363,7 @@ public interface ClientSession extends XAResource, AutoCloseable
     * @param queueName name of the queue to consume messages from
     * @param filter    only messages which match this filter will be consumed
     * @return a ClientConsumer
-    * @throws org.apache.activemq.api.core.ActiveMQException if an exception occurs while creating the ClientConsumer
+    * @throws ActiveMQException if an exception occurs while creating the ClientConsumer
     */
    ClientConsumer createConsumer(SimpleString queueName, SimpleString filter) throws ActiveMQException;
 
@@ -373,7 +373,7 @@ public interface ClientSession extends XAResource, AutoCloseable
     * @param queueName name of the queue to consume messages from
     * @param filter    only messages which match this filter will be consumed
     * @return a ClientConsumer
-    * @throws org.apache.activemq.api.core.ActiveMQException if an exception occurs while creating the ClientConsumer
+    * @throws ActiveMQException if an exception occurs while creating the ClientConsumer
     */
    ClientConsumer createConsumer(String queueName, String filter) throws ActiveMQException;
 
@@ -391,7 +391,7 @@ public interface ClientSession extends XAResource, AutoCloseable
     * @param queueName  name of the queue to consume messages from
     * @param browseOnly whether the ClientConsumer will only browse the queue or consume messages.
     * @return a ClientConsumer
-    * @throws org.apache.activemq.api.core.ActiveMQException if an exception occurs while creating the ClientConsumer
+    * @throws ActiveMQException if an exception occurs while creating the ClientConsumer
     */
    ClientConsumer createConsumer(SimpleString queueName, boolean browseOnly) throws ActiveMQException;
 
@@ -409,7 +409,7 @@ public interface ClientSession extends XAResource, AutoCloseable
     * @param queueName  name of the queue to consume messages from
     * @param browseOnly whether the ClientConsumer will only browse the queue or consume messages.
     * @return a ClientConsumer
-    * @throws org.apache.activemq.api.core.ActiveMQException if an exception occurs while creating the ClientConsumer
+    * @throws ActiveMQException if an exception occurs while creating the ClientConsumer
     */
    ClientConsumer createConsumer(String queueName, boolean browseOnly) throws ActiveMQException;
 
@@ -429,7 +429,7 @@ public interface ClientSession extends XAResource, AutoCloseable
     * @param filter     only messages which match this filter will be consumed
     * @param browseOnly whether the ClientConsumer will only browse the queue or consume messages.
     * @return a ClientConsumer
-    * @throws org.apache.activemq.api.core.ActiveMQException if an exception occurs while creating the ClientConsumer
+    * @throws ActiveMQException if an exception occurs while creating the ClientConsumer
     */
    ClientConsumer createConsumer(String queueName, String filter, boolean browseOnly) throws ActiveMQException;
 
@@ -449,7 +449,7 @@ public interface ClientSession extends XAResource, AutoCloseable
     * @param filter     only messages which match this filter will be consumed
     * @param browseOnly whether the ClientConsumer will only browse the queue or consume messages.
     * @return a ClientConsumer
-    * @throws org.apache.activemq.api.core.ActiveMQException if an exception occurs while creating the ClientConsumer
+    * @throws ActiveMQException if an exception occurs while creating the ClientConsumer
     */
    ClientConsumer createConsumer(SimpleString queueName, SimpleString filter, boolean browseOnly) throws ActiveMQException;
 
@@ -471,7 +471,7 @@ public interface ClientSession extends XAResource, AutoCloseable
     * @param maxRate    the maximum rate to consume messages
     * @param browseOnly whether the ClientConsumer will only browse the queue or consume messages.
     * @return a ClientConsumer
-    * @throws org.apache.activemq.api.core.ActiveMQException if an exception occurs while creating the ClientConsumer
+    * @throws ActiveMQException if an exception occurs while creating the ClientConsumer
     */
    ClientConsumer createConsumer(SimpleString queueName,
                                  SimpleString filter,
@@ -497,7 +497,7 @@ public interface ClientSession extends XAResource, AutoCloseable
     * @param maxRate    the maximum rate to consume messages
     * @param browseOnly whether the ClientConsumer will only browse the queue or consume messages.
     * @return a ClientConsumer
-    * @throws org.apache.activemq.api.core.ActiveMQException if an exception occurs while creating the ClientConsumer
+    * @throws ActiveMQException if an exception occurs while creating the ClientConsumer
     */
    ClientConsumer createConsumer(String queueName, String filter, int windowSize, int maxRate, boolean browseOnly) throws ActiveMQException;
 
@@ -508,7 +508,7 @@ public interface ClientSession extends XAResource, AutoCloseable
     * Address must be specified every time a message is sent
     *
     * @return a ClientProducer
-    * @see ClientProducer#send(SimpleString, org.apache.activemq.api.core.Message)
+    * @see ClientProducer#send(SimpleString, org.apache.activemq.artemis.api.core.Message)
     */
    ClientProducer createProducer() throws ActiveMQException;
 
@@ -517,7 +517,7 @@ public interface ClientSession extends XAResource, AutoCloseable
     *
     * @param address the address to send messages to
     * @return a ClientProducer
-    * @throws org.apache.activemq.api.core.ActiveMQException if an exception occurs while creating the ClientProducer
+    * @throws ActiveMQException if an exception occurs while creating the ClientProducer
     */
    ClientProducer createProducer(SimpleString address) throws ActiveMQException;
 
@@ -526,7 +526,7 @@ public interface ClientSession extends XAResource, AutoCloseable
     *
     * @param address the address to send messages to
     * @return a ClientProducer
-    * @throws org.apache.activemq.api.core.ActiveMQException if an exception occurs while creating the ClientProducer
+    * @throws ActiveMQException if an exception occurs while creating the ClientProducer
     */
    ClientProducer createProducer(String address) throws ActiveMQException;
 
@@ -536,7 +536,7 @@ public interface ClientSession extends XAResource, AutoCloseable
     * @param address the address to send messages to
     * @param rate    the producer rate
     * @return a ClientProducer
-    * @throws org.apache.activemq.api.core.ActiveMQException if an exception occurs while creating the ClientProducer
+    * @throws ActiveMQException if an exception occurs while creating the ClientProducer
     */
    ClientProducer createProducer(SimpleString address, int rate) throws ActiveMQException;
 
@@ -578,7 +578,7 @@ public interface ClientSession extends XAResource, AutoCloseable
     *
     * @param queueName the name of the queue to query
     * @return a QueueQuery containing information on the given queue
-    * @throws org.apache.activemq.api.core.ActiveMQException if an exception occurs while querying the queue
+    * @throws ActiveMQException if an exception occurs while querying the queue
     */
    QueueQuery queueQuery(SimpleString queueName) throws ActiveMQException;
 
@@ -587,7 +587,7 @@ public interface ClientSession extends XAResource, AutoCloseable
     *
     * @param address the address of the biding to query
     * @return a AddressQuery containing information on the binding attached to the given address
-    * @throws org.apache.activemq.api.core.ActiveMQException if an exception occurs while querying the binding
+    * @throws ActiveMQException if an exception occurs while querying the binding
     */
    AddressQuery addressQuery(SimpleString address) throws ActiveMQException;
 
@@ -610,14 +610,14 @@ public interface ClientSession extends XAResource, AutoCloseable
    /**
     * Commits the current transaction.
     *
-    * @throws org.apache.activemq.api.core.ActiveMQException if an exception occurs while committing the transaction
+    * @throws ActiveMQException if an exception occurs while committing the transaction
     */
    void commit() throws ActiveMQException;
 
    /**
     * Rolls back the current transaction.
     *
-    * @throws org.apache.activemq.api.core.ActiveMQException if an exception occurs while rolling back the transaction
+    * @throws ActiveMQException if an exception occurs while rolling back the transaction
     */
    void rollback() throws ActiveMQException;
 
@@ -625,7 +625,7 @@ public interface ClientSession extends XAResource, AutoCloseable
     * Rolls back the current transaction.
     *
     * @param considerLastMessageAsDelivered the first message on deliveringMessage Buffer is considered as delivered
-    * @throws org.apache.activemq.api.core.ActiveMQException if an exception occurs while rolling back the transaction
+    * @throws ActiveMQException if an exception occurs while rolling back the transaction
     */
    void rollback(boolean considerLastMessageAsDelivered) throws ActiveMQException;
 
@@ -670,7 +670,7 @@ public interface ClientSession extends XAResource, AutoCloseable
    /**
     * Attach any metadata to the session.
     *
-    * @throws org.apache.activemq.api.core.ActiveMQException
+    * @throws ActiveMQException
     */
    void addMetaData(String key, String data) throws ActiveMQException;
 
@@ -679,7 +679,7 @@ public interface ClientSession extends XAResource, AutoCloseable
     * You can use this metadata to ensure that there is no other session with the same meta-data you are passing as an argument.
     * This is useful to simulate unique client-ids, where you may want to avoid multiple instances of your client application connected.
     *
-    * @throws org.apache.activemq.api.core.ActiveMQException
+    * @throws ActiveMQException
     */
    void addUniqueMetaData(String key, String data) throws ActiveMQException;
 

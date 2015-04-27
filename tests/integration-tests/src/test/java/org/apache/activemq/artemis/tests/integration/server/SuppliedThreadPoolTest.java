@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.server;
+package org.apache.activemq.artemis.tests.integration.server;
 
 import java.lang.reflect.Field;
 import java.util.concurrent.ExecutorService;
@@ -24,10 +24,10 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq.core.server.ActiveMQServer;
-import org.apache.activemq.core.server.impl.ActiveMQServerImpl;
-import org.apache.activemq.core.server.impl.ServiceRegistry;
-import org.apache.activemq.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
+import org.apache.activemq.artemis.core.server.impl.ServiceRegistry;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

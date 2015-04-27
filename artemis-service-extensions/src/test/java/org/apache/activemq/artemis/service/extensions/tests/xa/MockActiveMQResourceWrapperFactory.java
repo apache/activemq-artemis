@@ -14,13 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.service.extensions.tests.xa;
+package org.apache.activemq.artemis.service.extensions.tests.xa;
 
 import javax.transaction.xa.XAResource;
 import java.util.Map;
 
-import org.apache.activemq.service.extensions.xa.ActiveMQXAResourceWrapper;
-import org.apache.activemq.service.extensions.xa.ActiveMQXAResourceWrapperFactory;
+import org.apache.activemq.artemis.service.extensions.xa.ActiveMQXAResourceWrapper;
+import org.apache.activemq.artemis.service.extensions.xa.ActiveMQXAResourceWrapperFactory;
 
 public class MockActiveMQResourceWrapperFactory implements ActiveMQXAResourceWrapperFactory
 {

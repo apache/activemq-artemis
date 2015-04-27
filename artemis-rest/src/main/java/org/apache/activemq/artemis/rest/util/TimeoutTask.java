@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.rest.util;
+package org.apache.activemq.artemis.rest.util;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,7 +23,7 @@ import java.util.Map;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.apache.activemq.rest.ActiveMQRestLogger;
+import org.apache.activemq.artemis.rest.ActiveMQRestLogger;
 
 public class TimeoutTask implements Runnable
 {

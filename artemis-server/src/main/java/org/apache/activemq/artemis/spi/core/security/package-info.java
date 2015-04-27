@@ -14,5 +14,5 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.spi.core.security;
+package org.apache.activemq.artemis.spi.core.security;
 

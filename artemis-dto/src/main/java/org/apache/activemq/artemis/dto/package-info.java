@@ -20,4 +20,4 @@
 @javax.xml.bind.annotation.XmlSchema(
         namespace = "http://activemq.org/schema",
         elementFormDefault = javax.xml.bind.annotation.XmlNsForm.QUALIFIED)
-package org.apache.activemq.dto;
+package org.apache.activemq.artemis.dto;

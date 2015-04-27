@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.rest.test;
+package org.apache.activemq.artemis.rest.test;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -26,12 +26,12 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.activemq.api.jms.JMSFactoryType;
-import org.apache.activemq.core.config.impl.FileSecurityConfiguration;
-import org.apache.activemq.rest.HttpHeaderProperty;
-import org.apache.activemq.rest.integration.EmbeddedRestActiveMQJMS;
-import org.apache.activemq.spi.core.naming.BindingRegistry;
-import org.apache.activemq.spi.core.security.ActiveMQSecurityManagerImpl;
+import org.apache.activemq.artemis.api.jms.JMSFactoryType;
+import org.apache.activemq.artemis.core.config.impl.FileSecurityConfiguration;
+import org.apache.activemq.artemis.rest.HttpHeaderProperty;
+import org.apache.activemq.artemis.rest.integration.EmbeddedRestActiveMQJMS;
+import org.apache.activemq.artemis.spi.core.naming.BindingRegistry;
+import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManagerImpl;
 import org.jboss.resteasy.client.ClientRequest;
 import org.jboss.resteasy.client.ClientResponse;
 import org.jboss.resteasy.spi.Link;

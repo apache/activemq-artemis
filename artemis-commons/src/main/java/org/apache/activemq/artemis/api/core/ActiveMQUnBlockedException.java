@@ -14,9 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.api.core;
-
-import static org.apache.activemq.api.core.ActiveMQExceptionType.UNBLOCKED;
+package org.apache.activemq.artemis.api.core;
 
 /**
  * A blocking call from a client was unblocked during failover.
@@ -27,11 +25,11 @@ public final class ActiveMQUnBlockedException extends ActiveMQException
 
    public ActiveMQUnBlockedException()
    {
-      super(UNBLOCKED);
+      super(ActiveMQExceptionType.UNBLOCKED);
    }
 
    public ActiveMQUnBlockedException(String msg)
    {
-      super(UNBLOCKED, msg);
+      super(ActiveMQExceptionType.UNBLOCKED, msg);
    }
 }

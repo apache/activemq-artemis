@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.jms.tests.selector;
+package org.apache.activemq.artemis.jms.tests.selector;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -28,10 +28,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
-import org.apache.activemq.jms.client.ActiveMQConnectionFactory;
-import org.apache.activemq.jms.tests.ActiveMQServerTestCase;
-import org.apache.activemq.jms.tests.util.ProxyAssertSupport;
-import org.apache.activemq.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.jms.tests.ActiveMQServerTestCase;
+import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
+import org.apache.activemq.artemis.tests.util.UnitTestCase;
 import org.junit.Assert;
 import org.junit.Test;
 

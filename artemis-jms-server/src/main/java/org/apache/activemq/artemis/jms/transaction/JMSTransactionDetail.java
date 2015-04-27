@@ -14,21 +14,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.jms.transaction;
+package org.apache.activemq.artemis.jms.transaction;
 
 import java.util.Map;
 
 import javax.transaction.xa.Xid;
 
-import org.apache.activemq.core.server.ServerMessage;
-import org.apache.activemq.core.transaction.Transaction;
-import org.apache.activemq.core.transaction.TransactionDetail;
-import org.apache.activemq.jms.client.ActiveMQBytesMessage;
-import org.apache.activemq.jms.client.ActiveMQMapMessage;
-import org.apache.activemq.jms.client.ActiveMQMessage;
-import org.apache.activemq.jms.client.ActiveMQObjectMessage;
-import org.apache.activemq.jms.client.ActiveMQStreamMessage;
-import org.apache.activemq.jms.client.ActiveMQTextMessage;
+import org.apache.activemq.artemis.core.server.ServerMessage;
+import org.apache.activemq.artemis.core.transaction.Transaction;
+import org.apache.activemq.artemis.core.transaction.TransactionDetail;
+import org.apache.activemq.artemis.jms.client.ActiveMQBytesMessage;
+import org.apache.activemq.artemis.jms.client.ActiveMQMapMessage;
+import org.apache.activemq.artemis.jms.client.ActiveMQMessage;
+import org.apache.activemq.artemis.jms.client.ActiveMQObjectMessage;
+import org.apache.activemq.artemis.jms.client.ActiveMQStreamMessage;
+import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
 
 public class JMSTransactionDetail extends TransactionDetail
 {

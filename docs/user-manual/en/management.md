@@ -1,23 +1,23 @@
 # Management
 
-Apache ActiveMQ has an extensive management API that allows a user to modify a
+Apache ActiveMQ Artemis has an extensive management API that allows a user to modify a
 server configuration, create new resources (e.g. JMS queues and topics),
 inspect these resources (e.g. how many messages are currently held in a
 queue) and interact with it (e.g. to remove messages from a queue). All
-the operations allows a client to *manage* Apache ActiveMQ. It also allows
+the operations allows a client to *manage* Apache ActiveMQ Artemis. It also allows
 clients to subscribe to management notifications.
 
-There are 3 ways to manage Apache ActiveMQ:
+There are 3 ways to manage Apache ActiveMQ Artemis:
 
 -   Using JMX -- JMX is the standard way to manage Java applications
 
--   Using the core API -- management operations are sent to Apache ActiveMQ
+-   Using the core API -- management operations are sent to Apache ActiveMQ Artemis
     server using *core messages*
 
--   Using the JMS API -- management operations are sent to Apache ActiveMQ
+-   Using the JMS API -- management operations are sent to Apache ActiveMQ Artemis
     server using *JMS messages*
 
-Although there are 3 different ways to manage Apache ActiveMQ each API supports
+Although there are 3 different ways to manage Apache ActiveMQ Artemis each API supports
 the same functionality. If it is possible to manage a resource using JMX
 it is also possible to achieve the same result using Core messages or
 JMS messages.
@@ -33,7 +33,7 @@ API is the same.
 For each *managed resource*, there exists a Java interface describing
 what can be invoked for this type of resource.
 
-Apache ActiveMQ exposes its managed resources in 2 packages:
+Apache ActiveMQ Artemis exposes its managed resources in 2 packages:
 
 -   *Core* resources are located in the
     `org.apache.activemq.api.core.management` package
@@ -53,7 +53,7 @@ messages, or JMS messages are used.
 
 ### Core Management API
 
-Apache ActiveMQ defines a core management API to manage core resources. For
+Apache ActiveMQ Artemis defines a core management API to manage core resources. For
 full details of the API please consult the javadoc. In summary:
 
 #### Core Server Management
@@ -113,7 +113,7 @@ full details of the API please consult the javadoc. In summary:
 
 -   Retrieving the server configuration and attributes
 
-    The `ActiveMQServerControl` exposes Apache ActiveMQ server configuration
+    The `ActiveMQServerControl` exposes Apache ActiveMQ Artemis server configuration
     through all its attributes (e.g. `getVersion()` method to retrieve
     the server's version, etc.)
 
@@ -235,7 +235,7 @@ messages with a given property.)
 
 #### Other Core Resources Management
 
-Apache ActiveMQ allows to start and stop its remote resources (acceptors,
+Apache ActiveMQ Artemis allows to start and stop its remote resources (acceptors,
 diverts, bridges, etc.) so that a server can be taken off line for a
 given period of time without stopping it completely (e.g. if other
 management operations must be performed such as resolving heuristic
@@ -297,7 +297,7 @@ transactions). These resources are:
 
 ### JMS Management API
 
-Apache ActiveMQ defines a JMS Management API to manage JMS *administrated
+Apache ActiveMQ Artemis defines a JMS Management API to manage JMS *administrated
 objects* (i.e. JMS queues, topics and connection factories).
 
 #### JMS Server Management
@@ -477,11 +477,11 @@ ObjectName `org.apache.activemq:module=JMS,type=Topic,name="<the topic
 
 ## Using Management Via JMX
 
-Apache ActiveMQ can be managed using
+Apache ActiveMQ Artemis can be managed using
 [JMX](http://www.oracle.com/technetwork/java/javase/tech/javamanagement-140525.html).
 
-The management API is exposed by Apache ActiveMQ using MBeans interfaces.
-Apache ActiveMQ registers its resources with the domain `org.apache.activemq`.
+The management API is exposed by Apache ActiveMQ Artemis using MBeans interfaces.
+Apache ActiveMQ Artemis registers its resources with the domain `org.apache.activemq`.
 
 For example, the `ObjectName` to manage a JMS Queue `exampleQueue` is:
 
@@ -496,20 +496,20 @@ The MBean's `ObjectName` are built using the helper class
 also use `jconsole` to find the `ObjectName` of the MBeans you want to
 manage.
 
-Managing Apache ActiveMQ using JMX is identical to management of any Java
+Managing Apache ActiveMQ Artemis using JMX is identical to management of any Java
 Applications using JMX. It can be done by reflection or by creating
 proxies of the MBeans.
 
 ### Configuring JMX
 
-By default, JMX is enabled to manage Apache ActiveMQ. It can be disabled by
+By default, JMX is enabled to manage Apache ActiveMQ Artemis. It can be disabled by
 setting `jmx-management-enabled` to `false` in
 `activemq-configuration.xml`:
 
-    <!-- false to disable JMX management for Apache ActiveMQ -->
+    <!-- false to disable JMX management for Apache ActiveMQ Artemis -->
     <jmx-management-enabled>false</jmx-management-enabled>
 
-If JMX is enabled, Apache ActiveMQ can be managed locally using `jconsole`.
+If JMX is enabled, Apache ActiveMQ Artemis can be managed locally using `jconsole`.
 
 > **Note**
 >
@@ -519,9 +519,9 @@ If JMX is enabled, Apache ActiveMQ can be managed locally using `jconsole`.
 > to configure the server for remote management (system properties must
 > be set in `run.sh` or `run.bat` scripts).
 
-By default, Apache ActiveMQ server uses the JMX domain "org.apache.activemq".
-To manage several Apache ActiveMQ servers from the *same* MBeanServer, the JMX
-domain can be configured for each individual Apache ActiveMQ server by setting
+By default, Apache ActiveMQ Artemis server uses the JMX domain "org.apache.activemq".
+To manage several Apache ActiveMQ Artemis servers from the *same* MBeanServer, the JMX
+domain can be configured for each individual Apache ActiveMQ Artemis server by setting
 `jmx-domain` in `activemq-configuration.xml`:
 
     <!-- use a specific JMX domain for ActiveMQ MBeans -->
@@ -529,14 +529,14 @@ domain can be configured for each individual Apache ActiveMQ server by setting
 
 #### MBeanServer configuration
 
-When Apache ActiveMQ is run in standalone, it uses the Java Virtual Machine's
+When Apache ActiveMQ Artemis is run in standalone, it uses the Java Virtual Machine's
 `Platform MBeanServer` to register its MBeans. By default [Jolokia](http://www.jolokia.org/)
 is also deployed to allow access to the mbean server via rest.
 
 ### Example
 
 See the [chapters](examples.md) chapter for an example which shows how to use a remote connection to JMX
-and MBean proxies to manage Apache ActiveMQ.
+and MBean proxies to manage Apache ActiveMQ Artemis.
 
 ### Exposing JMX using Jolokia
 
@@ -567,7 +567,7 @@ management API:
 -   The parameters of the management operation
 
 When such a management message is sent to the management address,
-Apache ActiveMQ server will handle it, extract the information, invoke the
+Apache ActiveMQ Artemis server will handle it, extract the information, invoke the
 operation on the managed resources and send a *management reply* to the
 management message's reply-to address (specified by
 `ClientMessageImpl.REPLYTO_HEADER_NAME`).
@@ -636,7 +636,7 @@ be able to receive and handle management messages. This is also
 configured in activemq-configuration.xml:
 
     <!-- users with the admin role will be allowed to manage -->
-    <!-- Apache ActiveMQ using management messages        -->
+    <!-- Apache ActiveMQ Artemis using management messages        -->
     <security-setting match="jms.queue.activemq.management">
        <permission type="manage" roles="admin" />
     </security-setting>
@@ -693,11 +693,11 @@ steps are the same (see Configuring Core Management section).
 ### Example
 
 See the [examples](examples.md) chapter for an example which shows
-how to use JMS messages to manage the Apache ActiveMQ server.
+how to use JMS messages to manage the Apache ActiveMQ Artemis server.
 
 ## Management Notifications
 
-Apache ActiveMQ emits *notifications* to inform listeners of potentially
+Apache ActiveMQ Artemis emits *notifications* to inform listeners of potentially
 interesting events (creation of new resources, security violation,
 etc.).
 
@@ -722,7 +722,7 @@ subscribing to 2 MBeans:
 
 ### Core Messages Notifications
 
-Apache ActiveMQ defines a special *management notification address*. Core
+Apache ActiveMQ Artemis defines a special *management notification address*. Core
 queues can be bound to this address so that clients will receive
 management notifications as Core messages
 
@@ -749,7 +749,7 @@ By default, the address is `activemq.notifications`.
 
 ### JMS Messages Notifications
 
-Apache ActiveMQ's notifications can also be received using JMS messages.
+Apache ActiveMQ Artemis's notifications can also be received using JMS messages.
 
 It is similar to receiving notifications using Core API but an important
 difference is that JMS requires a JMS Destination to receive the
@@ -894,7 +894,7 @@ header. The timestamp is the un-formatted result of a call to
 ## Message Counters
 
 Message counters can be used to obtain information on queues *over time*
-as Apache ActiveMQ keeps a history on queue metrics.
+as Apache ActiveMQ Artemis keeps a history on queue metrics.
 
 They can be used to show *trends* on queues. For example, using the
 management API, it would be possible to query the number of messages in
@@ -967,7 +967,7 @@ Message counters can be retrieved using the Management API. For example,
 to retrieve message counters on a JMS Queue using JMX:
 
 ``` java
-// retrieve a connection to Apache ActiveMQ's MBeanServer
+// retrieve a connection to Apache ActiveMQ Artemis's MBeanServer
 MBeanServerConnection mbsc = ...
 JMSQueueControlMBean queueControl = (JMSQueueControl)MBeanServerInvocationHandler.newProxyInstance(mbsc,
    on,

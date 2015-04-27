@@ -14,13 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.protocol.openwire;
+package org.apache.activemq.artemis.core.protocol.openwire;
 
-import org.apache.activemq.core.persistence.StorageManager;
-import org.apache.activemq.core.server.Queue;
-import org.apache.activemq.core.server.impl.RefsOperation;
-import org.apache.activemq.core.transaction.Transaction;
-import org.apache.activemq.core.transaction.impl.TransactionImpl;
+import org.apache.activemq.artemis.core.persistence.StorageManager;
+import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.server.impl.RefsOperation;
+import org.apache.activemq.artemis.core.transaction.Transaction;
+import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
 
 import javax.transaction.xa.Xid;
 

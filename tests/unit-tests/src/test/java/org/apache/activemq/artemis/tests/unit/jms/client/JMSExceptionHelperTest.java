@@ -14,11 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.unit.jms.client;
+package org.apache.activemq.artemis.tests.unit.jms.client;
 
-import static org.apache.activemq.api.core.ActiveMQExceptionType.CONNECTION_TIMEDOUT;
-import static org.apache.activemq.api.core.ActiveMQExceptionType.GENERIC_EXCEPTION;
-import static org.apache.activemq.api.core.ActiveMQExceptionType.INVALID_FILTER_EXPRESSION;
+import static org.apache.activemq.artemis.api.core.ActiveMQExceptionType.CONNECTION_TIMEDOUT;
+import static org.apache.activemq.artemis.api.core.ActiveMQExceptionType.GENERIC_EXCEPTION;
+import static org.apache.activemq.artemis.api.core.ActiveMQExceptionType.INVALID_FILTER_EXPRESSION;
 
 import javax.jms.IllegalStateException;
 import javax.jms.InvalidDestinationException;
@@ -26,10 +26,10 @@ import javax.jms.InvalidSelectorException;
 import javax.jms.JMSException;
 import javax.jms.JMSSecurityException;
 
-import org.apache.activemq.api.core.ActiveMQException;
-import org.apache.activemq.api.core.ActiveMQExceptionType;
-import org.apache.activemq.jms.client.JMSExceptionHelper;
-import org.apache.activemq.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
+import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.jms.client.JMSExceptionHelper;
 import org.junit.Assert;
 import org.junit.Test;
 

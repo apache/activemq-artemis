@@ -14,28 +14,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.server.impl;
+package org.apache.activemq.artemis.core.server.impl;
 
-import org.apache.activemq.api.core.ActiveMQBuffer;
-import org.apache.activemq.api.core.Pair;
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.core.client.impl.Topology;
-import org.apache.activemq.core.client.impl.TopologyMemberImpl;
-import org.apache.activemq.core.protocol.core.Channel;
-import org.apache.activemq.core.protocol.core.ChannelHandler;
-import org.apache.activemq.core.protocol.core.Packet;
-import org.apache.activemq.core.protocol.core.impl.PacketImpl;
-import org.apache.activemq.core.protocol.core.impl.wireformat.BackupRequestMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.BackupResponseMessage;
-import org.apache.activemq.core.remoting.server.RemotingService;
-import org.apache.activemq.core.replication.ReplicationManager;
-import org.apache.activemq.core.server.cluster.ha.ColocatedHAManager;
-import org.apache.activemq.core.server.cluster.ha.ColocatedPolicy;
-import org.apache.activemq.core.server.cluster.ha.HAManager;
-import org.apache.activemq.core.server.cluster.qourum.QuorumVote;
-import org.apache.activemq.core.server.cluster.qourum.QuorumVoteHandler;
-import org.apache.activemq.core.server.cluster.qourum.Vote;
-import org.apache.activemq.spi.core.remoting.Acceptor;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.Pair;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.client.impl.Topology;
+import org.apache.activemq.artemis.core.client.impl.TopologyMemberImpl;
+import org.apache.activemq.artemis.core.protocol.core.Channel;
+import org.apache.activemq.artemis.core.protocol.core.ChannelHandler;
+import org.apache.activemq.artemis.core.protocol.core.Packet;
+import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.BackupRequestMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.BackupResponseMessage;
+import org.apache.activemq.artemis.core.remoting.server.RemotingService;
+import org.apache.activemq.artemis.core.replication.ReplicationManager;
+import org.apache.activemq.artemis.core.server.cluster.ha.ColocatedHAManager;
+import org.apache.activemq.artemis.core.server.cluster.ha.ColocatedPolicy;
+import org.apache.activemq.artemis.core.server.cluster.ha.HAManager;
+import org.apache.activemq.artemis.core.server.cluster.qourum.QuorumVote;
+import org.apache.activemq.artemis.core.server.cluster.qourum.QuorumVoteHandler;
+import org.apache.activemq.artemis.core.server.cluster.qourum.Vote;
+import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
 
 import java.util.ArrayList;
 import java.util.Collections;

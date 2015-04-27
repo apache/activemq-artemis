@@ -16,5 +16,5 @@
   limitations under the License.
 -->
 <deployment xmlns="urn:jboss:bean-deployer:2.0">
-   <bean name="bean" class="org.apache.activemq.tests.unit.microcontainer.DummyBean"/>
+   <bean name="bean" class="org.apache.activemq.artemis.tests.unit.microcontainer.DummyBean"/>
 </deployment>

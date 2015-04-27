@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.server;
+package org.apache.activemq.artemis.server;
 
 /**
  *         This class will be spawned in a new vm and will call the bootstrap

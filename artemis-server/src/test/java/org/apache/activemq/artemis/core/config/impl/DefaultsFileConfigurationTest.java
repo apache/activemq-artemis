@@ -14,19 +14,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.config.impl;
+package org.apache.activemq.artemis.core.config.impl;
 
-import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
-import org.apache.activemq.core.config.FileDeploymentManager;
-import org.apache.activemq.core.config.ha.LiveOnlyPolicyConfiguration;
+import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
+import org.apache.activemq.artemis.core.config.FileDeploymentManager;
+import org.apache.activemq.artemis.core.config.ha.LiveOnlyPolicyConfiguration;
 import org.junit.Test;
 
 import java.util.Collections;
 
 import org.junit.Assert;
 
-import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.journal.impl.JournalConstants;
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.journal.impl.JournalConstants;
 
 public class DefaultsFileConfigurationTest extends ConfigurationImplTest
 {

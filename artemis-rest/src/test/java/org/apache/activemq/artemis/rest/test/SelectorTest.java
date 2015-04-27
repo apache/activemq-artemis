@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.rest.test;
+package org.apache.activemq.artemis.rest.test;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -27,12 +27,12 @@ import javax.ws.rs.Path;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
 
-import org.apache.activemq.jms.client.ActiveMQDestination;
-import org.apache.activemq.jms.client.ActiveMQJMSConnectionFactory;
-import org.apache.activemq.rest.HttpHeaderProperty;
-import org.apache.activemq.rest.queue.push.xml.XmlLink;
-import org.apache.activemq.rest.topic.PushTopicRegistration;
-import org.apache.activemq.rest.topic.TopicDeployment;
+import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
+import org.apache.activemq.artemis.jms.client.ActiveMQJMSConnectionFactory;
+import org.apache.activemq.artemis.rest.HttpHeaderProperty;
+import org.apache.activemq.artemis.rest.queue.push.xml.XmlLink;
+import org.apache.activemq.artemis.rest.topic.PushTopicRegistration;
+import org.apache.activemq.artemis.rest.topic.TopicDeployment;
 import org.jboss.resteasy.client.ClientRequest;
 import org.jboss.resteasy.client.ClientResponse;
 import org.jboss.resteasy.spi.Link;
@@ -196,7 +196,7 @@ public class SelectorTest extends MessageTestBase
       ClientResponse<?> response = request.head();
       response.releaseConnection();
       Assert.assertEquals(200, response.getStatus());
-      Link consumers = MessageTestBase.getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "push-subscriptions");
+      Link consumers = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "push-subscriptions");
       System.out.println("push: " + consumers);
 
       PushTopicRegistration oneReg = new PushTopicRegistration();
@@ -270,18 +270,18 @@ public class SelectorTest extends MessageTestBase
       ClientResponse<?> response = request.head();
       response.releaseConnection();
       Assert.assertEquals(200, response.getStatus());
-      Link consumers = MessageTestBase.getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "pull-subscriptions");
+      Link consumers = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "pull-subscriptions");
       System.out.println("pull: " + consumers);
       response = consumers.request().formParameter("autoAck", "true")
          .formParameter("selector", "MyTag = '1'").post();
       response.releaseConnection();
 
-      Link consumeOne = MessageTestBase.getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "consume-next");
+      Link consumeOne = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "consume-next");
       System.out.println("consumeOne: " + consumeOne);
       response = consumers.request().formParameter("autoAck", "true")
          .formParameter("selector", "MyTag = '2'").post();
       response.releaseConnection();
-      Link consumeTwo = MessageTestBase.getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "consume-next");
+      Link consumeTwo = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "consume-next");
       System.out.println("consumeTwo: " + consumeTwo);
 
 
@@ -326,7 +326,7 @@ public class SelectorTest extends MessageTestBase
       Assert.assertEquals("application/xml", response.getHeaders().getFirst("Content-Type").toString().toLowerCase());
       Order order2 = response.getEntity(Order.class);
       Assert.assertEquals(order, order2);
-      consumeNext = MessageTestBase.getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "consume-next");
+      consumeNext = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "consume-next");
       Assert.assertNotNull(consumeNext);
       response.releaseConnection();
       return consumeNext;

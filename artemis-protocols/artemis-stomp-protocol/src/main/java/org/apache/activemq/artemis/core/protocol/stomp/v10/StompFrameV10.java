@@ -14,9 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.protocol.stomp.v10;
+package org.apache.activemq.artemis.core.protocol.stomp.v10;
 
-import org.apache.activemq.core.protocol.stomp.StompFrame;
+import org.apache.activemq.artemis.core.protocol.stomp.StompFrame;
 
 public class StompFrameV10 extends StompFrame
 {

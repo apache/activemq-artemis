@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.discovery;
+package org.apache.activemq.artemis.tests.integration.discovery;
 
 import java.io.File;
 import java.net.InetAddress;
@@ -24,22 +24,22 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq.api.core.BroadcastEndpoint;
-import org.apache.activemq.api.core.BroadcastEndpointFactory;
-import org.apache.activemq.api.core.JGroupsFileBroadcastEndpointFactory;
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.core.UDPBroadcastEndpointFactory;
-import org.apache.activemq.api.core.management.CoreNotificationType;
-import org.apache.activemq.core.cluster.DiscoveryEntry;
-import org.apache.activemq.core.cluster.DiscoveryGroup;
-import org.apache.activemq.core.server.ActiveMQComponent;
-import org.apache.activemq.core.server.cluster.BroadcastGroup;
-import org.apache.activemq.core.server.cluster.impl.BroadcastGroupImpl;
-import org.apache.activemq.core.server.management.Notification;
-import org.apache.activemq.tests.integration.SimpleNotificationService;
-import org.apache.activemq.tests.util.RandomUtil;
-import org.apache.activemq.utils.UUIDGenerator;
+import org.apache.activemq.artemis.api.core.BroadcastEndpoint;
+import org.apache.activemq.artemis.api.core.BroadcastEndpointFactory;
+import org.apache.activemq.artemis.api.core.JGroupsFileBroadcastEndpointFactory;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory;
+import org.apache.activemq.artemis.api.core.management.CoreNotificationType;
+import org.apache.activemq.artemis.tests.integration.SimpleNotificationService;
+import org.apache.activemq.artemis.core.cluster.DiscoveryEntry;
+import org.apache.activemq.artemis.core.cluster.DiscoveryGroup;
+import org.apache.activemq.artemis.core.server.ActiveMQComponent;
+import org.apache.activemq.artemis.core.server.cluster.BroadcastGroup;
+import org.apache.activemq.artemis.core.server.cluster.impl.BroadcastGroupImpl;
+import org.apache.activemq.artemis.core.server.management.Notification;
+import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;

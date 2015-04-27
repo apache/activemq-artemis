@@ -14,12 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.rest.test;
+package org.apache.activemq.artemis.rest.test;
 
-import org.apache.activemq.rest.topic.TopicDeployment;
-import org.apache.activemq.rest.util.Constants;
-import org.apache.activemq.rest.util.CustomHeaderLinkStrategy;
-import org.apache.activemq.rest.util.LinkHeaderLinkStrategy;
+import org.apache.activemq.artemis.rest.topic.TopicDeployment;
+import org.apache.activemq.artemis.rest.util.Constants;
+import org.apache.activemq.artemis.rest.util.LinkHeaderLinkStrategy;
+import org.apache.activemq.artemis.rest.util.CustomHeaderLinkStrategy;
 import org.jboss.resteasy.client.ClientRequest;
 import org.jboss.resteasy.client.ClientResponse;
 import org.jboss.resteasy.spi.Link;
@@ -64,9 +64,9 @@ public class ClientAckTopicTest extends MessageTestBase
       ClientResponse<?> response = request.head();
       response.releaseConnection();
       Assert.assertEquals(200, response.getStatus());
-      Link sender = MessageTestBase.getLinkByTitle(manager.getTopicManager().getLinkStrategy(), response, "create");
+      Link sender = getLinkByTitle(manager.getTopicManager().getLinkStrategy(), response, "create");
       System.out.println("create: " + sender);
-      Link subscriptions = MessageTestBase.getLinkByTitle(manager.getTopicManager().getLinkStrategy(), response, "pull-subscriptions");
+      Link subscriptions = getLinkByTitle(manager.getTopicManager().getLinkStrategy(), response, "pull-subscriptions");
       response = subscriptions.request().formParameter("autoAck", "false")
          .formParameter("durable", "true")
          .post();
@@ -76,7 +76,7 @@ public class ClientAckTopicTest extends MessageTestBase
       Assert.assertNotNull(sub1);
 
 
-      Link consumeNext = MessageTestBase.getLinkByTitle(manager.getTopicManager().getLinkStrategy(), response, "acknowledge-next");
+      Link consumeNext = getLinkByTitle(manager.getTopicManager().getLinkStrategy(), response, "acknowledge-next");
       System.out.println("poller: " + consumeNext);
 
       {
@@ -88,12 +88,12 @@ public class ClientAckTopicTest extends MessageTestBase
          res = consumeNext.request().post(String.class);
          res.releaseConnection();
          Assert.assertEquals(200, res.getStatus());
-         Link ack = MessageTestBase.getLinkByTitle(manager.getTopicManager().getLinkStrategy(), res, "acknowledgement");
+         Link ack = getLinkByTitle(manager.getTopicManager().getLinkStrategy(), res, "acknowledgement");
          System.out.println("ack: " + ack);
          Assert.assertNotNull(ack);
-         Link session = MessageTestBase.getLinkByTitle(manager.getTopicManager().getLinkStrategy(), res, "consumer");
+         Link session = getLinkByTitle(manager.getTopicManager().getLinkStrategy(), res, "consumer");
          System.out.println("session: " + session);
-         consumeNext = MessageTestBase.getLinkByTitle(manager.getTopicManager().getLinkStrategy(), res, "acknowledge-next");
+         consumeNext = getLinkByTitle(manager.getTopicManager().getLinkStrategy(), res, "acknowledge-next");
          System.out.println("consumeNext: " + consumeNext);
 
          // test timeout
@@ -107,17 +107,17 @@ public class ClientAckTopicTest extends MessageTestBase
          ackRes.releaseConnection();
          Assert.assertEquals(412, ackRes.getStatus());
          System.out.println("**** Successfully failed ack");
-         consumeNext = MessageTestBase.getLinkByTitle(manager.getTopicManager().getLinkStrategy(), ackRes, "acknowledge-next");
+         consumeNext = getLinkByTitle(manager.getTopicManager().getLinkStrategy(), ackRes, "acknowledge-next");
          System.out.println("consumeNext: " + consumeNext);
       }
       {
          ClientResponse<?> res = consumeNext.request().header(Constants.WAIT_HEADER, "2").post(String.class);
          res.releaseConnection();
          Assert.assertEquals(200, res.getStatus());
-         Link ack = MessageTestBase.getLinkByTitle(manager.getTopicManager().getLinkStrategy(), res, "acknowledgement");
+         Link ack = getLinkByTitle(manager.getTopicManager().getLinkStrategy(), res, "acknowledgement");
          System.out.println("ack: " + ack);
          Assert.assertNotNull(ack);
-         consumeNext = MessageTestBase.getLinkByTitle(manager.getTopicManager().getLinkStrategy(), res, "acknowledge-next");
+         consumeNext = getLinkByTitle(manager.getTopicManager().getLinkStrategy(), res, "acknowledge-next");
          System.out.println("consumeNext: " + consumeNext);
 
          ClientResponse ackRes = ack.request().formParameter("acknowledge", "true").post();
@@ -139,11 +139,11 @@ public class ClientAckTopicTest extends MessageTestBase
       ClientResponse<?> response = request.head();
       response.releaseConnection();
       Assert.assertEquals(200, response.getStatus());
-      Link sender = MessageTestBase.getLinkByTitle(manager.getTopicManager().getLinkStrategy(), response, "create");
+      Link sender = getLinkByTitle(manager.getTopicManager().getLinkStrategy(), response, "create");
       System.out.println("create: " + sender);
 
 
-      Link subscriptions = MessageTestBase.getLinkByTitle(manager.getTopicManager().getLinkStrategy(), response, "pull-subscriptions");
+      Link subscriptions = getLinkByTitle(manager.getTopicManager().getLinkStrategy(), response, "pull-subscriptions");
       response = subscriptions.request().formParameter("autoAck", "false")
          .formParameter("durable", "true")
          .post();
@@ -151,7 +151,7 @@ public class ClientAckTopicTest extends MessageTestBase
       Assert.assertEquals(201, response.getStatus());
       Link sub1 = response.getLocationLink();
       Assert.assertNotNull(sub1);
-      Link consumeNext = MessageTestBase.getLinkByTitle(manager.getTopicManager().getLinkStrategy(), response, "acknowledge-next");
+      Link consumeNext = getLinkByTitle(manager.getTopicManager().getLinkStrategy(), response, "acknowledge-next");
       System.out.println("poller: " + consumeNext);
 
       ClientResponse<?> res = sender.request().body("text/plain", Integer.toString(1)).post();
@@ -162,17 +162,17 @@ public class ClientAckTopicTest extends MessageTestBase
       res = consumeNext.request().post(String.class);
       res.releaseConnection();
       Assert.assertEquals(200, res.getStatus());
-      Link ack = MessageTestBase.getLinkByTitle(manager.getTopicManager().getLinkStrategy(), res, "acknowledgement");
+      Link ack = getLinkByTitle(manager.getTopicManager().getLinkStrategy(), res, "acknowledgement");
       System.out.println("ack: " + ack);
       Assert.assertNotNull(ack);
-      Link session = MessageTestBase.getLinkByTitle(manager.getTopicManager().getLinkStrategy(), res, "consumer");
+      Link session = getLinkByTitle(manager.getTopicManager().getLinkStrategy(), res, "consumer");
       System.out.println("session: " + session);
-      consumeNext = MessageTestBase.getLinkByTitle(manager.getTopicManager().getLinkStrategy(), res, "acknowledge-next");
+      consumeNext = getLinkByTitle(manager.getTopicManager().getLinkStrategy(), res, "acknowledge-next");
       System.out.println("consumeNext: " + consumeNext);
       ClientResponse ackRes = ack.request().formParameter("acknowledge", "true").post();
       ackRes.releaseConnection();
       Assert.assertEquals(204, ackRes.getStatus());
-      consumeNext = MessageTestBase.getLinkByTitle(manager.getTopicManager().getLinkStrategy(), ackRes, "acknowledge-next");
+      consumeNext = getLinkByTitle(manager.getTopicManager().getLinkStrategy(), ackRes, "acknowledge-next");
 
       System.out.println("sending next...");
       res = sender.request().body("text/plain", Integer.toString(2)).post();
@@ -183,10 +183,10 @@ public class ClientAckTopicTest extends MessageTestBase
       res = consumeNext.request().header(Constants.WAIT_HEADER, "10").post(String.class);
       res.releaseConnection();
       Assert.assertEquals(200, res.getStatus());
-      ack = MessageTestBase.getLinkByTitle(manager.getTopicManager().getLinkStrategy(), res, "acknowledgement");
+      ack = getLinkByTitle(manager.getTopicManager().getLinkStrategy(), res, "acknowledgement");
       System.out.println("ack: " + ack);
       Assert.assertNotNull(ack);
-      MessageTestBase.getLinkByTitle(manager.getTopicManager().getLinkStrategy(), res, "acknowledge-next");
+      getLinkByTitle(manager.getTopicManager().getLinkStrategy(), res, "acknowledge-next");
       System.out.println("consumeNext: " + consumeNext);
       ackRes = ack.request().formParameter("acknowledge", "true").post();
       ackRes.releaseConnection();
@@ -203,11 +203,11 @@ public class ClientAckTopicTest extends MessageTestBase
       ClientResponse<?> response = request.head();
       response.releaseConnection();
       Assert.assertEquals(200, response.getStatus());
-      Link sender = MessageTestBase.getLinkByTitle(manager.getTopicManager().getLinkStrategy(), response, "create");
+      Link sender = getLinkByTitle(manager.getTopicManager().getLinkStrategy(), response, "create");
       System.out.println("create: " + sender);
 
 
-      Link subscriptions = MessageTestBase.getLinkByTitle(manager.getTopicManager().getLinkStrategy(), response, "pull-subscriptions");
+      Link subscriptions = getLinkByTitle(manager.getTopicManager().getLinkStrategy(), response, "pull-subscriptions");
       response = subscriptions.request().formParameter("autoAck", "false")
          .formParameter("durable", "false")
          .post();
@@ -215,7 +215,7 @@ public class ClientAckTopicTest extends MessageTestBase
       Assert.assertEquals(201, response.getStatus());
       Link sub1 = response.getLocationLink();
       Assert.assertNotNull(sub1);
-      Link consumeNext = MessageTestBase.getLinkByTitle(manager.getTopicManager().getLinkStrategy(), response, "acknowledge-next");
+      Link consumeNext = getLinkByTitle(manager.getTopicManager().getLinkStrategy(), response, "acknowledge-next");
       System.out.println("poller: " + consumeNext);
 
       ClientResponse<?> res = sender.request().body("text/plain", Integer.toString(1)).post();
@@ -226,17 +226,17 @@ public class ClientAckTopicTest extends MessageTestBase
       res = consumeNext.request().post(String.class);
       res.releaseConnection();
       Assert.assertEquals(200, res.getStatus());
-      Link ack = MessageTestBase.getLinkByTitle(manager.getTopicManager().getLinkStrategy(), res, "acknowledgement");
+      Link ack = getLinkByTitle(manager.getTopicManager().getLinkStrategy(), res, "acknowledgement");
       System.out.println("ack: " + ack);
       Assert.assertNotNull(ack);
-      Link session = MessageTestBase.getLinkByTitle(manager.getTopicManager().getLinkStrategy(), res, "consumer");
+      Link session = getLinkByTitle(manager.getTopicManager().getLinkStrategy(), res, "consumer");
       System.out.println("session: " + session);
-      consumeNext = MessageTestBase.getLinkByTitle(manager.getTopicManager().getLinkStrategy(), res, "acknowledge-next");
+      consumeNext = getLinkByTitle(manager.getTopicManager().getLinkStrategy(), res, "acknowledge-next");
       System.out.println("consumeNext: " + consumeNext);
       ClientResponse ackRes = ack.request().formParameter("acknowledge", "true").post();
       ackRes.releaseConnection();
       Assert.assertEquals(204, ackRes.getStatus());
-      consumeNext = MessageTestBase.getLinkByTitle(manager.getTopicManager().getLinkStrategy(), ackRes, "acknowledge-next");
+      consumeNext = getLinkByTitle(manager.getTopicManager().getLinkStrategy(), ackRes, "acknowledge-next");
 
       System.out.println("sending next...");
       res = sender.request().body("text/plain", Integer.toString(2)).post();
@@ -247,10 +247,10 @@ public class ClientAckTopicTest extends MessageTestBase
       res = consumeNext.request().header(Constants.WAIT_HEADER, "10").post(String.class);
       res.releaseConnection();
       Assert.assertEquals(200, res.getStatus());
-      ack = MessageTestBase.getLinkByTitle(manager.getTopicManager().getLinkStrategy(), res, "acknowledgement");
+      ack = getLinkByTitle(manager.getTopicManager().getLinkStrategy(), res, "acknowledgement");
       System.out.println("ack: " + ack);
       Assert.assertNotNull(ack);
-      MessageTestBase.getLinkByTitle(manager.getTopicManager().getLinkStrategy(), res, "acknowledge-next");
+      getLinkByTitle(manager.getTopicManager().getLinkStrategy(), res, "acknowledge-next");
       System.out.println("consumeNext: " + consumeNext);
       ackRes = ack.request().formParameter("acknowledge", "true").post();
       ackRes.releaseConnection();
@@ -267,9 +267,9 @@ public class ClientAckTopicTest extends MessageTestBase
       ClientResponse<?> response = request.head();
       response.releaseConnection();
       Assert.assertEquals(200, response.getStatus());
-      Link sender = MessageTestBase.getLinkByTitle(manager.getTopicManager().getLinkStrategy(), response, "create");
+      Link sender = getLinkByTitle(manager.getTopicManager().getLinkStrategy(), response, "create");
       System.out.println("create: " + sender);
-      Link subscriptions = MessageTestBase.getLinkByTitle(manager.getTopicManager().getLinkStrategy(), response, "pull-subscriptions");
+      Link subscriptions = getLinkByTitle(manager.getTopicManager().getLinkStrategy(), response, "pull-subscriptions");
       response = subscriptions.request().formParameter("autoAck", "false")
          .formParameter("durable", "true")
          .post();
@@ -277,13 +277,13 @@ public class ClientAckTopicTest extends MessageTestBase
       Assert.assertEquals(201, response.getStatus());
       Link sub1 = response.getLocationLink();
       Assert.assertNotNull(sub1);
-      Link consumeNext = MessageTestBase.getLinkByTitle(manager.getTopicManager().getLinkStrategy(), response, "acknowledge-next");
+      Link consumeNext = getLinkByTitle(manager.getTopicManager().getLinkStrategy(), response, "acknowledge-next");
       System.out.println("poller: " + consumeNext);
 
       ClientResponse<String> res = consumeNext.request().post(String.class);
       res.releaseConnection();
       Assert.assertEquals(503, res.getStatus());
-      consumeNext = MessageTestBase.getLinkByTitle(manager.getTopicManager().getLinkStrategy(), res, "acknowledge-next");
+      consumeNext = getLinkByTitle(manager.getTopicManager().getLinkStrategy(), res, "acknowledge-next");
       System.out.println(consumeNext);
       res = sender.request().body("text/plain", Integer.toString(1)).post();
       res.releaseConnection();
@@ -292,7 +292,7 @@ public class ClientAckTopicTest extends MessageTestBase
       Assert.assertEquals(200, res.getStatus());
       Assert.assertEquals(Integer.toString(1), res.getEntity());
       res.releaseConnection();
-      Link ack = MessageTestBase.getLinkByTitle(manager.getTopicManager().getLinkStrategy(), res, "acknowledgement");
+      Link ack = getLinkByTitle(manager.getTopicManager().getLinkStrategy(), res, "acknowledgement");
       System.out.println("ack: " + ack);
       ClientResponse ackRes = ack.request().formParameter("acknowledge", "true").post();
       ackRes.releaseConnection();
@@ -311,7 +311,7 @@ public class ClientAckTopicTest extends MessageTestBase
       Assert.assertEquals(200, res.getStatus());
       Assert.assertEquals(Integer.toString(2), res.getEntity());
       res.releaseConnection();
-      ack = MessageTestBase.getLinkByTitle(manager.getTopicManager().getLinkStrategy(), res, "acknowledgement");
+      ack = getLinkByTitle(manager.getTopicManager().getLinkStrategy(), res, "acknowledgement");
       System.out.println("ack: " + ack);
       ackRes = ack.request().formParameter("acknowledge", "true").post();
       ackRes.releaseConnection();
@@ -321,7 +321,7 @@ public class ClientAckTopicTest extends MessageTestBase
       Assert.assertEquals(200, res.getStatus());
       Assert.assertEquals(Integer.toString(3), res.getEntity());
       res.releaseConnection();
-      ack = MessageTestBase.getLinkByTitle(manager.getTopicManager().getLinkStrategy(), res, "acknowledgement");
+      ack = getLinkByTitle(manager.getTopicManager().getLinkStrategy(), res, "acknowledgement");
       System.out.println("ack: " + ack);
       ackRes = ack.request().formParameter("acknowledge", "true").post();
       ackRes.releaseConnection();

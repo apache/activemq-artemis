@@ -14,17 +14,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.unit.util;
+package org.apache.activemq.artemis.tests.unit.util;
 
 import java.util.Collection;
 import java.util.Map;
 
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.core.paging.PageTransactionInfo;
-import org.apache.activemq.core.paging.PagingManager;
-import org.apache.activemq.core.paging.PagingStore;
-import org.apache.activemq.core.postoffice.PostOffice;
-import org.apache.activemq.core.server.ServerMessage;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.paging.PageTransactionInfo;
+import org.apache.activemq.artemis.core.paging.PagingManager;
+import org.apache.activemq.artemis.core.paging.PagingStore;
+import org.apache.activemq.artemis.core.postoffice.PostOffice;
+import org.apache.activemq.artemis.core.server.ServerMessage;
 
 public final class FakePagingManager implements PagingManager
 {
@@ -141,7 +141,7 @@ public final class FakePagingManager implements PagingManager
 
    /*
     * (non-Javadoc)
-    * @see org.apache.activemq.core.paging.PagingManager#isGlobalFull()
+    * @see org.apache.activemq.artemis.core.paging.PagingManager#isGlobalFull()
     */
    public boolean isGlobalFull()
    {
@@ -150,7 +150,7 @@ public final class FakePagingManager implements PagingManager
 
    /*
     * (non-Javadoc)
-    * @see org.apache.activemq.core.paging.PagingManager#getTransactions()
+    * @see org.apache.activemq.artemis.core.paging.PagingManager#getTransactions()
     */
    public Map<Long, PageTransactionInfo> getTransactions()
    {
@@ -159,7 +159,7 @@ public final class FakePagingManager implements PagingManager
 
    /*
     * (non-Javadoc)
-    * @see org.apache.activemq.core.paging.PagingManager#processReload()
+    * @see org.apache.activemq.artemis.core.paging.PagingManager#processReload()
     */
    public void processReload()
    {
@@ -177,7 +177,7 @@ public final class FakePagingManager implements PagingManager
 
    /*
     * (non-Javadoc)
-    * @see org.apache.activemq.core.settings.HierarchicalRepositoryChangeListener#onChange()
+    * @see org.apache.activemq.artemis.core.settings.HierarchicalRepositoryChangeListener#onChange()
     */
    public void onChange()
    {

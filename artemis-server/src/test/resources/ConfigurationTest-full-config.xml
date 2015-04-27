@@ -34,7 +34,7 @@
       <management-notification-address>Whatever</management-notification-address>
       <cluster-user>Frog</cluster-user>
       <cluster-password>32a10275cf4ab4e9</cluster-password>
-      <password-codec>org.apache.activemq.utils.DefaultSensitiveStringCodec</password-codec>
+      <password-codec>org.apache.activemq.artemis.utils.DefaultSensitiveStringCodec</password-codec>
       <mask-password>true</mask-password>
       <log-delegate-factory-class-name>com.foo</log-delegate-factory-class-name>
       <jmx-management-enabled>false</jmx-management-enabled>
@@ -51,12 +51,12 @@
       <id-cache-size>127</id-cache-size>
       <persist-id-cache>true</persist-id-cache>
       <remoting-incoming-interceptors>
-         <class-name>org.apache.activemq.tests.unit.core.config.impl.TestInterceptor1</class-name>
-         <class-name>org.apache.activemq.tests.unit.core.config.impl.TestInterceptor2</class-name>
+         <class-name>org.apache.activemq.artemis.tests.unit.core.config.impl.TestInterceptor1</class-name>
+         <class-name>org.apache.activemq.artemis.tests.unit.core.config.impl.TestInterceptor2</class-name>
       </remoting-incoming-interceptors>
       <remoting-outgoing-interceptors>
-         <class-name>org.apache.activemq.tests.unit.core.config.impl.TestInterceptor1</class-name>
-         <class-name>org.apache.activemq.tests.unit.core.config.impl.TestInterceptor2</class-name>
+         <class-name>org.apache.activemq.artemis.tests.unit.core.config.impl.TestInterceptor1</class-name>
+         <class-name>org.apache.activemq.artemis.tests.unit.core.config.impl.TestInterceptor2</class-name>
       </remoting-outgoing-interceptors>
       <persist-delivery-count-before-delivery>true</persist-delivery-count-before-delivery>
       <connectors>
@@ -142,7 +142,6 @@
              <reconnect-attempts>2</reconnect-attempts>
              <failover-on-server-shutdown>false</failover-on-server-shutdown>
              <use-duplicate-detection>true</use-duplicate-detection>
-            <producer-window-size>444</producer-window-size>
              <static-connectors>
                <connector-ref>connector1</connector-ref>
              </static-connectors>
@@ -150,7 +149,6 @@
          <bridge name="bridge2">
              <queue-name>queue2</queue-name>
              <forwarding-address>bridge-forwarding-address2</forwarding-address>
-            <producer-window-size>555</producer-window-size>
              <discovery-group-ref discovery-group-name="dg1"/>
          </bridge>
       </bridges>
@@ -169,25 +167,24 @@
       </ha-policy>
       <cluster-connections>
          <cluster-connection name="cluster-connection1">
-            <address>queues1</address>
+         <address>queues1</address>
+         <connector-ref>connector1</connector-ref>
+         <check-period>331</check-period>
+         <connection-ttl>3370</connection-ttl>
+         <min-large-message-size>321</min-large-message-size>
+         <call-timeout>123</call-timeout>
+         <retry-interval>3</retry-interval>
+         <retry-interval-multiplier>0.25</retry-interval-multiplier>
+         <max-retry-interval>10000</max-retry-interval>
+         <reconnect-attempts>72</reconnect-attempts>
+         <use-duplicate-detection>true</use-duplicate-detection>
+         <forward-when-no-consumers>false</forward-when-no-consumers>
+         <max-hops>1</max-hops>
+         <call-failover-timeout>123</call-failover-timeout>
+         <static-connectors>
             <connector-ref>connector1</connector-ref>
-            <check-period>331</check-period>
-            <connection-ttl>3370</connection-ttl>
-            <min-large-message-size>321</min-large-message-size>
-            <call-timeout>123</call-timeout>
-            <retry-interval>3</retry-interval>
-            <retry-interval-multiplier>0.25</retry-interval-multiplier>
-            <max-retry-interval>10000</max-retry-interval>
-            <reconnect-attempts>72</reconnect-attempts>
-            <use-duplicate-detection>true</use-duplicate-detection>
-            <forward-when-no-consumers>false</forward-when-no-consumers>
-            <max-hops>1</max-hops>
-            <producer-window-size>222</producer-window-size>
-            <call-failover-timeout>123</call-failover-timeout>
-            <static-connectors>
-               <connector-ref>connector1</connector-ref>
-               <connector-ref>connector2</connector-ref>
-            </static-connectors>
+            <connector-ref>connector2</connector-ref>
+         </static-connectors>
          </cluster-connection>
          <cluster-connection name="cluster-connection2">
              <address>queues2</address>
@@ -197,7 +194,6 @@
              <use-duplicate-detection>false</use-duplicate-detection>
              <forward-when-no-consumers>true</forward-when-no-consumers>
              <max-hops>2</max-hops>
-            <producer-window-size>333</producer-window-size>
              <call-failover-timeout>456</call-failover-timeout>
              <discovery-group-ref discovery-group-name="dg1"/>
          </cluster-connection>

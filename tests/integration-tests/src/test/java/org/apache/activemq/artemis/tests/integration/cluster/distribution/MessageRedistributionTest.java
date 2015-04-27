@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.cluster.distribution;
+package org.apache.activemq.artemis.tests.integration.cluster.distribution;
 
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
@@ -22,20 +22,21 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq.api.core.Message;
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.api.core.client.ClientConsumer;
-import org.apache.activemq.api.core.client.ClientMessage;
-import org.apache.activemq.api.core.client.ClientProducer;
-import org.apache.activemq.api.core.client.ClientSession;
-import org.apache.activemq.core.message.impl.MessageImpl;
-import org.apache.activemq.core.server.Bindable;
-import org.apache.activemq.core.server.cluster.impl.Redistributor;
-import org.apache.activemq.core.server.group.impl.GroupingHandlerConfiguration;
-import org.apache.activemq.core.server.impl.QueueImpl;
-import org.apache.activemq.core.settings.impl.AddressFullMessagePolicy;
-import org.apache.activemq.core.settings.impl.AddressSettings;
-import org.apache.activemq.tests.integration.IntegrationTestLogger;
+import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.client.ClientConsumer;
+import org.apache.activemq.artemis.api.core.client.ClientMessage;
+import org.apache.activemq.artemis.api.core.client.ClientProducer;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
+import org.apache.activemq.artemis.core.message.impl.MessageImpl;
+import org.apache.activemq.artemis.core.server.Bindable;
+import org.apache.activemq.artemis.core.server.cluster.impl.Redistributor;
+import org.apache.activemq.artemis.core.server.group.impl.GroupingHandlerConfiguration;
+import org.apache.activemq.artemis.core.server.impl.QueueImpl;
+import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
+import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -115,22 +116,22 @@ public class MessageRedistributionTest extends ClusterTestBase
       for (int i = 0; i < 5; i++)
       {
          ClientMessage message = getConsumer(1).receive(1000);
-         assertNotNull(message);
+         Assert.assertNotNull(message);
          message.acknowledge();
-         assertNotNull(message.getSimpleStringProperty(Message.HDR_GROUP_ID));
+         Assert.assertNotNull(message.getSimpleStringProperty(Message.HDR_GROUP_ID));
       }
 
       //now consume the non grouped messages from node 1 where they are pinned
       for (int i = 0; i < 5; i++)
       {
          ClientMessage message = getConsumer(0).receive(5000);
-         assertNotNull("" + i, message);
+         Assert.assertNotNull("" + i, message);
          message.acknowledge();
-         assertNull(message.getSimpleStringProperty(Message.HDR_GROUP_ID));
+         Assert.assertNull(message.getSimpleStringProperty(Message.HDR_GROUP_ID));
       }
 
       ClientMessage clientMessage = getConsumer(0).receiveImmediate();
-      assertNull(clientMessage);
+      Assert.assertNull(clientMessage);
 
       // i know the last 5 messages consumed won't be acked yet so i wait for 15
       waitForMessages(1, "queues.testaddress", 15);
@@ -146,13 +147,13 @@ public class MessageRedistributionTest extends ClusterTestBase
          {
             System.out.println();
          }
-         assertNotNull("" + i, message);
+         Assert.assertNotNull("" + i, message);
          message.acknowledge();
-         assertNull(message.getSimpleStringProperty(Message.HDR_GROUP_ID));
+         Assert.assertNull(message.getSimpleStringProperty(Message.HDR_GROUP_ID));
       }
 
       clientMessage = getConsumer(0).receiveImmediate();
-      assertNull(clientMessage);
+      Assert.assertNull(clientMessage);
 
       removeConsumer(0);
 
@@ -162,9 +163,9 @@ public class MessageRedistributionTest extends ClusterTestBase
       for (int i = 0; i < 5; i++)
       {
          ClientMessage message = getConsumer(1).receive(1000);
-         assertNotNull(message);
+         Assert.assertNotNull(message);
          message.acknowledge();
-         assertNotNull(message.getSimpleStringProperty(Message.HDR_GROUP_ID));
+         Assert.assertNotNull(message.getSimpleStringProperty(Message.HDR_GROUP_ID));
       }
       MessageRedistributionTest.log.info("Test done");
    }
@@ -204,7 +205,7 @@ public class MessageRedistributionTest extends ClusterTestBase
 
       Bindable bindable = servers[0].getPostOffice().getBinding(new SimpleString("queue0")).getBindable();
       String debug = ((QueueImpl) bindable).debug();
-      assertFalse(debug.contains(Redistributor.class.getName()));
+      Assert.assertFalse(debug.contains(Redistributor.class.getName()));
       MessageRedistributionTest.log.info("Test done");
    }
 
@@ -291,12 +292,12 @@ public class MessageRedistributionTest extends ClusterTestBase
       for (int i = 0; i < NUMBER_OF_MESSAGES; i++)
       {
          ClientMessage msg = consumer0.receive(5000);
-         assertNotNull(msg);
+         Assert.assertNotNull(msg);
          msg.acknowledge();
-         assertEquals(i, msg.getIntProperty("count").intValue());
+         Assert.assertEquals(i, msg.getIntProperty("count").intValue());
       }
 
-      assertNull(consumer0.receiveImmediate());
+      Assert.assertNull(consumer0.receiveImmediate());
 
       // closing consumer1... it shouldn't redistribute anything as the other nodes don't have such queues
       consumer1.close();
@@ -306,26 +307,26 @@ public class MessageRedistributionTest extends ClusterTestBase
       for (int i = 0; i < NUMBER_OF_MESSAGES; i++)
       {
          ClientMessage msg = consumer2.receive(5000);
-         assertNotNull(msg);
+         Assert.assertNotNull(msg);
          msg.acknowledge();
-         assertEquals(i, msg.getIntProperty("count").intValue());
+         Assert.assertEquals(i, msg.getIntProperty("count").intValue());
       }
 
-      assertNull(consumer2.receiveImmediate());
-      assertNull(consumer0.receiveImmediate());
+      Assert.assertNull(consumer2.receiveImmediate());
+      Assert.assertNull(consumer0.receiveImmediate());
 
       consumer1 = sess1.createConsumer("queue1");
       for (int i = 0; i < NUMBER_OF_MESSAGES; i++)
       {
          ClientMessage msg = consumer1.receive(5000);
-         assertNotNull(msg);
+         Assert.assertNotNull(msg);
          msg.acknowledge();
-         assertEquals(i, msg.getIntProperty("count").intValue());
+         Assert.assertEquals(i, msg.getIntProperty("count").intValue());
       }
 
-      assertNull(consumer0.receiveImmediate());
-      assertNull(consumer1.receiveImmediate());
-      assertNull(consumer2.receiveImmediate());
+      Assert.assertNull(consumer0.receiveImmediate());
+      Assert.assertNull(consumer1.receiveImmediate());
+      Assert.assertNull(consumer2.receiveImmediate());
 
       MessageRedistributionTest.log.info("Test done");
    }
@@ -572,7 +573,7 @@ public class MessageRedistributionTest extends ClusterTestBase
       for (int i = 0; i < 100; i++)
       {
          ClientMessage msg = consumer1.receive(15000);
-         assertNotNull(msg);
+         Assert.assertNotNull(msg);
          msg.acknowledge();
       }
 
@@ -1122,13 +1123,13 @@ public class MessageRedistributionTest extends ClusterTestBase
          producer0.send(msg);
 
          msg = consumer0.receive(5000);
-         assertNotNull(msg);
-         assertEquals(i, msg.getIntProperty("i").intValue());
+         Assert.assertNotNull(msg);
+         Assert.assertEquals(i, msg.getIntProperty("i").intValue());
          // msg.acknowledge(); // -- do not ack message on consumer0, to make sure the messages will be paged
 
          msg = consumer1.receive(5000);
-         assertNotNull(msg);
-         assertEquals(i, msg.getIntProperty("i").intValue());
+         Assert.assertNotNull(msg);
+         Assert.assertEquals(i, msg.getIntProperty("i").intValue());
          msg.acknowledge();
       }
 

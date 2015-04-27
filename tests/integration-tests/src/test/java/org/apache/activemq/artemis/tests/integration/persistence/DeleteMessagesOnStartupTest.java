@@ -14,22 +14,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.persistence;
+package org.apache.activemq.artemis.tests.integration.persistence;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.persistence.GroupingInfo;
-import org.apache.activemq.core.persistence.QueueBindingInfo;
-import org.apache.activemq.core.persistence.impl.journal.JournalStorageManager;
-import org.apache.activemq.core.server.Queue;
-import org.apache.activemq.core.server.ServerMessage;
-import org.apache.activemq.core.server.impl.PostOfficeJournalLoader;
-import org.apache.activemq.core.server.impl.ServerMessageImpl;
-import org.apache.activemq.tests.unit.core.postoffice.impl.FakeQueue;
-import org.apache.activemq.tests.unit.core.server.impl.fakes.FakePostOffice;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.tests.unit.core.postoffice.impl.FakeQueue;
+import org.apache.activemq.artemis.tests.unit.core.server.impl.fakes.FakePostOffice;
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.persistence.GroupingInfo;
+import org.apache.activemq.artemis.core.persistence.QueueBindingInfo;
+import org.apache.activemq.artemis.core.persistence.impl.journal.JournalStorageManager;
+import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.server.ServerMessage;
+import org.apache.activemq.artemis.core.server.impl.PostOfficeJournalLoader;
+import org.apache.activemq.artemis.core.server.impl.ServerMessageImpl;
+import org.junit.Assert;
 import org.junit.Test;
 
 public class DeleteMessagesOnStartupTest extends StorageManagerTestBase
@@ -69,11 +70,11 @@ public class DeleteMessagesOnStartupTest extends StorageManagerTestBase
 
       journal.loadMessageJournal(postOffice, null, null, null, null, null, null, new PostOfficeJournalLoader(postOffice, null, journal, null, null, null, null, null, queues));
 
-      assertEquals(98, deletedMessage.size());
+      Assert.assertEquals(98, deletedMessage.size());
 
       for (Long messageID : deletedMessage)
       {
-         assertTrue("messageID = " + messageID, messageID.longValue() >= 2 && messageID <= 99);
+         Assert.assertTrue("messageID = " + messageID, messageID.longValue() >= 2 && messageID <= 99);
       }
    }
 

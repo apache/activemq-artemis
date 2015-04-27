@@ -23,8 +23,8 @@ grant {
         permission java.net.SocketPermission "*:1024-", "connect";
         // Note1: normally, we don't need this permission since the applet allows reading jars loaded by the applet
         // Note2: Which of the following two java.io.FilePermission is necessary depends on the exact Maven command
-        permission java.io.FilePermission "${user.dir}/activemq-core-client/target/classes/-", "read";
-        permission java.io.FilePermission "${user.dir}/activemq-core-client/target/activemq-core-client-${project.version}.jar", "read";
+        permission java.io.FilePermission "${user.dir}/artemis-core-client/target/classes/-", "read";
+        permission java.io.FilePermission "${user.dir}/artemis-core-client/target/artemis-core-client-${project.version}.jar", "read";
         permission java.util.PropertyPermission "activemq.version.property.filename", "read";
         permission java.util.PropertyPermission "io.netty.eventLoopThreads", "read";
         permission java.util.PropertyPermission "io.netty.noUnsafe", "read";
@@ -35,6 +35,24 @@ grant {
         permission java.util.PropertyPermission "io.netty.selectorAutoRebuildThreshold", "read";
         permission java.util.PropertyPermission "io.netty.initialSeedUniquifier", "read";
         permission java.util.PropertyPermission "io.netty.noResourceLeakDetection", "read";
+        permission java.util.PropertyPermission "io.netty.tmpdir", "read";
+        permission java.util.PropertyPermission "io.netty.bitMode", "read";
+        permission java.util.PropertyPermission "io.netty.leakDetectionLevel", "read";
+        permission java.util.PropertyPermission "io.netty.allocator.pageSize", "read";
+        permission java.util.PropertyPermission "io.netty.allocator.maxOrder", "read";
+        permission java.util.PropertyPermission "io.netty.allocator.numHeapArenas", "read";
+        permission java.util.PropertyPermission "io.netty.allocator.numDirectArenas", "read";
+        permission java.util.PropertyPermission "io.netty.allocator.tinyCacheSize", "read";
+        permission java.util.PropertyPermission "io.netty.allocator.smallCacheSize", "read";
+        permission java.util.PropertyPermission "io.netty.allocator.normalCacheSize", "read";
+        permission java.util.PropertyPermission "io.netty.allocator.maxCachedBufferCapacity", "read";
+        permission java.util.PropertyPermission "io.netty.allocator.cacheTrimInterval", "read";
+        permission java.util.PropertyPermission "io.netty.allocator.type", "read";
+        permission java.util.PropertyPermission "io.netty.threadLocalDirectBufferSize", "read";
+        permission java.util.PropertyPermission "io.netty.recycler.maxCapacity.default", "read";
+        permission java.util.PropertyPermission "java.io.tmpdir", "read";
+        permission java.util.PropertyPermission "sun.arch.data.model", "read";
+        permission java.util.PropertyPermission "sun.nio.ch.bugLevel", "read";
         permission java.lang.RuntimePermission "setContextClassLoader";
         permission java.lang.RuntimePermission "accessDeclaredMembers";
 };

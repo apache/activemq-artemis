@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.api.core;
+package org.apache.activemq.artemis.api.core;
 
 import java.io.IOException;
 import java.io.InterruptedIOException;
@@ -26,13 +26,13 @@ import java.net.InetSocketAddress;
 import java.net.MulticastSocket;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq.core.client.ActiveMQClientLogger;
+import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
 
 
 /**
  * The configuration used to determine how the server will broadcast members.
  * <p>
- * This is analogous to {@link org.apache.activemq.api.core.DiscoveryGroupConfiguration}
+ * This is analogous to {@link DiscoveryGroupConfiguration}
  */
 public final class UDPBroadcastEndpointFactory implements BroadcastEndpointFactory
 {
@@ -103,7 +103,7 @@ public final class UDPBroadcastEndpointFactory implements BroadcastEndpointFacto
 
    /**
     * <p> This is the member discovery implementation using direct UDP. It was extracted as a refactoring from
-    * {@link org.apache.activemq.core.cluster.DiscoveryGroup}</p>
+    * {@link org.apache.activemq.artemis.core.cluster.DiscoveryGroup}</p>
     */
    private static class UDPBroadcastEndpoint implements BroadcastEndpoint
    {

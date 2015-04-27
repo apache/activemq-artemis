@@ -14,16 +14,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.unit.ra;
+package org.apache.activemq.artemis.tests.unit.ra;
 
 import java.beans.PropertyDescriptor;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import org.apache.activemq.jms.client.ActiveMQConnectionFactory;
-import org.apache.activemq.ra.ActiveMQResourceAdapter;
-import org.apache.activemq.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.ra.ActiveMQResourceAdapter;
 import org.junit.Test;
 
 import static java.beans.Introspector.getBeanInfo;

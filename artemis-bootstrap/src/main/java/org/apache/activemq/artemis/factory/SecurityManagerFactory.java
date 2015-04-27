@@ -14,11 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.factory;
+package org.apache.activemq.artemis.factory;
 
-import org.apache.activemq.dto.SecurityDTO;
-import org.apache.activemq.spi.core.security.ActiveMQSecurityManager;
-import org.apache.activemq.utils.FactoryFinder;
+import org.apache.activemq.artemis.dto.SecurityDTO;
+import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
+import org.apache.activemq.artemis.utils.FactoryFinder;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -29,7 +29,7 @@ public class SecurityManagerFactory
    {
       if (config != null)
       {
-         FactoryFinder finder = new FactoryFinder("META-INF/services/org/apache/activemq/broker/security/");
+         FactoryFinder finder = new FactoryFinder("META-INF/services/org/apache/activemq/artemis/broker/security/");
          SecurityHandler securityHandler = (SecurityHandler)finder.newInstance(config.getClass().getAnnotation(XmlRootElement.class).name());
          return securityHandler.createSecurityManager(config);
       }

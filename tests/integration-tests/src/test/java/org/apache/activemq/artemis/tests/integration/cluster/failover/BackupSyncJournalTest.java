@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.cluster.failover;
+package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
 import java.io.File;
 import java.io.RandomAccessFile;
@@ -24,27 +24,27 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq.api.core.ActiveMQException;
-import org.apache.activemq.api.core.Pair;
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.core.client.ClientConsumer;
-import org.apache.activemq.api.core.client.ClientMessage;
-import org.apache.activemq.api.core.client.ClientProducer;
-import org.apache.activemq.api.core.client.ClientSession;
-import org.apache.activemq.core.client.impl.ClientSessionFactoryInternal;
-import org.apache.activemq.core.client.impl.ServerLocatorInternal;
-import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.journal.impl.JournalFile;
-import org.apache.activemq.core.journal.impl.JournalImpl;
-import org.apache.activemq.core.paging.PagingStore;
-import org.apache.activemq.core.persistence.impl.journal.DescribeJournal;
-import org.apache.activemq.core.persistence.impl.journal.JournalStorageManager;
-import org.apache.activemq.core.server.Queue;
-import org.apache.activemq.tests.integration.cluster.util.BackupSyncDelay;
-import org.apache.activemq.tests.integration.cluster.util.TestableServer;
-import org.apache.activemq.tests.util.TransportConfigurationUtils;
-import org.apache.activemq.utils.UUID;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.Pair;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.client.ClientConsumer;
+import org.apache.activemq.artemis.api.core.client.ClientMessage;
+import org.apache.activemq.artemis.api.core.client.ClientProducer;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal;
+import org.apache.activemq.artemis.core.client.impl.ServerLocatorInternal;
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.journal.impl.JournalFile;
+import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
+import org.apache.activemq.artemis.core.paging.PagingStore;
+import org.apache.activemq.artemis.core.persistence.impl.journal.DescribeJournal;
+import org.apache.activemq.artemis.core.persistence.impl.journal.JournalStorageManager;
+import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.tests.integration.cluster.util.BackupSyncDelay;
+import org.apache.activemq.artemis.tests.integration.cluster.util.TestableServer;
+import org.apache.activemq.artemis.tests.util.TransportConfigurationUtils;
+import org.apache.activemq.artemis.utils.UUID;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -201,7 +201,7 @@ public class BackupSyncJournalTest extends FailoverTestBase
    protected void assertNoMoreMessages() throws ActiveMQException
    {
       session.start();
-      ClientConsumer consumer = session.createConsumer(FailoverTestBase.ADDRESS);
+      ClientConsumer consumer = session.createConsumer(ADDRESS);
       ClientMessage msg = consumer.receiveImmediate();
       assertNull("there should be no more messages to receive! " + msg, msg);
       consumer.close();
@@ -377,10 +377,10 @@ public class BackupSyncJournalTest extends FailoverTestBase
    protected void createProducerSendSomeMessages() throws ActiveMQException
    {
       session = addClientSession(sessionFactory.createSession(true, true));
-      session.createQueue(FailoverTestBase.ADDRESS, FailoverTestBase.ADDRESS, null, true);
+      session.createQueue(ADDRESS, ADDRESS, null, true);
       if (producer != null)
          producer.close();
-      producer = addClientProducer(session.createProducer(FailoverTestBase.ADDRESS));
+      producer = addClientProducer(session.createProducer(ADDRESS));
       sendMessages(session, producer, n_msgs);
       session.commit();
    }
@@ -388,7 +388,7 @@ public class BackupSyncJournalTest extends FailoverTestBase
    protected void receiveMsgsInRange(int start, int end) throws ActiveMQException
    {
       session.start();
-      ClientConsumer consumer = addClientConsumer(session.createConsumer(FailoverTestBase.ADDRESS));
+      ClientConsumer consumer = addClientConsumer(session.createConsumer(ADDRESS));
       receiveMessages(consumer, start, end, true);
       consumer.close();
       session.commit();

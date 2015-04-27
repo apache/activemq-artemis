@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.unit.core.asyncio;
+package org.apache.activemq.artemis.tests.unit.core.asyncio;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -24,15 +24,14 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq.api.core.ActiveMQExceptionType;
-import org.apache.activemq.core.asyncio.AIOCallback;
-import org.apache.activemq.core.asyncio.impl.AsynchronousFileImpl;
-import org.apache.activemq.core.journal.impl.AIOSequentialFileFactory;
-import org.apache.activemq.tests.unit.UnitTestLogger;
-import org.apache.activemq.tests.util.UnitTestCase;
-import org.apache.activemq.utils.ActiveMQThreadFactory;
+import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
+import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.core.asyncio.AIOCallback;
+import org.apache.activemq.artemis.core.asyncio.impl.AsynchronousFileImpl;
+import org.apache.activemq.artemis.core.journal.impl.AIOSequentialFileFactory;
+import org.apache.activemq.artemis.tests.unit.UnitTestLogger;
+import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -211,7 +210,7 @@ public class MultiThreadAsynchronousFileTest extends AIOTestBase
             buffer.put((byte) '\n');
 
             latchStart.countDown();
-            UnitTestCase.waitForLatch(latchStart);
+            waitForLatch(latchStart);
 
             CountDownLatch latchFinishThread = null;
 
@@ -237,26 +236,26 @@ public class MultiThreadAsynchronousFileTest extends AIOTestBase
                addData(libaio, buffer, callback);
                if (sync)
                {
-                  UnitTestCase.waitForLatch(latchFinishThread);
-                  Assert.assertTrue(callback.doneCalled);
-                  Assert.assertFalse(callback.errorCalled != 0);
+                  waitForLatch(latchFinishThread);
+                  assertTrue(callback.doneCalled);
+                  assertFalse(callback.errorCalled != 0);
                }
             }
             if (!sync)
             {
-               UnitTestCase.waitForLatch(latchFinishThread);
+               waitForLatch(latchFinishThread);
             }
 
             for (CountDownCallback callback : list)
             {
-               Assert.assertTrue(callback.doneCalled);
-               Assert.assertFalse(callback.errorCalled != 0);
+               assertTrue(callback.doneCalled);
+               assertFalse(callback.errorCalled != 0);
             }
 
             for (CountDownCallback callback : list)
             {
-               Assert.assertTrue(callback.doneCalled);
-               Assert.assertFalse(callback.errorCalled != 0);
+               assertTrue(callback.doneCalled);
+               assertFalse(callback.errorCalled != 0);
             }
 
          }

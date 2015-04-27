@@ -14,16 +14,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.jms.tests.message;
+package org.apache.activemq.artemis.jms.tests.message;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.jms.DeliveryMode;
 import javax.jms.Message;
 
-import org.apache.activemq.jms.client.ActiveMQMessage;
-import org.apache.activemq.jms.tests.util.ProxyAssertSupport;
-import org.apache.activemq.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.jms.client.ActiveMQMessage;
+import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
+import org.apache.activemq.artemis.tests.util.UnitTestCase;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

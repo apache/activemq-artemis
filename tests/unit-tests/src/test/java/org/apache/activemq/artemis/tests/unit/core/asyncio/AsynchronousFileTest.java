@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.unit.core.asyncio;
+package org.apache.activemq.artemis.tests.unit.core.asyncio;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -33,14 +33,14 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq.api.core.ActiveMQException;
-import org.apache.activemq.core.asyncio.AIOCallback;
-import org.apache.activemq.core.asyncio.BufferCallback;
-import org.apache.activemq.core.asyncio.impl.AsynchronousFileImpl;
-import org.apache.activemq.core.journal.impl.AIOSequentialFileFactory;
-import org.apache.activemq.tests.unit.UnitTestLogger;
-import org.apache.activemq.tests.util.UnitTestCase;
-import org.apache.activemq.utils.ActiveMQThreadFactory;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.core.asyncio.AIOCallback;
+import org.apache.activemq.artemis.core.asyncio.BufferCallback;
+import org.apache.activemq.artemis.core.asyncio.impl.AsynchronousFileImpl;
+import org.apache.activemq.artemis.core.journal.impl.AIOSequentialFileFactory;
+import org.apache.activemq.artemis.tests.unit.UnitTestLogger;
+import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -169,7 +169,7 @@ public class AsynchronousFileTest extends AIOTestBase
          }
       });
 
-      Assert.assertTrue(latch.await(10, TimeUnit.SECONDS));
+      assertTrue(latch.await(10, TimeUnit.SECONDS));
 
       WeakReference<ByteBuffer> bufferCheck2 = new WeakReference<ByteBuffer>(write);
 
@@ -179,7 +179,7 @@ public class AsynchronousFileTest extends AIOTestBase
 
       UnitTestCase.forceGC(bufferCheck2, 5000);
 
-      Assert.assertNull(bufferCheck2.get());
+      assertNull(bufferCheck2.get());
 
       controller.close();
 
@@ -187,7 +187,7 @@ public class AsynchronousFileTest extends AIOTestBase
 
       UnitTestCase.forceGC(bufferCheck, 5000);
 
-      Assert.assertNull(bufferCheck.get());
+      assertNull(bufferCheck.get());
    }
 
    @Test
@@ -199,7 +199,7 @@ public class AsynchronousFileTest extends AIOTestBase
          try
          {
             controller.open("/non-existent/IDontExist.error", 10000);
-            Assert.fail("Exception expected! The test could create a file called /non-existent/IDontExist.error when it was supposed to fail.");
+            fail("Exception expected! The test could create a file called /non-existent/IDontExist.error when it was supposed to fail.");
          }
          catch (Exception ignored)
          {
@@ -207,7 +207,7 @@ public class AsynchronousFileTest extends AIOTestBase
          try
          {
             controller.close();
-            Assert.fail("Supposed to throw exception as the file wasn't opened");
+            fail("Supposed to throw exception as the file wasn't opened");
          }
          catch (Exception ignored)
          {
@@ -280,17 +280,17 @@ public class AsynchronousFileTest extends AIOTestBase
 
          for (CountDownCallback callback : list)
          {
-            Assert.assertEquals(1, callback.timesDoneCalled.get());
-            Assert.assertTrue(callback.doneCalled);
+            assertEquals(1, callback.timesDoneCalled.get());
+            assertTrue(callback.doneCalled);
          }
 
          for (CountDownCallback callback : list2)
          {
-            Assert.assertEquals(1, callback.timesDoneCalled.get());
-            Assert.assertTrue(callback.doneCalled);
+            assertEquals(1, callback.timesDoneCalled.get());
+            assertTrue(callback.doneCalled);
          }
 
-         Assert.assertEquals(0, errors.get());
+         assertEquals(0, errors.get());
 
          controller.close();
       }
@@ -394,7 +394,7 @@ public class AsynchronousFileTest extends AIOTestBase
 
             waitForLatch(callbackLocal.latch);
 
-            Assert.assertTrue(callbackLocal.error);
+            assertTrue(callbackLocal.error);
 
          }
          finally
@@ -415,7 +415,7 @@ public class AsynchronousFileTest extends AIOTestBase
 
             controller.read(0, 512, newBuffer, callbackLocal);
 
-            Assert.fail("An exception was supposed to be thrown");
+            fail("An exception was supposed to be thrown");
          }
          catch (ActiveMQException ignored)
          {
@@ -430,7 +430,7 @@ public class AsynchronousFileTest extends AIOTestBase
             callbackLocal = new LocalCallback();
             controller.read(0, 512, newBuffer, callbackLocal);
             waitForLatch(callbackLocal.latch);
-            Assert.assertFalse(callbackLocal.error);
+            assertFalse(callbackLocal.error);
 
             newBuffer.rewind();
 
@@ -440,7 +440,7 @@ public class AsynchronousFileTest extends AIOTestBase
 
             for (int i = 0; i < SIZE; i++)
             {
-               Assert.assertEquals((byte) (i % 100), bytesRead[i]);
+               assertEquals((byte) (i % 100), bytesRead[i]);
             }
          }
          finally
@@ -515,7 +515,7 @@ public class AsynchronousFileTest extends AIOTestBase
          }
          else
          {
-            Assert.assertTrue(lineOne != bufferTmp);
+            assertTrue(lineOne != bufferTmp);
          }
       }
 
@@ -579,7 +579,7 @@ public class AsynchronousFileTest extends AIOTestBase
 
       CountDownCallback.checkResults(NUMBER_LINES, result);
 
-      Assert.assertEquals(NUMBER_LINES, buffers.size());
+      assertEquals(NUMBER_LINES, buffers.size());
 
       // Make sure all the buffers are unique
       ByteBuffer lineOne = null;
@@ -591,7 +591,7 @@ public class AsynchronousFileTest extends AIOTestBase
          }
          else
          {
-            Assert.assertTrue(lineOne == bufferTmp);
+            assertTrue(lineOne == bufferTmp);
          }
       }
 
@@ -635,7 +635,7 @@ public class AsynchronousFileTest extends AIOTestBase
 
          waitForLatch(latch);
 
-         Assert.assertEquals(0, errors.get());
+         assertEquals(0, errors.get());
 
          CountDownCallback.checkResults(NUMBER_LINES, result);
       }
@@ -664,8 +664,8 @@ public class AsynchronousFileTest extends AIOTestBase
          controller.read(i * SIZE, SIZE, buffer, aio);
 
          waitForLatch(latch);
-         Assert.assertEquals(0, errors.get());
-         Assert.assertTrue(aio.doneCalled);
+         assertEquals(0, errors.get());
+         assertTrue(aio.doneCalled);
 
          byte[] bytesRead = new byte[SIZE];
          buffer.get(bytesRead);
@@ -720,7 +720,7 @@ public class AsynchronousFileTest extends AIOTestBase
 
       controller.setBufferCallback(null);
 
-      Assert.assertEquals(0, readLatch.getCount());
+      assertEquals(0, readLatch.getCount());
       waitForLatch(readLatch);
       controller.open(fileName, 10);
 
@@ -742,8 +742,8 @@ public class AsynchronousFileTest extends AIOTestBase
          CountDownCallback aio = new CountDownCallback(latch, null, null, 0);
          controller.read(i * SIZE, SIZE, buffer, aio);
          waitForLatch(latch);
-         Assert.assertEquals(0, aio.errorCalled);
-         Assert.assertTrue(aio.doneCalled);
+         assertEquals(0, aio.errorCalled);
+         assertTrue(aio.doneCalled);
 
          byte[] bytesRead = new byte[SIZE];
          byte[] bytesCompare = new byte[SIZE];
@@ -755,12 +755,12 @@ public class AsynchronousFileTest extends AIOTestBase
 
          for (int count = 0; count < SIZE; count++)
          {
-            Assert.assertEquals("byte position " + count + " differs on line " + i,
+            assertEquals("byte position " + count + " differs on line " + i,
                                 bytesCompare[count],
                                 bytesRead[count]);
          }
 
-         Assert.assertTrue(buffer.equals(newBuffer));
+         assertTrue(buffer.equals(newBuffer));
       }
 
       destroy(newBuffer);
@@ -823,9 +823,9 @@ public class AsynchronousFileTest extends AIOTestBase
 
       for (CountDownCallback tmp : list)
       {
-         Assert.assertEquals(1, tmp.timesDoneCalled.get());
-         Assert.assertTrue(tmp.doneCalled);
-         Assert.assertEquals(0, tmp.errorCalled);
+         assertEquals(1, tmp.timesDoneCalled.get());
+         assertTrue(tmp.doneCalled);
+         assertEquals(0, tmp.errorCalled);
       }
 
       controller.close();
@@ -854,8 +854,8 @@ public class AsynchronousFileTest extends AIOTestBase
          CountDownCallback aioBlock = new CountDownCallback(latchDone, null, null, 0);
          controller.write(i * 512, 512, buffer, aioBlock);
          UnitTestCase.waitForLatch(latchDone);
-         Assert.assertTrue(aioBlock.doneCalled);
-         Assert.assertEquals(0, aioBlock.errorCalled);
+         assertTrue(aioBlock.doneCalled);
+         assertEquals(0, aioBlock.errorCalled);
       }
 
       long timeTotal = System.currentTimeMillis() - startTime;
@@ -924,8 +924,8 @@ public class AsynchronousFileTest extends AIOTestBase
 
       UnitTestCase.waitForLatch(latchDone);
 
-      Assert.assertTrue(aioBlock.errorCalled != 0);
-      Assert.assertFalse(aioBlock.doneCalled);
+      assertTrue(aioBlock.errorCalled != 0);
+      assertFalse(aioBlock.doneCalled);
    }
 
    @Test
@@ -935,7 +935,7 @@ public class AsynchronousFileTest extends AIOTestBase
       {
          @SuppressWarnings("unused")
          ByteBuffer buffer = AsynchronousFileImpl.newBuffer(300);
-         Assert.fail("Exception expected");
+         fail("Exception expected");
       }
       catch (Exception ignored)
       {
@@ -989,7 +989,7 @@ public class AsynchronousFileTest extends AIOTestBase
          t.join();
       }
 
-      Assert.assertEquals(0, errors.get());
+      assertEquals(0, errors.get());
    }
 
    @Test
@@ -1004,7 +1004,7 @@ public class AsynchronousFileTest extends AIOTestBase
 
       controller.fill(0, 1, NUMBER_LINES * SIZE, (byte) 'j');
 
-      Assert.assertEquals(NUMBER_LINES * SIZE, controller.size());
+      assertEquals(NUMBER_LINES * SIZE, controller.size());
    }
 
    private static void addString(final String str, final ByteBuffer buffer)

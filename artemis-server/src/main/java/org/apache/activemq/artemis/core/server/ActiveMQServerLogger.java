@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.server;
+package org.apache.activemq.artemis.core.server;
 
 /**
  * Logger Code 22
@@ -40,26 +40,26 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 
 import io.netty.channel.Channel;
-import org.apache.activemq.api.core.ActiveMQExceptionType;
-import org.apache.activemq.api.core.Pair;
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.core.client.impl.ServerLocatorInternal;
-import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.journal.IOAsyncTask;
-import org.apache.activemq.core.journal.SequentialFile;
-import org.apache.activemq.core.journal.impl.JournalFile;
-import org.apache.activemq.core.paging.cursor.PagePosition;
-import org.apache.activemq.core.paging.cursor.PageSubscription;
-import org.apache.activemq.core.persistence.OperationContext;
-import org.apache.activemq.core.protocol.core.Packet;
-import org.apache.activemq.core.protocol.core.impl.wireformat.BackupReplicationStartFailedMessage;
-import org.apache.activemq.core.server.cluster.Bridge;
-import org.apache.activemq.core.server.cluster.impl.BridgeImpl;
-import org.apache.activemq.core.server.cluster.impl.ClusterConnectionImpl;
-import org.apache.activemq.core.server.impl.ActiveMQServerImpl;
-import org.apache.activemq.core.server.impl.ServerSessionImpl;
-import org.apache.activemq.core.server.management.Notification;
-import org.apache.activemq.utils.FutureLatch;
+import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
+import org.apache.activemq.artemis.api.core.Pair;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.client.impl.ServerLocatorInternal;
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.journal.IOAsyncTask;
+import org.apache.activemq.artemis.core.journal.SequentialFile;
+import org.apache.activemq.artemis.core.journal.impl.JournalFile;
+import org.apache.activemq.artemis.core.paging.cursor.PagePosition;
+import org.apache.activemq.artemis.core.paging.cursor.PageSubscription;
+import org.apache.activemq.artemis.core.persistence.OperationContext;
+import org.apache.activemq.artemis.core.protocol.core.Packet;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.BackupReplicationStartFailedMessage;
+import org.apache.activemq.artemis.core.server.cluster.Bridge;
+import org.apache.activemq.artemis.core.server.cluster.impl.BridgeImpl;
+import org.apache.activemq.artemis.core.server.cluster.impl.ClusterConnectionImpl;
+import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
+import org.apache.activemq.artemis.core.server.impl.ServerSessionImpl;
+import org.apache.activemq.artemis.core.server.management.Notification;
+import org.apache.activemq.artemis.utils.FutureLatch;
 import org.jboss.logging.BasicLogger;
 import org.jboss.logging.annotations.Cause;
 import org.jboss.logging.annotations.LogMessage;
@@ -81,11 +81,11 @@ public interface ActiveMQServerLogger extends BasicLogger
    void serverStarting(String type, Configuration configuration);
 
    @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 221001, value = "Apache ActiveMQ Message Broker version {0} [nodeID={1}] {2}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 221001, value = "Apache ActiveMQ Artemis Message Broker version {0} [nodeID={1}] {2}", format = Message.Format.MESSAGE_FORMAT)
    void serverStarted(String fullVersion, SimpleString nodeId, String identity);
 
    @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 221002, value = "Apache ActiveMQ Message Broker version {0} [{1}] stopped", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 221002, value = "Apache ActiveMQ Artemis Message Broker version {0} [{1}] stopped", format = Message.Format.MESSAGE_FORMAT)
    void serverStopped(String version, SimpleString nodeId);
 
    @LogMessage(level = Logger.Level.INFO)
@@ -114,7 +114,7 @@ public interface ActiveMQServerLogger extends BasicLogger
    void awaitFailBack();
 
    @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 221109, value = "Apache ActiveMQ Backup Server version {0} [{1}] started, waiting live to fail before it gets active",
+   @Message(id = 221109, value = "Apache ActiveMQ Artemis Backup Server version {0} [{1}] started, waiting live to fail before it gets active",
             format = Message.Format.MESSAGE_FORMAT)
    void backupServerStarted(String version, SimpleString nodeID);
 
@@ -322,7 +322,7 @@ public interface ActiveMQServerLogger extends BasicLogger
    void divertBindingNotExists(SimpleString bindingName);
 
    @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 222007, value = "Security risk! Apache ActiveMQ is running with the default cluster admin user and default password. Please see the cluster chapter in the ActiveMQ User Guide for instructions on how to change this.", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 222007, value = "Security risk! Apache ActiveMQ Artemis is running with the default cluster admin user and default password. Please see the cluster chapter in the ActiveMQ User Guide for instructions on how to change this.", format = Message.Format.MESSAGE_FORMAT)
    void clusterSecurityRisk();
 
    @LogMessage(level = Logger.Level.WARN)
@@ -983,7 +983,7 @@ public interface ActiveMQServerLogger extends BasicLogger
    void backupMovingDataAway(String oldPath, String newPath);
 
    @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 222163, value = "Server is being completely stopped, since this was a replicated backup there may be journal files that need cleaning up. The Apache ActiveMQ broker will have to be manually restarted.",
+   @Message(id = 222163, value = "Server is being completely stopped, since this was a replicated backup there may be journal files that need cleaning up. The Apache ActiveMQ Artemis broker will have to be manually restarted.",
             format = Message.Format.MESSAGE_FORMAT)
    void stopReplicatedBackupAfterFailback();
 

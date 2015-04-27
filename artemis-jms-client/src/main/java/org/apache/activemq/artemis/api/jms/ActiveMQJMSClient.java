@@ -14,22 +14,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.api.jms;
+package org.apache.activemq.artemis.api.jms;
 
 import javax.jms.Queue;
 import javax.jms.Topic;
 
-import org.apache.activemq.api.core.DiscoveryGroupConfiguration;
-import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.jms.client.ActiveMQConnectionFactory;
-import org.apache.activemq.jms.client.ActiveMQDestination;
-import org.apache.activemq.jms.client.ActiveMQJMSConnectionFactory;
-import org.apache.activemq.jms.client.ActiveMQQueueConnectionFactory;
-import org.apache.activemq.jms.client.ActiveMQTopicConnectionFactory;
-import org.apache.activemq.jms.client.ActiveMQXAConnectionFactory;
-import org.apache.activemq.jms.client.ActiveMQXAQueueConnectionFactory;
-import org.apache.activemq.jms.client.ActiveMQXATopicConnectionFactory;
-import org.apache.activemq.uri.ConnectionFactoryParser;
+import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
+import org.apache.activemq.artemis.jms.client.ActiveMQJMSConnectionFactory;
+import org.apache.activemq.artemis.jms.client.ActiveMQQueueConnectionFactory;
+import org.apache.activemq.artemis.jms.client.ActiveMQTopicConnectionFactory;
+import org.apache.activemq.artemis.jms.client.ActiveMQXAConnectionFactory;
+import org.apache.activemq.artemis.jms.client.ActiveMQXAQueueConnectionFactory;
+import org.apache.activemq.artemis.jms.client.ActiveMQXATopicConnectionFactory;
+import org.apache.activemq.artemis.uri.ConnectionFactoryParser;
 
 /**
  * A utility class for creating ActiveMQ client-side JMS managed resources.

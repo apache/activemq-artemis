@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.logs;
+package org.apache.activemq.artemis.logs;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

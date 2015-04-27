@@ -14,33 +14,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.server.cluster;
+package org.apache.activemq.artemis.core.server.cluster;
 
 
-import org.apache.activemq.api.core.ActiveMQException;
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.core.client.impl.ClientSessionFactoryInternal;
-import org.apache.activemq.core.config.ClusterConnectionConfiguration;
-import org.apache.activemq.core.config.ConfigurationUtils;
-import org.apache.activemq.core.protocol.core.Channel;
-import org.apache.activemq.core.protocol.core.CoreRemotingConnection;
-import org.apache.activemq.core.protocol.core.impl.ChannelImpl;
-import org.apache.activemq.core.protocol.core.impl.PacketImpl;
-import org.apache.activemq.core.protocol.core.impl.wireformat.BackupRegistrationMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.BackupRequestMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.BackupResponseMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.ClusterConnectMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.ClusterConnectReplyMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.NodeAnnounceMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.QuorumVoteMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.QuorumVoteReplyMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.ScaleDownAnnounceMessage;
-import org.apache.activemq.core.server.ActiveMQMessageBundle;
-import org.apache.activemq.core.server.ActiveMQServer;
-import org.apache.activemq.core.server.ActiveMQServerLogger;
-import org.apache.activemq.core.server.cluster.qourum.QuorumVoteHandler;
-import org.apache.activemq.core.server.cluster.qourum.Vote;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal;
+import org.apache.activemq.artemis.core.config.ClusterConnectionConfiguration;
+import org.apache.activemq.artemis.core.config.ConfigurationUtils;
+import org.apache.activemq.artemis.core.protocol.core.Channel;
+import org.apache.activemq.artemis.core.protocol.core.CoreRemotingConnection;
+import org.apache.activemq.artemis.core.protocol.core.impl.ChannelImpl;
+import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.BackupRegistrationMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.BackupRequestMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.BackupResponseMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ClusterConnectMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ClusterConnectReplyMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.NodeAnnounceMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.QuorumVoteMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.QuorumVoteReplyMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ScaleDownAnnounceMessage;
+import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.apache.activemq.artemis.core.server.cluster.qourum.QuorumVoteHandler;
+import org.apache.activemq.artemis.core.server.cluster.qourum.Vote;
 
 /**
  * handles the communication between a cluster node and the cluster, either the whole cluster or a specific node in the
@@ -70,7 +70,7 @@ public class ClusterControl implements AutoCloseable
     * authorise this cluster control so it can communicate with the cluster, it will set the cluster channel on a successful
     * authentication.
     *
-    * @throws org.apache.activemq.api.core.ActiveMQException if authorisation wasn't successful.
+    * @throws ActiveMQException if authorisation wasn't successful.
     */
    public void authorize() throws ActiveMQException
    {
@@ -93,7 +93,7 @@ public class ClusterControl implements AutoCloseable
     * @param attemptingFailBack if {@code true} then this server wants to trigger a fail-back when
     *                           up-to-date, that is it wants to take over the role of 'live' from the current 'live'
     *                           server.
-    * @throws org.apache.activemq.api.core.ActiveMQException
+    * @throws ActiveMQException
     */
    public void announceReplicatingBackupToLive(final boolean attemptingFailBack, String replicationClusterName) throws ActiveMQException
    {

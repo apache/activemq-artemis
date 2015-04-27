@@ -14,16 +14,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.jms.persistence.impl.nullpm;
+package org.apache.activemq.artemis.jms.persistence.impl.nullpm;
 
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.activemq.jms.persistence.JMSStorageManager;
-import org.apache.activemq.jms.persistence.config.PersistedConnectionFactory;
-import org.apache.activemq.jms.persistence.config.PersistedDestination;
-import org.apache.activemq.jms.persistence.config.PersistedBindings;
-import org.apache.activemq.jms.persistence.config.PersistedType;
+import org.apache.activemq.artemis.jms.persistence.JMSStorageManager;
+import org.apache.activemq.artemis.jms.persistence.config.PersistedConnectionFactory;
+import org.apache.activemq.artemis.jms.persistence.config.PersistedDestination;
+import org.apache.activemq.artemis.jms.persistence.config.PersistedBindings;
+import org.apache.activemq.artemis.jms.persistence.config.PersistedType;
 
 public class NullJMSStorageManagerImpl implements JMSStorageManager
 {

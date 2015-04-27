@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.jms.client;
+package org.apache.activemq.artemis.jms.client;
 
 import java.io.Serializable;
 import java.util.UUID;
@@ -26,10 +26,10 @@ import javax.naming.NamingException;
 import javax.naming.Reference;
 import javax.naming.Referenceable;
 
-import org.apache.activemq.api.core.Pair;
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.jms.referenceable.DestinationObjectFactory;
-import org.apache.activemq.jms.referenceable.SerializableObjectRefAddr;
+import org.apache.activemq.artemis.api.core.Pair;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.jms.referenceable.DestinationObjectFactory;
+import org.apache.activemq.artemis.jms.referenceable.SerializableObjectRefAddr;
 
 /**
  * ActiveMQ implementation of a JMS Destination.

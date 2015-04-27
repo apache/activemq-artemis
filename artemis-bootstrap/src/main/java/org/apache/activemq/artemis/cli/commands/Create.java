@@ -1,4 +1,4 @@
-package org.apache.activemq.cli.commands;
+package org.apache.activemq.artemis.cli.commands;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.openwire.amq;
+package org.apache.activemq.artemis.tests.integration.openwire.amq;
 
 import javax.jms.DeliveryMode;
 import javax.jms.Destination;
@@ -23,7 +23,7 @@ import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 
-import org.apache.activemq.tests.integration.openwire.BasicOpenWireTest;
+import org.apache.activemq.artemis.tests.integration.openwire.BasicOpenWireTest;
 import org.junit.Test;
 
 /**

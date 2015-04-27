@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.unit.core.persistence.impl;
+package org.apache.activemq.artemis.tests.unit.core.persistence.impl;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -22,10 +22,10 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq.api.core.ActiveMQExceptionType;
-import org.apache.activemq.core.journal.IOAsyncTask;
-import org.apache.activemq.core.persistence.impl.journal.OperationContextImpl;
-import org.apache.activemq.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
+import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.core.journal.IOAsyncTask;
+import org.apache.activemq.artemis.core.persistence.impl.journal.OperationContextImpl;
 import org.junit.Assert;
 import org.junit.Test;
 

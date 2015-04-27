@@ -23,11 +23,11 @@ under the License.
 
    <parent>
       <groupId>org.apache.activemq</groupId>
-      <artifactId>activemq-pom</artifactId>
-      <version>10.0.0-SNAPSHOT</version>
+      <artifactId>artemis-pom</artifactId>
+      <version>1.0.0-SNAPSHOT</version>
    </parent>
 
-   <artifactId>activemq-artemis-distribution</artifactId>
+   <artifactId>artemis-distribution</artifactId>
    <packaging>pom</packaging>
    <name>ActiveMQ Artemis Distribution</name>
 
@@ -48,7 +48,7 @@ under the License.
    </dependencies>
 
    <modules>
-      <module>activemq</module>
+      <module>artemis</module>
    </modules>
 
    <build>

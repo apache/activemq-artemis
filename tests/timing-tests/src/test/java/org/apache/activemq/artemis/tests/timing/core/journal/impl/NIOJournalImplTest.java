@@ -14,13 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.timing.core.journal.impl;
+package org.apache.activemq.artemis.tests.timing.core.journal.impl;
 
 import java.io.File;
 
-import org.apache.activemq.core.journal.SequentialFileFactory;
-import org.apache.activemq.core.journal.impl.NIOSequentialFileFactory;
-import org.apache.activemq.tests.unit.UnitTestLogger;
+import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.core.journal.SequentialFileFactory;
+import org.apache.activemq.artemis.core.journal.impl.NIOSequentialFileFactory;
+import org.apache.activemq.artemis.tests.unit.UnitTestLogger;
 
 public class NIOJournalImplTest extends JournalImplTestUnit
 {
@@ -35,7 +36,7 @@ public class NIOJournalImplTest extends JournalImplTestUnit
 
       NIOJournalImplTest.log.debug("deleting directory " + journalDir);
 
-      deleteDirectory(file);
+      UnitTestCase.deleteDirectory(file);
 
       file.mkdir();
 

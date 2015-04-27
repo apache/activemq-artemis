@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.client;
+package org.apache.activemq.artemis.tests.integration.client;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -24,24 +24,24 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.api.core.client.ClientConsumer;
-import org.apache.activemq.api.core.client.ClientMessage;
-import org.apache.activemq.api.core.client.ClientProducer;
-import org.apache.activemq.api.core.client.ClientSession;
-import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.MessageHandler;
-import org.apache.activemq.api.core.client.ServerLocator;
-import org.apache.activemq.core.client.impl.ClientConsumerInternal;
-import org.apache.activemq.core.postoffice.Binding;
-import org.apache.activemq.core.postoffice.Bindings;
-import org.apache.activemq.core.postoffice.QueueBinding;
-import org.apache.activemq.core.server.Consumer;
-import org.apache.activemq.core.server.ActiveMQServer;
-import org.apache.activemq.core.server.impl.ServerConsumerImpl;
-import org.apache.activemq.core.settings.impl.AddressSettings;
-import org.apache.activemq.tests.integration.IntegrationTestLogger;
-import org.apache.activemq.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.client.ClientConsumer;
+import org.apache.activemq.artemis.api.core.client.ClientMessage;
+import org.apache.activemq.artemis.api.core.client.ClientProducer;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
+import org.apache.activemq.artemis.api.core.client.MessageHandler;
+import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.core.client.impl.ClientConsumerInternal;
+import org.apache.activemq.artemis.core.postoffice.Binding;
+import org.apache.activemq.artemis.core.postoffice.Bindings;
+import org.apache.activemq.artemis.core.postoffice.QueueBinding;
+import org.apache.activemq.artemis.core.server.Consumer;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.impl.ServerConsumerImpl;
+import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -133,7 +133,7 @@ public class ConsumerWindowSizeTest extends ServiceTestBase
 
       ClientConsumer consumer = consumers.get(2);
       ClientMessage received = consumer.receive(1000);
-      assertNotNull(received);
+      Assert.assertNotNull(received);
 
       for (ClientSession tmpSess : sessions)
       {
@@ -177,14 +177,14 @@ public class ConsumerWindowSizeTest extends ServiceTestBase
          ClientMessage message = null;
          message = consumer.receiveImmediate();
          // message = consumer.receive(1000); // the test will pass if used receive(1000) instead of receiveImmediate
-         assertNotNull(message);
+         Assert.assertNotNull(message);
          message.acknowledge();
 
          prod.send(msg);
          sessionProd.commit();
 
          message = consumer.receive(10000);
-         assertNotNull(message);
+         Assert.assertNotNull(message);
          message.acknowledge();
 
          session.close();
@@ -243,7 +243,7 @@ public class ConsumerWindowSizeTest extends ServiceTestBase
 
       ClientConsumer consumer = consumers.get(2);
       ClientMessage received = consumer.receive(1000);
-      assertNotNull(received);
+      Assert.assertNotNull(received);
 
       for (ClientSession tmpSess : sessions)
       {
@@ -279,7 +279,7 @@ public class ConsumerWindowSizeTest extends ServiceTestBase
          consumers.add(consumer);
          session1.start();
          sessions.add(session1);
-         assertNull(consumer.receive(10));
+         Assert.assertNull(consumer.receive(10));
 
       }
 
@@ -298,7 +298,7 @@ public class ConsumerWindowSizeTest extends ServiceTestBase
 
       ClientConsumer consumer = consumers.get(2);
       ClientMessage received = consumer.receive(5000);
-      assertNotNull(received);
+      Assert.assertNotNull(received);
 
       for (ClientSession tmpSess : sessions)
       {
@@ -394,9 +394,9 @@ public class ConsumerWindowSizeTest extends ServiceTestBase
          t.join();
       }
 
-      assertEquals(0, errors.get());
+      Assert.assertEquals(0, errors.get());
 
-      assertEquals(NUMBER_OF_MESSAGES, received.get());
+      Assert.assertEquals(NUMBER_OF_MESSAGES, received.get());
    }
 
    @Test
@@ -455,7 +455,7 @@ public class ConsumerWindowSizeTest extends ServiceTestBase
 
       }
 
-      assertEquals(NUMBER_OF_MESSAGES, received.get());
+      Assert.assertEquals(NUMBER_OF_MESSAGES, received.get());
    }
 
 
@@ -1085,11 +1085,11 @@ public class ConsumerWindowSizeTest extends ServiceTestBase
             {
                Thread.sleep(10);
             }
-            assertTrue(consumer.getBufferSize() >= 10);
+            Assert.assertTrue(consumer.getBufferSize() >= 10);
 
             ClientMessage msg = consumer.receive(500);
             msg.getBodyBuffer().readByte();
-            assertNotNull(msg);
+            Assert.assertNotNull(msg);
             msg.acknowledge();
             session.rollback();
          }
@@ -1098,7 +1098,7 @@ public class ConsumerWindowSizeTest extends ServiceTestBase
          for (int i = 0; i < numberOfMessages; i++)
          {
             ClientMessage msg = consumer.receive(5000);
-            assertNotNull(msg);
+            Assert.assertNotNull(msg);
             msg.getBodyBuffer().readByte();
             msg.acknowledge();
             session.commit();
@@ -1171,7 +1171,7 @@ public class ConsumerWindowSizeTest extends ServiceTestBase
             int count = 0;
 
             /* (non-Javadoc)
-             * @see org.apache.activemq.api.core.client.MessageHandler#onMessage(org.apache.activemq.api.core.client.ClientMessage)
+             * @see MessageHandler#onMessage(ClientMessage)
              */
             public synchronized void onMessage(final ClientMessage message)
             {
@@ -1331,7 +1331,7 @@ public class ConsumerWindowSizeTest extends ServiceTestBase
             int count = 0;
 
             /* (non-Javadoc)
-             * @see org.apache.activemq.api.core.client.MessageHandler#onMessage(org.apache.activemq.api.core.client.ClientMessage)
+             * @see MessageHandler#onMessage(ClientMessage)
              */
             public synchronized void onMessage(final ClientMessage message)
             {

@@ -14,28 +14,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.jms.management.impl;
+package org.apache.activemq.artemis.jms.management.impl;
 
 import javax.management.MBeanInfo;
 import javax.management.StandardMBean;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.activemq.api.core.ActiveMQException;
-import org.apache.activemq.api.core.FilterConstants;
-import org.apache.activemq.api.core.management.MessageCounterInfo;
-import org.apache.activemq.api.core.management.Operation;
-import org.apache.activemq.api.core.management.QueueControl;
-import org.apache.activemq.api.jms.management.JMSQueueControl;
-import org.apache.activemq.core.management.impl.MBeanInfoHelper;
-import org.apache.activemq.core.messagecounter.MessageCounter;
-import org.apache.activemq.core.messagecounter.impl.MessageCounterHelper;
-import org.apache.activemq.jms.client.ActiveMQDestination;
-import org.apache.activemq.jms.client.ActiveMQMessage;
-import org.apache.activemq.jms.client.SelectorTranslator;
-import org.apache.activemq.jms.server.JMSServerManager;
-import org.apache.activemq.utils.json.JSONArray;
-import org.apache.activemq.utils.json.JSONObject;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.FilterConstants;
+import org.apache.activemq.artemis.api.core.management.MessageCounterInfo;
+import org.apache.activemq.artemis.api.core.management.Operation;
+import org.apache.activemq.artemis.api.core.management.QueueControl;
+import org.apache.activemq.artemis.api.jms.management.JMSQueueControl;
+import org.apache.activemq.artemis.core.management.impl.MBeanInfoHelper;
+import org.apache.activemq.artemis.core.messagecounter.MessageCounter;
+import org.apache.activemq.artemis.core.messagecounter.impl.MessageCounterHelper;
+import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
+import org.apache.activemq.artemis.jms.client.ActiveMQMessage;
+import org.apache.activemq.artemis.jms.client.SelectorTranslator;
+import org.apache.activemq.artemis.jms.server.JMSServerManager;
+import org.apache.activemq.artemis.utils.json.JSONArray;
+import org.apache.activemq.artemis.utils.json.JSONObject;
 
 public class JMSQueueControlImpl extends StandardMBean implements JMSQueueControl
 {

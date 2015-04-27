@@ -14,14 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.unit.util;
+package org.apache.activemq.artemis.tests.unit.util;
 
 import java.util.Properties;
 import java.util.StringTokenizer;
 
-import org.apache.activemq.core.version.Version;
-import org.apache.activemq.tests.util.UnitTestCase;
-import org.apache.activemq.utils.VersionLoader;
+import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.core.version.Version;
+import org.apache.activemq.artemis.utils.VersionLoader;
 import org.junit.Assert;
 import org.junit.Test;
 

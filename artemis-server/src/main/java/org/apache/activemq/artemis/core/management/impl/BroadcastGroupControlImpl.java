@@ -14,16 +14,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.management.impl;
+package org.apache.activemq.artemis.core.management.impl;
 
 import javax.management.MBeanOperationInfo;
 
-import org.apache.activemq.api.core.BroadcastGroupConfiguration;
-import org.apache.activemq.api.core.UDPBroadcastEndpointFactory;
-import org.apache.activemq.api.core.management.BroadcastGroupControl;
-import org.apache.activemq.core.persistence.StorageManager;
-import org.apache.activemq.core.server.cluster.BroadcastGroup;
-import org.apache.activemq.utils.json.JSONArray;
+import org.apache.activemq.artemis.api.core.BroadcastGroupConfiguration;
+import org.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory;
+import org.apache.activemq.artemis.api.core.management.BroadcastGroupControl;
+import org.apache.activemq.artemis.core.persistence.StorageManager;
+import org.apache.activemq.artemis.core.server.cluster.BroadcastGroup;
+import org.apache.activemq.artemis.utils.json.JSONArray;
 
 public class BroadcastGroupControlImpl extends AbstractControl implements BroadcastGroupControl
 {

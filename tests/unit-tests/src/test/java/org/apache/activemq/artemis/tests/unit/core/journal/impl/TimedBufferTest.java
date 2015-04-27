@@ -14,10 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.unit.core.journal.impl;
+package org.apache.activemq.artemis.tests.unit.core.journal.impl;
 
-import org.apache.activemq.api.core.ActiveMQBuffer;
-import org.apache.activemq.api.core.ActiveMQBuffers;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
+import org.apache.activemq.artemis.tests.util.UnitTestCase;
 import org.junit.Test;
 
 import java.nio.ByteBuffer;
@@ -29,10 +30,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.Assert;
 
-import org.apache.activemq.core.journal.IOAsyncTask;
-import org.apache.activemq.core.journal.impl.TimedBuffer;
-import org.apache.activemq.core.journal.impl.TimedBufferObserver;
-import org.apache.activemq.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.core.journal.IOAsyncTask;
+import org.apache.activemq.artemis.core.journal.impl.TimedBuffer;
+import org.apache.activemq.artemis.core.journal.impl.TimedBufferObserver;
 
 public class TimedBufferTest extends UnitTestCase
 {

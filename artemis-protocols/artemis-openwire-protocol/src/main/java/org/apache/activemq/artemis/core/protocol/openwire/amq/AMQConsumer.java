@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.protocol.openwire.amq;
+package org.apache.activemq.artemis.core.protocol.openwire.amq;
 
 import java.io.IOException;
 import java.util.Iterator;
@@ -30,12 +30,12 @@ import org.apache.activemq.command.MessageDispatch;
 import org.apache.activemq.command.MessageId;
 import org.apache.activemq.command.TransactionId;
 import org.apache.activemq.wireformat.WireFormat;
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.core.protocol.openwire.OpenWireMessageConverter;
-import org.apache.activemq.core.protocol.openwire.OpenWireUtil;
-import org.apache.activemq.core.server.QueueQueryResult;
-import org.apache.activemq.core.server.ServerMessage;
-import org.apache.activemq.jms.client.ActiveMQDestination;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.protocol.openwire.OpenWireMessageConverter;
+import org.apache.activemq.artemis.core.protocol.openwire.OpenWireUtil;
+import org.apache.activemq.artemis.core.server.QueueQueryResult;
+import org.apache.activemq.artemis.core.server.ServerMessage;
+import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 
 public class AMQConsumer implements BrowserListener
 {

@@ -14,8 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.unit.jms;
+package org.apache.activemq.artemis.tests.unit.jms;
 
+import org.apache.activemq.artemis.tests.util.UnitTestCase;
 import org.junit.Test;
 
 import javax.jms.JMSRuntimeException;
@@ -24,9 +25,8 @@ import javax.jms.Topic;
 
 import org.junit.Assert;
 
-import org.apache.activemq.jms.client.ActiveMQDestination;
-import org.apache.activemq.tests.util.RandomUtil;
-import org.apache.activemq.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
+import org.apache.activemq.artemis.tests.util.RandomUtil;
 
 public class ActiveMQDestinationTest extends UnitTestCase
 {

@@ -14,9 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.integration.vertx;
+package org.apache.activemq.artemis.integration.vertx;
 
-import org.apache.activemq.core.server.ServerMessage;
+import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.jboss.logging.BasicLogger;
 import org.jboss.logging.Logger;
 import org.jboss.logging.annotations.LogMessage;

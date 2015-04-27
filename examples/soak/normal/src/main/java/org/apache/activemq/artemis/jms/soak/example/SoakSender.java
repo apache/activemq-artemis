@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.jms.soak.example;
+package org.apache.activemq.artemis.jms.soak.example;
 
 import java.util.Hashtable;
 import java.util.concurrent.atomic.AtomicLong;
@@ -32,8 +32,8 @@ import javax.jms.Session;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
-import org.apache.activemq.utils.TokenBucketLimiter;
-import org.apache.activemq.utils.TokenBucketLimiterImpl;
+import org.apache.activemq.artemis.utils.TokenBucketLimiter;
+import org.apache.activemq.artemis.utils.TokenBucketLimiterImpl;
 
 public class SoakSender
 {

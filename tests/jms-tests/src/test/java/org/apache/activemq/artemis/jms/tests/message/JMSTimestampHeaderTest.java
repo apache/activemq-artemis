@@ -14,13 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.jms.tests.message;
+package org.apache.activemq.artemis.jms.tests.message;
 
 import org.junit.Test;
 
 import javax.jms.Message;
 
-import org.apache.activemq.jms.tests.util.ProxyAssertSupport;
+import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
 
 public class JMSTimestampHeaderTest extends MessageHeaderTestBase
 {

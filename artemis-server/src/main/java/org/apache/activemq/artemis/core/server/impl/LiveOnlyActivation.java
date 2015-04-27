@@ -14,23 +14,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.server.impl;
+package org.apache.activemq.artemis.core.server.impl;
 
-import org.apache.activemq.api.core.ActiveMQException;
-import org.apache.activemq.api.core.Pair;
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.core.client.ActiveMQClient;
-import org.apache.activemq.core.client.impl.ClientSessionFactoryInternal;
-import org.apache.activemq.core.client.impl.ServerLocatorInternal;
-import org.apache.activemq.core.postoffice.DuplicateIDCache;
-import org.apache.activemq.core.postoffice.impl.PostOfficeImpl;
-import org.apache.activemq.core.remoting.server.RemotingService;
-import org.apache.activemq.core.server.ActiveMQServerLogger;
-import org.apache.activemq.core.server.LiveNodeLocator;
-import org.apache.activemq.core.server.cluster.ActiveMQServerSideProtocolManagerFactory;
-import org.apache.activemq.core.server.cluster.ha.LiveOnlyPolicy;
-import org.apache.activemq.core.server.cluster.ha.ScaleDownPolicy;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.Pair;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
+import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal;
+import org.apache.activemq.artemis.core.client.impl.ServerLocatorInternal;
+import org.apache.activemq.artemis.core.postoffice.DuplicateIDCache;
+import org.apache.activemq.artemis.core.postoffice.impl.PostOfficeImpl;
+import org.apache.activemq.artemis.core.remoting.server.RemotingService;
+import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.apache.activemq.artemis.core.server.LiveNodeLocator;
+import org.apache.activemq.artemis.core.server.cluster.ActiveMQServerSideProtocolManagerFactory;
+import org.apache.activemq.artemis.core.server.cluster.ha.LiveOnlyPolicy;
+import org.apache.activemq.artemis.core.server.cluster.ha.ScaleDownPolicy;
 
 import java.util.HashMap;
 import java.util.List;

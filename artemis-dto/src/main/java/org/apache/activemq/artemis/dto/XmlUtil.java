@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.dto;
+package org.apache.activemq.artemis.dto;
 
 import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBContext;
@@ -86,7 +86,7 @@ public class XmlUtil
 
    public static <T> T decode(Class<T> clazz, File configuration) throws Exception
    {
-      JAXBContext jaxbContext = JAXBContext.newInstance("org.apache.activemq.dto");
+      JAXBContext jaxbContext = JAXBContext.newInstance("org.apache.activemq.artemis.dto");
 
       Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
       SchemaFactory sf = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);

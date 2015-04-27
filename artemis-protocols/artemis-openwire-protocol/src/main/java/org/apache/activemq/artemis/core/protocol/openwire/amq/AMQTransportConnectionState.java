@@ -14,13 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.protocol.openwire.amq;
+package org.apache.activemq.artemis.core.protocol.openwire.amq;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.command.ConnectionInfo;
 import org.apache.activemq.state.ConnectionState;
-import org.apache.activemq.core.protocol.openwire.OpenWireConnection;
+import org.apache.activemq.artemis.core.protocol.openwire.OpenWireConnection;
 
 /**
  * @See org.apache.activemq.broker.TransportConnectionState

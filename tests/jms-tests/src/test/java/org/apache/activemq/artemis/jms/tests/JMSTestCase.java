@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.jms.tests;
+package org.apache.activemq.artemis.jms.tests;
 import java.util.ArrayList;
 
 import javax.jms.Connection;
@@ -26,11 +26,11 @@ import javax.jms.TopicConnection;
 import javax.jms.XAConnection;
 import javax.naming.InitialContext;
 
-import org.apache.activemq.api.core.client.ActiveMQClient;
-import org.apache.activemq.api.jms.JMSFactoryType;
-import org.apache.activemq.jms.client.ActiveMQJMSConnectionFactory;
-import org.apache.activemq.jms.client.ActiveMQQueueConnectionFactory;
-import org.apache.activemq.jms.client.ActiveMQTopicConnectionFactory;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
+import org.apache.activemq.artemis.api.jms.JMSFactoryType;
+import org.apache.activemq.artemis.jms.client.ActiveMQJMSConnectionFactory;
+import org.apache.activemq.artemis.jms.client.ActiveMQQueueConnectionFactory;
+import org.apache.activemq.artemis.jms.client.ActiveMQTopicConnectionFactory;
 import org.junit.After;
 import org.junit.Before;
 

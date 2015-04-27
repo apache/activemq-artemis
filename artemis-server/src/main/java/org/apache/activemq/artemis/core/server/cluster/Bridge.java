@@ -14,14 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.server.cluster;
+package org.apache.activemq.artemis.core.server.cluster;
 
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.core.server.Consumer;
-import org.apache.activemq.core.server.ActiveMQComponent;
-import org.apache.activemq.core.server.Queue;
-import org.apache.activemq.core.server.management.NotificationService;
-import org.apache.activemq.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.server.Consumer;
+import org.apache.activemq.artemis.core.server.ActiveMQComponent;
+import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.server.management.NotificationService;
+import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 
 /**
  * A Core Bridge

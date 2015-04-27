@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.jms.tests.tools.container;
+package org.apache.activemq.artemis.jms.tests.tools.container;
 
 import javax.naming.InitialContext;
 import java.rmi.Remote;
@@ -22,10 +22,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.activemq.api.jms.JMSFactoryType;
-import org.apache.activemq.core.security.Role;
-import org.apache.activemq.core.server.ActiveMQServer;
-import org.apache.activemq.jms.server.JMSServerManager;
+import org.apache.activemq.artemis.api.jms.JMSFactoryType;
+import org.apache.activemq.artemis.core.security.Role;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.jms.server.JMSServerManager;
 
 /**
  * The remote interface exposed by TestServer.

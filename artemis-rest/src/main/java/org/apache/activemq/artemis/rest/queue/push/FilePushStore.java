@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.rest.queue.push;
+package org.apache.activemq.artemis.rest.queue.push;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -25,9 +25,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.activemq.rest.ActiveMQRestLogger;
-import org.apache.activemq.rest.queue.push.xml.PushRegistration;
-import org.apache.activemq.rest.topic.PushTopicRegistration;
+import org.apache.activemq.artemis.rest.ActiveMQRestLogger;
+import org.apache.activemq.artemis.rest.queue.push.xml.PushRegistration;
+import org.apache.activemq.artemis.rest.topic.PushTopicRegistration;
 
 public class FilePushStore implements PushStore
 {

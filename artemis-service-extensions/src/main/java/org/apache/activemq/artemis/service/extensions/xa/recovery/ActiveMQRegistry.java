@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.activemq.service.extensions.xa.recovery;
+package org.apache.activemq.artemis.service.extensions.xa.recovery;
 
 public interface ActiveMQRegistry
 {

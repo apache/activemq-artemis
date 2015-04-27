@@ -14,14 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.server.management;
+package org.apache.activemq.artemis.core.server.management;
 
-import org.apache.activemq.api.core.management.NotificationType;
-import org.apache.activemq.utils.TypedProperties;
+import org.apache.activemq.artemis.api.core.management.NotificationType;
+import org.apache.activemq.artemis.utils.TypedProperties;
 
 /**
  * A Notification
- * @see org.apache.activemq.core.server.management.NotificationListener
+ * @see org.apache.activemq.artemis.core.server.management.NotificationListener
  * @see NotificationType
  */
 public final class Notification

@@ -1,6 +1,6 @@
 # Security
 
-This chapter describes how security works with Apache ActiveMQ and how you can
+This chapter describes how security works with Apache ActiveMQ Artemis and how you can
 configure it. To disable security completely simply set the
 `security-enabled` property to false in the `activemq-configuration.xml`
 file.
@@ -12,15 +12,15 @@ is `10000` ms.
 
 ## Role based security for addresses
 
-Apache ActiveMQ contains a flexible role-based security model for applying
+Apache ActiveMQ Artemis contains a flexible role-based security model for applying
 security to queues, based on their addresses.
 
-As explained in [Using Core](using-core.md), Apache ActiveMQ core consists mainly of sets of queues bound
+As explained in [Using Core](using-core.md), Apache ActiveMQ Artemis core consists mainly of sets of queues bound
 to addresses. A message is sent to an address and the server looks up
 the set of queues that are bound to that address, the server then routes
 the message to those set of queues.
 
-Apache ActiveMQ allows sets of permissions to be defined against the queues
+Apache ActiveMQ Artemis allows sets of permissions to be defined against the queues
 based on their address. An exact match on the address can be used or a
 wildcard match can be used using the wildcard characters '`#`' and
 '`*`'.
@@ -83,7 +83,7 @@ these addresses or consume messages from queues bound to an address that
 starts with the string "globalqueues.europe."
 
 The mapping between a user and what roles they have is handled by the
-security manager. Apache ActiveMQ ships with a user manager that reads user
+security manager. Apache ActiveMQ Artemis ships with a user manager that reads user
 credentials from a file on disk, and can also plug into JAAS or JBoss
 Application Server security.
 
@@ -124,14 +124,14 @@ in sub-groups of addresses.
 
 When messaging clients are connected to servers, or servers are
 connected to other servers (e.g. via bridges) over an untrusted network
-then Apache ActiveMQ allows that traffic to be encrypted using the Secure
+then Apache ActiveMQ Artemis allows that traffic to be encrypted using the Secure
 Sockets Layer (SSL) transport.
 
 For more information on configuring the SSL transport, please see [Configuring the Transport](configuring-transports.md).
 
 ## Basic user credentials
 
-Apache ActiveMQ ships with a security manager implementation that reads user
+Apache ActiveMQ Artemis ships with a security manager implementation that reads user
 credentials, i.e. user names, passwords and role information from properties
 files on the classpath called `activemq-users.properties` and `activemq-roles.properties`. This is the default security manager.
 

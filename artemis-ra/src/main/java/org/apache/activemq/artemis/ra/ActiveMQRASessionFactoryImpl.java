@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.ra;
+package org.apache.activemq.artemis.ra;
 
 import javax.jms.ConnectionConsumer;
 import javax.jms.ConnectionMetaData;
@@ -45,9 +45,9 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import org.apache.activemq.api.jms.ActiveMQJMSConstants;
-import org.apache.activemq.jms.client.ActiveMQConnectionForContext;
-import org.apache.activemq.jms.client.ActiveMQConnectionForContextImpl;
+import org.apache.activemq.artemis.api.jms.ActiveMQJMSConstants;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnectionForContext;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnectionForContextImpl;
 
 /**
  * Implements the JMS Connection API and produces {@link ActiveMQRASession} objects.
@@ -294,7 +294,7 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
          ActiveMQRALogger.LOGGER.trace("setClientID(" + cID + ")");
       }
 
-      throw new IllegalStateException(ActiveMQRASessionFactory.ISE);
+      throw new IllegalStateException(ISE);
    }
 
    /**
@@ -373,7 +373,7 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
                                          ")");
       }
 
-      throw new IllegalStateException(ActiveMQRASessionFactory.ISE);
+      throw new IllegalStateException(ISE);
    }
 
    /**
@@ -452,7 +452,7 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
                                          ")");
       }
 
-      throw new IllegalStateException(ActiveMQRASessionFactory.ISE);
+      throw new IllegalStateException(ISE);
    }
 
    /**
@@ -487,7 +487,7 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
                                          ")");
       }
 
-      throw new IllegalStateException(ActiveMQRASessionFactory.ISE);
+      throw new IllegalStateException(ISE);
    }
 
    /**
@@ -513,7 +513,7 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
                                          ")");
       }
 
-      throw new IllegalStateException(ActiveMQRASessionFactory.ISE);
+      throw new IllegalStateException(ISE);
    }
 
    /**
@@ -544,7 +544,7 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
                                          ")");
       }
 
-      throw new IllegalStateException(ActiveMQRASessionFactory.ISE);
+      throw new IllegalStateException(ISE);
    }
 
    /**
@@ -616,7 +616,7 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
          ActiveMQRALogger.LOGGER.trace("getExceptionListener()");
       }
 
-      throw new IllegalStateException(ActiveMQRASessionFactory.ISE);
+      throw new IllegalStateException(ISE);
    }
 
    /**
@@ -633,7 +633,7 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
          ActiveMQRALogger.LOGGER.trace("setExceptionListener(" + listener + ")");
       }
 
-      throw new IllegalStateException(ActiveMQRASessionFactory.ISE);
+      throw new IllegalStateException(ISE);
    }
 
    /**
@@ -679,7 +679,7 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
          ActiveMQRALogger.LOGGER.trace("stop() " + this);
       }
 
-      throw new IllegalStateException(ActiveMQRASessionFactory.ISE);
+      throw new IllegalStateException(ISE);
    }
 
    /**
@@ -838,7 +838,7 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
                                          messageSelector + ", " + sessionPool + ", " + maxMessages + ")");
       }
 
-      throw new IllegalStateException(ActiveMQRASessionFactory.ISE);
+      throw new IllegalStateException(ISE);
    }
 
    @Override
@@ -850,7 +850,7 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
                                          ", " + messageSelector + ", " + sessionPool + ", " + maxMessages + ")");
       }
 
-      throw new IllegalStateException(ActiveMQRASessionFactory.ISE);
+      throw new IllegalStateException(ISE);
    }
 
    /**

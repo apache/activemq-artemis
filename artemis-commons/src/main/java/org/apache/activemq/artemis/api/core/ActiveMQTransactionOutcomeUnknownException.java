@@ -14,9 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.api.core;
-
-import static org.apache.activemq.api.core.ActiveMQExceptionType.TRANSACTION_OUTCOME_UNKNOWN;
+package org.apache.activemq.artemis.api.core;
 
 /**
  * The outcome of a transaction is unknown.
@@ -27,11 +25,11 @@ public final class ActiveMQTransactionOutcomeUnknownException extends ActiveMQEx
 
    public ActiveMQTransactionOutcomeUnknownException()
    {
-      super(TRANSACTION_OUTCOME_UNKNOWN);
+      super(ActiveMQExceptionType.TRANSACTION_OUTCOME_UNKNOWN);
    }
 
    public ActiveMQTransactionOutcomeUnknownException(String msg)
    {
-      super(TRANSACTION_OUTCOME_UNKNOWN, msg);
+      super(ActiveMQExceptionType.TRANSACTION_OUTCOME_UNKNOWN, msg);
    }
 }

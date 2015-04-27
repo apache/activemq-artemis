@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
   Licensed to the Apache Software Foundation (ASF) under one or more
   contributor license agreements.  See the NOTICE file distributed with
@@ -17,9 +18,9 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
    <modelVersion>4.0.0</modelVersion>
    <groupId>org.apache.activemq</groupId>
-   <artifactId>activemq-pom</artifactId>
+   <artifactId>artemis-pom</artifactId>
    <packaging>pom</packaging>
-   <version>10.0.0-SNAPSHOT</version>
+   <version>1.0.0-SNAPSHOT</version>
 
    <parent>
       <groupId>org.apache</groupId>
@@ -29,9 +30,9 @@
    </parent>
 
    <modules>
-      <module>activemq-protocols</module>
-      <module>activemq-dto</module>
-      <module>activemq-boot</module>
+      <module>artemis-protocols</module>
+      <module>artemis-dto</module>
+      <module>artemis-boot</module>
    </modules>
 
    <name>ActiveMQ Artemis Parent</name>
@@ -54,7 +55,7 @@
       <staging.siteURL>scp://people.apache.org/x1/www/activemq.apache.org</staging.siteURL>
       <netty.version>4.0.20.Final</netty.version>
       <activemq.version.versionName>${project.version}</activemq.version.versionName>
-      <activemq.version.majorVersion>6</activemq.version.majorVersion>
+      <activemq.version.majorVersion>1</activemq.version.majorVersion>
       <activemq.version.minorVersion>0</activemq.version.minorVersion>
       <activemq.version.microVersion>0</activemq.version.microVersion>
       <activemq.version.incrementingVersion>126,125,124,123,122</activemq.version.incrementingVersion>
@@ -81,7 +82,7 @@
 
        note for idea users:
        Idea picks up surefire argline by default:
-       if You don't want it, you can add -Didea.maven.surefire.disable.argLine=true to idea.vmoptions files, 
+       if You don't want it, you can add -Didea.maven.surefire.disable.argLine=true to idea.vmoptions files,
        see https://intellij-support.jetbrains.com/entries/23395793
 
        Also see: http://youtrack.jetbrains.com/issue/IDEA-125696
@@ -91,7 +92,7 @@
            -XX:+UnlockCommercialFeatures -XX:+FlightRecorder -XX:StartFlightRecording=delay=30s,duration=120s,filename=/tmp/myrecording.jfr
 
       -->
- 
+
       <activemq-surefire-argline>-Djava.util.logging.manager=org.jboss.logmanager.LogManager
          -Dlogging.configuration=file:${activemq.basedir}/tests/config/logging.properties
          -Djava.library.path=${activemq.basedir}/activemq-native/bin/ -Djgroups.bind_addr=localhost
@@ -484,23 +485,23 @@
             <activeByDefault>true</activeByDefault>
          </activation>
          <modules>
-            <module>activemq-dto</module>
-            <module>activemq-web</module>
-            <module>activemq-website</module>
-            <module>activemq-bootstrap</module>
-            <module>activemq-commons</module>
-            <module>activemq-selector</module>
-            <module>activemq-core-client</module>
-            <module>activemq-server</module>
-            <module>activemq-jms-client</module>
-            <module>activemq-jms-server</module>
-            <module>activemq-native</module>
-            <module>activemq-journal</module>
-            <module>activemq-ra</module>
-            <module>activemq-rest</module>
-            <module>activemq-tools</module>
-            <module>activemq-service-extensions</module>
-            <module>activemq-maven-plugin</module>
+            <module>artemis-dto</module>
+            <module>artemis-web</module>
+            <module>artemis-website</module>
+            <module>artemis-bootstrap</module>
+            <module>artemis-commons</module>
+            <module>artemis-selector</module>
+            <module>artemis-core-client</module>
+            <module>artemis-server</module>
+            <module>artemis-jms-client</module>
+            <module>artemis-jms-server</module>
+            <module>artemis-native</module>
+            <module>artemis-journal</module>
+            <module>artemis-ra</module>
+            <module>artemis-rest</module>
+            <module>artemis-tools</module>
+            <module>artemis-service-extensions</module>
+            <module>artemis-maven-plugin</module>
             <module>integration/activemq-spring-integration</module>
             <module>integration/activemq-aerogear-integration</module>
             <module>integration/activemq-vertx-integration</module>
@@ -511,23 +512,23 @@
       <profile>
          <id>release</id>
          <modules>
-            <module>activemq-dto</module>
-            <module>activemq-web</module>
-            <module>activemq-website</module>
-            <module>activemq-bootstrap</module>
-            <module>activemq-commons</module>
-            <module>activemq-selector</module>
-            <module>activemq-core-client</module>
-            <module>activemq-server</module>
-            <module>activemq-jms-client</module>
-            <module>activemq-jms-server</module>
-            <module>activemq-native</module>
-            <module>activemq-journal</module>
-            <module>activemq-ra</module>
-            <module>activemq-rest</module>
-            <module>activemq-tools</module>
-            <module>activemq-service-extensions</module>
-            <module>activemq-maven-plugin</module>
+            <module>artemis-dto</module>
+            <module>artemis-web</module>
+            <module>artemis-website</module>
+            <module>artemis-bootstrap</module>
+            <module>artemis-commons</module>
+            <module>artemis-selector</module>
+            <module>artemis-core-client</module>
+            <module>artemis-server</module>
+            <module>artemis-jms-client</module>
+            <module>artemis-jms-server</module>
+            <module>artemis-native</module>
+            <module>artemis-journal</module>
+            <module>artemis-ra</module>
+            <module>artemis-rest</module>
+            <module>artemis-tools</module>
+            <module>artemis-service-extensions</module>
+            <module>artemis-maven-plugin</module>
             <module>integration/activemq-spring-integration</module>
             <module>integration/activemq-aerogear-integration</module>
             <module>integration/activemq-vertx-integration</module>
@@ -541,23 +542,23 @@
                Running this entire build could take up to 2 hours -->
          <id>tests</id>
          <modules>
-            <module>activemq-dto</module>
-            <module>activemq-web</module>
-            <module>activemq-website</module>
-            <module>activemq-bootstrap</module>
-            <module>activemq-commons</module>
-            <module>activemq-selector</module>
-            <module>activemq-core-client</module>
-            <module>activemq-server</module>
-            <module>activemq-jms-client</module>
-            <module>activemq-jms-server</module>
-            <module>activemq-native</module>
-            <module>activemq-journal</module>
-            <module>activemq-ra</module>
-            <module>activemq-rest</module>
-            <module>activemq-tools</module>
-            <module>activemq-service-extensions</module>
-            <module>activemq-maven-plugin</module>
+            <module>artemis-dto</module>
+            <module>artemis-web</module>
+            <module>artemis-website</module>
+            <module>artemis-bootstrap</module>
+            <module>artemis-commons</module>
+            <module>artemis-selector</module>
+            <module>artemis-core-client</module>
+            <module>artemis-server</module>
+            <module>artemis-jms-client</module>
+            <module>artemis-jms-server</module>
+            <module>artemis-native</module>
+            <module>artemis-journal</module>
+            <module>artemis-ra</module>
+            <module>artemis-rest</module>
+            <module>artemis-tools</module>
+            <module>artemis-service-extensions</module>
+            <module>artemis-maven-plugin</module>
             <module>integration/activemq-spring-integration</module>
             <module>integration/activemq-aerogear-integration</module>
             <module>integration/activemq-vertx-integration</module>
@@ -582,22 +583,22 @@
               This is used on PR checks on the Jenkins instance at build.apache.org -->
          <id>fast-tests</id>
          <modules>
-            <module>activemq-dto</module>
-            <module>activemq-web</module>
-            <module>activemq-bootstrap</module>
-            <module>activemq-commons</module>
-            <module>activemq-selector</module>
-            <module>activemq-core-client</module>
-            <module>activemq-server</module>
-            <module>activemq-jms-client</module>
-            <module>activemq-jms-server</module>
-            <module>activemq-native</module>
-            <module>activemq-journal</module>
-            <module>activemq-ra</module>
-            <module>activemq-rest</module>
-            <module>activemq-tools</module>
-            <module>activemq-service-extensions</module>
-            <module>activemq-maven-plugin</module>
+            <module>artemis-dto</module>
+            <module>artemis-web</module>
+            <module>artemis-bootstrap</module>
+            <module>artemis-commons</module>
+            <module>artemis-selector</module>
+            <module>artemis-core-client</module>
+            <module>artemis-server</module>
+            <module>artemis-jms-client</module>
+            <module>artemis-jms-server</module>
+            <module>artemis-native</module>
+            <module>artemis-journal</module>
+            <module>artemis-ra</module>
+            <module>artemis-rest</module>
+            <module>artemis-tools</module>
+            <module>artemis-service-extensions</module>
+            <module>artemis-maven-plugin</module>
             <module>integration/activemq-spring-integration</module>
             <module>integration/activemq-aerogear-integration</module>
             <module>integration/activemq-vertx-integration</module>
@@ -616,22 +617,22 @@
       <profile>
          <id>examples</id>
          <modules>
-            <module>activemq-dto</module>
-            <module>activemq-web</module>
-            <module>activemq-bootstrap</module>
-            <module>activemq-commons</module>
-            <module>activemq-selector</module>
-            <module>activemq-core-client</module>
-            <module>activemq-server</module>
-            <module>activemq-jms-client</module>
-            <module>activemq-jms-server</module>
-            <module>activemq-native</module>
-            <module>activemq-journal</module>
-            <module>activemq-ra</module>
-            <module>activemq-rest</module>
-            <module>activemq-tools</module>
-            <module>activemq-service-extensions</module>
-            <module>activemq-maven-plugin</module>
+            <module>artemis-dto</module>
+            <module>artemis-web</module>
+            <module>artemis-bootstrap</module>
+            <module>artemis-commons</module>
+            <module>artemis-selector</module>
+            <module>artemis-core-client</module>
+            <module>artemis-server</module>
+            <module>artemis-jms-client</module>
+            <module>artemis-jms-server</module>
+            <module>artemis-native</module>
+            <module>artemis-journal</module>
+            <module>artemis-ra</module>
+            <module>artemis-rest</module>
+            <module>artemis-tools</module>
+            <module>artemis-service-extensions</module>
+            <module>artemis-maven-plugin</module>
             <module>integration/activemq-spring-integration</module>
             <module>integration/activemq-aerogear-integration</module>
             <module>integration/activemq-vertx-integration</module>
@@ -673,7 +674,7 @@
             <plugin>
                <groupId>org.apache.maven.plugins</groupId>
                <artifactId>maven-javadoc-plugin</artifactId>
-               
+
                <version>2.9</version>
             </plugin>
             <plugin>
@@ -792,7 +793,7 @@
             <!-- Many examples use it -->
             <plugin>
                <groupId>org.apache.activemq</groupId>
-               <artifactId>activemq-maven-plugin</artifactId>
+               <artifactId>artemis-maven-plugin</artifactId>
                <version>${project.version}</version>
             </plugin>
          </plugins>

@@ -14,10 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.config.impl;
+package org.apache.activemq.artemis.core.config.impl;
 
-import org.apache.activemq.utils.PasswordMaskingUtil;
-import org.apache.activemq.utils.SensitiveDataCodec;
+import org.apache.activemq.artemis.utils.PasswordMaskingUtil;
+import org.apache.activemq.artemis.utils.SensitiveDataCodec;
 
 import java.net.URL;
 import java.util.Properties;

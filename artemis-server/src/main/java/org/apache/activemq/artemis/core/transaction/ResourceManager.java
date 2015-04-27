@@ -14,14 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.transaction;
+package org.apache.activemq.artemis.core.transaction;
 
 import java.util.List;
 import java.util.Map;
 
 import javax.transaction.xa.Xid;
 
-import org.apache.activemq.core.server.ActiveMQComponent;
+import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 
 public interface ResourceManager extends ActiveMQComponent
 {

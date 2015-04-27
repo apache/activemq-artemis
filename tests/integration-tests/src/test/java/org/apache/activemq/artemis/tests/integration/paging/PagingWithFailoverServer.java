@@ -14,10 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.paging;
+package org.apache.activemq.artemis.tests.integration.paging;
 
-import org.apache.activemq.core.server.ActiveMQServer;
-import org.apache.activemq.tests.util.SpawnedVMSupport;
+import org.apache.activemq.artemis.tests.util.SpawnedVMSupport;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
 
 public class PagingWithFailoverServer extends SpawnedServerSupport
 {

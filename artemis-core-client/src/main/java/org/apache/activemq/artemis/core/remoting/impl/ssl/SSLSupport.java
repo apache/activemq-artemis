@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.remoting.impl.ssl;
+package org.apache.activemq.artemis.core.remoting.impl.ssl;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,7 +32,7 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 
-import org.apache.activemq.utils.ClassloadingUtil;
+import org.apache.activemq.artemis.utils.ClassloadingUtil;
 
 /**
  * Please note, this class supports PKCS#11 keystores, but there are no specific tests in the ActiveMQ test-suite to

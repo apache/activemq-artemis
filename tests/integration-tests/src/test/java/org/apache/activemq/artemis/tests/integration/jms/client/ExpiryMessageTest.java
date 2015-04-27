@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.jms.client;
+package org.apache.activemq.artemis.tests.integration.jms.client;
 
 import javax.jms.Connection;
 import javax.jms.MessageProducer;
@@ -22,10 +22,10 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.jms.Topic;
 
-import org.apache.activemq.api.jms.management.TopicControl;
-import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.tests.integration.management.ManagementControlHelper;
-import org.apache.activemq.tests.util.JMSTestBase;
+import org.apache.activemq.artemis.api.jms.management.TopicControl;
+import org.apache.activemq.artemis.tests.integration.management.ManagementControlHelper;
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.tests.util.JMSTestBase;
 import org.junit.Test;
 
 public class ExpiryMessageTest extends JMSTestBase

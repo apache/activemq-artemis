@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.stress.journal;
+package org.apache.activemq.artemis.tests.stress.journal;
 
 
 public class AllPossibilitiesCompactStressTest extends MixupCompactorTestBase

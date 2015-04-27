@@ -14,10 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.config.impl;
+package org.apache.activemq.artemis.core.config.impl;
 
-import org.apache.activemq.core.security.User;
-import org.apache.activemq.core.server.ActiveMQMessageBundle;
+import org.apache.activemq.artemis.core.security.User;
+import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -111,7 +111,7 @@ public class SecurityConfiguration
       return defaultUser;
    }
 
-   public org.apache.activemq.core.security.User getUser(String username)
+   public org.apache.activemq.artemis.core.security.User getUser(String username)
    {
       return users.get(username);
    }

@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.performance.sends;
+package org.apache.activemq.artemis.tests.performance.sends;
 
 import javax.jms.Connection;
 import javax.jms.Message;

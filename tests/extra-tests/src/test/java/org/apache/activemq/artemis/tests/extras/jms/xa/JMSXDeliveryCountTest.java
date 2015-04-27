@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.extras.jms.xa;
+package org.apache.activemq.artemis.tests.extras.jms.xa;
 
 import javax.jms.Connection;
 import javax.jms.DeliveryMode;
@@ -38,8 +38,8 @@ import com.arjuna.ats.arjuna.coordinator.TransactionReaper;
 import com.arjuna.ats.arjuna.coordinator.TxControl;
 import com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionManagerImple;
 
-import org.apache.activemq.api.jms.ActiveMQJMSClient;
-import org.apache.activemq.tests.util.JMSTestBase;
+import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
+import org.apache.activemq.artemis.tests.util.JMSTestBase;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;

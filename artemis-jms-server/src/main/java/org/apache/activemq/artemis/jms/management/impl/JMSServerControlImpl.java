@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.jms.management.impl;
+package org.apache.activemq.artemis.jms.management.impl;
 
 import javax.jms.JMSRuntimeException;
 import javax.management.ListenerNotFoundException;
@@ -33,32 +33,32 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.apache.activemq.api.core.client.ClientSession;
-import org.apache.activemq.api.core.management.Parameter;
-import org.apache.activemq.api.jms.JMSFactoryType;
-import org.apache.activemq.api.jms.management.ConnectionFactoryControl;
-import org.apache.activemq.api.jms.management.DestinationControl;
-import org.apache.activemq.api.jms.management.JMSQueueControl;
-import org.apache.activemq.api.jms.management.JMSServerControl;
-import org.apache.activemq.api.jms.management.TopicControl;
-import org.apache.activemq.core.filter.Filter;
-import org.apache.activemq.core.management.impl.AbstractControl;
-import org.apache.activemq.core.management.impl.MBeanInfoHelper;
-import org.apache.activemq.core.server.ServerConsumer;
-import org.apache.activemq.core.server.ServerSession;
-import org.apache.activemq.jms.client.ActiveMQDestination;
-import org.apache.activemq.jms.server.ActiveMQJMSServerLogger;
-import org.apache.activemq.jms.server.JMSServerManager;
-import org.apache.activemq.jms.server.config.ConnectionFactoryConfiguration;
-import org.apache.activemq.jms.server.config.impl.ConnectionFactoryConfigurationImpl;
-import org.apache.activemq.jms.server.management.JMSNotificationType;
-import org.apache.activemq.spi.core.protocol.RemotingConnection;
-import org.apache.activemq.utils.TypedProperties;
-import org.apache.activemq.utils.json.JSONArray;
-import org.apache.activemq.utils.json.JSONObject;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.api.core.management.Parameter;
+import org.apache.activemq.artemis.api.jms.JMSFactoryType;
+import org.apache.activemq.artemis.api.jms.management.ConnectionFactoryControl;
+import org.apache.activemq.artemis.api.jms.management.DestinationControl;
+import org.apache.activemq.artemis.api.jms.management.JMSQueueControl;
+import org.apache.activemq.artemis.api.jms.management.JMSServerControl;
+import org.apache.activemq.artemis.api.jms.management.TopicControl;
+import org.apache.activemq.artemis.core.filter.Filter;
+import org.apache.activemq.artemis.core.management.impl.AbstractControl;
+import org.apache.activemq.artemis.core.management.impl.MBeanInfoHelper;
+import org.apache.activemq.artemis.core.server.ServerConsumer;
+import org.apache.activemq.artemis.core.server.ServerSession;
+import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
+import org.apache.activemq.artemis.jms.server.ActiveMQJMSServerLogger;
+import org.apache.activemq.artemis.jms.server.JMSServerManager;
+import org.apache.activemq.artemis.jms.server.config.ConnectionFactoryConfiguration;
+import org.apache.activemq.artemis.jms.server.config.impl.ConnectionFactoryConfigurationImpl;
+import org.apache.activemq.artemis.jms.server.management.JMSNotificationType;
+import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.artemis.utils.TypedProperties;
+import org.apache.activemq.artemis.utils.json.JSONArray;
+import org.apache.activemq.artemis.utils.json.JSONObject;
 
 public class JMSServerControlImpl extends AbstractControl implements JMSServerControl, NotificationEmitter,
-                                                                     org.apache.activemq.core.server.management.NotificationListener
+                                                                     org.apache.activemq.artemis.core.server.management.NotificationListener
 {
 
    // Constants -----------------------------------------------------
@@ -891,7 +891,7 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
 
    // Protected -----------------------------------------------------
    /* (non-Javadoc)
-    * @see org.apache.activemq.core.management.impl.AbstractControl#fillMBeanOperationInfo()
+    * @see org.apache.activemq.artemis.core.management.impl.AbstractControl#fillMBeanOperationInfo()
     */
    @Override
    protected MBeanOperationInfo[] fillMBeanOperationInfo()
@@ -1041,7 +1041,7 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
    }
 
    @Override
-   public void onNotification(org.apache.activemq.core.server.management.Notification notification)
+   public void onNotification(org.apache.activemq.artemis.core.server.management.Notification notification)
    {
       if (!(notification.getType() instanceof JMSNotificationType)) return;
       JMSNotificationType type = (JMSNotificationType) notification.getType();

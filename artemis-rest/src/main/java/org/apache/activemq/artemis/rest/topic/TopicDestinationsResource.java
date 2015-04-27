@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.rest.topic;
+package org.apache.activemq.artemis.rest.topic;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -29,18 +29,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.activemq.api.core.ActiveMQException;
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.api.core.client.ClientSession;
-import org.apache.activemq.jms.client.ActiveMQDestination;
-import org.apache.activemq.jms.client.ActiveMQTopic;
-import org.apache.activemq.jms.server.config.TopicConfiguration;
-import org.apache.activemq.jms.server.config.impl.FileJMSConfiguration;
-import org.apache.activemq.rest.ActiveMQRestLogger;
-import org.apache.activemq.rest.queue.DestinationSettings;
-import org.apache.activemq.rest.queue.PostMessage;
-import org.apache.activemq.rest.queue.PostMessageDupsOk;
-import org.apache.activemq.rest.queue.PostMessageNoDups;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.rest.queue.DestinationSettings;
+import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
+import org.apache.activemq.artemis.jms.client.ActiveMQTopic;
+import org.apache.activemq.artemis.jms.server.config.TopicConfiguration;
+import org.apache.activemq.artemis.jms.server.config.impl.FileJMSConfiguration;
+import org.apache.activemq.artemis.rest.ActiveMQRestLogger;
+import org.apache.activemq.artemis.rest.queue.PostMessage;
+import org.apache.activemq.artemis.rest.queue.PostMessageDupsOk;
+import org.apache.activemq.artemis.rest.queue.PostMessageNoDups;
 import org.w3c.dom.Document;
 
 @Path("/topics")

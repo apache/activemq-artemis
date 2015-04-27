@@ -14,13 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.journal;
+package org.apache.activemq.artemis.tests.integration.journal;
 import java.nio.ByteBuffer;
 
-import org.apache.activemq.core.journal.SequentialFile;
-import org.apache.activemq.core.journal.SequentialFileFactory;
-import org.apache.activemq.core.journal.impl.AIOSequentialFileFactory;
-import org.apache.activemq.tests.unit.core.journal.impl.SequentialFileFactoryTestBase;
+import org.apache.activemq.artemis.tests.unit.core.journal.impl.SequentialFileFactoryTestBase;
+import org.apache.activemq.artemis.core.journal.SequentialFile;
+import org.apache.activemq.artemis.core.journal.SequentialFileFactory;
+import org.apache.activemq.artemis.core.journal.impl.AIOSequentialFileFactory;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;

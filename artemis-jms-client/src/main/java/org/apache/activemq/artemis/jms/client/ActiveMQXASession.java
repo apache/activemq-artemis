@@ -14,12 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.jms.client;
+package org.apache.activemq.artemis.jms.client;
 
 import javax.jms.XAQueueSession;
 import javax.jms.XATopicSession;
 
-import org.apache.activemq.api.core.client.ClientSession;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
 
 public class ActiveMQXASession extends ActiveMQSession implements XAQueueSession, XATopicSession
 {

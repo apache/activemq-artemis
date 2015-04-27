@@ -15,13 +15,13 @@
  * limitations under the License.
  */
 
-package org.apache.activemq.spi.core.protocol;
+package org.apache.activemq.artemis.spi.core.protocol;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import org.apache.activemq.api.core.BaseInterceptor;
+import org.apache.activemq.artemis.api.core.BaseInterceptor;
 
 public abstract class AbstractProtocolManagerFactory<P extends BaseInterceptor> implements ProtocolManagerFactory<P>
 {

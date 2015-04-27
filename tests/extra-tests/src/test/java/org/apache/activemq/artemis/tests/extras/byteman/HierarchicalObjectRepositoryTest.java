@@ -14,14 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.extras.byteman;
+package org.apache.activemq.artemis.tests.extras.byteman;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq.core.settings.impl.HierarchicalObjectRepository;
+import org.apache.activemq.artemis.core.settings.impl.HierarchicalObjectRepository;
 import org.jboss.byteman.contrib.bmunit.BMRule;
 import org.jboss.byteman.contrib.bmunit.BMRules;
 import org.jboss.byteman.contrib.bmunit.BMUnitRunner;
@@ -33,7 +33,7 @@ import org.junit.runner.RunWith;
 
 @RunWith(BMUnitRunner.class)
 @BMRules(rules = { @BMRule(name = "modify map during iteration",
-         targetClass = "org.apache.activemq.core.settings.impl.HierarchicalObjectRepository",
+         targetClass = "org.apache.activemq.artemis.core.settings.impl.HierarchicalObjectRepository",
          targetMethod = "getPossibleMatches(String)", targetLocation = "AT INVOKE java.util.HashMap.put",
          action = "org.apache.activemq.tests.extras.byteman.HierarchicalObjectRepositoryTest.bum()"), })
 public class HierarchicalObjectRepositoryTest

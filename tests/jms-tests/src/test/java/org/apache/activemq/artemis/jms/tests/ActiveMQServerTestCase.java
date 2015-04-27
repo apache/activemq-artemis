@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.jms.tests;
+package org.apache.activemq.artemis.jms.tests;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -36,16 +36,16 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.api.jms.JMSFactoryType;
-import org.apache.activemq.core.postoffice.Binding;
-import org.apache.activemq.core.postoffice.impl.LocalQueueBinding;
-import org.apache.activemq.core.security.Role;
-import org.apache.activemq.core.server.ActiveMQServer;
-import org.apache.activemq.jms.server.JMSServerManager;
-import org.apache.activemq.jms.tests.tools.ServerManagement;
-import org.apache.activemq.jms.tests.tools.container.Server;
-import org.apache.activemq.jms.tests.util.ProxyAssertSupport;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.jms.JMSFactoryType;
+import org.apache.activemq.artemis.core.postoffice.Binding;
+import org.apache.activemq.artemis.core.postoffice.impl.LocalQueueBinding;
+import org.apache.activemq.artemis.core.security.Role;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.jms.server.JMSServerManager;
+import org.apache.activemq.artemis.jms.tests.tools.ServerManagement;
+import org.apache.activemq.artemis.jms.tests.tools.container.Server;
+import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -185,7 +185,7 @@ public abstract class ActiveMQServerTestCase
 
    public String getContextFactory()
    {
-      return org.apache.activemq.jms.tests.tools.container.InVMInitialContextFactory.class.getCanonicalName();
+      return org.apache.activemq.artemis.jms.tests.tools.container.InVMInitialContextFactory.class.getCanonicalName();
    }
 
    public void start() throws Exception

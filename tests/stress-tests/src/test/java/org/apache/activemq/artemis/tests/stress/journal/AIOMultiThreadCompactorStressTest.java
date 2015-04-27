@@ -14,10 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.stress.journal;
+package org.apache.activemq.artemis.tests.stress.journal;
 
-import org.apache.activemq.core.journal.impl.AIOSequentialFileFactory;
-import org.apache.activemq.core.server.JournalType;
+import org.apache.activemq.artemis.core.journal.impl.AIOSequentialFileFactory;
+import org.apache.activemq.artemis.core.server.JournalType;
 import org.junit.BeforeClass;
 
 public class AIOMultiThreadCompactorStressTest extends NIOMultiThreadCompactorStressTest

@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.utils.uri;
+package org.apache.activemq.artemis.utils.uri;
 
 import java.beans.PropertyDescriptor;
 import java.io.UnsupportedEncodingException;

@@ -14,16 +14,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.rest.queue;
+package org.apache.activemq.artemis.rest.queue;
 
-import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.ActiveMQClient;
-import org.apache.activemq.api.core.client.ServerLocator;
-import org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory;
-import org.apache.activemq.rest.util.LinkStrategy;
-import org.apache.activemq.rest.util.TimeoutTask;
-import org.apache.activemq.spi.core.naming.BindingRegistry;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
+import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory;
+import org.apache.activemq.artemis.rest.util.LinkStrategy;
+import org.apache.activemq.artemis.rest.util.TimeoutTask;
+import org.apache.activemq.artemis.spi.core.naming.BindingRegistry;
 
 public abstract class DestinationServiceManager
 {

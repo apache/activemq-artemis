@@ -14,19 +14,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.config.impl;
+package org.apache.activemq.artemis.core.config.impl;
 
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
-import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.config.FileDeploymentManager;
-import org.apache.activemq.core.deployers.impl.FileConfigurationParser;
-import org.apache.activemq.tests.util.UnitTestCase;
-import org.apache.activemq.utils.DefaultSensitiveStringCodec;
+import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.config.FileDeploymentManager;
+import org.apache.activemq.artemis.core.deployers.impl.FileConfigurationParser;
+import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.utils.DefaultSensitiveStringCodec;
 import org.junit.Test;
 
 public class FileConfigurationParserTest extends UnitTestCase
@@ -120,7 +120,7 @@ public class FileConfigurationParserTest extends UnitTestCase
 
       clusterPasswordPart = "<cluster-password>" + mask + "</cluster-password>";
 
-      String codecPart = "<password-codec>" + "org.apache.activemq.utils.DefaultSensitiveStringCodec" +
+      String codecPart = "<password-codec>" + "org.apache.activemq.artemis.utils.DefaultSensitiveStringCodec" +
          ";key=newkey</password-codec>";
 
       configStr = firstPart + clusterPasswordPart + maskPasswordPart + codecPart + lastPart;
@@ -133,7 +133,7 @@ public class FileConfigurationParserTest extends UnitTestCase
    private static String firstPart =
       "<core xmlns=\"urn:activemq:core\">" + "\n" +
          "<name>ActiveMQ.main.config</name>" + "\n" +
-         "<log-delegate-factory-class-name>org.apache.activemq.integration.logging.Log4jLogDelegateFactory</log-delegate-factory-class-name>" + "\n" +
+         "<log-delegate-factory-class-name>org.apache.activemq.artemis.integration.logging.Log4jLogDelegateFactory</log-delegate-factory-class-name>" + "\n" +
          "<bindings-directory>${jboss.server.data.dir}/activemq/bindings</bindings-directory>" + "\n" +
          "<journal-directory>${jboss.server.data.dir}/activemq/journal</journal-directory>" + "\n" +
          "<journal-min-files>10</journal-min-files>" + "\n" +

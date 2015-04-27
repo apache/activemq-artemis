@@ -14,11 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.jms.client;
+package org.apache.activemq.artemis.jms.client;
 
 import javax.jms.Topic;
 
-import org.apache.activemq.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.SimpleString;
 
 /**
  * ActiveMQ implementation of a JMS Topic.
@@ -34,7 +34,7 @@ public class ActiveMQTopic extends ActiveMQDestination implements Topic
 
    public static SimpleString createAddressFromName(final String name)
    {
-      return new SimpleString(ActiveMQDestination.JMS_TOPIC_ADDRESS_PREFIX + name);
+      return new SimpleString(JMS_TOPIC_ADDRESS_PREFIX + name);
    }
 
    // Attributes ----------------------------------------------------
@@ -43,7 +43,7 @@ public class ActiveMQTopic extends ActiveMQDestination implements Topic
 
    public ActiveMQTopic(final String name)
    {
-      super(ActiveMQDestination.JMS_TOPIC_ADDRESS_PREFIX + name, name, false, false, null);
+      super(JMS_TOPIC_ADDRESS_PREFIX + name, name, false, false, null);
    }
 
 

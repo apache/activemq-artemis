@@ -14,9 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.persistence.impl.journal;
+package org.apache.activemq.artemis.core.persistence.impl.journal;
 
-import org.apache.activemq.core.server.ServerMessage;
+import org.apache.activemq.artemis.core.server.ServerMessage;
 
 public final class AddMessageRecord
 {

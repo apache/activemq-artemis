@@ -14,9 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.paging.cursor.impl;
+package org.apache.activemq.artemis.core.paging.cursor.impl;
 
-import org.apache.activemq.core.paging.cursor.PagePosition;
+import org.apache.activemq.artemis.core.paging.cursor.PagePosition;
 
 public class PagePositionImpl implements PagePosition
 {

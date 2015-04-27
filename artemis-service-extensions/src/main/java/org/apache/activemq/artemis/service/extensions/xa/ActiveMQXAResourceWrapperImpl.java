@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.service.extensions.xa;
+package org.apache.activemq.artemis.service.extensions.xa;
 
 import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
@@ -46,12 +46,12 @@ public class ActiveMQXAResourceWrapperImpl implements ActiveMQXAResourceWrapper
    {
       this.xaResource = xaResource;
       //this.productName = ActiveMQResourceAdapter.PRODUCT_NAME;
-      this.productName = (String) properties.get(ActiveMQXAResourceWrapper.ACTIVEMQ_PRODUCT_NAME);
+      this.productName = (String) properties.get(ACTIVEMQ_PRODUCT_NAME);
       //this.productVersion = VersionLoader.getVersion().getFullVersion();
-      this.productVersion = (String) properties.get(ActiveMQXAResourceWrapper.ACTIVEMQ_PRODUCT_VERSION);
+      this.productVersion = (String) properties.get(ACTIVEMQ_PRODUCT_VERSION);
 
-      this.jndiNameNodeId = properties.get(ActiveMQXAResourceWrapper.ACTIVEMQ_JNDI_NAME) +
-         " NodeId:" + properties.get(ActiveMQXAResourceWrapper.ACTIVEMQ_NODE_ID);
+      this.jndiNameNodeId = properties.get(ACTIVEMQ_JNDI_NAME) +
+         " NodeId:" + properties.get(ACTIVEMQ_NODE_ID);
    }
 
    public XAResource getResource()

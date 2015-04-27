@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.list;
+package org.apache.activemq.artemis.core.list;
 import org.junit.Before;
 import org.junit.After;
 
@@ -23,8 +23,8 @@ import org.junit.Test;
 import org.junit.Assert;
 
 
-import org.apache.activemq.utils.LinkedListIterator;
-import org.apache.activemq.utils.PriorityLinkedListImpl;
+import org.apache.activemq.artemis.utils.LinkedListIterator;
+import org.apache.activemq.artemis.utils.PriorityLinkedListImpl;
 
 public final class PriorityLinkedListTest extends Assert
 {

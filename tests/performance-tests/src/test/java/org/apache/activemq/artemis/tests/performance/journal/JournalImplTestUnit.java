@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.performance.journal;
+package org.apache.activemq.artemis.tests.performance.journal;
 import org.junit.After;
 
 import org.junit.Test;
@@ -23,14 +23,14 @@ import java.util.ArrayList;
 
 import org.junit.Assert;
 
-import org.apache.activemq.core.asyncio.impl.AsynchronousFileImpl;
-import org.apache.activemq.core.journal.Journal;
-import org.apache.activemq.core.journal.PreparedTransactionInfo;
-import org.apache.activemq.core.journal.RecordInfo;
-import org.apache.activemq.core.journal.impl.JournalImpl;
-import org.apache.activemq.tests.unit.UnitTestLogger;
-import org.apache.activemq.tests.unit.core.journal.impl.JournalImplTestBase;
-import org.apache.activemq.tests.unit.core.journal.impl.fakes.SimpleEncoding;
+import org.apache.activemq.artemis.core.asyncio.impl.AsynchronousFileImpl;
+import org.apache.activemq.artemis.core.journal.Journal;
+import org.apache.activemq.artemis.core.journal.PreparedTransactionInfo;
+import org.apache.activemq.artemis.core.journal.RecordInfo;
+import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
+import org.apache.activemq.artemis.tests.unit.UnitTestLogger;
+import org.apache.activemq.artemis.tests.unit.core.journal.impl.JournalImplTestBase;
+import org.apache.activemq.artemis.tests.unit.core.journal.impl.fakes.SimpleEncoding;
 
 public abstract class JournalImplTestUnit extends JournalImplTestBase
 {

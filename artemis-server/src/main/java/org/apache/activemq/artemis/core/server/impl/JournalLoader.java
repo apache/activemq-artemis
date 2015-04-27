@@ -14,23 +14,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.server.impl;
+package org.apache.activemq.artemis.core.server.impl;
 
 import javax.transaction.xa.Xid;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.activemq.api.core.Pair;
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.core.journal.Journal;
-import org.apache.activemq.core.persistence.GroupingInfo;
-import org.apache.activemq.core.persistence.QueueBindingInfo;
-import org.apache.activemq.core.persistence.impl.PageCountPending;
-import org.apache.activemq.core.persistence.impl.journal.AddMessageRecord;
-import org.apache.activemq.core.server.MessageReference;
-import org.apache.activemq.core.server.ServerMessage;
-import org.apache.activemq.core.transaction.ResourceManager;
-import org.apache.activemq.core.transaction.Transaction;
+import org.apache.activemq.artemis.api.core.Pair;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.journal.Journal;
+import org.apache.activemq.artemis.core.persistence.GroupingInfo;
+import org.apache.activemq.artemis.core.persistence.QueueBindingInfo;
+import org.apache.activemq.artemis.core.persistence.impl.PageCountPending;
+import org.apache.activemq.artemis.core.persistence.impl.journal.AddMessageRecord;
+import org.apache.activemq.artemis.core.server.MessageReference;
+import org.apache.activemq.artemis.core.server.ServerMessage;
+import org.apache.activemq.artemis.core.transaction.ResourceManager;
+import org.apache.activemq.artemis.core.transaction.Transaction;
 
 public interface JournalLoader
 {

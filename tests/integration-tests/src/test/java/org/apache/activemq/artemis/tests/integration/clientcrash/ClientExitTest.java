@@ -14,25 +14,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.clientcrash;
+package org.apache.activemq.artemis.tests.integration.clientcrash;
 import org.junit.Before;
 
 import org.junit.Test;
 
-import org.junit.Assert;
-
-import org.apache.activemq.api.core.Message;
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.core.client.ClientConsumer;
-import org.apache.activemq.api.core.client.ClientSession;
-import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.ActiveMQClient;
-import org.apache.activemq.api.core.client.ServerLocator;
-import org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory;
-import org.apache.activemq.tests.integration.IntegrationTestLogger;
-import org.apache.activemq.tests.util.RandomUtil;
-import org.apache.activemq.tests.util.SpawnedVMSupport;
+import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.client.ClientConsumer;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
+import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory;
+import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
+import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.tests.util.SpawnedVMSupport;
 
 /**
  * A test that makes sure that a ActiveMQ client gracefully exists after the last session is
@@ -75,15 +73,15 @@ public class ClientExitTest extends ClientTestBase
 
       Message message = consumer.receive(15000);
 
-      Assert.assertNotNull(message);
-      Assert.assertEquals(ClientExitTest.MESSAGE_TEXT, message.getBodyBuffer().readString());
+      assertNotNull(message);
+      assertEquals(ClientExitTest.MESSAGE_TEXT, message.getBodyBuffer().readString());
 
       // the client VM should exit by itself. If it doesn't, that means we have a problem
       // and the test will timeout
       ClientExitTest.log.debug("waiting for the client VM to exit ...");
       p.waitFor();
 
-      Assert.assertEquals(0, p.exitValue());
+      assertEquals(0, p.exitValue());
 
       // FIXME https://jira.jboss.org/jira/browse/JBMESSAGING-1421
       // Thread.sleep(1000);

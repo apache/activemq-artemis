@@ -1,24 +1,24 @@
 # Preface
 
-What is Apache ActiveMQ?
+What is Apache ActiveMQ Artemis?
 
--   Apache ActiveMQ is an open source project to build a multi-protocol,
+-   Apache ActiveMQ Artemis is an open source project to build a multi-protocol,
     embeddable, very high performance, clustered, asynchronous messaging
     system.
 
--   Apache ActiveMQ is an example of Message Oriented Middleware (MoM). For a
+-   Apache ActiveMQ Artemis is an example of Message Oriented Middleware (MoM). For a
     description of MoMs and other messaging concepts please see the [Messaging Concepts](messaging-concepts.md).
 
--   For answers to more questions about what Apache ActiveMQ is and what it
+-   For answers to more questions about what Apache ActiveMQ Artemis is and what it
     isn't please visit the [FAQs wiki
     page](todo).
 
-Why use Apache ActiveMQ? Here are just a few of the reasons:
+Why use Apache ActiveMQ Artemis? Here are just a few of the reasons:
 
--   100% open source software. Apache ActiveMQ is licensed using the Apache
+-   100% open source software. Apache ActiveMQ Artemis is licensed using the Apache
     Software License v 2.0 to minimise barriers to adoption.
 
--   Apache ActiveMQ is designed with usability in mind.
+-   Apache ActiveMQ Artemis is designed with usability in mind.
 
 -   Written in Java. Runs on any platform with a Java 8+ runtime, that's
     everything from Windows desktops to IBM mainframes.

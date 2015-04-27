@@ -14,14 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.paging;
+package org.apache.activemq.artemis.core.paging;
 
-import org.apache.activemq.core.journal.EncodingSupport;
-import org.apache.activemq.core.paging.cursor.PageIterator;
-import org.apache.activemq.core.paging.cursor.PagePosition;
-import org.apache.activemq.core.paging.cursor.PageSubscription;
-import org.apache.activemq.core.persistence.StorageManager;
-import org.apache.activemq.core.transaction.Transaction;
+import org.apache.activemq.artemis.core.journal.EncodingSupport;
+import org.apache.activemq.artemis.core.paging.cursor.PageIterator;
+import org.apache.activemq.artemis.core.paging.cursor.PagePosition;
+import org.apache.activemq.artemis.core.paging.cursor.PageSubscription;
+import org.apache.activemq.artemis.core.persistence.StorageManager;
+import org.apache.activemq.artemis.core.transaction.Transaction;
 
 public interface PageTransactionInfo extends EncodingSupport
 {

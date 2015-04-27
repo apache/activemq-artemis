@@ -6,9 +6,9 @@ rem regarding copyright ownership.  The ASF licenses this file
 rem to you under the Apache License, Version 2.0 (the
 rem "License"); you may not use this file except in compliance
 rem with the License.  You may obtain a copy of the License at
-rem 
+rem
 rem   http://www.apache.org/licenses/LICENSE-2.0
-rem 
+rem
 rem Unless required by applicable law or agreed to in writing,
 rem software distributed under the License is distributed on an
 rem "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -53,11 +53,11 @@ set JAVA_ARGS=-XX:+UseParallelGC -XX:+AggressiveOpts -XX:+UseFastAccessorMethods
 rem "Create full JVM Args"
 set JVM_ARGS=%JAVA_ARGS%
 if not "%ACTIVEMQ_CLUSTER_PROPS%"=="" set JVM_ARGS=%JVM_ARGS% %ACTIVEMQ_CLUSTER_PROPS%
-set JVM_ARGS=%JVM_ARGS% -classpath "%ACTIVEMQ_HOME%\lib\activemq-boot.jar"
+set JVM_ARGS=%JVM_ARGS% -classpath "%ACTIVEMQ_HOME%\lib\artemis-boot.jar"
 set JVM_ARGS=%JVM_ARGS% -Dactivemq.home="%ACTIVEMQ_HOME%"
 if not "%DEBUG_ARGS%"=="" set JVM_ARGS=%JVM_ARGS% %DEBUG_ARGS%
 
-"%_JAVACMD%" %JVM_ARGS% org.apache.activemq.boot.ActiveMQ %*
+"%_JAVACMD%" %JVM_ARGS% org.apache.activemq.artemis.boot.ActiveMQ %*
 
 :END
 endlocal

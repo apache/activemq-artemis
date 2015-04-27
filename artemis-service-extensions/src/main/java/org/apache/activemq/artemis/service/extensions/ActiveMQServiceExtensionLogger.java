@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.activemq.service.extensions;
+package org.apache.activemq.artemis.service.extensions;
 
 import org.jboss.logging.BasicLogger;
 import org.jboss.logging.Logger;

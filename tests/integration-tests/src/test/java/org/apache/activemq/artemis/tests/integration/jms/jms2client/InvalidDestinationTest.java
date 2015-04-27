@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.jms.jms2client;
+package org.apache.activemq.artemis.tests.integration.jms.jms2client;
 
 import javax.jms.Connection;
 import javax.jms.Destination;
@@ -30,7 +30,7 @@ import javax.jms.Topic;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.activemq.tests.util.JMSTestBase;
+import org.apache.activemq.artemis.tests.util.JMSTestBase;
 import org.junit.Before;
 import org.junit.Test;
 

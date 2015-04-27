@@ -14,9 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.api.core;
-
-import static org.apache.activemq.api.core.ActiveMQExceptionType.DUPLICATE_METADATA;
+package org.apache.activemq.artemis.api.core;
 
 /**
  * A Session Metadata was set in duplication
@@ -27,11 +25,11 @@ public final class ActiveMQDuplicateMetaDataException extends ActiveMQException
 
    public ActiveMQDuplicateMetaDataException()
    {
-      super(DUPLICATE_METADATA);
+      super(ActiveMQExceptionType.DUPLICATE_METADATA);
    }
 
    public ActiveMQDuplicateMetaDataException(String msg)
    {
-      super(DUPLICATE_METADATA, msg);
+      super(ActiveMQExceptionType.DUPLICATE_METADATA, msg);
    }
 }

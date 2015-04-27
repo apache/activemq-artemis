@@ -14,10 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.api.config;
+package org.apache.activemq.artemis.api.config;
 
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.core.journal.impl.JournalConstants;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.journal.impl.JournalConstants;
 
 /**
  * Default values of ActiveMQ configuration parameters.
@@ -308,10 +308,6 @@ public final class ActiveMQDefaultConfiguration
 
    // Once the bridge has received this many bytes, it sends a confirmation
    private static int DEFAULT_BRIDGE_CONFIRMATION_WINDOW_SIZE = 1048576;
-
-   // Producer flow control is disabled by default on the bridge
-   // You probably need to enable this if you use lots of huge messages
-   private static int DEFAULT_BRIDGE_PRODUCER_WINDOW_SIZE = -1;
 
    // Upon reconnection this configures the number of time the same node on the topology will be retried before reseting the server locator and using the initial connectors
    private static int DEFAULT_BRIDGE_CONNECT_SAME_NODE = 10;
@@ -872,16 +868,6 @@ public final class ActiveMQDefaultConfiguration
    public static int getDefaultBridgeConfirmationWindowSize()
    {
       return DEFAULT_BRIDGE_CONFIRMATION_WINDOW_SIZE;
-   }
-
-
-   /**
-    * This default is used for both bridge and cluster connections (since they both translate to bridges) *
-    * @return
-    */
-   public static int getDefaultBridgeProducerWindowSize()
-   {
-      return DEFAULT_BRIDGE_PRODUCER_WINDOW_SIZE;
    }
 
    /**

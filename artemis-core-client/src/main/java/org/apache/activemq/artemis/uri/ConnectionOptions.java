@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.activemq.uri;
+package org.apache.activemq.artemis.uri;
 /**
  * This will represent all the possible options you could setup on URLs
  * When parsing the URL this will serve as an intermediate object

@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.transaction.impl;
+package org.apache.activemq.artemis.core.transaction.impl;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,9 +31,9 @@ import java.util.concurrent.TimeUnit;
 
 import javax.transaction.xa.Xid;
 
-import org.apache.activemq.core.server.ActiveMQServerLogger;
-import org.apache.activemq.core.transaction.ResourceManager;
-import org.apache.activemq.core.transaction.Transaction;
+import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.apache.activemq.artemis.core.transaction.ResourceManager;
+import org.apache.activemq.artemis.core.transaction.Transaction;
 
 public class ResourceManagerImpl implements ResourceManager
 {

@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.server.impl;
+package org.apache.activemq.artemis.core.server.impl;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -24,17 +24,17 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.apache.activemq.api.core.ActiveMQException;
-import org.apache.activemq.api.core.Pair;
-import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.core.client.TopologyMember;
-import org.apache.activemq.core.server.ActiveMQServerLogger;
-import org.apache.activemq.core.server.LiveNodeLocator;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.Pair;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.client.TopologyMember;
+import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.apache.activemq.artemis.core.server.LiveNodeLocator;
 
 /**
  * NamedLiveNodeLocatorForScaleDown looks for a live server in the cluster with a specific scaleDownGroupName
  *
- * @see org.apache.activemq.core.config.Configuration#getScaleDownGroupName()
+ * @see org.apache.activemq.artemis.core.config.Configuration#getScaleDownGroupName()
  */
 public class NamedLiveNodeLocatorForScaleDown extends LiveNodeLocator
 {

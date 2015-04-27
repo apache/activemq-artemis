@@ -14,16 +14,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.unit.util;
+package org.apache.activemq.artemis.tests.unit.util;
 
 import org.junit.Test;
 
 import org.junit.Assert;
 
-import org.apache.activemq.core.server.impl.MessageReferenceImpl;
-import org.apache.activemq.core.server.impl.ServerMessageImpl;
-import org.apache.activemq.tests.unit.UnitTestLogger;
-import org.apache.activemq.utils.MemorySize;
+import org.apache.activemq.artemis.core.server.impl.MessageReferenceImpl;
+import org.apache.activemq.artemis.core.server.impl.ServerMessageImpl;
+import org.apache.activemq.artemis.tests.unit.UnitTestLogger;
+import org.apache.activemq.artemis.utils.MemorySize;
 
 public class MemorySizeTest extends Assert
 {

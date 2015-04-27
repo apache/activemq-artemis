@@ -14,9 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.rest.queue;
+package org.apache.activemq.artemis.rest.queue;
 
-import org.apache.activemq.rest.ActiveMQRestLogger;
+import org.apache.activemq.artemis.rest.ActiveMQRestLogger;
 
 import javax.ws.rs.POST;
 import javax.ws.rs.core.Context;

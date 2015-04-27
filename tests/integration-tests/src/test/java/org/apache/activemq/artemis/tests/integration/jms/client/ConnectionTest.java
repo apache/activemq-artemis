@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.jms.client;
+package org.apache.activemq.artemis.tests.integration.jms.client;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -31,7 +31,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-import org.apache.activemq.tests.util.JMSTestBase;
+import org.apache.activemq.artemis.tests.util.JMSTestBase;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;

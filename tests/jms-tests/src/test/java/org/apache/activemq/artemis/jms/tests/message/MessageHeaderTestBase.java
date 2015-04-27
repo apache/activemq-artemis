@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.jms.tests.message;
+package org.apache.activemq.artemis.jms.tests.message;
 import java.util.Arrays;
 import java.util.Enumeration;
 
@@ -32,15 +32,15 @@ import javax.jms.Session;
 import javax.jms.StreamMessage;
 import javax.jms.TextMessage;
 
-import org.apache.activemq.api.jms.ActiveMQJMSClient;
-import org.apache.activemq.jms.client.ActiveMQBytesMessage;
-import org.apache.activemq.jms.client.ActiveMQMapMessage;
-import org.apache.activemq.jms.client.ActiveMQMessage;
-import org.apache.activemq.jms.client.ActiveMQObjectMessage;
-import org.apache.activemq.jms.client.ActiveMQStreamMessage;
-import org.apache.activemq.jms.client.ActiveMQTextMessage;
-import org.apache.activemq.jms.tests.ActiveMQServerTestCase;
-import org.apache.activemq.jms.tests.util.ProxyAssertSupport;
+import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
+import org.apache.activemq.artemis.jms.client.ActiveMQBytesMessage;
+import org.apache.activemq.artemis.jms.client.ActiveMQMapMessage;
+import org.apache.activemq.artemis.jms.client.ActiveMQMessage;
+import org.apache.activemq.artemis.jms.client.ActiveMQObjectMessage;
+import org.apache.activemq.artemis.jms.client.ActiveMQStreamMessage;
+import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
+import org.apache.activemq.artemis.jms.tests.ActiveMQServerTestCase;
+import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
 import org.junit.Before;
 
 public abstract class MessageHeaderTestBase extends ActiveMQServerTestCase

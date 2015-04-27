@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.activemq.uri;
+package org.apache.activemq.artemis.uri;
 
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.InvocationTargetException;
@@ -24,23 +24,23 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.activemq.api.core.BroadcastEndpointFactory;
-import org.apache.activemq.api.core.DiscoveryGroupConfiguration;
-import org.apache.activemq.api.core.JGroupsFileBroadcastEndpointFactory;
-import org.apache.activemq.api.core.JGroupsPropertiesBroadcastEndpointFactory;
-import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.core.UDPBroadcastEndpointFactory;
-import org.apache.activemq.api.jms.ActiveMQJMSClient;
-import org.apache.activemq.api.jms.JMSFactoryType;
-import org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory;
-import org.apache.activemq.core.remoting.impl.netty.TransportConstants;
-import org.apache.activemq.jms.client.ActiveMQConnectionFactory;
-import org.apache.activemq.jms.client.ActiveMQJMSConnectionFactory;
-import org.apache.activemq.jms.client.ActiveMQQueueConnectionFactory;
-import org.apache.activemq.jms.client.ActiveMQTopicConnectionFactory;
-import org.apache.activemq.jms.client.ActiveMQXAQueueConnectionFactory;
-import org.apache.activemq.jms.client.ActiveMQXATopicConnectionFactory;
-import org.apache.activemq.tests.util.RandomUtil;
+import org.apache.activemq.artemis.api.core.BroadcastEndpointFactory;
+import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
+import org.apache.activemq.artemis.api.core.JGroupsFileBroadcastEndpointFactory;
+import org.apache.activemq.artemis.api.core.JGroupsPropertiesBroadcastEndpointFactory;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory;
+import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
+import org.apache.activemq.artemis.api.jms.JMSFactoryType;
+import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory;
+import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.jms.client.ActiveMQJMSConnectionFactory;
+import org.apache.activemq.artemis.jms.client.ActiveMQQueueConnectionFactory;
+import org.apache.activemq.artemis.jms.client.ActiveMQTopicConnectionFactory;
+import org.apache.activemq.artemis.jms.client.ActiveMQXAQueueConnectionFactory;
+import org.apache.activemq.artemis.jms.client.ActiveMQXATopicConnectionFactory;
+import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.junit.Assert;
 import org.junit.Test;

@@ -154,7 +154,7 @@
          </xsd:element>
 
          <xsd:element name="password-codec" type="xsd:string"
-                      default="org.apache.activemq.utils.DefaultSensitiveStringCodec" maxOccurs="1" minOccurs="0">
+                      default="org.apache.activemq.artemis.utils.DefaultSensitiveStringCodec" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
                   Class name and its parameters for the Decoder used to decode the masked password. Ignored if
@@ -1049,14 +1049,6 @@
             </xsd:annotation>
          </xsd:element>
 
-         <xsd:element name="producer-window-size" type="xsd:int" maxOccurs="1" minOccurs="0" default="1048576">
-            <xsd:annotation>
-               <xsd:documentation>
-                  Producer flow control on the bridge (default disabled = -1)
-               </xsd:documentation>
-            </xsd:annotation>
-         </xsd:element>
-
          <xsd:element name="user" type="xsd:string" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
@@ -1235,14 +1227,6 @@
             <xsd:annotation>
                <xsd:documentation>
                   The size (in bytes) of the window used for confirming data from the server connected to.
-               </xsd:documentation>
-            </xsd:annotation>
-         </xsd:element>
-
-         <xsd:element name="producer-window-size" type="xsd:int" maxOccurs="1" minOccurs="0" default="1048576">
-            <xsd:annotation>
-               <xsd:documentation>
-                  Producer flow control on the bridge (default disabled = -1)
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>

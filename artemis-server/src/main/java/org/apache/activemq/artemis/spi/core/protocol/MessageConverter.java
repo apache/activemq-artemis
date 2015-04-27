@@ -14,9 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.spi.core.protocol;
+package org.apache.activemq.artemis.spi.core.protocol;
 
-import org.apache.activemq.core.server.ServerMessage;
+import org.apache.activemq.artemis.core.server.ServerMessage;
 
 // TODO: use this interface properly on OpenWire
 public interface MessageConverter

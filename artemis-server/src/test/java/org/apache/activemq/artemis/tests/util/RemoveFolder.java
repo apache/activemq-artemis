@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.activemq.tests.util;
+package org.apache.activemq.artemis.tests.util;
 
 import java.io.File;
 

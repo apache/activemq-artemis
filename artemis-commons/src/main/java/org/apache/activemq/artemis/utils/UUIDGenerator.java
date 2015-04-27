@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.utils;
+package org.apache.activemq.artemis.utils;
 
 import java.lang.reflect.Method;
 import java.net.NetworkInterface;
@@ -32,8 +32,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.logs.ActiveMQUtilLogger;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.logs.ActiveMQUtilLogger;
 
 public final class UUIDGenerator
 {

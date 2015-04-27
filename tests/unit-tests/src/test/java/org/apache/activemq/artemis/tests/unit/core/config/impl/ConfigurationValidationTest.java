@@ -14,16 +14,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.unit.core.config.impl;
+package org.apache.activemq.artemis.tests.unit.core.config.impl;
 
-import org.apache.activemq.core.config.FileDeploymentManager;
+import org.apache.activemq.artemis.core.config.FileDeploymentManager;
 import org.junit.Test;
 
 import org.junit.Assert;
 
-import org.apache.activemq.core.config.impl.FileConfiguration;
-import org.apache.activemq.tests.util.UnitTestCase;
-import org.apache.activemq.utils.XMLUtil;
+import org.apache.activemq.artemis.core.config.impl.FileConfiguration;
+import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.utils.XMLUtil;
 import org.w3c.dom.Element;
 
 public class ConfigurationValidationTest extends UnitTestCase

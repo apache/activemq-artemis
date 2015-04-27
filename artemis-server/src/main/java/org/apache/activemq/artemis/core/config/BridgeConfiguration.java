@@ -14,13 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.config;
+package org.apache.activemq.artemis.core.config;
 
 import java.io.Serializable;
 import java.util.List;
 
-import org.apache.activemq.api.config.ActiveMQDefaultConfiguration;
-import org.apache.activemq.api.core.client.ActiveMQClient;
+import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 
 public final class BridgeConfiguration implements Serializable
 {
@@ -55,8 +55,6 @@ public final class BridgeConfiguration implements Serializable
    private boolean useDuplicateDetection = ActiveMQDefaultConfiguration.isDefaultBridgeDuplicateDetection();
 
    private int confirmationWindowSize = ActiveMQClient.DEFAULT_CONFIRMATION_WINDOW_SIZE;
-
-   private int producerWindowSize = ActiveMQDefaultConfiguration.getDefaultBridgeProducerWindowSize();
 
    private long clientFailureCheckPeriod = ActiveMQClient.DEFAULT_CLIENT_FAILURE_CHECK_PERIOD;
 
@@ -302,19 +300,6 @@ public final class BridgeConfiguration implements Serializable
    {
       this.confirmationWindowSize = confirmationWindowSize;
       return this;
-   }
-
-   /** The producer flow control on the birdge */
-   public BridgeConfiguration setProducerWindowSize(final int producerWindowSize)
-   {
-      this.producerWindowSize = producerWindowSize;
-      return this;
-   }
-
-   public int getProducerWindowSize()
-   {
-      return producerWindowSize;
-
    }
 
    public long getClientFailureCheckPeriod()

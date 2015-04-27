@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.persistence.impl.journal;
+package org.apache.activemq.artemis.core.persistence.impl.journal;
 
 import javax.transaction.xa.Xid;
 import java.io.File;
@@ -45,86 +45,86 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import org.apache.activemq.api.core.ActiveMQBuffer;
-import org.apache.activemq.api.core.ActiveMQBuffers;
-import org.apache.activemq.api.core.ActiveMQException;
-import org.apache.activemq.api.core.ActiveMQIllegalStateException;
-import org.apache.activemq.api.core.ActiveMQInternalErrorException;
-import org.apache.activemq.api.core.Message;
-import org.apache.activemq.api.core.Pair;
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.filter.Filter;
-import org.apache.activemq.core.journal.EncodingSupport;
-import org.apache.activemq.core.journal.IOAsyncTask;
-import org.apache.activemq.core.journal.IOCriticalErrorListener;
-import org.apache.activemq.core.journal.Journal;
-import org.apache.activemq.core.journal.JournalLoadInformation;
-import org.apache.activemq.core.journal.PreparedTransactionInfo;
-import org.apache.activemq.core.journal.RecordInfo;
-import org.apache.activemq.core.journal.SequentialFile;
-import org.apache.activemq.core.journal.SequentialFileFactory;
-import org.apache.activemq.core.journal.TransactionFailureCallback;
-import org.apache.activemq.core.journal.impl.AIOSequentialFileFactory;
-import org.apache.activemq.core.journal.impl.JournalFile;
-import org.apache.activemq.core.journal.impl.JournalImpl;
-import org.apache.activemq.core.journal.impl.NIOSequentialFileFactory;
-import org.apache.activemq.core.message.impl.MessageInternal;
-import org.apache.activemq.core.paging.PageTransactionInfo;
-import org.apache.activemq.core.paging.PagedMessage;
-import org.apache.activemq.core.paging.PagingManager;
-import org.apache.activemq.core.paging.PagingStore;
-import org.apache.activemq.core.paging.cursor.PagePosition;
-import org.apache.activemq.core.paging.cursor.PageSubscription;
-import org.apache.activemq.core.paging.cursor.PagedReferenceImpl;
-import org.apache.activemq.core.paging.cursor.impl.PagePositionImpl;
-import org.apache.activemq.core.paging.impl.PageTransactionInfoImpl;
-import org.apache.activemq.core.persistence.GroupingInfo;
-import org.apache.activemq.core.persistence.OperationContext;
-import org.apache.activemq.core.persistence.QueueBindingInfo;
-import org.apache.activemq.core.persistence.StorageManager;
-import org.apache.activemq.core.persistence.config.PersistedAddressSetting;
-import org.apache.activemq.core.persistence.config.PersistedRoles;
-import org.apache.activemq.core.persistence.impl.PageCountPending;
-import org.apache.activemq.core.postoffice.Binding;
-import org.apache.activemq.core.postoffice.DuplicateIDCache;
-import org.apache.activemq.core.postoffice.PostOffice;
-import org.apache.activemq.core.protocol.core.impl.wireformat.ReplicationLiveIsStoppingMessage.LiveStopping;
-import org.apache.activemq.core.replication.ReplicatedJournal;
-import org.apache.activemq.core.replication.ReplicationManager;
-import org.apache.activemq.core.server.ActiveMQMessageBundle;
-import org.apache.activemq.core.server.ActiveMQServerLogger;
-import org.apache.activemq.core.server.JournalType;
-import org.apache.activemq.core.server.LargeServerMessage;
-import org.apache.activemq.core.server.MessageReference;
-import org.apache.activemq.core.server.Queue;
-import org.apache.activemq.core.server.RouteContextList;
-import org.apache.activemq.core.server.ServerMessage;
-import org.apache.activemq.core.server.group.impl.GroupBinding;
-import org.apache.activemq.core.server.impl.JournalLoader;
-import org.apache.activemq.core.server.impl.ServerMessageImpl;
-import org.apache.activemq.core.transaction.ResourceManager;
-import org.apache.activemq.core.transaction.Transaction;
-import org.apache.activemq.core.transaction.Transaction.State;
-import org.apache.activemq.core.transaction.TransactionOperation;
-import org.apache.activemq.core.transaction.TransactionOperationAbstract;
-import org.apache.activemq.core.transaction.TransactionPropertyIndexes;
-import org.apache.activemq.core.transaction.impl.TransactionImpl;
-import org.apache.activemq.utils.Base64;
-import org.apache.activemq.utils.ByteUtil;
-import org.apache.activemq.utils.DataConstants;
-import org.apache.activemq.utils.ExecutorFactory;
-import org.apache.activemq.utils.ActiveMQThreadFactory;
-import org.apache.activemq.utils.UUID;
-import org.apache.activemq.utils.XidCodecSupport;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.ActiveMQIllegalStateException;
+import org.apache.activemq.artemis.api.core.ActiveMQInternalErrorException;
+import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.Pair;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.filter.Filter;
+import org.apache.activemq.artemis.core.journal.EncodingSupport;
+import org.apache.activemq.artemis.core.journal.IOAsyncTask;
+import org.apache.activemq.artemis.core.journal.IOCriticalErrorListener;
+import org.apache.activemq.artemis.core.journal.Journal;
+import org.apache.activemq.artemis.core.journal.JournalLoadInformation;
+import org.apache.activemq.artemis.core.journal.PreparedTransactionInfo;
+import org.apache.activemq.artemis.core.journal.RecordInfo;
+import org.apache.activemq.artemis.core.journal.SequentialFile;
+import org.apache.activemq.artemis.core.journal.SequentialFileFactory;
+import org.apache.activemq.artemis.core.journal.TransactionFailureCallback;
+import org.apache.activemq.artemis.core.journal.impl.AIOSequentialFileFactory;
+import org.apache.activemq.artemis.core.journal.impl.JournalFile;
+import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
+import org.apache.activemq.artemis.core.journal.impl.NIOSequentialFileFactory;
+import org.apache.activemq.artemis.core.message.impl.MessageInternal;
+import org.apache.activemq.artemis.core.paging.PageTransactionInfo;
+import org.apache.activemq.artemis.core.paging.PagedMessage;
+import org.apache.activemq.artemis.core.paging.PagingManager;
+import org.apache.activemq.artemis.core.paging.PagingStore;
+import org.apache.activemq.artemis.core.paging.cursor.PagePosition;
+import org.apache.activemq.artemis.core.paging.cursor.PageSubscription;
+import org.apache.activemq.artemis.core.paging.cursor.PagedReferenceImpl;
+import org.apache.activemq.artemis.core.paging.cursor.impl.PagePositionImpl;
+import org.apache.activemq.artemis.core.paging.impl.PageTransactionInfoImpl;
+import org.apache.activemq.artemis.core.persistence.GroupingInfo;
+import org.apache.activemq.artemis.core.persistence.OperationContext;
+import org.apache.activemq.artemis.core.persistence.QueueBindingInfo;
+import org.apache.activemq.artemis.core.persistence.StorageManager;
+import org.apache.activemq.artemis.core.persistence.config.PersistedAddressSetting;
+import org.apache.activemq.artemis.core.persistence.config.PersistedRoles;
+import org.apache.activemq.artemis.core.persistence.impl.PageCountPending;
+import org.apache.activemq.artemis.core.postoffice.Binding;
+import org.apache.activemq.artemis.core.postoffice.DuplicateIDCache;
+import org.apache.activemq.artemis.core.postoffice.PostOffice;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationLiveIsStoppingMessage.LiveStopping;
+import org.apache.activemq.artemis.core.replication.ReplicatedJournal;
+import org.apache.activemq.artemis.core.replication.ReplicationManager;
+import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
+import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.apache.activemq.artemis.core.server.JournalType;
+import org.apache.activemq.artemis.core.server.LargeServerMessage;
+import org.apache.activemq.artemis.core.server.MessageReference;
+import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.server.RouteContextList;
+import org.apache.activemq.artemis.core.server.ServerMessage;
+import org.apache.activemq.artemis.core.server.group.impl.GroupBinding;
+import org.apache.activemq.artemis.core.server.impl.JournalLoader;
+import org.apache.activemq.artemis.core.server.impl.ServerMessageImpl;
+import org.apache.activemq.artemis.core.transaction.ResourceManager;
+import org.apache.activemq.artemis.core.transaction.Transaction;
+import org.apache.activemq.artemis.core.transaction.Transaction.State;
+import org.apache.activemq.artemis.core.transaction.TransactionOperation;
+import org.apache.activemq.artemis.core.transaction.TransactionOperationAbstract;
+import org.apache.activemq.artemis.core.transaction.TransactionPropertyIndexes;
+import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
+import org.apache.activemq.artemis.utils.Base64;
+import org.apache.activemq.artemis.utils.ByteUtil;
+import org.apache.activemq.artemis.utils.DataConstants;
+import org.apache.activemq.artemis.utils.ExecutorFactory;
+import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
+import org.apache.activemq.artemis.utils.UUID;
+import org.apache.activemq.artemis.utils.XidCodecSupport;
 
-import static org.apache.activemq.core.persistence.impl.journal.JournalRecordIds.ACKNOWLEDGE_CURSOR;
-import static org.apache.activemq.core.persistence.impl.journal.JournalRecordIds.ADD_LARGE_MESSAGE;
-import static org.apache.activemq.core.persistence.impl.journal.JournalRecordIds.ADD_LARGE_MESSAGE_PENDING;
-import static org.apache.activemq.core.persistence.impl.journal.JournalRecordIds.DUPLICATE_ID;
-import static org.apache.activemq.core.persistence.impl.journal.JournalRecordIds.PAGE_CURSOR_COUNTER_INC;
-import static org.apache.activemq.core.persistence.impl.journal.JournalRecordIds.PAGE_CURSOR_COUNTER_VALUE;
-import static org.apache.activemq.core.persistence.impl.journal.JournalRecordIds.SET_SCHEDULED_DELIVERY_TIME;
+import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.ACKNOWLEDGE_CURSOR;
+import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.ADD_LARGE_MESSAGE;
+import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.ADD_LARGE_MESSAGE_PENDING;
+import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.DUPLICATE_ID;
+import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.PAGE_CURSOR_COUNTER_INC;
+import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.PAGE_CURSOR_COUNTER_VALUE;
+import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.SET_SCHEDULED_DELIVERY_TIME;
 
 /**
  * Controls access to the journals and other storage files such as the ones used to store pages and
@@ -353,11 +353,11 @@ public class JournalStorageManager implements StorageManager
     * To achieve (2), instead of writing directly to instances of {@link JournalImpl}, we write to
     * instances of {@link ReplicatedJournal}.
     * <p/>
-    * At the backup-side replication is handled by {@link org.apache.activemq.core.replication.ReplicationEndpoint}.
+    * At the backup-side replication is handled by {@link org.apache.activemq.artemis.core.replication.ReplicationEndpoint}.
     *
     * @param replicationManager
     * @param pagingManager
-    * @throws org.apache.activemq.api.core.ActiveMQException
+    * @throws ActiveMQException
     */
    @Override
    public void startReplication(ReplicationManager replicationManager, PagingManager pagingManager, String nodeID,
@@ -3143,7 +3143,7 @@ public class JournalStorageManager implements StorageManager
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq.core.journal.EncodingSupport#decode(org.apache.activemq.spi.core.remoting.ActiveMQBuffer)
+       * @see org.apache.activemq.artemis.core.journal.EncodingSupport#decode(org.apache.activemq.artemis.spi.core.remoting.ActiveMQBuffer)
        */
       public void decode(final ActiveMQBuffer buffer)
       {
@@ -3151,7 +3151,7 @@ public class JournalStorageManager implements StorageManager
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq.core.journal.EncodingSupport#encode(org.apache.activemq.spi.core.remoting.ActiveMQBuffer)
+       * @see org.apache.activemq.artemis.core.journal.EncodingSupport#encode(org.apache.activemq.artemis.spi.core.remoting.ActiveMQBuffer)
        */
       public void encode(final ActiveMQBuffer buffer)
       {
@@ -3159,7 +3159,7 @@ public class JournalStorageManager implements StorageManager
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq.core.journal.EncodingSupport#getEncodeSize()
+       * @see org.apache.activemq.artemis.core.journal.EncodingSupport#getEncodeSize()
        */
       public int getEncodeSize()
       {
@@ -3182,7 +3182,7 @@ public class JournalStorageManager implements StorageManager
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq.core.journal.EncodingSupport#decode(org.apache.activemq.spi.core.remoting.ActiveMQBuffer)
+       * @see org.apache.activemq.artemis.core.journal.EncodingSupport#decode(org.apache.activemq.artemis.spi.core.remoting.ActiveMQBuffer)
        */
       public void decode(final ActiveMQBuffer buffer)
       {
@@ -3190,7 +3190,7 @@ public class JournalStorageManager implements StorageManager
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq.core.journal.EncodingSupport#encode(org.apache.activemq.spi.core.remoting.ActiveMQBuffer)
+       * @see org.apache.activemq.artemis.core.journal.EncodingSupport#encode(org.apache.activemq.artemis.spi.core.remoting.ActiveMQBuffer)
        */
       public void encode(final ActiveMQBuffer buffer)
       {
@@ -3198,7 +3198,7 @@ public class JournalStorageManager implements StorageManager
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq.core.journal.EncodingSupport#getEncodeSize()
+       * @see org.apache.activemq.artemis.core.journal.EncodingSupport#getEncodeSize()
        */
       public int getEncodeSize()
       {
@@ -3307,7 +3307,7 @@ public class JournalStorageManager implements StorageManager
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq.core.journal.EncodingSupport#getEncodeSize()
+       * @see org.apache.activemq.artemis.core.journal.EncodingSupport#getEncodeSize()
        */
       @Override
       public int getEncodeSize()
@@ -3316,7 +3316,7 @@ public class JournalStorageManager implements StorageManager
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq.core.journal.EncodingSupport#encode(org.apache.activemq.api.core.ActiveMQBuffer)
+       * @see org.apache.activemq.artemis.core.journal.EncodingSupport#encode(org.apache.activemq.artemis.api.core.ActiveMQBuffer)
        */
       @Override
       public void encode(ActiveMQBuffer buffer)
@@ -3326,7 +3326,7 @@ public class JournalStorageManager implements StorageManager
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq.core.journal.EncodingSupport#decode(org.apache.activemq.api.core.ActiveMQBuffer)
+       * @see org.apache.activemq.artemis.core.journal.EncodingSupport#decode(org.apache.activemq.artemis.api.core.ActiveMQBuffer)
        */
       @Override
       public void decode(ActiveMQBuffer buffer)
@@ -3532,7 +3532,7 @@ public class JournalStorageManager implements StorageManager
     * This is only used when loading a transaction.
     * <p/>
     * it might be possible to merge the functionality of this class with
-    * {@link org.apache.activemq.core.persistence.impl.journal.JournalStorageManager.FinishPageMessageOperation}
+    * {@link org.apache.activemq.artemis.core.persistence.impl.journal.JournalStorageManager.FinishPageMessageOperation}
     */
    // TODO: merge this class with the one on the PagingStoreImpl
    private static class FinishPageMessageOperation extends TransactionOperationAbstract implements TransactionOperation

@@ -14,9 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.client.impl;
+package org.apache.activemq.artemis.core.client.impl;
 
-import org.apache.activemq.api.core.client.ClientProducer;
+import org.apache.activemq.artemis.api.core.client.ClientProducer;
 
 /**
  *

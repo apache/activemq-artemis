@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.openwire.amq;
+package org.apache.activemq.artemis.tests.integration.openwire.amq;
 
 import java.util.List;
 import java.util.Vector;
@@ -32,7 +32,7 @@ import javax.jms.TemporaryTopic;
 import javax.jms.TextMessage;
 
 import org.apache.activemq.command.ActiveMQDestination;
-import org.apache.activemq.tests.integration.openwire.BasicOpenWireTest;
+import org.apache.activemq.artemis.tests.integration.openwire.BasicOpenWireTest;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

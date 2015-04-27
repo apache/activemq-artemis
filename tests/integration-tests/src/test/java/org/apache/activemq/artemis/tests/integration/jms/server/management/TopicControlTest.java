@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.jms.server.management;
+package org.apache.activemq.artemis.tests.integration.jms.server.management;
 
 import javax.jms.Connection;
 import javax.jms.Message;
@@ -30,28 +30,28 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.core.management.ObjectNameBuilder;
-import org.apache.activemq.api.jms.ActiveMQJMSClient;
-import org.apache.activemq.api.jms.management.JMSServerControl;
-import org.apache.activemq.api.jms.management.SubscriptionInfo;
-import org.apache.activemq.api.jms.management.TopicControl;
-import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.postoffice.Binding;
-import org.apache.activemq.core.postoffice.impl.LocalQueueBinding;
-import org.apache.activemq.core.registry.JndiBindingRegistry;
-import org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory;
-import org.apache.activemq.core.server.ActiveMQServer;
-import org.apache.activemq.core.server.ActiveMQServers;
-import org.apache.activemq.jms.client.ActiveMQDestination;
-import org.apache.activemq.jms.client.ActiveMQTopic;
-import org.apache.activemq.jms.server.impl.JMSServerManagerImpl;
-import org.apache.activemq.jms.server.management.JMSNotificationType;
-import org.apache.activemq.tests.integration.management.ManagementControlHelper;
-import org.apache.activemq.tests.integration.management.ManagementTestBase;
-import org.apache.activemq.tests.unit.util.InVMNamingContext;
-import org.apache.activemq.tests.util.RandomUtil;
-import org.apache.activemq.utils.json.JSONArray;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
+import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
+import org.apache.activemq.artemis.api.jms.management.JMSServerControl;
+import org.apache.activemq.artemis.api.jms.management.SubscriptionInfo;
+import org.apache.activemq.artemis.api.jms.management.TopicControl;
+import org.apache.activemq.artemis.tests.integration.management.ManagementControlHelper;
+import org.apache.activemq.artemis.tests.integration.management.ManagementTestBase;
+import org.apache.activemq.artemis.tests.unit.util.InVMNamingContext;
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.postoffice.Binding;
+import org.apache.activemq.artemis.core.postoffice.impl.LocalQueueBinding;
+import org.apache.activemq.artemis.core.registry.JndiBindingRegistry;
+import org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.ActiveMQServers;
+import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
+import org.apache.activemq.artemis.jms.client.ActiveMQTopic;
+import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
+import org.apache.activemq.artemis.jms.server.management.JMSNotificationType;
+import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.json.JSONArray;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -91,7 +91,7 @@ public class TopicControlTest extends ManagementTestBase
       Assert.assertEquals(topic.getAddress(), topicControl.getAddress());
       Assert.assertEquals(topic.isTemporary(), topicControl.isTemporary());
       Object[] bindings = topicControl.getRegistryBindings();
-      assertEquals(1, bindings.length);
+      Assert.assertEquals(1, bindings.length);
       Assert.assertEquals(topicBinding, bindings[0]);
    }
 
@@ -166,7 +166,7 @@ public class TopicControlTest extends ManagementTestBase
       System.out.println("Json: " + json);
       JSONArray jsonArray = new JSONArray(json);
 
-      assertEquals(3, jsonArray.length());
+      Assert.assertEquals(3, jsonArray.length());
 
       connection_1.close();
       connection_2.close();
@@ -358,8 +358,8 @@ public class TopicControlTest extends ManagementTestBase
       TextMessage msg1 = sess.createTextMessage("tst1");
       prod.send(msg1);
 
-      assertNotNull(durableSubscriber_1.receive(5000));
-      assertNotNull(durableSubscriber_2.receive(5000));
+      Assert.assertNotNull(durableSubscriber_1.receive(5000));
+      Assert.assertNotNull(durableSubscriber_2.receive(5000));
 
       connection_1.close();
       connection_2.close();
@@ -512,11 +512,11 @@ public class TopicControlTest extends ManagementTestBase
 
       TopicControl topicControl = createManagementControl();
 
-      assertEquals(0, topicControl.getDeliveringCount());
+      Assert.assertEquals(0, topicControl.getDeliveringCount());
 
       JMSUtil.sendMessages(topic, 2);
 
-      assertEquals(0, topicControl.getDeliveringCount());
+      Assert.assertEquals(0, topicControl.getDeliveringCount());
 
       connection_1.start();
       connection_2.start();
@@ -528,21 +528,21 @@ public class TopicControlTest extends ManagementTestBase
       for (int i = 0; i < 2; i++)
       {
          msg_1 = cons_1.receive(5000);
-         assertNotNull(msg_1);
+         Assert.assertNotNull(msg_1);
          msg_2 = cons_2.receive(5000);
-         assertNotNull(msg_2);
+         Assert.assertNotNull(msg_2);
          msg_3 = cons_3.receive(5000);
-         assertNotNull(msg_3);
+         Assert.assertNotNull(msg_3);
       }
 
-      assertEquals(3 * 2, topicControl.getDeliveringCount());
+      Assert.assertEquals(3 * 2, topicControl.getDeliveringCount());
 
       msg_1.acknowledge();
-      assertEquals(2 * 2, topicControl.getDeliveringCount());
+      Assert.assertEquals(2 * 2, topicControl.getDeliveringCount());
       msg_2.acknowledge();
-      assertEquals(1 * 2, topicControl.getDeliveringCount());
+      Assert.assertEquals(1 * 2, topicControl.getDeliveringCount());
       msg_3.acknowledge();
-      assertEquals(0, topicControl.getDeliveringCount());
+      Assert.assertEquals(0, topicControl.getDeliveringCount());
 
       connection_1.close();
       connection_2.close();
@@ -565,28 +565,28 @@ public class TopicControlTest extends ManagementTestBase
 
       Notification notif = listener.getNotification();
 
-      assertEquals(JMSNotificationType.TOPIC_CREATED.toString(), notif.getType());
-      assertEquals(testTopicName, notif.getMessage());
+      Assert.assertEquals(JMSNotificationType.TOPIC_CREATED.toString(), notif.getType());
+      Assert.assertEquals(testTopicName, notif.getMessage());
 
       this.serverManager.destroyTopic(testTopicName);
 
       notif = listener.getNotification();
-      assertEquals(JMSNotificationType.TOPIC_DESTROYED.toString(), notif.getType());
-      assertEquals(testTopicName, notif.getMessage());
+      Assert.assertEquals(JMSNotificationType.TOPIC_DESTROYED.toString(), notif.getType());
+      Assert.assertEquals(testTopicName, notif.getMessage());
 
       JMSServerControl control = ManagementControlHelper.createJMSServerControl(mbeanServer);
 
       control.createTopic(testTopicName);
 
       notif = listener.getNotification();
-      assertEquals(JMSNotificationType.TOPIC_CREATED.toString(), notif.getType());
-      assertEquals(testTopicName, notif.getMessage());
+      Assert.assertEquals(JMSNotificationType.TOPIC_CREATED.toString(), notif.getType());
+      Assert.assertEquals(testTopicName, notif.getMessage());
 
       control.destroyTopic(testTopicName);
 
       notif = listener.getNotification();
-      assertEquals(JMSNotificationType.TOPIC_DESTROYED.toString(), notif.getType());
-      assertEquals(testTopicName, notif.getMessage());
+      Assert.assertEquals(JMSNotificationType.TOPIC_DESTROYED.toString(), notif.getType());
+      Assert.assertEquals(testTopicName, notif.getMessage());
    }
 
    // Package protected ---------------------------------------------
@@ -600,7 +600,7 @@ public class TopicControlTest extends ManagementTestBase
       super.setUp();
 
       Configuration conf = createBasicConfig()
-         .addAcceptorConfiguration(new TransportConfiguration("org.apache.activemq.core.remoting.impl.invm.InVMAcceptorFactory"));
+         .addAcceptorConfiguration(new TransportConfiguration("org.apache.activemq.artemis.core.remoting.impl.invm.InVMAcceptorFactory"));
       server = ActiveMQServers.newActiveMQServer(conf, mbeanServer, false);
       server.start();
 

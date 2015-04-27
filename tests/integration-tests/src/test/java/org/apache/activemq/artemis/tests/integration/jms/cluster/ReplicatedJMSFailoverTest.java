@@ -14,15 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.jms.cluster;
+package org.apache.activemq.artemis.tests.integration.jms.cluster;
 
-import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.core.config.ha.ReplicaPolicyConfiguration;
-import org.apache.activemq.core.config.ha.ReplicatedPolicyConfiguration;
-import org.apache.activemq.core.registry.JndiBindingRegistry;
-import org.apache.activemq.core.remoting.impl.invm.TransportConstants;
-import org.apache.activemq.core.server.ActiveMQServers;
-import org.apache.activemq.jms.server.impl.JMSServerManagerImpl;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.core.config.ha.ReplicaPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.ReplicatedPolicyConfiguration;
+import org.apache.activemq.artemis.core.registry.JndiBindingRegistry;
+import org.apache.activemq.artemis.core.remoting.impl.invm.TransportConstants;
+import org.apache.activemq.artemis.core.server.ActiveMQServers;
+import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
 
 public class ReplicatedJMSFailoverTest extends JMSFailoverTest
 {
@@ -56,7 +56,7 @@ public class ReplicatedJMSFailoverTest extends JMSFailoverTest
       liveConf = createBasicConfig()
          .setJournalType(getDefaultJournalType())
          .addConnectorConfiguration("toBackup", new TransportConfiguration(INVM_CONNECTOR_FACTORY, backupParams))
-         .addAcceptorConfiguration(new TransportConfiguration("org.apache.activemq.core.remoting.impl.invm.InVMAcceptorFactory"))
+         .addAcceptorConfiguration(new TransportConfiguration("org.apache.activemq.artemis.core.remoting.impl.invm.InVMAcceptorFactory"))
          .setBindingsDirectory(getBindingsDir(0, false))
          .setJournalMinFiles(2)
          .setJournalDirectory(getJournalDir(0, false))

@@ -14,9 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.api.core;
-
-import static org.apache.activemq.api.core.ActiveMQExceptionType.CONNECTION_TIMEDOUT;
+package org.apache.activemq.artemis.api.core;
 
 /**
  * A client timed out will connecting to ActiveMQ server.
@@ -27,11 +25,11 @@ public final class ActiveMQConnectionTimedOutException extends ActiveMQException
 
    public ActiveMQConnectionTimedOutException()
    {
-      super(CONNECTION_TIMEDOUT);
+      super(ActiveMQExceptionType.CONNECTION_TIMEDOUT);
    }
 
    public ActiveMQConnectionTimedOutException(String msg)
    {
-      super(CONNECTION_TIMEDOUT, msg);
+      super(ActiveMQExceptionType.CONNECTION_TIMEDOUT, msg);
    }
 }

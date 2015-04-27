@@ -14,13 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.service.extensions.xa.recovery;
+package org.apache.activemq.artemis.service.extensions.xa.recovery;
 
 import javax.transaction.xa.XAResource;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.activemq.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
 
 /**
  * A XAResourceRecovery instance that can be used to recover any JMS provider.
@@ -31,19 +31,19 @@ import org.apache.activemq.api.core.TransportConfiguration;
  * To enable this add the following to the jbossts-properties file
  * <pre>
  * &lt;property name="com.arjuna.ats.jta.recovery.XAResourceRecovery.ACTIVEMQ1"
- *                 value="org.apache.activemq.jms.server.recovery.ActiveMQXAResourceRecovery;org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory"/&gt;
+ *                 value="org.apache.activemq.jms.server.recovery.ActiveMQXAResourceRecovery;org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory"/&gt;
  * </pre>
  * <p>
  * you'll need something like this if the ActiveMQ Server is remote
  * <pre>
  *      &lt;property name="com.arjuna.ats.jta.recovery.XAResourceRecovery.ACTIVEMQ2"
- *                  value="org.apache.activemq.jms.server.recovery.ActiveMQXAResourceRecovery;org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory,guest,guest,host=localhost,port=61616"/&gt;
+ *                  value="org.apache.activemq.jms.server.recovery.ActiveMQXAResourceRecovery;org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory,guest,guest,host=localhost,port=61616"/&gt;
  * </pre>
  * <p>
  * you'll need something like this if the ActiveMQ Server is remote and has failover configured
  * <pre>
  *             &lt;property name="com.arjuna.ats.jta.recovery.XAResourceRecovery.ACTIVEMQ2"
- *                       value="org.apache.activemq.jms.server.recovery.ActiveMQXAResourceRecovery;org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory,guest,guest,host=localhost,port=61616;org.apache.activemq.core.remoting.impl.netty.NettyConnectorFactory,guest,guest,host=localhost2,port=61617"/&gt;
+ *                       value="org.apache.activemq.jms.server.recovery.ActiveMQXAResourceRecovery;org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory,guest,guest,host=localhost,port=61616;org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory,guest,guest,host=localhost2,port=61617"/&gt;
  * </pre>
  */
 public class ActiveMQXAResourceRecovery

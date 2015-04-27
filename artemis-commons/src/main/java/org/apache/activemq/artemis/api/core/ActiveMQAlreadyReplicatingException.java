@@ -14,9 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.api.core;
-
-import static org.apache.activemq.api.core.ActiveMQExceptionType.ALREADY_REPLICATING;
+package org.apache.activemq.artemis.api.core;
 
 /**
  * The server is already paired with a replicating backup.
@@ -27,11 +25,11 @@ public final class ActiveMQAlreadyReplicatingException extends ActiveMQException
 
    public ActiveMQAlreadyReplicatingException()
    {
-      super(ALREADY_REPLICATING);
+      super(ActiveMQExceptionType.ALREADY_REPLICATING);
    }
 
    public ActiveMQAlreadyReplicatingException(String msg)
    {
-      super(ALREADY_REPLICATING, msg);
+      super(ActiveMQExceptionType.ALREADY_REPLICATING, msg);
    }
 }

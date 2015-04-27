@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.ra;
+package org.apache.activemq.artemis.tests.integration.ra;
 
 import javax.jms.JMSContext;
 import javax.jms.JMSRuntimeException;
@@ -22,15 +22,15 @@ import javax.transaction.TransactionManager;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.activemq.core.remoting.impl.invm.InVMConnectorFactory;
-import org.apache.activemq.core.security.Role;
-import org.apache.activemq.ra.ActiveMQRAConnectionFactory;
-import org.apache.activemq.ra.ActiveMQRAConnectionFactoryImpl;
-import org.apache.activemq.ra.ActiveMQRAConnectionManager;
-import org.apache.activemq.ra.ActiveMQRAManagedConnectionFactory;
-import org.apache.activemq.ra.ActiveMQResourceAdapter;
-import org.apache.activemq.spi.core.security.ActiveMQSecurityManagerImpl;
-import org.apache.activemq.service.extensions.ServiceUtils;
+import org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory;
+import org.apache.activemq.artemis.core.security.Role;
+import org.apache.activemq.artemis.ra.ActiveMQRAConnectionFactory;
+import org.apache.activemq.artemis.ra.ActiveMQRAConnectionFactoryImpl;
+import org.apache.activemq.artemis.ra.ActiveMQRAConnectionManager;
+import org.apache.activemq.artemis.ra.ActiveMQRAManagedConnectionFactory;
+import org.apache.activemq.artemis.ra.ActiveMQResourceAdapter;
+import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManagerImpl;
+import org.apache.activemq.artemis.service.extensions.ServiceUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

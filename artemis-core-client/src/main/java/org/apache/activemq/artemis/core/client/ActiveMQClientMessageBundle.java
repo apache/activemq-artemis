@@ -14,24 +14,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.client;
+package org.apache.activemq.artemis.core.client;
 
 
-import org.apache.activemq.api.core.ActiveMQAddressFullException;
-import org.apache.activemq.api.core.ActiveMQConnectionTimedOutException;
-import org.apache.activemq.api.core.ActiveMQDisconnectedException;
-import org.apache.activemq.api.core.ActiveMQIllegalStateException;
-import org.apache.activemq.api.core.ActiveMQInterceptorRejectedPacketException;
-import org.apache.activemq.api.core.ActiveMQInternalErrorException;
-import org.apache.activemq.api.core.ActiveMQLargeMessageException;
-import org.apache.activemq.api.core.ActiveMQLargeMessageInterruptedException;
-import org.apache.activemq.api.core.ActiveMQNotConnectedException;
-import org.apache.activemq.api.core.ActiveMQObjectClosedException;
-import org.apache.activemq.api.core.ActiveMQTransactionOutcomeUnknownException;
-import org.apache.activemq.api.core.ActiveMQTransactionRolledBackException;
-import org.apache.activemq.api.core.ActiveMQUnBlockedException;
-import org.apache.activemq.core.cluster.DiscoveryGroup;
-import org.apache.activemq.spi.core.remoting.Connection;
+import org.apache.activemq.artemis.api.core.ActiveMQAddressFullException;
+import org.apache.activemq.artemis.api.core.ActiveMQConnectionTimedOutException;
+import org.apache.activemq.artemis.api.core.ActiveMQDisconnectedException;
+import org.apache.activemq.artemis.api.core.ActiveMQIllegalStateException;
+import org.apache.activemq.artemis.api.core.ActiveMQInterceptorRejectedPacketException;
+import org.apache.activemq.artemis.api.core.ActiveMQInternalErrorException;
+import org.apache.activemq.artemis.api.core.ActiveMQLargeMessageException;
+import org.apache.activemq.artemis.api.core.ActiveMQLargeMessageInterruptedException;
+import org.apache.activemq.artemis.api.core.ActiveMQNotConnectedException;
+import org.apache.activemq.artemis.api.core.ActiveMQObjectClosedException;
+import org.apache.activemq.artemis.api.core.ActiveMQTransactionOutcomeUnknownException;
+import org.apache.activemq.artemis.api.core.ActiveMQTransactionRolledBackException;
+import org.apache.activemq.artemis.api.core.ActiveMQUnBlockedException;
+import org.apache.activemq.artemis.core.cluster.DiscoveryGroup;
+import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.jboss.logging.annotations.Cause;
 import org.jboss.logging.annotations.Message;
 import org.jboss.logging.annotations.MessageBundle;

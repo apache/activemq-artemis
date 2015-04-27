@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.transports.netty;
+package org.apache.activemq.artemis.tests.integration.transports.netty;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,8 +23,8 @@ import java.util.Random;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.embedded.EmbeddedChannel;
-import org.apache.activemq.core.remoting.impl.netty.ActiveMQFrameDecoder2;
-import org.apache.activemq.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.core.remoting.impl.netty.ActiveMQFrameDecoder2;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;

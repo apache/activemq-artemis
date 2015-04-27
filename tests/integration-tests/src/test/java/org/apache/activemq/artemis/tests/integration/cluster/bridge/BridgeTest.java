@@ -14,14 +14,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.cluster.bridge;
+package org.apache.activemq.artemis.tests.integration.cluster.bridge;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -33,39 +27,39 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq.api.core.ActiveMQBuffer;
-import org.apache.activemq.api.core.ActiveMQException;
-import org.apache.activemq.api.core.Interceptor;
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.core.client.ClientConsumer;
-import org.apache.activemq.api.core.client.ClientMessage;
-import org.apache.activemq.api.core.client.ClientProducer;
-import org.apache.activemq.api.core.client.ClientSession;
-import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.ActiveMQClient;
-import org.apache.activemq.api.core.client.ServerLocator;
-import org.apache.activemq.core.config.BridgeConfiguration;
-import org.apache.activemq.core.config.CoreQueueConfiguration;
-import org.apache.activemq.core.postoffice.DuplicateIDCache;
-import org.apache.activemq.core.postoffice.impl.PostOfficeImpl;
-import org.apache.activemq.core.protocol.core.Packet;
-import org.apache.activemq.core.protocol.core.impl.wireformat.SessionSendContinuationMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.SessionSendLargeMessage;
-import org.apache.activemq.core.protocol.core.impl.wireformat.SessionSendMessage;
-import org.apache.activemq.core.remoting.impl.invm.TransportConstants;
-import org.apache.activemq.core.server.ActiveMQServer;
-import org.apache.activemq.core.server.MessageReference;
-import org.apache.activemq.core.server.Queue;
-import org.apache.activemq.core.server.cluster.impl.BridgeImpl;
-import org.apache.activemq.core.transaction.impl.TransactionImpl;
-import org.apache.activemq.spi.core.protocol.RemotingConnection;
-import org.apache.activemq.tests.integration.IntegrationTestLogger;
-import org.apache.activemq.tests.util.RandomUtil;
-import org.apache.activemq.tests.util.ServiceTestBase;
-import org.apache.activemq.tests.util.UnitTestCase;
-import org.apache.activemq.utils.LinkedListIterator;
-import org.apache.activemq.utils.ReusableLatch;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.Interceptor;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.client.ClientConsumer;
+import org.apache.activemq.artemis.api.core.client.ClientMessage;
+import org.apache.activemq.artemis.api.core.client.ClientProducer;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
+import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
+import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.core.config.BridgeConfiguration;
+import org.apache.activemq.artemis.core.config.CoreQueueConfiguration;
+import org.apache.activemq.artemis.core.postoffice.DuplicateIDCache;
+import org.apache.activemq.artemis.core.postoffice.impl.PostOfficeImpl;
+import org.apache.activemq.artemis.core.protocol.core.Packet;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionSendContinuationMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionSendLargeMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionSendMessage;
+import org.apache.activemq.artemis.core.remoting.impl.invm.TransportConstants;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.MessageReference;
+import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.server.cluster.impl.BridgeImpl;
+import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
+import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.utils.LinkedListIterator;
+import org.apache.activemq.artemis.utils.ReusableLatch;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -460,7 +454,7 @@ public class BridgeTest extends ServiceTestBase
    {
       if (isNetty())
       {
-         server1Params.put("port", org.apache.activemq.core.remoting.impl.netty.TransportConstants.DEFAULT_PORT + 1);
+         server1Params.put("port", org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.DEFAULT_PORT + 1);
       }
       else
       {
@@ -1757,214 +1751,6 @@ public class BridgeTest extends ServiceTestBase
       }
 
       assertEquals(0, loadQueues(server0).size());
-   }
-
-   @Test
-   public void testBridgeWithVeryLargeMessage() throws Exception
-   {
-      ActiveMQServer server0 = null;
-      ActiveMQServer server1 = null;
-
-      final int PAGE_MAX = 1024 * 1024;
-
-      final int PAGE_SIZE = 10 * 1024;
-      ServerLocator locator = null;
-      try
-      {
-
-         Map<String, Object> server0Params = new HashMap<String, Object>();
-         server0 = createClusteredServerWithParams(isNetty(), 0, true, PAGE_SIZE, PAGE_MAX, server0Params);
-
-         Map<String, Object> server1Params = new HashMap<String, Object>();
-         addTargetParameters(server1Params);
-         server1 = createClusteredServerWithParams(isNetty(), 1, true, server1Params);
-
-         final String testAddress = "testAddress";
-         final String queueName0 = "queue0";
-         final String forwardAddress = "forwardAddress";
-         final String queueName1 = "queue1";
-
-         Map<String, TransportConfiguration> connectors = new HashMap<String, TransportConfiguration>();
-         TransportConfiguration server0tc = new TransportConfiguration(getConnector(), server0Params);
-
-         TransportConfiguration server1tc = new TransportConfiguration(getConnector(), server1Params);
-         connectors.put(server1tc.getName(), server1tc);
-
-         server0.getConfiguration().setConnectorConfigurations(connectors);
-
-         ArrayList<String> staticConnectors = new ArrayList<String>();
-         staticConnectors.add(server1tc.getName());
-
-         int minLargeMessageSize = 1024 * 1024;
-
-         BridgeConfiguration bridgeConfiguration = new BridgeConfiguration()
-                 .setName("bridge1")
-                 .setQueueName(queueName0)
-                 .setForwardingAddress(forwardAddress)
-                 .setRetryInterval(1000)
-                 .setReconnectAttemptsOnSameNode(-1)
-                 .setUseDuplicateDetection(false)
-                 .setConfirmationWindowSize(1024)
-                 .setStaticConnectors(staticConnectors)
-                 .setMinLargeMessageSize(minLargeMessageSize)
-                 .setProducerWindowSize(minLargeMessageSize / 2);
-
-         List<BridgeConfiguration> bridgeConfigs = new ArrayList<BridgeConfiguration>();
-         bridgeConfigs.add(bridgeConfiguration);
-         server0.getConfiguration().setBridgeConfigurations(bridgeConfigs);
-
-         CoreQueueConfiguration queueConfig0 = new CoreQueueConfiguration()
-                 .setAddress(testAddress)
-                 .setName(queueName0);
-         List<CoreQueueConfiguration> queueConfigs0 = new ArrayList<CoreQueueConfiguration>();
-         queueConfigs0.add(queueConfig0);
-         server0.getConfiguration().setQueueConfigurations(queueConfigs0);
-
-
-         CoreQueueConfiguration queueConfig1 = new CoreQueueConfiguration()
-                 .setAddress(forwardAddress)
-                 .setName(queueName1);
-         List<CoreQueueConfiguration> queueConfigs1 = new ArrayList<CoreQueueConfiguration>();
-         queueConfigs1.add(queueConfig1);
-         server1.getConfiguration().setQueueConfigurations(queueConfigs1);
-
-         server1.start();
-         server0.start();
-
-         locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(server0tc, server1tc));
-
-         ClientSessionFactory sf0 = locator.createSessionFactory(server0tc);
-
-         ClientSessionFactory sf1 = locator.createSessionFactory(server1tc);
-
-         ClientSession session0 = sf0.createSession(false, true, true);
-
-         ClientSession session1 = sf1.createSession(false, true, true);
-
-         ClientProducer producer0 = session0.createProducer(new SimpleString(testAddress));
-
-         ClientConsumer consumer1 = session1.createConsumer(queueName1);
-
-         session1.start();
-
-         //create a large message bigger than Integer.MAX_VALUE
-         final long largeMessageSize = Integer.MAX_VALUE + 1000L;
-
-         ClientMessage largeMessage = createLargeMessage(session0, largeMessageSize);
-
-         producer0.send(largeMessage);
-
-         session0.commit();
-
-         //check target queue for large message arriving
-         ClientSession.QueueQuery query = session1.queueQuery(new SimpleString(queueName1));
-         long messageCount = query.getMessageCount();
-         int count = 0;
-         //wait for 300 sec max
-         while (messageCount == 0 && count < 300)
-         {
-            count++;
-            Thread.sleep(1000);
-            query = session1.queueQuery(new SimpleString(queueName1));
-            messageCount = query.getMessageCount();
-         }
-
-         if (messageCount == 0)
-         {
-            fail("large message didn't arrived after 5 min!");
-         }
-
-         //receive the message
-         ClientMessage message = consumer1.receive(5000);
-         message.acknowledge();
-
-         File outputFile = new File(getTemporaryDir(), "huge_message_received.dat");
-
-         System.out.println("-----message save to: " + outputFile.getAbsolutePath());
-         FileOutputStream fileOutputStream = new FileOutputStream(outputFile);
-
-         BufferedOutputStream bufferedOutput = new BufferedOutputStream(fileOutputStream);
-
-         message.setOutputStream(bufferedOutput);
-
-         if (!message.waitOutputStreamCompletion(5 * 60 * 1000))
-         {
-            fail("message didn't get received to disk in 5 min. Is the machine slow?");
-         }
-         session1.commit();
-
-         Assert.assertNull(consumer1.receiveImmediate());
-
-         session0.close();
-
-         session1.close();
-
-         sf0.close();
-
-         sf1.close();
-
-      }
-      finally
-      {
-         if (locator != null)
-         {
-            locator.close();
-         }
-         try
-         {
-            server0.stop();
-         }
-         catch (Throwable ignored)
-         {
-         }
-
-         try
-         {
-            server1.stop();
-         }
-         catch (Throwable ignored)
-         {
-         }
-      }
-
-      assertEquals(0, loadQueues(server0).size());
-   }
-
-   private ClientMessage createLargeMessage(ClientSession session, long largeMessageSize) throws Exception
-   {
-
-      File fileInput = new File(getTemporaryDir(), "huge_message_to_send.dat");
-
-      createFile(fileInput, largeMessageSize);
-
-      System.out.println("File created at: " + fileInput.getAbsolutePath());
-
-      ClientMessage message = session.createMessage(ClientMessage.BYTES_TYPE, true);
-
-      FileInputStream fileInputStream = new FileInputStream(fileInput);
-      BufferedInputStream bufferedInput = new BufferedInputStream(fileInputStream);
-
-      message.setBodyInputStream(bufferedInput);
-
-      return message;
-   }
-
-   private static void createFile(final File file, final long fileSize) throws IOException
-   {
-      if (file.exists())
-      {
-         System.out.println("---file already there " + file.length());
-         return;
-      }
-      FileOutputStream fileOut = new FileOutputStream(file);
-      BufferedOutputStream buffOut = new BufferedOutputStream(fileOut);
-      byte[] outBuffer = new byte[1024 * 1024];
-      System.out.println(" --- creating file, size: " + fileSize);
-      for (long i = 0; i < fileSize; i += outBuffer.length)
-      {
-         buffOut.write(outBuffer);
-      }
-      buffOut.close();
    }
 
    @Test

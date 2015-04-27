@@ -14,13 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.stomp.v11;
+package org.apache.activemq.artemis.tests.integration.stomp.v11;
 
 import java.nio.charset.StandardCharsets;
 
-import org.apache.activemq.tests.integration.stomp.util.ClientStompFrame;
-import org.apache.activemq.tests.integration.stomp.util.StompClientConnection;
-import org.apache.activemq.tests.integration.stomp.util.StompClientConnectionFactory;
+import org.apache.activemq.artemis.tests.integration.stomp.util.ClientStompFrame;
+import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnection;
+import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnectionFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

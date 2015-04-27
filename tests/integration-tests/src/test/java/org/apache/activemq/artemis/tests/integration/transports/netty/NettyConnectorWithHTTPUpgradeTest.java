@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.transports.netty;
+package org.apache.activemq.artemis.tests.integration.transports.netty;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -33,26 +33,26 @@ import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpRequestDecoder;
 import io.netty.handler.codec.http.HttpResponseEncoder;
-import org.apache.activemq.api.core.ActiveMQException;
-import org.apache.activemq.api.core.ActiveMQExceptionType;
-import org.apache.activemq.api.core.ActiveMQNotConnectedException;
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.core.client.ClientConsumer;
-import org.apache.activemq.api.core.client.ClientMessage;
-import org.apache.activemq.api.core.client.ClientProducer;
-import org.apache.activemq.api.core.client.ClientSession;
-import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.ActiveMQClient;
-import org.apache.activemq.api.core.client.ServerLocator;
-import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.remoting.impl.netty.NettyAcceptor;
-import org.apache.activemq.core.remoting.impl.netty.PartialPooledByteBufAllocator;
-import org.apache.activemq.core.remoting.impl.netty.TransportConstants;
-import org.apache.activemq.core.server.ActiveMQServer;
-import org.apache.activemq.core.server.ActiveMQServers;
-import org.apache.activemq.jms.client.ActiveMQTextMessage;
-import org.apache.activemq.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
+import org.apache.activemq.artemis.api.core.ActiveMQNotConnectedException;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.client.ClientConsumer;
+import org.apache.activemq.artemis.api.core.client.ClientMessage;
+import org.apache.activemq.artemis.api.core.client.ClientProducer;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
+import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.remoting.impl.netty.NettyAcceptor;
+import org.apache.activemq.artemis.core.remoting.impl.netty.PartialPooledByteBufAllocator;
+import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.ActiveMQServers;
+import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -60,11 +60,11 @@ import org.junit.Test;
 import static io.netty.handler.codec.http.HttpHeaders.Names.UPGRADE;
 import static io.netty.handler.codec.http.HttpResponseStatus.SWITCHING_PROTOCOLS;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
-import static org.apache.activemq.core.remoting.impl.netty.NettyConnector.MAGIC_NUMBER;
-import static org.apache.activemq.core.remoting.impl.netty.NettyConnector.SEC_ACTIVEMQ_REMOTING_ACCEPT;
-import static org.apache.activemq.core.remoting.impl.netty.NettyConnector.SEC_ACTIVEMQ_REMOTING_KEY;
-import static org.apache.activemq.core.remoting.impl.netty.NettyConnector.createExpectedResponse;
-import static org.apache.activemq.tests.util.RandomUtil.randomString;
+import static org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnector.MAGIC_NUMBER;
+import static org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnector.SEC_ACTIVEMQ_REMOTING_ACCEPT;
+import static org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnector.SEC_ACTIVEMQ_REMOTING_KEY;
+import static org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnector.createExpectedResponse;
+import static org.apache.activemq.artemis.tests.util.RandomUtil.randomString;
 
 /**
  * Test that Netty Connector can connect to a Web Server and upgrade from a HTTP request to its remoting protocol.
@@ -183,7 +183,7 @@ public class NettyConnectorWithHTTPUpgradeTest extends UnitTestCase
          e = x;
       }
 
-      // make sure we failed *before* the HTTP hand-shake timeout elapsed (which is hard-coded to 30 seconds, see org.apache.activemq.core.remoting.impl.netty.NettyConnector.HttpUpgradeHandler.awaitHandshake())
+      // make sure we failed *before* the HTTP hand-shake timeout elapsed (which is hard-coded to 30 seconds, see org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnector.HttpUpgradeHandler.awaitHandshake())
       assertTrue((System.currentTimeMillis() - start) < 30000);
       assertNotNull(e);
       assertTrue(e instanceof ActiveMQNotConnectedException);

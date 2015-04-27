@@ -14,13 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.rest.topic;
+package org.apache.activemq.artemis.rest.topic;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.activemq.rest.queue.push.FilePushStore;
-import org.apache.activemq.rest.queue.push.xml.PushRegistration;
+import org.apache.activemq.artemis.rest.queue.push.FilePushStore;
+import org.apache.activemq.artemis.rest.queue.push.xml.PushRegistration;
 
 public class FileTopicPushStore extends FilePushStore implements TopicPushStore
 {

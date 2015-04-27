@@ -14,12 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.unit.jms.client;
+package org.apache.activemq.artemis.tests.unit.jms.client;
 import javax.jms.MessageFormatException;
 
-import org.apache.activemq.jms.client.ActiveMQMapMessage;
-import org.apache.activemq.tests.util.RandomUtil;
-import org.apache.activemq.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.jms.client.ActiveMQMapMessage;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

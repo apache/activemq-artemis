@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.jndi;
+package org.apache.activemq.artemis.jndi;
 
 import javax.jms.ConnectionFactory;
 import javax.jms.Queue;
@@ -27,8 +27,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.activemq.api.jms.ActiveMQJMSClient;
-import org.apache.activemq.uri.ConnectionFactoryParser;
+import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
+import org.apache.activemq.artemis.uri.ConnectionFactoryParser;
 
 /**
  * A factory of the ActiveMQ InitialContext which contains

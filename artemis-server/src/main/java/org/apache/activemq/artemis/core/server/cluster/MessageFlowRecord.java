@@ -14,9 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.server.cluster;
+package org.apache.activemq.artemis.core.server.cluster;
 
-import org.apache.activemq.api.core.client.MessageHandler;
+import org.apache.activemq.artemis.api.core.client.MessageHandler;
 
 public interface MessageFlowRecord extends MessageHandler
 {

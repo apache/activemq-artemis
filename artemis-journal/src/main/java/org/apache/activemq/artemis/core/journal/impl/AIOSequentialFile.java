@@ -14,21 +14,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.journal.impl;
+package org.apache.activemq.artemis.core.journal.impl;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.concurrent.Executor;
 
-import org.apache.activemq.api.core.ActiveMQException;
-import org.apache.activemq.core.asyncio.AsynchronousFile;
-import org.apache.activemq.core.asyncio.BufferCallback;
-import org.apache.activemq.core.asyncio.IOExceptionListener;
-import org.apache.activemq.core.asyncio.impl.AsynchronousFileImpl;
-import org.apache.activemq.core.journal.IOAsyncTask;
-import org.apache.activemq.core.journal.SequentialFile;
-import org.apache.activemq.core.journal.SequentialFileFactory;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.core.asyncio.AsynchronousFile;
+import org.apache.activemq.artemis.core.asyncio.BufferCallback;
+import org.apache.activemq.artemis.core.asyncio.IOExceptionListener;
+import org.apache.activemq.artemis.core.asyncio.impl.AsynchronousFileImpl;
+import org.apache.activemq.artemis.core.journal.IOAsyncTask;
+import org.apache.activemq.artemis.core.journal.SequentialFile;
+import org.apache.activemq.artemis.core.journal.SequentialFileFactory;
 
 public class AIOSequentialFile extends AbstractSequentialFile implements IOExceptionListener
 {

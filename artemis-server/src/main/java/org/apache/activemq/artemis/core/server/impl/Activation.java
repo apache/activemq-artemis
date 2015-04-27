@@ -14,25 +14,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.server.impl;
+package org.apache.activemq.artemis.core.server.impl;
 
-import org.apache.activemq.api.core.ActiveMQException;
-import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.paging.PagingManager;
-import org.apache.activemq.core.persistence.StorageManager;
-import org.apache.activemq.core.postoffice.PostOffice;
-import org.apache.activemq.core.protocol.core.Channel;
-import org.apache.activemq.core.protocol.core.ChannelHandler;
-import org.apache.activemq.core.remoting.server.RemotingService;
-import org.apache.activemq.core.replication.ReplicationManager;
-import org.apache.activemq.core.server.ActiveMQServer;
-import org.apache.activemq.core.server.NodeManager;
-import org.apache.activemq.core.server.QueueFactory;
-import org.apache.activemq.core.server.cluster.ha.HAManager;
-import org.apache.activemq.core.server.cluster.ha.StandaloneHAManager;
-import org.apache.activemq.core.server.group.GroupingHandler;
-import org.apache.activemq.core.server.management.ManagementService;
-import org.apache.activemq.spi.core.remoting.Acceptor;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.paging.PagingManager;
+import org.apache.activemq.artemis.core.persistence.StorageManager;
+import org.apache.activemq.artemis.core.postoffice.PostOffice;
+import org.apache.activemq.artemis.core.protocol.core.Channel;
+import org.apache.activemq.artemis.core.protocol.core.ChannelHandler;
+import org.apache.activemq.artemis.core.remoting.server.RemotingService;
+import org.apache.activemq.artemis.core.replication.ReplicationManager;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.NodeManager;
+import org.apache.activemq.artemis.core.server.QueueFactory;
+import org.apache.activemq.artemis.core.server.cluster.ha.HAManager;
+import org.apache.activemq.artemis.core.server.cluster.ha.StandaloneHAManager;
+import org.apache.activemq.artemis.core.server.group.GroupingHandler;
+import org.apache.activemq.artemis.core.server.management.ManagementService;
+import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
 
 /**
 * An activation controls the lifecycle of the server and any components specific to the Activation itself.

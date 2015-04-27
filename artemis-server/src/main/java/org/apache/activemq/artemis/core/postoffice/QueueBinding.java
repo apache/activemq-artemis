@@ -14,9 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.postoffice;
+package org.apache.activemq.artemis.core.postoffice;
 
-import org.apache.activemq.core.server.Queue;
+import org.apache.activemq.artemis.core.server.Queue;
 
 public interface QueueBinding extends Binding
 {

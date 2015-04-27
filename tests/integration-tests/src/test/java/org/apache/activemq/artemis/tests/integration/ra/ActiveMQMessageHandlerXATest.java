@@ -14,20 +14,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.ra;
+package org.apache.activemq.artemis.tests.integration.ra;
 
-import org.apache.activemq.core.postoffice.Binding;
-import org.apache.activemq.core.server.Queue;
-import org.apache.activemq.ra.inflow.ActiveMQActivationSpec;
+import org.apache.activemq.artemis.core.postoffice.Binding;
+import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.ra.inflow.ActiveMQActivationSpec;
 import org.junit.Test;
 
-import org.apache.activemq.api.core.client.ClientMessage;
-import org.apache.activemq.api.core.client.ClientProducer;
-import org.apache.activemq.api.core.client.ClientSession;
-import org.apache.activemq.core.transaction.impl.XidImpl;
-import org.apache.activemq.ra.ActiveMQResourceAdapter;
-import org.apache.activemq.tests.util.UnitTestCase;
-import org.apache.activemq.utils.UUIDGenerator;
+import org.apache.activemq.artemis.api.core.client.ClientMessage;
+import org.apache.activemq.artemis.api.core.client.ClientProducer;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
+import org.apache.activemq.artemis.ra.ActiveMQResourceAdapter;
+import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.utils.UUIDGenerator;
 
 import javax.jms.Message;
 import javax.resource.ResourceException;

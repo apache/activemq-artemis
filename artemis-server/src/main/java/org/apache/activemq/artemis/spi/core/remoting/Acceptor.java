@@ -14,14 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.spi.core.remoting;
+package org.apache.activemq.artemis.spi.core.remoting;
 
 import java.util.Map;
 
-import org.apache.activemq.core.security.ActiveMQPrincipal;
-import org.apache.activemq.core.server.ActiveMQComponent;
-import org.apache.activemq.core.server.cluster.ClusterConnection;
-import org.apache.activemq.core.server.management.NotificationService;
+import org.apache.activemq.artemis.core.security.ActiveMQPrincipal;
+import org.apache.activemq.artemis.core.server.ActiveMQComponent;
+import org.apache.activemq.artemis.core.server.cluster.ClusterConnection;
+import org.apache.activemq.artemis.core.server.management.NotificationService;
 
 /**
  * An Acceptor is used by the RemotingService to allow clients to connect. It should take care of

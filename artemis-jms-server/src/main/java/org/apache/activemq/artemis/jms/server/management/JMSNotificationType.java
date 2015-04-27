@@ -14,10 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.jms.server.management;
+package org.apache.activemq.artemis.jms.server.management;
 
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.api.core.management.NotificationType;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.management.NotificationType;
 
 public enum JMSNotificationType implements NotificationType
 {

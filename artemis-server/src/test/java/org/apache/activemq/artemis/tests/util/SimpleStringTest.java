@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.util;
+package org.apache.activemq.artemis.tests.util;
 
 import org.junit.Test;
 
@@ -23,8 +23,8 @@ import java.util.concurrent.CountDownLatch;
 import org.junit.Assert;
 
 
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.utils.DataConstants;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.utils.DataConstants;
 
 public class SimpleStringTest extends Assert
 {

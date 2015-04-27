@@ -14,9 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.api.core;
-
-import static org.apache.activemq.api.core.ActiveMQExceptionType.IO_ERROR;
+package org.apache.activemq.artemis.api.core;
 
 /**
  * Unexpected I/O error occurred on the server.
@@ -27,16 +25,16 @@ public final class ActiveMQIOErrorException extends ActiveMQException
 
    public ActiveMQIOErrorException()
    {
-      super(IO_ERROR);
+      super(ActiveMQExceptionType.IO_ERROR);
    }
 
    public ActiveMQIOErrorException(String msg)
    {
-      super(IO_ERROR, msg);
+      super(ActiveMQExceptionType.IO_ERROR, msg);
    }
 
    public ActiveMQIOErrorException(String msg, Throwable cause)
    {
-      super(IO_ERROR, msg, cause);
+      super(ActiveMQExceptionType.IO_ERROR, msg, cause);
    }
 }

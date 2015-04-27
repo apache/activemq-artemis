@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.client;
+package org.apache.activemq.artemis.tests.integration.client;
 
 import javax.jms.Connection;
 import javax.jms.InvalidDestinationException;
@@ -28,12 +28,12 @@ import javax.jms.TextMessage;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.api.jms.ActiveMQJMSClient;
-import org.apache.activemq.core.security.Role;
-import org.apache.activemq.core.server.Queue;
-import org.apache.activemq.spi.core.security.ActiveMQSecurityManagerImpl;
-import org.apache.activemq.tests.util.JMSTestBase;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
+import org.apache.activemq.artemis.tests.util.JMSTestBase;
+import org.apache.activemq.artemis.core.security.Role;
+import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManagerImpl;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

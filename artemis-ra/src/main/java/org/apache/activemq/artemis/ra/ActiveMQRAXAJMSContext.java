@@ -14,10 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.ra;
+package org.apache.activemq.artemis.ra;
 
-import org.apache.activemq.jms.client.ActiveMQConnectionForContext;
-import org.apache.activemq.jms.client.ThreadAwareContext;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnectionForContext;
+import org.apache.activemq.artemis.jms.client.ThreadAwareContext;
 
 import javax.jms.XAJMSContext;
 

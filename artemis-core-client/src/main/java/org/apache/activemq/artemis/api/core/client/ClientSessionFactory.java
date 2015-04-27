@@ -14,11 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.api.core.client;
+package org.apache.activemq.artemis.api.core.client;
 
-import org.apache.activemq.api.core.ActiveMQException;
-import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 
 
 /**
@@ -33,7 +33,7 @@ public interface ClientSessionFactory extends AutoCloseable
     * Creates a session with XA transaction semantics.
     *
     * @return a ClientSession with XA transaction semantics
-    * @throws org.apache.activemq.api.core.ActiveMQException if an exception occurs while creating the session
+    * @throws ActiveMQException if an exception occurs while creating the session
     */
    ClientSession createXASession() throws ActiveMQException;
 
@@ -43,7 +43,7 @@ public interface ClientSessionFactory extends AutoCloseable
     * It is up to the client to commit when sending and acknowledging messages.
     *
     * @return a transacted ClientSession
-    * @throws org.apache.activemq.api.core.ActiveMQException if an exception occurs while creating the session
+    * @throws ActiveMQException if an exception occurs while creating the session
     * @see ClientSession#commit()
     */
    ClientSession createTransactedSession() throws ActiveMQException;
@@ -56,7 +56,7 @@ public interface ClientSessionFactory extends AutoCloseable
     * the session will automatically commit the transaction containing the acknowledgements.
     *
     * @return a non-transacted ClientSession
-    * @throws org.apache.activemq.api.core.ActiveMQException if an exception occurs while creating the session
+    * @throws ActiveMQException if an exception occurs while creating the session
     */
    ClientSession createSession() throws ActiveMQException;
 
@@ -66,7 +66,7 @@ public interface ClientSessionFactory extends AutoCloseable
     * @param autoCommitSends <code>true</code> to automatically commit message sends, <code>false</code> to commit manually
     * @param autoCommitAcks  <code>true</code> to automatically commit message acknowledgement, <code>false</code> to commit manually
     * @return a ClientSession
-    * @throws org.apache.activemq.api.core.ActiveMQException if an exception occurs while creating the session
+    * @throws ActiveMQException if an exception occurs while creating the session
     */
    ClientSession createSession(boolean autoCommitSends, boolean autoCommitAcks) throws ActiveMQException;
 
@@ -77,7 +77,7 @@ public interface ClientSessionFactory extends AutoCloseable
     * @param autoCommitAcks  <code>true</code> to automatically commit message acknowledgement, <code>false</code> to commit manually
     * @param ackBatchSize    the batch size of the acknowledgements
     * @return a ClientSession
-    * @throws org.apache.activemq.api.core.ActiveMQException if an exception occurs while creating the session
+    * @throws ActiveMQException if an exception occurs while creating the session
     */
    ClientSession createSession(boolean autoCommitSends, boolean autoCommitAcks, int ackBatchSize) throws ActiveMQException;
 
@@ -88,7 +88,7 @@ public interface ClientSessionFactory extends AutoCloseable
     * @param autoCommitSends <code>true</code> to automatically commit message sends, <code>false</code> to commit manually
     * @param autoCommitAcks  <code>true</code> to automatically commit message acknowledgement, <code>false</code> to commit manually
     * @return a ClientSession
-    * @throws org.apache.activemq.api.core.ActiveMQException if an exception occurs while creating the session
+    * @throws ActiveMQException if an exception occurs while creating the session
     */
    ClientSession createSession(boolean xa, boolean autoCommitSends, boolean autoCommitAcks) throws ActiveMQException;
 
@@ -104,7 +104,7 @@ public interface ClientSessionFactory extends AutoCloseable
     * @param autoCommitAcks  <code>true</code> to automatically commit message acknowledgement, <code>false</code> to commit manually
     * @param preAcknowledge  <code>true</code> to pre-acknowledge messages on the server, <code>false</code> to let the client acknowledge the messages
     * @return a ClientSession
-    * @throws org.apache.activemq.api.core.ActiveMQException if an exception occurs while creating the session
+    * @throws ActiveMQException if an exception occurs while creating the session
     */
    ClientSession createSession(boolean xa, boolean autoCommitSends, boolean autoCommitAcks, boolean preAcknowledge) throws ActiveMQException;
 
@@ -122,7 +122,7 @@ public interface ClientSessionFactory extends AutoCloseable
     * @param autoCommitAcks  <code>true</code> to automatically commit message acknowledgement, <code>false</code> to commit manually
     * @param preAcknowledge  <code>true</code> to pre-acknowledge messages on the server, <code>false</code> to let the client acknowledge the messages
     * @return a ClientSession
-    * @throws org.apache.activemq.api.core.ActiveMQException if an exception occurs while creating the session
+    * @throws ActiveMQException if an exception occurs while creating the session
     */
    ClientSession createSession(String username,
                                String password,

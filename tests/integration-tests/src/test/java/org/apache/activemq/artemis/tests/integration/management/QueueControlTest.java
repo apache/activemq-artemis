@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.management;
+package org.apache.activemq.artemis.tests.integration.management;
 
 import java.util.LinkedList;
 import java.util.Map;
@@ -23,34 +23,34 @@ import java.util.concurrent.TimeUnit;
 
 import javax.management.Notification;
 
-import org.apache.activemq.api.core.ActiveMQException;
-import org.apache.activemq.api.core.Message;
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.api.core.TransportConfiguration;
-import org.apache.activemq.api.core.client.ClientConsumer;
-import org.apache.activemq.api.core.client.ClientMessage;
-import org.apache.activemq.api.core.client.ClientProducer;
-import org.apache.activemq.api.core.client.ClientSession;
-import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.ActiveMQClient;
-import org.apache.activemq.api.core.client.MessageHandler;
-import org.apache.activemq.api.core.client.ServerLocator;
-import org.apache.activemq.api.core.management.CoreNotificationType;
-import org.apache.activemq.api.core.management.DayCounterInfo;
-import org.apache.activemq.api.core.management.ActiveMQServerControl;
-import org.apache.activemq.api.core.management.MessageCounterInfo;
-import org.apache.activemq.api.core.management.ObjectNameBuilder;
-import org.apache.activemq.api.core.management.QueueControl;
-import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.message.impl.MessageImpl;
-import org.apache.activemq.core.messagecounter.impl.MessageCounterManagerImpl;
-import org.apache.activemq.core.server.ActiveMQServer;
-import org.apache.activemq.core.server.ActiveMQServers;
-import org.apache.activemq.core.server.Queue;
-import org.apache.activemq.core.settings.impl.AddressSettings;
-import org.apache.activemq.tests.integration.jms.server.management.JMSUtil;
-import org.apache.activemq.tests.util.RandomUtil;
-import org.apache.activemq.utils.json.JSONArray;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.client.ClientConsumer;
+import org.apache.activemq.artemis.api.core.client.ClientMessage;
+import org.apache.activemq.artemis.api.core.client.ClientProducer;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
+import org.apache.activemq.artemis.api.core.client.MessageHandler;
+import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.api.core.management.CoreNotificationType;
+import org.apache.activemq.artemis.api.core.management.DayCounterInfo;
+import org.apache.activemq.artemis.api.core.management.ActiveMQServerControl;
+import org.apache.activemq.artemis.api.core.management.MessageCounterInfo;
+import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
+import org.apache.activemq.artemis.api.core.management.QueueControl;
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.message.impl.MessageImpl;
+import org.apache.activemq.artemis.core.messagecounter.impl.MessageCounterManagerImpl;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.ActiveMQServers;
+import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.tests.integration.jms.server.management.JMSUtil;
+import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.json.JSONArray;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -264,7 +264,7 @@ public class QueueControlTest extends ManagementTestBase
       producer.send(session.createMessage(false));
       Assert.assertEquals(1, getMessageCount(queueControl));
 
-      ManagementTestBase.consumeMessages(1, session, queue);
+      consumeMessages(1, session, queue);
 
       Assert.assertEquals(0, getMessageCount(queueControl));
 
@@ -320,7 +320,7 @@ public class QueueControlTest extends ManagementTestBase
       producer.send(session.createMessage(false));
       Assert.assertEquals(2, getMessagesAdded(queueControl));
 
-      ManagementTestBase.consumeMessages(2, session, queue);
+      consumeMessages(2, session, queue);
 
       Assert.assertEquals(2, getMessagesAdded(queueControl));
 
@@ -340,10 +340,10 @@ public class QueueControlTest extends ManagementTestBase
 
       ClientProducer producer = session.createProducer(address);
       producer.send(session.createMessage(false));
-      ManagementTestBase.consumeMessages(1, session, queue);
+      consumeMessages(1, session, queue);
       Assert.assertEquals(1, queueControl.getMessagesAcknowledged());
       producer.send(session.createMessage(false));
-      ManagementTestBase.consumeMessages(1, session, queue);
+      consumeMessages(1, session, queue);
       Assert.assertEquals(2, queueControl.getMessagesAcknowledged());
 
 //      ManagementTestBase.consumeMessages(2, session, queue);
@@ -377,12 +377,12 @@ public class QueueControlTest extends ManagementTestBase
       }
 
       Assert.assertEquals(1, queueControl.getScheduledCount());
-      ManagementTestBase.consumeMessages(0, session, queue);
+      consumeMessages(0, session, queue);
 
       Thread.sleep(delay * 2);
 
       Assert.assertEquals(0, queueControl.getScheduledCount());
-      ManagementTestBase.consumeMessages(1, session, queue);
+      consumeMessages(1, session, queue);
 
       session.deleteQueue(queue);
    }
@@ -570,7 +570,7 @@ public class QueueControlTest extends ManagementTestBase
       messages = queueControl.listScheduledMessages();
       Assert.assertEquals(0, messages.length);
 
-      ManagementTestBase.consumeMessages(2, session, queue);
+      consumeMessages(2, session, queue);
 
       session.deleteQueue(queue);
    }
@@ -607,7 +607,7 @@ public class QueueControlTest extends ManagementTestBase
       array = new JSONArray(jsonString);
       Assert.assertEquals(0, array.length());
 
-      ManagementTestBase.consumeMessages(2, session, queue);
+      consumeMessages(2, session, queue);
 
       session.deleteQueue(queue);
    }
@@ -660,7 +660,7 @@ public class QueueControlTest extends ManagementTestBase
       Assert.assertEquals(1, array.length());
       Assert.assertEquals(intValue, array.getJSONObject(0).get("key"));
 
-      ManagementTestBase.consumeMessages(1, session, queue);
+      consumeMessages(1, session, queue);
 
       jsonString = queueControl.listMessagesAsJSON(null);
       Assert.assertNotNull(jsonString);
@@ -696,7 +696,7 @@ public class QueueControlTest extends ManagementTestBase
       Assert.assertEquals(1, messages.length);
       Assert.assertEquals(matchingValue, messages[0].get("key"));
 
-      ManagementTestBase.consumeMessages(2, session, queue);
+      consumeMessages(2, session, queue);
 
       messages = queueControl.listMessages(filter);
       Assert.assertEquals(0, messages.length);
@@ -720,7 +720,7 @@ public class QueueControlTest extends ManagementTestBase
       Map<String, Object>[] messages = queueControl.listMessages(null);
       Assert.assertEquals(2, messages.length);
 
-      ManagementTestBase.consumeMessages(2, session, queue);
+      consumeMessages(2, session, queue);
 
       messages = queueControl.listMessages(null);
       Assert.assertEquals(0, messages.length);
@@ -744,7 +744,7 @@ public class QueueControlTest extends ManagementTestBase
       Map<String, Object>[] messages = queueControl.listMessages("");
       Assert.assertEquals(2, messages.length);
 
-      ManagementTestBase.consumeMessages(2, session, queue);
+      consumeMessages(2, session, queue);
 
       messages = queueControl.listMessages("");
       Assert.assertEquals(0, messages.length);
@@ -780,7 +780,7 @@ public class QueueControlTest extends ManagementTestBase
       Assert.assertEquals(1, array.length());
       Assert.assertEquals(matchingValue, array.getJSONObject(0).get("key"));
 
-      ManagementTestBase.consumeMessages(2, session, queue);
+      consumeMessages(2, session, queue);
 
       jsonString = queueControl.listMessagesAsJSON(filter);
       Assert.assertNotNull(jsonString);
@@ -826,7 +826,7 @@ public class QueueControlTest extends ManagementTestBase
       Assert.assertEquals(0, getMessageCount(queueControl));
 
       // check there is no message to consume from queue
-      ManagementTestBase.consumeMessages(0, session, queue);
+      consumeMessages(0, session, queue);
 
       // consume the message from otherQueue
       ClientConsumer otherConsumer = session.createConsumer(otherQueue);
@@ -871,7 +871,7 @@ public class QueueControlTest extends ManagementTestBase
       }
       Assert.assertEquals(1, getMessageCount(queueControl));
 
-      ManagementTestBase.consumeMessages(1, session, queue);
+      consumeMessages(1, session, queue);
 
       session.deleteQueue(queue);
    }
@@ -968,8 +968,8 @@ public class QueueControlTest extends ManagementTestBase
       Assert.assertEquals(1, getMessageCount(queueControl));
       Assert.assertEquals(1, getMessageCount(otherQueueControl));
 
-      ManagementTestBase.consumeMessages(1, session, queue);
-      ManagementTestBase.consumeMessages(1, session, otherQueue);
+      consumeMessages(1, session, queue);
+      consumeMessages(1, session, otherQueue);
 
       session.deleteQueue(queue);
       session.deleteQueue(otherQueue);
@@ -1007,7 +1007,7 @@ public class QueueControlTest extends ManagementTestBase
       }
       Assert.assertEquals(1, getMessageCount(queueControl));
 
-      ManagementTestBase.consumeMessages(1, session, queue);
+      consumeMessages(1, session, queue);
 
       session.deleteQueue(queue);
    }
@@ -1185,7 +1185,7 @@ public class QueueControlTest extends ManagementTestBase
       Assert.assertEquals(1, getMessageCount(queueControl));
 
       // check there is a single message to consume from queue
-      ManagementTestBase.consumeMessages(1, session, queue);
+      consumeMessages(1, session, queue);
 
       session.deleteQueue(queue);
    }
@@ -1227,7 +1227,7 @@ public class QueueControlTest extends ManagementTestBase
          Thread.sleep(100);
       }
 
-      ManagementTestBase.consumeMessages(1, session, queue);
+      consumeMessages(1, session, queue);
 
       session.deleteQueue(queue);
    }
@@ -1277,7 +1277,7 @@ public class QueueControlTest extends ManagementTestBase
       cons.close();
 
       // check there is a single message to consume from queue
-      ManagementTestBase.consumeMessages(99, session, queue);
+      consumeMessages(99, session, queue);
 
       session.deleteQueue(queue);
    }
@@ -1445,8 +1445,8 @@ public class QueueControlTest extends ManagementTestBase
       Assert.assertEquals(0, getMessageCount(queueControl));
       Assert.assertEquals(1, getMessageCount(expiryQueueControl));
 
-      ManagementTestBase.consumeMessages(0, session, queue);
-      ManagementTestBase.consumeMessages(1, session, expiryQueue);
+      consumeMessages(0, session, queue);
+      consumeMessages(1, session, expiryQueue);
 
       session.deleteQueue(queue);
       session.deleteQueue(expiryQueue);
@@ -1489,10 +1489,10 @@ public class QueueControlTest extends ManagementTestBase
       Assert.assertEquals(1, getMessageCount(deadLetterQueueControl));
 
       // check there is a single message to consume from queue
-      ManagementTestBase.consumeMessages(1, session, queue);
+      consumeMessages(1, session, queue);
 
       // check there is a single message to consume from deadletter queue
-      ManagementTestBase.consumeMessages(1, session, deadLetterQueue);
+      consumeMessages(1, session, deadLetterQueue);
 
       session.deleteQueue(queue);
       session.deleteQueue(deadLetterQueue);
@@ -1614,7 +1614,7 @@ public class QueueControlTest extends ManagementTestBase
       Assert.assertEquals(2, info.getCount());
       Assert.assertEquals(1, info.getCountDelta());
 
-      ManagementTestBase.consumeMessages(2, session, queue);
+      consumeMessages(2, session, queue);
 
       Thread.sleep(MessageCounterManagerImpl.MIN_SAMPLE_PERIOD * 2);
       jsonString = queueControl.listMessageCounter();
@@ -1657,7 +1657,7 @@ public class QueueControlTest extends ManagementTestBase
       Assert.assertEquals(1, info.getCount());
       Assert.assertEquals(1, info.getCountDelta());
 
-      ManagementTestBase.consumeMessages(1, session, queue);
+      consumeMessages(1, session, queue);
 
       Thread.sleep(MessageCounterManagerImpl.MIN_SAMPLE_PERIOD * 2);
       jsonString = queueControl.listMessageCounter();
@@ -1755,7 +1755,7 @@ public class QueueControlTest extends ManagementTestBase
       {
          ClientMessage msg = session.createMessage(true);
 
-         msg.putStringProperty(org.apache.activemq.api.core.Message.HDR_DUPLICATE_DETECTION_ID, new SimpleString("dupl-" + i));
+         msg.putStringProperty(Message.HDR_DUPLICATE_DETECTION_ID, new SimpleString("dupl-" + i));
 
          prod1.send(msg);
       }
@@ -1828,7 +1828,7 @@ public class QueueControlTest extends ManagementTestBase
       {
          ClientMessage msg = session.createMessage(true);
 
-         msg.putStringProperty(org.apache.activemq.api.core.Message.HDR_DUPLICATE_DETECTION_ID, new SimpleString("dupl-" + i));
+         msg.putStringProperty(Message.HDR_DUPLICATE_DETECTION_ID, new SimpleString("dupl-" + i));
 
          prod1.send(msg);
       }
@@ -1936,7 +1936,7 @@ public class QueueControlTest extends ManagementTestBase
       producer.send(session.createMessage(false));
       Assert.assertEquals(2, getMessagesAdded(queueControl));
 
-      ManagementTestBase.consumeMessages(2, session, queue);
+      consumeMessages(2, session, queue);
 
       Assert.assertEquals(2, getMessagesAdded(queueControl));
 
@@ -1960,10 +1960,10 @@ public class QueueControlTest extends ManagementTestBase
 
       ClientProducer producer = session.createProducer(address);
       producer.send(session.createMessage(false));
-      ManagementTestBase.consumeMessages(1, session, queue);
+      consumeMessages(1, session, queue);
       Assert.assertEquals(1, queueControl.getMessagesAcknowledged());
       producer.send(session.createMessage(false));
-      ManagementTestBase.consumeMessages(1, session, queue);
+      consumeMessages(1, session, queue);
       Assert.assertEquals(2, queueControl.getMessagesAcknowledged());
 
       queueControl.resetMessagesAcknowledged();

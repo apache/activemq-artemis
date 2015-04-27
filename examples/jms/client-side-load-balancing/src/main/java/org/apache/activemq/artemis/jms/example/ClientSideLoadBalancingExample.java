@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.jms.example;
+package org.apache.activemq.artemis.jms.example;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -26,7 +26,7 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.naming.InitialContext;
 
-import org.apache.activemq.common.example.ActiveMQExample;
+import org.apache.activemq.artemis.common.example.ActiveMQExample;
 
 /**
  * This example demonstrates how sessions created from a single connection can be load
@@ -77,9 +77,9 @@ public class ClientSideLoadBalancingExample extends ActiveMQExample
          Session sessionB = connectionB.createSession(false, Session.AUTO_ACKNOWLEDGE);
          Session sessionC = connectionC.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-         System.out.println("Session A - " + ((org.apache.activemq.core.client.impl.DelegatingSession) ((org.apache.activemq.jms.client.ActiveMQSession) sessionA).getCoreSession()).getConnection().getRemoteAddress() );
-         System.out.println("Session B - " + ((org.apache.activemq.core.client.impl.DelegatingSession) ((org.apache.activemq.jms.client.ActiveMQSession) sessionB).getCoreSession()).getConnection().getRemoteAddress() );
-         System.out.println("Session C - " + ((org.apache.activemq.core.client.impl.DelegatingSession) ((org.apache.activemq.jms.client.ActiveMQSession) sessionC).getCoreSession()).getConnection().getRemoteAddress() );
+         System.out.println("Session A - " + ((org.apache.activemq.artemis.core.client.impl.DelegatingSession) ((org.apache.activemq.artemis.jms.client.ActiveMQSession) sessionA).getCoreSession()).getConnection().getRemoteAddress() );
+         System.out.println("Session B - " + ((org.apache.activemq.artemis.core.client.impl.DelegatingSession) ((org.apache.activemq.artemis.jms.client.ActiveMQSession) sessionB).getCoreSession()).getConnection().getRemoteAddress() );
+         System.out.println("Session C - " + ((org.apache.activemq.artemis.core.client.impl.DelegatingSession) ((org.apache.activemq.artemis.jms.client.ActiveMQSession) sessionC).getCoreSession()).getConnection().getRemoteAddress() );
 
          // Step 6. We create JMS MessageProducer objects on the sessions
          MessageProducer producerA = sessionA.createProducer(queue);

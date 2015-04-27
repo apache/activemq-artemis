@@ -14,8 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.cluster.reattach;
-import org.apache.activemq.api.core.ActiveMQException;
+package org.apache.activemq.artemis.tests.integration.cluster.reattach;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
+import org.apache.activemq.artemis.tests.util.UnitTestCase;
 import org.junit.Before;
 import org.junit.After;
 
@@ -30,20 +32,19 @@ import java.util.concurrent.TimeUnit;
 
 import org.junit.Assert;
 
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.api.core.client.ClientConsumer;
-import org.apache.activemq.api.core.client.ClientMessage;
-import org.apache.activemq.api.core.client.ClientProducer;
-import org.apache.activemq.api.core.client.ClientSession;
-import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.MessageHandler;
-import org.apache.activemq.api.core.client.ServerLocator;
-import org.apache.activemq.core.remoting.impl.invm.InVMRegistry;
-import org.apache.activemq.core.server.ActiveMQServer;
-import org.apache.activemq.jms.client.ActiveMQBytesMessage;
-import org.apache.activemq.jms.client.ActiveMQTextMessage;
-import org.apache.activemq.tests.integration.IntegrationTestLogger;
-import org.apache.activemq.tests.util.RandomUtil;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.client.ClientConsumer;
+import org.apache.activemq.artemis.api.core.client.ClientMessage;
+import org.apache.activemq.artemis.api.core.client.ClientProducer;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
+import org.apache.activemq.artemis.api.core.client.MessageHandler;
+import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.core.remoting.impl.invm.InVMRegistry;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.jms.client.ActiveMQBytesMessage;
+import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
+import org.apache.activemq.artemis.tests.util.RandomUtil;
 
 public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReattachSupportTestBase
 {
@@ -1276,7 +1277,7 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
    @After
    public void tearDown() throws Exception
    {
-      stopComponent(liveServer);
+      UnitTestCase.stopComponent(liveServer);
 
       liveServer = null;
 
@@ -1316,7 +1317,7 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
    @Override
    protected void stop() throws Exception
    {
-      stopComponent(liveServer);
+      UnitTestCase.stopComponent(liveServer);
 
       System.gc();
 

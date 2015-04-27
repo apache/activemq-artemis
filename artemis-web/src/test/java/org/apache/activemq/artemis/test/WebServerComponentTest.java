@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.test;
+package org.apache.activemq.artemis.test;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
@@ -33,8 +33,8 @@ import io.netty.handler.codec.http.HttpObject;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpVersion;
 import io.netty.util.CharsetUtil;
-import org.apache.activemq.component.WebServerComponent;
-import org.apache.activemq.dto.WebServerDTO;
+import org.apache.activemq.artemis.component.WebServerComponent;
+import org.apache.activemq.artemis.dto.WebServerDTO;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

@@ -14,44 +14,44 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.jms.client;
+package org.apache.activemq.artemis.jms.client;
 
 import javax.jms.BytesMessage;
 import javax.jms.JMSException;
 import javax.jms.MessageEOFException;
 import javax.jms.MessageFormatException;
 
-import org.apache.activemq.api.core.ActiveMQBuffer;
-import org.apache.activemq.api.core.ActiveMQException;
-import org.apache.activemq.api.core.Message;
-import org.apache.activemq.api.core.client.ClientMessage;
-import org.apache.activemq.api.core.client.ClientSession;
-import org.apache.activemq.core.message.impl.MessageImpl;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.client.ClientMessage;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.core.message.impl.MessageImpl;
 
-import static org.apache.activemq.reader.BytesMessageUtil.bytesMessageReset;
-import static org.apache.activemq.reader.BytesMessageUtil.bytesReadBoolean;
-import static org.apache.activemq.reader.BytesMessageUtil.bytesReadByte;
-import static org.apache.activemq.reader.BytesMessageUtil.bytesReadBytes;
-import static org.apache.activemq.reader.BytesMessageUtil.bytesReadChar;
-import static org.apache.activemq.reader.BytesMessageUtil.bytesReadDouble;
-import static org.apache.activemq.reader.BytesMessageUtil.bytesReadFloat;
-import static org.apache.activemq.reader.BytesMessageUtil.bytesReadInt;
-import static org.apache.activemq.reader.BytesMessageUtil.bytesReadLong;
-import static org.apache.activemq.reader.BytesMessageUtil.bytesReadShort;
-import static org.apache.activemq.reader.BytesMessageUtil.bytesReadUTF;
-import static org.apache.activemq.reader.BytesMessageUtil.bytesReadUnsignedByte;
-import static org.apache.activemq.reader.BytesMessageUtil.bytesReadUnsignedShort;
-import static org.apache.activemq.reader.BytesMessageUtil.bytesWriteBoolean;
-import static org.apache.activemq.reader.BytesMessageUtil.bytesWriteByte;
-import static org.apache.activemq.reader.BytesMessageUtil.bytesWriteBytes;
-import static org.apache.activemq.reader.BytesMessageUtil.bytesWriteChar;
-import static org.apache.activemq.reader.BytesMessageUtil.bytesWriteDouble;
-import static org.apache.activemq.reader.BytesMessageUtil.bytesWriteFloat;
-import static org.apache.activemq.reader.BytesMessageUtil.bytesWriteInt;
-import static org.apache.activemq.reader.BytesMessageUtil.bytesWriteLong;
-import static org.apache.activemq.reader.BytesMessageUtil.bytesWriteObject;
-import static org.apache.activemq.reader.BytesMessageUtil.bytesWriteShort;
-import static org.apache.activemq.reader.BytesMessageUtil.bytesWriteUTF;
+import static org.apache.activemq.artemis.reader.BytesMessageUtil.bytesMessageReset;
+import static org.apache.activemq.artemis.reader.BytesMessageUtil.bytesReadBoolean;
+import static org.apache.activemq.artemis.reader.BytesMessageUtil.bytesReadByte;
+import static org.apache.activemq.artemis.reader.BytesMessageUtil.bytesReadBytes;
+import static org.apache.activemq.artemis.reader.BytesMessageUtil.bytesReadChar;
+import static org.apache.activemq.artemis.reader.BytesMessageUtil.bytesReadDouble;
+import static org.apache.activemq.artemis.reader.BytesMessageUtil.bytesReadFloat;
+import static org.apache.activemq.artemis.reader.BytesMessageUtil.bytesReadInt;
+import static org.apache.activemq.artemis.reader.BytesMessageUtil.bytesReadLong;
+import static org.apache.activemq.artemis.reader.BytesMessageUtil.bytesReadShort;
+import static org.apache.activemq.artemis.reader.BytesMessageUtil.bytesReadUTF;
+import static org.apache.activemq.artemis.reader.BytesMessageUtil.bytesReadUnsignedByte;
+import static org.apache.activemq.artemis.reader.BytesMessageUtil.bytesReadUnsignedShort;
+import static org.apache.activemq.artemis.reader.BytesMessageUtil.bytesWriteBoolean;
+import static org.apache.activemq.artemis.reader.BytesMessageUtil.bytesWriteByte;
+import static org.apache.activemq.artemis.reader.BytesMessageUtil.bytesWriteBytes;
+import static org.apache.activemq.artemis.reader.BytesMessageUtil.bytesWriteChar;
+import static org.apache.activemq.artemis.reader.BytesMessageUtil.bytesWriteDouble;
+import static org.apache.activemq.artemis.reader.BytesMessageUtil.bytesWriteFloat;
+import static org.apache.activemq.artemis.reader.BytesMessageUtil.bytesWriteInt;
+import static org.apache.activemq.artemis.reader.BytesMessageUtil.bytesWriteLong;
+import static org.apache.activemq.artemis.reader.BytesMessageUtil.bytesWriteObject;
+import static org.apache.activemq.artemis.reader.BytesMessageUtil.bytesWriteShort;
+import static org.apache.activemq.artemis.reader.BytesMessageUtil.bytesWriteUTF;
 
 /**
  * ActiveMQ implementation of a JMS {@link BytesMessage}.

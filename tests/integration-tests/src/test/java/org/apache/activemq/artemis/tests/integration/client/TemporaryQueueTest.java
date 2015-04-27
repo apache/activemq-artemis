@@ -14,46 +14,45 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.client;
+package org.apache.activemq.artemis.tests.integration.client;
 
 import java.util.Arrays;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq.api.core.ActiveMQDisconnectedException;
-import org.apache.activemq.api.core.ActiveMQException;
-import org.apache.activemq.api.core.ActiveMQExceptionType;
-import org.apache.activemq.api.core.ActiveMQIOErrorException;
-import org.apache.activemq.api.core.ActiveMQInternalErrorException;
-import org.apache.activemq.api.core.ActiveMQNonExistentQueueException;
-import org.apache.activemq.api.core.Interceptor;
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.api.core.client.ClientConsumer;
-import org.apache.activemq.api.core.client.ClientMessage;
-import org.apache.activemq.api.core.client.ClientProducer;
-import org.apache.activemq.api.core.client.ClientSession;
-import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.core.client.MessageHandler;
-import org.apache.activemq.api.core.client.ServerLocator;
-import org.apache.activemq.core.client.impl.ClientProducerImpl;
-import org.apache.activemq.core.client.impl.ClientSessionInternal;
-import org.apache.activemq.core.protocol.core.Packet;
-import org.apache.activemq.core.protocol.core.impl.PacketImpl;
-import org.apache.activemq.core.protocol.core.impl.RemotingConnectionImpl;
-import org.apache.activemq.core.remoting.CloseListener;
-import org.apache.activemq.core.remoting.server.impl.RemotingServiceImpl;
-import org.apache.activemq.core.server.ServerSession;
-import org.apache.activemq.core.server.impl.ServerSessionImpl;
-import org.apache.activemq.core.settings.impl.AddressFullMessagePolicy;
-import org.apache.activemq.core.settings.impl.AddressSettings;
-import org.apache.activemq.spi.core.protocol.RemotingConnection;
-import org.apache.activemq.tests.integration.IntegrationTestLogger;
-import org.apache.activemq.tests.util.RandomUtil;
-import org.apache.activemq.tests.util.SingleServerTestBase;
-import org.apache.activemq.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.api.core.ActiveMQDisconnectedException;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
+import org.apache.activemq.artemis.api.core.ActiveMQIOErrorException;
+import org.apache.activemq.artemis.api.core.ActiveMQInternalErrorException;
+import org.apache.activemq.artemis.api.core.ActiveMQNonExistentQueueException;
+import org.apache.activemq.artemis.api.core.Interceptor;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.client.ClientConsumer;
+import org.apache.activemq.artemis.api.core.client.ClientMessage;
+import org.apache.activemq.artemis.api.core.client.ClientProducer;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
+import org.apache.activemq.artemis.api.core.client.MessageHandler;
+import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.tests.util.SingleServerTestBase;
+import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.core.client.impl.ClientProducerImpl;
+import org.apache.activemq.artemis.core.client.impl.ClientSessionInternal;
+import org.apache.activemq.artemis.core.protocol.core.Packet;
+import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
+import org.apache.activemq.artemis.core.protocol.core.impl.RemotingConnectionImpl;
+import org.apache.activemq.artemis.core.remoting.CloseListener;
+import org.apache.activemq.artemis.core.remoting.server.impl.RemotingServiceImpl;
+import org.apache.activemq.artemis.core.server.ServerSession;
+import org.apache.activemq.artemis.core.server.impl.ServerSessionImpl;
+import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
+import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
+import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Test;
 
 public class TemporaryQueueTest extends SingleServerTestBase
@@ -88,7 +87,7 @@ public class TemporaryQueueTest extends SingleServerTestBase
       session.start();
       ClientConsumer consumer = session.createConsumer(queue);
       ClientMessage message = consumer.receive(500);
-      Assert.assertNotNull(message);
+      assertNotNull(message);
       message.acknowledge();
 
       consumer.close();
@@ -137,7 +136,7 @@ public class TemporaryQueueTest extends SingleServerTestBase
       session.start();
       ClientConsumer consumer = session.createConsumer(queue);
       ClientMessage message = consumer.receive(500);
-      Assert.assertNotNull(message);
+      assertNotNull(message);
       message.acknowledge();
 
       SimpleString[] storeNames = server.getPagingManager().getStoreNames();
@@ -168,7 +167,7 @@ public class TemporaryQueueTest extends SingleServerTestBase
 
       ClientConsumer consumer = session2.createConsumer(queue);
       ClientMessage message = consumer.receive(500);
-      Assert.assertNotNull(message);
+      assertNotNull(message);
 
       session2.close();
       session.close();
@@ -205,7 +204,7 @@ public class TemporaryQueueTest extends SingleServerTestBase
       session.close();
       sf.close();
       // wait for the closing listeners to be fired
-      Assert.assertTrue("connection close listeners not fired", latch.await(2 * TemporaryQueueTest.CONNECTION_TTL,
+      assertTrue("connection close listeners not fired", latch.await(2 * TemporaryQueueTest.CONNECTION_TTL,
                                                                             TimeUnit.MILLISECONDS));
 
       sf = addSessionFactory(createSessionFactory(locator));
@@ -215,7 +214,7 @@ public class TemporaryQueueTest extends SingleServerTestBase
       try
       {
          session.createConsumer(queue);
-         Assert.fail("temp queue must not exist after the remoting connection is closed");
+         fail("temp queue must not exist after the remoting connection is closed");
       }
       catch (ActiveMQNonExistentQueueException neqe)
       {
@@ -328,7 +327,7 @@ public class TemporaryQueueTest extends SingleServerTestBase
       SimpleString address = RandomUtil.randomSimpleString();
 
       session.createTemporaryQueue(address, queue);
-      Assert.assertEquals(1, server.getConnectionCount());
+      assertEquals(1, server.getConnectionCount());
 
       // we create a second session. the temp queue must be present
       // even after we closed the session which created it
@@ -527,10 +526,10 @@ public class TemporaryQueueTest extends SingleServerTestBase
       session = sf.createSession(false, true, true);
 
       session.createTemporaryQueue(address, queue);
-      Assert.assertTrue("server has not received any ping from the client",
+      assertTrue("server has not received any ping from the client",
                         pingOnServerLatch.await(2 * RemotingServiceImpl.CONNECTION_TTL_CHECK_INTERVAL,
                                                 TimeUnit.MILLISECONDS));
-      Assert.assertEquals(1, server.getConnectionCount());
+      assertEquals(1, server.getConnectionCount());
 
       RemotingConnection remotingConnection = server.getRemotingService().getConnections().iterator().next();
       final CountDownLatch serverCloseLatch = new CountDownLatch(1);
@@ -545,7 +544,7 @@ public class TemporaryQueueTest extends SingleServerTestBase
       ((ClientSessionInternal) session).getConnection().fail(new ActiveMQInternalErrorException("simulate a client failure"));
 
       // let some time for the server to clean the connections
-      Assert.assertTrue("server has not closed the connection",
+      assertTrue("server has not closed the connection",
                         serverCloseLatch.await(2 * RemotingServiceImpl.CONNECTION_TTL_CHECK_INTERVAL +
                                                   2 *
                                                      TemporaryQueueTest.CONNECTION_TTL, TimeUnit.MILLISECONDS));
@@ -556,7 +555,7 @@ public class TemporaryQueueTest extends SingleServerTestBase
          Thread.sleep(1);
       }
 
-      Assert.assertEquals(0, server.getConnectionCount());
+      assertEquals(0, server.getConnectionCount());
 
       session.close();
 
@@ -576,7 +575,7 @@ public class TemporaryQueueTest extends SingleServerTestBase
       };
 
       UnitTestCase.expectActiveMQException("temp queue must not exist after the server detected the client crash",
-                                           ActiveMQExceptionType.QUEUE_DOES_NOT_EXIST, activeMQAction);
+              ActiveMQExceptionType.QUEUE_DOES_NOT_EXIST, activeMQAction);
 
       session.close();
 

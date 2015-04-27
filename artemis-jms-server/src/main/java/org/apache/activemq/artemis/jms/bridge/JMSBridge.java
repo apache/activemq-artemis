@@ -14,11 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.jms.bridge;
+package org.apache.activemq.artemis.jms.bridge;
 
 import javax.transaction.TransactionManager;
 
-import org.apache.activemq.core.server.ActiveMQComponent;
+import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 
 public interface JMSBridge extends ActiveMQComponent
 {

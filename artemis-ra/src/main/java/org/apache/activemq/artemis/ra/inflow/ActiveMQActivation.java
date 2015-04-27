@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.ra.inflow;
+package org.apache.activemq.artemis.ra.inflow;
 
 import javax.jms.Destination;
 import javax.jms.Message;
@@ -33,25 +33,25 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.apache.activemq.api.core.ActiveMQException;
-import org.apache.activemq.api.core.ActiveMQExceptionType;
-import org.apache.activemq.api.core.ActiveMQNonExistentQueueException;
-import org.apache.activemq.api.core.ActiveMQNotConnectedException;
-import org.apache.activemq.api.core.SimpleString;
-import org.apache.activemq.api.core.client.ClientSession;
-import org.apache.activemq.api.core.client.ClientSessionFactory;
-import org.apache.activemq.api.jms.ActiveMQJMSClient;
-import org.apache.activemq.core.client.impl.ClientSessionInternal;
-import org.apache.activemq.jms.client.ActiveMQConnectionFactory;
-import org.apache.activemq.jms.client.ActiveMQDestination;
-import org.apache.activemq.ra.ActiveMQRABundle;
-import org.apache.activemq.ra.ActiveMQRAConnectionFactory;
-import org.apache.activemq.ra.ActiveMQRALogger;
-import org.apache.activemq.ra.ActiveMQRaUtils;
-import org.apache.activemq.ra.ActiveMQResourceAdapter;
-import org.apache.activemq.service.extensions.xa.recovery.XARecoveryConfig;
-import org.apache.activemq.utils.FutureLatch;
-import org.apache.activemq.utils.SensitiveDataCodec;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
+import org.apache.activemq.artemis.api.core.ActiveMQNonExistentQueueException;
+import org.apache.activemq.artemis.api.core.ActiveMQNotConnectedException;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
+import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
+import org.apache.activemq.artemis.core.client.impl.ClientSessionInternal;
+import org.apache.activemq.artemis.ra.ActiveMQRAConnectionFactory;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
+import org.apache.activemq.artemis.ra.ActiveMQRABundle;
+import org.apache.activemq.artemis.ra.ActiveMQRALogger;
+import org.apache.activemq.artemis.ra.ActiveMQRaUtils;
+import org.apache.activemq.artemis.ra.ActiveMQResourceAdapter;
+import org.apache.activemq.artemis.service.extensions.xa.recovery.XARecoveryConfig;
+import org.apache.activemq.artemis.utils.FutureLatch;
+import org.apache.activemq.artemis.utils.SensitiveDataCodec;
 
 /**
  * The activation.

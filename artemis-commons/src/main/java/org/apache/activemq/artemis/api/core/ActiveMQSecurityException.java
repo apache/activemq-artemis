@@ -14,9 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.api.core;
+package org.apache.activemq.artemis.api.core;
 
-import static org.apache.activemq.api.core.ActiveMQExceptionType.SECURITY_EXCEPTION;
+import static org.apache.activemq.artemis.api.core.ActiveMQExceptionType.SECURITY_EXCEPTION;
 
 /**
  * A security problem occurred (authentication issues, permission issues,...)

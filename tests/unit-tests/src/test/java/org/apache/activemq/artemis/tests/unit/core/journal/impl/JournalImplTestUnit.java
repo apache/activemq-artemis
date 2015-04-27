@@ -14,20 +14,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.unit.core.journal.impl;
+package org.apache.activemq.artemis.tests.unit.core.journal.impl;
 
 import java.nio.ByteBuffer;
 import java.util.List;
 
-import org.apache.activemq.api.core.ActiveMQException;
-import org.apache.activemq.api.core.ActiveMQIOErrorException;
-import org.apache.activemq.core.journal.EncodingSupport;
-import org.apache.activemq.core.journal.RecordInfo;
-import org.apache.activemq.core.journal.SequentialFile;
-import org.apache.activemq.core.journal.impl.JournalImpl;
-import org.apache.activemq.tests.unit.UnitTestLogger;
-import org.apache.activemq.tests.unit.core.journal.impl.fakes.SimpleEncoding;
-import org.apache.activemq.tests.util.RandomUtil;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.ActiveMQIOErrorException;
+import org.apache.activemq.artemis.tests.unit.core.journal.impl.fakes.SimpleEncoding;
+import org.apache.activemq.artemis.core.journal.EncodingSupport;
+import org.apache.activemq.artemis.core.journal.RecordInfo;
+import org.apache.activemq.artemis.core.journal.SequentialFile;
+import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
+import org.apache.activemq.artemis.tests.unit.UnitTestLogger;
+import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
@@ -42,7 +42,7 @@ public abstract class JournalImplTestUnit extends JournalImplTestBase
       for (String file : files)
       {
          SequentialFile seqFile = fileFactory.createSequentialFile(file, 1);
-         assertEquals(fileSize, seqFile.size());
+         Assert.assertEquals(fileSize, seqFile.size());
       }
 
       super.tearDown();
@@ -256,10 +256,10 @@ public abstract class JournalImplTestUnit extends JournalImplTestBase
       }
       catch (ActiveMQException e)
       {
-         fail("invalid exception type:" + e.getType());
+         Assert.fail("invalid exception type:" + e.getType());
       }
 
-      assertTrue("Exception was expected", exceptionHappened);
+      Assert.assertTrue("Exception was expected", exceptionHappened);
       stopJournal();
 
 

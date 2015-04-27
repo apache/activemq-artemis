@@ -14,12 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.tests.integration.journal;
+package org.apache.activemq.artemis.tests.integration.journal;
 
 import java.io.File;
 
-import org.apache.activemq.core.journal.SequentialFileFactory;
-import org.apache.activemq.core.journal.impl.NIOSequentialFileFactory;
+import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.core.journal.SequentialFileFactory;
+import org.apache.activemq.artemis.core.journal.impl.NIOSequentialFileFactory;
 
 public class NIOBufferedJournalCompactTest extends NIOJournalCompactTest
 {
@@ -29,7 +30,7 @@ public class NIOBufferedJournalCompactTest extends NIOJournalCompactTest
    {
       File file = new File(getTestDir());
 
-      deleteDirectory(file);
+      UnitTestCase.deleteDirectory(file);
 
       file.mkdir();
 

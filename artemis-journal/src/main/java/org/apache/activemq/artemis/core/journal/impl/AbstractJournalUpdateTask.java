@@ -14,22 +14,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.journal.impl;
+package org.apache.activemq.artemis.core.journal.impl;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.activemq.api.core.ActiveMQBuffer;
-import org.apache.activemq.api.core.ActiveMQBuffers;
-import org.apache.activemq.api.core.Pair;
-import org.apache.activemq.core.journal.SequentialFile;
-import org.apache.activemq.core.journal.SequentialFileFactory;
-import org.apache.activemq.core.journal.impl.dataformat.ByteArrayEncoding;
-import org.apache.activemq.core.journal.impl.dataformat.JournalAddRecord;
-import org.apache.activemq.core.journal.impl.dataformat.JournalInternalRecord;
-import org.apache.activemq.utils.ConcurrentHashSet;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
+import org.apache.activemq.artemis.api.core.Pair;
+import org.apache.activemq.artemis.core.journal.SequentialFile;
+import org.apache.activemq.artemis.core.journal.SequentialFileFactory;
+import org.apache.activemq.artemis.core.journal.impl.dataformat.ByteArrayEncoding;
+import org.apache.activemq.artemis.core.journal.impl.dataformat.JournalAddRecord;
+import org.apache.activemq.artemis.core.journal.impl.dataformat.JournalInternalRecord;
+import org.apache.activemq.artemis.utils.ConcurrentHashSet;
 
 /**
  *

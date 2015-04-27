@@ -14,11 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.core.client;
+package org.apache.activemq.artemis.core.client;
 
-import org.apache.activemq.api.core.ActiveMQExceptionType;
-import org.apache.activemq.api.core.Interceptor;
-import org.apache.activemq.core.protocol.core.Packet;
+import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
+import org.apache.activemq.artemis.api.core.Interceptor;
+import org.apache.activemq.artemis.core.protocol.core.Packet;
 import org.jboss.logging.BasicLogger;
 import org.jboss.logging.Logger;
 import org.jboss.logging.annotations.Cause;
@@ -295,7 +295,7 @@ public interface ActiveMQClientLogger extends BasicLogger
    void packetOutOfOrder(Object obj, @Cause Throwable t);
 
    /**
-    * Warns about usage of {@link org.apache.activemq.api.core.client.SendAcknowledgementHandler} or JMS's {@code CompletionWindow} with
+    * Warns about usage of {@link org.apache.activemq.artemis.api.core.client.SendAcknowledgementHandler} or JMS's {@code CompletionWindow} with
     * confirmations disabled (confirmationWindowSize=-1).
     */
    @LogMessage(level = Logger.Level.WARN)

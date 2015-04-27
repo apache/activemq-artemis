@@ -1,7 +1,7 @@
 Examples
 ========
 
-The Apache ActiveMQ distribution comes with over 90 run out-of-the-box examples
+The Apache ActiveMQ Artemis distribution comes with over 90 run out-of-the-box examples
 demonstrating many of the features.
 
 The examples are available in the distribution, in the `examples`
@@ -39,11 +39,11 @@ Applet.
 Application-Layer Failover
 --------------------------
 
-Apache ActiveMQ also supports Application-Layer failover, useful in the case
+Apache ActiveMQ Artemis also supports Application-Layer failover, useful in the case
 that replication is not enabled on the server side.
 
 With Application-Layer failover, it's up to the application to register
-a JMS `ExceptionListener` with Apache ActiveMQ which will be called by Apache ActiveMQ
+a JMS `ExceptionListener` with Apache ActiveMQ Artemis which will be called by Apache ActiveMQ Artemis
 in the event that connection failure is detected.
 
 The code in the `ExceptionListener` then recreates the JMS connection,
@@ -64,7 +64,7 @@ The `bridge` example demonstrates a core bridge deployed on one server,
 which consumes messages from a local queue and forwards them to an
 address on a second server.
 
-Core bridges are used to create message flows between any two Apache ActiveMQ
+Core bridges are used to create message flows between any two Apache ActiveMQ Artemis
 servers which are remotely separated. Core bridges are resilient and
 will cope with temporary connection failure allowing them to be an ideal
 choice for forwarding over unreliable connections, e.g. a WAN.
@@ -73,7 +73,7 @@ Browser
 -------
 
 The `browser` example shows you how to use a JMS `QueueBrowser` with
-Apache ActiveMQ.
+Apache ActiveMQ Artemis.
 
 Queues are a standard part of JMS, please consult the JMS 1.1
 specification for full details.
@@ -99,7 +99,7 @@ Client-Side Load-Balancing
 
 The `client-side-load-balancing` example demonstrates how sessions
 created from a single JMS `Connection` can be created to different nodes
-of the cluster. In other words it demonstrates how Apache ActiveMQ does
+of the cluster. In other words it demonstrates how Apache ActiveMQ Artemis does
 client-side load-balancing of sessions across the cluster.
 
 Clustered Durable Subscription
@@ -169,11 +169,11 @@ and we verify that both subscribers receive all the sent messages.
 Message Consumer Rate Limiting
 ------------------------------
 
-With Apache ActiveMQ you can specify a maximum consume rate at which a JMS
+With Apache ActiveMQ Artemis you can specify a maximum consume rate at which a JMS
 MessageConsumer will consume messages. This can be specified when
 creating or deploying the connection factory.
 
-If this value is specified then Apache ActiveMQ will ensure that messages are
+If this value is specified then Apache ActiveMQ Artemis will ensure that messages are
 never consumed at a rate higher than the specified rate. This is a form
 of consumer throttling.
 
@@ -197,7 +197,7 @@ can be consumed for further investigation.
 Delayed Redelivery
 ------------------
 
-The `delayed-redelivery` example demonstrates how Apache ActiveMQ can be
+The `delayed-redelivery` example demonstrates how Apache ActiveMQ Artemis can be
 configured to provide a delayed redelivery in the case a message needs
 to be redelivered.
 
@@ -210,7 +210,7 @@ succession, using up valuable CPU and network resources.
 Divert
 ------
 
-Apache ActiveMQ diverts allow messages to be transparently "diverted" or copied
+Apache ActiveMQ Artemis diverts allow messages to be transparently "diverted" or copied
 from one address to another with just some simple configuration defined
 on the server side.
 
@@ -218,7 +218,7 @@ Durable Subscription
 --------------------
 
 The `durable-subscription` example shows you how to use a durable
-subscription with Apache ActiveMQ. Durable subscriptions are a standard part of
+subscription with Apache ActiveMQ Artemis. Durable subscriptions are a standard part of
 JMS, please consult the JMS 1.1 specification for full details.
 
 Unlike non-durable subscriptions, the key function of durable
@@ -239,7 +239,7 @@ Embedded Simple
 ---------------
 
 The `embedded` example shows how to embed JMS within your own code using
-regular Apache ActiveMQ XML files.
+regular Apache ActiveMQ Artemis XML files.
 
 Message Expiration
 ------------------
@@ -250,12 +250,12 @@ limited period of time before being removed. JMS specification states
 that clients should not receive messages that have been expired (but it
 does not guarantee this will not happen).
 
-Apache ActiveMQ can assign an expiry address to a given queue so that when
+Apache ActiveMQ Artemis can assign an expiry address to a given queue so that when
 messages are expired, they are removed from the queue and sent to the
 expiry address. These "expired" messages can later be consumed from the
 expiry address for further inspection.
 
-Apache ActiveMQ Resource Adapter example
+Apache ActiveMQ Artemis Resource Adapter example
 ---------------------------------
 
 This examples shows how to build the activemq resource adapters a rar
@@ -264,7 +264,7 @@ for deployment in other Application Server's
 HTTP Transport
 --------------
 
-The `http-transport` example shows you how to configure Apache ActiveMQ to use
+The `http-transport` example shows you how to configure Apache ActiveMQ Artemis to use
 the HTTP protocol as its transport layer.
 
 Instantiate JMS Objects Directly
@@ -275,22 +275,22 @@ instances are looked up from JNDI before being used by the client code.
 This objects are called "administered objects" in JMS terminology.
 
 However, in some cases a JNDI server may not be available or desired. To
-come to the rescue Apache ActiveMQ also supports the direct instantiation of
+come to the rescue Apache ActiveMQ Artemis also supports the direct instantiation of
 these administered objects on the client side so you don't have to use
 JNDI for JMS.
 
 Interceptor
 -----------
 
-Apache ActiveMQ allows an application to use an interceptor to hook into the
+Apache ActiveMQ Artemis allows an application to use an interceptor to hook into the
 messaging system. Interceptors allow you to handle various message
-events in Apache ActiveMQ.
+events in Apache ActiveMQ Artemis.
 
 JAAS
 ----
 
-The `jaas` example shows you how to configure Apache ActiveMQ to use JAAS for
-security. Apache ActiveMQ can leverage JAAS to delegate user authentication and
+The `jaas` example shows you how to configure Apache ActiveMQ Artemis to use JAAS for
+security. Apache ActiveMQ Artemis can leverage JAAS to delegate user authentication and
 authorization to existing security infrastructure.
 
 JMS Auto Closable
@@ -304,20 +304,20 @@ JMS Completion Listener
 -----------------------
 
 The `jms-completion-listener` example shows how to send a message
-asynchronously to Apache ActiveMQ and use a CompletionListener to be notified
+asynchronously to Apache ActiveMQ Artemis and use a CompletionListener to be notified
 of the Broker receiving it.
 
 JMS Bridge
 ----------
 
 The `jms-brige` example shows how to setup a bridge between two
-standalone Apache ActiveMQ servers.
+standalone Apache ActiveMQ Artemis servers.
 
 JMS Context
 -----------
 
 The `jms-context` example shows how to send and receive a message to a
-JMS Queue using Apache ActiveMQ by using a JMS Context.
+JMS Queue using Apache ActiveMQ Artemis by using a JMS Context.
 
 A JMSContext is part of JMS 2.0 and combines the JMS Connection and
 Session Objects into a simple Interface.
@@ -333,19 +333,19 @@ so you can share the load across different threads and connections.
 JMX Management
 --------------
 
-The `jmx` example shows how to manage Apache ActiveMQ using JMX.
+The `jmx` example shows how to manage Apache ActiveMQ Artemis using JMX.
 
 Large Message
 -------------
 
 The `large-message` example shows you how to send and receive very large
-messages with Apache ActiveMQ. Apache ActiveMQ supports the sending and receiving of
+messages with Apache ActiveMQ Artemis. Apache ActiveMQ Artemis supports the sending and receiving of
 huge messages, much larger than can fit in available RAM on the client
 or server. Effectively the only limit to message size is the amount of
 disk space you have on the server.
 
 Large messages are persisted on the server so they can survive a server
-restart. In other words Apache ActiveMQ doesn't just do a simple socket stream
+restart. In other words Apache ActiveMQ Artemis doesn't just do a simple socket stream
 from the sender to the consumer.
 
 Last-Value Queue
@@ -363,14 +363,14 @@ are only interested by the latest price for a particular stock.
 Management
 ----------
 
-The `management` example shows how to manage Apache ActiveMQ using JMS Messages
+The `management` example shows how to manage Apache ActiveMQ Artemis using JMS Messages
 to invoke management operations on the server.
 
 Management Notification
 -----------------------
 
 The `management-notification` example shows how to receive management
-notifications from Apache ActiveMQ using JMS messages. Apache ActiveMQ servers emit
+notifications from Apache ActiveMQ Artemis using JMS messages. Apache ActiveMQ Artemis servers emit
 management notifications when events of interest occur (consumers are
 created or closed, addresses are created or deleted, security
 authentication fails, etc.).
@@ -385,7 +385,7 @@ Message Group
 -------------
 
 The `message-group` example shows you how to configure and use message
-groups with Apache ActiveMQ. Message groups allow you to pin messages so they
+groups with Apache ActiveMQ Artemis. Message groups allow you to pin messages so they
 are only consumed by a single consumer. Message groups are sets of
 messages that has the following characteristics:
 
@@ -399,7 +399,7 @@ Message Group
 -------------
 
 The `message-group2` example shows you how to configure and use message
-groups with Apache ActiveMQ via a connection factory.
+groups with Apache ActiveMQ Artemis via a connection factory.
 
 Message Priority
 ----------------
@@ -434,19 +434,19 @@ backups but forcing failover back to the original live server
 No Consumer Buffering
 ---------------------
 
-By default, Apache ActiveMQ consumers buffer messages from the server in a
+By default, Apache ActiveMQ Artemis consumers buffer messages from the server in a
 client side buffer before you actually receive them on the client side.
 This improves performance since otherwise every time you called
 receive() or had processed the last message in a
-`MessageListener onMessage()` method, the Apache ActiveMQ client would have to
+`MessageListener onMessage()` method, the Apache ActiveMQ Artemis client would have to
 go the server to request the next message, which would then get sent to
 the client side, if one was available.
 
 This would involve a network round trip for every message and reduce
-performance. Therefore, by default, Apache ActiveMQ pre-fetches messages into a
+performance. Therefore, by default, Apache ActiveMQ Artemis pre-fetches messages into a
 buffer on each consumer.
 
-In some case buffering is not desirable, and Apache ActiveMQ allows it to be
+In some case buffering is not desirable, and Apache ActiveMQ Artemis allows it to be
 switched off. This example demonstrates that.
 
 Non-Transaction Failover With Server Data Replication
@@ -457,7 +457,7 @@ as a live-backup pair for high availability (HA), and a client using a
 *non-transacted* JMS session failing over from live to backup when the
 live server is crashed.
 
-Apache ActiveMQ implements failover of client connections between live and
+Apache ActiveMQ Artemis implements failover of client connections between live and
 backup servers. This is implemented by the replication of state between
 live and backup nodes. When replication is configured and a live node
 crashes, the client connections can carry and continue to send and
@@ -468,13 +468,13 @@ messages will be lost or delivered twice.
 OpenWire
 --------
 
-The `Openwire` example shows how to configure an Apache ActiveMQ server to
-communicate with an Apache ActiveMQ JMS client that uses open-wire protocol.
+The `Openwire` example shows how to configure an Apache ActiveMQ Artemis server to
+communicate with an Apache ActiveMQ Artemis JMS client that uses open-wire protocol.
 
 Paging
 ------
 
-The `paging` example shows how Apache ActiveMQ can support huge queues even
+The `paging` example shows how Apache ActiveMQ Artemis can support huge queues even
 when the server is running in limited RAM. It does this by transparently
 *paging* messages to disk, and *depaging* them when they are required.
 
@@ -490,27 +490,27 @@ All of these standard modes involve sending acknowledgements from the
 client to the server. However in some cases, you really don't mind
 losing messages in event of failure, so it would make sense to
 acknowledge the message on the server before delivering it to the
-client. This example demonstrates how Apache ActiveMQ allows this with an extra
+client. This example demonstrates how Apache ActiveMQ Artemis allows this with an extra
 acknowledgement mode.
 
 Message Producer Rate Limiting
 ------------------------------
 
-The `producer-rte-limit` example demonstrates how, with Apache ActiveMQ, you
+The `producer-rte-limit` example demonstrates how, with Apache ActiveMQ Artemis, you
 can specify a maximum send rate at which a JMS message producer will
 send messages.
 
 Proton Qpid
 -----------
 
-Apache ActiveMQ can be configured to accept requests from any AMQP client that
+Apache ActiveMQ Artemis can be configured to accept requests from any AMQP client that
 supports the 1.0 version of the protocol. This `proton-j` example shows
 a simply qpid java 1.0 client example.
 
 Proton Ruby
 -----------
 
-Apache ActiveMQ can be configured to accept requests from any AMQP client that
+Apache ActiveMQ Artemis can be configured to accept requests from any AMQP client that
 supports the 1.0 version of the protocol. This example shows a simply
 proton ruby client that sends and receives messages
 
@@ -542,7 +542,7 @@ Reattach Node example
 
 The `Reattach Node` example shows how a client can try to reconnect to
 the same server instead of failing the connection immediately and
-notifying any user ExceptionListener objects. Apache ActiveMQ can be configured
+notifying any user ExceptionListener objects. Apache ActiveMQ Artemis can be configured
 to automatically retry the connection, and reattach to the server when
 it becomes available again across the network.
 
@@ -581,25 +581,25 @@ A simple example showing the JMS request-response pattern.
 Rest example
 ------------
 
-An example showing how to use the Apache ActiveMQ Rest API
+An example showing how to use the Apache ActiveMQ Artemis Rest API
 
 Scheduled Message
 -----------------
 
 The `scheduled-message` example shows you how to send a scheduled
-message to a JMS Queue with Apache ActiveMQ. Scheduled messages won't get
+message to a JMS Queue with Apache ActiveMQ Artemis. Scheduled messages won't get
 delivered until a specified time in the future.
 
 Security
 --------
 
 The `security` example shows you how configure and use role based queue
-security with Apache ActiveMQ.
+security with Apache ActiveMQ Artemis.
 
 Send Acknowledgements
 ---------------------
 
-The `send-acknowledgements` example shows you how to use Apache ActiveMQ's
+The `send-acknowledgements` example shows you how to use Apache ActiveMQ Artemis's
 advanced *asynchronous send acknowledgements* feature to obtain
 acknowledgement from the server that sends have been received and
 processed in a separate stream to the sent messages.
@@ -607,49 +607,49 @@ processed in a separate stream to the sent messages.
 Spring Integration
 ------------------
 
-This example shows how to use embedded JMS using Apache ActiveMQ's Spring
+This example shows how to use embedded JMS using Apache ActiveMQ Artemis's Spring
 integration.
 
 SSL Transport
 -------------
 
-The `ssl-enabled` shows you how to configure SSL with Apache ActiveMQ to send
+The `ssl-enabled` shows you how to configure SSL with Apache ActiveMQ Artemis to send
 and receive message.
 
 Static Message Selector
 -----------------------
 
-The `static-selector` example shows you how to configure an Apache ActiveMQ core
+The `static-selector` example shows you how to configure an Apache ActiveMQ Artemis core
 queue with static message selectors (filters).
 
 Static Message Selector Using JMS
 ---------------------------------
 
-The `static-selector-jms` example shows you how to configure an Apache ActiveMQ
+The `static-selector-jms` example shows you how to configure an Apache ActiveMQ Artemis
 queue with static message selectors (filters) using JMS.
 
 Stomp
 -----
 
-The `stomp` example shows you how to configure an Apache ActiveMQ server to send
+The `stomp` example shows you how to configure an Apache ActiveMQ Artemis server to send
 and receive Stomp messages.
 
 Stomp1.1
 --------
 
-The `stomp` example shows you how to configure an Apache ActiveMQ server to send
+The `stomp` example shows you how to configure an Apache ActiveMQ Artemis server to send
 and receive Stomp messages via a Stomp 1.1 connection.
 
 Stomp1.2
 --------
 
-The `stomp` example shows you how to configure an Apache ActiveMQ server to send
+The `stomp` example shows you how to configure an Apache ActiveMQ Artemis server to send
 and receive Stomp messages via a Stomp 1.2 connection.
 
 Stomp Over Web Sockets
 ----------------------
 
-The `stomp-websockets` example shows you how to configure an Apache ActiveMQ
+The `stomp-websockets` example shows you how to configure an Apache ActiveMQ Artemis
 server to send and receive Stomp messages directly from Web browsers
 (provided they support Web Sockets).
 
@@ -657,9 +657,9 @@ Symmetric Cluster
 -----------------
 
 The `symmetric-cluster` example demonstrates a symmetric cluster set-up
-with Apache ActiveMQ.
+with Apache ActiveMQ Artemis.
 
-Apache ActiveMQ has extremely flexible clustering which allows you to set-up
+Apache ActiveMQ Artemis has extremely flexible clustering which allows you to set-up
 servers in many different topologies. The most common topology that
 you'll perhaps be familiar with if you are used to application server
 clustering is a symmetric cluster.
@@ -681,7 +681,7 @@ A simple example demonstrating a JMS topic.
 Topic Hierarchy
 ---------------
 
-Apache ActiveMQ supports topic hierarchies. With a topic hierarchy you can
+Apache ActiveMQ Artemis supports topic hierarchies. With a topic hierarchy you can
 register a subscriber with a wild-card and that subscriber will receive
 any messages sent to an address that matches the wild card.
 
@@ -689,7 +689,7 @@ Topic Selector 1
 ----------------
 
 The `topic-selector-example1` example shows you how to send message to a
-JMS Topic, and subscribe them using selectors with Apache ActiveMQ.
+JMS Topic, and subscribe them using selectors with Apache ActiveMQ Artemis.
 
 Topic Selector 2
 ----------------
@@ -705,7 +705,7 @@ live-backup pair for high availability (HA), and a client using a
 transacted JMS session failing over from live to backup when the live
 server is crashed.
 
-Apache ActiveMQ implements failover of client connections between live and
+Apache ActiveMQ Artemis implements failover of client connections between live and
 backup servers. This is implemented by the sharing of a journal between
 the servers. When a live node crashes, the client connections can carry
 and continue to send and consume messages. When transacted sessions are
@@ -722,13 +722,13 @@ Transactional Session
 ---------------------
 
 The `transactional` example shows you how to use a transactional Session
-with Apache ActiveMQ.
+with Apache ActiveMQ Artemis.
 
 XA Heuristic
 ------------
 
 The `xa-heuristic` example shows you how to make an XA heuristic
-decision through Apache ActiveMQ Management Interface. A heuristic decision is
+decision through Apache ActiveMQ Artemis Management Interface. A heuristic decision is
 a unilateral decision to commit or rollback an XA transaction branch
 after it has been prepared.
 
@@ -736,13 +736,13 @@ XA Receive
 ----------
 
 The `xa-receive` example shows you how message receiving behaves in an
-XA transaction in Apache ActiveMQ.
+XA transaction in Apache ActiveMQ Artemis.
 
 XA Send
 -------
 
 The `xa-send` example shows you how message sending behaves in an XA
-transaction in Apache ActiveMQ.
+transaction in Apache ActiveMQ Artemis.
 Core API Examples
 =================
 
@@ -752,5 +752,5 @@ directory and type `ant`
 Embedded
 --------
 
-The `embedded` example shows how to embed the Apache ActiveMQ server within
+The `embedded` example shows how to embed the Apache ActiveMQ Artemis server within
 your own code.
