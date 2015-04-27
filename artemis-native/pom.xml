@@ -56,7 +56,7 @@
                         <resource>
                            <directory>bin/</directory>
                            <includes>
-                              <include>libactivemqAIO32.so</include>
+                              <include>libartemisAIO32.so</include>
                            </includes>
                         </resource>
                      </resources>
@@ -74,7 +74,7 @@
                         <resource>
                            <directory>bin/</directory>
                            <includes>
-                              <include>libactivemqAIO64.so</include>
+                              <include>libartemisAIO64.so</include>
                            </includes>
                         </resource>
                      </resources>
@@ -95,12 +95,6 @@
          <build>
             <plugins>
                <plugin>
-                  <!-- Not officially released into Central Maven yet,
-                       for now you have to download the snapshot with
-                       git clone https://github.com/maven-nar/nar-maven-plugin.git
-                       cd nar-maven-plugin
-                       mvn install
-                       -->
                   <groupId>com.github.maven-nar</groupId>
                   <artifactId>nar-maven-plugin</artifactId>
                   <version>3.0.0</version>

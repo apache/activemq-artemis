@@ -136,7 +136,7 @@ public class AsynchronousFileImpl implements AsynchronousFile
 
    static
    {
-      String[] libraries = new String[]{"activemqAIO", "activemqAIO64", "activemqAIO32", "activemqAIO_ia64"};
+      String[] libraries = new String[]{"artemis-native", "artemis-native-64", "artemis-native-32"};
 
       for (String library : libraries)
       {

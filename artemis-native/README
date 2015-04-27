@@ -37,7 +37,7 @@ if you are missing any dependencies, autoconf would tell you what you're missing
 
 COMPILED FILE
 
-The produced file will be under the ./target/nar (example: ./target/nar/activemq-native-6.0.0-amd64-Linux-gpp-jni/lib/amd64-Linux-gpp/jni/libactivemq-native-6.0.0.so)
+The produced file will be under the ./target/nar (example: ./target/nar/artemis-native-6.0.0-amd64-Linux-gpp-jni/lib/amd64-Linux-gpp/jni/libartemis-native-6.0.0.so)
 and you will have to rename it manually under ./bin following the appropriate pattern.
 
 

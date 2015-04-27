@@ -65,25 +65,25 @@ Or on Debian systems:
 
 ## Invoking the compilation
 
-In the source distribution or git clone, in the `activemq-native` directory, execute the shell
+In the source distribution or git clone, in the `artemis-native` directory, execute the shell
 script `compile-native.sh`. This script will invoke the proper maven profile to perform the native build.
 
-    someUser@someBox:/checkout-dir/activemq-native$ ./compile-native.sh
+    someUser@someBox:/checkout-dir/artemis-native$ ./compile-native.sh
     [INFO] Scanning for projects...
     [INFO]
     [INFO] ------------------------------------------------------------------------
     [INFO] Building ActiveMQ Artemis Native POM 6.0.0
     [INFO] ------------------------------------------------------------------------
     [INFO]
-    [INFO] --- nar-maven-plugin:3.0.0:nar-validate (default-nar-validate) @ activemq-native ---
+    [INFO] --- nar-maven-plugin:3.0.0:nar-validate (default-nar-validate) @ artemis-native ---
     [INFO] Using AOL: amd64-Linux-gpp
     [INFO]
-    [INFO] --- maven-enforcer-plugin:1.4:enforce (enforce-java) @ activemq-native ---
+    [INFO] --- maven-enforcer-plugin:1.4:enforce (enforce-java) @ artemis-native ---
     ...
 
 The produced library will be at
-`./target/nar/activemq-native-RELEASE-amd64-Linux-gpp-jni/lib/amd64-Linux-gpp/jni/
-libactivemq-native-RELEASE.so`. Simply move that file over
+`./target/nar/artemis-native-RELEASE-amd64-Linux-gpp-jni/lib/amd64-Linux-gpp/jni/
+libartemis-native-RELEASE.so`. Simply move that file over
 `bin` with the proper rename [library
 path](#using-server.library.path).
 

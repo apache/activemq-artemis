@@ -30,7 +30,7 @@ void throwRuntimeException(JNIEnv * env, const char * message)
 
 void throwException(JNIEnv * env, const int code, const char * message)
 {
-  jclass exceptionClass = env->FindClass("org/apache/activemq/api/core/ActiveMQException");
+  jclass exceptionClass = env->FindClass("org/apache/activemq/artemis/api/core/ActiveMQException");
   if (exceptionClass==NULL) 
   {
      std::cerr << "Couldn't throw exception message:= " << message << "\n";
