@@ -16,6 +16,18 @@
  */
 package org.apache.activemq.artemis.tests.extras.byteman;
 
+import javax.jms.Message;
+import javax.resource.ResourceException;
+import javax.transaction.SystemException;
+import javax.transaction.Transaction;
+import javax.transaction.TransactionManager;
+import javax.transaction.xa.XAException;
+import javax.transaction.xa.XAResource;
+import javax.transaction.xa.Xid;
+import java.lang.reflect.Method;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
 import com.arjuna.ats.arjuna.coordinator.TransactionReaper;
 import com.arjuna.ats.arjuna.coordinator.TxControl;
 import com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionManagerImple;
@@ -37,18 +49,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import javax.jms.Message;
-import javax.resource.ResourceException;
-import javax.transaction.SystemException;
-import javax.transaction.Transaction;
-import javax.transaction.TransactionManager;
-import javax.transaction.xa.XAException;
-import javax.transaction.xa.XAResource;
-import javax.transaction.xa.Xid;
-import java.lang.reflect.Method;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 @RunWith(BMUnitRunner.class)
 public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase
@@ -77,7 +77,7 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase
                            targetClass = "org.apache.activemq.artemis.core.protocol.core.impl.ActiveMQSessionContext",
                            targetMethod = "xaEnd",
                            targetLocation = "ENTRY",
-                           action = "org.apache.activemq.tests.extras.byteman.ActiveMQMessageHandlerTest.interrupt();"
+                           action = "org.apache.activemq.artemis.tests.extras.byteman.ActiveMQMessageHandlerTest.interrupt();"
                      )
             }
    )
@@ -154,7 +154,7 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase
                                        targetClass = "org.apache.activemq.artemis.core.protocol.core.impl.ActiveMQSessionContext",
                                        targetMethod = "xaEnd",
                                        targetLocation = "ENTRY",
-                                       action = "org.apache.activemq.tests.extras.byteman.ActiveMQMessageHandlerTest.interrupt();"
+                                       action = "org.apache.activemq.artemis.tests.extras.byteman.ActiveMQMessageHandlerTest.interrupt();"
                                  )
                      }
          )

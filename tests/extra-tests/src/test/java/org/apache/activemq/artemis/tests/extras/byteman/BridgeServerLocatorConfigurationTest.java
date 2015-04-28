@@ -57,7 +57,7 @@ public class BridgeServerLocatorConfigurationTest extends ServiceTestBase
 
    @Test
    @BMRule(name = "check connection ttl",
-            targetClass = "org.apache.activemq.tests.extras.byteman.BridgeServerLocatorConfigurationTest",
+            targetClass = "org.apache.activemq.artemis.tests.extras.byteman.BridgeServerLocatorConfigurationTest",
             targetMethod = "getBridgeTTL(ActiveMQServer, String)", targetLocation = "EXIT",
             action = "$! = $0.getConfiguredBridge($1).serverLocator.getConnectionTTL();")
    /**

@@ -68,7 +68,7 @@ public class MessageCopyTest
                   ),
                @BMRule(
                   name = "JMSServer.stop wait-init",
-                  targetClass = "org.apache.activemq.tests.extras.byteman.MessageCopyTest",
+                  targetClass = "org.apache.activemq.artemis.tests.extras.byteman.MessageCopyTest",
                   targetMethod = "simulateRead",
                   targetLocation = "EXIT",
                   action = "signalWake(\"finish-read\", true)"

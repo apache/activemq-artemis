@@ -129,7 +129,7 @@ public class OrphanedConsumerTest extends ServiceTestBase
                      targetClass = "org.apache.activemq.artemis.core.server.impl.ServerConsumerImpl",
                      targetMethod = "close",
                      targetLocation = "AT EXIT",
-                     condition = "org.apache.activemq.tests.extras.byteman.OrphanedConsumerTest.isConditionActive()",
+                     condition = "org.apache.activemq.artemis.tests.extras.byteman.OrphanedConsumerTest.isConditionActive()",
                      action = "System.out.println(\"throwing stuff\");throw new InterruptedException()"
                   ),
                @BMRule
@@ -138,8 +138,8 @@ public class OrphanedConsumerTest extends ServiceTestBase
                      targetClass = "org.apache.activemq.artemis.core.server.impl.ServerConsumerImpl",
                      targetMethod = "close",
                      targetLocation = "ENTRY",
-                     condition = "org.apache.activemq.tests.extras.byteman.OrphanedConsumerTest.isConditionActive()",
-                     action = "org.apache.activemq.tests.extras.byteman.OrphanedConsumerTest.leavingCloseOnTestCountersWhileClosing()"
+                     condition = "org.apache.activemq.artemis.tests.extras.byteman.OrphanedConsumerTest.isConditionActive()",
+                     action = "org.apache.activemq.artemis.tests.extras.byteman.OrphanedConsumerTest.leavingCloseOnTestCountersWhileClosing()"
                   )
 
             }
@@ -168,7 +168,7 @@ public class OrphanedConsumerTest extends ServiceTestBase
                      targetClass = "org.apache.activemq.artemis.core.server.impl.ServerConsumerImpl",
                      targetMethod = "close",
                      targetLocation = "AT EXIT",
-                     condition = "org.apache.activemq.tests.extras.byteman.OrphanedConsumerTest.isConditionActive()",
+                     condition = "org.apache.activemq.artemis.tests.extras.byteman.OrphanedConsumerTest.isConditionActive()",
                      action = "System.out.println(\"throwing stuff\");throw new InterruptedException()"
                   ),
                @BMRule
@@ -177,8 +177,8 @@ public class OrphanedConsumerTest extends ServiceTestBase
                      targetClass = "org.apache.activemq.artemis.core.server.impl.ServerConsumerImpl",
                      targetMethod = "close",
                      targetLocation = "ENTRY",
-                     condition = "org.apache.activemq.tests.extras.byteman.OrphanedConsumerTest.isConditionActive()",
-                     action = "org.apache.activemq.tests.extras.byteman.OrphanedConsumerTest.leavingCloseOnTestCountersWhileClosing()"
+                     condition = "org.apache.activemq.artemis.tests.extras.byteman.OrphanedConsumerTest.isConditionActive()",
+                     action = "org.apache.activemq.artemis.tests.extras.byteman.OrphanedConsumerTest.leavingCloseOnTestCountersWhileClosing()"
                   )
 
             }

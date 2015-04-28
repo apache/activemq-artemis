@@ -61,7 +61,7 @@ public class StompInternalStateTest extends ServiceTestBase
                      targetClass = "org.apache.activemq.artemis.core.protocol.stomp.StompProtocolManager",
                      targetMethod = "onNotification(org.apache.activemq.artemis.core.server.management.Notification)",
                      targetLocation = "EXIT",
-                     helper = "org.apache.activemq.tests.extras.byteman.StompInternalStateTest",
+                     helper = "org.apache.activemq.artemis.tests.extras.byteman.StompInternalStateTest",
                      action = "verifyBindingAddRemove($1, $0.destinations)"
                   )
             }

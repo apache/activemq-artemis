@@ -35,7 +35,7 @@ import org.junit.runner.RunWith;
 @BMRules(rules = { @BMRule(name = "modify map during iteration",
          targetClass = "org.apache.activemq.artemis.core.settings.impl.HierarchicalObjectRepository",
          targetMethod = "getPossibleMatches(String)", targetLocation = "AT INVOKE java.util.HashMap.put",
-         action = "org.apache.activemq.tests.extras.byteman.HierarchicalObjectRepositoryTest.bum()"), })
+         action = "org.apache.activemq.artemis.tests.extras.byteman.HierarchicalObjectRepositoryTest.bum()"), })
 public class HierarchicalObjectRepositoryTest
 {
    private static final String A = "a.";

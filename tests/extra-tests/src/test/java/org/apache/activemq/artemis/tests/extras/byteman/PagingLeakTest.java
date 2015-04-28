@@ -76,7 +76,7 @@ public class PagingLeakTest extends ServiceTestBase
                      targetClass = "org.apache.activemq.artemis.core.paging.cursor.impl.PagePositionImpl",
                      targetMethod = "<init>()",
                      targetLocation = "ENTRY",
-                     action = "org.apache.activemq.tests.extras.byteman.PagingLeakTest.newPosition()"
+                     action = "org.apache.activemq.artemis.tests.extras.byteman.PagingLeakTest.newPosition()"
                   ),
                @BMRule
                   (
@@ -84,7 +84,7 @@ public class PagingLeakTest extends ServiceTestBase
                      targetClass = "org.apache.activemq.artemis.core.paging.cursor.impl.PagePositionImpl",
                      targetMethod = "finalize",
                      targetLocation = "ENTRY",
-                     action = "org.apache.activemq.tests.extras.byteman.PagingLeakTest.deletePosition()"
+                     action = "org.apache.activemq.artemis.tests.extras.byteman.PagingLeakTest.deletePosition()"
                   )
             }
       )

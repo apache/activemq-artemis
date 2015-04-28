@@ -69,7 +69,7 @@ public class StartStopDeadlockTest extends ServiceTestBase
                ),
                @BMRule(
                   name = "StartStopDeadlockTest tearDown",
-                  targetClass = "org.apache.activemq.tests.extras.byteman.StartStopDeadlockTest",
+                  targetClass = "org.apache.activemq.artemis.tests.extras.byteman.StartStopDeadlockTest",
                   targetMethod = "tearDown",
                   targetLocation = "ENTRY",
                   action = "deleteCounter(\"server-Init\")"

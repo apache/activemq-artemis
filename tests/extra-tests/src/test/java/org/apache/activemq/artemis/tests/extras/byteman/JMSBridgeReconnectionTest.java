@@ -49,7 +49,7 @@ public class JMSBridgeReconnectionTest extends BridgeTestBase
                                        targetClass = "org.apache.activemq.artemis.core.protocol.core.impl.ChannelImpl",
                                        targetMethod = "send",
                                        targetLocation = "ENTRY",
-                                       action = "org.apache.activemq.tests.extras.byteman.JMSBridgeReconnectionTest.pause($1);"
+                                       action = "org.apache.activemq.artemis.tests.extras.byteman.JMSBridgeReconnectionTest.pause($1);"
                                  ),
                            @BMRule
                                  (
@@ -57,7 +57,7 @@ public class JMSBridgeReconnectionTest extends BridgeTestBase
                                        targetClass = "org.apache.activemq.artemis.core.client.impl.ClientProducerImpl",
                                        targetMethod = "sendRegularMessage",
                                        targetLocation = "ENTRY",
-                                       action = "org.apache.activemq.tests.extras.byteman.JMSBridgeReconnectionTest.pause2($1,$2,$3);"
+                                       action = "org.apache.activemq.artemis.tests.extras.byteman.JMSBridgeReconnectionTest.pause2($1,$2,$3);"
                                  )
                      }
          )

@@ -79,7 +79,7 @@ public class GroupingTest extends JMSTestBase
                      targetClass = "org.apache.activemq.artemis.core.server.impl.ServerSessionImpl",
                      targetMethod = "rollback",
                      targetLocation = "EXIT",
-                     action = "org.apache.activemq.tests.extras.byteman.GroupingTest.pause();"
+                     action = "org.apache.activemq.artemis.tests.extras.byteman.GroupingTest.pause();"
                   )
             }
       )

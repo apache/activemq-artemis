@@ -53,7 +53,7 @@ public class ReplicationBackupTest extends ServiceTestBase
                      targetClass = "org.apache.activemq.artemis.core.server.impl.SharedNothingLiveActivation",
                      targetMethod = "run",
                      targetLocation = "AT EXIT",
-                     action = "org.apache.activemq.tests.extras.byteman.ReplicationBackupTest.breakIt();"
+                     action = "org.apache.activemq.artemis.tests.extras.byteman.ReplicationBackupTest.breakIt();"
                   )
             }
       )

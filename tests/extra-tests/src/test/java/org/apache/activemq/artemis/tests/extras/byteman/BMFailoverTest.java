@@ -111,7 +111,7 @@ public class BMFailoverTest extends FailoverTestBase
                                  targetClass = "org.apache.activemq.artemis.core.protocol.core.impl.ActiveMQSessionContext",
                                  targetMethod = "xaEnd",
                                  targetLocation = "AT EXIT",
-                                 action = "org.apache.activemq.tests.extras.byteman.BMFailoverTest.stopAndThrow()"
+                                 action = "org.apache.activemq.artemis.tests.extras.byteman.BMFailoverTest.stopAndThrow()"
                            )
                }
    )
@@ -202,7 +202,7 @@ public class BMFailoverTest extends FailoverTestBase
                      targetClass = "org.apache.activemq.artemis.core.client.impl.ClientSessionImpl",
                      targetMethod = "start(javax.transaction.xa.Xid, int)",
                      targetLocation = "AT EXIT",
-                     action = "org.apache.activemq.tests.extras.byteman.BMFailoverTest.serverToStop.getServer().stop(true)"
+                     action = "org.apache.activemq.artemis.tests.extras.byteman.BMFailoverTest.serverToStop.getServer().stop(true)"
                   )
             }
       )
@@ -305,7 +305,7 @@ public class BMFailoverTest extends FailoverTestBase
                      targetClass = "org.apache.activemq.artemis.core.client.impl.ClientSessionImpl",
                      targetMethod = "commit",
                      targetLocation = "ENTRY",
-                     action = "org.apache.activemq.tests.extras.byteman.BMFailoverTest.serverToStop.getServer().stop(true)"
+                     action = "org.apache.activemq.artemis.tests.extras.byteman.BMFailoverTest.serverToStop.getServer().stop(true)"
                   )
             }
       )
@@ -346,7 +346,7 @@ public class BMFailoverTest extends FailoverTestBase
                      targetClass = "org.apache.activemq.artemis.core.client.impl.ClientSessionImpl",
                      targetMethod = "commit",
                      targetLocation = "ENTRY",
-                     action = "org.apache.activemq.tests.extras.byteman.BMFailoverTest.serverToStop.getServer().stop(true)"
+                     action = "org.apache.activemq.artemis.tests.extras.byteman.BMFailoverTest.serverToStop.getServer().stop(true)"
                   )
             }
       )

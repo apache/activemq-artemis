@@ -128,7 +128,7 @@ public class ClosingConnectionTest extends ServiceTestBase
                      targetClass = "org.apache.activemq.artemis.core.journal.impl.NIOSequentialFile",
                      targetMethod = "open(int, boolean)",
                      targetLocation = "AT INVOKE java.nio.channels.FileChannel.size()",
-                     action = "org.apache.activemq.tests.extras.byteman.ClosingConnectionTest.killConnection();"
+                     action = "org.apache.activemq.artemis.tests.extras.byteman.ClosingConnectionTest.killConnection();"
 
                   )
             }

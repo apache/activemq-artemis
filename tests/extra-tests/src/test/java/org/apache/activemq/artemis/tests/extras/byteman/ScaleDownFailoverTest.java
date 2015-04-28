@@ -104,7 +104,7 @@ public class ScaleDownFailoverTest extends ClusterTestBase
          targetMethod = "createSessionFactory(org.apache.activemq.artemis.api.core.TransportConfiguration, int, boolean)",
          isInterface = true,
          targetLocation = "ENTRY",
-         action = "org.apache.activemq.tests.extras.byteman.ScaleDownFailoverTest.fail($1);"
+         action = "org.apache.activemq.artemis.tests.extras.byteman.ScaleDownFailoverTest.fail($1);"
       )
    public void testScaleDownWhenFirstServerFails() throws Exception
    {
