@@ -19,7 +19,7 @@ package org.jboss.resteasy.messaging.test;
 import org.jboss.resteasy.client.ClientRequest;
 import org.jboss.resteasy.client.ClientResponse;
 import org.jboss.resteasy.spi.Link;
-import org.apache.activemq.rest.util.LinkStrategy;
+import org.apache.activemq.artemis.rest.util.LinkStrategy;
 import org.junit.Assert;
 import org.junit.Test;
 

@@ -1,0 +1,388 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.activemq.artemis.core.paging.impl;
+
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.core.paging.PageTransactionInfo;
+import org.apache.activemq.artemis.core.paging.PagingManager;
+import org.apache.activemq.artemis.core.paging.cursor.PageIterator;
+import org.apache.activemq.artemis.core.paging.cursor.PagePosition;
+import org.apache.activemq.artemis.core.paging.cursor.PageSubscription;
+import org.apache.activemq.artemis.core.persistence.StorageManager;
+import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.apache.activemq.artemis.core.transaction.Transaction;
+import org.apache.activemq.artemis.core.transaction.TransactionOperationAbstract;
+import org.apache.activemq.artemis.core.transaction.TransactionPropertyIndexes;
+import org.apache.activemq.artemis.utils.DataConstants;
+
+public final class PageTransactionInfoImpl implements PageTransactionInfo
+{
+   // Constants -----------------------------------------------------
+
+   // Attributes ----------------------------------------------------
+
+   private long transactionID;
+
+   private volatile long recordID = -1;
+
+   private volatile boolean committed = false;
+
+   private volatile boolean useRedelivery = false;
+
+   private volatile boolean rolledback = false;
+
+   private final AtomicInteger numberOfMessages = new AtomicInteger(0);
+
+   private final AtomicInteger numberOfPersistentMessages = new AtomicInteger(0);
+
+   private List<LateDelivery> lateDeliveries;
+
+   // Static --------------------------------------------------------
+
+   // Constructors --------------------------------------------------
+
+   public PageTransactionInfoImpl(final long transactionID)
+   {
+      this();
+      this.transactionID = transactionID;
+   }
+
+   public PageTransactionInfoImpl()
+   {
+   }
+
+   // Public --------------------------------------------------------
+
+   public long getRecordID()
+   {
+      return recordID;
+   }
+
+   public void setRecordID(final long recordID)
+   {
+      this.recordID = recordID;
+   }
+
+   public long getTransactionID()
+   {
+      return transactionID;
+   }
+
+   public void onUpdate(final int update, final StorageManager storageManager, PagingManager pagingManager)
+   {
+      int sizeAfterUpdate = numberOfMessages.addAndGet(-update);
+      if (sizeAfterUpdate == 0 && storageManager != null)
+      {
+         try
+         {
+            storageManager.deletePageTransactional(this.recordID);
+         }
+         catch (Exception e)
+         {
+            ActiveMQServerLogger.LOGGER.pageTxDeleteError(e, recordID);
+         }
+
+         pagingManager.removeTransaction(this.transactionID);
+      }
+   }
+
+   public void increment(final int durableSize, final int nonDurableSize)
+   {
+      numberOfPersistentMessages.addAndGet(durableSize);
+      numberOfMessages.addAndGet(durableSize + nonDurableSize);
+   }
+
+   public int getNumberOfMessages()
+   {
+      return numberOfMessages.get();
+   }
+
+   // EncodingSupport implementation
+
+   public synchronized void decode(final ActiveMQBuffer buffer)
+   {
+      transactionID = buffer.readLong();
+      numberOfMessages.set(buffer.readInt());
+      numberOfPersistentMessages.set(numberOfMessages.get());
+      committed = true;
+   }
+
+   public synchronized void encode(final ActiveMQBuffer buffer)
+   {
+      buffer.writeLong(transactionID);
+      buffer.writeInt(numberOfPersistentMessages.get());
+   }
+
+   public synchronized int getEncodeSize()
+   {
+      return DataConstants.SIZE_LONG + DataConstants.SIZE_INT;
+   }
+
+   public synchronized void commit()
+   {
+      if (lateDeliveries != null)
+      {
+         // This is to make sure deliveries that were touched before the commit arrived will be delivered
+         for (LateDelivery pos : lateDeliveries)
+         {
+            pos.getSubscription().redeliver(pos.getIterator(), pos.getPagePosition());
+         }
+         lateDeliveries.clear();
+      }
+      committed = true;
+      lateDeliveries = null;
+   }
+
+   public void store(final StorageManager storageManager, PagingManager pagingManager, final Transaction tx) throws Exception
+   {
+      storageManager.storePageTransaction(tx.getID(), this);
+   }
+
+   /*
+    * This is to be used after paging. We will update the PageTransactions until they get all the messages delivered. On that case we will delete the page TX
+    * (non-Javadoc)
+    * @see org.apache.activemq.artemis.core.paging.PageTransactionInfo#storeUpdate(org.apache.activemq.artemis.core.persistence.StorageManager, org.apache.activemq.artemis.core.transaction.Transaction, int)
+    */
+   public void storeUpdate(final StorageManager storageManager, final PagingManager pagingManager, final Transaction tx) throws Exception
+   {
+      internalUpdatePageManager(storageManager, pagingManager, tx, 1);
+   }
+
+   public void reloadUpdate(final StorageManager storageManager, final PagingManager pagingManager, final Transaction tx, final int increment) throws Exception
+   {
+      UpdatePageTXOperation updt = internalUpdatePageManager(storageManager, pagingManager, tx, increment);
+      updt.setStored();
+   }
+
+   /**
+    * @param storageManager
+    * @param pagingManager
+    * @param tx
+    */
+   protected UpdatePageTXOperation internalUpdatePageManager(final StorageManager storageManager,
+                                                             final PagingManager pagingManager,
+                                                             final Transaction tx,
+                                                             final int increment)
+   {
+      UpdatePageTXOperation pgtxUpdate = (UpdatePageTXOperation) tx.getProperty(TransactionPropertyIndexes.PAGE_TRANSACTION_UPDATE);
+
+      if (pgtxUpdate == null)
+      {
+         pgtxUpdate = new UpdatePageTXOperation(storageManager, pagingManager);
+         tx.putProperty(TransactionPropertyIndexes.PAGE_TRANSACTION_UPDATE, pgtxUpdate);
+         tx.addOperation(pgtxUpdate);
+      }
+
+      tx.setContainsPersistent();
+
+      pgtxUpdate.addUpdate(this, increment);
+
+      return pgtxUpdate;
+   }
+
+   public boolean isCommit()
+   {
+      return committed;
+   }
+
+   public void setCommitted(final boolean committed)
+   {
+      this.committed = committed;
+   }
+
+   public boolean isRollback()
+   {
+      return rolledback;
+   }
+
+   public synchronized void rollback()
+   {
+      rolledback = true;
+      committed = false;
+
+      if (lateDeliveries != null)
+      {
+         for (LateDelivery pos : lateDeliveries)
+         {
+            pos.getSubscription().lateDeliveryRollback(pos.getPagePosition());
+         }
+         lateDeliveries = null;
+      }
+   }
+
+   @Override
+   public String toString()
+   {
+      return "PageTransactionInfoImpl(transactionID=" + transactionID +
+         ",id=" +
+         recordID +
+         ",numberOfMessages=" +
+         numberOfMessages +
+         ")";
+   }
+
+   @Override
+   public synchronized boolean deliverAfterCommit(PageIterator iterator, PageSubscription cursor, PagePosition cursorPos)
+   {
+      if (committed && useRedelivery)
+      {
+         cursor.addPendingDelivery(cursorPos);
+         cursor.redeliver(iterator, cursorPos);
+         return true;
+      }
+      else if (committed)
+      {
+         return false;
+      }
+      else if (rolledback)
+      {
+         cursor.positionIgnored(cursorPos);
+         return true;
+      }
+      else
+      {
+         useRedelivery = true;
+         if (lateDeliveries == null)
+         {
+            lateDeliveries = new LinkedList<>();
+         }
+         cursor.addPendingDelivery(cursorPos);
+         lateDeliveries.add(new LateDelivery(cursor, cursorPos, iterator));
+         return true;
+      }
+   }
+
+   // Package protected ---------------------------------------------
+
+   // Protected -----------------------------------------------------
+
+   // Private -------------------------------------------------------
+
+   // Inner classes -------------------------------------------------
+
+   /** a Message shouldn't be delivered until it's committed
+    *  For that reason the page-refernce will be written right away
+    *  But in certain cases we can only deliver after the commit
+    *  For that reason we will perform a late delivery
+    *  through the method redeliver.
+    */
+   private static class LateDelivery
+   {
+      final PageSubscription subscription;
+      final PagePosition pagePosition;
+      final PageIterator iterator;
+
+      public LateDelivery(PageSubscription subscription, PagePosition pagePosition, PageIterator iterator)
+      {
+         this.subscription = subscription;
+         this.pagePosition = pagePosition;
+         this.iterator = iterator;
+      }
+
+      public PageSubscription getSubscription()
+      {
+         return subscription;
+      }
+
+      public PagePosition getPagePosition()
+      {
+         return pagePosition;
+      }
+
+      public PageIterator getIterator()
+      {
+         return iterator;
+      }
+   }
+
+
+   private static class UpdatePageTXOperation extends TransactionOperationAbstract
+   {
+      private final HashMap<PageTransactionInfo, AtomicInteger> countsToUpdate = new HashMap<PageTransactionInfo, AtomicInteger>();
+
+      private boolean stored = false;
+
+      private final StorageManager storageManager;
+
+      private final PagingManager pagingManager;
+
+      public UpdatePageTXOperation(final StorageManager storageManager, final PagingManager pagingManager)
+      {
+         this.storageManager = storageManager;
+         this.pagingManager = pagingManager;
+      }
+
+      public void setStored()
+      {
+         stored = true;
+      }
+
+      public void addUpdate(final PageTransactionInfo info, final int increment)
+      {
+         AtomicInteger counter = countsToUpdate.get(info);
+
+         if (counter == null)
+         {
+            counter = new AtomicInteger(0);
+            countsToUpdate.put(info, counter);
+         }
+
+         counter.addAndGet(increment);
+      }
+
+      @Override
+      public void beforePrepare(Transaction tx) throws Exception
+      {
+         storeUpdates(tx);
+      }
+
+      @Override
+      public void beforeCommit(Transaction tx) throws Exception
+      {
+         storeUpdates(tx);
+      }
+
+      @Override
+      public void afterCommit(Transaction tx)
+      {
+         for (Map.Entry<PageTransactionInfo, AtomicInteger> entry : countsToUpdate.entrySet())
+         {
+            entry.getKey().onUpdate(entry.getValue().intValue(), storageManager, pagingManager);
+         }
+      }
+
+      private void storeUpdates(Transaction tx) throws Exception
+      {
+         if (!stored)
+         {
+            stored = true;
+            for (Map.Entry<PageTransactionInfo, AtomicInteger> entry : countsToUpdate.entrySet())
+            {
+               storageManager.updatePageTransaction(tx.getID(), entry.getKey(), entry.getValue().get());
+            }
+         }
+      }
+
+
+   }
+}

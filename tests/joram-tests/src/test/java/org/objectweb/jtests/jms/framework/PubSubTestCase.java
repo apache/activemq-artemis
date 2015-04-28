@@ -27,7 +27,7 @@ import javax.naming.InitialContext;
 
 import java.util.Hashtable;
 
-import org.apache.activemq.jndi.ActiveMQInitialContextFactory;
+import org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory;
 import org.junit.After;
 import org.junit.Before;
 

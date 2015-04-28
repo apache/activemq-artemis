@@ -1,0 +1,144 @@
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+   <modelVersion>4.0.0</modelVersion>
+
+   <parent>
+      <groupId>org.apache.activemq</groupId>
+      <artifactId>artemis-pom</artifactId>
+      <version>1.0.0-SNAPSHOT</version>
+   </parent>
+
+   <artifactId>artemis-website</artifactId>
+   <packaging>jar</packaging>
+   <name>ActiveMQ Artemis Web</name>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>artemis-core-client</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>artemis-jms-client</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>artemis-server</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>artemis-jms-server</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>artemis-journal</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>artemis-selector</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
+
+   <properties>
+     <activemq.basedir>${project.basedir}/..</activemq.basedir>
+     <webapp-dir>${project.artifactId}-${project.version}</webapp-dir>
+     <webapp-outdir>${basedir}/target/classes/user-manual</webapp-outdir>
+   </properties>
+
+   <build>
+      <plugins>
+         <plugin>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <version>2.10.1</version>
+            <executions>
+               <execution>
+                  <id>javadoc-jar</id>
+                  <phase>package</phase>
+                  <goals>
+                     <goal>jar</goal>
+                  </goals>
+                  <configuration>
+                     <useStandardDocletOptions>true</useStandardDocletOptions>
+                     <minmemory>128m</minmemory>
+                     <maxmemory>512m</maxmemory>
+                     <quiet>false</quiet>
+                     <!-- switch on dependency-driven aggregation -->
+                     <includeDependencySources>true</includeDependencySources>
+
+                     <dependencySourceIncludes>
+                        <!-- include ONLY dependencies I control -->
+                        <dependencySourceInclude>org.apache.activemq:artemis-core-client</dependencySourceInclude>
+                        <dependencySourceInclude>org.apache.activemq:artemis-jms-client</dependencySourceInclude>
+                        <dependencySourceInclude>org.apache.activemq:artemis-server</dependencySourceInclude>
+                        <dependencySourceInclude>org.apache.activemq:artemis-jms-server</dependencySourceInclude>
+                        <dependencySourceInclude>org.apache.activemq:artemis-journal</dependencySourceInclude>
+                        <dependencySourceInclude>org.apache.activemq:artemis-selector</dependencySourceInclude>
+                     </dependencySourceIncludes>
+                     <quiet>false</quiet>
+                     <aggregate>true</aggregate>
+                     <excludePackageNames>org.apache.activemq.artemis.core:org.apache.activemq.artemis.utils</excludePackageNames>
+                  </configuration>
+               </execution>
+            </executions>
+         </plugin>
+      </plugins>
+   </build>
+
+   <profiles>
+      <profile>
+         <id>release</id>
+         <build>
+             <plugins>
+                <plugin>
+                  <artifactId>maven-antrun-plugin</artifactId>
+                  <version>1.6</version>
+                  <executions>
+                    <execution>
+                      <phase>generate-sources</phase>
+                      <configuration>
+                        <target>
+                          <condition property="gitbook.cmd" value="gitbook.cmd" else="gitbook">
+                             <os family="windows" />
+                          </condition>
+                          <!-- lets generate the gitbook -->
+                          <mkdir dir="${webapp-outdir}/gitbook" />
+                          <echo>executing ${gitbook.cmd}</echo>
+                          <exec executable="${gitbook.cmd}">
+                            <arg value="build" />
+                            <arg value="${basedir}/../docs/user-manual/en" />
+                            <arg value="--output=${webapp-outdir}" />
+                          </exec>
+                        </target>
+                      </configuration>
+                      <goals>
+                        <goal>run</goal>
+                      </goals>
+                    </execution>
+                  </executions>
+                </plugin>
+             </plugins>
+         </build>
+      </profile>
+   </profiles>
+</project>

@@ -1,0 +1,1 @@
+org.apache.activemq.artemis.tests.util.transactions.DummyTransactionManagerLocator

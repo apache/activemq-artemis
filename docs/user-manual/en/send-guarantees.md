@@ -2,7 +2,7 @@
 
 ## Guarantees of Transaction Completion
 
-When committing or rolling back a transaction with Apache ActiveMQ, the request
+When committing or rolling back a transaction with Apache ActiveMQ Artemis, the request
 to commit or rollback is sent to the server, and the call will block on
 the client side until a response has been received from the server that
 the commit or rollback was executed.
@@ -27,7 +27,7 @@ This parameter is set in `activemq-configuration.xml`
 ## Guarantees of Non Transactional Message Sends
 
 If you are sending messages to a server using a non transacted session,
-Apache ActiveMQ can be configured to block the call to send until the message
+Apache ActiveMQ Artemis can be configured to block the call to send until the message
 has definitely reached the server, and a response has been sent back to
 the client. This can be configured individually for durable and
 non-durable messages, and is determined by the following two parameters:
@@ -49,7 +49,7 @@ network round trip time (RTT) of your network, rather than the bandwidth
 of your network. For better performance we recommend either batching
 many messages sends together in a transaction since with a transactional
 session, only the commit / rollback blocks not every send, or, using
-Apache ActiveMQ's advanced *asynchronous send acknowledgements feature*
+Apache ActiveMQ Artemis's advanced *asynchronous send acknowledgements feature*
 described in Asynchronous Send Acknowledgements.
 
 If you are using JMS and JNDI then using the elements
@@ -73,7 +73,7 @@ The default value for this parameter is `true`.
 ## Guarantees of Non Transactional Acknowledgements
 
 If you are acknowledging the delivery of a message at the client side
-using a non transacted session, Apache ActiveMQ can be configured to block the
+using a non transacted session, Apache ActiveMQ Artemis can be configured to block the
 call to acknowledge until the acknowledge has definitely reached the
 server, and a response has been sent back to the client. This is
 configured with the parameter `BlockOnAcknowledge`. If this is set to
@@ -87,7 +87,7 @@ implement a strict *at most once* delivery policy. The default value is
 
 If you are using a non transacted session but want a guarantee that
 every message sent to the server has reached it, then, as discussed in
-Guarantees of Non Transactional Message Sends, you can configure Apache ActiveMQ to block the call to send until the server
+Guarantees of Non Transactional Message Sends, you can configure Apache ActiveMQ Artemis to block the call to send until the server
 has received the message, persisted it and sent back a response. This
 works well but has a severe performance penalty - each call to send
 needs to block for at least the time of a network round trip (RTT) - the
@@ -108,8 +108,8 @@ messages are sent without blocking! These figures aren't an exact
 science but you can clearly see that being limited by network RTT can
 have serious effect on performance.
 
-To remedy this, Apache ActiveMQ provides an advanced new feature called
-*asynchronous send acknowledgements*. With this feature, Apache ActiveMQ can be
+To remedy this, Apache ActiveMQ Artemis provides an advanced new feature called
+*asynchronous send acknowledgements*. With this feature, Apache ActiveMQ Artemis can be
 configured to send messages without blocking in one direction and
 asynchronously getting acknowledgement from the server that the messages
 were received in a separate stream. By de-coupling the send from the
@@ -132,7 +132,7 @@ a handler instance on your `ClientSession`.
 Then, you just send messages as normal using your `ClientSession`, and
 as messages reach the server, the server will send back an
 acknowledgement of the send asynchronously, and some time later you are
-informed at the client side by Apache ActiveMQ calling your handler's
+informed at the client side by Apache ActiveMQ Artemis calling your handler's
 `sendAcknowledged(ClientMessage message)` method, passing in a reference
 to the message that was sent.
 

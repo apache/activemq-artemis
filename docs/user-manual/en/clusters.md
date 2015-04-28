@@ -2,9 +2,9 @@
 
 ## Clusters Overview
 
-Apache ActiveMQ clusters allow groups of Apache ActiveMQ servers to be grouped
+Apache ActiveMQ Artemis clusters allow groups of Apache ActiveMQ Artemis servers to be grouped
 together in order to share message processing load. Each active node in
-the cluster is an active Apache ActiveMQ server which manages its own messages
+the cluster is an active Apache ActiveMQ Artemis server which manages its own messages
 and handles its own connections.
 
 The cluster is formed by each node declaring *cluster connections* to
@@ -22,7 +22,7 @@ in this chapter.
 
 We'll also discuss client side load balancing, where we can balance
 client connections across the nodes of the cluster, and we'll consider
-message redistribution where Apache ActiveMQ will redistribute messages between
+message redistribution where Apache ActiveMQ Artemis will redistribute messages between
 nodes to avoid starvation.
 
 Another important part of clustering is *server discovery* where servers
@@ -33,8 +33,8 @@ connect to them with the minimum of configuration.
 >
 > Once a cluster node has been configured it is common to simply copy
 > that configuration to other nodes to produce a symmetric cluster.
-> However, care must be taken when copying the Apache ActiveMQ files. Do not
-> copy the Apache ActiveMQ *data* (i.e. the `bindings`, `journal`, and
+> However, care must be taken when copying the Apache ActiveMQ Artemis files. Do not
+> copy the Apache ActiveMQ Artemis *data* (i.e. the `bindings`, `journal`, and
 > `large-messages` directories) from one node to another. When a node is
 > started for the first time and initializes its journal files it also
 > persists a special identifier to the `journal` directory. This id
@@ -55,7 +55,7 @@ connection details to:
     all the other servers in the cluster.
 
 This information, let's call it the Cluster Topology, is actually sent
-around normal Apache ActiveMQ connections to clients and to other servers over
+around normal Apache ActiveMQ Artemis connections to clients and to other servers over
 cluster connections. This being the case we need a way of establishing
 the initial first connection. This can be done using dynamic discovery
 techniques like
@@ -85,7 +85,7 @@ JGroups to broadcast connector pairs information.
 
 Broadcast groups are defined in the server configuration file
 `activemq-configuration.xml`. There can be many broadcast groups per
-Apache ActiveMQ server. All broadcast groups must be defined in a
+Apache ActiveMQ Artemis server. All broadcast groups must be defined in a
 `broadcast-groups` element.
 
 Let's take a look at an example broadcast group from
@@ -159,7 +159,7 @@ following:
 
 -   `jgroups-file` attribute. This is the name of JGroups configuration
     file. It will be used to initialize JGroups channels. Make sure the
-    file is in the java resource path so that Apache ActiveMQ can load it.
+    file is in the java resource path so that Apache ActiveMQ Artemis can load it.
 
 -   `jgroups-channel` attribute. The name that JGroups channels connect
     to for broadcasting.
@@ -226,7 +226,7 @@ The following is an example of a JGroups file
     </config>
 
 As it shows, the file content defines a jgroups protocol stacks. If you
-want Apache activemq to use this stacks for channel creation, you have to make
+want Apache ActiveMQ Artemis to use this stacks for channel creation, you have to make
 sure the value of `jgroups-file` in your broadcast-group/discovery-group
 configuration to be the name of this jgroups configuration file. For
 example if the above stacks configuration is stored in a file named
@@ -249,7 +249,7 @@ list for that server.
 If it has not received a broadcast from a particular server for a length
 of time it will remove that server's entry from its list.
 
-Discovery groups are used in two places in Apache ActiveMQ:
+Discovery groups are used in two places in Apache ActiveMQ Artemis:
 
 -   By cluster connections so they know how to obtain an initial
     connection to download the topology
@@ -260,7 +260,7 @@ Discovery groups are used in two places in Apache ActiveMQ:
 Although a discovery group will always accept broadcasts, its current
 list of available live and backup servers is only ever used when an
 initial connection is made, from then server discovery is done over the
-normal Apache ActiveMQ connections.
+normal Apache ActiveMQ Artemis connections.
 
 > **Note**
 >
@@ -274,7 +274,7 @@ normal Apache ActiveMQ connections.
 For cluster connections, discovery groups are defined in the server side
 configuration file `activemq-configuration.xml`. All discovery groups
 must be defined inside a `discovery-groups` element. There can be many
-discovery groups defined by Apache ActiveMQ server. Let's look at an example:
+discovery groups defined by Apache ActiveMQ Artemis server. Let's look at an example:
 
     <discovery-groups>
        <discovery-group name="my-discovery-group">
@@ -331,7 +331,7 @@ details as following:
 
 -   `jgroups-file` attribute. This is the name of JGroups configuration
     file. It will be used to initialize JGroups channels. Make sure the
-    file is in the java resource path so that Apache ActiveMQ can load it.
+    file is in the java resource path so that Apache ActiveMQ Artemis can load it.
 
 -   `jgroups-channel` attribute. The name that JGroups channels connect
     to for receiving broadcasts.
@@ -345,7 +345,7 @@ details as following:
 
 #### Discovery Groups on the Client Side
 
-Let's discuss how to configure an Apache ActiveMQ client to use discovery to
+Let's discuss how to configure an Apache ActiveMQ Artemis client to use discovery to
 discover a list of servers to which it can connect. The way to do this
 differs depending on whether you're using JMS or the core API.
 
@@ -358,7 +358,7 @@ ensure the host:port combination matches the group-address and
 group-port from the corresponding `broadcast-group` on the server. Let's
 take a look at an example:
 
-    java.naming.factory.initial = org.apache.activemq.jndi.ActiveMQInitialContextFactory
+    java.naming.factory.initial = ActiveMQInitialContextFactory
     connectionFactory.myConnectionFactory=udp://231.7.7.7:9876
 
 The element `discovery-group-ref` specifies the name of a discovery
@@ -462,7 +462,7 @@ If you're using JMS and you're using JNDI on the client to look up your
 JMS connection factory instances then you can specify these parameters
 in the JNDI context environment in, e.g. `jndi.properties`:
 
-    java.naming.factory.initial=org.apache.activemq.jndi.ActiveMQInitialContextFactory
+    java.naming.factory.initial=ActiveMQInitialContextFactory
     connectionFactory.myConnectionFactory=(tcp://myhost:61616,tcp://myhost2:61616)
 
 The `connectionFactory.myConnectionFactory` contains a list of servers to use for the
@@ -511,7 +511,7 @@ ClientSession session = factory.createSession();
 ## Server-Side Message Load Balancing
 
 If cluster connections are defined between nodes of a cluster, then
-Apache ActiveMQ will load balance messages arriving at a particular node from a
+Apache ActiveMQ Artemis will load balance messages arriving at a particular node from a
 client.
 
 Let's take a simple example of a cluster of four nodes A, B, C, and D
@@ -537,7 +537,7 @@ following order between the nodes: B, D, C, A, B, D, C, A, B, D. The
 exact order depends on the order the nodes started up, but the algorithm
 used is round robin.
 
-Apache ActiveMQ cluster connections can be configured to always blindly load
+Apache ActiveMQ Artemis cluster connections can be configured to always blindly load
 balance messages in a round robin fashion irrespective of whether there
 are any matching consumers on other nodes, but they can be a bit
 cleverer than that and also be configured to only distribute to other
@@ -551,7 +551,7 @@ Cluster connections group servers into clusters so that messages can be
 load balanced between the nodes of the cluster. Let's take a look at a
 typical cluster connection. Cluster connections are always defined in
 `activemq-configuration.xml` inside a `cluster-connection` element.
-There can be zero or more cluster connections defined per Apache ActiveMQ
+There can be zero or more cluster connections defined per Apache ActiveMQ Artemis
 server.
 
     <cluster-connections>
@@ -598,7 +598,7 @@ specified. The following shows all the available configuration options
     connections with different values of `address`, simultaneously
     balancing messages for those addresses, potentially to different
     clusters of servers. By having multiple cluster connections on
-    different addresses a single Apache ActiveMQ Server can effectively take
+    different addresses a single Apache ActiveMQ Artemis Server can effectively take
     part in multiple clusters simultaneously.
 
     Be careful not to have multiple cluster connections with overlapping
@@ -704,11 +704,11 @@ specified. The following shows all the available configuration options
     robin'd even though the same queues on the other nodes of the
     cluster may have no consumers at all, or they may have consumers
     that have non matching message filters (selectors). Note that
-    Apache ActiveMQ will *not* forward messages to other nodes if there are no
+    Apache ActiveMQ Artemis will *not* forward messages to other nodes if there are no
     *queues* of the same name on the other nodes, even if this parameter
     is set to `true`.
 
-    If this is set to `false` then Apache ActiveMQ will only forward messages
+    If this is set to `false` then Apache ActiveMQ Artemis will only forward messages
     to other nodes of the cluster if the address to which they are being
     forwarded has queues which have consumers, and if those consumers
     have message filters (selectors) at least one of those selectors
@@ -718,17 +718,17 @@ specified. The following shows all the available configuration options
 
 -   `max-hops`. When a cluster connection decides the set of nodes to
     which it might load balance a message, those nodes do not have to be
-    directly connected to it via a cluster connection. Apache ActiveMQ can be
+    directly connected to it via a cluster connection. Apache ActiveMQ Artemis can be
     configured to also load balance messages to nodes which might be
-    connected to it only indirectly with other Apache ActiveMQ servers as
+    connected to it only indirectly with other Apache ActiveMQ Artemis servers as
     intermediates in a chain.
 
-    This allows Apache ActiveMQ to be configured in more complex topologies and
+    This allows Apache ActiveMQ Artemis to be configured in more complex topologies and
     still provide message load balancing. We'll discuss this more later
     in this chapter.
 
     The default value for this parameter is `1`, which means messages
-    are only load balanced to other Apache ActiveMQ serves which are directly
+    are only load balanced to other Apache ActiveMQ Artemis serves which are directly
     connected to this server. This parameter is optional.
 
 -   `confirmation-window-size`. The size (in bytes) of the window used
@@ -774,7 +774,7 @@ connection has been made.
 ### Cluster User Credentials
 
 When creating connections between nodes of a cluster to form a cluster
-connection, Apache ActiveMQ uses a cluster user and cluster password which is
+connection, Apache ActiveMQ Artemis uses a cluster user and cluster password which is
 defined in `activemq-configuration.xml`:
 
     <cluster-user>ACTIVEMQ.CLUSTER.ADMIN.USER</cluster-user>
@@ -784,18 +784,18 @@ defined in `activemq-configuration.xml`:
 >
 > It is imperative that these values are changed from their default, or
 > remote clients will be able to make connections to the server using
-> the default values. If they are not changed from the default, Apache ActiveMQ
+> the default values. If they are not changed from the default, Apache ActiveMQ Artemis
 > will detect this and pester you with a warning on every start-up.
 
 ## Client-Side Load balancing
 
-With Apache ActiveMQ client-side load balancing, subsequent sessions created
+With Apache ActiveMQ Artemis client-side load balancing, subsequent sessions created
 using a single session factory can be connected to different nodes of
 the cluster. This allows sessions to spread smoothly across the nodes of
 a cluster and not be "clumped" on any particular node.
 
 The load balancing policy to be used by the client factory is
-configurable. Apache ActiveMQ provides four out-of-the-box load balancing
+configurable. Apache ActiveMQ Artemis provides four out-of-the-box load balancing
 policies, and you can also implement your own and use that.
 
 The out-of-the-box policies are
@@ -843,7 +843,7 @@ JMS connection factory instances then you can specify these parameters
 in the JNDI context environment in, e.g. `jndi.properties`, to specify
 the load balancing policy directly:
 
-    java.naming.factory.initial=org.apache.activemq.jndi.ActiveMQInitialContextFactory
+    java.naming.factory.initial=ActiveMQInitialContextFactory
     connection.myConnectionFactory=tcp://localhost:61616?loadBalancingPolicyClassName=org.apache.activemq.api.core.client.loadbalance.RandomConnectionLoadBalancingPolicy
 
 The above example would instantiate a JMS connection factory that uses
@@ -912,7 +912,7 @@ consumers on the queue the message won't get consumed and we have a
 *starvation* situation.
 
 This is where message redistribution comes in. With message
-redistribution Apache ActiveMQ can be configured to automatically
+redistribution Apache ActiveMQ Artemis can be configured to automatically
 *redistribute* messages from queues which have no consumers back to
 other nodes in the cluster which do have matching consumers.
 
@@ -941,7 +941,7 @@ with "jms.", so the above would enable instant (no delay) redistribution
 for all JMS queues and topic subscriptions.
 
 The attribute `match` can be an exact match or it can be a string that
-conforms to the Apache ActiveMQ wildcard syntax (described in [Wildcard Syntax](wildcard-syntax.md)).
+conforms to the Apache ActiveMQ Artemis wildcard syntax (described in [Wildcard Syntax](wildcard-syntax.md)).
 
 The element `redistribution-delay` defines the delay in milliseconds
 after the last consumer is closed on a queue before redistributing
@@ -957,7 +957,7 @@ redistribute immediately since the new consumer will arrive shortly.
 
 ## Cluster topologies
 
-Apache ActiveMQ clusters can be connected together in many different
+Apache ActiveMQ Artemis clusters can be connected together in many different
 topologies, let's consider the two most common ones here
 
 ### Symmetric cluster
@@ -1016,13 +1016,13 @@ which does have consumers.
 
 ### Scaling Down
 
-Apache ActiveMQ supports scaling down a cluster with no message loss (even for
+Apache ActiveMQ Artemis supports scaling down a cluster with no message loss (even for
 non-durable messages). This is especially useful in certain environments
 (e.g. the cloud) where the size of a cluster may change relatively
 frequently. When scaling up a cluster (i.e. adding nodes) there is no
 risk of message loss, but when scaling down a cluster (i.e. removing
 nodes) the messages on those nodes would be lost unless the broker sent
-them to another node in the cluster. Apache ActiveMQ can be configured to do
+them to another node in the cluster. Apache ActiveMQ Artemis can be configured to do
 just that.
 
 The simplest way to enable this behavior is to set `scale-down` to

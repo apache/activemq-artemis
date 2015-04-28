@@ -1,0 +1,189 @@
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements. See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License. You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<assembly xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2 http://maven.apache.org/xsd/assembly-1.1.2.xsd">
+
+   <id>bin</id>
+   <formats>
+      <format>dir</format>
+      <format>zip</format>
+      <format>tar.gz</format>
+   </formats>
+   <includeBaseDirectory>true</includeBaseDirectory>
+
+
+   <dependencySets>
+      <dependencySet>
+        <directoryMode>755</directoryMode>
+        <fileMode>644</fileMode>
+        <outputDirectory>lib</outputDirectory>
+        <outputFileNameMapping>${artifact.artifactId}.${artifact.extension}</outputFileNameMapping>
+        <unpack>false</unpack>
+        <useTransitiveDependencies>false</useTransitiveDependencies>
+        <includes>
+           <include>org.apache.activemq:artemis-boot</include>
+        </includes>
+      </dependencySet>
+
+      <dependencySet>
+         <directoryMode>755</directoryMode>
+         <fileMode>644</fileMode>
+         <includes>
+
+            <!-- modules -->
+            <include>org.apache.activemq:artemis-bootstrap</include>
+            <include>org.apache.activemq:artemis-commons</include>
+            <include>org.apache.activemq:artemis-core-client</include>
+            <include>org.apache.activemq:artemis-dto</include>
+            <include>org.apache.activemq:artemis-jms-client</include>
+            <include>org.apache.activemq:artemis-jms-server</include>
+            <include>org.apache.activemq:artemis-journal</include>
+            <include>org.apache.activemq:artemis-native</include>
+            <include>org.apache.activemq:artemis-amqp-protocol</include>
+            <include>org.apache.activemq:artemis-openwire-protocol</include>
+            <include>org.apache.activemq:artemis-proton-plug</include>
+            <include>org.apache.activemq:artemis-stomp-protocol</include>
+            <include>org.apache.activemq:artemis-ra</include>
+            <include>org.apache.activemq:artemis-selector</include>
+            <include>org.apache.activemq:artemis-server</include>
+            <include>org.apache.activemq:artemis-service-extensions</include>
+            <include>org.apache.activemq:artemis-tools</include>
+            <include>org.apache.activemq:artemis-web</include>
+            <include>org.apache.activemq.rest:artemis-rest</include>
+            <!-- dependencies -->
+            <include>org.apache.geronimo.specs:geronimo-jms_2.0_spec</include>
+            <include>org.jboss.logmanager:jboss-logmanager</include>
+            <include>org.jboss.logging:jboss-logging</include>
+            <include>io.netty:netty-all</include>
+            <include>org.apache.qpid:proton-j</include>
+            <include>org.apache.qpid:proton-jms</include>
+            <include>org.apache.activemq:activemq-client</include>
+            <include>org.slf4j:slf4j-api</include>
+            <include>io.airlift:airline</include>
+            <include>com.google.guava:guava</include>
+            <include>javax.inject:javax.inject</include>
+            <include>org.eclipse.jetty.aggregate:jetty-all</include>
+            <include>org.apache.geronimo.specs:</include>
+            <include>org.apache.geronimo.specs:geronimo-servlet_3.0_spec</include>
+            <include>commons-beanutils:commons-beanutils</include>
+            <include>commons-logging:commons-logging</include>
+            <include>org.fusesource.hawtbuf:hawtbuf</include>
+         </includes>
+         <!--excludes>
+            <exclude>org.apache.activemq:artemis-website</exclude>
+         </excludes-->
+         <outputDirectory>lib</outputDirectory>
+         <unpack>false</unpack>
+      </dependencySet>
+      <!-- native -->
+      <dependencySet>
+         <includes>
+            <include>org.apache.activemq:artemis-native</include>
+         </includes>
+         <outputDirectory>bin</outputDirectory>
+         <unpack>true</unpack>
+         <unpackOptions>
+            <includes>
+               <include>**/*.so</include>
+            </includes>
+         </unpackOptions>
+      </dependencySet>
+      <dependencySet>
+         <includes>
+            <include>org.apache.activemq:artemis-website</include>
+         </includes>
+         <excludes>
+            <exclude>org.apache.activemq:artemis-website:jar:javadoc</exclude>
+         </excludes>
+         <outputDirectory>web</outputDirectory>
+         <unpack>true</unpack>
+      </dependencySet>
+      <dependencySet>
+         <includes>
+            <include>org.apache.activemq:artemis-website:jar:javadoc</include>
+         </includes>
+         <outputDirectory>web/api</outputDirectory>
+         <unpack>true</unpack>
+      </dependencySet>
+      <dependencySet>
+         <includes>
+            <include>org.jolokia:jolokia-war:war</include>
+         </includes>
+         <outputDirectory>web</outputDirectory>
+         <unpack>false</unpack>
+      </dependencySet>
+   </dependencySets>
+   <fileSets>
+      <!-- schema -->
+      <fileSet>
+         <directory>${activemq.basedir}/artemis-server/src/main/resources/schema/</directory>
+         <outputDirectory>schema</outputDirectory>
+         <lineEnding>keep</lineEnding>
+      </fileSet>
+      <fileSet>
+         <directory>${activemq.basedir}/artemis-jms-server/src/main/resources/schema/</directory>
+         <outputDirectory>schema</outputDirectory>
+         <lineEnding>keep</lineEnding>
+      </fileSet>
+      <!-- resources -->
+      <fileSet>
+         <directory>src/main/resources</directory>
+         <outputDirectory>/</outputDirectory>
+         <lineEnding>keep</lineEnding>
+         <excludes>
+            <exclude>bin/activemq</exclude>
+            <exclude>bin/run.sh</exclude>
+            <exclude>bin/stop.sh</exclude>
+            <exclude>**/target/**</exclude>
+            <exclude>**/**/*.iml</exclude>
+            <exclude>**/**/*.dat</exclude>
+            <exclude>**/licenses/**</exclude>
+         </excludes>
+      </fileSet>
+      <!-- chmod to 755 on linux executables -->
+      <fileSet>
+         <directory>src/main/resources</directory>
+         <outputDirectory>/</outputDirectory>
+         <lineEnding>keep</lineEnding>
+         <includes>
+            <include>bin/activemq</include>
+            <include>bin/run.sh</include>
+            <include>bin/stop.sh</include>
+         </includes>
+         <directoryMode>0755</directoryMode>
+         <fileMode>0755</fileMode>
+      </fileSet>
+      <fileSet>
+         <directory>${activemq.basedir}/examples</directory>
+         <outputDirectory>examples</outputDirectory>
+         <lineEnding>keep</lineEnding>
+         <excludes>
+            <exclude>**/target/**</exclude>
+            <exclude>**/**/*.iml</exclude>
+            <exclude>**/**/*.dat</exclude>
+         </excludes>
+      </fileSet>
+      <!-- Include license and notice files -->
+      <fileSet>
+         <directory>${activemq.basedir}/distribution/activemq/src/main/resources/licenses/bin</directory>
+         <outputDirectory>/</outputDirectory>
+         <useDefaultExcludes>true</useDefaultExcludes>
+      </fileSet>
+   </fileSets>
+</assembly>

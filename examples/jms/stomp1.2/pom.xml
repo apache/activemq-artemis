@@ -24,17 +24,17 @@ under the License.
    <parent>
       <groupId>org.apache.activemq.examples.jms</groupId>
       <artifactId>jms-examples</artifactId>
-      <version>10.0.0-SNAPSHOT</version>
+      <version>1.0.0-SNAPSHOT</version>
    </parent>
 
-   <artifactId>activemq-jms-stomp1.2-example</artifactId>
+   <artifactId>artemis-jms-stomp1.2-example</artifactId>
    <packaging>jar</packaging>
    <name>ActiveMQ Artemis JMS Stomp 1.2 Example</name>
 
    <dependencies>
       <dependency>
          <groupId>org.apache.activemq.examples.jms</groupId>
-         <artifactId>activemq-jms-examples-common</artifactId>
+         <artifactId>artemis-jms-examples-common</artifactId>
          <version>${project.version}</version>
       </dependency>
       <dependency>
@@ -50,7 +50,7 @@ under the License.
             <plugins>
                <plugin>
                   <groupId>org.apache.activemq</groupId>
-                  <artifactId>activemq-maven-plugin</artifactId>
+                  <artifactId>artemis-maven-plugin</artifactId>
                   <executions>
                      <execution>
                         <id>start</id>
@@ -85,32 +85,32 @@ under the License.
                   <dependencies>
                      <dependency>
                         <groupId>org.apache.activemq.examples.jms</groupId>
-                        <artifactId>activemq-jms-stomp1.2-example</artifactId>
+                        <artifactId>artemis-jms-stomp1.2-example</artifactId>
                         <version>${project.version}</version>
                      </dependency>
                      <dependency>
                         <groupId>org.apache.activemq</groupId>
-                        <artifactId>activemq-core-client</artifactId>
+                        <artifactId>artemis-core-client</artifactId>
                         <version>${project.version}</version>
                      </dependency>
                      <dependency>
                         <groupId>org.apache.activemq</groupId>
-                        <artifactId>activemq-server</artifactId>
+                        <artifactId>artemis-server</artifactId>
                         <version>${project.version}</version>
                      </dependency>
                      <dependency>
                         <groupId>org.apache.activemq</groupId>
-                        <artifactId>activemq-jms-client</artifactId>
+                        <artifactId>artemis-jms-client</artifactId>
                         <version>${project.version}</version>
                      </dependency>
                      <dependency>
                         <groupId>org.apache.activemq</groupId>
-                        <artifactId>activemq-jms-server</artifactId>
+                        <artifactId>artemis-jms-server</artifactId>
                         <version>${project.version}</version>
                      </dependency>
                      <dependency>
                         <groupId>org.apache.activemq</groupId>
-                        <artifactId>activemq-stomp-protocol</artifactId>
+                        <artifactId>artemis-stomp-protocol</artifactId>
                         <version>${project.version}</version>
                      </dependency>
                      <dependency>

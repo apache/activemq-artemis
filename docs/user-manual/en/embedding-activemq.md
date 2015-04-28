@@ -1,36 +1,36 @@
-# Embedding Apache ActiveMQ
+# Embedding Apache ActiveMQ Artemis
 
-Apache ActiveMQ is designed as set of simple Plain Old Java Objects (POJOs).
-This means Apache ActiveMQ can be instantiated and run in any dependency
+Apache ActiveMQ Artemis is designed as set of simple Plain Old Java Objects (POJOs).
+This means Apache ActiveMQ Artemis can be instantiated and run in any dependency
 injection framework such as Spring or Google Guice. It also means that if you have an application that could use
 messaging functionality internally, then it can *directly instantiate*
-Apache ActiveMQ clients and servers in its own application code to perform that
-functionality. We call this *embedding* Apache ActiveMQ.
+Apache ActiveMQ Artemis clients and servers in its own application code to perform that
+functionality. We call this *embedding* Apache ActiveMQ Artemis.
 
 Examples of applications that might want to do this include any
 application that needs very high performance, transactional, persistent
 messaging but doesn't want the hassle of writing it all from scratch.
 
-Embedding Apache ActiveMQ can be done in very few easy steps. Instantiate the
+Embedding Apache ActiveMQ Artemis can be done in very few easy steps. Instantiate the
 configuration object, instantiate the server, start it, and you have a
-Apache ActiveMQ running in your virtual machine. It's as simple and easy as
+Apache ActiveMQ Artemis running in your virtual machine. It's as simple and easy as
 that.
 
 ## Simple Config File Embedding
 
-The simplest way to embed Apache ActiveMQ is to use the embedded wrapper
-classes and configure Apache ActiveMQ through its configuration files. There
+The simplest way to embed Apache ActiveMQ Artemis is to use the embedded wrapper
+classes and configure Apache ActiveMQ Artemis through its configuration files. There
 are two different helper classes for this depending on whether your
-using the Apache ActiveMQ Core API or JMS.
+using the Apache ActiveMQ Artemis Core API or JMS.
 
 ## Core API Only
 
-For instantiating a core Apache ActiveMQ Server only, the steps are pretty
+For instantiating a core Apache ActiveMQ Artemis Server only, the steps are pretty
 simple. The example requires that you have defined a configuration file
 `activemq-configuration.xml` in your classpath:
 
 ``` java
-import org.apache.activemq.core.server.embedded.EmbeddedActiveMQ;
+import org.apache.activemq.artemis.core.server.embedded.EmbeddedActiveMQ;
 
 ...
 
@@ -102,10 +102,10 @@ javadocs for this class for more details on other config options.
 ## POJO instantiation - Embedding Programmatically
 
 You can follow this step-by-step guide to programmatically embed the
-core, non-JMS Apache ActiveMQ Server instance:
+core, non-JMS Apache ActiveMQ Artemis Server instance:
 
 Create the configuration object - this contains configuration
-information for an Apache ActiveMQ instance. The setter methods of this class
+information for an Apache ActiveMQ Artemis instance. The setter methods of this class
 allow you to programmatically set configuration options as describe in
 the [Server Configuration](configuration-index.md) section.
 
@@ -114,8 +114,8 @@ The acceptors are configured through `ConfigurationImpl`. Just add the
 the main configuration file.
 
 ``` java
-import org.apache.activemq.core.config.Configuration;
-import org.apache.activemq.core.config.impl.ConfigurationImpl;
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
 
 ...
 
@@ -133,8 +133,8 @@ You need to instantiate an instance of
 the configuration object to it.
 
 ``` java
-import org.apache.activemq.api.core.server.ActiveMQ;
-import org.apache.activemq.core.server.embedded.EmbeddedActiveMQ;
+import org.apache.activemq.artemis.api.core.server.ActiveMQ;
+import org.apache.activemq.artemis.core.server.embedded.EmbeddedActiveMQ;
 
 ...
 
@@ -158,7 +158,7 @@ then set the JmsConfiguration property of the EmbeddedJMS class. Here is
 an example of this:
 
 ``` java
-// Step 1. Create Apache ActiveMQ core configuration, and set the properties accordingly
+// Step 1. Create Apache ActiveMQ Artemis core configuration, and set the properties accordingly
 Configuration configuration = new ConfigurationImpl();
 configuration.setPersistenceEnabled(false);
 configuration.setSecurityEnabled(false);
@@ -176,20 +176,20 @@ jmsConfig.getConnectionFactoryConfigurations().add(cfConfig);
 JMSQueueConfiguration queueConfig = new JMSQueueConfigurationImpl("queue1", null, false, "/queue/queue1");
 jmsConfig.getQueueConfigurations().add(queueConfig);
 
-// Step 5. Start the JMS Server using the Apache ActiveMQ core server and the JMS configuration
+// Step 5. Start the JMS Server using the Apache ActiveMQ Artemis core server and the JMS configuration
 EmbeddedJMS jmsServer = new EmbeddedJMS();
 jmsServer.setConfiguration(configuration);
 jmsServer.setJmsConfiguration(jmsConfig);
 jmsServer.start();
 ```
 
-Please see the examples for an example which shows how to setup and run Apache ActiveMQ
+Please see the examples for an example which shows how to setup and run Apache ActiveMQ Artemis
 embedded with JMS.
 
 ## Dependency Frameworks
 
 You may also choose to use a dependency injection framework such as
 The Spring Framework. See [Spring Integration](spring-integration.md) for more details on
-Spring and Apache ActiveMQ.
+Spring and Apache ActiveMQ Artemis.
 
-Apache ActiveMQ standalone uses [Airline](https://github.com/airlift/airline) to bootstrap.
+Apache ActiveMQ Artemis standalone uses [Airline](https://github.com/airlift/airline) to bootstrap.

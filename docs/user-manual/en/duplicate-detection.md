@@ -1,9 +1,9 @@
 # Duplicate Message Detection
 
-Apache ActiveMQ includes powerful automatic duplicate message detection,
+Apache ActiveMQ Artemis includes powerful automatic duplicate message detection,
 filtering out duplicate messages without you having to code your own
 fiddly duplicate detection logic at the application level. This chapter
-will explain what duplicate detection is, how Apache ActiveMQ uses it and how
+will explain what duplicate detection is, how Apache ActiveMQ Artemis uses it and how
 and where to configure it.
 
 When sending messages from a client to a server, or indeed from a server
@@ -34,7 +34,7 @@ server or connection fails while the transaction commit is being
 processed it is also indeterminate whether the transaction was
 successfully committed or not!
 
-To solve these issues Apache ActiveMQ provides automatic duplicate messages
+To solve these issues Apache ActiveMQ Artemis provides automatic duplicate messages
 detection for messages sent to addresses.
 
 ## Using Duplicate Detection for Message Sending
@@ -101,7 +101,7 @@ message.setStringProperty(HDR_DUPLICATE_DETECTION_ID.toString(), myUniqueID);
 ## Configuring the Duplicate ID Cache
 
 The server maintains caches of received values of the
-`org.apache.activemq.core.message.impl.HDR_DUPLICATE_DETECTION_ID`
+`org.apache.activemq.artemis.core.message.impl.HDR_DUPLICATE_DETECTION_ID`
 property sent to each address. Each address has its own distinct cache.
 
 The cache is a circular fixed size cache. If the cache has a maximum

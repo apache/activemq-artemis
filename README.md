@@ -154,7 +154,7 @@ class in the project tab and click "Run <classname>".  If the "Run <classname>" 
 We have shared the style templates that are good for this project. If you want to apply them use these steps:
 
 * File->Import Settings
-* Select the file under ./activemq6-cloned-folder/etc/IDEA-style.jar
+* Select the file under ./artemis-cloned-folder/etc/IDEA-style.jar
 * Select both Code Style Templates and File templates (it's the default option)
 * Select OK and restart Idea
 
@@ -234,7 +234,7 @@ Do not use the [maven-eclipse-plugin] to copy the files as it conflicts with [m2
 
 The code repository for ActiveMQ Artemis is hosted by Apache org and lives here: https://git-wip-us.apache.org/repos/asf/activemq-6.git.
 
-We also host a mirror of the ActiveMQ repository on GitHub: https://github.com/apache/activemq-6.  We use this mirror for all code submissions and reviews.  To submit code to ActiveMQ Artemis please open a Pull Request as outlined as part of the GitHub workflow described here: https://guides.github.com/introduction/flow/index.html.  Once a pull request is opened it will be reviewed and commented on.  Any further changes as a result of comments / review process should be addressed and reflected in the original pull request as outlined in the GitHub workflow.  When the pull request has went through the review process and ready to merge, the reviewer should comment with "Ack, Ready to Push".  Once an Ack message is received one of the ActiveMQ Artemis core team members will push the changes to upstream Apache ActiveMQ Artemis repository and close the pull request.
+We also host a mirror of the ActiveMQ Artemis repository on GitHub: https://github.com/apache/activemq-6.  We use this mirror for all code submissions and reviews.  To submit code to ActiveMQ Artemis please open a Pull Request as outlined as part of the GitHub workflow described here: https://guides.github.com/introduction/flow/index.html.  Once a pull request is opened it will be reviewed and commented on.  Any further changes as a result of comments / review process should be addressed and reflected in the original pull request as outlined in the GitHub workflow.  When the pull request has went through the review process and ready to merge, the reviewer should comment with "Ack, Ready to Push".  Once an Ack message is received one of the ActiveMQ Artemis core team members will push the changes to upstream Apache ActiveMQ Artemis repository and close the pull request.
 
 ### Commit Messages
 
@@ -279,7 +279,7 @@ To setup repositories for reviewing and pushing:
   # Clone the GitHub Mirror of ActiveMQ Artemis Repo:
   git clone git@github.com:apache/activemq-6.git
 
-  # Add the following section to your <activemq6 repo>/.git/config statement to fetch all pull requests sent to the GitHub mirror.  Note that the remote name for git@github.com:apache/activemq-6.git may be different.  Be sure to edit all references to the remote name.  In this case "activemq".
+  # Add the following section to your <artemis-repo>/.git/config statement to fetch all pull requests sent to the GitHub mirror.  Note that the remote name for git@github.com:apache/activemq-6.git may be different.  Be sure to edit all references to the remote name.  In this case "activemq".
 
   [remote "origin"]
         url = git@github.com:apache/activemq-6.git
@@ -297,7 +297,7 @@ To setup repositories for reviewing and pushing:
 To push commits from a pull request to the apache repository:
 
 ```bash
-  cd <activemq6 repo>
+  cd <artemis-repo>
 
   # Download all the remote branches etc... including all the pull requests.
   git fetch --all

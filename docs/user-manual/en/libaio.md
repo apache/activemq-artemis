@@ -1,6 +1,6 @@
 # Libaio Native Libraries
 
-Apache ActiveMQ distributes a native library, used as a bridge between Apache ActiveMQ
+Apache ActiveMQ Artemis distributes a native library, used as a bridge between Apache ActiveMQ Artemis
 and Linux libaio.
 
 `libaio` is a library, developed as part of the Linux kernel project.
@@ -11,13 +11,13 @@ when they have been processed.
 We use this in our high performance journal if configured to do so,
 please see [Persistence](persistence.md).
 
-These are the native libraries distributed by Apache ActiveMQ:
+These are the native libraries distributed by Apache ActiveMQ Artemis:
 
 -   libActiveMQAIO32.so - x86 32 bits
 
 -   libActiveMQAIO64.so - x86 64 bits
 
-When using libaio, Apache ActiveMQ will always try loading these files as long
+When using libaio, Apache ActiveMQ Artemis will always try loading these files as long
 as they are on the [library path](#using-server.library.path).
 
 ## Compiling the native libraries
@@ -65,27 +65,27 @@ Or on Debian systems:
 
 ## Invoking the compilation
 
-In the source distribution or git clone, in the `activemq-native` directory, execute the shell
+In the source distribution or git clone, in the `artemis-native` directory, execute the shell
 script `compile-native.sh`. This script will invoke the proper maven profile to perform the native build.
 
-    someUser@someBox:/checkout-dir/activemq-native$ ./compile-native.sh
+    someUser@someBox:/checkout-dir/artemis-native$ ./compile-native.sh
     [INFO] Scanning for projects...
     [INFO]
     [INFO] ------------------------------------------------------------------------
     [INFO] Building ActiveMQ Artemis Native POM 6.0.0
     [INFO] ------------------------------------------------------------------------
     [INFO]
-    [INFO] --- nar-maven-plugin:3.0.0:nar-validate (default-nar-validate) @ activemq-native ---
+    [INFO] --- nar-maven-plugin:3.0.0:nar-validate (default-nar-validate) @ artemis-native ---
     [INFO] Using AOL: amd64-Linux-gpp
     [INFO]
-    [INFO] --- maven-enforcer-plugin:1.4:enforce (enforce-java) @ activemq-native ---
+    [INFO] --- maven-enforcer-plugin:1.4:enforce (enforce-java) @ artemis-native ---
     ...
 
 The produced library will be at
-`./target/nar/activemq-native-RELEASE-amd64-Linux-gpp-jni/lib/amd64-Linux-gpp/jni/
-libactivemq-native-RELEASE.so`. Simply move that file over
+`./target/nar/artemis-native-RELEASE-amd64-Linux-gpp-jni/lib/amd64-Linux-gpp/jni/
+libartemis-native-RELEASE.so`. Simply move that file over
 `bin` with the proper rename [library
 path](#using-server.library.path).
 
-If you want to perform changes on the Apache ActiveMQ libaio code, you could
+If you want to perform changes on the Apache ActiveMQ Artemis libaio code, you could
 just call make directly at the `native-src` directory.

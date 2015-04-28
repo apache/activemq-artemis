@@ -1,9 +1,9 @@
 # Mapping JMS Concepts to the Core API
 
-This chapter describes how JMS destinations are mapped to Apache ActiveMQ
+This chapter describes how JMS destinations are mapped to Apache ActiveMQ Artemis
 addresses.
 
-Apache ActiveMQ core is JMS-agnostic. It does not have any concept of a JMS
+Apache ActiveMQ Artemis core is JMS-agnostic. It does not have any concept of a JMS
 topic. A JMS topic is implemented in core as an address (the topic name)
 with zero or more queues bound to it. Each queue bound to that address
 represents a topic subscription. Likewise, a JMS queue is implemented as

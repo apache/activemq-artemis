@@ -1,12 +1,12 @@
 # Detecting Dead Connections
 
 In this section we will discuss connection time-to-live (TTL) and
-explain how Apache ActiveMQ deals with crashed clients and clients which have
+explain how Apache ActiveMQ Artemis deals with crashed clients and clients which have
 exited without cleanly closing their resources.
 
 ## Cleaning up Dead Connection Resources on the Server
 
-Before an Apache ActiveMQ client application exits it is considered good
+Before an Apache ActiveMQ Artemis client application exits it is considered good
 practice that it should close its resources in a controlled manner,
 using a `finally` block.
 
@@ -81,12 +81,12 @@ running out of memory or other resources.
 We have to balance the requirement for cleaning up dead client resources
 with the fact that sometimes the network between the client and the
 server can fail and then come back, allowing the client to reconnect.
-Apache ActiveMQ supports client reconnection, so we don't want to clean up
+Apache ActiveMQ Artemis supports client reconnection, so we don't want to clean up
 "dead" server side resources too soon or this will prevent any client
 from reconnecting, as it won't be able to find its old sessions on the
 server.
 
-Apache ActiveMQ makes all of this configurable. For each `ClientSessionFactory`
+Apache ActiveMQ Artemis makes all of this configurable. For each `ClientSessionFactory`
 we define a *connection TTL*. Basically, the TTL determines how long the
 server will keep a connection alive in the absence of any data arriving
 from the client. The client will automatically send "ping" packets
@@ -120,19 +120,19 @@ As previously discussed, it's important that all core client sessions
 and JMS connections are always closed explicitly in a `finally` block
 when you are finished using them.
 
-If you fail to do so, Apache ActiveMQ will detect this at garbage collection
+If you fail to do so, Apache ActiveMQ Artemis will detect this at garbage collection
 time, and log a warning similar to the following in the logs (If you are
 using JMS the warning will involve a JMS connection not a client
 session):
 
-    [Finalizer] 20:14:43,244 WARNING [org.apache.activemq.core.client.impl.DelegatingSession]  I'm closing a ClientSession you left open. Please make sure you close all ClientSessions explicitly before let
+    [Finalizer] 20:14:43,244 WARNING [org.apache.activemq.artemis.core.client.impl.DelegatingSession]  I'm closing a ClientSession you left open. Please make sure you close all ClientSessions explicitly before let
     ting them go out of scope!
-    [Finalizer] 20:14:43,244 WARNING [org.apache.activemq.core.client.impl.DelegatingSession]  The session you didn't close was created here:
+    [Finalizer] 20:14:43,244 WARNING [org.apache.activemq.artemis.core.client.impl.DelegatingSession]  The session you didn't close was created here:
     java.lang.Exception
-       at org.apache.activemq.core.client.impl.DelegatingSession.<init>(DelegatingSession.java:83)
+       at org.apache.activemq.artemis.core.client.impl.DelegatingSession.<init>(DelegatingSession.java:83)
        at org.acme.yourproject.YourClass (YourClass.java:666)
 
-Apache ActiveMQ will then close the connection / client session for you.
+Apache ActiveMQ Artemis will then close the connection / client session for you.
 
 Note that the log will also tell you the exact line of your user code
 where you created the JMS connection / client session that you later did
@@ -177,17 +177,17 @@ from a thread pool so that the remoting thread is not tied up for too
 long. Please note that processing operations asynchronously on another
 thread adds a little more latency. These packets are:
 
--   `org.apache.activemq.core.protocol.core.impl.wireformat.RollbackMessage`
+-   `org.apache.activemq.artemis.core.protocol.core.impl.wireformat.RollbackMessage`
 
--   `org.apache.activemq.core.protocol.core.impl.wireformat.SessionCloseMessage`
+-   `org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionCloseMessage`
 
--   `org.apache.activemq.core.protocol.core.impl.wireformat.SessionCommitMessage`
+-   `org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionCommitMessage`
 
--   `org.apache.activemq.core.protocol.core.impl.wireformat.SessionXACommitMessage`
+-   `org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionXACommitMessage`
 
--   `org.apache.activemq.core.protocol.core.impl.wireformat.SessionXAPrepareMessage`
+-   `org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionXAPrepareMessage`
 
--   `org.apache.activemq.core.protocol.core.impl.wireformat.SessionXARollbackMessage`
+-   `org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionXARollbackMessage`
 
 To disable asynchronous connection execution, set the parameter
 `async-connection-execution-enabled` in `activemq-configuration.xml` to

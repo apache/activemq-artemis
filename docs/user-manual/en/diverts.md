@@ -1,6 +1,6 @@
 # Diverting and Splitting Message Flows
 
-Apache ActiveMQ allows you to configure objects called *diverts* with some
+Apache ActiveMQ Artemis allows you to configure objects called *diverts* with some
 simple server configuration.
 
 Diverts allow you to transparently divert messages routed to one address

@@ -5,7 +5,7 @@ characteristics:
 
 -   Messages in a message group share the same group id, i.e. they have
     same group identifier property (`JMSXGroupID` for JMS,
-    `_AMQ_GROUP_ID` for Apache ActiveMQ Core API).
+    `_AMQ_GROUP_ID` for Apache ActiveMQ Artemis Core API).
 
 -   Messages in a message group are always consumed by the same
     consumer, even if there are many consumers on a queue. They pin all
@@ -67,7 +67,7 @@ also be set in the JNDI context environment, e.g. `jndi.properties`.
 Here's a simple example using the "ConnectionFactory" connection factory
 which is available in the context by default
 
-    java.naming.factory.initial=org.apache.activemq.jndi.ActiveMQInitialContextFactory
+    java.naming.factory.initial=ActiveMQInitialContextFactory
     connectionFactory.myConnectionFactory=tcp://localhost:61616?autoGroup=true
 
 Alternatively you can set the group id via the connection factory. All
@@ -77,7 +77,7 @@ can also be set in the JNDI context environment, e.g. `jndi.properties`.
 Here's a simple example using the "ConnectionFactory" connection factory
 which is available in the context by default:
 
-    java.naming.factory.initial=org.apache.activemq.jndi.ActiveMQInitialContextFactory
+    java.naming.factory.initial=ActiveMQInitialContextFactory
     connectionFactory.myConnectionFactory=tcp://localhost:61616?roupID=Group-0
 
 ## Example

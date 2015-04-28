@@ -24,10 +24,10 @@ under the License.
    <parent>
       <groupId>org.apache.activemq.examples.core</groupId>
       <artifactId>core-examples</artifactId>
-      <version>10.0.0-SNAPSHOT</version>
+      <version>1.0.0-SNAPSHOT</version>
    </parent>
 
-   <artifactId>activemq-vertx-example</artifactId>
+   <artifactId>artemis-vertx-example</artifactId>
    <packaging>jar</packaging>
    <name>ActiveMQ Artemis Vert.x Example</name>
 
@@ -37,17 +37,17 @@ under the License.
    <dependencies>
       <dependency>
          <groupId>org.apache.activemq</groupId>
-         <artifactId>activemq-server</artifactId>
+         <artifactId>artemis-server</artifactId>
          <version>${project.version}</version>
       </dependency>
       <dependency>
          <groupId>org.apache.activemq</groupId>
-         <artifactId>activemq-core-client</artifactId>
+         <artifactId>artemis-core-client</artifactId>
          <version>${project.version}</version>
       </dependency>
       <dependency>
          <groupId>org.apache.activemq</groupId>
-         <artifactId>activemq-commons</artifactId>
+         <artifactId>artemis-commons</artifactId>
          <version>${project.version}</version>
       </dependency>
       <dependency>
@@ -86,7 +86,7 @@ under the License.
             <plugins>
                <plugin>
                   <groupId>org.apache.activemq</groupId>
-                  <artifactId>activemq-maven-plugin</artifactId>
+                  <artifactId>artemis-maven-plugin</artifactId>
             <executions>
                <execution>
                   <id>start</id>
@@ -108,7 +108,7 @@ under the License.
                      <goal>runClient</goal>
                   </goals>
                   <configuration>
-                     <clientClass>org.apache.activemq.core.example.VertxConnectorExample</clientClass>
+                     <clientClass>org.apache.activemq.artemis.core.example.VertxConnectorExample</clientClass>
                   </configuration>
                </execution>
                <execution>
@@ -121,32 +121,32 @@ under the License.
                   <dependencies>
                      <dependency>
                         <groupId>org.apache.activemq.examples.core</groupId>
-                        <artifactId>activemq-vertx-example</artifactId>
+                        <artifactId>artemis-vertx-example</artifactId>
                         <version>${project.version}</version>
                      </dependency>
                      <dependency>
                         <groupId>org.apache.activemq</groupId>
-                        <artifactId>activemq-vertx-integration</artifactId>
+                        <artifactId>artemis-vertx-integration</artifactId>
                         <version>${project.version}</version>
                      </dependency>
                      <dependency>
                         <groupId>org.apache.activemq</groupId>
-                        <artifactId>activemq-core-client</artifactId>
+                        <artifactId>artemis-core-client</artifactId>
                         <version>${project.version}</version>
                      </dependency>
                      <dependency>
                         <groupId>org.apache.activemq</groupId>
-                        <artifactId>activemq-server</artifactId>
+                        <artifactId>artemis-server</artifactId>
                         <version>${project.version}</version>
                      </dependency>
                      <dependency>
                         <groupId>org.apache.activemq</groupId>
-                        <artifactId>activemq-jms-client</artifactId>
+                        <artifactId>artemis-jms-client</artifactId>
                         <version>${project.version}</version>
                      </dependency>
                      <dependency>
                         <groupId>org.apache.activemq</groupId>
-                        <artifactId>activemq-jms-server</artifactId>
+                        <artifactId>artemis-jms-server</artifactId>
                         <version>${project.version}</version>
                      </dependency>
                      <dependency>

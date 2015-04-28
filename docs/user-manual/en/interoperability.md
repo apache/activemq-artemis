@@ -3,7 +3,7 @@
 ## Stomp
 
 [Stomp](http://stomp.github.com/) is a text-orientated wire protocol
-that allows Stomp clients to communicate with Stomp Brokers. Apache ActiveMQ
+that allows Stomp clients to communicate with Stomp Brokers. Apache ActiveMQ Artemis
 now supports Stomp 1.0, 1.1 and 1.2.
 
 Stomp clients are available for several languages and platforms making
@@ -11,16 +11,16 @@ it a good choice for interoperability.
 
 ## Native Stomp support
 
-Apache ActiveMQ provides native support for Stomp. To be able to send and
+Apache ActiveMQ Artemis provides native support for Stomp. To be able to send and
 receive Stomp messages, you must configure a `NettyAcceptor` with a
 `protocols` parameter set to have `stomp`:
 
     <acceptor name="stomp-acceptor">tcp://localhost:61613?protocols=STOMP</acceptor>
 
-With this configuration, Apache ActiveMQ will accept Stomp connections on the
+With this configuration, Apache ActiveMQ Artemis will accept Stomp connections on the
 port `61613` (which is the default port of the Stomp brokers).
 
-See the `stomp` example which shows how to configure an Apache ActiveMQ server
+See the `stomp` example which shows how to configure an Apache ActiveMQ Artemis server
 with Stomp.
 
 ### Limitations
@@ -33,30 +33,30 @@ set).
 
 #### Virtual Hosting
 
-Apache ActiveMQ currently doesn't support virtual hosting, which means the
+Apache ActiveMQ Artemis currently doesn't support virtual hosting, which means the
 'host' header in CONNECT fram will be ignored.
 
 #### Heart-beating
 
-Apache ActiveMQ specifies a minimum value for both client and server heart-beat
+Apache ActiveMQ Artemis specifies a minimum value for both client and server heart-beat
 intervals. The minimum interval for both client and server heartbeats is
 500 milliseconds. That means if a client sends a CONNECT frame with
 heartbeat values lower than 500, the server will defaults the value to
 500 milliseconds regardless the values of the 'heart-beat' header in the
 frame.
 
-### Mapping Stomp destinations to Apache ActiveMQ addresses and queues
+### Mapping Stomp destinations to Apache ActiveMQ Artemis addresses and queues
 
 Stomp clients deals with *destinations* when sending messages and
 subscribing. Destination names are simply strings which are mapped to
 some form of destination on the server - how the server translates these
 is left to the server implementation.
 
-In Apache ActiveMQ, these destinations are mapped to *addresses* and *queues*.
+In Apache ActiveMQ Artemis, these destinations are mapped to *addresses* and *queues*.
 When a Stomp client sends a message (using a `SEND` frame), the
 specified destination is mapped to an address. When a Stomp client
 subscribes (or unsubscribes) for a destination (using a `SUBSCRIBE` or
-`UNSUBSCRIBE` frame), the destination is mapped to an Apache ActiveMQ queue.
+`UNSUBSCRIBE` frame), the destination is mapped to an Apache ActiveMQ Artemis queue.
 
 ### STOMP and connection-ttl
 
@@ -96,7 +96,7 @@ seconds.
 #### Using JMS destinations
 
 As explained in [Mapping JMS Concepts to the Core API](jms-core-mapping.md),
-JMS destinations are also mapped to Apache ActiveMQ
+JMS destinations are also mapped to Apache ActiveMQ Artemis
 addresses and queues. If you want to use Stomp to send messages to JMS
 destinations, the Stomp destinations must follow the same convention:
 
@@ -123,10 +123,10 @@ destinations, the Stomp destinations must follow the same convention:
 
         ^@
 
-#### Sending and consuming Stomp message from JMS or Apache ActiveMQ Core API
+#### Sending and consuming Stomp message from JMS or Apache ActiveMQ Artemis Core API
 
 Stomp is mainly a text-orientated protocol. To make it simpler to
-interoperate with JMS and Apache ActiveMQ Core API, our Stomp implementation
+interoperate with JMS and Apache ActiveMQ Artemis Core API, our Stomp implementation
 checks for presence of the `content-length` header to decide how to map
 a Stomp message to a JMS Message or a Core message.
 
@@ -147,7 +147,7 @@ header to determine the type of the message body (String or bytes).
 When receiving Stomp messages via a JMS consumer or a QueueBrowser, the
 messages have no properties like JMSMessageID by default. However this
 may bring some inconvenience to clients who wants an ID for their
-purpose. Apache ActiveMQ Stomp provides a parameter to enable message ID on
+purpose. Apache ActiveMQ Artemis Stomp provides a parameter to enable message ID on
 each incoming Stomp message. If you want each Stomp message to have a
 unique ID, just set the `stompEnableMessageId` to true. For example:
 
@@ -167,15 +167,15 @@ default is `false`.
 #### Handling of Large Messages with Stomp
 
 Stomp clients may send very large bodys of frames which can exceed the
-size of Apache ActiveMQ server's internal buffer, causing unexpected errors. To
-prevent this situation from happening, Apache ActiveMQ provides a stomp
+size of Apache ActiveMQ Artemis server's internal buffer, causing unexpected errors. To
+prevent this situation from happening, Apache ActiveMQ Artemis provides a stomp
 configuration attribute `stompMinLargeMessageSize`. This attribute
 can be configured inside a stomp acceptor, as a parameter. For example:
 
        <acceptor name="stomp-acceptor">tcp://localhost:61613?protocols=STOMP;stompMinLargeMessageSize=10240</acceptor>
 
 The type of this attribute is integer. When this attributed is
-configured, Apache ActiveMQ server will check the size of the body of each
+configured, Apache ActiveMQ Artemis server will check the size of the body of each
 Stomp frame arrived from connections established with this acceptor. If
 the size of the body is equal or greater than the value of
 `stompMinLargeMessageSize`, the message will be persisted as a large
@@ -190,16 +190,16 @@ sending it to stomp clients. The default value of
 
 ### Stomp Over Web Sockets
 
-Apache ActiveMQ also support Stomp over [Web
+Apache ActiveMQ Artemis also support Stomp over [Web
 Sockets](http://dev.w3.org/html5/websockets/). Modern web browser which
-support Web Sockets can send and receive Stomp messages from Apache ActiveMQ.
+support Web Sockets can send and receive Stomp messages from Apache ActiveMQ Artemis.
 
 To enable Stomp over Web Sockets, you must configure a `NettyAcceptor`
 with a `protocol` parameter set to `stomp_ws`:
 
     <acceptor name="stomp-ws-acceptor">tcp://localhost:61614?protocols=STOMP_WS</acceptor>
 
-With this configuration, Apache ActiveMQ will accept Stomp connections over Web
+With this configuration, Apache ActiveMQ Artemis will accept Stomp connections over Web
 Sockets on the port `61614` with the URL path `/stomp`. Web browser can
 then connect to `ws://<server>:61614/stomp` using a Web Socket to send
 and receive Stomp messages.
@@ -209,7 +209,7 @@ available from [GitHub](http://github.com/jmesnil/stomp-websocket)
 (please see its [documentation](http://jmesnil.net/stomp-websocket/doc/)
 for a complete description).
 
-The `stomp-websockets` example shows how to configure Apache ActiveMQ server to
+The `stomp-websockets` example shows how to configure Apache ActiveMQ Artemis server to
 have web browsers and Java applications exchanges messages on a JMS
 topic.
 
@@ -218,22 +218,22 @@ topic.
 [StompConnect](http://stomp.codehaus.org/StompConnect) is a server that
 can act as a Stomp broker and proxy the Stomp protocol to the standard
 JMS API. Consequently, using StompConnect it is possible to turn
-Apache ActiveMQ into a Stomp Broker and use any of the available stomp clients.
+Apache ActiveMQ Artemis into a Stomp Broker and use any of the available stomp clients.
 These include clients written in C, C++, c\# and .net etc.
 
-To run StompConnect first start the Apache ActiveMQ server and make sure that
+To run StompConnect first start the Apache ActiveMQ Artemis server and make sure that
 it is using JNDI.
 
 Stomp requires the file `jndi.properties` to be available on the
 classpath. This should look something like:
 
-    java.naming.factory.initial=org.apache.activemq.jndi.ActiveMQInitialContextFactory
+    java.naming.factory.initial=ActiveMQInitialContextFactory
 
 Configure any required JNDI resources in this file according to the
 documentation.
 
 Make sure this file is in the classpath along with the StompConnect jar
-and the Apache ActiveMQ jars and simply run `java org.codehaus.stomp.jms.Main`.
+and the Apache ActiveMQ Artemis jars and simply run `java org.codehaus.stomp.jms.Main`.
 
 ## REST
 
@@ -241,7 +241,7 @@ Please see [Rest Interface](rest.md)
 
 ## AMQP
 
-Apache ActiveMQ supports the [AMQP
+Apache ActiveMQ Artemis supports the [AMQP
 1.0](https://www.oasis-open.org/committees/tc_home.php?wg_abbrev=amqp)
 specification. To enable AMQP you must configure a Netty Acceptor to
 receive AMQP clients, like so:
@@ -249,7 +249,7 @@ receive AMQP clients, like so:
     <acceptor name="stomp-acceptor">tcp://localhost:5672?protocols=AMQP</acceptor>
 
 
-Apache ActiveMQ will then accept AMQP 1.0 clients on port 5672 which is the
+Apache ActiveMQ Artemis will then accept AMQP 1.0 clients on port 5672 which is the
 default AMQP port.
 
 There are 2 Stomp examples available see proton-j and proton-ruby which
@@ -257,18 +257,18 @@ use the qpid Java and Ruby clients respectively
 
 ### AMQP and security
 
-The Apache ActiveMQ Server accepts AMQP SASL Authentication and will use this
+The Apache ActiveMQ Artemis Server accepts AMQP SASL Authentication and will use this
 to map onto the underlying session created for the connection so you can
-use the normal Apache ActiveMQ security configuration.
+use the normal Apache ActiveMQ Artemis security configuration.
 
 ### AMQP Links
 
 An AMQP Link is a uni directional transport for messages between a
-source and a target, i.e. a client and the Apache ActiveMQ Broker. A link will
+source and a target, i.e. a client and the Apache ActiveMQ Artemis Broker. A link will
 have an endpoint of which there are 2 kinds, a Sender and A Receiver. At
-the Broker a Sender will have its messages converted into an Apache ActiveMQ
+the Broker a Sender will have its messages converted into an Apache ActiveMQ Artemis
 Message and forwarded to its destination or target. A Receiver will map
-onto an Apache ActiveMQ Server Consumer and convert Apache ActiveMQ messages back into
+onto an Apache ActiveMQ Artemis Server Consumer and convert Apache ActiveMQ Artemis messages back into
 AMQP messages before being delivered.
 
 ### AMQP and destinations
@@ -294,27 +294,27 @@ or committed via the coordinator.
 > **Note**
 >
 > AMQP allows the use of multiple transactions per session,
-> `amqp:multi-txns-per-ssn`, however in this version Apache ActiveMQ will only
+> `amqp:multi-txns-per-ssn`, however in this version Apache ActiveMQ Artemis will only
 > support single transactions per session
 
 ## OpenWire
 
-Apache ActiveMQ now supports the
+Apache ActiveMQ Artemis now supports the
 [OpenWire](http://activemq.apache.org/openwire.html) protocol so that an
-Apache ActiveMQ JMS client can talk directly to an Apache ActiveMQ server. To enable
+Apache ActiveMQ Artemis JMS client can talk directly to an Apache ActiveMQ Artemis server. To enable
 OpenWire support you must configure a Netty Acceptor, like so:
 
     <acceptor name="openwire-acceptor">tcp://localhost:61616?protocols=OPENWIRE</acceptor>
 
 
-The Apache ActiveMQ server will then listens on port 61616 for incoming
+The Apache ActiveMQ Artemis server will then listens on port 61616 for incoming
 openwire commands. Please note the "protocols" is not mandatory here.
-The openwire configuration conforms to Apache ActiveMQ's "Single Port" feature.
+The openwire configuration conforms to Apache ActiveMQ Artemis's "Single Port" feature.
 Please refer to [Configuring Single
 Port](#configuring-transports.single-port) for details.
 
 Please refer to the openwire example for more coding details.
 
-Currently we support Apache ActiveMQ clients that using standard JMS APIs. In
-the future we will get more supports for some advanced, Apache ActiveMQ
-specific features into Apache ActiveMQ.
+Currently we support Apache ActiveMQ Artemis clients that using standard JMS APIs. In
+the future we will get more supports for some advanced, Apache ActiveMQ Artemis
+specific features into Apache ActiveMQ Artemis.

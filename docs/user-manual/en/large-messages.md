@@ -1,6 +1,6 @@
 # Large Messages
 
-Apache ActiveMQ supports sending and receiving of huge messages, even when the
+Apache ActiveMQ Artemis supports sending and receiving of huge messages, even when the
 client and server are running with limited memory. The only realistic
 limit to the size of a message that can be sent or consumed is the
 amount of disk space you have available. We have tested sending and
@@ -8,7 +8,7 @@ consuming messages up to 8 GiB in size with a client and server running
 in just 50MiB of RAM!
 
 To send a large message, the user can set an `InputStream` on a message
-body, and when that message is sent, Apache ActiveMQ will read the
+body, and when that message is sent, Apache ActiveMQ Artemis will read the
 `InputStream`. A `FileInputStream` could be used for example to send a
 huge message from a huge file on disk.
 
@@ -52,9 +52,9 @@ determined by the parameter `minLargeMessageSize`
 
 > **Note**
 >
-> Apache ActiveMQ messages are encoded using 2 bytes per character so if the
+> Apache ActiveMQ Artemis messages are encoded using 2 bytes per character so if the
 > message data is filled with ASCII characters (which are 1 byte) the
-> size of the resulting Apache ActiveMQ message would roughly double. This is
+> size of the resulting Apache ActiveMQ Artemis message would roughly double. This is
 > important when calculating the size of a "large" message as it may
 > appear to be less than the `minLargeMessageSize` before it is sent,
 > but it then turns into a "large" message once it is encoded.
@@ -63,7 +63,7 @@ The default value is 100KiB.
 
 ### Using Core API
 
-If the Apache ActiveMQ Core API is used, the minimal large message size is
+If the Apache ActiveMQ Artemis Core API is used, the minimal large message size is
 specified by `ServerLocator.setMinLargeMessageSize`.
 
 ``` java
@@ -85,7 +85,7 @@ environment, e.g. `jndi.properties`. Here's a simple example using the
 "ConnectionFactory" connection factory which is available in the context
 by default:
 
-    java.naming.factory.initial=org.apache.activemq.jndi.ActiveMQInitialContextFactory
+    java.naming.factory.initial=ActiveMQInitialContextFactory
     connectionFactory.myConnectionFactory=tcp://localhost:61616?minLargeMessageSize=250000
 
 
@@ -120,12 +120,12 @@ e.g. `jndi.properties`. Here's a simple example using the
 "ConnectionFactory" connection factory which is available in the context
 by default:
 
-    java.naming.factory.initial=org.apache.activemq.jndi.ActiveMQInitialContextFactory
+    java.naming.factory.initial=ActiveMQInitialContextFactory
     connectionFactory.myConnectionFactory=tcp://localhost:61616?compressLargeMessages=true
 
 ## Streaming large messages
 
-Apache ActiveMQ supports setting the body of messages using input and output
+Apache ActiveMQ Artemis supports setting the body of messages using input and output
 streams (`java.lang.io`)
 
 These streams are then used directly for sending (input streams) and
@@ -213,7 +213,7 @@ _AMQ_LARGE_SIZE.
 
 ### Streaming over JMS
 
-When using JMS, Apache ActiveMQ maps the streaming methods on the core API (see
+When using JMS, Apache ActiveMQ Artemis maps the streaming methods on the core API (see
 ClientMessage API table above) by setting object properties . You can use the method
 `Message.setObjectProperty` to set the input and output streams.
 
@@ -264,7 +264,7 @@ messageReceived.setObjectProperty("JMS_AMQ_OutputStream", bufferedOutput);
 ## Streaming Alternative
 
 If you choose not to use the `InputStream` or `OutputStream` capability
-of Apache ActiveMQ You could still access the data directly in an alternative
+of Apache ActiveMQ Artemis You could still access the data directly in an alternative
 fashion.
 
 On the Core API just get the bytes of the body as you normally would.

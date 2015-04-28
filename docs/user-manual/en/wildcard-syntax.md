@@ -1,11 +1,11 @@
-# Understanding the Apache ActiveMQ Wildcard Syntax
+# Understanding the Apache ActiveMQ Artemis Wildcard Syntax
 
-Apache ActiveMQ uses a specific syntax for representing wildcards in security
+Apache ActiveMQ Artemis uses a specific syntax for representing wildcards in security
 settings, address settings and when creating consumers.
 
 The syntax is similar to that used by [AMQP](http://www.amqp.org).
 
-An Apache ActiveMQ wildcard expression contains words delimited by the character
+An Apache ActiveMQ Artemis wildcard expression contains words delimited by the character
 '`.`' (full stop).
 
 The special characters '`#`' and '`*`' also have special meaning and can

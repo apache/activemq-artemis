@@ -23,8 +23,8 @@ under the License.
 
    <parent>
       <groupId>org.apache.activemq.examples</groupId>
-      <artifactId>activemq-examples</artifactId>
-      <version>10.0.0-SNAPSHOT</version>
+      <artifactId>artemis-examples</artifactId>
+      <version>1.0.0-SNAPSHOT</version>
    </parent>
 
    <groupId>org.apache.activemq.examples.core</groupId>

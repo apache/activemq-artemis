@@ -1,17 +1,17 @@
 # Paging
 
-Apache ActiveMQ transparently supports huge queues containing millions of
+Apache ActiveMQ Artemis transparently supports huge queues containing millions of
 messages while the server is running with limited memory.
 
 In such a situation it's not possible to store all of the queues in
-memory at any one time, so Apache ActiveMQ transparently *pages* messages into
+memory at any one time, so Apache ActiveMQ Artemis transparently *pages* messages into
 and out of memory as they are needed, thus allowing massive queues with
 a low memory footprint.
 
-Apache ActiveMQ will start paging messages to disk, when the size of all
+Apache ActiveMQ Artemis will start paging messages to disk, when the size of all
 messages in memory for an address exceeds a configured maximum size.
 
-By default, Apache ActiveMQ does not page messages - this must be explicitly
+By default, Apache ActiveMQ Artemis does not page messages - this must be explicitly
 configured to activate it.
 
 ## Page Files
@@ -52,7 +52,7 @@ Global paging parameters are specified on the main configuration file
 
   Property Name        Description                                                                                                                 Default
   -------------------- --------------------------------------------------------------------------------------------------------------------------- -------------
-  `paging-directory`   Where page files are stored. Apache ActiveMQ will create one folder for each address being paged under this configured location.   data/paging
+  `paging-directory`   Where page files are stored. Apache ActiveMQ Artemis will create one folder for each address being paged under this configured location.   data/paging
 
   : Paging Configuration Parameters
 
@@ -183,4 +183,4 @@ undesirable state.
 
 ## Example
 
-See the [examples](examples.md) chapter for an example which shows how to use paging with Apache ActiveMQ.
+See the [examples](examples.md) chapter for an example which shows how to use paging with Apache ActiveMQ Artemis.

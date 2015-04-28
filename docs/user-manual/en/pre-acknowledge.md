@@ -8,14 +8,14 @@ JMS specifies 3 acknowledgement modes:
 
 -   `DUPS_OK_ACKNOWLEDGE`
 
-Apache ActiveMQ supports two additional modes: `PRE_ACKNOWLEDGE` and
+Apache ActiveMQ Artemis supports two additional modes: `PRE_ACKNOWLEDGE` and
 `INDIVIDUAL_ACKNOWLEDGE`
 
 In some cases you can afford to lose messages in event of failure, so it
 would make sense to acknowledge the message on the server *before*
 delivering it to the client.
 
-This extra mode is supported by Apache ActiveMQ and will call it
+This extra mode is supported by Apache ActiveMQ Artemis and will call it
 *pre-acknowledge* mode.
 
 The disadvantage of acknowledging on the server before delivery is that
@@ -45,7 +45,7 @@ arrive soon, overriding the previous price.
 This can be configured in a client's JNDI context environment, e.g.
 `jndi.properties`, like this:
 
-    java.naming.factory.initial=org.apache.activemq.jndi.ActiveMQInitialContextFactory
+    java.naming.factory.initial=ActiveMQInitialContextFactory
     connection.ConnectionFactory=tcp://localhost:61616?preAcknowledge=true
 
 Alternatively, to use pre-acknowledgement mode using the JMS API, create
