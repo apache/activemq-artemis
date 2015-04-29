@@ -32,7 +32,7 @@ large messages are stored.
 
     <configuration xmlns="urn:activemq"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="urn:activemq /schema/activemq-server.xsd">
+       xsi:schemaLocation="urn:activemq /schema/artemis-server.xsd">
     ...
     <large-messages-directory>/data/large-messages</large-messages-directory>
     ...

@@ -45,7 +45,7 @@ Global paging parameters are specified on the main configuration file
 
     <configuration xmlns="urn:activemq"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="urn:activemq /schema/activemq-server.xsd">
+       xsi:schemaLocation="urn:activemq /schema/artemis-server.xsd">
     ...
     <paging-directory>/somewhere/paging-directory</paging-directory>
     ...

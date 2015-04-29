@@ -20,7 +20,7 @@ under the License.
 
 <configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                xmlns="urn:activemq"
-               xsi:schemaLocation="urn:activemq /schema/activemq-server.xsd">
+               xsi:schemaLocation="urn:activemq /schema/artemis-server.xsd">
 
    <jms xmlns="urn:activemq:jms">
       <queue name="exampleQueue"/>

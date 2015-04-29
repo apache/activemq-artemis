@@ -17,7 +17,7 @@
 <configuration
    xmlns="urn:activemq"
    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-   xsi:schemaLocation="urn:activemq ../../src/schemas/activemq-server.xsd ">
+   xsi:schemaLocation="urn:activemq ../../src/schemas/artemis-server.xsd ">
    <!-- just use the defaults -->
    <core xmlns="urn:activemq:core"/>
 </configuration>

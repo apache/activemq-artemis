@@ -17,7 +17,7 @@
 <configuration
    xmlns="urn:activemq"
    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-   xsi:schemaLocation="urn:activemq ../../src/config/common/schema/activemq-server.xsd">
+   xsi:schemaLocation="urn:activemq ../../src/config/common/schema/artemis-server.xsd">
    <core xmlns="urn:activemq:core">
       <name>SomeNameForUseOnTheApplicationServer</name>
       <scheduled-thread-pool-max-size>12345</scheduled-thread-pool-max-size>

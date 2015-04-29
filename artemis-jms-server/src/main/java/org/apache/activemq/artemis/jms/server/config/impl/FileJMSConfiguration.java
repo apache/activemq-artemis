@@ -38,7 +38,7 @@ import java.util.Map;
 
 public class FileJMSConfiguration extends JMSConfigurationImpl implements Deployable
 {
-   private static final String CONFIGURATION_SCHEMA_URL = "schema/activemq-jms.xsd";
+   private static final String CONFIGURATION_SCHEMA_URL = "schema/artemis-jms.xsd";
 
    private static final String CONFIGURATION_SCHEMA_ROOT_ELEMENT = "jms";
 
