@@ -155,8 +155,15 @@ public class MinimalServer
 
    public synchronized void stop()
    {
-      serverChannelGroup.close().awaitUninterruptibly();
-      ChannelGroupFuture future = channelGroup.close().awaitUninterruptibly();
+      if (serverChannelGroup != null)
+      {
+         serverChannelGroup.close().awaitUninterruptibly();
+      }
+
+      if (channelGroup != null)
+      {
+         ChannelGroupFuture future = channelGroup.close().awaitUninterruptibly();
+      }
    }
 
 
