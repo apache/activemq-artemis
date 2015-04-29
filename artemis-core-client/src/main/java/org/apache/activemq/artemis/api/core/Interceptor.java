@@ -22,7 +22,7 @@ import org.apache.activemq.artemis.core.protocol.core.Packet;
  * This is class is a simple way to intercepting calls on ActiveMQ client and servers.
  * <p>
  * To add an interceptor to ActiveMQ server, you have to modify the server configuration file
- * {@literal activemq-configuration.xml}.<br>
+ * {@literal broker.xml}.<br>
  * To add it to a client, use {@link org.apache.activemq.artemis.api.core.client.ServerLocator#addIncomingInterceptor(Interceptor)}
  */
 public interface Interceptor extends BaseInterceptor<Packet>

@@ -64,7 +64,7 @@ public class WrongRoleFileConfigurationParserTest extends UnitTestCase
    private static final String configuration =
       "<configuration xmlns=\"urn:activemq\"\n" +
          "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
-         "xsi:schemaLocation=\"urn:activemq /schema/activemq-configuration.xsd\">\n" +
+         "xsi:schemaLocation=\"urn:activemq /schema/artemis-configuration.xsd\">\n" +
          "<name>ActiveMQ.main.config</name>" + "\n" +
          "<log-delegate-factory-class-name>org.apache.activemq.artemis.integration.logging.Log4jLogDelegateFactory</log-delegate-factory-class-name>" + "\n" +
          "<bindings-directory>${jboss.server.data.dir}/activemq/bindings</bindings-directory>" + "\n" +

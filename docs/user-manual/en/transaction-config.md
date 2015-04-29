@@ -11,7 +11,7 @@ To cope with this Apache ActiveMQ Artemis can, if configured, scan for old trans
 and rollback any it finds. The default for this is 3000000 milliseconds
 (5 minutes), i.e. any transactions older than 5 minutes are removed.
 This timeout can be changed by editing the `transaction-timeout`
-property in `activemq-configuration.xml` (value must be in
+property in `broker.xml` (value must be in
 milliseconds). The property `transaction-timeout-scan-period` configures
 how often, in milliseconds, to scan for old transactions.
 

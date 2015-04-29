@@ -34,7 +34,7 @@ public final class FileConfiguration extends ConfigurationImpl implements Deploy
 {
    private static final long serialVersionUID = -4766689627675039596L;
 
-   private static final String CONFIGURATION_SCHEMA_URL = "schema/activemq-configuration.xsd";
+   private static final String CONFIGURATION_SCHEMA_URL = "schema/artemis-configuration.xsd";
 
    private static final String CONFIGURATION_SCHEMA_ROOT_ELEMENT = "core";
 

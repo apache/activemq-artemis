@@ -52,7 +52,7 @@ which we will cover in a later chapter.
 > **Note**
 >
 > The `ha-policy` configurations replaces any current HA configuration
-> in the root of the `activemq-configuration.xml` configuration. All old
+> in the root of the `broker.xml` configuration. All old
 > configuration is now deprecated altho best efforts will be made to
 > honour it if configured this way.
 
@@ -140,7 +140,7 @@ live server to replicate from, these are:
 -   `specifying a node group`. You can specify a group of live servers
     that a backup server can connect to. This is done by configuring
     `group-name` in either the `master` or the `slave` element of the
-    `activemq-configuration.xml`. A Backup server will only connect to a
+    `broker.xml`. A Backup server will only connect to a
     live server that shares the same node group name
 
 -   `connecting to any live`. This will be the behaviour if `group-name`
@@ -200,7 +200,7 @@ reconnecting with the live. This avoids a split brain situation.
 #### Configuration
 
 To configure the live and backup servers to be a replicating pair,
-configure the live server in ' `activemq-configuration.xml` to have:
+configure the live server in ' `broker.xml` to have:
 
     <ha-policy>
        <replication>
@@ -351,7 +351,7 @@ on amount of data).
 #### Configuration
 
 To configure the live and backup servers to share their store, configure
-id via the `ha-policy` configuration in `activemq-configuration.xml`:
+id via the `ha-policy` configuration in `broker.xml`:
 
     <ha-policy>
        <shared-store>
@@ -426,7 +426,7 @@ other server (which it assumes it is a back that has assumed its duties)
 to shutdown for it to take over. This is necessary because otherwise the
 live server has no means to know whether there was a fail-over or not,
 and if there was if the server that took its duties is still running or
-not. To configure this option at your `activemq-configuration.xml`
+not. To configure this option at your `broker.xml`
 configuration file as follows:
 
     <ha-policy>
@@ -464,7 +464,7 @@ you can do this by using the management API as explained at [Management](managem
 You can also force the running live server to shutdown when the old live
 server comes back up allowing the original live server to take over
 automatically by setting the following property in the
-`activemq-configuration.xml` configuration file as follows:
+`broker.xml` configuration file as follows:
 
     <ha-policy>
        <shared-store>
@@ -566,7 +566,7 @@ its Connectors and Acceptors which are discussed later on in this
 chapter. A live server can also be configured to allow requests from
 backups and also how many backups a live server can start. this way you
 can evenly distribute backups around the cluster. This is configured via
-the `ha-policy` element in the `activemq-configuration.xml` file like
+the `ha-policy` element in the `broker.xml` file like
 so:
 
     <ha-policy>

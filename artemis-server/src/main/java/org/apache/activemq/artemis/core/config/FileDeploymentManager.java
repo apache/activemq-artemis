@@ -37,7 +37,7 @@ import org.w3c.dom.NodeList;
  */
 public class FileDeploymentManager
 {
-   private static final String DEFAULT_CONFIGURATION_URL = "activemq-configuration.xml";
+   private static final String DEFAULT_CONFIGURATION_URL = "broker.xml";
 
    private final String configurationUrl;
 

@@ -40,7 +40,7 @@ under the License.
          We will then consume this dead letter message.
      </p>
      <h2>Example setup</h2>
-     <p><em>Dead letter addresses</em> and <em>maximum delivery attempts</em> are defined in the configuration file <a href="src/main/resources/activemq/server0/activemq-configuration.xml">activemq-configuration.xml</a>:</p>
+     <p><em>Dead letter addresses</em> and <em>maximum delivery attempts</em> are defined in the configuration file <a href="src/main/resources/activemq/server0/broker.xml">broker.xml</a>:</p>
      <pre class="prettyprint">
          <code>&lt;address-setting match="jms.queue.exampleQueue"&gt;
             &lt;dead-letter-address&gt;jms.queue.deadLetterQueue&lt;/dead-letter-address&gt;

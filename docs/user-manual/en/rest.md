@@ -190,7 +190,7 @@ The project structure should look this like:
     `-- src
        `-- main
            `-- resources
-               `-- activemq-configuration.xml
+               `-- broker.xml
            `-- webapp
                `-- WEB-INF
                    `-- web.xml

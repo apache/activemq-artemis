@@ -165,6 +165,6 @@ delivery count before message delivery but this feature is disabled by default
 due to performance implications.
 
 To enable it, set `persist-delivery-count-before-delivery` to `true` in
-`activemq-configuration.xml`:
+`broker.xml`:
 
     <persist-delivery-count-before-delivery>true</persist-delivery-count-before-delivery>

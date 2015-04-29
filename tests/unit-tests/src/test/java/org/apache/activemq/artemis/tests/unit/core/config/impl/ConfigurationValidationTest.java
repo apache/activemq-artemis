@@ -40,7 +40,7 @@ public class ConfigurationValidationTest extends UnitTestCase
    // Public --------------------------------------------------------
 
    /**
-    * test does not pass in eclipse (because it can not find activemq-configuration.xsd).
+    * test does not pass in eclipse (because it can not find artemis-configuration.xsd).
     * It runs fine on the CLI with the proper env setting.
     */
    @Test
@@ -49,7 +49,7 @@ public class ConfigurationValidationTest extends UnitTestCase
       String xml = "<core xmlns='urn:activemq:core'>" + "</core>";
       Element element = XMLUtil.stringToElement(xml);
       Assert.assertNotNull(element);
-      XMLUtil.validate(element, "schema/activemq-configuration.xsd");
+      XMLUtil.validate(element, "schema/artemis-configuration.xsd");
    }
 
    @Test

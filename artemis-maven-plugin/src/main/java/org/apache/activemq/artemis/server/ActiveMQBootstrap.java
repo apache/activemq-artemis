@@ -96,14 +96,14 @@ public class ActiveMQBootstrap
          {
             //extendPluginClasspath(configurationDir);
             configuration = new FileConfiguration();
-            File file = new File(new File(configurationDir), "activemq-configuration.xml");
+            File file = new File(new File(configurationDir), "broker.xml");
             jmsFileConfiguration = new FileJMSConfiguration();
             FileDeploymentManager deploymentManager = new FileDeploymentManager(file.toURI().toString());
             deploymentManager.addDeployable((FileConfiguration)configuration);
             deploymentManager.addDeployable((FileJMSConfiguration) jmsFileConfiguration);
 
-            securityConfiguration = new FileSecurityConfiguration(new File(configurationDir, "activemq-users.properties").toURI().toString(),
-                                                                  new File(configurationDir, "activemq-roles.properties").toURI().toString(),
+            securityConfiguration = new FileSecurityConfiguration(new File(configurationDir, "artemis-users.properties").toURI().toString(),
+                                                                  new File(configurationDir, "artemis-roles.properties").toURI().toString(),
                                                                   "guest",
                                                                   false,
                                                                   null);

@@ -38,7 +38,7 @@ under the License.
          We will instead consume it from an <em>expiry queue</em> where it was moved when it expired.
      </p>
      <h2>Example setup</h2>
-     <p>Expiry destinations are defined in the configuration file <a href="server0/activemq-configuration.xml">activemq-configuration.xml</a>:</p>
+     <p>Expiry destinations are defined in the configuration file <a href="server0/broker.xml">broker.xml</a>:</p>
      <pre class="prettyprint">
          <code>&lt;address-setting match="jms.queue.exampleQueue"&gt;
             &lt;expiry-address&gt;jms.queue.expiryQueue&lt;/expiry-address&gt;

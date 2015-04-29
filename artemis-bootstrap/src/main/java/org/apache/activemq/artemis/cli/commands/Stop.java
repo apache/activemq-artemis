@@ -27,17 +27,17 @@ import java.net.URI;
 @Command(name = "stop", description = "stops the broker instance")
 public class Stop implements Action
 {
-   @Arguments(description = "Broker Configuration URI, default 'xml:${ACTIVEMQ_INSTANCE}/etc/bootstrap.xml'")
+   @Arguments(description = "Broker Configuration URI, default 'xml:${ARTEMIS_INSTANCE}/etc/bootstrap.xml'")
    String configuration;
 
    @Override
    public Object execute(ActionContext context) throws Exception
    {
-      /* We use File URI for locating files.  The ACTIVEMQ_HOME variable is used to determine file paths.  For Windows
-      the ACTIVEMQ_HOME variable will include back slashes (An invalid file URI character path separator).  For this
-      reason we overwrite the ACTIVEMQ_HOME variable with backslashes replaced with forward slashes. */
-      String activemqHome = System.getProperty("activemq.instance").replace("\\", "/");
-      System.setProperty("activemq.instance", activemqHome);
+      /* We use File URI for locating files.  The ARTEMIS_HOME variable is used to determine file paths.  For Windows
+      the ARTEMIS_HOME variable will include back slashes (An invalid file URI character path separator).  For this
+      reason we overwrite the ARTEMIS_HOME variable with backslashes replaced with forward slashes. */
+      String activemqHome = System.getProperty("artemis.instance").replace("\\", "/");
+      System.setProperty("artemis.instance", activemqHome);
 
       if (configuration == null)
       {

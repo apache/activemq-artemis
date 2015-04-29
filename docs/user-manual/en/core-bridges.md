@@ -38,7 +38,7 @@ server. They do this by using duplicate detection (described in [Duplicate Detec
 
 ## Configuring Bridges
 
-Bridges are configured in `activemq-configuration.xml`. Let's kick off
+Bridges are configured in `broker.xml`. Let's kick off
 with an example (this is actually from the bridge example):
 
     <bridge name="my-bridge">
@@ -84,7 +84,7 @@ Let's take a look at all the parameters in turn:
     >
     > If you're using JMS then normally the JMS configuration
     > `activemq-jms.xml` is loaded after the core configuration file
-    > `activemq-configuration.xml` is loaded. If your bridge is
+    > `broker.xml` is loaded. If your bridge is
     > consuming from a JMS queue then you'll need to make sure the JMS
     > queue is also deployed as a core queue in the core configuration.
     > Take a look at the bridge example for an example of how this is
@@ -204,12 +204,12 @@ Let's take a look at all the parameters in turn:
 -   `user`. This optional parameter determines the user name to use when
     creating the bridge connection to the remote server. If it is not
     specified the default cluster user specified by `cluster-user` in
-    `activemq-configuration.xml` will be used.
+    `broker.xml` will be used.
 
 -   `password`. This optional parameter determines the password to use
     when creating the bridge connection to the remote server. If it is
     not specified the default cluster password specified by
-    `cluster-password` in `activemq-configuration.xml` will be used.
+    `cluster-password` in `broker.xml` will be used.
 
 -   `static-connectors` or `discovery-group-ref`. Pick either of these
     options to connect the bridge to the target server.

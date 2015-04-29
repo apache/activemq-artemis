@@ -38,7 +38,7 @@ public class EmbeddedActiveMQ
    protected MBeanServer mbeanServer;
 
    /**
-    * Classpath resource for activemq server config.  Defaults to 'activemq-configuration.xml'.
+    * Classpath resource for activemq server config.  Defaults to 'broker.xml'.
     *
     * @param filename
     */
@@ -94,7 +94,7 @@ public class EmbeddedActiveMQ
    {
       if (configuration == null)
       {
-         if (configResourcePath == null) configResourcePath = "activemq-configuration.xml";
+         if (configResourcePath == null) configResourcePath = "broker.xml";
          FileDeploymentManager deploymentManager = new FileDeploymentManager(configResourcePath);
          FileConfiguration config = new FileConfiguration();
          deploymentManager.addDeployable(config);

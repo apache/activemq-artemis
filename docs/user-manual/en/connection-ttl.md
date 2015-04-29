@@ -190,5 +190,5 @@ thread adds a little more latency. These packets are:
 -   `org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionXARollbackMessage`
 
 To disable asynchronous connection execution, set the parameter
-`async-connection-execution-enabled` in `activemq-configuration.xml` to
+`async-connection-execution-enabled` in `broker.xml` to
 `false` (default value is `true`).

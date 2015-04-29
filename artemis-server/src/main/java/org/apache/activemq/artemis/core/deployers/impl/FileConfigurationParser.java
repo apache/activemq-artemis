@@ -73,7 +73,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
- * Parses an XML document according to the {@literal activemq-configuration.xsd} schema.
+ * Parses an XML document according to the {@literal artemis-configuration.xsd} schema.
  */
 public final class FileConfigurationParser extends XMLConfigurationUtil
 {

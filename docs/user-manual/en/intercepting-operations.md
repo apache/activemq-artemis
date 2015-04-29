@@ -42,7 +42,7 @@ The returned boolean value is important:
 ## Configuring The Interceptors
 
 Both incoming and outgoing interceptors are configured in
-`activemq-configuration.xml`:
+`broker.xml`:
 
     <remoting-incoming-interceptors>
        <class-name>org.apache.activemq.jms.example.LoginInterceptor</class-name>

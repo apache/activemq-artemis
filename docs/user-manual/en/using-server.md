@@ -10,13 +10,13 @@ we mean the Apache ActiveMQ Artemis standalone server, in its default configurat
 with a JMS Service enabled.
 
 This document will refer to the full path of the directory where the ActiveMQ
-distribution has been extracted to as `${ACTIVEMQ_HOME}` directory.
+distribution has been extracted to as `${ARTEMIS_HOME}` directory.
 
 ## Creating a Broker Instance
 
 A broker instance is the directory containing all the configuration and runtime
 data, such as logs and data files, associated with a broker process.  It is recommended that
-you do *not* create the instance directory under `${ACTIVEMQ_HOME}`.  This separation is
+you do *not* create the instance directory under `${ARTEMIS_HOME}`.  This separation is
 encouraged so that you can more easily upgrade when the next version of ActiveMQ is released.
 
 On Unix systems, it is a common convention to store this kind of runtime data under 
@@ -24,7 +24,7 @@ the `/var/lib` directory.  For example, to create an instance at '/var/lib/mybro
 the following commands in your command line shell:
 
     cd /var/lib
-    ${ACTIVEMQ_HOME}/bin/activemq create mybroker
+    ${ARTEMIS_HOME}/bin/activemq create mybroker
 
 A broker instance directory will contain the following sub directories:
 
@@ -115,7 +115,7 @@ The configuration file used to bootstrap the server (e.g.
 `bootstrap.xml` by default) references the specific broker configuration
 files.
 
--   `activemq-configuration.xml`. This is the main ActiveMQ
+-   `broker.xml`. This is the main ActiveMQ
     configuration file. All the parameters in this file are
     described [here](configuration-index.md)
 
@@ -142,7 +142,7 @@ The bootstrap file is very simple. Let's take a look at an example:
 
     <broker xmlns="http://activemq.org/schema">
 
-       <file:core configuration="${activemq.home}/config/stand-alone/non-clustered/activemq-configuration.xml"></core>
+       <file:core configuration="${activemq.home}/config/stand-alone/non-clustered/broker.xml"></core>
 
        <basic-security/>
 
@@ -156,7 +156,7 @@ The bootstrap file is very simple. Let's take a look at an example:
 ## The main configuration file.
 
 The configuration for the Apache ActiveMQ Artemis core server is contained in
-`activemq-configuration.xml`. This is what the FileConfiguration bean
+`broker.xml`. This is what the FileConfiguration bean
 uses to configure the messaging server.
 
 There are many attributes which you can configure Apache ActiveMQ Artemis. In most

@@ -27,7 +27,7 @@ using the Apache ActiveMQ Artemis Core API or JMS.
 
 For instantiating a core Apache ActiveMQ Artemis Server only, the steps are pretty
 simple. The example requires that you have defined a configuration file
-`activemq-configuration.xml` in your classpath:
+`broker.xml` in your classpath:
 
 ``` java
 import org.apache.activemq.artemis.core.server.embedded.EmbeddedActiveMQ;
@@ -72,7 +72,7 @@ properties. See the javadocs for this class for more details.
 ## JMS API
 
 JMS embedding is simple as well. This example requires that you have
-defined the config files `activemq-configuration.xml`,
+defined the config files `broker.xml`,
 `activemq-jms.xml`, and a `activemq-users.xml` if you have security
 enabled. Let's also assume that a queue and connection factory has been
 defined in the `activemq-jms.xml` config file.

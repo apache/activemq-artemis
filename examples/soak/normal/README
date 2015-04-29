@@ -27,7 +27,7 @@ settings.
 
 To run a server with the same configuration but on a different host.  Check out this source on the host machine and
 change:
-* activemq.remoting.netty.host property in activemq-configuration.xml
+* activemq.remoting.netty.host property in broker.xml
 * bindAddress and rmiBindAddress properties in activemq-beans.xml
 
   $ mvn verify -P server
@@ -35,7 +35,7 @@ change:
 Configure Server Dump
 =====================
 
-The server can "dump" info at regular interval. In activemq-configuration.xml, set
+The server can "dump" info at regular interval. In broker.xml, set
 
    <server-dump-interval>10000</server-dump-interval>
 

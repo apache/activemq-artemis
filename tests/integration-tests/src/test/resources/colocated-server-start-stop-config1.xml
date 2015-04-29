@@ -16,7 +16,7 @@
 -->
 <configuration xmlns="urn:activemq"
             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-            xsi:schemaLocation="urn:activemq /schema/activemq-configuration.xsd">
+            xsi:schemaLocation="urn:activemq /schema/artemis-configuration.xsd">
 
    <connectors>
       <connector name="netty-connector">tcp://localhost:61616</connector>

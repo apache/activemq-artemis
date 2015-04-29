@@ -7,7 +7,7 @@ Apache ActiveMQ Artemis transports and where and how they're configured.
 
 One of the most important concepts in Apache ActiveMQ Artemis transports is the
 *acceptor*. Let's dive straight in and take a look at an acceptor
-defined in xml in the configuration file `activemq-configuration.xml`.
+defined in xml in the configuration file `broker.xml`.
 
     <acceptors>
        <acceptor name="netty">tcp://localhost:61617</acceptor>
@@ -45,7 +45,7 @@ Whereas acceptors are used on the server to define how we accept
 connections, connectors are used by a client to define how it connects
 to a server.
 
-Let's look at a connector defined in our `activemq-configuration.xml`
+Let's look at a connector defined in our `broker.xml`
 file:
 
     <connectors>

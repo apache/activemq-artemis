@@ -7,7 +7,7 @@ element name to go to the specific chapter.
 Server Configuration
 ====================
 
-activemq-configuration.xml
+broker.xml
 --------------------------
 
 This is the main core server configuration file which contains to elements
@@ -385,7 +385,7 @@ Bridges. Example:
 With this configuration, both passwords in ra.xml and all of its MDBs
 will have to be in masked form.
 
-### Masking passwords in activemq-users.properties
+### Masking passwords in artemis-users.properties
 
 Apache ActiveMQ Artemis's built-in security manager uses plain properties files
 where the user passwords are specified in plaintext forms by default. To
