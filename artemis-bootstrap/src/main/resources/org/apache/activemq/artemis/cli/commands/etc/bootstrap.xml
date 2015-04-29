@@ -19,8 +19,8 @@
 <broker xmlns="http://activemq.org/schema">
 
    <basic-security
-           users="file:${artemis.instance}/etc/activemq-users.properties"
-           roles="file:${artemis.instance}/etc/activemq-roles.properties"
+           users="file:${artemis.instance}/etc/artemis-users.properties"
+           roles="file:${artemis.instance}/etc/artemis-roles.properties"
            default-user="guest"
            />
 

@@ -160,8 +160,8 @@ public class Create implements Action
       write("etc/logging.properties", null, false);
       write("etc/bootstrap.xml", null, false);
       write("etc/broker.xml", filters, false);
-      write("etc/activemq-roles.properties", null, false);
-      write("etc/activemq-users.properties", null, false);
+      write("etc/artemis-roles.properties", null, false);
+      write("etc/artemis-users.properties", null, false);
 
       context.out.println("");
       context.out.println("You can now start the broker by executing:  ");

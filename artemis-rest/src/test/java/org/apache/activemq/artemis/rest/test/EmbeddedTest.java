@@ -50,8 +50,8 @@ public class EmbeddedTest
    {
       server = new EmbeddedRestActiveMQJMS();
       server.getManager().setConfigResourcePath("activemq-rest.xml");
-      FileSecurityConfiguration securityConfiguration = new FileSecurityConfiguration("activemq-users.properties",
-                                                                                      "activemq-roles.properties",
+      FileSecurityConfiguration securityConfiguration = new FileSecurityConfiguration("artemis-users.properties",
+                                                                                      "artemis-roles.properties",
                                                                                       "guest",
                                                                                       false,
                                                                                       null);

@@ -133,7 +133,7 @@ For more information on configuring the SSL transport, please see [Configuring t
 
 Apache ActiveMQ Artemis ships with a security manager implementation that reads user
 credentials, i.e. user names, passwords and role information from properties
-files on the classpath called `activemq-users.properties` and `activemq-roles.properties`. This is the default security manager.
+files on the classpath called `artemis-users.properties` and `artemis-roles.properties`. This is the default security manager.
 
 If you wish to use this security manager, then users, passwords and
 roles can easily be added into these files.
@@ -142,8 +142,8 @@ To configure this manager then it needs to be added to the `bootstrap.xml` confi
 Lets take a look at what this might look like:
 
     <basic-security>
-      <users>file:${activemq.home}/config/non-clustered/activemq-users.properties</users>
-      <roles>file:${activemq.home}/config/non-clustered/activemq-roles.properties</roles>
+      <users>file:${activemq.home}/config/non-clustered/artemis-users.properties</users>
+      <roles>file:${activemq.home}/config/non-clustered/artemis-roles.properties</roles>
       <default-user>guest</default-user>
     </basic-security>
 
@@ -153,9 +153,9 @@ The next thing to note is the element `defaultuser`. This defines what
 user will be assumed when the client does not specify a
 username/password when creating a session. In this case they will be the
 user `guest`. Multiple roles can be specified for a default user in the
-`activemq-roles.properties`.
+`artemis-roles.properties`.
 
-Lets now take alook at the `activemq-users.properties` file, this is basically
+Lets now take alook at the `artemis-users.properties` file, this is basically
 just a set of key value pairs that define the users and their password, like so:
 
     bill=activemq
@@ -163,7 +163,7 @@ just a set of key value pairs that define the users and their password, like so:
     frank=activemq2
     sam=activemq3
 
-The `activemq-roles.properties` defines what groups these users belong too
+The `artemis-roles.properties` defines what groups these users belong too
 where the key is the user and the value is a comma seperated list of the groups
 the user belongs to, like so:
 
