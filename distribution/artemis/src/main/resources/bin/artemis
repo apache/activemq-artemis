@@ -16,7 +16,7 @@
 # specific language governing permissions and limitations
 # under the License.
 
-if [ -z "$ACTIVEMQ_INSTANCE" ] ; then
+if [ -z "$ARTEMIS_HOME" ] ; then
 
   ## resolve links - $0 may be a link to ActiveMQ's home
   PRG="$0"
@@ -37,23 +37,16 @@ if [ -z "$ACTIVEMQ_INSTANCE" ] ; then
     fi
   done
 
-  ACTIVEMQ_INSTANCE=`dirname "$PRG"`
+  ARTEMIS_HOME=`dirname "$PRG"`
   cd "$saveddir"
 
   # make it fully qualified
-  ACTIVEMQ_INSTANCE=`cd "$ACTIVEMQ_INSTANCE/.." && pwd`
+  ARTEMIS_HOME=`cd "$ARTEMIS_HOME/.." && pwd`
 fi
 
 # Set Defaults Properties
-ACTIVEMQ_LOGGING_CONF="file:$ACTIVEMQ_INSTANCE/etc/logging.properties"
-ACTIVEMQ_DATA_DIR="$ACTIVEMQ_INSTANCE/data"
-ACTIVEMQ_LOG_MANAGER=org.jboss.logmanager.LogManager
 JAVA_ARGS="-XX:+UseParallelGC -XX:+AggressiveOpts -XX:+UseFastAccessorMethods -Xms512M -Xmx1024M"
-
-# Load Profile Data
-. "$ACTIVEMQ_INSTANCE/etc/activemq.profile"
-
-CLASSPATH="$ACTIVEMQ_HOME/lib/artemis-boot.jar"
+CLASSPATH="$ARTEMIS_HOME/lib/artemis-boot.jar"
 
 # OS specific support.
 cygwin=false;
@@ -72,8 +65,8 @@ esac
 
 # For Cygwin, ensure paths are in UNIX format before anything is touched
 if $cygwin ; then
-  [ -n "$ACTIVEMQ_INSTANCE" ] &&
-    ACTIVEMQ_INSTANCE=`cygpath --unix "$ACTIVEMQ_INSTANCE"`
+  [ -n "$ARTEMIS_HOME" ] &&
+    ARTEMIS_HOME=`cygpath --unix "$ARTEMIS_HOME"`
   [ -n "$JAVA_HOME" ] &&
     JAVA_HOME=`cygpath --unix "$JAVA_HOME"`
 fi
@@ -100,20 +93,16 @@ if [ ! -x "$JAVACMD" ] ; then
   exit 1
 fi
 
+
 if $cygwin ; then
   JAVA_HOME=`cygpath --windows "$JAVA_HOME"`
-  ACTIVEMQ_HOME=`cygpath --windows "$ACTIVEMQ_HOME"`
+  ARTEMIS_HOME=`cygpath --windows "$ARTEMIS_HOME"`
   CLASSPATH=`cygpath --windows "$CLASSPATH"`
 fi
 
-exec "$JAVACMD" $JAVA_ARGS $ACTIVEMQ_CLUSTER_PROPS \
+exec "$JAVACMD" $JAVA_ARGS $ARTEMIS_CLUSTER_PROPS \
     -classpath "$CLASSPATH" \
-    -Dactivemq.home="$ACTIVEMQ_HOME" \
-    -Dactivemq.instance="$ACTIVEMQ_INSTANCE" \
-    -Djava.library.path="$ACTIVEMQ_HOME/bin/lib/linux-i686:$ACTIVEMQ_INSTANCE/bin/lib/linux-x86_64" \
-    -Djava.io.tmpdir="$ACTIVEMQ_INSTANCE/tmp" \
-    -Ddata.dir="$ACTIVEMQ_DATA_DIR" \
-    -Djava.util.logging.manager="$ACTIVEMQ_LOG_MANAGER" \
-    -Dlogging.configuration="$ACTIVEMQ_LOGGING_CONF" \
+    -Dartemis.home="$ARTEMIS_HOME" \
+    -Djava.library.path="$ARTEMIS_HOME/bin/lib/linux-i686:$ARTEMIS_INSTANCE/bin/lib/linux-x86_64" \
     $DEBUG_ARGS \
-    org.apache.activemq.artemis.boot.ActiveMQ $@
+    org.apache.activemq.artemis.boot.Artemis $@

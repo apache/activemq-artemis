@@ -40,7 +40,7 @@ public class ActiveMQXAResourceWrapperImplTest
       xaResourceWrapperProperties.put(ActiveMQXAResourceWrapper.ACTIVEMQ_JNDI_NAME, jndiName);
       xaResourceWrapperProperties.put(ActiveMQXAResourceWrapper.ACTIVEMQ_NODE_ID, nodeId);
       xaResourceWrapperProperties.put(ActiveMQXAResourceWrapper.ACTIVEMQ_PRODUCT_VERSION, "6");
-      xaResourceWrapperProperties.put(ActiveMQXAResourceWrapper.ACTIVEMQ_PRODUCT_NAME, "ActiveMQ");
+      xaResourceWrapperProperties.put(ActiveMQXAResourceWrapper.ACTIVEMQ_PRODUCT_NAME, "ActiveMQ Artemis");
       ActiveMQXAResourceWrapperImpl xaResourceWrapper = new ActiveMQXAResourceWrapperImpl(xaResource, xaResourceWrapperProperties);
 
       String expectedJndiNodeId = jndiName + " NodeId:" + nodeId;

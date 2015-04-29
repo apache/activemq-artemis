@@ -15,10 +15,10 @@ rem KIND, either express or implied.  See the License for the
 rem specific language governing permissions and limitations
 rem under the License.
 
-set ACTIVEMQ_HOME=${activemq.home}
+set ARTEMIS_HOME=${artemis.home}
 
 rem Cluster Properties: Used to pass arguments to ActiveMQ which can be referenced in broker.xml
-rem set ACTIVEMQ_CLUSTER_PROPS=-Dactivemq.remoting.default.port=61617 -Dactivemq.remoting.amqp.port=5673 -Dactivemq.remoting.stomp.port=61614 -Dactivemq.remoting.hornetq.port=5446
+rem set ARTEMIS_CLUSTER_PROPS=-Dactivemq.remoting.default.port=61617 -Dactivemq.remoting.amqp.port=5673 -Dactivemq.remoting.stomp.port=61614 -Dactivemq.remoting.hornetq.port=5446
 
 rem Java Opts
 rem set JAVA_ARGS=-XX:+UseParallelGC -XX:+AggressiveOpts -XX:+UseFastAccessorMethods -Xms512M -Xmx1024M

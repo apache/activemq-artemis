@@ -44,7 +44,7 @@ public class Create implements Action
    @Option(name = "--force", description = "Overwrite configuration at destination directory")
    boolean force;
 
-   @Option(name = "--home", description = "Directory where ActiveMQ is installed")
+   @Option(name = "--home", description = "Directory where ActiveMQ Artemis is installed")
    File home;
 
    @Option(name = "--with-ssl", description = "Generate an SSL enabled configuration")
@@ -91,7 +91,7 @@ public class Create implements Action
 
       }
 
-      context.out.println(String.format("Creating ActiveMQ instance at: %s", directory.getCanonicalPath()));
+      context.out.println(String.format("Creating ActiveMQ Artemis instance at: %s", directory.getCanonicalPath()));
       if (host == null)
       {
          host = directory.getName();
@@ -128,8 +128,8 @@ public class Create implements Action
       {
          filters.put("${home}", path(home, false));
       }
-      filters.put("${activemq.home}", path(System.getProperty("activemq.home"), false));
-      filters.put("${activemq.instance}", path(directory, false));
+      filters.put("${artemis.home}", path(System.getProperty("artemis.home"), false));
+      filters.put("${artemis.instance}", path(directory, false));
       filters.put("${java.home}", path(System.getProperty("java.home"), false));
 
       new File(directory, "bin").mkdirs();
@@ -141,20 +141,20 @@ public class Create implements Action
 
       if (IS_WINDOWS)
       {
-         write("bin/activemq.cmd", null, false);
-         write("bin/activemq-service.exe");
-         write("bin/activemq-service.xml", filters, false);
-         write("etc/activemq.profile.cmd", filters, false);
+         write("bin/artemis.cmd", null, false);
+         write("bin/artemis-service.exe");
+         write("bin/artemis-service.xml", filters, false);
+         write("etc/artemis.profile.cmd", filters, false);
       }
 
       if (!IS_WINDOWS || IS_CYGWIN)
       {
-         write("bin/activemq", null, true);
-         makeExec("bin/activemq");
-         write("bin/activemq-service", null, true);
-         makeExec("bin/activemq-service");
-         write("etc/activemq.profile", filters, true);
-         makeExec("etc/activemq.profile");
+         write("bin/artemis", null, true);
+         makeExec("bin/artemis");
+         write("bin/artemis-service", null, true);
+         makeExec("bin/artemis-service");
+         write("etc/artemis.profile", filters, true);
+         makeExec("etc/artemis.profile");
       }
 
       write("etc/logging.properties", null, false);
@@ -166,9 +166,9 @@ public class Create implements Action
       context.out.println("");
       context.out.println("You can now start the broker by executing:  ");
       context.out.println("");
-      context.out.println(String.format("   \"%s\" run", path(new File(directory, "bin/activemq"), true)));
+      context.out.println(String.format("   \"%s\" run", path(new File(directory, "bin/artemis"), true)));
 
-      File service = new File(directory, "bin/activemq-service");
+      File service = new File(directory, "bin/artemis-service");
       context.out.println("");
 
       if (!IS_WINDOWS || IS_CYGWIN)
@@ -180,7 +180,7 @@ public class Create implements Action
             context.out.println("Or you can setup the broker as system service and run it in the background:");
             context.out.println("");
             context.out.println("   sudo ln -s \"%s\" /etc/init.d/".format(service.getCanonicalPath()));
-            context.out.println("   /etc/init.d/activemq-service start");
+            context.out.println("   /etc/init.d/artemis-service start");
             context.out.println("");
 
          }

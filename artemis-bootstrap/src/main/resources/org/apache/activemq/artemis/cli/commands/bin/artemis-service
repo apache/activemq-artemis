@@ -19,9 +19,9 @@
 service=`basename "$0"`
 
 #
-# Discover the ACTIVEMQ_INSTANCE from the location of this script.
+# Discover the ARTEMIS_INSTANCE from the location of this script.
 #
-if [ -z "$ACTIVEMQ_INSTANCE" ] ; then
+if [ -z "$ARTEMIS_INSTANCE" ] ; then
 
   ## resolve links - $0 may be a link to ActiveMQ's home
   PRG="$0"
@@ -41,19 +41,19 @@ if [ -z "$ACTIVEMQ_INSTANCE" ] ; then
     fi
   done
 
-  ACTIVEMQ_INSTANCE=`dirname "$PRG"`
+  ARTEMIS_INSTANCE=`dirname "$PRG"`
   cd "$saveddir"
 
   # make it fully qualified
-  ACTIVEMQ_INSTANCE=`cd "$ACTIVEMQ_INSTANCE/.." && pwd`
-  export ACTIVEMQ_INSTANCE
+  ARTEMIS_INSTANCE=`cd "$ARTEMIS_INSTANCE/.." && pwd`
+  export ARTEMIS_INSTANCE
 
 fi
 
-PID_FILE="${ACTIVEMQ_INSTANCE}/data/activemq.pid"
+PID_FILE="${ARTEMIS_INSTANCE}/data/artemis.pid"
 
-if [ ! -d "${ACTIVEMQ_INSTANCE}/data/" ]; then
-    mkdir "${ACTIVEMQ_INSTANCE}/data/"
+if [ ! -d "${ARTEMIS_INSTANCE}/data/" ]; then
+    mkdir "${ARTEMIS_INSTANCE}/data/"
 fi
 
 status() {
@@ -95,7 +95,7 @@ start() {
     return 1
   fi
 
-  nohup ${ACTIVEMQ_INSTANCE}/bin/activemq run > /dev/null 2> /dev/null &
+  nohup ${ARTEMIS_INSTANCE}/bin/artemis run > /dev/null 2> /dev/null &
 
   echo $! > "${PID_FILE}"
 

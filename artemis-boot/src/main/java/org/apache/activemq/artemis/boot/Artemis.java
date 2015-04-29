@@ -32,19 +32,19 @@ import java.util.Comparator;
  * execution off to the ActiveMQ cli main.
  * </p>
  */
-public class ActiveMQ
+public class Artemis
 {
 
    public static void main(String[] args) throws Throwable
    {
       ArrayList<File> dirs = new ArrayList<File>();
-      String instance = System.getProperty("activemq.instance");
+      String instance = System.getProperty("artemis.instance");
       if (instance != null)
       {
          dirs.add(new File(new File(instance), "lib"));
       }
 
-      String home = System.getProperty("activemq.home");
+      String home = System.getProperty("artemis.home");
       if (home != null)
       {
          dirs.add(new File(new File(home), "lib"));
@@ -98,7 +98,7 @@ public class ActiveMQ
       // Now setup our classloader..
       URLClassLoader loader = new URLClassLoader(urls.toArray(new URL[urls.size()]));
       Thread.currentThread().setContextClassLoader(loader);
-      Class<?> clazz = loader.loadClass("org.apache.activemq.artemis.cli.ActiveMQ");
+      Class<?> clazz = loader.loadClass("org.apache.activemq.artemis.cli.Artemis");
       Method method = clazz.getMethod("main", args.getClass());
       try
       {

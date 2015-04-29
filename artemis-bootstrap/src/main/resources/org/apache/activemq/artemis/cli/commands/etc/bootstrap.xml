@@ -19,12 +19,12 @@
 <broker xmlns="http://activemq.org/schema">
 
    <basic-security
-           users="file:${activemq.instance}/etc/activemq-users.properties"
-           roles="file:${activemq.instance}/etc/activemq-roles.properties"
+           users="file:${artemis.instance}/etc/activemq-users.properties"
+           roles="file:${artemis.instance}/etc/activemq-roles.properties"
            default-user="guest"
            />
 
-   <server configuration="file:${activemq.instance}/etc/broker.xml"/>
+   <server configuration="file:${artemis.instance}/etc/broker.xml"/>
 
    <web bind="http://localhost:8161" path="web">
        <app url="jolokia" war="jolokia-war-1.2.3.war"/>

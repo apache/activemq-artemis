@@ -28,14 +28,14 @@ import org.apache.activemq.artemis.cli.commands.Stop;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-public class ActiveMQ
+public class Artemis
 {
 
    public static void main(String[] args) throws Exception
    {
-      String instance = System.getProperty("activemq.instance");
-      Cli.CliBuilder<Action> builder = Cli.<Action>builder("activemq")
-         .withDescription("ActiveMQ Command Line")
+      String instance = System.getProperty("artemis.instance");
+      Cli.CliBuilder<Action> builder = Cli.<Action>builder("artemis")
+         .withDescription("ActiveMQ Artemis Command Line")
          .withCommand(HelpAction.class)
          .withDefaultCommand(HelpAction.class);
 
@@ -67,14 +67,14 @@ public class ActiveMQ
       {
          System.err.println(configException.getMessage());
          System.out.println();
-         System.out.println("Configuration should be specified as 'scheme:location'. Default configuration is 'xml:${ACTIVEMQ_INSTANCE}/etc/bootstrap.xml'");
+         System.out.println("Configuration should be specified as 'scheme:location'. Default configuration is 'xml:${ARTEMIS_INSTANCE}/etc/bootstrap.xml'");
       }
 
    }
 
    public static void printBanner() throws Exception
    {
-      copy(ActiveMQ.class.getResourceAsStream("banner.txt"), System.out);
+      copy(Artemis.class.getResourceAsStream("banner.txt"), System.out);
    }
 
    private static long copy(InputStream in, OutputStream out) throws Exception

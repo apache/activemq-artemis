@@ -19,7 +19,7 @@ package org.apache.activemq.artemis.cli.commands;
 import io.airlift.command.Arguments;
 import io.airlift.command.Command;
 
-import org.apache.activemq.artemis.cli.ActiveMQ;
+import org.apache.activemq.artemis.cli.Artemis;
 import org.apache.activemq.artemis.components.ExternalComponent;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.dto.BrokerDTO;
@@ -40,7 +40,7 @@ import java.util.TimerTask;
 public class Run implements Action
 {
 
-   @Arguments(description = "Broker Configuration URI, default 'xml:${ACTIVEMQ_INSTANCE}/etc/bootstrap.xml'")
+   @Arguments(description = "Broker Configuration URI, default 'xml:${ARTEMIS_INSTANCE}/etc/bootstrap.xml'")
    String configuration;
    private ArrayList<ActiveMQComponent> components = new ArrayList<>();
 
@@ -60,13 +60,13 @@ public class Run implements Action
    public Object execute(ActionContext context) throws Exception
    {
 
-      ActiveMQ.printBanner();
+      Artemis.printBanner();
 
-      /* We use File URI for locating files.  The ACTIVEMQ_HOME variable is used to determine file paths.  For Windows
-      the ACTIVEMQ_HOME variable will include back slashes (An invalid file URI character path separator).  For this
-      reason we overwrite the ACTIVEMQ_HOME variable with backslashes replaced with forward slashes. */
-      String activemqInstance = System.getProperty("activemq.instance").replace("\\", "/");
-      System.setProperty("activemq.instance", activemqInstance);
+      /* We use File URI for locating files.  The ARTEMIS_HOME variable is used to determine file paths.  For Windows
+      the ARTEMIS_HOME variable will include back slashes (An invalid file URI character path separator).  For this
+      reason we overwrite the ARTEMIS_HOME variable with backslashes replaced with forward slashes. */
+      String activemqInstance = System.getProperty("artemis.instance").replace("\\", "/");
+      System.setProperty("artemis.instance", activemqInstance);
 
       if (configuration == null)
       {
@@ -120,7 +120,7 @@ public class Run implements Action
             ActiveMQBootstrapLogger.LOGGER.errorDeletingFile(file.getAbsolutePath());
          }
       }
-      final Timer timer = new Timer("ActiveMQ Server Shutdown Timer", true);
+      final Timer timer = new Timer("ActiveMQ Artemis Server Shutdown Timer", true);
       timer.scheduleAtFixedRate(new TimerTask()
       {
          @Override

@@ -18,17 +18,17 @@ rem under the License.
 
 setlocal
 
-if NOT "%ACTIVEMQ_HOME%"=="" goto CHECK_ACTIVEMQ_HOME
+if NOT "%ARTEMIS_HOME%"=="" goto CHECK_ARTEMIS_HOME
 PUSHD .
 CD %~dp0..
-set ACTIVEMQ_HOME=%CD%
+set ARTEMIS_HOME=%CD%
 POPD
 
-:CHECK_ACTIVEMQ_HOME
-if exist "%ACTIVEMQ_HOME%\bin\activemq.cmd" goto CHECK_JAVA
+:CHECK_ARTEMIS_HOME
+if exist "%ARTEMIS_HOME%\bin\artemis.cmd" goto CHECK_JAVA
 
 :NO_HOME
-echo ACTIVEMQ_HOME environment variable is set incorrectly. Please set ACTIVEMQ_HOME.
+echo ARTEMIS_HOME environment variable is set incorrectly. Please set ARTEMIS_HOME.
 goto END
 
 :CHECK_JAVA
@@ -52,12 +52,12 @@ set JAVA_ARGS=-XX:+UseParallelGC -XX:+AggressiveOpts -XX:+UseFastAccessorMethods
 
 rem "Create full JVM Args"
 set JVM_ARGS=%JAVA_ARGS%
-if not "%ACTIVEMQ_CLUSTER_PROPS%"=="" set JVM_ARGS=%JVM_ARGS% %ACTIVEMQ_CLUSTER_PROPS%
-set JVM_ARGS=%JVM_ARGS% -classpath "%ACTIVEMQ_HOME%\lib\artemis-boot.jar"
-set JVM_ARGS=%JVM_ARGS% -Dactivemq.home="%ACTIVEMQ_HOME%"
+if not "%ARTEMIS_CLUSTER_PROPS%"=="" set JVM_ARGS=%JVM_ARGS% %ARTEMIS_CLUSTER_PROPS%
+set JVM_ARGS=%JVM_ARGS% -classpath "%ARTEMIS_HOME%\lib\artemis-boot.jar"
+set JVM_ARGS=%JVM_ARGS% -Dartemis.home="%ARTEMIS_HOME%"
 if not "%DEBUG_ARGS%"=="" set JVM_ARGS=%JVM_ARGS% %DEBUG_ARGS%
 
-"%_JAVACMD%" %JVM_ARGS% org.apache.activemq.artemis.boot.ActiveMQ %*
+"%_JAVACMD%" %JVM_ARGS% org.apache.activemq.artemis.boot.Artemis %*
 
 :END
 endlocal

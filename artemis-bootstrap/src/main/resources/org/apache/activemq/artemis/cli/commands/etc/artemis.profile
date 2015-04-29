@@ -15,10 +15,10 @@
 # specific language governing permissions and limitations
 # under the License.
 
-ACTIVEMQ_HOME='${activemq.home}'
+ARTEMIS_HOME='${artemis.home}'
 
 # Cluster Properties: Used to pass arguments to ActiveMQ which can be referenced in broker.xml
-#ACTIVEMQ_CLUSTER_PROPS="-Dactivemq.remoting.default.port=61617 -Dactivemq.remoting.amqp.port=5673 -Dactivemq.remoting.stomp.port=61614 -Dactivemq.remoting.hornetq.port=5446"
+#ARTEMIS_CLUSTER_PROPS="-Dactivemq.remoting.default.port=61617 -Dactivemq.remoting.amqp.port=5673 -Dactivemq.remoting.stomp.port=61614 -Dactivemq.remoting.hornetq.port=5446"
 
 # Java Opts
 #JAVA_ARGS="-XX:+UseParallelGC -XX:+AggressiveOpts -XX:+UseFastAccessorMethods -Xms512M -Xmx1024M"
