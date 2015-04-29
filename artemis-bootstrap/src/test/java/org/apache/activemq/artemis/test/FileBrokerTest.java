@@ -30,7 +30,7 @@ public class FileBrokerTest
    public void startWithJMS() throws Exception
    {
       ServerDTO serverDTO = new ServerDTO();
-      serverDTO.configuration = "activemq-configuration.xml";
+      serverDTO.configuration = "broker.xml";
       FileBroker broker = null;
       try
       {

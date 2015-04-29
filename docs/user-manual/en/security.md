@@ -2,7 +2,7 @@
 
 This chapter describes how security works with Apache ActiveMQ Artemis and how you can
 configure it. To disable security completely simply set the
-`security-enabled` property to false in the `activemq-configuration.xml`
+`security-enabled` property to false in the `broker.xml`
 file.
 
 For performance reasons security is cached and invalidated every so
@@ -54,7 +54,7 @@ specified. If the user has any of those roles, he/she will be granted
 that permission for that set of addresses.
 
 Let's take a simple example, here's a security block from
-`activemq-configuration.xml` file:
+`broker.xml` file:
 
     <security-setting match="globalqueues.europe.#">
        <permission type="createDurableQueue" roles="admin"/>

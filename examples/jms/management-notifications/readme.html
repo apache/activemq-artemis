@@ -37,7 +37,7 @@ under the License.
      <h2>Example configuration</h2>
 
      <p>ActiveMQ can configured to send JMS messages when management notifications are emitted on the server.</p>
-     <p>By default, the management name is called <code>activemq.notifications</code> but this can be configured in <a href="server0/activemq-configuration.xml">activemq-configuration.xml</a>.
+     <p>By default, the management name is called <code>activemq.notifications</code> but this can be configured in <a href="server0/broker.xml">broker.xml</a>.
         For this example, we will set it to <code>jms.topic.notificationsTopic</code> to be able to receive notifications from a JMS Topic.</p>
       <pre class="prettyprint">
          <code>&lt;management-notification-address&gt;jms.topic.notificationsTopic&lt;/management-notification-address&gt;</code>
@@ -50,7 +50,7 @@ under the License.
          &lt;/topic&gt;</code>
      </pre>
      <p>The notification queue requires permission to create/delete temporary queues and consume messages.
-         This is also configured in <a href="server0/activemq-configuration.xml">activemq-configuration.xml</a></p>
+         This is also configured in <a href="server0/broker.xml">broker.xml</a></p>
      <pre class="prettyprint">
          <code><!--security for notification topic-->
          &lt;security-setting match="jms.topic.notificationsTopic"&gt;

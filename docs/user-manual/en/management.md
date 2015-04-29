@@ -504,7 +504,7 @@ proxies of the MBeans.
 
 By default, JMX is enabled to manage Apache ActiveMQ Artemis. It can be disabled by
 setting `jmx-management-enabled` to `false` in
-`activemq-configuration.xml`:
+`broker.xml`:
 
     <!-- false to disable JMX management for Apache ActiveMQ Artemis -->
     <jmx-management-enabled>false</jmx-management-enabled>
@@ -522,7 +522,7 @@ If JMX is enabled, Apache ActiveMQ Artemis can be managed locally using `jconsol
 By default, Apache ActiveMQ Artemis server uses the JMX domain "org.apache.activemq".
 To manage several Apache ActiveMQ Artemis servers from the *same* MBeanServer, the JMX
 domain can be configured for each individual Apache ActiveMQ Artemis server by setting
-`jmx-domain` in `activemq-configuration.xml`:
+`jmx-domain` in `broker.xml`:
 
     <!-- use a specific JMX domain for ActiveMQ MBeans -->
     <jmx-domain>my.org.apache.activemq</jmx-domain>
@@ -623,7 +623,7 @@ straightforward (`core.queue.exampleQueue` for the Core Queue
 ### Configuring Core Management
 
 The management address to send management messages is configured in
-`activemq-configuration.xml`:
+`broker.xml`:
 
     <management-address>jms.queue.activemq.management</management-address>
 
@@ -633,7 +633,7 @@ messages).
 
 The management address requires a *special* user permission `manage` to
 be able to receive and handle management messages. This is also
-configured in activemq-configuration.xml:
+configured in broker.xml:
 
     <!-- users with the admin role will be allowed to manage -->
     <!-- Apache ActiveMQ Artemis using management messages        -->
@@ -741,7 +741,7 @@ of all the notifications emitted by the server.
 #### Configuring The Core Management Notification Address
 
 The management notification address to receive management notifications
-is configured in `activemq-configuration.xml`:
+is configured in `broker.xml`:
 
     <management-notification-address>activemq.notifications</management-notification-address>
 
@@ -948,7 +948,7 @@ By default, message counters are disabled as it might have a small
 negative effect on memory.
 
 To enable message counters, you can set it to `true` in
-`activemq-configuration.xml`:
+`broker.xml`:
 
     <message-counter-enabled>true</message-counter-enabled>
 
@@ -956,7 +956,7 @@ Message counters keeps a history of the queue metrics (10 days by
 default) and samples all the queues at regular interval (10 seconds by
 default). If message counters are enabled, these values should be
 configured to suit your messaging use case in
-`activemq-configuration.xml`:
+`broker.xml`:
 
     <!-- keep history for a week -->
     <message-counter-max-day-history>7</message-counter-max-day-history>

@@ -10,7 +10,7 @@ attribute has.
 Queues can be predefined via configuration at a core level or at a JMS
 level. Firstly let's look at a JMS level.
 
-The following shows a queue predefined in the jms element of the `activemq-configuration.xml`
+The following shows a queue predefined in the jms element of the `broker.xml`
 configuration file.
 
     <queue name="selectorQueue">
@@ -36,7 +36,7 @@ The durable element specifies whether the queue will be persisted. This
 again is optional and defaults to true if omitted.
 
 Secondly a queue can be predefined at a core level in the
-`activemq-configuration.xml` file. The following is an example.
+`broker.xml` file. The following is an example.
 
     <queues>
        <queue name="jms.queue.selectorQueue">
@@ -78,7 +78,7 @@ queues.
 
 There are some attributes that are defined against an address wildcard
 rather than a specific queue. Here an example of an `address-setting`
-entry that would be found in the `activemq-configuration.xml` file.
+entry that would be found in the `broker.xml` file.
 
     <address-settings>
        <address-setting match="jms.queue.exampleQueue">

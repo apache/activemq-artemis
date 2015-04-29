@@ -159,7 +159,7 @@ public class Create implements Action
 
       write("etc/logging.properties", null, false);
       write("etc/bootstrap.xml", null, false);
-      write("etc/activemq-configuration.xml", filters, false);
+      write("etc/broker.xml", filters, false);
       write("etc/activemq-roles.properties", null, false);
       write("etc/activemq-users.properties", null, false);
 

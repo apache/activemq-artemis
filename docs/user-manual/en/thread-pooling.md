@@ -52,7 +52,7 @@ internally to a `java.util.concurrent.ScheduledThreadPoolExecutor`
 instance.
 
 The maximum number of thread used by this pool is configure in
-`activemq-configuration.xml` with the `scheduled-thread-pool-max-size`
+`broker.xml` with the `scheduled-thread-pool-max-size`
 parameter. The default value is `5` threads. A small number of threads
 is usually sufficient for this pool.
 
@@ -63,7 +63,7 @@ on the server side. It maps internally to a
 `java.util.concurrent.ThreadPoolExecutor` instance.
 
 The maximum number of thread used by this pool is configure in
-`activemq-configuration.xml` with the `thread-pool-max-size` parameter.
+`broker.xml` with the `thread-pool-max-size` parameter.
 
 If a value of `-1` is used this signifies that the thread pool has no
 upper bound and new threads will be created on demand if there are not

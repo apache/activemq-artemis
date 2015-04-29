@@ -7,7 +7,7 @@ element name to go to the specific chapter.
 Server Configuration
 ====================
 
-activemq-configuration.xml
+broker.xml
 --------------------------
 
 This is the main core server configuration file which contains to elements

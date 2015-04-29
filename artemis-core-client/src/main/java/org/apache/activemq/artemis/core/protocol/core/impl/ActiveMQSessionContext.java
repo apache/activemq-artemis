@@ -677,7 +677,7 @@ public class ActiveMQSessionContext extends SessionContext
       ClientSession.QueueQuery queueInfo = consumerInternal.getQueueInfo();
 
       // We try and recreate any non durable queues, since they probably won't be there unless
-      // they are defined in activemq-configuration.xml
+      // they are defined in broker.xml
       // This allows e.g. JMS non durable subs and temporary queues to continue to be used after failover
       if (!queueInfo.isDurable())
       {

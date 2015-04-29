@@ -129,7 +129,7 @@ the broker for Zero Persistence section.
 ## Configuring the bindings journal
 
 The bindings journal is configured using the following attributes in
-`activemq-configuration.xml`
+`broker.xml`
 
 -   `bindings-directory`
 
@@ -150,7 +150,7 @@ The jms config shares its configuration with the bindings journal.
 ## Configuring the message journal
 
 The message journal is configured using the following attributes in
-`activemq-configuration.xml`
+`broker.xml`
 
 -   `journal-directory`
 
@@ -349,7 +349,7 @@ Using aptitude, (e.g. on Ubuntu or Debian system):
 In some situations, zero persistence is sometimes required for a
 messaging system. Configuring Apache ActiveMQ Artemis to perform zero persistence is
 straightforward. Simply set the parameter `persistence-enabled` in
-`activemq-configuration.xml` to `false`.
+`broker.xml` to `false`.
 
 Please note that if you set this parameter to false, then *zero*
 persistence will occur. That means no bindings data, message data, large

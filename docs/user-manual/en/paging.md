@@ -41,7 +41,7 @@ Consumers with selectors will also navigate through the page-files and it will i
 You can configure the location of the paging folder
 
 Global paging parameters are specified on the main configuration file
-(`activemq-configuration.xml`).
+(`broker.xml`).
 
     <configuration xmlns="urn:activemq"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -72,7 +72,7 @@ that address alone goes into page mode.
 ## Configuration
 
 Configuration is done at the address settings, done at the main
-configuration file (`activemq-configuration.xml`).
+configuration file (`broker.xml`).
 
     <address-settings>
        <address-setting match="jms.someaddress">

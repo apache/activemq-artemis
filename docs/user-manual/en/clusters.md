@@ -8,7 +8,7 @@ the cluster is an active Apache ActiveMQ Artemis server which manages its own me
 and handles its own connections.
 
 The cluster is formed by each node declaring *cluster connections* to
-other nodes in the core configuration file `activemq-configuration.xml`.
+other nodes in the core configuration file `broker.xml`.
 When a node forms a cluster connection to another node, internally it
 creates a *core bridge* (as described in [Core Bridges](core-bridges.md)) connection between it and
 the other node, this is done transparently behind the scenes - you don't
@@ -84,12 +84,12 @@ broadcasting technique you configure the cluster, it uses either UDP or
 JGroups to broadcast connector pairs information.
 
 Broadcast groups are defined in the server configuration file
-`activemq-configuration.xml`. There can be many broadcast groups per
+`broker.xml`. There can be many broadcast groups per
 Apache ActiveMQ Artemis server. All broadcast groups must be defined in a
 `broadcast-groups` element.
 
 Let's take a look at an example broadcast group from
-`activemq-configuration.xml` that defines a UDP broadcast group:
+`broker.xml` that defines a UDP broadcast group:
 
     <broadcast-groups>
        <broadcast-group name="my-broadcast-group">
@@ -272,7 +272,7 @@ normal Apache ActiveMQ Artemis connections.
 #### Defining Discovery Groups on the Server
 
 For cluster connections, discovery groups are defined in the server side
-configuration file `activemq-configuration.xml`. All discovery groups
+configuration file `broker.xml`. All discovery groups
 must be defined inside a `discovery-groups` element. There can be many
 discovery groups defined by Apache ActiveMQ Artemis server. Let's look at an example:
 
@@ -362,7 +362,7 @@ take a look at an example:
     connectionFactory.myConnectionFactory=udp://231.7.7.7:9876
 
 The element `discovery-group-ref` specifies the name of a discovery
-group defined in `activemq-configuration.xml`.
+group defined in `broker.xml`.
 
 When this connection factory is downloaded from JNDI by a client
 application and JMS connections are created from it, those connections
@@ -550,7 +550,7 @@ connections in general.
 Cluster connections group servers into clusters so that messages can be
 load balanced between the nodes of the cluster. Let's take a look at a
 typical cluster connection. Cluster connections are always defined in
-`activemq-configuration.xml` inside a `cluster-connection` element.
+`broker.xml` inside a `cluster-connection` element.
 There can be zero or more cluster connections defined per Apache ActiveMQ Artemis
 server.
 
@@ -775,7 +775,7 @@ connection has been made.
 
 When creating connections between nodes of a cluster to form a cluster
 connection, Apache ActiveMQ Artemis uses a cluster user and cluster password which is
-defined in `activemq-configuration.xml`:
+defined in `broker.xml`:
 
     <cluster-user>ACTIVEMQ.CLUSTER.ADMIN.USER</cluster-user>
     <cluster-password>CHANGE ME!!</cluster-password>
@@ -925,7 +925,7 @@ Message redistribution can be configured on a per address basis, by
 specifying the redistribution delay in the address settings, for more
 information on configuring address settings, please see [Queue Attributes](queue-attributes.md).
 
-Here's an address settings snippet from `activemq-configuration.xml`
+Here's an address settings snippet from `broker.xml`
 showing how message redistribution is enabled for a set of queues:
 
     <address-settings>

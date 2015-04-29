@@ -22,7 +22,7 @@ import org.apache.activemq.artemis.api.core.BaseInterceptor;
  * This class is a simple way to intercepting client calls on ActiveMQ using STOMP protocol.
  * <p>
  * To add an interceptor to ActiveMQ server, you have to modify the server configuration file
- * {@literal activemq-configuration.xml}.<br>
+ * {@literal broker.xml}.<br>
  */
 public interface StompFrameInterceptor extends BaseInterceptor<StompFrame>
 {

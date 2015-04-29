@@ -32,7 +32,7 @@
    <argument>-Xms512M</argument>
    <argument>-Xmx1024M</argument>
 
-   <!-- Cluster Properties: Used to pass arguments to ActiveMQ which can be referenced in activemq-configuration.xml
+   <!-- Cluster Properties: Used to pass arguments to ActiveMQ which can be referenced in broker.xml
    <argument>-Dactivemq.remoting.default.port=61617</argument>
    <argument>-Dactivemq.remoting.amqp.port=5673</argument>
    <argument>-Dactivemq.remoting.stomp.port=61614</argument>

@@ -104,7 +104,7 @@ choose 1 node to have a local grouping handler and all the other nodes
 should have remote handlers- it's the local handler that actually makes
 the decision as to what route should be used, all the other remote
 handlers converse with this. Here is a sample config for both types of
-handler, this should be configured in the *activemq-configuration.xml*
+handler, this should be configured in the *broker.xml*
 file.
 
     <grouping-handler name="my-grouping-handler">

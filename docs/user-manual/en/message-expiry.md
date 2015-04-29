@@ -61,7 +61,7 @@ A reaper thread will periodically inspect the queues to check if
 messages have expired.
 
 The reaper thread can be configured with the following properties in
-`activemq-configuration.xml`
+`broker.xml`
 
 -   `message-expiry-scan-period`
 

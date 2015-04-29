@@ -95,21 +95,21 @@ tuning:
 
 -   Disable security. You may get a small performance boost by disabling
     security by setting the `security-enabled` parameter to `false` in
-    `activemq-configuration.xml`.
+    `broker.xml`.
 
 -   Disable persistence. If you don't need message persistence, turn it
     off altogether by setting `persistence-enabled` to false in
-    `activemq-configuration.xml`.
+    `broker.xml`.
 
 -   Sync transactions lazily. Setting `journal-sync-transactional` to
-    `false` in `activemq-configuration.xml` can give you better
+    `false` in `broker.xml` can give you better
     transactional persistent performance at the expense of some
     possibility of loss of transactions on failure. See  [Guarantees of sends and commits](send-guarantees.md)
     for more information.
 
 -   Sync non transactional lazily. Setting
     `journal-sync-non-transactional` to `false` in
-    `activemq-configuration.xml` can give you better non-transactional
+    `broker.xml` can give you better non-transactional
     persistent performance at the expense of some possibility of loss of
     durable messages on failure. See  [Guarantees of sends and commits](send-guarantees.md)
     for more information.
@@ -176,7 +176,7 @@ tuning:
 -   Use `batch-delay` and set `direct-deliver` to false for the best
     throughput for very small messages. Apache ActiveMQ Artemis comes with a
     preconfigured connector/acceptor pair (`netty-throughput`) in
-    `activemq-configuration.xml` and JMS connection factory
+    `broker.xml` and JMS connection factory
     (`ThroughputConnectionFactory`) in `activemq-jms.xml`which can be
     used to give the very best throughput, especially for small
     messages. See the [Configuring the Transport](configuring-transports.md)

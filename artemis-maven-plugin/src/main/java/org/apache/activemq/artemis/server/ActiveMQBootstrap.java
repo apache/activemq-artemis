@@ -96,7 +96,7 @@ public class ActiveMQBootstrap
          {
             //extendPluginClasspath(configurationDir);
             configuration = new FileConfiguration();
-            File file = new File(new File(configurationDir), "activemq-configuration.xml");
+            File file = new File(new File(configurationDir), "broker.xml");
             jmsFileConfiguration = new FileJMSConfiguration();
             FileDeploymentManager deploymentManager = new FileDeploymentManager(file.toURI().toString());
             deploymentManager.addDeployable((FileConfiguration)configuration);

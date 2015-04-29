@@ -109,12 +109,12 @@ size of `n` elements, then the `n + 1`th id stored will overwrite the
 `0`th element in the cache.
 
 The maximum size of the cache is configured by the parameter
-`id-cache-size` in `activemq-configuration.xml`, the default value is
+`id-cache-size` in `broker.xml`, the default value is
 `2000` elements.
 
 The caches can also be configured to persist to disk or not. This is
 configured by the parameter `persist-id-cache`, also in
-`activemq-configuration.xml`. If this is set to `true` then each id will
+`broker.xml`. If this is set to `true` then each id will
 be persisted to permanent storage as they are received. The default
 value for this parameter is `true`.
 
@@ -135,7 +135,7 @@ will be ignored.
 
 To configure a core bridge to add the duplicate id header, simply set
 the `use-duplicate-detection` to `true` when configuring a bridge in
-`activemq-configuration.xml`.
+`broker.xml`.
 
 The default value for this parameter is `true`.
 
@@ -151,7 +151,7 @@ using their internal bridges.
 
 To configure a cluster connection to add the duplicate id header, simply
 set the `use-duplicate-detection` to `true` when configuring a cluster
-connection in `activemq-configuration.xml`.
+connection in `broker.xml`.
 
 The default value for this parameter is `true`.
 

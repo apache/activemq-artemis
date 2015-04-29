@@ -24,7 +24,7 @@
            default-user="guest"
            />
 
-   <server configuration="file:${activemq.instance}/etc/activemq-configuration.xml"/>
+   <server configuration="file:${activemq.instance}/etc/broker.xml"/>
 
    <web bind="http://localhost:8161" path="web">
        <app url="jolokia" war="jolokia-war-1.2.3.war"/>

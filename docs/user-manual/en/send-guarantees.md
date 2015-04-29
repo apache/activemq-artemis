@@ -22,7 +22,7 @@ storage by the time the call to commit or rollback returns.
 Setting this parameter to `false` can improve performance at the expense
 of some loss of transaction durability.
 
-This parameter is set in `activemq-configuration.xml`
+This parameter is set in `broker.xml`
 
 ## Guarantees of Non Transactional Message Sends
 

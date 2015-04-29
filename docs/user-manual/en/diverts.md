@@ -34,7 +34,7 @@ for messages. Combining diverts with bridges allows you to create a
 distributed network of reliable routing connections between multiple
 geographically distributed servers, creating your global messaging mesh.
 
-Diverts are defined as xml in the `activemq-configuration.xml` file.
+Diverts are defined as xml in the `broker.xml` file.
 There can be zero or more diverts in the file.
 
 Please see the examples for a full working example showing you how to

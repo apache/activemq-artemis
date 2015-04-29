@@ -115,7 +115,7 @@ The configuration file used to bootstrap the server (e.g.
 `bootstrap.xml` by default) references the specific broker configuration
 files.
 
--   `activemq-configuration.xml`. This is the main ActiveMQ
+-   `broker.xml`. This is the main ActiveMQ
     configuration file. All the parameters in this file are
     described [here](configuration-index.md)
 
@@ -142,7 +142,7 @@ The bootstrap file is very simple. Let's take a look at an example:
 
     <broker xmlns="http://activemq.org/schema">
 
-       <file:core configuration="${activemq.home}/config/stand-alone/non-clustered/activemq-configuration.xml"></core>
+       <file:core configuration="${activemq.home}/config/stand-alone/non-clustered/broker.xml"></core>
 
        <basic-security/>
 
@@ -156,7 +156,7 @@ The bootstrap file is very simple. Let's take a look at an example:
 ## The main configuration file.
 
 The configuration for the Apache ActiveMQ Artemis core server is contained in
-`activemq-configuration.xml`. This is what the FileConfiguration bean
+`broker.xml`. This is what the FileConfiguration bean
 uses to configure the messaging server.
 
 There are many attributes which you can configure Apache ActiveMQ Artemis. In most

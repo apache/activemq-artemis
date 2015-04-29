@@ -11,7 +11,7 @@ please the JMS javadoc for
 Filter expressions are used in several places in Apache ActiveMQ Artemis
 
 -   Predefined Queues. When pre-defining a queue, in
-    `activemq-configuration.xml` in either the core or jms configuration a filter
+    `broker.xml` in either the core or jms configuration a filter
     expression can be defined for a queue. Only messages that match the
     filter expression will enter the queue.
 

@@ -32,13 +32,13 @@ under the License.
      <h2>Example configuration</h2>
 
      <p>ActiveMQ can be managed by sending JMS messages with specific properties to its <em>management</em> queue.</p>
-     </p>By default, the management name is called <code>activemq.management</code> but this can be configured in <a href="server0/activemq-configuration.xml">activemq-configuration.xml</a>
+     </p>By default, the management name is called <code>activemq.management</code> but this can be configured in <a href="server0/broker.xml">broker.xml</a>
      <pre class="prettyprint">
          <code>&lt;management-address&gt;activemq.management&lt;/management-address&gt;</code>
      </pre>
      
      <p>The management queue requires a "special" user permission <code>manage</code> to be able to receive management messages.
-         This is also configured in <a href="server0/activemq-configuration.xml">activemq-configuration.xml</a></p>
+         This is also configured in <a href="server0/broker.xml">broker.xml</a></p>
      <pre class="prettyprint">
          <code>&lt;security-setting match="activemq.management"&gt;
             &lt;permission type="manage" roles="guest" /&gt;
