@@ -1418,7 +1418,7 @@ public class MessageHeaderTest extends MessageHeaderTestBase
       }
 
       /* (non-Javadoc)
-       * @see ClientSession#createQueue(org.apache.activemq.utils.SimpleString, org.apache.activemq.utils.SimpleString)
+       * @see ClientSession#createQueue(org.apache.activemq.artemis.utils.SimpleString, org.apache.activemq.artemis.utils.SimpleString)
        */
       public void createQueue(SimpleString address, SimpleString queueName) throws ActiveMQException
       {

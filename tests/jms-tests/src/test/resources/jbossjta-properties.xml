@@ -172,7 +172,7 @@
         <!--
 			com.arjuna.ats.internal.jta.transaction.jts.UserTransactionImple
 			-->
-<property name="com.arjuna.ats.jta.recovery.XAResourceRecovery.HORNETQ" value="org.apache.activemq.api.jms.server.recovery.ActiveMQXAResourceRecovery;adaptor1"/>
+<property name="com.arjuna.ats.jta.recovery.XAResourceRecovery.HORNETQ" value="org.apache.activemq.artemis.api.jms.server.recovery.ActiveMQXAResourceRecovery;adaptor1"/>
 
 
 

@@ -1,7 +1,7 @@
 {
-    "title": "ActiveMQ Documentation",
-    "description": "ActiveMQ User Guide and Reference Documentation",
-    "github": "apache/activemq-6",
+    "title": "ActiveMQ Artemis Documentation",
+    "description": "ActiveMQ Artemis User Guide and Reference Documentation",
+    "github": "apache/activemq-artemis",
     "githubHost": "https://github.com/",
     "links": {
         "home": "http://activemq.apache.org/",

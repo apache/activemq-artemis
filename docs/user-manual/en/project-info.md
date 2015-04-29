@@ -20,10 +20,10 @@ page:<http://activemq.apache.org/download.html>
 
 -   Follow us on [twitter](https://twitter.com/activemq)
 
--   Apache ActiveMQ Artemis Git repository is <https://github.com/apache/activemq-6>
+-   Apache ActiveMQ Artemis Git repository is <https://github.com/apache/activemq-artemis>
 
 -   All release tags are available from
-    <https://github.com/apache/activemq-6/releases>
+    <https://github.com/apache/activemq-artemis/releases>
 
 
 And many thanks to all our contributors, both old and new who helped

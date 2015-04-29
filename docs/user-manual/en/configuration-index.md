@@ -435,7 +435,7 @@ get a mask for a password, just run the main class at org.apache.activemq.artemi
 An easy way to do it is through activemq-tools-<VERSION>-jar-with-dependencies.jar since it has all the dependencies:
 
 ```sh
-    java -cp activemq-tools-6.0.0-jar-with-dependencies.jar org.apache.activemq.artemis.utils.DefaultSensitiveStringCodec "your plaintext password"
+    java -cp artemis-tools-1.0.0-jar-with-dependencies.jar org.apache.activemq.artemis.utils.DefaultSensitiveStringCodec "your plaintext password"
 ```
 
 If you don't want to use the jar-with-dependencies, make sure the classpath is correct. You'll get something like
@@ -479,7 +479,7 @@ passwords using the new defined decoder.
 
 To use a different decoder than the built-in one, you either pick one
 from existing libraries or you implement it yourself. All decoders must
-implement the `org.apache.activemq.utils.SensitiveDataCodec<T>`
+implement the `org.apache.activemq.artemis.utils.SensitiveDataCodec<T>`
 interface:
 
 ``` java

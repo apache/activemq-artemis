@@ -51,7 +51,7 @@ beans file that bridges 2 destinations which are actually on the same
 server.
 
 The JMS Bridge is a simple POJO so can be deployed with most frameworks,
-simply instantiate the `org.apache.activemq.api.jms.bridge.impl.JMSBridgeImpl`
+simply instantiate the `org.apache.activemq.artemis.api.jms.bridge.impl.JMSBridgeImpl`
 class and set the appropriate parameters.
 
 ## JMS Bridge Parameters
@@ -207,7 +207,7 @@ The configuration example above uses the default implementation provided
 by Apache ActiveMQ Artemis that looks up the connection factory using JNDI. For other
 Application Servers or JMS providers a new implementation may have to be
 provided. This can easily be done by implementing the interface
-`org.apache.activemq.jms.bridge.ConnectionFactoryFactory`.
+`org.apache.activemq.artemis.jms.bridge.ConnectionFactoryFactory`.
 
 ## Source and Target Destination Factories
 
@@ -218,7 +218,7 @@ In the configuration example above, we have used the default provided by
 Apache ActiveMQ Artemis that looks up the destination using JNDI.
 
 A new implementation can be provided by implementing
-`org.apache.activemq.jms.bridge.DestinationFactory` interface.
+`org.apache.activemq.artemis.jms.bridge.DestinationFactory` interface.
 
 ## Quality Of Service
 

@@ -199,7 +199,7 @@ public class JmsQueueBrowserTest extends BasicOpenWireTest
       }
 
       ObjectName queueViewMBeanName = new ObjectName(
-            "org.apache.activemq:type=Broker,brokerName=localhost,destinationType=Queue,destinationName=TEST");
+            "org.apache.activemq.artemis:type=Broker,brokerName=localhost,destinationType=Queue,destinationName=TEST");
 
       System.out.println("Create QueueView MBean...");
       QueueViewMBean proxy = (QueueViewMBean) broker.getManagementContext()

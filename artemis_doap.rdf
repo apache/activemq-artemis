@@ -25,7 +25,7 @@ under the License.
     <homepage rdf:resource="" />
     <shortdesc></shortdesc>
     <description></description>
-    
+
     <maintainer>
       <foaf:Person>
         <foaf:name>Clebert Suconic</foaf:name>
@@ -62,17 +62,9 @@ under the License.
         <foaf:lastName>Taylor</foaf:lastName>
       </foaf:Person>
     </developer>
-    
-    <release>
-      <Version>
-        <name>6.0.0</name>
-        <revision>6.0.0.final</revision>
-        <created>2013-16-12</created>
-      </Version>
-    </release>
     <license rdf:resource="" />
-    
-    
+
+
     <programming-language>Java</programming-language>
     <programming-language>C/C++</programming-language>
     <vendor>Red Hat</vendor>

@@ -65,7 +65,7 @@ which are.
 Queues can also be created using the core API or the management API.
 
 For the core API, queues can be created via the
-`org.apache.activemq.api.core.client.ClientSession` interface. There are
+`org.apache.activemq.artemis.api.core.client.ClientSession` interface. There are
 multiple `createQueue` methods that support setting all of the
 previously mentioned attributes. There is one extra attribute that can
 be set via this API which is `temporary`. setting this to true means

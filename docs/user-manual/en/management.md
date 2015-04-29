@@ -36,10 +36,10 @@ what can be invoked for this type of resource.
 Apache ActiveMQ Artemis exposes its managed resources in 2 packages:
 
 -   *Core* resources are located in the
-    `org.apache.activemq.api.core.management` package
+    `org.apache.activemq.artemis.api.core.management` package
 
 -   *JMS* resources are located in the
-    `org.apache.activemq.api.jms.management` package
+    `org.apache.activemq.artemis.api.jms.management` package
 
 The way to invoke a *management operations* depends whether JMX, core
 messages, or JMS messages are used.
@@ -66,7 +66,7 @@ full details of the API please consult the javadoc. In summary:
     Core queues can be created or destroyed using the management
     operations `createQueue()` or `deployQueue()` or `destroyQueue()`)on
     the `ActiveMQServerControl` (with the ObjectName
-    `org.apache.activemq:module=Core,type=Server` or the resource name
+    `org.apache.activemq.artemis:module=Core,type=Server` or the resource name
     `core.server`)
 
     `createQueue` will fail if the queue already exists while
@@ -126,14 +126,14 @@ full details of the API please consult the javadoc. In summary:
     management operations `createBridge()` and `destroyBridge()` (resp.
     `createDivert()` and `destroyDivert()`) on the
     `ActiveMQServerControl` (with the ObjectName
-    `org.apache.activemq:module=Core,type=Server` or the resource name
+    `org.apache.activemq.artemis:module=Core,type=Server` or the resource name
     `core.server`).
 
 -   It is possible to stop the server and force failover to occur with
     any currently attached clients.
 
     to do this use the `forceFailover()` on the `ActiveMQServerControl`
-    (with the ObjectName `org.apache.activemq:module=Core,type=Server`
+    (with the ObjectName `org.apache.activemq.artemis:module=Core,type=Server`
     or the resource name `core.server`)
 
     > **Note**
@@ -145,7 +145,7 @@ full details of the API please consult the javadoc. In summary:
 #### Core Address Management
 
 Core addresses can be managed using the `AddressControl` class (with the
-ObjectName `org.apache.activemq:module=Core,type=Address,name="<the
+ObjectName `org.apache.activemq.artemis:module=Core,type=Address,name="<the
                   address name>"` or the resource name
 `core.address.<the
                   address name>`).
@@ -161,7 +161,7 @@ ObjectName `org.apache.activemq:module=Core,type=Address,name="<the
 The bulk of the core management API deals with core queues. The
 `QueueControl` class defines the Core queue management operations (with
 the ObjectName
-`org.apache.activemq:module=Core,type=Queue,address="<the bound
+`org.apache.activemq.artemis:module=Core,type=Queue,address="<the bound
                   address>",name="<the queue name>"` or the resource
 name `core.queue.<the queue name>`).
 
@@ -245,7 +245,7 @@ transactions). These resources are:
 
     They can be started or stopped using the `start()` or. `stop()`
     method on the `AcceptorControl` class (with the ObjectName
-    `org.apache.activemq:module=Core,type=Acceptor,name="<the acceptor name>"`
+    `org.apache.activemq.artemis:module=Core,type=Acceptor,name="<the acceptor name>"`
     or the resource name
     `core.acceptor.<the address name>`). The acceptors parameters
     can be retrieved using the `AcceptorControl` attributes (see [Understanding Acceptors](configuring-transports.md))
@@ -254,7 +254,7 @@ transactions). These resources are:
 
     They can be started or stopped using the `start()` or `stop()`
     method on the `DivertControl` class (with the ObjectName
-    `org.apache.activemq:module=Core,type=Divert,name=<the divert name>`
+    `org.apache.activemq.artemis:module=Core,type=Divert,name=<the divert name>`
     or the resource name `core.divert.<the divert name>`). Diverts
     parameters can be retrieved using the `DivertControl` attributes
     (see [Diverting and Splitting Message Flows)](diverts.md))
@@ -263,7 +263,7 @@ transactions). These resources are:
 
     They can be started or stopped using the `start()` (resp. `stop()`)
     method on the `BridgeControl` class (with the ObjectName
-    `org.apache.activemq:module=Core,type=Bridge,name="<the bridge name>"`
+    `org.apache.activemq.artemis:module=Core,type=Bridge,name="<the bridge name>"`
     or the resource name
     `core.bridge.<the bridge name>`). Bridges parameters can be retrieved
     using the `BridgeControl` attributes (see [Core bridges](core-bridges.md))
@@ -272,7 +272,7 @@ transactions). These resources are:
 
     They can be started or stopped using the `start()` or `stop()`
     method on the `BroadcastGroupControl` class (with the ObjectName
-    `org.apache.activemq:module=Core,type=BroadcastGroup,name="<the broadcast group name>"` or the resource name
+    `org.apache.activemq.artemis:module=Core,type=BroadcastGroup,name="<the broadcast group name>"` or the resource name
     `core.broadcastgroup.<the broadcast group name>`). Broadcast groups
     parameters can be retrieved using the `BroadcastGroupControl`
     attributes (see [Clusters](clusters.md))
@@ -281,7 +281,7 @@ transactions). These resources are:
 
     They can be started or stopped using the `start()` or `stop()`
     method on the `DiscoveryGroupControl` class (with the ObjectName
-    `org.apache.activemq:module=Core,type=DiscoveryGroup,name="<the discovery group name>"` or the resource name
+    `org.apache.activemq.artemis:module=Core,type=DiscoveryGroup,name="<the discovery group name>"` or the resource name
     `core.discovery.<the discovery group name>`). Discovery groups
     parameters can be retrieved using the `DiscoveryGroupControl`
     attributes (see [Clusters](clusters.md))
@@ -290,7 +290,7 @@ transactions). These resources are:
 
     They can be started or stopped using the `start()` or `stop()`
     method on the `ClusterConnectionControl` class (with the ObjectName
-    `org.apache.activemq:module=Core,type=ClusterConnection,name="<the cluster connection name>"` or the resource name
+    `org.apache.activemq.artemis:module=Core,type=ClusterConnection,name="<the cluster connection name>"` or the resource name
     `core.clusterconnection.<the cluster connection name>`). Cluster
     connections parameters can be retrieved using the
     `ClusterConnectionControl` attributes (see [Clusters](clusters.md))
@@ -304,7 +304,7 @@ objects* (i.e. JMS queues, topics and connection factories).
 
 JMS Resources (connection factories and destinations) can be created
 using the `JMSServerControl` class (with the ObjectName
-`org.apache.activemq:module=JMS,type=Server` or the resource name
+`org.apache.activemq.artemis:module=JMS,type=Server` or the resource name
 `jms.server`).
 
 -   Listing, creating, destroying connection factories
@@ -359,7 +359,7 @@ using the `JMSServerControl` class (with the ObjectName
 
 JMS Connection Factories can be managed using the
 `ConnectionFactoryControl` class (with the ObjectName
-`org.apache.activemq:module=JMS,type=ConnectionFactory,name="<the connection factory
+`org.apache.activemq.artemis:module=JMS,type=ConnectionFactory,name="<the connection factory
                   name>"` or the resource name
 `jms.connectionfactory.<the
                   connection factory name>`).
@@ -376,7 +376,7 @@ JMS Connection Factories can be managed using the
 #### JMS Queue Management
 
 JMS queues can be managed using the `JMSQueueControl` class (with the
-ObjectName `org.apache.activemq:module=JMS,type=Queue,name="<the queue
+ObjectName `org.apache.activemq.artemis:module=JMS,type=Queue,name="<the queue
                   name>"` or the resource name `jms.queue.<the queue
                   name>`).
 
@@ -449,7 +449,7 @@ operations on a core queue.*
 #### JMS Topic Management
 
 JMS Topics can be managed using the `TopicControl` class (with the
-ObjectName `org.apache.activemq:module=JMS,type=Topic,name="<the topic
+ObjectName `org.apache.activemq.artemis:module=JMS,type=Topic,name="<the topic
                   name>"` or the resource name `jms.topic.<the topic
                   name>`).
 
@@ -485,14 +485,14 @@ Apache ActiveMQ Artemis registers its resources with the domain `org.apache.acti
 
 For example, the `ObjectName` to manage a JMS Queue `exampleQueue` is:
 
-    org.apache.activemq:module=JMS,type=Queue,name="exampleQueue"
+    org.apache.activemq.artemis:module=JMS,type=Queue,name="exampleQueue"
 
 and the MBean is:
 
-    org.apache.activemq.api.jms.management.JMSQueueControl
+    org.apache.activemq.artemis.api.jms.management.JMSQueueControl
 
 The MBean's `ObjectName` are built using the helper class
-`org.apache.activemq.api.core.management.ObjectNameBuilder`. You can
+`org.apache.activemq.artemis.api.core.management.ObjectNameBuilder`. You can
 also use `jconsole` to find the `ObjectName` of the MBeans you want to
 manage.
 
@@ -519,7 +519,7 @@ If JMX is enabled, Apache ActiveMQ Artemis can be managed locally using `jconsol
 > to configure the server for remote management (system properties must
 > be set in `run.sh` or `run.bat` scripts).
 
-By default, Apache ActiveMQ Artemis server uses the JMX domain "org.apache.activemq".
+By default, Apache ActiveMQ Artemis server uses the JMX domain "org.apache.activemq.artemis".
 To manage several Apache ActiveMQ Artemis servers from the *same* MBeanServer, the JMX
 domain can be configured for each individual Apache ActiveMQ Artemis server by setting
 `jmx-domain` in `broker.xml`:
@@ -545,11 +545,11 @@ http agent deployed as a Web Application. Jolokia is a remote
 JMX over HTTP bridge that exposed mBeans, for a full guids as
 to how to use refer to [Jolokia Documentation](http://www.jolokia.org/documentation.html),
 however a simple example to query thebrokers version would
-be to use a brower and go to the URL http://localhost:8161/jolokia/read/org.apache.activemq:module=Core,type=Server/Version.
+be to use a brower and go to the URL http://localhost:8161/jolokia/read/org.apache.activemq.artemis:module=Core,type=Server/Version.
 
 This would give you back something like the following:
 
-    {"timestamp":1422019706,"status":200,"request":{"mbean":"org.apache.activemq:module=Core,type=Server","attribute":"Version","type":"read"},"value":"6.0.0.SNAPSHOT (Active Hornet, 126)"}
+    {"timestamp":1422019706,"status":200,"request":{"mbean":"org.apache.activemq.artemis:module=Core,type=Server","attribute":"Version","type":"read"},"value":"1.0.0.SNAPSHOT (Active Hornet, 126)"}
 
 ## Using Management Via Core API
 
@@ -576,7 +576,7 @@ A `ClientConsumer` can be used to consume the management reply and
 retrieve the result of the operation (if any) stored in the reply's
 body. For portability, results are returned as a [JSON](http://json.org)
 String rather than Java Serialization (the
-`org.apache.activemq.api.core.management.ManagementHelper` can be used
+`org.apache.activemq.artemis.api.core.management.ManagementHelper` can be used
 to convert the JSON string to Java objects).
 
 These steps can be simplified to make it easier to invoke management
@@ -588,13 +588,13 @@ operations using Core messages:
 2.  Create a `ClientMessage`
 
 3.  Use the helper class
-    `org.apache.activemq.api.core.management.ManagementHelper` to fill
+    `org.apache.activemq.artemis.api.core.management.ManagementHelper` to fill
     the message with the management properties
 
 4.  Send the message using the `ClientRequestor`
 
 5.  Use the helper class
-    `org.apache.activemq.api.core.management.ManagementHelper` to
+    `org.apache.activemq.artemis.api.core.management.ManagementHelper` to
     retrieve the operation result from the management reply
 
 For example, to find out the number of messages in the core queue
@@ -615,7 +615,7 @@ Management operation name and parameters must conform to the Java
 interfaces defined in the `management` packages.
 
 Names of the resources are built using the helper class
-`org.apache.activemq.api.core.management.ResourceNames` and are
+`org.apache.activemq.artemis.api.core.management.ResourceNames` and are
 straightforward (`core.queue.exampleQueue` for the Core Queue
 `exampleQueue`, `jms.topic.exampleTopic` for the JMS Topic
 `exampleTopic`, etc.).
@@ -662,13 +662,13 @@ API instead:
 2.  create a `Message`
 
 3.  use the helper class
-    `org.apache.activemq.api.jms.management.JMSManagementHelper` to fill
+    `org.apache.activemq.artemis.api.jms.management.JMSManagementHelper` to fill
     the message with the management properties
 
 4.  send the message using the `QueueRequestor`
 
 5.  use the helper class
-    `org.apache.activemq.api.jms.management.JMSManagementHelper` to
+    `org.apache.activemq.artemis.api.jms.management.JMSManagementHelper` to
     retrieve the operation result from the management reply
 
 For example, to know the number of messages in the JMS queue
@@ -714,10 +714,10 @@ These notifications can be received by 3 different ways:
 If JMX is enabled (see Configuring JMX section), JMX notifications can be received by
 subscribing to 2 MBeans:
 
--   `org.apache.activemq:module=Core,type=Server` for notifications on
+-   `org.apache.activemq.artemis:module=Core,type=Server` for notifications on
     *Core* resources
 
--   `org.apache.activemq:module=JMS,type=Server` for notifications on
+-   `org.apache.activemq.artemis:module=JMS,type=Server` for notifications on
     *JMS* resources
 
 ### Core Messages Notifications

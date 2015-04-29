@@ -78,7 +78,7 @@ enabled. Let's also assume that a queue and connection factory has been
 defined in the `activemq-jms.xml` config file.
 
 ``` java
-import org.apache.activemq.jms.server.embedded.EmbeddedJMS;
+import org.apache.activemq.artemis.jms.server.embedded.EmbeddedJMS;
 
 ...
 
@@ -129,7 +129,7 @@ config.setAcceptorConfigurations(transports);
 ```
 
 You need to instantiate an instance of
-`org.apache.activemq.api.core.server.embedded.EmbeddedActiveMQ` and add
+`org.apache.activemq.artemis.api.core.server.embedded.EmbeddedActiveMQ` and add
 the configuration object to it.
 
 ``` java

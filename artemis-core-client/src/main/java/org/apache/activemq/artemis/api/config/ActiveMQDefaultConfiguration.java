@@ -186,8 +186,8 @@ public final class ActiveMQDefaultConfiguration
    // true means that the management API is available via JMX
    private static boolean DEFAULT_JMX_MANAGEMENT_ENABLED = true;
 
-   // the JMX domain used to registered ActiveMQ MBeans in the MBeanServer
-   private static String DEFAULT_JMX_DOMAIN = "org.apache.activemq";
+   // the JMX domain used to registered ActiveMQ Artemis MBeans in the MBeanServer
+   private static String DEFAULT_JMX_DOMAIN = "org.apache.activemq.artemis";
 
    // true means that message counters are enabled
    private static boolean DEFAULT_MESSAGE_COUNTER_ENABLED = false;

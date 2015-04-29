@@ -19,19 +19,19 @@
 
 # Additional logger names to configure (root logger is always configured)
 # Root logger option
-loggers=org.jboss.logging,org.apache.activemq.core.server,org.apache.activemq.utils,org.apache.activemq.journal,org.apache.activemq.jms,org.apache.activemq.ra,org.apache.activemq.tests.unit,org.apache.activemq.tests.integration,org.apache.activemq.jms.tests
+loggers=org.jboss.logging,org.apache.activemq.artemis.core.server,org.apache.activemq.artemis.utils,org.apache.activemq.artemis.journal,org.apache.activemq.artemis.jms,org.apache.activemq.artemis.ra,org.apache.activemq.artemis.tests.unit,org.apache.activemq.artemis.tests.integration,org.apache.activemq.artemis.jms.tests
 
 # Root logger level
 logger.level=INFO
 # ActiveMQ logger levels
-logger.org.apache.activemq.core.server.level=TRACE
-logger.org.apache.activemq.journal.level=INFO
-logger.org.apache.activemq.utils.level=INFO
-logger.org.apache.activemq.jms.level=INFO
-logger.org.apache.activemq.ra.level=INFO
-logger.org.apache.activemq.tests.unit.level=INFO
-logger.org.apache.activemq.tests.integration.level=INFO
-logger.org.apache.activemq.jms.tests.level=INFO
+logger.org.apache.activemq.artemis.core.server.level=TRACE
+logger.org.apache.activemq.artemis.journal.level=INFO
+logger.org.apache.activemq.artemis.utils.level=INFO
+logger.org.apache.activemq.artemis.jms.level=INFO
+logger.org.apache.activemq.artemis.ra.level=INFO
+logger.org.apache.activemq.artemis.tests.unit.level=INFO
+logger.org.apache.activemq.artemis.tests.integration.level=INFO
+logger.org.apache.activemq.artemis.jms.tests.level=INFO
 
 # Root logger handlers
 logger.handlers=CONSOLE,TEST
@@ -53,7 +53,7 @@ handler.FILE.fileName=target/activemq.log
 handler.FILE.formatter=PATTERN
 
 # Console handler configuration
-handler.TEST=org.apache.activemq.logs.AssertionLoggerHandler
+handler.TEST=org.apache.activemq.artemis.logs.AssertionLoggerHandler
 handler.TEST.level=TRACE
 handler.TEST.formatter=PATTERN
 

@@ -182,7 +182,7 @@ which are also available through JMS by the use of object properties.
     </tbody>
 </table>
 
-  : org.apache.activemq.api.core.client.ClientMessage API
+  : org.apache.activemq.artemis.api.core.client.ClientMessage API
 
 To set the output stream when receiving a core message:
 

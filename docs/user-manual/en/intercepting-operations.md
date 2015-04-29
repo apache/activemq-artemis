@@ -12,7 +12,7 @@ makes interceptors powerful, but also potentially dangerous.
 An interceptor must implement the `Interceptor interface`:
 
 ``` java
-package org.apache.activemq.api.core.interceptor;
+package org.apache.artemis.activemq.api.core.interceptor;
 
 public interface Interceptor
 {
@@ -45,13 +45,13 @@ Both incoming and outgoing interceptors are configured in
 `broker.xml`:
 
     <remoting-incoming-interceptors>
-       <class-name>org.apache.activemq.jms.example.LoginInterceptor</class-name>
-       <class-name>org.apache.activemq.jms.example.AdditionalPropertyInterceptor</class-name>
+       <class-name>org.apache.activemq.artemis.jms.example.LoginInterceptor</class-name>
+       <class-name>org.apache.activemq.artemis.jms.example.AdditionalPropertyInterceptor</class-name>
     </remoting-incoming-interceptors>
 
     <remoting-outgoing-interceptors>
-       <class-name>org.apache.activemq.jms.example.LogoutInterceptor</class-name>
-       <class-name>org.apache.activemq.jms.example.AdditionalPropertyInterceptor</class-name>
+       <class-name>org.apache.activemq.artemis.jms.example.LogoutInterceptor</class-name>
+       <class-name>org.apache.activemq.artemis.jms.example.AdditionalPropertyInterceptor</class-name>
     </remoting-outgoing-interceptors>
 
 The interceptors classes (and their dependencies) must be added to the

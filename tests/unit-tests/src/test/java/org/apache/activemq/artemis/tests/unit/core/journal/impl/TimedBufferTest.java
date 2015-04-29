@@ -76,7 +76,7 @@ public class TimedBufferTest extends UnitTestCase
          }
 
          /* (non-Javadoc)
-          * @see org.apache.activemq.utils.timedbuffer.TimedBufferObserver#newBuffer(int, int)
+          * @see org.apache.activemq.artemis.utils.timedbuffer.TimedBufferObserver#newBuffer(int, int)
           */
          public ByteBuffer newBuffer(final int minSize, final int maxSize)
          {
@@ -151,7 +151,7 @@ public class TimedBufferTest extends UnitTestCase
          }
 
          /* (non-Javadoc)
-          * @see org.apache.activemq.utils.timedbuffer.TimedBufferObserver#newBuffer(int, int)
+          * @see org.apache.activemq.artemis.utils.timedbuffer.TimedBufferObserver#newBuffer(int, int)
           */
          public ByteBuffer newBuffer(final int minSize, final int maxSize)
          {
@@ -240,7 +240,7 @@ public class TimedBufferTest extends UnitTestCase
          }
 
          /* (non-Javadoc)
-          * @see org.apache.activemq.utils.timedbuffer.TimedBufferObserver#newBuffer(int, int)
+          * @see org.apache.activemq.artemis.utils.timedbuffer.TimedBufferObserver#newBuffer(int, int)
           */
          public ByteBuffer newBuffer(final int minSize, final int maxSize)
          {
@@ -326,7 +326,7 @@ public class TimedBufferTest extends UnitTestCase
          }
 
          /* (non-Javadoc)
-          * @see org.apache.activemq.utils.timedbuffer.TimedBufferObserver#newBuffer(int, int)
+          * @see org.apache.activemq.artemis.utils.timedbuffer.TimedBufferObserver#newBuffer(int, int)
           */
          public ByteBuffer newBuffer(final int minSize, final int maxSize)
          {

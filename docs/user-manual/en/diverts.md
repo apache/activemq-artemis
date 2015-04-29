@@ -56,7 +56,7 @@ taken from the divert example:
        <forwarding-address>jms.queue.priceForwarding</forwarding-address>
        <filter string="office='New York'"/>
        <transformer-class-name>
-          org.apache.activemq.jms.example.AddForwardingTimeTransformer
+          org.apache.activemq.artemis.jms.example.AddForwardingTimeTransformer
        </transformer-class-name>
        <exclusive>true</exclusive>
     </divert>

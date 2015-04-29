@@ -126,7 +126,7 @@ session factory. Please see [Client Reconnection and Session Reattachment](clien
 # Asynchronous Send Acknowledgements
 
 To use the feature using the core API, you implement the interface
-`org.apache.activemq.api.core.client.SendAcknowledgementHandler` and set
+`org.apache.activemq.artemis.api.core.client.SendAcknowledgementHandler` and set
 a handler instance on your `ClientSession`.
 
 Then, you just send messages as normal using your `ClientSession`, and
