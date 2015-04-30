@@ -27,10 +27,10 @@ under the License.
   <body onload="prettyPrint()">
      <h1>Client Kickoff Example</h1>
 
-     <p>This example shows how to kick off a client connected to ActiveMQ 
+     <p>This example shows how to kick off a client connected to ActiveMQ
          using <a href="http://java.sun.com/javase/technologies/core/mntr-mgmt/javamanagement/">JMX</a></p>
 
-     <p>The example will connect to ActiveMQ. Using JMX, we will list the remote addresses connected to the 
+     <p>The example will connect to ActiveMQ. Using JMX, we will list the remote addresses connected to the
          server and close the corresponding connections. The client will be kicked off from ActiveMQ receiving
          an exception that its JMS connection was interrupted.</p>
 
@@ -45,10 +45,10 @@ under the License.
              -Dcom.sun.management.jmxremote.authenticate=false</code>
         </pre>
         <p>These properties are explained in the Java 5 <a href="http://java.sun.com/j2se/1.5.0/docs/guide/management/agent.html#remote">Management guide</a>
-            (please note that for this example, we will disable user authentication for simplicity).</p>        
-        <p>With these properties, ActiveMQ server will be manageable remotely using standard JMX URL on port <code>3000</code>.</p> 
+            (please note that for this example, we will disable user authentication for simplicity).</p>
+        <p>With these properties, ActiveMQ server will be manageable remotely using standard JMX URL on port <code>3000</code>.</p>
      </p>
-         
+
      <h2>Example step-by-step</h2>
      <p><em>To run the example, simply type <code>mvn verify -Pexample</code> from this directory</em></p>
      <ol>
@@ -66,7 +66,7 @@ under the License.
         <pre class="prettyprint">
             <code>connection = cf.createConnection();</code>
         </pre>
-        
+
         <li>We set a <code>ExceptionListener</code> on the connection to be notified after a problem occurred</li>
         <pre class="prettyprint">
             <code>final AtomicReference&lt;JMSException&gt; exception = new AtomicReference&lt;JMSException&gt;();
@@ -108,7 +108,7 @@ under the License.
         </pre>
 
         <p>It will display a single address corresponding to the connection opened at step 3.</p>
-            
+
         <li>We close the connections corresponding to this remote address</li>
         <pre class="prettyprint">
               <code>serverControl.closeConnectionsForAddress(remoteAddresses[0]);</code>
@@ -121,15 +121,15 @@ under the License.
             org.apache.activemq.artemis.jms.example.SpawnedJMSServer out:11:22:33,035 WARN  @RMI TCP Connection(3)-192.168.0.10 [ServerSessionImpl] Cleared up resources for session 4646da35-2fe8-11de-9ce9-752ccc2b26e4
             </code>
         </pre>
-        
+
         <li>We display the exception received by the connection's ExceptionListener</li>
         <pre class="prettyprint">
             <code>exception.get().printStackTrace();</code>
         </pre>
-        
-        <p>When the connection was closed on the server-side by the call to <code>serverControl.closeConnectionsForAddress()</code>, 
+
+        <p>When the connection was closed on the server-side by the call to <code>serverControl.closeConnectionsForAddress()</code>,
         the client's connection was disconnected and its exception listener was notified.</p>
-        
+
         <li>And finally, <b>always</b> remember to close your JMS connections and resources after use, in a <code>finally</code> block. Closing a JMS connection will automatically close all of its sessions, consumers, producer and browser objects</li>
 
         <pre class="prettyprint">
@@ -146,9 +146,9 @@ under the License.
            }</code>
         </pre>
      </ol>
-                
+
      <h2>More information</h2>
-     
+
      <ul>
         <li><a href="http://java.sun.com/j2se/1.5.0/docs/guide/management/agent.html">Java 5 Management guide</a></li>
      </ul>

@@ -68,7 +68,7 @@
             <address>jms.topic.priceUpdates</address>
             <forwarding-address>jms.queue.priceForwarding</forwarding-address>
             <filter string="office='New York'"/>
-            <transformer-class-name>org.apache.activemq.jms.example.AddForwardingTimeTransformer</transformer-class-name>
+            <transformer-class-name>org.apache.activemq.artemis.jms.example.AddForwardingTimeTransformer</transformer-class-name>
             <exclusive>true</exclusive>
          </divert>
       </diverts>

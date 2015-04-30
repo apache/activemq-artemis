@@ -10,7 +10,7 @@ Things to do before issuing a new release:
 
 * Update the README to include appropriate release notes.
 
-* Bump the version numbers in example and test poms to the next release version. e.g. 6.0.0
+* Bump the version numbers in example and test poms to the next release version. e.g. 2.0.0
 
 * Build the release locally: mvn clean install -DskipLicenseCheck=false -Prelease
 

@@ -182,7 +182,7 @@
    <build>
       <resources>
          <resource>
-            <directory>../activemq/src/main/resources</directory>
+            <directory>../artemis/src/main/resources</directory>
             <filtering>true</filtering>
          </resource>
       </resources>

@@ -28,13 +28,13 @@ under the License.
      <h1>JMS Interceptor Example</h1>
 
      <p>This example shows you how to implement and configure a simple incoming, server-side interceptor with ActiveMQ.</p>
-     
+
      <p>ActiveMQ allows an application to use an interceptor to hook into the messaging system. All that needs to do is to implement the
      Interceptor interface, as defined below: </p>
      <pre class="prettyprint">
      <code>
          public interface Interceptor
-         {   
+         {
             boolean intercept(Packet packet, RemotingConnection connection) throws ActiveMQException;
          }
      </code>
@@ -51,15 +51,15 @@ under the License.
         &lt;/configuration&gt;
      </code>
      </pre>
-     
-     <p>With interceptor, you can handle various events in message processing. In this example, a simple interceptor, SimpleInterceptor, is implemented and configured. 
-     When the example is running, the interceptor will print out each events that are passed in the interceptor. And it will add a string property to the message being 
+
+     <p>With interceptor, you can handle various events in message processing. In this example, a simple interceptor, SimpleInterceptor, is implemented and configured.
+     When the example is running, the interceptor will print out each events that are passed in the interceptor. And it will add a string property to the message being
      delivered. You can see that after the message is received, there will be a new string property appears in the received message.</p>
-     
+
      <p>With our interceptor we always return <code>true</code> from the <code>intercept</code> method. If we were
      to return <code>false</code> that signifies that no more interceptors are to run or the target
      is not to be called. Return <code>false</code> to abort processing of the packet.</p>
-     
+
      <h2>Example step-by-step</h2>
      <p><i>To run the example, simply type <code>mvn verify -Pexample</code> from this directory</i></p>
 

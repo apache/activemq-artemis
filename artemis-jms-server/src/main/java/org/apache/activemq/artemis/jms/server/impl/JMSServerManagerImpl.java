@@ -779,7 +779,7 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
    }
 
    /* (non-Javadoc)
-   * @see org.apache.activemq.jms.server.JMSServerManager#removeTopicFromBindings(java.lang.String, java.lang.String)
+   * @see org.apache.activemq.artemis.jms.server.JMSServerManager#removeTopicFromBindings(java.lang.String, java.lang.String)
    */
    public boolean removeTopicFromBindingRegistry(final String name) throws Exception
    {

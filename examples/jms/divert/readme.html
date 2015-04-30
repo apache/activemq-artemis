@@ -42,7 +42,7 @@ under the License.
      <p>Diverts are a very sophisticated concept, which when combined with bridges can be used to create
      interesting and complex routings. The set of diverts can be thought of as a type of <i>routing table</i>
      for messages.</p>
-     
+
      <h2>Example step-by-step</h2>
      <p>In this example we will imagine a fictitious company which has two offices; one in London and another in New York.</p>
      <p>The company accepts orders for it's products only at it's London office, and also generates price-updates
@@ -57,9 +57,9 @@ under the License.
      <p>Here's the xml config for that divert, from <code>broker.xml</code></p>
      <pre class="prettyprint">
         <code>
-     &lt;divert name="order-divert"&gt;                 
+     &lt;divert name="order-divert"&gt;
          &lt;address&gt;jms.queue.orders&lt;/address&gt;
-         &lt;forwarding-address&gt;jms.topic.spyTopic&lt;/forwarding-address&gt;         
+         &lt;forwarding-address&gt;jms.topic.spyTopic&lt;/forwarding-address&gt;
          &lt;exclusive&gt;false&lt;/exclusive&gt;
       &lt;/divert&gt;
          </code>
@@ -74,7 +74,7 @@ under the License.
      <p>Here's the configuration for it:</p>
      <pre class="prettyprint">
         <code>
-     &lt;queues&gt;     
+     &lt;queues&gt;
         &lt;queue name="jms.queue.priceForwarding"&gt;
            &lt;address&gt;jms.queue.priceForwarding&lt;/address&gt;
         &lt;/queue&gt;
@@ -84,9 +84,9 @@ under the License.
      <p>Here's the configuration for the divert:</p>
      <pre class="prettyprint">
         <code>
-     &lt;divert name="prices-divert"&gt;                  
+     &lt;divert name="prices-divert"&gt;
 	     &lt;address&gt;jms.topic.priceUpdates&lt;/address&gt;
-	     &lt;forwarding-address&gt;jms.queue.priceForwarding&lt;/forwarding-address&gt;    
+	     &lt;forwarding-address&gt;jms.queue.priceForwarding&lt;/forwarding-address&gt;
 	     &lt;filter string="office='New York'"/&gt;
 	     &lt;transformer-class-name&gt;org.apache.activemq.artemis.jms.example.AddForwardingTimeTransformer&lt;/transformer-class-name&gt;
 	     &lt;exclusive&gt;true&lt;/exclusive&gt;
@@ -105,16 +105,16 @@ under the License.
 	  &lt;bridges&gt;
 	     &lt;bridge name="price-forward-bridge"&gt;
 	        &lt;queue-name&gt;jms.queue.priceForwarding&lt;/queue-name&gt;
-	        &lt;forwarding-address&gt;jms.topic.newYorkPriceUpdates&lt;/forwarding-address&gt;         
+	        &lt;forwarding-address&gt;jms.topic.newYorkPriceUpdates&lt;/forwarding-address&gt;
 	        &lt;reconnect-attempts&gt;-1&lt;/reconnect-attempts&gt;
           &lt;static-connectors>
              &lt;connector-ref>newyork-connector&lt;/connector-ref>
           &lt;/static-connectors>
 	     &lt;/bridge&gt;
       &lt;/bridges&gt;
-         </code> 
+         </code>
      </pre>
-     
+
      <p><i>To run the example, simply type <code>mvn verify -Pexample</code> from this directory</i></p>
 
      <ol>
@@ -156,7 +156,7 @@ under the License.
         <li>Look-up the topic newYorkPriceUpdates on the New York server - any price updates sent to priceUpdates on the London server will
          be diverted to the queue priceForward on the London server, and a bridge will consume from that queue and forward
          them to the address newYorkPriceUpdates on the New York server where they will be distributed to the topic subscribers on
-         the New York server.        
+         the New York server.
         </li>
         <pre class="prettyprint">
           <code>
@@ -167,7 +167,7 @@ under the License.
         <li>Perform a lookup on the Connection Factory on the London server</li>
         <pre class="prettyprint">
            <code>
-    ConnectionFactory cfLondon = (ConnectionFactory)initialContextLondon.lookup("/ConnectionFactory");    
+    ConnectionFactory cfLondon = (ConnectionFactory)initialContextLondon.lookup("/ConnectionFactory");
            </code>
         </pre>
 
@@ -184,27 +184,27 @@ under the License.
     connectionLondon = cfLondon.createConnection();
            </code>
         </pre>
-        
+
         <li>Create a JMS Connection on the New York server</li>
           <pre class="prettyprint">
            <code>
     connectionNewYork = cfNewYork.createConnection();
            </code>
-        </pre>        
+        </pre>
 
         <li>Create a JMS Session on the London server.</li>
         <pre class="prettyprint">
            <code>
-    Session sessionLondon = connectionLondon.createSession(false, Session.AUTO_ACKNOWLEDGE);           
+    Session sessionLondon = connectionLondon.createSession(false, Session.AUTO_ACKNOWLEDGE);
            </code>
         </pre>
-        
+
         <li>Create a JMS Session on the New York server.</li>
         <pre class="prettyprint">
            <code>
-    Session sessionNewYork = connectionNewYork.createSession(false, Session.AUTO_ACKNOWLEDGE);           
+    Session sessionNewYork = connectionNewYork.createSession(false, Session.AUTO_ACKNOWLEDGE);
            </code>
-        </pre>        
+        </pre>
 
         <li>Create a JMS MessageProducer orderProducer that sends to the queue orderQueue on the London server.</li>
         <pre class="prettyprint">
@@ -212,56 +212,56 @@ under the License.
     MessageProducer orderProducer = sessionLondon.createProducer(orderQueue);
            /code>
         </pre>
-        
+
         <li>Create a JMS MessageProducer priceProducer that sends to the topic priceUpdates on the London server.</li>
         <pre class="prettyprint">
            <code>
     MessageProducer priceProducer = sessionLondon.createProducer(priceUpdates);
            /code>
-        </pre>      
-        
+        </pre>
+
         <li>Create a JMS subscriber which subscribes to the spyTopic on the London server</li>
         <pre class="prettyprint">
            <code>
-    MessageConsumer spySubscriberA = sessionLondon.createConsumer(spyTopic);    
+    MessageConsumer spySubscriberA = sessionLondon.createConsumer(spyTopic);
            </code>
-        </pre> 
-        
+        </pre>
+
         <li>Create another JMS subscriber which also subscribes to the spyTopic on the London server</li>
         <pre class="prettyprint">
            <code>
     MessageConsumer spySubscriberB = sessionLondon.createConsumer(spyTopic);
            </code>
         </pre>
-        
+
         <li>Create a JMS MessageConsumer which consumes orders from the order queue on the London server</li>
         <pre class="prettyprint">
            <code>
     MessageConsumer orderConsumer = sessionLondon.createConsumer(orderQueue);
            </code>
         </pre>
-        
+
         <li>Create a JMS subscriber which subscribes to the priceUpdates topic on the London server</li>
         <pre class="prettyprint">
            <code>
     MessageConsumer priceUpdatesSubscriberLondon = sessionLondon.createConsumer(priceUpdates);
            </code>
-        </pre>   
-        
+        </pre>
+
         <li>Create a JMS subscriber which subscribes to the newYorkPriceUpdates topic on the New York server</li>
         <pre class="prettyprint">
            <code>
     MessageConsumer newYorkPriceUpdatesSubscriberA = sessionNewYork.createConsumer(newYorkPriceUpdates);
            </code>
-        </pre>   
-        
+        </pre>
+
         <li>Create another JMS subscriber which also subscribes to the newYorkPriceUpdates topic on the New York server</li>
         <pre class="prettyprint">
            <code>
     MessageConsumer newYorkPriceUpdatesSubscriberB = sessionNewYork.createConsumer(newYorkPriceUpdates);
            </code>
-        </pre> 
-        
+        </pre>
+
         <li>Start the connections</li>
         <pre class="prettyprint">
            <code>
@@ -269,15 +269,15 @@ under the License.
 
     connectionNewYork.start();
            </code>
-        </pre> 
-        
+        </pre>
+
         <li>Create an order message</li>
         <pre class="prettyprint">
            <code>
     TextMessage orderMessage = sessionLondon.createTextMessage("This is an order");
            </code>
-        </pre> 
-        
+        </pre>
+
         <li>Send the order message to the order queue on the London server</li>
         <pre class="prettyprint">
            <code>
@@ -285,8 +285,8 @@ under the License.
 
     System.out.println("Sent message: " + orderMessage.getText());
            </code>
-        </pre> 
-        
+        </pre>
+
         <li>The order message is consumed by the orderConsumer on the London server</li>
         <pre class="prettyprint">
            <code>
@@ -294,8 +294,8 @@ under the License.
 
     System.out.println("Received order: " + receivedOrder.getText());
            </code>
-        </pre> 
-        
+        </pre>
+
         <li>A copy of the order is also received by the spyTopic subscribers on the London server</li>
         <pre class="prettyprint">
            <code>
@@ -307,19 +307,19 @@ under the License.
 
     System.out.println("Snooped on order: " + spiedOrder2.getText());
            </code>
-        </pre> 
-        
+        </pre>
+
         <li>Create and send a price update message, destined for London</li>
         <pre class="prettyprint">
            <code>
     TextMessage priceUpdateMessageLondon = sessionLondon.createTextMessage("This is a price update for London");
-                 
+
     priceUpdateMessageLondon.setStringProperty("office", "London");
-         
+
     priceProducer.send(priceUpdateMessageLondon);
            </code>
-        </pre> 
-        
+        </pre>
+
         <li>The price update *should* be received by the local subscriber since we only divert messages
         where office = New York</li>
         <pre class="prettyprint">
@@ -328,8 +328,8 @@ under the License.
 
     System.out.println("Received price update locally: " + receivedUpdate.getText());
            </code>
-        </pre>  
-        
+        </pre>
+
         <li>The price update *should not* be received in New York</li>
         <pre class="prettyprint">
            <code>
@@ -339,36 +339,36 @@ under the License.
     {
        return false;
     }
-   
+
     System.out.println("Did not received price update in New York, look it's: " + priceUpdate1);
-   
+
     TextMessage priceUpdate2 = (TextMessage)newYorkPriceUpdatesSubscriberB.receive(1000);
 
     if (priceUpdate2 != null)
     {
        return false;
     }
-   
+
     System.out.println("Did not received price update in New York, look it's: " + priceUpdate2);
            </code>
-        </pre>   
-        
+        </pre>
+
         <li>Create a price update message, destined for New York</li>
         <pre class="prettyprint">
            <code>
     TextMessage priceUpdateMessageNewYork = sessionLondon.createTextMessage("This is a price update for New York");
-         
+
     priceUpdateMessageNewYork.setStringProperty("office", "New York");
            </code>
-        </pre>   
-        
+        </pre>
+
         <li>Send the price update message to the priceUpdates topic on the London server</li>
         <pre class="prettyprint">
            <code>
-   priceProducer.send(priceUpdateMessageNewYork); 
+   priceProducer.send(priceUpdateMessageNewYork);
            </code>
-        </pre>   
-        
+        </pre>
+
         <li>The price update *should not* be received by the local subscriber to the priceUpdates topic
          since it has been *exclusively* diverted to the priceForward queue, because it has a header saying
          it is destined for the New York office</li>
@@ -381,10 +381,10 @@ under the License.
       return false;
    }
 
-   System.out.println("Didn't receive local price update, look, it's: " + message); 
+   System.out.println("Didn't receive local price update, look, it's: " + message);
            </code>
-        </pre>   
-        
+        </pre>
+
         <li>The remote subscribers on server 1 *should* receive a copy of the price update since
         it has been diverted to a local priceForward queue which has a bridge consuming from it and which
         forwards it to the same address on server 1.
@@ -400,10 +400,10 @@ under the License.
    priceUpdate2 = (TextMessage)newYorkPriceUpdatesSubscriberB.receive(5000);
 
    System.out.println("Received forwarded price update on server 2: " + priceUpdate2.getText());
-   System.out.println("Time of forward: " + priceUpdate2.getLongProperty("time_of_forward")); 
+   System.out.println("Time of forward: " + priceUpdate2.getLongProperty("time_of_forward"));
            </code>
-        </pre>          
-        
+        </pre>
+
 
         <li>And finally, <b>always</b> remember to close your resources after use, in a <code>finally</code> block.</li>
 

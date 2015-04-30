@@ -46,7 +46,7 @@ with an example (this is actually from the bridge example):
        <forwarding-address>jms.queue.mincing-machine</forwarding-address>
        <filter-string="name='aardvark'"/>
        <transformer-class-name>
-          org.apache.activemq.jms.example.HatColourChangeTransformer
+          org.apache.activemq.artemis.jms.example.HatColourChangeTransformer
        </transformer-class-name>
        <retry-interval>1000</retry-interval>
        <ha>true</ha>

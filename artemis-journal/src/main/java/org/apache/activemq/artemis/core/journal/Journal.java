@@ -28,7 +28,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQComponent;
  * <p>
  * Notice also that even on the callback methods it's possible to pass the sync mode. That will only
  * make sense on the NIO operations.
- * @see org.apache.activemq.utils.IDGenerator
+ * @see org.apache.activemq.artemis.utils.IDGenerator
  */
 public interface Journal extends ActiveMQComponent
 {

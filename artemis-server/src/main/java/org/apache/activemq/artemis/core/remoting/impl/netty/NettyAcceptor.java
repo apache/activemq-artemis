@@ -546,19 +546,26 @@ public class NettyAcceptor implements Acceptor
 
 
       // serverChannelGroup has been unbound in pause()
-      serverChannelGroup.close().awaitUninterruptibly();
-      ChannelGroupFuture future = channelGroup.close().awaitUninterruptibly();
-
-      if (!future.isSuccess())
+      if (serverChannelGroup != null)
       {
-         ActiveMQServerLogger.LOGGER.nettyChannelGroupError();
-         Iterator<Channel> iterator = future.group().iterator();
-         while (iterator.hasNext())
+         serverChannelGroup.close().awaitUninterruptibly();
+      }
+
+      if (channelGroup != null)
+      {
+         ChannelGroupFuture future = channelGroup.close().awaitUninterruptibly();
+
+         if (!future.isSuccess())
          {
-            Channel channel = iterator.next();
-            if (channel.isActive())
+            ActiveMQServerLogger.LOGGER.nettyChannelGroupError();
+            Iterator<Channel> iterator = future.group().iterator();
+            while (iterator.hasNext())
             {
-               ActiveMQServerLogger.LOGGER.nettyChannelStillOpen(channel, channel.remoteAddress());
+               Channel channel = iterator.next();
+               if (channel.isActive())
+               {
+                  ActiveMQServerLogger.LOGGER.nettyChannelStillOpen(channel, channel.remoteAddress());
+               }
             }
          }
       }
@@ -617,17 +624,20 @@ public class NettyAcceptor implements Acceptor
       }
 
       // We *pause* the acceptor so no new connections are made
-      ChannelGroupFuture future = serverChannelGroup.close().awaitUninterruptibly();
-      if (!future.isSuccess())
+      if (serverChannelGroup != null)
       {
-         ActiveMQServerLogger.LOGGER.nettyChannelGroupBindError();
-         Iterator<Channel> iterator = future.group().iterator();
-         while (iterator.hasNext())
+         ChannelGroupFuture future = serverChannelGroup.close().awaitUninterruptibly();
+         if (!future.isSuccess())
          {
-            Channel channel = iterator.next();
-            if (channel.isActive())
+            ActiveMQServerLogger.LOGGER.nettyChannelGroupBindError();
+            Iterator<Channel> iterator = future.group().iterator();
+            while (iterator.hasNext())
             {
-               ActiveMQServerLogger.LOGGER.nettyChannelStillBound(channel, channel.remoteAddress());
+               Channel channel = iterator.next();
+               if (channel.isActive())
+               {
+                  ActiveMQServerLogger.LOGGER.nettyChannelStillBound(channel, channel.remoteAddress());
+               }
             }
          }
       }

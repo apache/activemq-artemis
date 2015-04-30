@@ -133,7 +133,7 @@ public class SoftValueMapTest extends UnitTestCase
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq.utils.SoftValueHashMap.ValueCache#isLive()
+       * @see org.apache.activemq.artemis.utils.SoftValueHashMap.ValueCache#isLive()
        */
       public boolean isLive()
       {

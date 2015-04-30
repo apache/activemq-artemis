@@ -22,14 +22,14 @@ under the License.
 
   <Match>
     <!-- Having str restored to null is fine for our purposes -->
-    <Class name="org.apache.activemq.api.core.SimpleString"/>
+    <Class name="org.apache.activemq.artemis.api.core.SimpleString"/>
     <Field name="str"/>
     <Bug pattern="SE_TRANSIENT_FIELD_NOT_RESTORED"/>
   </Match>
 
   <Match>
     <!-- The whole point of SimpleString is to expose this data without any performance penalty -->
-    <Class name="org.apache.activemq.api.core.SimpleString"/>
+    <Class name="org.apache.activemq.artemis.api.core.SimpleString"/>
     <method name="getData"/>
     <Bug pattern="EI_EXPOSE_REP"/>
   </Match>
@@ -91,7 +91,7 @@ under the License.
 
          so methods are passed null arguments to trigger the exact same exceptions.
     -->
-    <Class name="org.apache.activemq.utils.TypedProperties"/>
+    <Class name="org.apache.activemq.artemis.utils.TypedProperties"/>
     <Or>
       <Method name="getFloatProperty"/>
       <Method name="getDoubleProperty"/>

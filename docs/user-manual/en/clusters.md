@@ -807,36 +807,36 @@ The out-of-the-box policies are
     A, B or D, A, B, C, D, A, B, C, D or C, D, A, B, C, D, A, B, C.
 
     Use
-    `org.apache.activemq.api.core.client.loadbalance.RoundRobinConnectionLoadBalancingPolicy`
+    `org.apache.activemq.artemis.api.core.client.loadbalance.RoundRobinConnectionLoadBalancingPolicy`
     as the `<connection-load-balancing-policy-class-name>`.
 
 -   Random. With this policy each node is chosen randomly.
 
     Use
-    `org.apache.activemq.api.core.client.loadbalance.RandomConnectionLoadBalancingPolicy`
+    `org.apache.activemq.artemis.api.core.client.loadbalance.RandomConnectionLoadBalancingPolicy`
     as the `<connection-load-balancing-policy-class-name>`.
 
 -   Random Sticky. With this policy the first node is chosen randomly
     and then re-used for subsequent connections.
 
     Use
-    `org.apache.activemq.api.core.client.loadbalance.RandomStickyConnectionLoadBalancingPolicy`
+    `org.apache.activemq.artemis.api.core.client.loadbalance.RandomStickyConnectionLoadBalancingPolicy`
     as the `<connection-load-balancing-policy-class-name>`.
 
 -   First Element. With this policy the "first" (i.e. 0th) node is
     always returned.
 
     Use
-    `org.apache.activemq.api.core.client.loadbalance.FirstElementConnectionLoadBalancingPolicy`
+    `org.apache.activemq.artemis.api.core.client.loadbalance.FirstElementConnectionLoadBalancingPolicy`
     as the `<connection-load-balancing-policy-class-name>`.
 
 You can also implement your own policy by implementing the interface
-`org.apache.activemq.api.core.client.loadbalance.ConnectionLoadBalancingPolicy`
+`org.apache.activemq.artemis.api.core.client.loadbalance.ConnectionLoadBalancingPolicy`
 
 Specifying which load balancing policy to use differs whether you are
 using JMS or the core API. If you don't specify a policy then the
 default will be used which is
-`org.apache.activemq.api.core.client.loadbalance.RoundRobinConnectionLoadBalancingPolicy`.
+`org.apache.activemq.artemis.api.core.client.loadbalance.RoundRobinConnectionLoadBalancingPolicy`.
 
 If you're using JMS and you're using JNDI on the client to look up your
 JMS connection factory instances then you can specify these parameters
@@ -844,7 +844,7 @@ in the JNDI context environment in, e.g. `jndi.properties`, to specify
 the load balancing policy directly:
 
     java.naming.factory.initial=org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory
-    connection.myConnectionFactory=tcp://localhost:61616?loadBalancingPolicyClassName=org.apache.activemq.api.core.client.loadbalance.RandomConnectionLoadBalancingPolicy
+    connection.myConnectionFactory=tcp://localhost:61616?loadBalancingPolicyClassName=org.apache.activemq.artemis.api.core.client.loadbalance.RandomConnectionLoadBalancingPolicy
 
 The above example would instantiate a JMS connection factory that uses
 the random connection load balancing policy.

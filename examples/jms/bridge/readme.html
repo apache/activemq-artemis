@@ -26,10 +26,10 @@ under the License.
   </head>
   <body onload="prettyPrint()">
      <h1>Core Bridge Example</h1>
-     
+
      <p>This example demonstrates a core bridge deployed on one server, which consumes messages from a
      local queue and forwards them to an address on a second server.</p>
-     
+
      <p>Core bridges are used to create message flows between any two ActiveMQ servers which are remotely separated.
      Core bridges are resilient and will cope with temporary connection failure allowing them to be an ideal
      choice for forwarding over unreliable connections, e.g. a WAN.</p>
@@ -45,7 +45,7 @@ under the License.
      <p>For more information on bridges, please see the ActiveMQ user manual.</p>
 
      <p>In this example we will demonstrate a simple sausage factory for aardvarks.</p>
-     <p>We have a JMS queue on server 0 named <code>sausage-factory</code>, and we have a 
+     <p>We have a JMS queue on server 0 named <code>sausage-factory</code>, and we have a
      JMS queue on server 1 named <code>mincing-machine</code></p>
      <p>We want to forward any messages that are sent to the <code>sausage-factory</code> queue on server 0, to the <code>mincing-machine</code>
      on server 1.</p>
@@ -53,7 +53,7 @@ under the License.
      to "aardvark". It is known that other things, such are Sasquatches are also sent to the <code>sausage-factory</code> and we
      want to reject those.</p>
      <p>Moreover it is known that Aardvarks normally wear blue hats, and it's important that we only make sausages using
-     Aardvarks with green hats, so on the way we are going transform the property "hat" from "green" to "blue".</p>  
+     Aardvarks with green hats, so on the way we are going transform the property "hat" from "green" to "blue".</p>
      <p>Here's a snippet from <code>broker.xml</code> showing the bridge configuration</p>
      <pre class="prettyprint">
      <code>
@@ -68,7 +68,7 @@ under the License.
           &lt;/static-connectors>
      &lt;/bridge&gt;
      </code>
-     </pre>              
+     </pre>
      <h2>Example step-by-step</h2>
      <p><i>To run the example, simply type <code>mvn verify -Pexample</code> from this directory</i></p>
 
@@ -107,14 +107,14 @@ under the License.
    ConnectionFactory cf1 = (ConnectionFactory)ic1.lookup("/ConnectionFactory");
           </code>
         </pre>
-        
+
         <li>We create a JMS Connection connection0 which is a connection to server 0</li>
         <pre class="prettyprint">
           <code>
    connection0 = cf0.createConnection();
           </code>
         </pre>
-        
+
         <li>We create a JMS Connection connection1 which is a connection to server 1</li>
         <pre class="prettyprint">
           <code>
@@ -128,7 +128,7 @@ under the License.
    Session session0 = connection0.createSession(false, Session.AUTO_ACKNOWLEDGE);
            </code>
         </pre>
-        
+
         <li>We create a JMS Session on server 1</li>
         <pre class="prettyprint">
            <code>
@@ -169,7 +169,7 @@ under the License.
          producer.send(message);
            </code>
         </pre>
-        
+
         <li>We successfully receive the aardvark message from the mincing-machine one node 1. The aardvark's
          hat is now blue since it has been transformed!</li>
         <pre class="prettyprint">
@@ -177,7 +177,7 @@ under the License.
         Message receivedMessage = consumer.receive(5000);
            </code>
         </pre>
-        
+
         <li>We create and send another message, this time representing a sasquatch with a mauve hat to the
           sausage-factory on node 0. This won't be bridged to the mincing-machine since we only want aardvarks, not sasquatches.</li>
         <pre class="prettyprint">
@@ -191,14 +191,14 @@ under the License.
          producer.send(message);
            </code>
         </pre>
-        
+
         <li>We don't receive the sasquatch message since it's not an aardvark!</li>
         <pre class="prettyprint">
            <code>
          receivedMessage = (TextMessage)consumer.receive(1000);
            </code>
         </pre>
-        
+
 
         <li>And finally (no pun intended), <b>always</b> remember to close your JMS resources after use, in a <code>finally</code> block. Closing a JMS connection will automatically close all of its sessions, consumers, producer and browser objects</li>
 

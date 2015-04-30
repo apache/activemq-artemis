@@ -164,14 +164,14 @@ under the License.
            TextMessage message = sourceSession.createTextMessage("this is a text message sent at " + System.currentTimeMillis());
            sourceProducer.send(message);
         </pre>
-        
+
         <li>We close the connection to the source server</li>
         <pre class="prettyprint">
            sourceConnection.close();
         </pre>
 
         <p>At this point, the JMS Bridge will consume the message from the source topic and
-           sends it to the target queue. 
+           sends it to the target queue.
            The client will check the bridge works by consuming a message from the target queue.</p>
 
         <li>We look up the JMS resources from the target server</li>
@@ -203,7 +203,7 @@ under the License.
            System.out.format("Message ID         : %s\n", messageReceived.getJMSMessageID());
            System.out.format("Bridged Message ID : %s\n", messageReceived.getStringProperty("AMQ_BRIDGE_MSG_ID_LIST"));
         </pre>
-        
+
         <p>Note that the message received from the target queue is <em>not the same message</em> sent to the source topic
            (their message IDs are different) but they have the <em>same content</em>.
 
@@ -230,7 +230,7 @@ under the License.
 
 
      </ol>
-     
+
      <h2>More information</h2>
 
      <ul>
