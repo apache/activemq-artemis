@@ -39,7 +39,7 @@ under the License.
 
 
       <remoting-incoming-interceptors>
-         <class-name>org.apache.activemq.jms.example.SimpleInterceptor</class-name>
+         <class-name>org.apache.activemq.artemis.jms.example.SimpleInterceptor</class-name>
       </remoting-incoming-interceptors>
 
       <!-- Acceptors -->

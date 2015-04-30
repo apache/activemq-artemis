@@ -72,7 +72,7 @@ under the License.
                            <goal>runClient</goal>
                         </goals>
                         <configuration>
-                           <clientClass>org.apache.activemq.jms.example.QueueSelectorExample</clientClass>
+                           <clientClass>org.apache.activemq.artemis.jms.example.QueueSelectorExample</clientClass>
                         </configuration>
                      </execution>
                      <execution>

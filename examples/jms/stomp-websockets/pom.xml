@@ -67,7 +67,7 @@ under the License.
                            <goal>runClient</goal>
                         </goals>
                         <configuration>
-                           <clientClass>org.apache.activemq.jms.example.StompWebSocketExample</clientClass>
+                           <clientClass>org.apache.activemq.artemis.jms.example.StompWebSocketExample</clientClass>
                            <args>
                               <param>tcp://localhost:61616</param>
                            </args>

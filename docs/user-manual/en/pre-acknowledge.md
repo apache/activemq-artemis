@@ -45,7 +45,7 @@ arrive soon, overriding the previous price.
 This can be configured in a client's JNDI context environment, e.g.
 `jndi.properties`, like this:
 
-    java.naming.factory.initial=ActiveMQInitialContextFactory
+    java.naming.factory.initial=org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory
     connection.ConnectionFactory=tcp://localhost:61616?preAcknowledge=true
 
 Alternatively, to use pre-acknowledgement mode using the JMS API, create

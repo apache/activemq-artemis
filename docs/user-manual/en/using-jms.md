@@ -68,7 +68,7 @@ Here's a simple example of the JNDI context environment for a client
 looking up a connection factory to access an *embedded* instance of
 Apache ActiveMQ Artemis:
 
-    java.naming.factory.initial=ActiveMQInitialContextFactory
+    java.naming.factory.initial=org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory
     connectionFactory.invmConnectionFactory=vm://0
 
 In this instance we have created a connection factory that is bound to
@@ -81,7 +81,7 @@ have an InVM acceptor with a unique server-ID. A client using JMS and
 JNDI can account for this by specifying a connction factory for each
 server, like so:
 
-    java.naming.factory.initial=ActiveMQInitialContextFactory
+    java.naming.factory.initial=org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory
     connectionFactory.invmConnectionFactory0=vm://0
     connectionFactory.invmConnectionFactory1=vm://1
     connectionFactory.invmConnectionFactory2=vm://2
@@ -101,7 +101,7 @@ most commonly connect across a network a remote broker. Here's a simple
 example of a client configuring a connection factory to connect to a
 remote broker running on myhost:5445:
 
-    java.naming.factory.initial=ActiveMQInitialContextFactory
+    java.naming.factory.initial=org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory
     connectionFactory.ConnectionFactory=tcp://myhost:5445
 
 In the example above the client is using the `tcp` scheme for the
@@ -180,7 +180,7 @@ are supported just like with `udp`.
 The default type for the default connection factory is of type `javax.jms.ConnectionFactory`.
 This can be changed by setting the type like so
 
-    java.naming.factory.initial=ActiveMQInitialContextFactory
+    java.naming.factory.initial=org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory
     java.naming.provider.url=tcp://localhost:5445?type=CF
 
 In this example it is still set to the default, below shows a list of types that can be set.
@@ -211,7 +211,7 @@ like so:
 And if the client wanted to bind this queue to "queues/OrderQueue" then
 the JNDI properties would be configured like so:
 
-    java.naming.factory.initial=ActiveMQInitialContextFactory
+    java.naming.factory.initial=org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory
     java.naming.provider.url=tcp://myhost:5445
     queue.queues/OrderQueue=OrderQueue
 

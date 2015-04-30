@@ -71,7 +71,7 @@ under the License.
                            <goal>runClient</goal>
                         </goals>
                         <configuration>
-                           <clientClass>org.apache.activemq.jms.example.TopicExample</clientClass>
+                           <clientClass>org.apache.activemq.artemis.jms.example.TopicExample</clientClass>
                            <args>
                               <param>tcp://localhost:61616</param>
                            </args>

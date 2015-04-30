@@ -97,7 +97,7 @@ under the License.
                            <goal>runClient</goal>
                         </goals>
                         <configuration>
-                           <clientClass>org.apache.activemq.jms.example.ReplicatedFailbackStaticExample</clientClass>
+                           <clientClass>org.apache.activemq.artemis.jms.example.ReplicatedFailbackStaticExample</clientClass>
                            <systemProperties>
                               <property>
                                  <name>exampleConfigDir</name>

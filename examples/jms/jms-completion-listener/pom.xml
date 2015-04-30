@@ -72,7 +72,7 @@ under the License.
                            <goal>runClient</goal>
                         </goals>
                         <configuration>
-                           <clientClass>org.apache.activemq.jms.example.JMSCompletionListenerExample</clientClass>
+                           <clientClass>org.apache.activemq.artemis.jms.example.JMSCompletionListenerExample</clientClass>
                         </configuration>
                      </execution>
                      <execution>

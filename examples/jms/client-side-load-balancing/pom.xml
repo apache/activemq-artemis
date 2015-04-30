@@ -109,7 +109,7 @@ under the License.
                            <goal>runClient</goal>
                         </goals>
                         <configuration>
-                           <clientClass>org.apache.activemq.jms.example.ClientSideLoadBalancingExample</clientClass>
+                           <clientClass>org.apache.activemq.artemis.jms.example.ClientSideLoadBalancingExample</clientClass>
                            <systemProperties>
                               <property>
                                  <name>exampleConfigDir</name>

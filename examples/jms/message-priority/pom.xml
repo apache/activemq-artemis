@@ -72,7 +72,7 @@ under the License.
                            <goal>runClient</goal>
                         </goals>
                         <configuration>
-                           <clientClass>org.apache.activemq.jms.example.MessagePriorityExample</clientClass>
+                           <clientClass>org.apache.activemq.artemis.jms.example.MessagePriorityExample</clientClass>
                         </configuration>
                      </execution>
                      <execution>

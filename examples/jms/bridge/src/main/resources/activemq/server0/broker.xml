@@ -62,7 +62,7 @@ under the License.
             <queue-name>jms.queue.sausage-factory</queue-name>
             <forwarding-address>jms.queue.mincing-machine</forwarding-address>
             <filter string="name='aardvark'"/>
-            <transformer-class-name>org.apache.activemq.jms.example.HatColourChangeTransformer</transformer-class-name>
+            <transformer-class-name>org.apache.activemq.artemis.jms.example.HatColourChangeTransformer</transformer-class-name>
             <reconnect-attempts>-1</reconnect-attempts>
             <static-connectors>
                <connector-ref>remote-connector</connector-ref>

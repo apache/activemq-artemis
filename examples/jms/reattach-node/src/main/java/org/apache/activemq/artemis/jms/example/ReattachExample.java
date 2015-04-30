@@ -137,7 +137,7 @@ public class ReattachExample extends ActiveMQExample
    private void stopStartAcceptor(final boolean stop) throws Exception
    {
       Hashtable<String, Object> properties = new Hashtable<String, Object>();
-      properties.put("java.naming.factory.initial", "org.apache.activemq.jndi.ActiveMQInitialContextFactory");
+      properties.put("java.naming.factory.initial", "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
       properties.put("connectionFactory.ConnectionFactory", "tcp://localhost:61617");
       InitialContext initialContext = new InitialContext(properties);
       ConnectionFactory cf = (ConnectionFactory)initialContext.lookup("ConnectionFactory");

@@ -100,7 +100,7 @@ under the License.
                            <goal>runClient</goal>
                         </goals>
                         <configuration>
-                           <clientClass>org.apache.activemq.jms.example.JMXExample</clientClass>
+                           <clientClass>org.apache.activemq.artemis.jms.example.JMXExample</clientClass>
                         </configuration>
                      </execution>
                      <execution>

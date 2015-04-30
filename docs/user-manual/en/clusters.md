@@ -462,7 +462,7 @@ If you're using JMS and you're using JNDI on the client to look up your
 JMS connection factory instances then you can specify these parameters
 in the JNDI context environment in, e.g. `jndi.properties`:
 
-    java.naming.factory.initial=ActiveMQInitialContextFactory
+    java.naming.factory.initial=org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory
     connectionFactory.myConnectionFactory=(tcp://myhost:61616,tcp://myhost2:61616)
 
 The `connectionFactory.myConnectionFactory` contains a list of servers to use for the
@@ -843,7 +843,7 @@ JMS connection factory instances then you can specify these parameters
 in the JNDI context environment in, e.g. `jndi.properties`, to specify
 the load balancing policy directly:
 
-    java.naming.factory.initial=ActiveMQInitialContextFactory
+    java.naming.factory.initial=org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory
     connection.myConnectionFactory=tcp://localhost:61616?loadBalancingPolicyClassName=org.apache.activemq.api.core.client.loadbalance.RandomConnectionLoadBalancingPolicy
 
 The above example would instantiate a JMS connection factory that uses

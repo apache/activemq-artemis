@@ -56,7 +56,7 @@ public class SoakSender
 
          Hashtable<String, String> jndiProps = new Hashtable<String, String>();
          jndiProps.put("connectionFactory.ConnectionFactory", jndiURL);
-         jndiProps.put("java.naming.factory.initial", "org.apache.activemq.jndi.ActiveMQInitialContextFactory");
+         jndiProps.put("java.naming.factory.initial", "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
 
          final SoakSender sender = new SoakSender(jndiProps, params);
 

@@ -93,7 +93,7 @@ under the License.
                            <goal>runClient</goal>
                         </goals>
                         <configuration>
-                           <clientClass>org.apache.activemq.jms.example.ClusteredJgroupsExample</clientClass>
+                           <clientClass>org.apache.activemq.artemis.jms.example.ClusteredJgroupsExample</clientClass>
                            <args>
                               <param>tcp://localhost:61616</param>
                               <param>tcp://localhost:61617</param>

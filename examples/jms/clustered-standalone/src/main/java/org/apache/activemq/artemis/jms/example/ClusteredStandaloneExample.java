@@ -52,18 +52,18 @@ public class ClusteredStandaloneExample extends ActiveMQExample
       try
       {
          Hashtable<String, Object> properties = new Hashtable<String, Object>();
-         properties.put("java.naming.factory.initial", "org.apache.activemq.jndi.ActiveMQInitialContextFactory");
+         properties.put("java.naming.factory.initial", "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
          properties.put("connectionFactory.ConnectionFactory", args[0]);
          properties.put("topic.topic/exampleTopic", "exampleTopic");
          initialContext0 = new InitialContext(properties);
 
          properties = new Hashtable<String, Object>();
-         properties.put("java.naming.factory.initial", "org.apache.activemq.jndi.ActiveMQInitialContextFactory");
+         properties.put("java.naming.factory.initial", "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
          properties.put("connectionFactory.ConnectionFactory", args[1]);
          initialContext1 = new InitialContext(properties);
 
          properties = new Hashtable<String, Object>();
-         properties.put("java.naming.factory.initial", "org.apache.activemq.jndi.ActiveMQInitialContextFactory");
+         properties.put("java.naming.factory.initial", "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
          properties.put("connectionFactory.ConnectionFactory", args[2]);
          initialContext2 = new InitialContext(properties);
 

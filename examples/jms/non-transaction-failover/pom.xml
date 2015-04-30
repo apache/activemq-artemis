@@ -97,7 +97,7 @@ under the License.
                            <goal>runClient</goal>
                         </goals>
                         <configuration>
-                           <clientClass>org.apache.activemq.jms.example.NonTransactionFailoverExample</clientClass>
+                           <clientClass>org.apache.activemq.artemis.jms.example.NonTransactionFailoverExample</clientClass>
                            <systemProperties>
                               <property>
                                  <name>exampleConfigDir</name>
