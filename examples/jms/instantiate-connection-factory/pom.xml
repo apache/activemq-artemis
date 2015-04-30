@@ -82,7 +82,7 @@ under the License.
                            <goal>runClient</goal>
                         </goals>
                         <configuration>
-                           <clientClass>org.apache.activemq.jms.example.InstantiateConnectionFactoryExample</clientClass>
+                           <clientClass>org.apache.activemq.artemis.jms.example.InstantiateConnectionFactoryExample</clientClass>
                            <args>
                               <param>tcp://localhost:61616</param>
                            </args>

@@ -67,7 +67,7 @@ also be set in the JNDI context environment, e.g. `jndi.properties`.
 Here's a simple example using the "ConnectionFactory" connection factory
 which is available in the context by default
 
-    java.naming.factory.initial=ActiveMQInitialContextFactory
+    java.naming.factory.initial=org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory
     connectionFactory.myConnectionFactory=tcp://localhost:61616?autoGroup=true
 
 Alternatively you can set the group id via the connection factory. All
@@ -77,7 +77,7 @@ can also be set in the JNDI context environment, e.g. `jndi.properties`.
 Here's a simple example using the "ConnectionFactory" connection factory
 which is available in the context by default:
 
-    java.naming.factory.initial=ActiveMQInitialContextFactory
+    java.naming.factory.initial=org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory
     connectionFactory.myConnectionFactory=tcp://localhost:61616?roupID=Group-0
 
 ## Example

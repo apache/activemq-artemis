@@ -85,7 +85,7 @@ environment, e.g. `jndi.properties`. Here's a simple example using the
 "ConnectionFactory" connection factory which is available in the context
 by default:
 
-    java.naming.factory.initial=ActiveMQInitialContextFactory
+    java.naming.factory.initial=org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory
     connectionFactory.myConnectionFactory=tcp://localhost:61616?minLargeMessageSize=250000
 
 
@@ -120,7 +120,7 @@ e.g. `jndi.properties`. Here's a simple example using the
 "ConnectionFactory" connection factory which is available in the context
 by default:
 
-    java.naming.factory.initial=ActiveMQInitialContextFactory
+    java.naming.factory.initial=org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory
     connectionFactory.myConnectionFactory=tcp://localhost:61616?compressLargeMessages=true
 
 ## Streaming large messages

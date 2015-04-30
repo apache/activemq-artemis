@@ -95,7 +95,7 @@ under the License.
                            <goal>runClient</goal>
                         </goals>
                         <configuration>
-                           <clientClass>org.apache.activemq.jms.example.MessageCounterExample</clientClass>
+                           <clientClass>org.apache.activemq.artemis.jms.example.MessageCounterExample</clientClass>
                         </configuration>
                      </execution>
                      <execution>

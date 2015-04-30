@@ -82,7 +82,7 @@ under the License.
                            <goal>runClient</goal>
                         </goals>
                         <configuration>
-                           <clientClass>org.apache.activemq.jms.example.BridgeExample</clientClass>
+                           <clientClass>org.apache.activemq.artemis.jms.example.BridgeExample</clientClass>
                            <args>
                               <param>tcp://localhost:61616</param>
                               <param>tcp://localhost:61617</param>

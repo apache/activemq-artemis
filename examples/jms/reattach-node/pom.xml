@@ -67,7 +67,7 @@ under the License.
                            <goal>runClient</goal>
                         </goals>
                         <configuration>
-                           <clientClass>org.apache.activemq.jms.example.ReattachExample</clientClass>
+                           <clientClass>org.apache.activemq.artemis.jms.example.ReattachExample</clientClass>
                            <systemProperties>
                               <property>
                                  <name>exampleConfigDir</name>

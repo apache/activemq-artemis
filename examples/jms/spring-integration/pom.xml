@@ -67,7 +67,7 @@ under the License.
                            <goal>runClient</goal>
                         </goals>
                         <configuration>
-                           <clientClass>org.apache.activemq.jms.example.SpringExample</clientClass>
+                           <clientClass>org.apache.activemq.artemis.jms.example.SpringExample</clientClass>
                         </configuration>
                      </execution>
                   </executions>

@@ -227,7 +227,7 @@ it is using JNDI.
 Stomp requires the file `jndi.properties` to be available on the
 classpath. This should look something like:
 
-    java.naming.factory.initial=ActiveMQInitialContextFactory
+    java.naming.factory.initial=org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory
 
 Configure any required JNDI resources in this file according to the
 documentation.

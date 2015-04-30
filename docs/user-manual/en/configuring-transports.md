@@ -77,7 +77,7 @@ couple of reasons for this:
     `java.naming.provider.url` to construct the transport. Here's a
     simple example:
 
-        java.naming.factory.initial=ActiveMQInitialContextFactory
+        java.naming.factory.initial=org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory
         connectionFactory.MyConnectionFactory=tcp://myhost:61616
 
 ## Configuring the transport directly from the client side.

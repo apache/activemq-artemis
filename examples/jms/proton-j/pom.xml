@@ -73,7 +73,7 @@ under the License.
                            <goal>runClient</goal>
                         </goals>
                         <configuration>
-                           <clientClass>org.apache.activemq.jms.example.ProtonJExample</clientClass>
+                           <clientClass>org.apache.activemq.artemis.jms.example.ProtonJExample</clientClass>
                            <args>
                               <param>tcp://localhost:61616</param>
                            </args>

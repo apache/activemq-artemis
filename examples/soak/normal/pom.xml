@@ -108,7 +108,7 @@ under the License.
                            <goal>runClient</goal>
                         </goals>
                         <configuration>
-                           <clientClass>org.apache.activemq.jms.soak.example.SoakReceiver</clientClass>
+                           <clientClass>org.apache.activemq.artemis.jms.soak.example.SoakReceiver</clientClass>
                            <args>
                               <param>tcp://localhost:61616</param>
                            </args>
@@ -120,7 +120,7 @@ under the License.
                            <goal>runClient</goal>
                         </goals>
                         <configuration>
-                           <clientClass>org.apache.activemq.jms.soak.example.SoakSender</clientClass>
+                           <clientClass>org.apache.activemq.artemis.jms.soak.example.SoakSender</clientClass>
                            <args>
                               <param>tcp://localhost:61616</param>
                            </args>
@@ -154,7 +154,7 @@ under the License.
                            <goal>runClient</goal>
                         </goals>
                         <configuration>
-                           <clientClass>org.apache.activemq.jms.soak.example.SoakReceiver</clientClass>
+                           <clientClass>org.apache.activemq.artemis.jms.soak.example.SoakReceiver</clientClass>
                            <args>
                               <param>tcp://localhost:61616</param>
                            </args>
@@ -166,7 +166,7 @@ under the License.
                            <goal>runClient</goal>
                         </goals>
                         <configuration>
-                           <clientClass>org.apache.activemq.jms.soak.example.SoakSender</clientClass>
+                           <clientClass>org.apache.activemq.artemis.jms.soak.example.SoakSender</clientClass>
                            <args>
                               <param>tcp://localhost:61616</param>
                            </args>

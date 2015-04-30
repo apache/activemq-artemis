@@ -72,7 +72,7 @@ under the License.
                            <goal>runClient</goal>
                         </goals>
                         <configuration>
-                           <clientClass>org.apache.activemq.jms.example.NoConsumerBufferingExample</clientClass>
+                           <clientClass>org.apache.activemq.artemis.jms.example.NoConsumerBufferingExample</clientClass>
                         </configuration>
                      </execution>
                      <execution>

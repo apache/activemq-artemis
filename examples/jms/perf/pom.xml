@@ -146,7 +146,7 @@ under the License.
                      </execution>
                   </executions>
                   <configuration>
-                     <mainClass>org.apache.activemq.jms.example.PerfListener</mainClass>
+                     <mainClass>org.apache.activemq.artemis.jms.example.PerfListener</mainClass>
                   </configuration>
                </plugin>
             </plugins>
@@ -169,7 +169,7 @@ under the License.
                      </execution>
                   </executions>
                   <configuration>
-                     <mainClass>org.apache.activemq.jms.example.PerfSender</mainClass>
+                     <mainClass>org.apache.activemq.artemis.jms.example.PerfSender</mainClass>
                   </configuration>
                </plugin>
             </plugins>
