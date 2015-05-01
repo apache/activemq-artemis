@@ -505,7 +505,7 @@
             <module>integration/activemq-spring-integration</module>
             <module>integration/activemq-aerogear-integration</module>
             <module>integration/activemq-vertx-integration</module>
-            <module>distribution</module>
+            <module>artemis-distribution</module>
             <module>tests</module>
          </modules>
       </profile>
@@ -534,7 +534,7 @@
             <module>integration/activemq-vertx-integration</module>
             <module>examples</module>
             <module>tests</module>
-            <module>distribution</module>
+            <module>artemis-distribution</module>
          </modules>
       </profile>
       <profile>
