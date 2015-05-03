@@ -64,6 +64,7 @@
          ${project.version}(${activemq.version.incrementingVersion})
       </ActiveMQ-Version>
       <resteasy.version>3.0.9.Final</resteasy.version>
+      <proton.version>0.9.1</proton.version>
       <skipUnitTests>true</skipUnitTests>
       <skipJmsTests>true</skipJmsTests>
       <skipExtraTests>true</skipExtraTests>
@@ -334,13 +335,13 @@
          <dependency>
             <groupId>org.apache.qpid</groupId>
             <artifactId>proton-j</artifactId>
-            <version>0.9</version>
+            <version>${proton.version}</version>
             <!-- License: Apache 2.0 -->
          </dependency>
          <dependency>
             <groupId>org.apache.qpid</groupId>
             <artifactId>proton-jms</artifactId>
-            <version>0.8</version>
+            <version>${proton.version}</version>
             <!-- License: Apache 2.0 -->
          </dependency>
          <dependency>
