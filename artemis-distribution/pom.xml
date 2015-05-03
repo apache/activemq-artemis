@@ -21,7 +21,7 @@
 
    <parent>
       <groupId>org.apache.activemq</groupId>
-      <artifactId>artemis-distribution</artifactId>
+      <artifactId>artemis-pom</artifactId>
       <version>1.0.0-SNAPSHOT</version>
    </parent>
 
@@ -32,7 +32,7 @@
    <properties>
       <schemaLocation>${project.build.directory}/${project.artifactId}-${project.version}-bin/${project.artifactId}-${project.version}/schema</schemaLocation>
       <configLocation>src/main/resources/config</configLocation>
-      <activemq.basedir>${project.basedir}/../..</activemq.basedir>
+      <activemq.basedir>${project.basedir}/..</activemq.basedir>
    </properties>
 
    <dependencies>
