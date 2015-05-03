@@ -16,11 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.persistence;
 
-import org.apache.activemq.artemis.tools.ExportJournal;
-import org.apache.activemq.artemis.tools.ImportJournal;
-import org.junit.Ignore;
-import org.junit.Test;
-
 import java.io.StringReader;
 
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
@@ -29,8 +24,12 @@ import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.cli.commands.tools.DecodeJournal;
+import org.apache.activemq.artemis.cli.commands.tools.EncodeJournal;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.junit.Ignore;
+import org.junit.Test;
 
 public class ExportFormatTest extends ServiceTestBase
 {
@@ -113,19 +112,19 @@ public class ExportFormatTest extends ServiceTestBase
       System.out.println();
       System.out.println("copy & paste the following as bindingsFile:");
 
-      ExportJournal.exportJournal(getBindingsDir(), "activemq-bindings", "bindings", 2, 1048576, System.out);
+      EncodeJournal.exportJournal(getBindingsDir(), "activemq-bindings", "bindings", 2, 1048576, System.out);
 
       System.out.println();
       System.out.println("copy & paste the following as dataFile:");
 
-      ExportJournal.exportJournal(getJournalDir(), "activemq-data", "amq", 2, 102400, System.out);
+      EncodeJournal.exportJournal(getJournalDir(), "activemq-data", "amq", 2, 102400, System.out);
    }
 
    @Test
    public void testConsumeFromFormat() throws Exception
    {
-      ImportJournal.importJournal(getJournalDir(), "activemq-data", "amq", 2, 102400, new StringReader(journalFile));
-      ImportJournal.importJournal(getBindingsDir(),
+      DecodeJournal.importJournal(getJournalDir(), "activemq-data", "amq", 2, 102400, new StringReader(journalFile));
+      DecodeJournal.importJournal(getBindingsDir(),
                                   "activemq-bindings",
                                   "bindings",
                                   2,

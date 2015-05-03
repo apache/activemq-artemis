@@ -16,23 +16,22 @@
  */
 package org.apache.activemq.artemis.tests.stress.journal;
 
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.cli.commands.tools.XmlDataExporter;
+import org.apache.activemq.artemis.cli.commands.tools.XmlDataImporter;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.util.ServiceTestBase;
 import org.junit.Test;
-
-import org.apache.activemq.artemis.tools.XmlDataExporter;
-import org.apache.activemq.artemis.tools.XmlDataImporter;
-import org.apache.activemq.artemis.core.server.ActiveMQServer;
-
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 
 public class XmlImportExportStressTest extends ServiceTestBase
 {
@@ -85,8 +84,8 @@ public class XmlImportExportStressTest extends ServiceTestBase
       System.out.println("Writing XML...");
       FileOutputStream xmlOutputStream = new FileOutputStream(FILE_NAME);
       BufferedOutputStream bufferOut = new BufferedOutputStream(xmlOutputStream);
-      XmlDataExporter xmlDataExporter = new XmlDataExporter(bufferOut, getBindingsDir(), getJournalDir(), getPageDir(), getLargeMessagesDir());
-      xmlDataExporter.writeXMLData();
+      XmlDataExporter xmlDataExporter = new XmlDataExporter();
+      xmlDataExporter.process(bufferOut, getBindingsDir(), getJournalDir(), getPageDir(), getLargeMessagesDir());
       bufferOut.close();
       System.out.println("Done writing XML.");
 
@@ -102,8 +101,8 @@ public class XmlImportExportStressTest extends ServiceTestBase
 
       System.out.println("Reading XML...");
       FileInputStream xmlInputStream = new FileInputStream(FILE_NAME);
-      XmlDataImporter xmlDataImporter = new XmlDataImporter(xmlInputStream, session, managementSession);
-      xmlDataImporter.processXml();
+      XmlDataImporter xmlDataImporter = new XmlDataImporter();
+      xmlDataImporter.process(xmlInputStream, session, managementSession);
       xmlInputStream.close();
       System.out.println("Done reading XML.");
 

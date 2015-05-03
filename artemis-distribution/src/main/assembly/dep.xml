@@ -47,7 +47,7 @@
          <includes>
 
             <!-- modules -->
-            <include>org.apache.activemq:artemis-bootstrap</include>
+            <include>org.apache.activemq:artemis-cli</include>
             <include>org.apache.activemq:artemis-commons</include>
             <include>org.apache.activemq:artemis-core-client</include>
             <include>org.apache.activemq:artemis-dto</include>
@@ -63,7 +63,6 @@
             <include>org.apache.activemq:artemis-selector</include>
             <include>org.apache.activemq:artemis-server</include>
             <include>org.apache.activemq:artemis-service-extensions</include>
-            <include>org.apache.activemq:artemis-tools</include>
             <include>org.apache.activemq:artemis-web</include>
             <include>org.apache.activemq.rest:artemis-rest</include>
             <!-- dependencies -->

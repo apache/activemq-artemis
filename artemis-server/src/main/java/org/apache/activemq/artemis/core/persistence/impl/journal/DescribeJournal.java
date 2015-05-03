@@ -85,6 +85,26 @@ import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalR
  */
 public final class DescribeJournal
 {
+
+   private final List<RecordInfo> records;
+   private final List<PreparedTransactionInfo> preparedTransactions;
+
+   public DescribeJournal(List<RecordInfo> records, List<PreparedTransactionInfo> preparedTransactions)
+   {
+      this.records = records;
+      this.preparedTransactions = preparedTransactions;
+   }
+
+   public List<RecordInfo> getRecords()
+   {
+      return records;
+   }
+
+   public List<PreparedTransactionInfo> getPreparedTransactions()
+   {
+      return preparedTransactions;
+   }
+
    public static void describeBindingsJournal(final String bindingsDir) throws Exception
    {
 
@@ -94,7 +114,7 @@ public final class DescribeJournal
       describeJournal(bindingsFF, bindings, bindingsDir);
    }
 
-   public static void describeMessagesJournal(final String messagesDir) throws Exception
+   public static DescribeJournal describeMessagesJournal(final String messagesDir) throws Exception
    {
 
       SequentialFileFactory messagesFF = new NIOSequentialFileFactory(messagesDir, null);
@@ -111,7 +131,7 @@ public final class DescribeJournal
                                                     "amq",
                                                     1);
 
-      describeJournal(messagesFF, messagesJournal, messagesDir);
+      return describeJournal(messagesFF, messagesJournal, messagesDir);
    }
 
    /**
@@ -119,7 +139,7 @@ public final class DescribeJournal
     * @param journal
     * @throws Exception
     */
-   private static void describeJournal(SequentialFileFactory fileFactory, JournalImpl journal, final String path) throws Exception
+   private static DescribeJournal describeJournal(SequentialFileFactory fileFactory, JournalImpl journal, final String path) throws Exception
    {
       List<JournalFile> files = journal.orderFiles();
 
@@ -417,6 +437,8 @@ public final class DescribeJournal
       }
 
       journal.stop();
+
+      return new DescribeJournal(records, preparedTransactions);
    }
 
    protected static void printCounters(final PrintStream out, final Map<Long, PageSubscriptionCounterImpl> counters)

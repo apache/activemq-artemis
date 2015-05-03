@@ -15,12 +15,6 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.unit.core.journal.impl;
-import org.apache.activemq.artemis.tests.util.UnitTestCase;
-import org.apache.activemq.artemis.tools.ExportJournal;
-import org.apache.activemq.artemis.tools.ImportJournal;
-import org.junit.Before;
-import org.junit.After;
-
 import java.io.File;
 import java.io.FilenameFilter;
 import java.util.ArrayList;
@@ -31,15 +25,19 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 
-import org.junit.Assert;
-
+import org.apache.activemq.artemis.cli.commands.tools.DecodeJournal;
+import org.apache.activemq.artemis.cli.commands.tools.EncodeJournal;
 import org.apache.activemq.artemis.core.journal.EncodingSupport;
 import org.apache.activemq.artemis.core.journal.PreparedTransactionInfo;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
 import org.apache.activemq.artemis.core.journal.SequentialFileFactory;
 import org.apache.activemq.artemis.core.journal.TestableJournal;
 import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
+import org.apache.activemq.artemis.tests.util.UnitTestCase;
 import org.apache.activemq.artemis.utils.ReusableLatch;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
 
 public abstract class JournalImplTestBase extends UnitTestCase
 {
@@ -226,7 +224,7 @@ public abstract class JournalImplTestBase extends UnitTestCase
    {
       System.out.println("Exporting to " + getTestDir() + "/output.log");
 
-      ExportJournal.exportJournal(getTestDir(),
+      EncodeJournal.exportJournal(getTestDir(),
                                   this.filePrefix,
                                   this.fileExtension,
                                   this.minFiles,
@@ -253,7 +251,7 @@ public abstract class JournalImplTestBase extends UnitTestCase
          file.delete();
       }
 
-      ImportJournal.importJournal(getTestDir(),
+      DecodeJournal.importJournal(getTestDir(),
                                   filePrefix,
                                   fileExtension,
                                   minFiles,

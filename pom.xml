@@ -489,7 +489,7 @@
             <module>artemis-dto</module>
             <module>artemis-web</module>
             <module>artemis-website</module>
-            <module>artemis-bootstrap</module>
+            <module>artemis-cli</module>
             <module>artemis-commons</module>
             <module>artemis-selector</module>
             <module>artemis-core-client</module>
@@ -500,7 +500,6 @@
             <module>artemis-journal</module>
             <module>artemis-ra</module>
             <module>artemis-rest</module>
-            <module>artemis-tools</module>
             <module>artemis-service-extensions</module>
             <module>artemis-maven-plugin</module>
             <module>integration/activemq-spring-integration</module>
@@ -516,7 +515,7 @@
             <module>artemis-dto</module>
             <module>artemis-web</module>
             <module>artemis-website</module>
-            <module>artemis-bootstrap</module>
+            <module>artemis-cli</module>
             <module>artemis-commons</module>
             <module>artemis-selector</module>
             <module>artemis-core-client</module>
@@ -527,7 +526,6 @@
             <module>artemis-journal</module>
             <module>artemis-ra</module>
             <module>artemis-rest</module>
-            <module>artemis-tools</module>
             <module>artemis-service-extensions</module>
             <module>artemis-maven-plugin</module>
             <module>integration/activemq-spring-integration</module>
@@ -546,7 +544,7 @@
             <module>artemis-dto</module>
             <module>artemis-web</module>
             <module>artemis-website</module>
-            <module>artemis-bootstrap</module>
+            <module>artemis-cli</module>
             <module>artemis-commons</module>
             <module>artemis-selector</module>
             <module>artemis-core-client</module>
@@ -557,7 +555,6 @@
             <module>artemis-journal</module>
             <module>artemis-ra</module>
             <module>artemis-rest</module>
-            <module>artemis-tools</module>
             <module>artemis-service-extensions</module>
             <module>artemis-maven-plugin</module>
             <module>integration/activemq-spring-integration</module>
@@ -586,7 +583,7 @@
          <modules>
             <module>artemis-dto</module>
             <module>artemis-web</module>
-            <module>artemis-bootstrap</module>
+            <module>artemis-cli</module>
             <module>artemis-commons</module>
             <module>artemis-selector</module>
             <module>artemis-core-client</module>
@@ -597,7 +594,6 @@
             <module>artemis-journal</module>
             <module>artemis-ra</module>
             <module>artemis-rest</module>
-            <module>artemis-tools</module>
             <module>artemis-service-extensions</module>
             <module>artemis-maven-plugin</module>
             <module>integration/activemq-spring-integration</module>
@@ -620,7 +616,7 @@
          <modules>
             <module>artemis-dto</module>
             <module>artemis-web</module>
-            <module>artemis-bootstrap</module>
+            <module>artemis-cli</module>
             <module>artemis-commons</module>
             <module>artemis-selector</module>
             <module>artemis-core-client</module>
@@ -631,7 +627,6 @@
             <module>artemis-journal</module>
             <module>artemis-ra</module>
             <module>artemis-rest</module>
-            <module>artemis-tools</module>
             <module>artemis-service-extensions</module>
             <module>artemis-maven-plugin</module>
             <module>integration/activemq-spring-integration</module>
