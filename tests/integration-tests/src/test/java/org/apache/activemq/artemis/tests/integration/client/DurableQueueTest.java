@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.integration.client;
+import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.junit.Before;
 
 import org.junit.Test;
@@ -101,6 +102,26 @@ public class DurableQueueTest extends ServiceTestBase
 
       consumer.close();
       session.deleteQueue(queue);
+   }
+
+   @Test
+   public void testUserEncoding() throws Exception
+   {
+      final String userName = "myUser";
+      session.close();
+      session = sf.createSession(userName, "myPass", false, true, true, false, 0);
+
+      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomSimpleString();
+
+      session.createQueue(address, queue, true);
+
+      session.close();
+
+      server.stop();
+      server.start();
+
+      assertEquals(1, ((ActiveMQServerImpl) server).getQueueCountForUser(userName));
    }
 
    @Test

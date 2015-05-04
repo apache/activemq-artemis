@@ -73,6 +73,7 @@ public class QueueConcurrentTest extends UnitTestCase
                                              new SimpleString("queue1"),
                                              null,
                                              null,
+                                             null,
                                              false,
                                              false,
                                              false);

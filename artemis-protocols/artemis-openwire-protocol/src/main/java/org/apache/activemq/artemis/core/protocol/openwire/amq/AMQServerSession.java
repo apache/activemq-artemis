@@ -343,7 +343,7 @@ public class AMQServerSession extends ServerSessionImpl
          return;
       }
 
-      server.createQueue(address, name, filterString, durable, temporary);
+      server.createQueue(address, name, filterString, SimpleString.toSimpleString(getUsername()), durable, temporary);
 
       if (temporary)
       {

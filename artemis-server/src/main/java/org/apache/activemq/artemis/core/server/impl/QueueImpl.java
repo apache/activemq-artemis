@@ -119,6 +119,8 @@ public class QueueImpl implements Queue
 
    private final SimpleString name;
 
+   private final SimpleString user;
+
    private volatile Filter filter;
 
    private final boolean durable;
@@ -309,6 +311,7 @@ public class QueueImpl implements Queue
                     final SimpleString address,
                     final SimpleString name,
                     final Filter filter,
+                    final SimpleString user,
                     final boolean durable,
                     final boolean temporary,
                     final boolean autoCreated,
@@ -323,6 +326,7 @@ public class QueueImpl implements Queue
            name,
            filter,
            null,
+           user,
            durable,
            temporary,
            autoCreated,
@@ -338,6 +342,7 @@ public class QueueImpl implements Queue
                     final SimpleString name,
                     final Filter filter,
                     final PageSubscription pageSubscription,
+                    final SimpleString user,
                     final boolean durable,
                     final boolean temporary,
                     final boolean autoCreated,
@@ -395,6 +400,7 @@ public class QueueImpl implements Queue
 
       this.executor = executor;
 
+      this.user = user;
    }
 
    // Bindable implementation -------------------------------------------------------------------------------------
@@ -407,6 +413,11 @@ public class QueueImpl implements Queue
    public SimpleString getUniqueName()
    {
       return name;
+   }
+
+   public SimpleString getUser()
+   {
+      return user;
    }
 
    public boolean isExclusive()

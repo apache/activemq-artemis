@@ -353,4 +353,10 @@ public interface ActiveMQMessageBundle
 
    @Message(id = 119109, value = "unsupported HA Policy Configuration {0}", format = Message.Format.MESSAGE_FORMAT)
    ActiveMQIllegalStateException unsupportedHAPolicyConfiguration(Object o);
+
+   @Message(id = 119110, value = "Too many sessions for user ''{0}''. Sessions allowed: {1}.", format = Message.Format.MESSAGE_FORMAT)
+   ActiveMQSessionCreationException sessionLimitReached(String username, int limit);
+
+   @Message(id = 119111, value = "Too many queues created by user ''{0}''. Queues allowed: {1}.", format = Message.Format.MESSAGE_FORMAT)
+   ActiveMQSessionCreationException queueLimitReached(String username, int limit);
 }

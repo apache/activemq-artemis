@@ -262,7 +262,7 @@ public final class StompConnection implements RemotingConnection
          SimpleString queueName = new SimpleString(queue);
          try
          {
-            manager.getServer().createQueue(queueName, queueName, null, true, false, true);
+            manager.getServer().createQueue(queueName, queueName, SimpleString.toSimpleString(this.getLogin()), null, true, false, true);
          }
          catch (Exception e)
          {

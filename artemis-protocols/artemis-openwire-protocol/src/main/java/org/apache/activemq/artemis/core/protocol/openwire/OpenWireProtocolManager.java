@@ -664,8 +664,10 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>
             AMQServerSession fakeSession = new AMQServerSession(user, pass);
             CheckType checkType = dest.isTemporary() ? CheckType.CREATE_NON_DURABLE_QUEUE : CheckType.CREATE_DURABLE_QUEUE;
             ((ActiveMQServerImpl) server).getSecurityStore().check(qName, checkType, fakeSession);
+
+            ((ActiveMQServerImpl) server).checkQueueCreationLimit(user);
          }
-         this.server.createQueue(qName, qName, null, false, true);
+         this.server.createQueue(qName, qName, null, connInfo == null ? null : SimpleString.toSimpleString(connInfo.getUserName()), false, true);
          if (dest.isTemporary())
          {
             connection.registerTempQueue(qName);

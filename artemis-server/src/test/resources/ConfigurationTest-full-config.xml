@@ -264,6 +264,12 @@
             <auto-delete-jms-queues>false</auto-delete-jms-queues>
          </address-setting>
       </address-settings>
+      <resource-limit-settings>
+         <resource-limit-setting match="myUser">
+            <max-connections>104</max-connections>
+            <max-queues>13</max-queues>
+         </resource-limit-setting>
+      </resource-limit-settings>
       <connector-services>
          <connector-service>
             <factory-class>org.foo</factory-class>

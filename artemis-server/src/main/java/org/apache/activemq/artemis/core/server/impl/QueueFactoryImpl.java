@@ -70,6 +70,7 @@ public class QueueFactoryImpl implements QueueFactory
                             final SimpleString name,
                             final Filter filter,
                             final PageSubscription pageSubscription,
+                            final SimpleString user,
                             final boolean durable,
                             final boolean temporary,
                             final boolean autoCreated)
@@ -84,6 +85,7 @@ public class QueueFactoryImpl implements QueueFactory
                                     name,
                                     filter,
                                     pageSubscription,
+                                    user,
                                     durable,
                                     temporary,
                                     autoCreated,
@@ -100,6 +102,7 @@ public class QueueFactoryImpl implements QueueFactory
                                name,
                                filter,
                                pageSubscription,
+                               user,
                                durable,
                                temporary,
                                autoCreated,

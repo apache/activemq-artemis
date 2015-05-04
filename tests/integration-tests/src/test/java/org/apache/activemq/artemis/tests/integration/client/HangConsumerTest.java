@@ -237,6 +237,7 @@ public class HangConsumerTest extends ServiceTestBase
                                     final SimpleString address,
                                     final SimpleString name,
                                     final Filter filter,
+                                    final SimpleString user,
                                     final PageSubscription pageSubscription,
                                     final boolean durable,
                                     final boolean temporary,
@@ -252,6 +253,7 @@ public class HangConsumerTest extends ServiceTestBase
                name,
                filter,
                pageSubscription,
+               user,
                durable,
                temporary,
                autoCreated,
@@ -293,6 +295,7 @@ public class HangConsumerTest extends ServiceTestBase
                                   final SimpleString name,
                                   final Filter filter,
                                   final PageSubscription pageSubscription,
+                                  final SimpleString user,
                                   final boolean durable,
                                   final boolean temporary,
                                   final boolean autoCreated)
@@ -301,6 +304,7 @@ public class HangConsumerTest extends ServiceTestBase
                address,
                name,
                filter,
+               user,
                pageSubscription,
                durable,
                temporary,
@@ -403,7 +407,7 @@ public class HangConsumerTest extends ServiceTestBase
 
 
       // Forcing a situation where the server would unexpectedly create a duplicated queue. The server should still start normally
-      LocalQueueBinding newBinding = new LocalQueueBinding(QUEUE, new QueueImpl(queueID, QUEUE, QUEUE, null, true, false, false, null, null, null, null, null), server.getNodeID());
+      LocalQueueBinding newBinding = new LocalQueueBinding(QUEUE, new QueueImpl(queueID, QUEUE, QUEUE, null, null, true, false, false, null, null, null, null, null), server.getNodeID());
       server.getStorageManager().addQueueBinding(txID, newBinding);
       server.getStorageManager().commitBindings(txID);
 

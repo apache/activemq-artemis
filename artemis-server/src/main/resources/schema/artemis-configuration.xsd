@@ -728,6 +728,19 @@
             </xsd:complexType>
          </xsd:element>
 
+         <xsd:element name="resource-limit-settings" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  a list of resource limit settings
+               </xsd:documentation>
+            </xsd:annotation>
+            <xsd:complexType>
+               <xsd:sequence>
+                  <xsd:element ref="resource-limit-setting" maxOccurs="unbounded" minOccurs="0"/>
+               </xsd:sequence>
+            </xsd:complexType>
+         </xsd:element>
+
          <xsd:element name="connector-services" maxOccurs="1" minOccurs="0">
             <xsd:complexType>
                <xsd:sequence>
@@ -2097,6 +2110,41 @@
             <xsd:annotation>
                <xsd:documentation>
                   XXX
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:attribute>
+      </xsd:complexType>
+   </xsd:element>
+
+   <xsd:element name="resource-limit-setting">
+      <xsd:complexType>
+         <xsd:annotation>
+            <xsd:documentation>
+               Complex type element to configure resource limits for a particular user.
+            </xsd:documentation>
+         </xsd:annotation>
+         <xsd:all>
+            <xsd:element name="max-connections" type="xsd:int" default="-1" maxOccurs="1" minOccurs="0">
+               <xsd:annotation>
+                  <xsd:documentation>
+                     how many connections are allowed by the matched entity (-1 means no limit, default is -1)
+                  </xsd:documentation>
+               </xsd:annotation>
+            </xsd:element>
+
+            <xsd:element name="max-queues" type="xsd:int" default="-1" maxOccurs="1" minOccurs="0">
+               <xsd:annotation>
+                  <xsd:documentation>
+                     how many queues can be created by the matched entity (-1 means no limit, default is -1)
+                  </xsd:documentation>
+               </xsd:annotation>
+            </xsd:element>
+         </xsd:all>
+
+         <xsd:attribute name="match" type="xsd:string" use="required">
+            <xsd:annotation>
+               <xsd:documentation>
+                  the name of the user to whom the limits should be applied
                </xsd:documentation>
             </xsd:annotation>
          </xsd:attribute>

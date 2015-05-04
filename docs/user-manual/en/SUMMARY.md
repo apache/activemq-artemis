@@ -33,6 +33,7 @@
 * [Extra Acknowledge Modes](pre-acknowledge.md)
 * [Management](management.md)
 * [Security](security.md)
+* [Resource Limits](resource-limits.md)
 * [The JMS Bridge](jms-bridge.md)
 * [Client Reconnection and Session Reattachment](client-reconnection.md)
 * [Diverting and Splitting Message Flows](diverts.md)

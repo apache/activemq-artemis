@@ -315,6 +315,9 @@ public class FileConfigurationTest extends ConfigurationImplTest
       assertEquals(false, conf.getAddressesSettings().get("a2").isAutoCreateJmsQueues());
       assertEquals(false, conf.getAddressesSettings().get("a2").isAutoDeleteJmsQueues());
 
+      assertTrue(conf.getResourceLimitSettings().containsKey("myUser"));
+      assertEquals(104, conf.getResourceLimitSettings().get("myUser").getMaxConnections());
+      assertEquals(13, conf.getResourceLimitSettings().get("myUser").getMaxQueues());
 
       assertEquals(2, conf.getQueueConfigurations().size());
 

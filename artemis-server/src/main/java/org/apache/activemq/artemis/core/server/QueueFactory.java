@@ -35,6 +35,7 @@ public interface QueueFactory
                      SimpleString name,
                      Filter filter,
                      PageSubscription pageSubscription,
+                     SimpleString user,
                      boolean durable,
                      boolean temporary,
                      boolean autoCreated);

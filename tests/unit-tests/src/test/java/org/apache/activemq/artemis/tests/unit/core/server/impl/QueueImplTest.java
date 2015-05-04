@@ -1410,6 +1410,7 @@ public class QueueImplTest extends UnitTestCase
                            QueueImplTest.address1,
                            name,
                            filter,
+                           null,
                            durable,
                            temporary,
                            false,

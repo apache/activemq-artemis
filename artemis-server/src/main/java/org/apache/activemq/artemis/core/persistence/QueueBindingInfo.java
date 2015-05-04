@@ -36,4 +36,6 @@ public interface QueueBindingInfo
 
    boolean isAutoCreated();
 
+   SimpleString getUser();
+
 }

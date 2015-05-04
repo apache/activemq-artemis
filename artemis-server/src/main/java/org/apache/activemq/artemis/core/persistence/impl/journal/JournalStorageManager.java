@@ -2027,6 +2027,7 @@ public class JournalStorageManager implements StorageManager
       PersistentQueueBindingEncoding bindingEncoding = new PersistentQueueBindingEncoding(queue.getName(),
                                                                                           binding.getAddress(),
                                                                                           filterString,
+                                                                                          queue.getUser(),
                                                                                           queue.isAutoCreated());
 
       readLock();
@@ -3045,6 +3046,8 @@ public class JournalStorageManager implements StorageManager
 
       public boolean autoCreated;
 
+      public SimpleString user;
+
       public PersistentQueueBindingEncoding()
       {
       }
@@ -3059,6 +3062,8 @@ public class JournalStorageManager implements StorageManager
             address +
             ", filterString=" +
             filterString +
+            ", user=" +
+            user +
             ", autoCreated=" +
             autoCreated +
             "]";
@@ -3067,11 +3072,13 @@ public class JournalStorageManager implements StorageManager
       public PersistentQueueBindingEncoding(final SimpleString name,
                                             final SimpleString address,
                                             final SimpleString filterString,
+                                            final SimpleString user,
                                             final boolean autoCreated)
       {
          this.name = name;
          this.address = address;
          this.filterString = filterString;
+         this.user = user;
          this.autoCreated = autoCreated;
       }
 
@@ -3105,6 +3112,11 @@ public class JournalStorageManager implements StorageManager
          return name;
       }
 
+      public SimpleString getUser()
+      {
+         return user;
+      }
+
       public boolean isAutoCreated()
       {
          return autoCreated;
@@ -3115,6 +3127,24 @@ public class JournalStorageManager implements StorageManager
          name = buffer.readSimpleString();
          address = buffer.readSimpleString();
          filterString = buffer.readNullableSimpleString();
+
+         String metadata = buffer.readNullableSimpleString().toString();
+         if (metadata != null)
+         {
+            String[] elements = metadata.split(";");
+            for (String element : elements)
+            {
+               String[] keyValuePair = element.split("=");
+               if (keyValuePair.length == 2)
+               {
+                  if (keyValuePair[0].equals("user"))
+                  {
+                     user = SimpleString.toSimpleString(keyValuePair[1]);
+                  }
+               }
+            }
+         }
+
          autoCreated = buffer.readBoolean();
       }
 
@@ -3123,13 +3153,22 @@ public class JournalStorageManager implements StorageManager
          buffer.writeSimpleString(name);
          buffer.writeSimpleString(address);
          buffer.writeNullableSimpleString(filterString);
+         buffer.writeNullableSimpleString(createMetadata());
          buffer.writeBoolean(autoCreated);
       }
 
       public int getEncodeSize()
       {
          return SimpleString.sizeofString(name) + SimpleString.sizeofString(address) +
-            SimpleString.sizeofNullableString(filterString) + DataConstants.SIZE_BOOLEAN;
+            SimpleString.sizeofNullableString(filterString) + DataConstants.SIZE_BOOLEAN +
+            SimpleString.sizeofNullableString(createMetadata());
+      }
+
+      private SimpleString createMetadata()
+      {
+         StringBuilder metadata = new StringBuilder();
+         metadata.append("user=").append(user).append(";");
+         return SimpleString.toSimpleString(metadata.toString());
       }
    }
 

@@ -28,6 +28,7 @@ import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.server.group.impl.GroupingHandlerConfiguration;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.core.settings.impl.ResourceLimitSettings;
 
 /**
  * A Configuration is used to configure ActiveMQ servers.
@@ -72,6 +73,21 @@ public interface Configuration
     * Sets whether this server is using persistence and store data.
     */
    Configuration setPersistenceEnabled(boolean enable);
+
+   /**
+    * @return usernames mapped to ResourceLimitSettings
+    */
+   Map<String, ResourceLimitSettings> getResourceLimitSettings();
+
+   /**
+    * @param resourceLimitSettings usernames mapped to ResourceLimitSettings
+    */
+   Configuration setResourceLimitSettings(Map<String, ResourceLimitSettings> resourceLimitSettings);
+
+   /**
+    * @param resourceLimitSettings usernames mapped to ResourceLimitSettings
+    */
+   Configuration addResourceLimitSettings(ResourceLimitSettings resourceLimitSettings);
 
    /**
     * Returns the period (in milliseconds) to scan configuration files used by deployment. <br>
