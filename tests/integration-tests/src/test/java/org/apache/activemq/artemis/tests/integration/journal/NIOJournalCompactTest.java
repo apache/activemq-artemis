@@ -49,7 +49,6 @@ import org.apache.activemq.artemis.core.server.impl.ServerMessageImpl;
 import org.apache.activemq.artemis.tests.unit.core.journal.impl.JournalImplTestBase;
 import org.apache.activemq.artemis.tests.unit.core.journal.impl.fakes.SimpleEncoding;
 import org.apache.activemq.artemis.tests.util.UnitTestCase;
-import org.apache.activemq.artemis.tools.ExportJournal;
 import org.apache.activemq.artemis.utils.IDGenerator;
 import org.apache.activemq.artemis.utils.OrderedExecutorFactory;
 import org.apache.activemq.artemis.utils.SimpleIDGenerator;
@@ -1427,8 +1426,6 @@ public class NIOJournalCompactTest extends JournalImplTestBase
 
       journal.forceMoveNextFile();
       journal.checkReclaimStatus();
-
-      ExportJournal.exportJournal(getTestDir(), filePrefix, fileExtension, 2, this.fileSize, "/tmp/out4.dmp");
 
       journal.testCompact();
 

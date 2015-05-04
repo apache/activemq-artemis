@@ -16,15 +16,12 @@
  */
 package org.apache.activemq.artemis.tests.integration.persistence;
 
-import org.apache.activemq.artemis.api.core.TransportConfiguration;
-import org.apache.activemq.artemis.api.jms.JMSFactoryType;
-import org.apache.activemq.artemis.core.registry.JndiBindingRegistry;
-import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
-import org.apache.activemq.artemis.jms.server.JMSServerManager;
-import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
-import org.apache.activemq.artemis.tests.unit.util.InVMContext;
-import org.junit.Test;
-
+import javax.jms.Connection;
+import javax.jms.ConnectionFactory;
+import javax.jms.Destination;
+import javax.jms.MessageConsumer;
+import javax.jms.MessageProducer;
+import javax.jms.Session;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.Arrays;
@@ -32,29 +29,29 @@ import java.util.List;
 
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
-import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.api.jms.JMSFactoryType;
+import org.apache.activemq.artemis.cli.commands.tools.XmlDataExporter;
+import org.apache.activemq.artemis.cli.commands.tools.XmlDataImporter;
 import org.apache.activemq.artemis.core.persistence.impl.journal.JournalStorageManager;
 import org.apache.activemq.artemis.core.persistence.impl.journal.LargeServerMessageImpl;
-import org.apache.activemq.artemis.tools.XmlDataConstants;
-import org.apache.activemq.artemis.tools.XmlDataExporter;
-import org.apache.activemq.artemis.tools.XmlDataImporter;
+import org.apache.activemq.artemis.core.registry.JndiBindingRegistry;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.jms.server.JMSServerManager;
+import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
+import org.apache.activemq.artemis.tests.unit.util.InVMContext;
 import org.apache.activemq.artemis.tests.util.ServiceTestBase;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
-
-import javax.jms.Connection;
-import javax.jms.ConnectionFactory;
-import javax.jms.Destination;
-import javax.jms.MessageConsumer;
-import javax.jms.MessageProducer;
-import javax.jms.Session;
+import org.junit.Test;
 
 /**
  * A test of the XML export/import functionality
@@ -114,8 +111,8 @@ public class XmlImportExportTest extends ServiceTestBase
       server.stop();
 
       ByteArrayOutputStream xmlOutputStream = new ByteArrayOutputStream();
-      XmlDataExporter xmlDataExporter = new XmlDataExporter(xmlOutputStream, getBindingsDir(), getJournalDir(), getPageDir(), getLargeMessagesDir());
-      xmlDataExporter.writeXMLData();
+      XmlDataExporter xmlDataExporter = new XmlDataExporter();
+      xmlDataExporter.process(xmlOutputStream, getBindingsDir(), getJournalDir(), getPageDir(), getLargeMessagesDir());
       System.out.print(new String(xmlOutputStream.toByteArray()));
 
       clearDataRecreateServerDirs();
@@ -125,8 +122,8 @@ public class XmlImportExportTest extends ServiceTestBase
       session = factory.createSession(false, true, true);
 
       ByteArrayInputStream xmlInputStream = new ByteArrayInputStream(xmlOutputStream.toByteArray());
-      XmlDataImporter xmlDataImporter = new XmlDataImporter(xmlInputStream, session);
-      xmlDataImporter.processXml();
+      XmlDataImporter xmlDataImporter = new XmlDataImporter();
+      xmlDataImporter.process(xmlInputStream, session);
       ClientConsumer consumer = session.createConsumer(QUEUE_NAME);
       session.start();
 
@@ -209,8 +206,8 @@ public class XmlImportExportTest extends ServiceTestBase
       server.stop();
 
       ByteArrayOutputStream xmlOutputStream = new ByteArrayOutputStream();
-      XmlDataExporter xmlDataExporter = new XmlDataExporter(xmlOutputStream, getBindingsDir(), getJournalDir(), getPageDir(), getLargeMessagesDir());
-      xmlDataExporter.writeXMLData();
+      XmlDataExporter xmlDataExporter = new XmlDataExporter();
+      xmlDataExporter.process(xmlOutputStream, getBindingsDir(), getJournalDir(), getPageDir(), getLargeMessagesDir());
       System.out.print(new String(xmlOutputStream.toByteArray()));
 
       clearDataRecreateServerDirs();
@@ -220,8 +217,8 @@ public class XmlImportExportTest extends ServiceTestBase
       session = factory.createSession(false, true, true);
 
       ByteArrayInputStream xmlInputStream = new ByteArrayInputStream(xmlOutputStream.toByteArray());
-      XmlDataImporter xmlDataImporter = new XmlDataImporter(xmlInputStream, session);
-      xmlDataImporter.processXml();
+      XmlDataImporter xmlDataImporter = new XmlDataImporter();
+      xmlDataImporter.process(xmlInputStream, session);
       ClientConsumer consumer = session.createConsumer(QUEUE_NAME);
       session.start();
 
@@ -263,8 +260,8 @@ public class XmlImportExportTest extends ServiceTestBase
       server.stop();
 
       ByteArrayOutputStream xmlOutputStream = new ByteArrayOutputStream();
-      XmlDataExporter xmlDataExporter = new XmlDataExporter(xmlOutputStream, getBindingsDir(), getJournalDir(), getPageDir(), getLargeMessagesDir());
-      xmlDataExporter.writeXMLData();
+      XmlDataExporter xmlDataExporter = new XmlDataExporter();
+      xmlDataExporter.process(xmlOutputStream, getBindingsDir(), getJournalDir(), getPageDir(), getLargeMessagesDir());
       System.out.print(new String(xmlOutputStream.toByteArray()));
 
       clearDataRecreateServerDirs();
@@ -274,8 +271,8 @@ public class XmlImportExportTest extends ServiceTestBase
       session = factory.createSession(false, true, true);
 
       ByteArrayInputStream xmlInputStream = new ByteArrayInputStream(xmlOutputStream.toByteArray());
-      XmlDataImporter xmlDataImporter = new XmlDataImporter(xmlInputStream, session);
-      xmlDataImporter.processXml();
+      XmlDataImporter xmlDataImporter = new XmlDataImporter();
+      xmlDataImporter.process(xmlInputStream, session);
       ClientConsumer consumer = session.createConsumer(QUEUE_NAME);
       session.start();
 
@@ -299,8 +296,8 @@ public class XmlImportExportTest extends ServiceTestBase
       server.stop();
 
       ByteArrayOutputStream xmlOutputStream = new ByteArrayOutputStream();
-      XmlDataExporter xmlDataExporter = new XmlDataExporter(xmlOutputStream, getBindingsDir(), getJournalDir(), getPageDir(), getLargeMessagesDir());
-      xmlDataExporter.writeXMLData();
+      XmlDataExporter xmlDataExporter = new XmlDataExporter();
+      xmlDataExporter.process(xmlOutputStream, getBindingsDir(), getJournalDir(), getPageDir(), getLargeMessagesDir());
       System.out.print(new String(xmlOutputStream.toByteArray()));
 
       clearDataRecreateServerDirs();
@@ -310,8 +307,8 @@ public class XmlImportExportTest extends ServiceTestBase
       session = factory.createSession(false, true, true);
 
       ByteArrayInputStream xmlInputStream = new ByteArrayInputStream(xmlOutputStream.toByteArray());
-      XmlDataImporter xmlDataImporter = new XmlDataImporter(xmlInputStream, session);
-      xmlDataImporter.processXml();
+      XmlDataImporter xmlDataImporter = new XmlDataImporter();
+      xmlDataImporter.process(xmlInputStream, session);
 
       ClientSession.QueueQuery queueQuery = session.queueQuery(new SimpleString("queueName1"));
 
@@ -411,8 +408,8 @@ public class XmlImportExportTest extends ServiceTestBase
       server.stop();
 
       ByteArrayOutputStream xmlOutputStream = new ByteArrayOutputStream();
-      XmlDataExporter xmlDataExporter = new XmlDataExporter(xmlOutputStream, getBindingsDir(), getJournalDir(), getPageDir(), getLargeMessagesDir());
-      xmlDataExporter.writeXMLData();
+      XmlDataExporter xmlDataExporter = new XmlDataExporter();
+      xmlDataExporter.process(xmlOutputStream, getBindingsDir(), getJournalDir(), getPageDir(), getLargeMessagesDir());
       System.out.print(new String(xmlOutputStream.toByteArray()));
 
       clearDataRecreateServerDirs();
@@ -422,8 +419,8 @@ public class XmlImportExportTest extends ServiceTestBase
       session = factory.createSession(false, true, true);
 
       ByteArrayInputStream xmlInputStream = new ByteArrayInputStream(xmlOutputStream.toByteArray());
-      XmlDataImporter xmlDataImporter = new XmlDataImporter(xmlInputStream, session);
-      xmlDataImporter.processXml();
+      XmlDataImporter xmlDataImporter = new XmlDataImporter();
+      xmlDataImporter.process(xmlInputStream, session);
 
       ConnectionFactory cf1 = (ConnectionFactory) namingContext.lookup(jndi_binding1);
       assertNotNull(cf1);
@@ -479,8 +476,8 @@ public class XmlImportExportTest extends ServiceTestBase
       server.stop();
 
       ByteArrayOutputStream xmlOutputStream = new ByteArrayOutputStream();
-      XmlDataExporter xmlDataExporter = new XmlDataExporter(xmlOutputStream, getBindingsDir(), getJournalDir(), getPageDir(), getLargeMessagesDir());
-      xmlDataExporter.writeXMLData();
+      XmlDataExporter xmlDataExporter = new XmlDataExporter();
+      xmlDataExporter.process(xmlOutputStream, getBindingsDir(), getJournalDir(), getPageDir(), getLargeMessagesDir());
       System.out.print(new String(xmlOutputStream.toByteArray()));
 
       clearDataRecreateServerDirs();
@@ -490,8 +487,8 @@ public class XmlImportExportTest extends ServiceTestBase
       session = factory.createSession(false, true, true);
 
       ByteArrayInputStream xmlInputStream = new ByteArrayInputStream(xmlOutputStream.toByteArray());
-      XmlDataImporter xmlDataImporter = new XmlDataImporter(xmlInputStream, session);
-      xmlDataImporter.processXml();
+      XmlDataImporter xmlDataImporter = new XmlDataImporter();
+      xmlDataImporter.process(xmlInputStream, session);
 
 
       assertNotNull(namingContext.lookup("myQueueJndiBinding1"));
@@ -512,58 +509,6 @@ public class XmlImportExportTest extends ServiceTestBase
 
       consumer = jmsSession.createConsumer((Destination) namingContext.lookup("myTopicJndiBinding1"));
       producer = jmsSession.createProducer((Destination) namingContext.lookup("myTopicJndiBinding2"));
-      producer.send(jmsSession.createTextMessage());
-      assertNotNull(consumer.receive(3000));
-
-      connection.close();
-   }
-
-   @Test
-   public void testJmsDestinationWithAppServerCompatibility() throws Exception
-   {
-      ClientSession session = basicSetUp();
-
-      jmsServer.createQueue(true, "myQueue", null, true, "myQueueJndiBinding1", "myQueueJndiBinding2");
-      jmsServer.createTopic(true, "myTopic", "myTopicJndiBinding1", "myTopicJndiBinding2");
-
-      session.close();
-      locator.close();
-      server.stop();
-
-      ByteArrayOutputStream xmlOutputStream = new ByteArrayOutputStream();
-      XmlDataExporter xmlDataExporter = new XmlDataExporter(xmlOutputStream, getBindingsDir(), getJournalDir(), getPageDir(), getLargeMessagesDir());
-      xmlDataExporter.writeXMLData();
-      System.out.print(new String(xmlOutputStream.toByteArray()));
-
-      clearDataRecreateServerDirs();
-      session = basicSetUp();
-
-      ByteArrayInputStream xmlInputStream = new ByteArrayInputStream(xmlOutputStream.toByteArray());
-      XmlDataImporter xmlDataImporter = new XmlDataImporter(xmlInputStream, session, true);
-      xmlDataImporter.processXml();
-
-      assertNotNull(namingContext.lookup("myQueueJndiBinding1"));
-      assertNotNull(namingContext.lookup(XmlDataConstants.JNDI_COMPATIBILITY_PREFIX + "myQueueJndiBinding1"));
-      assertNotNull(namingContext.lookup("myQueueJndiBinding2"));
-      assertNotNull(namingContext.lookup(XmlDataConstants.JNDI_COMPATIBILITY_PREFIX + "myQueueJndiBinding2"));
-      assertNotNull(namingContext.lookup("myTopicJndiBinding1"));
-      assertNotNull(namingContext.lookup(XmlDataConstants.JNDI_COMPATIBILITY_PREFIX + "myTopicJndiBinding1"));
-      assertNotNull(namingContext.lookup("myTopicJndiBinding2"));
-      assertNotNull(namingContext.lookup(XmlDataConstants.JNDI_COMPATIBILITY_PREFIX + "myTopicJndiBinding2"));
-
-      jmsServer.createConnectionFactory("test-cf", false, JMSFactoryType.CF, Arrays.asList("in-vm1"), "test-cf");
-
-      ConnectionFactory cf = (ConnectionFactory) namingContext.lookup("test-cf");
-      Connection connection = cf.createConnection();
-      Session jmsSession = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-      MessageProducer producer = jmsSession.createProducer((Destination) namingContext.lookup("myQueueJndiBinding1"));
-      producer.send(jmsSession.createTextMessage());
-      MessageConsumer consumer = jmsSession.createConsumer((Destination) namingContext.lookup(XmlDataConstants.JNDI_COMPATIBILITY_PREFIX + "myQueueJndiBinding1"));
-      connection.start();
-      assertNotNull(consumer.receive(3000));
-
-      consumer = jmsSession.createConsumer((Destination) namingContext.lookup("myTopicJndiBinding1"));
-      producer = jmsSession.createProducer((Destination) namingContext.lookup(XmlDataConstants.JNDI_COMPATIBILITY_PREFIX + "myTopicJndiBinding1"));
       producer.send(jmsSession.createTextMessage());
       assertNotNull(consumer.receive(3000));
 
@@ -608,8 +553,8 @@ public class XmlImportExportTest extends ServiceTestBase
       server.stop();
 
       ByteArrayOutputStream xmlOutputStream = new ByteArrayOutputStream();
-      XmlDataExporter xmlDataExporter = new XmlDataExporter(xmlOutputStream, getBindingsDir(), getJournalDir(), getPageDir(), getLargeMessagesDir());
-      xmlDataExporter.writeXMLData();
+      XmlDataExporter xmlDataExporter = new XmlDataExporter();
+      xmlDataExporter.process(xmlOutputStream, getBindingsDir(), getJournalDir(), getPageDir(), getLargeMessagesDir());
       System.out.print(new String(xmlOutputStream.toByteArray()));
 
       clearDataRecreateServerDirs();
@@ -619,8 +564,8 @@ public class XmlImportExportTest extends ServiceTestBase
       session = factory.createSession(false, true, true);
 
       ByteArrayInputStream xmlInputStream = new ByteArrayInputStream(xmlOutputStream.toByteArray());
-      XmlDataImporter xmlDataImporter = new XmlDataImporter(xmlInputStream, session);
-      xmlDataImporter.processXml();
+      XmlDataImporter xmlDataImporter = new XmlDataImporter();
+      xmlDataImporter.process(xmlInputStream, session);
       session.close();
       session = factory.createSession(false, false);
       session.start();
@@ -667,8 +612,8 @@ public class XmlImportExportTest extends ServiceTestBase
       server.stop();
 
       ByteArrayOutputStream xmlOutputStream = new ByteArrayOutputStream();
-      XmlDataExporter xmlDataExporter = new XmlDataExporter(xmlOutputStream, getBindingsDir(), getJournalDir(), getPageDir(), getLargeMessagesDir());
-      xmlDataExporter.writeXMLData();
+      XmlDataExporter xmlDataExporter = new XmlDataExporter();
+      xmlDataExporter.process(xmlOutputStream, getBindingsDir(), getJournalDir(), getPageDir(), getLargeMessagesDir());
       System.out.print(new String(xmlOutputStream.toByteArray()));
 
       clearDataRecreateServerDirs();
@@ -678,8 +623,8 @@ public class XmlImportExportTest extends ServiceTestBase
       session = factory.createSession(false, true, true);
 
       ByteArrayInputStream xmlInputStream = new ByteArrayInputStream(xmlOutputStream.toByteArray());
-      XmlDataImporter xmlDataImporter = new XmlDataImporter(xmlInputStream, session);
-      xmlDataImporter.processXml();
+      XmlDataImporter xmlDataImporter = new XmlDataImporter();
+      xmlDataImporter.process(xmlInputStream, session);
       consumer = session.createConsumer("myQueue1");
       session.start();
       msg = consumer.receive(CONSUMER_TIMEOUT);
@@ -736,8 +681,8 @@ public class XmlImportExportTest extends ServiceTestBase
       server.stop();
 
       ByteArrayOutputStream xmlOutputStream = new ByteArrayOutputStream();
-      XmlDataExporter xmlDataExporter = new XmlDataExporter(xmlOutputStream, getBindingsDir(), getJournalDir(), getPageDir(), getLargeMessagesDir());
-      xmlDataExporter.writeXMLData();
+      XmlDataExporter xmlDataExporter = new XmlDataExporter();
+      xmlDataExporter.process(xmlOutputStream, getBindingsDir(), getJournalDir(), getPageDir(), getLargeMessagesDir());
       System.out.print(new String(xmlOutputStream.toByteArray()));
 
       clearDataRecreateServerDirs();
@@ -747,8 +692,8 @@ public class XmlImportExportTest extends ServiceTestBase
       session = factory.createSession(false, true, true);
 
       ByteArrayInputStream xmlInputStream = new ByteArrayInputStream(xmlOutputStream.toByteArray());
-      XmlDataImporter xmlDataImporter = new XmlDataImporter(xmlInputStream, session);
-      xmlDataImporter.processXml();
+      XmlDataImporter xmlDataImporter = new XmlDataImporter();
+      xmlDataImporter.process(xmlInputStream, session);
 
       ClientConsumer consumer = session.createConsumer(MY_QUEUE);
 
@@ -807,8 +752,8 @@ public class XmlImportExportTest extends ServiceTestBase
       server.stop();
 
       ByteArrayOutputStream xmlOutputStream = new ByteArrayOutputStream();
-      XmlDataExporter xmlDataExporter = new XmlDataExporter(xmlOutputStream, getBindingsDir(), getJournalDir(), getPageDir(), getLargeMessagesDir());
-      xmlDataExporter.writeXMLData();
+      XmlDataExporter xmlDataExporter = new XmlDataExporter();
+      xmlDataExporter.process(xmlOutputStream, getBindingsDir(), getJournalDir(), getPageDir(), getLargeMessagesDir());
       System.out.print(new String(xmlOutputStream.toByteArray()));
 
       clearDataRecreateServerDirs();
@@ -818,8 +763,8 @@ public class XmlImportExportTest extends ServiceTestBase
       session = factory.createSession(false, true, true);
 
       ByteArrayInputStream xmlInputStream = new ByteArrayInputStream(xmlOutputStream.toByteArray());
-      XmlDataImporter xmlDataImporter = new XmlDataImporter(xmlInputStream, session);
-      xmlDataImporter.processXml();
+      XmlDataImporter xmlDataImporter = new XmlDataImporter();
+      xmlDataImporter.process(xmlInputStream, session);
 
       ClientConsumer consumer = session.createConsumer(MY_QUEUE);
 
@@ -892,8 +837,8 @@ public class XmlImportExportTest extends ServiceTestBase
       server.stop();
 
       ByteArrayOutputStream xmlOutputStream = new ByteArrayOutputStream();
-      XmlDataExporter xmlDataExporter = new XmlDataExporter(xmlOutputStream, getBindingsDir(), getJournalDir(), getPageDir(), getLargeMessagesDir());
-      xmlDataExporter.writeXMLData();
+      XmlDataExporter xmlDataExporter = new XmlDataExporter();
+      xmlDataExporter.process(xmlOutputStream, getBindingsDir(), getJournalDir(), getPageDir(), getLargeMessagesDir());
       //System.out.print(new String(xmlOutputStream.toByteArray()));
 
       clearDataRecreateServerDirs();
@@ -903,8 +848,8 @@ public class XmlImportExportTest extends ServiceTestBase
       session = factory.createSession(false, true, true);
 
       ByteArrayInputStream xmlInputStream = new ByteArrayInputStream(xmlOutputStream.toByteArray());
-      XmlDataImporter xmlDataImporter = new XmlDataImporter(xmlInputStream, session);
-      xmlDataImporter.processXml();
+      XmlDataImporter xmlDataImporter = new XmlDataImporter();
+      xmlDataImporter.process(xmlInputStream, session);
 
       ClientConsumer consumer = session.createConsumer(MY_QUEUE);
 
@@ -951,8 +896,8 @@ public class XmlImportExportTest extends ServiceTestBase
       server.stop();
 
       ByteArrayOutputStream xmlOutputStream = new ByteArrayOutputStream();
-      XmlDataExporter xmlDataExporter = new XmlDataExporter(xmlOutputStream, getBindingsDir(), getJournalDir(), getPageDir(), getLargeMessagesDir());
-      xmlDataExporter.writeXMLData();
+      XmlDataExporter xmlDataExporter = new XmlDataExporter();
+      xmlDataExporter.process(xmlOutputStream, getBindingsDir(), getJournalDir(), getPageDir(), getLargeMessagesDir());
       System.out.print(new String(xmlOutputStream.toByteArray()));
 
       clearDataRecreateServerDirs();
@@ -963,8 +908,8 @@ public class XmlImportExportTest extends ServiceTestBase
       ClientSession managementSession = factory.createSession(false, true, true);
 
       ByteArrayInputStream xmlInputStream = new ByteArrayInputStream(xmlOutputStream.toByteArray());
-      XmlDataImporter xmlDataImporter = new XmlDataImporter(xmlInputStream, session, managementSession);
-      xmlDataImporter.processXml();
+      XmlDataImporter xmlDataImporter = new XmlDataImporter();
+      xmlDataImporter.process(xmlInputStream, session, managementSession);
       ClientConsumer consumer = session.createConsumer(QUEUE_NAME);
       session.start();
 
@@ -995,8 +940,8 @@ public class XmlImportExportTest extends ServiceTestBase
       server.stop();
 
       ByteArrayOutputStream xmlOutputStream = new ByteArrayOutputStream();
-      XmlDataExporter xmlDataExporter = new XmlDataExporter(xmlOutputStream, getBindingsDir(), getJournalDir(), getPageDir(), getLargeMessagesDir());
-      xmlDataExporter.writeXMLData();
+      XmlDataExporter xmlDataExporter = new XmlDataExporter();
+      xmlDataExporter.process(xmlOutputStream, getBindingsDir(), getJournalDir(), getPageDir(), getLargeMessagesDir());
       System.out.print(new String(xmlOutputStream.toByteArray()));
 
       clearDataRecreateServerDirs();
@@ -1007,8 +952,8 @@ public class XmlImportExportTest extends ServiceTestBase
       ClientSession managementSession = factory.createSession(false, true, true);
 
       ByteArrayInputStream xmlInputStream = new ByteArrayInputStream(xmlOutputStream.toByteArray());
-      XmlDataImporter xmlDataImporter = new XmlDataImporter(xmlInputStream, session, managementSession);
-      xmlDataImporter.processXml();
+      XmlDataImporter xmlDataImporter = new XmlDataImporter();
+      xmlDataImporter.process(xmlInputStream, session, managementSession);
       ClientConsumer consumer = session.createConsumer(QUEUE_NAME);
       session.start();
 
@@ -1050,8 +995,8 @@ public class XmlImportExportTest extends ServiceTestBase
       server.stop();
 
       ByteArrayOutputStream xmlOutputStream = new ByteArrayOutputStream();
-      XmlDataExporter xmlDataExporter = new XmlDataExporter(xmlOutputStream, getBindingsDir(), getJournalDir(), getPageDir(), getLargeMessagesDir());
-      xmlDataExporter.writeXMLData();
+      XmlDataExporter xmlDataExporter = new XmlDataExporter();
+      xmlDataExporter.process(xmlOutputStream, getBindingsDir(), getJournalDir(), getPageDir(), getLargeMessagesDir());
       System.out.print(new String(xmlOutputStream.toByteArray()));
 
       clearDataRecreateServerDirs();
@@ -1062,8 +1007,8 @@ public class XmlImportExportTest extends ServiceTestBase
       ClientSession managementSession = factory.createSession(false, true, true);
 
       ByteArrayInputStream xmlInputStream = new ByteArrayInputStream(xmlOutputStream.toByteArray());
-      XmlDataImporter xmlDataImporter = new XmlDataImporter(xmlInputStream, session, managementSession);
-      xmlDataImporter.processXml();
+      XmlDataImporter xmlDataImporter = new XmlDataImporter();
+      xmlDataImporter.process(xmlInputStream, session, managementSession);
       ClientConsumer consumer = session.createConsumer(QUEUE_NAME);
       session.start();
 

@@ -1,94 +1,145 @@
 # Tools
 
-Apache ActiveMQ Artemis ships with several helpful command line tools. All tools are
-available from the activemq-tools-\<version\>-jar-with-dependencies.jar.
-As the name suggests, this Java archive contains ActiveMQ along with all
-of its dependencies. This is done to simplify the execution of the tools
-by eliminating the need so specify a classpath. These tools are:
 
--   **`print-data`**. Used for low-level inspection of the bindings and
-    message journals. It takes two parameters - `bindings-directory` and
-    `journal-directory`. These are the paths to the directories where
-    the bindings and message journals are stored, respectively. For
-    example:
+You can use the artemis cli interface to execute data maintenance tools:
 
-```sh
-java -jar activemq-tools-<version>-jar-with-dependencies.jar print-data /home/user/activemq/data/bindings /home/user/activemq/data/journal
+
+This is a list of sub-commands available
+
+
+Name | Description
+:--- | :---
+exp     | Export the message data using a special and independent XML format
+imp  | Imports the journal to a running broker using the output from expt
+data     | Prints a report about journal records and summary of existent records, as well a report on paging
+encode | shows an internal format of the journal encoded to String
+decode | imports the internal journal format from encode
+
+
+
+
+You can use the help at the tool for more information on how to execute each of the tools. For example:
+
+```
+$ ./artemis help data print
+NAME
+        artemis data print - Print data records information (WARNING: don't use
+        while a production server is running)
+
+SYNOPSIS
+        artemis data print [--bindings <binding>] [--journal <journal>]
+                [--paging <paging>]
+
+OPTIONS
+        --bindings <binding>
+            The folder used for bindings (default ../data/bindings)
+
+        --journal <journal>
+            The folder used for messages journal (default ../data/journal)
+
+        --paging <paging>
+            The folder used for paging (default ../data/paging)
+
+
 ```
 
--   **`print-pages`**. Used for low-level inspection of paged message
-    data. It takes two parameters - `paging-directory` and
-    `journal-directory`. These are the paths to the directories where
-    paged messages and the message journals are stored, respectively.
-    For example:
 
-```sh
-java -jar activemq-tools-<version>-jar-with-dependencies.jar print-pages /home/user/activemq/data/paging-directory /home/user/activemq/data/journal
+For a full list of data tools commands available use:
+
 ```
+$ ./artemis help data
+NAME
+        artemis data - data tools like (print|exp|imp|exp|encode|decode)
+        (example ./artemis data print)
 
--   **`export`**. Used for exporting all binding and message data
-    (including paged and large messages) as well as JMS destinations and
-    connection factories (including JNDI bindings). The export is
-    structured as XML. This data can then be imported to another server
-    even if the server is a different version than the original. It
-    takes 4 parameters:
+SYNOPSIS
+        artemis data
+        artemis data decode [--prefix <prefix>] [--directory <directory>]
+                [--suffix <suffix>] [--file-size <size>]
+        artemis data encode [--prefix <prefix>] [--directory <directory>]
+                [--suffix <suffix>] [--file-size <size>]
+        artemis data exp [--bindings <binding>]
+                [--large-messages <largeMessges>] [--paging <paging>]
+                [--journal <journal>]
+        artemis data imp [--password <password>] [--port <port>] [--host <host>]
+                [--user <user>] [--transaction]
+        artemis data print [--bindings <binding>] [--paging <paging>]
+                [--journal <journal>]
 
-    -   `bindings-directory` - the path to the bindings directory.
+COMMANDS
+        With no arguments, Display help information
 
-    -   `journal-directory` - the path to the journal directory.
+        print
+            Print data records information (WARNING: don't use while a
+            production server is running)
 
-    -   `paging-directory` - the path to the paging directory.
+            With --bindings option, The folder used for bindings (default
+            ../data/bindings)
 
-    -   `large-messages-directory` - the path to the large-messages
-        directory.
+            With --paging option, The folder used for paging (default
+            ../data/paging)
 
-    Here's an example:
+            With --journal option, The folder used for messages journal (default
+            ../data/journal)
+
+        exp
+            Export all message-data using an XML that could be interpreted by
+            any system.
+
+            With --bindings option, The folder used for bindings (default
+            ../data/bindings)
+
+            With --large-messages option, The folder used for large-messages
+            (default ../data/largemessages)
+
+            With --paging option, The folder used for paging (default
+            ../data/paging)
+
+            With --journal option, The folder used for messages journal (default
+            ../data/journal)
+
+        imp
+            Import all message-data using an XML that could be interpreted by
+            any system.
+
+            With --password option, User name used to import the data. (default
+            null)
+
+            With --port option, The port used to import the data (default 61616)
+
+            With --host option, The host used to import the data (default
+            localhost)
+
+            With --user option, User name used to import the data. (default
+            null)
+
+            With --transaction option, If this is set to true you will need a
+            whole transaction to commit at the end. (default false)
+
+        decode
+            Decode a journal's internal format into a new journal set of files
+
+            With --prefix option, The journal prefix (default activemq-datal)
+
+            With --directory option, The journal folder (default
+            ../data/journal)
+
+            With --suffix option, The journal suffix (default amq)
+
+            With --file-size option, The journal size (default 10485760)
+
+        encode
+            Encode a set of journal files into an internal encoded data format
+
+            With --prefix option, The journal prefix (default activemq-datal)
+
+            With --directory option, The journal folder (default
+            ../data/journal)
+
+            With --suffix option, The journal suffix (default amq)
+
+            With --file-size option, The journal size (default 10485760)
+
+
+
 ```
-java -jar activemq-tools-<version>-jar-with-dependencies.jar export /home/user/activemq/data/bindings-directory /home/user/activemq/data/journal-directory /home/user/activemq/data/paging-directory /home/user/activemq/data/large-messages
-```
-
-    This tool will export directly to standard out so if the data needs
-    to be stored in a file please redirect as appropriate for the
-    operation system in use. Also, please note that the `export` tool is
-    single threaded so depending on the size of the journal it could
-    take awhile to complete.
-
--   **`import`**. Used for importing data from an XML document generated
-    by the `export` tool. The `import` tool reads the XML document and
-    connects to an Apache ActiveMQ Artemis server via Netty to import all the data. It
-    takes 5 parameters:
-
-    -   `input-file` - the path to the XML file generated by the
-        `export` tool.
-
-    -   `host` - the IP address or hostname of the server where the data
-        should be imported.
-
-    -   `port` - the port where ActiveMQ is listening.
-
-    -   `transactional` - a `boolean` flag to indicate whether or not to
-        send all the *message* data in a single transaction. Valid
-        values are `true` or `false`.
-
-    -   `application-server-compatibility` - a `boolean` flag to
-        indicate whether or not JNDI bindings need special treatment to
-        account for the way JBoss AS7, Wildfly, and JBoss EAP 6 handle
-        JNDI for remote clients. Each of these application servers
-        require a special JNDI binding to allow access from remote
-        clients. If this is `true` then every JNDI binding in the XML
-        will be duplicated in the "java:jboss/exported/" namespace thus
-        allowing both local and remote clients to use the same name when
-        accessing resources via JNDI. Valid values are `true` or
-        `false`.
-
-    Here's an example:
-
-    ```sh
-    java -jar activemq-tools-<version>-jar-with-dependencies.jar import /home/user/exportData.xml 127.0.0.1 61616 false false
-    ```
-
-    Like the `export` tool the `import` tool is single threaded so
-    depending on the size of the XML file it may take awhile for the
-    process to complete.
-
-
