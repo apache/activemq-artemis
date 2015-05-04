@@ -25,6 +25,7 @@ import io.airlift.airline.Command;
 import io.airlift.airline.Option;
 import org.apache.activemq.artemis.cli.commands.Action;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
+import org.apache.activemq.artemis.cli.commands.Configurable;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
 import org.apache.activemq.artemis.core.journal.SequentialFileFactory;
 import org.apache.activemq.artemis.core.journal.impl.JournalFile;
@@ -34,13 +35,13 @@ import org.apache.activemq.artemis.core.journal.impl.NIOSequentialFileFactory;
 import org.apache.activemq.artemis.utils.Base64;
 
 @Command(name = "encode", description = "Encode a set of journal files into an internal encoded data format")
-public class EncodeJournal implements Action
+public class EncodeJournal extends Configurable implements Action
 {
 
-   @Option(name = "--directory", description = "The journal folder (default ../data/journal)")
-   public String directory = "../data/journal";
+   @Option(name = "--directory", description = "The journal folder (default the journal folder from broker.xml)")
+   public String directory;
 
-   @Option(name = "--prefix", description = "The journal prefix (default activemq-datal)")
+   @Option(name = "--prefix", description = "The journal prefix (default activemq-data)")
    public String prefix = "activemq-data";
 
    @Option(name = "--suffix", description = "The journal suffix (default amq)")
@@ -54,6 +55,11 @@ public class EncodeJournal implements Action
    {
       try
       {
+         if (directory == null)
+         {
+            directory = getFileConfiguration().getJournalDirectory();
+         }
+
          exportJournal(directory, prefix, suffix, 2, size);
       }
       catch (Exception e)

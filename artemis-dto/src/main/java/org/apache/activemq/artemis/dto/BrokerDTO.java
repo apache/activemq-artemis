@@ -33,7 +33,6 @@ public class BrokerDTO
    @XmlElementRef
    public ServerDTO server;
 
-
    @XmlElementRef(required = false)
    public WebServerDTO web;
 

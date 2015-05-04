@@ -16,42 +16,21 @@
  */
 package org.apache.activemq.artemis.cli.commands;
 
-import io.airlift.airline.Arguments;
+import java.io.File;
+
 import io.airlift.airline.Command;
 import org.apache.activemq.artemis.dto.BrokerDTO;
-import org.apache.activemq.artemis.factory.BrokerFactory;
-
-import java.io.File;
-import java.net.URI;
 
 @Command(name = "stop", description = "stops the broker instance")
-public class Stop implements Action
+public class Stop extends Configurable implements Action
 {
-   @Arguments(description = "Broker Configuration URI, default 'xml:${ARTEMIS_INSTANCE}/etc/bootstrap.xml'")
-   String configuration;
-
    @Override
    public Object execute(ActionContext context) throws Exception
+
    {
-      /* We use File URI for locating files.  The ARTEMIS_HOME variable is used to determine file paths.  For Windows
-      the ARTEMIS_HOME variable will include back slashes (An invalid file URI character path separator).  For this
-      reason we overwrite the ARTEMIS_HOME variable with backslashes replaced with forward slashes. */
-      String activemqHome = System.getProperty("artemis.instance").replace("\\", "/");
-      System.setProperty("artemis.instance", activemqHome);
+      BrokerDTO broker = getBrokerDTO();
 
-      if (configuration == null)
-      {
-         configuration = "xml:" + activemqHome + "/etc/bootstrap.xml";
-      }
-
-      // To support Windows paths as explained above.
-      configuration = configuration.replace("\\", "/");
-
-      BrokerDTO broker = BrokerFactory.createBrokerConfiguration(configuration);
-
-      String fileName = new URI(broker.server.configuration).getSchemeSpecificPart();
-
-      File file = new File(fileName).getParentFile();
+      File file = broker.server.getConfigurationFile().getParentFile();
 
       File stopFile = new File(file, "STOP_ME");
 

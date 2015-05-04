@@ -27,11 +27,11 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import io.airlift.airline.Arguments;
 import io.airlift.airline.Command;
 import io.airlift.airline.Option;
 import org.apache.activemq.artemis.cli.commands.Action;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
+import org.apache.activemq.artemis.cli.commands.Configurable;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
 import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
 import org.apache.activemq.artemis.core.journal.impl.JournalRecord;
@@ -39,13 +39,13 @@ import org.apache.activemq.artemis.core.journal.impl.NIOSequentialFileFactory;
 import org.apache.activemq.artemis.utils.Base64;
 
 @Command(name = "decode", description = "Decode a journal's internal format into a new journal set of files")
-public class DecodeJournal implements Action
+public class DecodeJournal extends Configurable implements Action
 {
 
-   @Option(name = "--directory", description = "The journal folder (default ../data/journal)")
-   public String directory = "../data/journal";
+   @Option(name = "--directory", description = "The journal folder (default journal folder from broker.xml)")
+   public String directory;
 
-   @Option(name = "--prefix", description = "The journal prefix (default activemq-datal)")
+   @Option(name = "--prefix", description = "The journal prefix (default activemq-data)")
    public String prefix = "activemq-data";
 
    @Option(name = "--suffix", description = "The journal suffix (default amq)")
@@ -54,13 +54,17 @@ public class DecodeJournal implements Action
    @Option(name = "--file-size", description = "The journal size (default 10485760)")
    public int size = 10485760;
 
-   @Arguments(description = "The input file name (default=exp.dmp)", required = true)
-   public String input;
+   @Option(name = "--input", description = "The input file name (default=exp.dmp)", required = true)
+   public String input = "exp.dmp";
 
    public Object execute(ActionContext context) throws Exception
    {
       try
       {
+         if (directory == null)
+         {
+            directory = getFileConfiguration().getJournalDirectory();
+         }
          importJournal(directory, prefix, suffix, 2, size, input);
       }
       catch (Exception e)

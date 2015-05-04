@@ -34,11 +34,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import io.airlift.airline.Arguments;
 import io.airlift.airline.Command;
 import io.airlift.airline.Option;
-import org.apache.activemq.artemis.cli.commands.Action;
-import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
@@ -51,6 +48,8 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
+import org.apache.activemq.artemis.cli.commands.Action;
+import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.core.message.impl.MessageImpl;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
@@ -100,10 +99,8 @@ public final class XmlDataImporter implements Action
    @Option(name = "--password", description = "User name used to import the data. (default null)")
    public String password = null;
 
-   @Arguments(description = "The input file name (default=exp.dmp)", required = true)
-   public String input;
-
-
+   @Option(name = "--input", description = "The input file name (default=exp.dmp)", required = true)
+   public String input = "exp.dmp";
 
    public String getPassword()
    {

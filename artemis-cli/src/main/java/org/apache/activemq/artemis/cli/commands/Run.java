@@ -16,9 +16,12 @@
  */
 package org.apache.activemq.artemis.cli.commands;
 
-import io.airlift.airline.Arguments;
-import io.airlift.airline.Command;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
 
+import io.airlift.airline.Command;
 import org.apache.activemq.artemis.cli.Artemis;
 import org.apache.activemq.artemis.components.ExternalComponent;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
@@ -30,31 +33,13 @@ import org.apache.activemq.artemis.integration.Broker;
 import org.apache.activemq.artemis.integration.bootstrap.ActiveMQBootstrapLogger;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
 
-import java.io.File;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.Timer;
-import java.util.TimerTask;
-
 @Command(name = "run", description = "runs the broker instance")
-public class Run implements Action
+public class Run extends Configurable implements Action
 {
-
-   @Arguments(description = "Broker Configuration URI, default 'xml:${ARTEMIS_INSTANCE}/etc/bootstrap.xml'")
-   String configuration;
-   private ArrayList<ActiveMQComponent> components = new ArrayList<>();
 
    private Broker server;
 
-   static String fixupFileURI(String value)
-   {
-      if (value != null && value.startsWith("file:"))
-      {
-         value = value.substring("file:".length());
-         value = new File(value).toURI().toString();
-      }
-      return value;
-   }
+   private ArrayList<ActiveMQComponent> components = new ArrayList<>();
 
    @Override
    public Object execute(ActionContext context) throws Exception
@@ -62,26 +47,9 @@ public class Run implements Action
 
       Artemis.printBanner();
 
-      /* We use File URI for locating files.  The ARTEMIS_HOME variable is used to determine file paths.  For Windows
-      the ARTEMIS_HOME variable will include back slashes (An invalid file URI character path separator).  For this
-      reason we overwrite the ARTEMIS_HOME variable with backslashes replaced with forward slashes. */
-      String activemqInstance = System.getProperty("artemis.instance").replace("\\", "/");
-      System.setProperty("artemis.instance", activemqInstance);
+      BrokerDTO broker = getBrokerDTO();
 
-      if (configuration == null)
-      {
-         File xmlFile = new File(new File(new File(activemqInstance), "etc"), "bootstrap.xml");
-         configuration = "xml:" + xmlFile.toURI().toString().substring("file:".length());
-      }
-
-      // To support Windows paths as explained above.
-      System.out.println("Loading configuration file: " + configuration);
-
-      BrokerDTO broker = BrokerFactory.createBrokerConfiguration(configuration);
-
-      String fileName = new URI(fixupFileURI(broker.server.configuration)).getSchemeSpecificPart();
-
-      addShutdownHook(new File(fileName).getParentFile());
+      addShutdownHook(broker.server.getConfigurationFile().getParentFile());
 
       ActiveMQSecurityManager security = SecurityManagerFactory.create(broker.security);
 
@@ -98,7 +66,7 @@ public class Run implements Action
       {
          Class clazz = this.getClass().getClassLoader().loadClass(componentDTO.componentClassName);
          ExternalComponent component = (ExternalComponent)clazz.newInstance();
-         component.configure(componentDTO, activemqInstance);
+         component.configure(componentDTO, getBrokerInstance());
          component.start();
          components.add(component);
       }
