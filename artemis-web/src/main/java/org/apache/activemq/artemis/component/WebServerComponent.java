@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.component;
 
+import java.net.URI;
+
 import org.apache.activemq.artemis.components.ExternalComponent;
 import org.apache.activemq.artemis.dto.AppDTO;
 import org.apache.activemq.artemis.dto.ComponentDTO;
@@ -28,8 +30,6 @@ import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.server.nio.SelectChannelConnector;
 import org.eclipse.jetty.webapp.WebAppContext;
 
-import java.net.URI;
-
 public class WebServerComponent implements ExternalComponent
 {
 
@@ -38,7 +38,7 @@ public class WebServerComponent implements ExternalComponent
    private WebServerDTO webServerConfig;
 
    @Override
-   public void configure(ComponentDTO config, String activemqHome) throws Exception
+   public void configure(ComponentDTO config, String artemisInstance, String artemisHome) throws Exception
    {
       webServerConfig = (WebServerDTO)config;
       String path = webServerConfig.path.startsWith("/") ? webServerConfig.path : "/" + webServerConfig.path;
@@ -56,17 +56,17 @@ public class WebServerComponent implements ExternalComponent
       {
          for (AppDTO app : webServerConfig.apps)
          {
-            deployWar(app.url, app.war, activemqHome, path);
+            deployWar(app.url, app.war, artemisHome, path);
          }
       }
 
       WebAppContext handler = new WebAppContext();
       handler.setContextPath("/");
-      handler.setResourceBase(activemqHome + path);
+      handler.setResourceBase(artemisHome + path);
       handler.setLogUrlOnStart(true);
 
       ResourceHandler resourceHandler = new ResourceHandler();
-      resourceHandler.setResourceBase(activemqHome + path);
+      resourceHandler.setResourceBase(artemisHome + path);
       resourceHandler.setDirectoriesListed(true);
       resourceHandler.setWelcomeFiles(new String[]{"index.html"});
 

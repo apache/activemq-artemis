@@ -66,7 +66,7 @@ public class Run extends Configurable implements Action
       {
          Class clazz = this.getClass().getClassLoader().loadClass(componentDTO.componentClassName);
          ExternalComponent component = (ExternalComponent)clazz.newInstance();
-         component.configure(componentDTO, getBrokerInstance());
+         component.configure(componentDTO, getBrokerInstance(), getBrokerHome());
          component.start();
          components.add(component);
       }
