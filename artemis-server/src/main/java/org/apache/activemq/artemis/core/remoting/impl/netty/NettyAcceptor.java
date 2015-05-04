@@ -168,6 +168,8 @@ public class NettyAcceptor implements Acceptor
 
    private final boolean httpUpgradeEnabled;
 
+   private final long connectionsAllowed;
+
    public NettyAcceptor(final String name,
                         final ClusterConnection clusterConnection,
                         final Map<String, Object> configuration,
@@ -288,6 +290,10 @@ public class NettyAcceptor implements Acceptor
       httpUpgradeEnabled = ConfigurationHelper.getBooleanProperty(TransportConstants.HTTP_UPGRADE_ENABLED_PROP_NAME,
                                                                   TransportConstants.DEFAULT_HTTP_UPGRADE_ENABLED,
                                                                   configuration);
+
+      connectionsAllowed = ConfigurationHelper.getLongProperty(TransportConstants.CONNECTIONS_ALLOWED,
+                                                               TransportConstants.DEFAULT_CONNECTIONS_ALLOWED,
+                                                               configuration);
    }
 
    public synchronized void start() throws Exception
@@ -711,36 +717,47 @@ public class NettyAcceptor implements Acceptor
 
       public NettyServerConnection createConnection(final ChannelHandlerContext ctx, String protocol, boolean httpEnabled) throws Exception
       {
-         super.channelActive(ctx);
-         Listener connectionListener = new Listener();
-
-         NettyServerConnection nc = new NettyServerConnection(configuration, ctx.channel(), connectionListener, !httpEnabled && batchDelay > 0, directDeliver);
-
-         connectionListener.connectionCreated(NettyAcceptor.this, nc, protocol);
-
-         SslHandler sslHandler = ctx.pipeline().get(SslHandler.class);
-         if (sslHandler != null)
+         if (connectionsAllowed == -1 || connections.size() < connectionsAllowed)
          {
-            sslHandler.handshakeFuture().addListener(new GenericFutureListener<io.netty.util.concurrent.Future<Channel>>()
+            super.channelActive(ctx);
+            Listener connectionListener = new Listener();
+
+            NettyServerConnection nc = new NettyServerConnection(configuration, ctx.channel(), connectionListener, !httpEnabled && batchDelay > 0, directDeliver);
+
+            connectionListener.connectionCreated(NettyAcceptor.this, nc, protocol);
+
+            SslHandler sslHandler = ctx.pipeline().get(SslHandler.class);
+            if (sslHandler != null)
             {
-               public void operationComplete(final io.netty.util.concurrent.Future<Channel> future) throws Exception
+               sslHandler.handshakeFuture().addListener(new GenericFutureListener<io.netty.util.concurrent.Future<Channel>>()
                {
-                  if (future.isSuccess())
+                  public void operationComplete(final io.netty.util.concurrent.Future<Channel> future) throws Exception
                   {
-                     active = true;
+                     if (future.isSuccess())
+                     {
+                        active = true;
+                     }
+                     else
+                     {
+                        future.getNow().close();
+                     }
                   }
-                  else
-                  {
-                     future.getNow().close();
-                  }
-               }
-            });
+               });
+            }
+            else
+            {
+               active = true;
+            }
+            return nc;
          }
          else
          {
-            active = true;
+            if (ActiveMQServerLogger.LOGGER.isDebugEnabled())
+            {
+               ActiveMQServerLogger.LOGGER.debug(new StringBuilder().append("Connection limit of ").append(connectionsAllowed).append(" reached. Refusing connection from ").append(ctx.channel().remoteAddress()));
+            }
+            throw new Exception();
          }
-         return nc;
       }
    }
 

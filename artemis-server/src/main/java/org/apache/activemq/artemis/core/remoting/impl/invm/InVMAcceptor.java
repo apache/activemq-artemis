@@ -64,6 +64,8 @@ public final class InVMAcceptor implements Acceptor
 
    private ActiveMQPrincipal defaultActiveMQPrincipal;
 
+   private final long connectionsAllowed;
+
    public InVMAcceptor(final ClusterConnection clusterConnection,
                        final Map<String, Object> configuration,
                        final BufferHandler handler,
@@ -81,6 +83,10 @@ public final class InVMAcceptor implements Acceptor
       id = ConfigurationHelper.getIntProperty(TransportConstants.SERVER_ID_PROP_NAME, 0, configuration);
 
       executorFactory = new OrderedExecutorFactory(threadPool);
+
+      connectionsAllowed = ConfigurationHelper.getLongProperty(TransportConstants.CONNECTIONS_ALLOWED,
+                                                               TransportConstants.DEFAULT_CONNECTIONS_ALLOWED,
+                                                               configuration);
    }
 
    public Map<String, Object> getConfiguration()
@@ -91,6 +97,16 @@ public final class InVMAcceptor implements Acceptor
    public ClusterConnection getClusterConnection()
    {
       return clusterConnection;
+   }
+
+   public long getConnectionsAllowed()
+   {
+      return connectionsAllowed;
+   }
+
+   public int getConnectionCount()
+   {
+      return connections.size();
    }
 
    public synchronized void start() throws Exception
