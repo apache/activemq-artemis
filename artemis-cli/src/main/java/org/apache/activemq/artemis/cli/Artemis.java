@@ -19,8 +19,8 @@ package org.apache.activemq.artemis.cli;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import io.airlift.command.Cli;
-import io.airlift.command.ParseArgumentsUnexpectedException;
+import io.airlift.airline.Cli;
+import io.airlift.airline.ParseArgumentsUnexpectedException;
 import org.apache.activemq.artemis.cli.commands.Action;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.cli.commands.Create;

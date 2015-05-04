@@ -16,8 +16,8 @@
  */
 package org.apache.activemq.artemis.cli.commands;
 
-import io.airlift.command.Arguments;
-import io.airlift.command.Command;
+import io.airlift.airline.Arguments;
+import io.airlift.airline.Command;
 import org.apache.activemq.artemis.dto.BrokerDTO;
 import org.apache.activemq.artemis.factory.BrokerFactory;
 

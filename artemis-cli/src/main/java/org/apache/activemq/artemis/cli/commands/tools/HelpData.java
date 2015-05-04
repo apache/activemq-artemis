@@ -20,7 +20,7 @@ package org.apache.activemq.artemis.cli.commands.tools;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.airlift.command.Help;
+import io.airlift.airline.Help;
 import org.apache.activemq.artemis.cli.commands.Action;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 
