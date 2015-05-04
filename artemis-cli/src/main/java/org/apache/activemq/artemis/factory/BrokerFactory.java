@@ -16,16 +16,16 @@
  */
 package org.apache.activemq.artemis.factory;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+
 import org.apache.activemq.artemis.cli.ConfigurationException;
 import org.apache.activemq.artemis.dto.BrokerDTO;
 import org.apache.activemq.artemis.dto.ServerDTO;
 import org.apache.activemq.artemis.integration.Broker;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
 import org.apache.activemq.artemis.utils.FactoryFinder;
-
-import java.io.File;
-import java.io.IOException;
-import java.net.URI;
 
 public class BrokerFactory
 {
@@ -72,7 +72,7 @@ public class BrokerFactory
       if (brokerDTO.configuration != null)
       {
          BrokerHandler handler;
-         URI configURI = new URI(fixupFileURI(brokerDTO.configuration));
+         URI configURI = brokerDTO.getConfigurationURI();
 
          try
          {

@@ -37,9 +37,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
 import io.airlift.airline.Command;
-import io.airlift.airline.Option;
-import org.apache.activemq.artemis.cli.commands.Action;
-import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -47,6 +44,8 @@ import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.jms.JMSFactoryType;
+import org.apache.activemq.artemis.cli.commands.Action;
+import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.artemis.core.journal.Journal;
@@ -92,7 +91,7 @@ import org.apache.activemq.artemis.utils.Base64;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 
 @Command(name = "exp", description = "Export all message-data using an XML that could be interpreted by any system.")
-public final class XmlDataExporter implements Action
+public final class XmlDataExporter extends DataAbstract implements Action
 {
    private static final Long LARGE_MESSAGE_CHUNK_SIZE = 1000L;
 
@@ -120,18 +119,6 @@ public final class XmlDataExporter implements Action
 
    private final Map<Pair<PersistedType, String>, PersistedBindings> jmsJNDI = new ConcurrentHashMap<>();
 
-   @Option(name = "--bindings", description = "The folder used for bindings (default ../data/bindings)")
-   public String binding = "../data/bindings";
-
-   @Option(name = "--journal", description = "The folder used for messages journal (default ../data/journal)")
-   public String journal = "../data/journal";
-
-   @Option(name = "--paging", description = "The folder used for paging (default ../data/paging)")
-   public String paging = "../data/paging";
-
-   @Option(name = "--large-messages", description = "The folder used for large-messages (default ../data/largemessages)")
-   public String largeMessges = "../data/paging";
-
    long messagesPrinted = 0L;
 
    long bindingsPrinted = 0L;
@@ -139,7 +126,7 @@ public final class XmlDataExporter implements Action
    @Override
    public Object execute(ActionContext context) throws Exception
    {
-      process(System.out, binding, journal, paging, largeMessges);
+      process(System.out, getBinding(), getJournal(), getPaging(), getLargeMessages());
       return null;
    }
 

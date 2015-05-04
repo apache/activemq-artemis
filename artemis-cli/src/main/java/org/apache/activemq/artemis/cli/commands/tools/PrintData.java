@@ -28,10 +28,10 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
 import io.airlift.airline.Command;
-import io.airlift.airline.Option;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.cli.Artemis;
 import org.apache.activemq.artemis.cli.commands.Action;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
@@ -57,27 +57,22 @@ import org.apache.activemq.artemis.core.settings.impl.HierarchicalObjectReposito
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 
 @Command(name = "print", description = "Print data records information (WARNING: don't use while a production server is running)")
-public class PrintData implements Action
+public class PrintData extends DataAbstract implements Action
 {
-   @Option(name = "--bindings", description = "The folder used for bindings (default ../data/bindings)")
-   public String binding = "../data/bindings";
-
-   @Option(name = "--journal", description = "The folder used for messages journal (default ../data/journal)")
-   public String journal = "../data/journal";
-
-   @Option(name = "--paging", description = "The folder used for paging (default ../data/paging)")
-   public String paging = "../data/paging";
-
 
    @Override
    public Object execute(ActionContext context) throws Exception
    {
-      printData(binding, journal, paging);
+      printData(getBinding(), getJournal(), getPaging());
       return null;
    }
 
-   public static void printData(String bindingsDirectory, String messagesDirectory, String pagingDirectory)
+   public static void printData(String bindingsDirectory, String messagesDirectory, String pagingDirectory) throws Exception
    {
+      // Having the version on the data report is an information very useful to understand what happened
+      // When debugging stuff
+      Artemis.printBanner();
+
       File serverLockFile = new File(messagesDirectory, "server.lock");
 
       if (serverLockFile.isFile())
