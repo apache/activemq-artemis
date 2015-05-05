@@ -704,6 +704,10 @@
                <configuration>
                  <compilerId>javac-with-errorprone</compilerId>
                  <forceJavacCompilerUse>true</forceJavacCompilerUse>
+                 <compilerArgs>
+                   <!-- DepAnn fail for generated sources. Changing to WARN instead -->
+                   <arg>-Xep:DepAnn:WARN</arg>
+                 </compilerArgs>
                </configuration>
                <dependencies>
                  <dependency>
