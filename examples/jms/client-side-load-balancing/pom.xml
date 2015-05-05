@@ -31,6 +31,10 @@ under the License.
    <packaging>jar</packaging>
    <name>ActiveMQ Artemis JMS Client Side Load Balancing Example</name>
 
+   <properties>
+      <activemq.basedir>${project.basedir}/../../..</activemq.basedir>
+   </properties>
+
    <dependencies>
       <dependency>
          <groupId>org.apache.activemq.examples.jms</groupId>

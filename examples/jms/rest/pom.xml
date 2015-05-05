@@ -32,6 +32,10 @@ under the License.
    <packaging>pom</packaging>
    <name>ActiveMQ Artemis REST Examples</name>
 
+   <properties>
+      <activemq.basedir>${project.basedir}/../../..</activemq.basedir>
+   </properties>
+
    <modules>
       <module>javascript-chat</module>
       <module>jms-to-rest</module>

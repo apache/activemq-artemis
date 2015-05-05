@@ -28,6 +28,11 @@ under the License.
    <artifactId>push</artifactId>
    <packaging>war</packaging>
    <name>Push Subscriptions</name>
+
+   <properties>
+      <activemq.basedir>${project.basedir}/../../../..</activemq.basedir>
+   </properties>
+
    <repositories>
       <repository>
          <id>jboss</id>

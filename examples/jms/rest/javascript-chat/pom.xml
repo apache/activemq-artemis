@@ -28,6 +28,11 @@ under the License.
    <artifactId>javascript-chat</artifactId>
    <packaging>war</packaging>
    <name>Browser Chat App</name>
+
+   <properties>
+      <activemq.basedir>${project.basedir}/../../../..</activemq.basedir>
+   </properties>
+
    <repositories>
       <repository>
          <id>jboss</id>
