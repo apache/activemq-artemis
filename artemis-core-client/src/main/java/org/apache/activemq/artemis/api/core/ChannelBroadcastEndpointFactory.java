@@ -30,6 +30,16 @@ public class ChannelBroadcastEndpointFactory implements BroadcastEndpointFactory
       this.channelName = channelName;
    }
 
+   public JChannel getChannel()
+   {
+      return channel;
+   }
+
+   public String getChannelName()
+   {
+      return channelName;
+   }
+
    @Override
    public BroadcastEndpoint createBroadcastEndpoint() throws Exception
    {
