@@ -285,6 +285,14 @@ Netty for simple TCP:
     connector will let the system pick up an ephemeral port. valid ports
     are 0 to 65535
 
+-   `connectionsAllowed`. This is only valid for acceptors. It limits the
+    number of connections which the acceptor will allow. When this limit
+    is reached a DEBUG level message is issued to the log, and the connection
+    is refused. The type of client in use will determine what happens when
+    the connection is refused. In the case of a `core` client, it will
+    result in a `org.apache.activemq.artemis.api.core.ActiveMQConnectionTimedOutException`.
+
+
 ## Configuring Netty SSL
 
 Netty SSL is similar to the Netty TCP transport but it provides

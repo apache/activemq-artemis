@@ -235,4 +235,9 @@ public interface Queue extends Bindable
    void postAcknowledge(MessageReference ref);
 
    float getRate();
+
+   /**
+    * @return the user who created this queue
+    */
+   SimpleString getUser();
 }

@@ -154,12 +154,21 @@ public class InVMConnector extends AbstractConnector
          return null;
       }
 
-      Connection conn = internalCreateConnection(acceptor.getHandler(), new Listener(), acceptor.getExecutorFactory()
-                                                                                                .getExecutor());
+      if (acceptor.getConnectionsAllowed() == -1 || acceptor.getConnectionCount() < acceptor.getConnectionsAllowed())
+      {
+         Connection conn = internalCreateConnection(acceptor.getHandler(), new Listener(), acceptor.getExecutorFactory().getExecutor());
 
-      acceptor.connect((String)conn.getID(), handler, this, executorFactory.getExecutor());
-
-      return conn;
+         acceptor.connect((String) conn.getID(), handler, this, executorFactory.getExecutor());
+         return conn;
+      }
+      else
+      {
+         if (ActiveMQServerLogger.LOGGER.isDebugEnabled())
+         {
+            ActiveMQServerLogger.LOGGER.debug(new StringBuilder().append("Connection limit of ").append(acceptor.getConnectionsAllowed()).append(" reached. Refusing connection."));
+         }
+         return null;
+      }
    }
 
    public synchronized void start()

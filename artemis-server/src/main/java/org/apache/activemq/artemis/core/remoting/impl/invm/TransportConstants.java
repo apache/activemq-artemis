@@ -23,6 +23,10 @@ public final class TransportConstants
 
    public static final int DEFAULT_SERVER_ID = 0;
 
+   public static final String CONNECTIONS_ALLOWED = "connectionsAllowed";
+
+   public static final long DEFAULT_CONNECTIONS_ALLOWED = -1L;
+
    private TransportConstants()
    {
       // Utility class

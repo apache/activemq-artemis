@@ -191,6 +191,10 @@ public class TransportConstants
 
    public static final int DEFAULT_NETTY_CONNECT_TIMEOUT = -1;
 
+   public static final String CONNECTIONS_ALLOWED = "connectionsAllowed";
+
+   public static final long DEFAULT_CONNECTIONS_ALLOWED = -1L;
+
    static
    {
       Set<String> allowableAcceptorKeys = new HashSet<String>();
@@ -224,6 +228,7 @@ public class TransportConstants
       allowableAcceptorKeys.add(TransportConstants.STOMP_MIN_LARGE_MESSAGE_SIZE);
       allowableAcceptorKeys.add(TransportConstants.CONNECTION_TTL);
       allowableAcceptorKeys.add(TransportConstants.STOMP_ENABLE_MESSAGE_ID);
+      allowableAcceptorKeys.add(TransportConstants.CONNECTIONS_ALLOWED);
       allowableAcceptorKeys.add(ActiveMQDefaultConfiguration.getPropMaskPassword());
       allowableAcceptorKeys.add(ActiveMQDefaultConfiguration.getPropPasswordCodec());
 

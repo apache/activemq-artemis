@@ -59,6 +59,7 @@ import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.server.group.impl.GroupingHandlerConfiguration;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.core.settings.impl.ResourceLimitSettings;
 import org.apache.activemq.artemis.core.settings.impl.SlowConsumerPolicy;
 import org.apache.activemq.artemis.uri.AcceptorTransportConfigurationParser;
 import org.apache.activemq.artemis.uri.ConnectorTransportConfigurationParser;
@@ -146,6 +147,10 @@ public final class FileConfigurationParser extends XMLConfigurationUtil
    private static final String AUTO_CREATE_JMS_QUEUES = "auto-create-jms-queues";
 
    private static final String AUTO_DELETE_JMS_QUEUES = "auto-delete-jms-queues";
+
+   private static final String MAX_CONNECTIONS_NODE_NAME = "max-connections";
+
+   private static final String MAX_QUEUES_NODE_NAME = "max-queues";
 
    // Attributes ----------------------------------------------------
 
@@ -611,6 +616,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil
 
       parseAddressSettings(e, config);
 
+      parseResourceLimits(e, config);
+
       parseQueues(e, config);
 
       parseSecurity(e, config);
@@ -685,6 +692,25 @@ public final class FileConfigurationParser extends XMLConfigurationUtil
          {
             Pair<String, AddressSettings> addressSettings = parseAddressSettings(list.item(i));
             config.getAddressesSettings().put(addressSettings.getA(), addressSettings.getB());
+         }
+      }
+   }
+
+   /**
+    * @param e
+    * @param config
+    */
+   private void parseResourceLimits(final Element e, final Configuration config)
+   {
+      NodeList elements = e.getElementsByTagName("resource-limit-settings");
+
+      if (elements.getLength() != 0)
+      {
+         Element node = (Element) elements.item(0);
+         NodeList list = node.getElementsByTagName("resource-limit-setting");
+         for (int i = 0; i < list.getLength(); i++)
+         {
+            config.addResourceLimitSettings(parseResourceLimitSettings(list.item(i)));
          }
       }
    }
@@ -901,6 +927,34 @@ public final class FileConfigurationParser extends XMLConfigurationUtil
          }
       }
       return setting;
+   }
+
+   /**
+    * @param node
+    * @return
+    */
+   protected ResourceLimitSettings parseResourceLimitSettings(final Node node)
+   {
+      ResourceLimitSettings resourceLimitSettings = new ResourceLimitSettings();
+
+      resourceLimitSettings.setMatch(SimpleString.toSimpleString(getAttributeValue(node, "match")));
+
+      NodeList children = node.getChildNodes();
+
+      for (int i = 0; i < children.getLength(); i++)
+      {
+         final Node child = children.item(i);
+         final String name = child.getNodeName();
+         if (MAX_CONNECTIONS_NODE_NAME.equalsIgnoreCase(name))
+         {
+            resourceLimitSettings.setMaxConnections(XMLUtil.parseInt(child));
+         }
+         else if (MAX_QUEUES_NODE_NAME.equalsIgnoreCase(name))
+         {
+            resourceLimitSettings.setMaxQueues(XMLUtil.parseInt(child));
+         }
+      }
+      return resourceLimitSettings;
    }
 
    protected CoreQueueConfiguration parseQueueConfiguration(final Node node)

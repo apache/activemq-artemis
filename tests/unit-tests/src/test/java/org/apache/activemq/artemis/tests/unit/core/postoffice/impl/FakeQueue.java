@@ -622,4 +622,10 @@ public class FakeQueue implements Queue
    {
       return 0.0f;
    }
+
+   @Override
+   public SimpleString getUser()
+   {
+      return null;
+   }
 }

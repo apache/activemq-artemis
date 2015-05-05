@@ -41,6 +41,7 @@ public class FakeQueueFactory implements QueueFactory
                             final SimpleString name,
                             final Filter filter,
                             final PageSubscription subscription,
+                            final SimpleString user,
                             final boolean durable,
                             final boolean temporary,
                             final boolean autoCreated)
@@ -50,6 +51,7 @@ public class FakeQueueFactory implements QueueFactory
                            name,
                            filter,
                            subscription,
+                           user,
                            durable,
                            temporary,
                            autoCreated,

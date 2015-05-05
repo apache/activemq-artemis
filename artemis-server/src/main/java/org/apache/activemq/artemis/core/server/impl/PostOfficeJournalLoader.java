@@ -155,6 +155,7 @@ public class PostOfficeJournalLoader implements JournalLoader
                                                 queueBindingInfo.getQueueName(),
                                                 filter,
                                                 subscription,
+                                                queueBindingInfo.getUser(),
                                                 true,
                                                 false,
                                                 queueBindingInfo.isAutoCreated());

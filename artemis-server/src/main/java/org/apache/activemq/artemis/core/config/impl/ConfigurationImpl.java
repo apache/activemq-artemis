@@ -47,6 +47,7 @@ import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.server.group.impl.GroupingHandlerConfiguration;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.core.settings.impl.ResourceLimitSettings;
 
 public class ConfigurationImpl implements Configuration, Serializable
 {
@@ -199,6 +200,8 @@ public class ConfigurationImpl implements Configuration, Serializable
    protected GroupingHandlerConfiguration groupingHandlerConfiguration;
 
    private Map<String, AddressSettings> addressesSettings = new HashMap<String, AddressSettings>();
+
+   private Map<String, ResourceLimitSettings> resourceLimitSettings = new HashMap<String, ResourceLimitSettings>();
 
    private Map<String, Set<Role>> securitySettings = new HashMap<String, Set<Role>>();
 
@@ -1020,6 +1023,26 @@ public class ConfigurationImpl implements Configuration, Serializable
    public ConfigurationImpl addAddressesSetting(String key, AddressSettings addressesSetting)
    {
       this.addressesSettings.put(key, addressesSetting);
+      return this;
+   }
+
+   @Override
+   public Map<String, ResourceLimitSettings> getResourceLimitSettings()
+   {
+      return resourceLimitSettings;
+   }
+
+   @Override
+   public ConfigurationImpl setResourceLimitSettings(final Map<String, ResourceLimitSettings> resourceLimitSettings)
+   {
+      this.resourceLimitSettings = resourceLimitSettings;
+      return this;
+   }
+
+   @Override
+   public ConfigurationImpl addResourceLimitSettings(ResourceLimitSettings resourceLimitSettings)
+   {
+      this.resourceLimitSettings.put(resourceLimitSettings.getMatch().toString(), resourceLimitSettings);
       return this;
    }
 

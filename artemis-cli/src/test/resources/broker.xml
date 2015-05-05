@@ -24,15 +24,15 @@ under the License.
       <queue name="ExpiryQueue"/>
    </jms>
    <core xmlns="urn:activemq:core">
-      <paging-directory>${data.dir:../data}/paging</paging-directory>
+      <paging-directory>./target/paging</paging-directory>
 
-      <bindings-directory>${data.dir:../data}/bindings</bindings-directory>
+      <bindings-directory>./target/bindings</bindings-directory>
 
-      <journal-directory>${data.dir:../data}/journal</journal-directory>
+      <journal-directory>./target/journal</journal-directory>
 
       <journal-min-files>10</journal-min-files>
 
-      <large-messages-directory>${data.dir:../data}/large-messages</large-messages-directory>
+      <large-messages-directory>./target/large-messages</large-messages-directory>
 
       <connectors>
          <!-- Default Connector.  Returned to clients during broadcast and distributed around cluster.  See broadcast and discovery-groups -->

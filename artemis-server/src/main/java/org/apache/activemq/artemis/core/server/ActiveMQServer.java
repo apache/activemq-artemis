@@ -181,6 +181,7 @@ public interface ActiveMQServer extends ActiveMQComponent
    void createSharedQueue(final SimpleString address,
                            final SimpleString name,
                            final SimpleString filterString,
+                           final SimpleString user,
                            boolean durable) throws Exception;
 
    Queue createQueue(SimpleString address,
@@ -192,6 +193,14 @@ public interface ActiveMQServer extends ActiveMQComponent
    Queue createQueue(SimpleString address,
                      SimpleString queueName,
                      SimpleString filter,
+                     SimpleString user,
+                     boolean durable,
+                     boolean temporary) throws Exception;
+
+   Queue createQueue(SimpleString address,
+                     SimpleString queueName,
+                     SimpleString filter,
+                     SimpleString user,
                      boolean durable,
                      boolean temporary,
                      boolean autoCreated) throws Exception;

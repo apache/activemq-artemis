@@ -117,6 +117,7 @@ import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.settings.impl.HierarchicalObjectRepository;
 import org.apache.activemq.artemis.core.transaction.ResourceManager;
+import org.apache.activemq.artemis.core.settings.impl.ResourceLimitSettings;
 import org.apache.activemq.artemis.core.transaction.impl.ResourceManagerImpl;
 import org.apache.activemq.artemis.core.version.Version;
 import org.apache.activemq.artemis.spi.core.protocol.ProtocolManagerFactory;
@@ -1045,6 +1046,9 @@ public class ActiveMQServerImpl implements ActiveMQServer
       {
          securityStore.authenticate(username, password);
       }
+
+      checkSessionLimit(username);
+
       final OperationContext context = storageManager.newContext(getExecutorFactory().getExecutor());
       final ServerSessionImpl session = internalCreateSession(name, username, password, minLargeMessageSize,
                                                               connection, autoCommitSends, autoCommitAcks, preAcknowledge,
@@ -1053,6 +1057,73 @@ public class ActiveMQServerImpl implements ActiveMQServer
       sessions.put(name, session);
 
       return session;
+   }
+
+   private void checkSessionLimit(String username) throws Exception
+   {
+      if (configuration.getResourceLimitSettings() != null && configuration.getResourceLimitSettings().containsKey(username))
+      {
+         ResourceLimitSettings limits = configuration.getResourceLimitSettings().get(username);
+
+         if (limits.getMaxConnections() == -1)
+         {
+            return;
+         }
+         else if (limits.getMaxConnections() == 0 || getSessionCountForUser(username) >= limits.getMaxConnections())
+         {
+            throw ActiveMQMessageBundle.BUNDLE.sessionLimitReached(username, limits.getMaxConnections());
+         }
+      }
+   }
+
+   private int getSessionCountForUser(String username)
+   {
+      int sessionCount = 0;
+
+      for (Entry<String, ServerSession> sessionEntry : sessions.entrySet())
+      {
+         if (sessionEntry.getValue().getUsername().toString().equals(username))
+         {
+            sessionCount++;
+         }
+      }
+
+      return sessionCount;
+   }
+
+   public void checkQueueCreationLimit(String username) throws Exception
+   {
+      if (configuration.getResourceLimitSettings() != null && configuration.getResourceLimitSettings().containsKey(username))
+      {
+         ResourceLimitSettings limits = configuration.getResourceLimitSettings().get(username);
+
+         if (limits.getMaxQueues() == -1)
+         {
+            return;
+         }
+         else if (limits.getMaxQueues() == 0 || getQueueCountForUser(username) >= limits.getMaxQueues())
+         {
+            throw ActiveMQMessageBundle.BUNDLE.queueLimitReached(username, limits.getMaxConnections());
+         }
+      }
+   }
+
+   public int getQueueCountForUser(String username) throws Exception
+   {
+      Map<SimpleString, Binding> bindings = postOffice.getAllBindings();
+
+      int queuesForUser = 0;
+
+      for (Binding binding : bindings.values())
+      {
+         if (binding instanceof LocalQueueBinding && ((LocalQueueBinding) binding).getQueue().getUser().equals(SimpleString.toSimpleString(username)))
+         {
+            queuesForUser++;
+         }
+      }
+
+      return queuesForUser;
+
    }
 
    protected ServerSessionImpl internalCreateSession(String name, String username,
@@ -1207,17 +1278,28 @@ public class ActiveMQServerImpl implements ActiveMQServer
                             final boolean durable,
                             final boolean temporary) throws Exception
    {
-      return createQueue(address, queueName, filterString, durable, temporary, false, false, false);
+      return createQueue(address, queueName, filterString, null, durable, temporary, false, false, false);
    }
 
    public Queue createQueue(final SimpleString address,
                             final SimpleString queueName,
                             final SimpleString filterString,
+                            final SimpleString user,
+                            final boolean durable,
+                            final boolean temporary) throws Exception
+   {
+      return createQueue(address, queueName, filterString, user, durable, temporary, false, false, false);
+   }
+
+   public Queue createQueue(final SimpleString address,
+                            final SimpleString queueName,
+                            final SimpleString filterString,
+                            final SimpleString user,
                             final boolean durable,
                             final boolean temporary,
                             final boolean autoCreated) throws Exception
    {
-      return createQueue(address, queueName, filterString, durable, temporary, false, false, autoCreated);
+      return createQueue(address, queueName, filterString, user, durable, temporary, false, false, autoCreated);
    }
 
    /**
@@ -1235,9 +1317,10 @@ public class ActiveMQServerImpl implements ActiveMQServer
    public void createSharedQueue(final SimpleString address,
                                  final SimpleString name,
                                  final SimpleString filterString,
+                                 final SimpleString user,
                                  boolean durable) throws Exception
    {
-      Queue queue = createQueue(address, name, filterString, durable, !durable, true, !durable, false);
+      Queue queue = createQueue(address, name, filterString, user, durable, !durable, true, !durable, false);
 
       if (!queue.getAddress().equals(address))
       {
@@ -1286,7 +1369,7 @@ public class ActiveMQServerImpl implements ActiveMQServer
    {
       ActiveMQServerLogger.LOGGER.deployQueue(queueName);
 
-      return createQueue(address, queueName, filterString, durable, temporary, true, false, false);
+      return createQueue(address, queueName, filterString, null, durable, temporary, true, false, false);
    }
 
    public void destroyQueue(final SimpleString queueName) throws Exception
@@ -1960,6 +2043,7 @@ public class ActiveMQServerImpl implements ActiveMQServer
    private Queue createQueue(final SimpleString address,
                              final SimpleString queueName,
                              final SimpleString filterString,
+                             final SimpleString user,
                              final boolean durable,
                              final boolean temporary,
                              final boolean ignoreIfExists,
@@ -2003,6 +2087,7 @@ public class ActiveMQServerImpl implements ActiveMQServer
                                                    queueName,
                                                    filter,
                                                    pageSubscription,
+                                                   user,
                                                    durable,
                                                    temporary,
                                                    autoCreated);
