@@ -37,7 +37,7 @@ public class InVMServerLocatorSchema extends AbstractServerLocatorSchema
    @Override
    protected ServerLocator internalNewObject(URI uri, Map<String, String> query, String name) throws Exception
    {
-      TransportConfiguration tc = InVMTransportConfigurationSchema.createTransportConfiguration(uri, name, "org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory");
+      TransportConfiguration tc = InVMTransportConfigurationSchema.createTransportConfiguration(uri, query, name, "org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory");
       ServerLocator factory = ActiveMQClient.createServerLocatorWithoutHA(tc);
       return URISchema.setData(uri, factory, query);
    }
