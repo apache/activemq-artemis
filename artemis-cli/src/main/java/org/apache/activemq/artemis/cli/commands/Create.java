@@ -94,7 +94,7 @@ public class Create implements Action
       context.out.println(String.format("Creating ActiveMQ Artemis instance at: %s", directory.getCanonicalPath()));
       if (host == null)
       {
-         host = directory.getName();
+         host = "localhost";
       }
 
       HashMap<String, String> filters = new HashMap<String, String>();
@@ -112,7 +112,7 @@ public class Create implements Action
          clustered = true;
          sharedStoreSettings = readTextFile("etc/shared-store-settings.txt");
       }
-      filters.put("${hared-store.settings}", sharedStoreSettings);
+      filters.put("${shared-store.settings}", sharedStoreSettings);
 
       String clusterSettings = "";
       if (clustered)
