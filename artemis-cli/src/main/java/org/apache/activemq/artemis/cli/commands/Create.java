@@ -112,7 +112,7 @@ public class Create implements Action
          clustered = true;
          sharedStoreSettings = readTextFile("etc/shared-store-settings.txt");
       }
-      filters.put("${hared-store.settings}", sharedStoreSettings);
+      filters.put("${shared-store.settings}", sharedStoreSettings);
 
       String clusterSettings = "";
       if (clustered)
