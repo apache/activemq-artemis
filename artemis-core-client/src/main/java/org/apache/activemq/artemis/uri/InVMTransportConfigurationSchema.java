@@ -27,6 +27,11 @@ import java.util.Map;
 
 public class InVMTransportConfigurationSchema extends AbstractTransportConfigurationSchema
 {
+   /* This is the same as org.apache.activemq.artemis.core.remoting.impl.invm.TransportConstants.CONNECTIONS_ALLOWED,
+    * but this Maven module can't see that class.
+    */
+   public static final String CONNECTIONS_ALLOWED = "connectionsAllowed";
+
    @Override
    public String getSchemaName()
    {
@@ -37,7 +42,7 @@ public class InVMTransportConfigurationSchema extends AbstractTransportConfigura
    protected List<TransportConfiguration> internalNewObject(URI uri, Map<String, String> query, String name) throws Exception
    {
       List<TransportConfiguration> configurations = new ArrayList<>();
-      configurations.add(createTransportConfiguration(uri, name, getFactoryName()));
+      configurations.add(createTransportConfiguration(uri, query, name, getFactoryName()));
       return configurations;
    }
 
@@ -52,10 +57,14 @@ public class InVMTransportConfigurationSchema extends AbstractTransportConfigura
       return "org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory";
    }
 
-   public static TransportConfiguration createTransportConfiguration(URI uri, String name, String factoryName)
+   public static TransportConfiguration createTransportConfiguration(URI uri, Map<String, String> query, String name, String factoryName)
    {
       Map<String, Object> inVmTransportConfig = new HashMap<>();
       inVmTransportConfig.put("serverId", uri.getHost());
+      if (query.containsKey(CONNECTIONS_ALLOWED))
+      {
+         inVmTransportConfig.put(CONNECTIONS_ALLOWED, query.get(CONNECTIONS_ALLOWED));
+      }
       return new TransportConfiguration(factoryName, inVmTransportConfig, name);
    }
 }

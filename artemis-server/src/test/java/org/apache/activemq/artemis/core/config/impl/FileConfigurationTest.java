@@ -36,6 +36,7 @@ import org.apache.activemq.artemis.core.config.DivertConfiguration;
 import org.apache.activemq.artemis.core.config.FileDeploymentManager;
 import org.apache.activemq.artemis.core.config.HAPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.LiveOnlyPolicyConfiguration;
+import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.settings.impl.SlowConsumerPolicy;
@@ -130,12 +131,14 @@ public class FileConfigurationTest extends ConfigurationImplTest
          {
             Assert.assertEquals("456", ac.getParams().get("tcpNoDelay"));
             Assert.assertEquals("44", ac.getParams().get("connectionTtl"));
+            Assert.assertEquals("92", ac.getParams().get(TransportConstants.CONNECTIONS_ALLOWED));
          }
          else
          {
             Assert.assertEquals("org.apache.activemq.artemis.core.remoting.impl.invm.InVMAcceptorFactory",
                                 ac.getFactoryClassName());
             Assert.assertEquals("0", ac.getParams().get("serverId"));
+            Assert.assertEquals("87", ac.getParams().get(org.apache.activemq.artemis.core.remoting.impl.invm.TransportConstants.CONNECTIONS_ALLOWED));
          }
       }
 
