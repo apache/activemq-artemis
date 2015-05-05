@@ -42,6 +42,8 @@ public abstract class Configurable
 
    private String brokerInstance;
 
+   private String brokerHome;
+
    private FileConfiguration fileConfiguration;
 
    protected String getBrokerInstance()
@@ -59,6 +61,23 @@ public abstract class Configurable
          }
       }
       return brokerInstance;
+   }
+
+   protected String getBrokerHome()
+   {
+      if (brokerHome == null)
+      {
+         /* We use File URI for locating files.  The ARTEMIS_HOME variable is used to determine file paths.  For Windows
+         the ARTEMIS_HOME variable will include back slashes (An invalid file URI character path separator).  For this
+         reason we overwrite the ARTEMIS_HOME variable with backslashes replaced with forward slashes. */
+         brokerHome = System.getProperty("artemis.home");
+         if (brokerHome != null)
+         {
+            brokerHome = brokerHome.replace("\\", "/");
+            System.setProperty("artemis.home", brokerHome);
+         }
+      }
+      return brokerHome;
    }
 
 

@@ -21,5 +21,5 @@ import org.apache.activemq.artemis.dto.ComponentDTO;
 
 public interface ExternalComponent extends ActiveMQComponent
 {
-   void configure(ComponentDTO config, String activemqHome) throws Exception;
+   void configure(ComponentDTO config, String artemisInstance, String artemisHome) throws Exception;
 }

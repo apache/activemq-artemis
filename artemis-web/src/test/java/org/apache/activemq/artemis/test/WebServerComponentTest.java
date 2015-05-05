@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.test;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
@@ -39,11 +44,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-
 public class WebServerComponentTest extends Assert
 {
    static final String URL = System.getProperty("url", "http://localhost:8161/WebServerComponentTest.txt");
@@ -64,7 +64,7 @@ public class WebServerComponentTest extends Assert
       webServerDTO.bind = "http://localhost:8161";
       webServerDTO.path = "webapps";
       WebServerComponent webServerComponent = new WebServerComponent();
-      webServerComponent.configure(webServerDTO, "./src/test/resources/");
+      webServerComponent.configure(webServerDTO, "./src/test/resources/", "./src/test/resources/");
       webServerComponent.start();
       // Make the connection attempt.
       CountDownLatch latch = new CountDownLatch(1);
