@@ -62,14 +62,14 @@ under the License.
 
       <connector-services>
          <connector-service name="my-incoming-vertx">
-            <factory-class>org.apache.activemq.integration.vertx.VertxIncomingConnectorServiceFactory</factory-class>
+            <factory-class>org.apache.activemq.artemis.integration.vertx.VertxIncomingConnectorServiceFactory</factory-class>
             <param key="queue" value="queue.vertxQueue"/>
             <param key="host" value="localhost"/>
             <param key="port" value="0"/>
             <param key="vertx-address" value="incoming.vertx.address"/>
          </connector-service>
          <connector-service name="my-outgoing-vertx">
-            <factory-class>org.apache.activemq.integration.vertx.VertxOutgoingConnectorServiceFactory</factory-class>
+            <factory-class>org.apache.activemq.artemis.integration.vertx.VertxOutgoingConnectorServiceFactory</factory-class>
             <param key="queue" value="queue.vertxQueue"/>
             <param key="host" value="localhost"/>
             <param key="port" value="0"/>
@@ -77,5 +77,5 @@ under the License.
          </connector-service>
       </connector-services>
    </core>
-   
+
 </configuration>

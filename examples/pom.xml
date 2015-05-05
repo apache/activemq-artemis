@@ -35,6 +35,7 @@ under the License.
    <properties>
       <skipLicenseCheck>true</skipLicenseCheck>
       <skipStyleCheck>true</skipStyleCheck>
+      <activemq.basedir>${project.basedir}/..</activemq.basedir>
    </properties>
 
    <repositories>

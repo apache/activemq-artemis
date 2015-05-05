@@ -34,6 +34,7 @@ under the License.
 
    <properties>
       <udp-address>231.7.7.7</udp-address>
+      <activemq.basedir>${project.basedir}/../..</activemq.basedir>
    </properties>
 
    <profiles>

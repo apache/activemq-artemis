@@ -100,7 +100,7 @@
          -Djava.net.preferIPv4Stack=true
       </activemq-surefire-argline>
       <activemq.basedir>${project.basedir}</activemq.basedir>
-      <skipLicenseCheck>true</skipLicenseCheck>
+      <skipLicenseCheck>false</skipLicenseCheck>
       <skipStyleCheck>false</skipStyleCheck>
       <geronimo.jms.2.spec.version>1.0-alpha-1</geronimo.jms.2.spec.version>
    </properties>
@@ -904,32 +904,18 @@
             <artifactId>apache-rat-plugin</artifactId>
             <version>0.11</version>
             <configuration>
-               <skip>${skipLicenseCheck}</skip>
+               <reportFile>${activemq.basedir}/ratReport.txt</reportFile>
                <excludes>
-                  <exclude>**/*.bin</exclude>
-                  <exclude>**/*.log</exclude>
                   <exclude>**/*.txt</exclude>
-                  <exclude>**/src/main/resources/licenses/</exclude>
                   <exclude>**/*.md</exclude>
-                  <exclude>**/banner.txt</exclude>
-                  <exclude>docs/quickstart-guide/target/**/*.log</exclude>
-                  <exclude>docs/user-manual/target/**/*.log</exclude>
-                  <exclude>**/resources/webapps/WebServerComponentTest.txt</exclude>
-                  <exclude>integration/activemq-jboss-as-integration/target/checkstyle-cachefile</exclude>
-                  <exclude>integration/activemq-jboss-as-integration/target/**/*.lst</exclude>
                   <exclude>etc/org.eclipse.*</exclude>
                   <exclude>docs/user-manual/en/*.json</exclude>
                   <exclude>**/target/</exclude>
-                  <exclude>**/data/</exclude>
-                  <exclude>**/*.bindings</exclude>
-                  <exclude>**/*.lock</exclude>
                   <exclude>**/META-INF/services/*</exclude>
                   <exclude>**/*.iml</exclude>
-                  <exclude>**/*.jceks</exclude>
-                  <exclude>**/*.jks</exclude>
                   <exclude>**/org/apache/activemq/artemis/utils/json/**</exclude>
-                  <exclude>**/src/main/resources/META-INF/LICENSE</exclude>
                   <exclude>**/org/apache/activemq/artemis/utils/Base64.java</exclude>
+                  <exclude>ratReport.txt</exclude>
                </excludes>
             </configuration>
             <executions>
