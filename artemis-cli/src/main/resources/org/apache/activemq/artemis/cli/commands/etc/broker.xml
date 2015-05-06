@@ -55,7 +55,7 @@ under the License.
          <acceptor name="hornetq">tcp://${activemq.remoting.hornetq.host:${host}}:${activemq.remoting.hornetq.port:${hq.port}}?protocols=CORE,STOMP</acceptor>
       </acceptors>
 
-      ${cluster.settings}${replicated.settings}${shared-store.settings}
+      ${cluster-security.settings}${cluster.settings}${replicated.settings}${shared-store.settings}
 
       <security-settings>
          <security-setting match="#">
