@@ -943,6 +943,7 @@
             <version>0.11</version>
             <configuration>
                <reportFile>${activemq.basedir}/ratReport.txt</reportFile>
+               <skip>${skipLicenseCheck}</skip>
                <excludes>
                   <exclude>**/*.txt</exclude>
                   <exclude>**/*.md</exclude>
