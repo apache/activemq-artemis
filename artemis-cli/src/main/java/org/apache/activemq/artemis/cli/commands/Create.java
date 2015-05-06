@@ -30,6 +30,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -52,20 +53,28 @@ import static java.nio.file.attribute.PosixFilePermission.OWNER_WRITE;
 @Command(name = "create", description = "creates a new broker instance")
 public class Create implements Action
 {
+   private static final Integer DEFAULT_PORT = 61616;
+
+   private static final Integer AMQP_PORT = 5672;
+
+   private static final Integer STOMP_PORT = 61613;
+
+   private static final Integer HQ_PORT = 5445;
+
    @Arguments(description = "The instance directory to hold the broker's configuration and data", required = true)
    File directory;
 
    @Option(name = "--host", description = "The host name of the broker")
    String host;
 
+   @Option(name = "--port-offset", description = "Off sets the default ports")
+   int portOffset;
+
    @Option(name = "--force", description = "Overwrite configuration at destination directory")
    boolean force;
 
    @Option(name = "--home", description = "Directory where ActiveMQ Artemis is installed")
    File home;
-
-   @Option(name = "--with-ssl", description = "Generate an SSL enabled configuration")
-   boolean with_ssl = true;
 
    @Option(name = "--clustered", description = "Enable clustering")
    boolean clustered = false;
@@ -76,11 +85,21 @@ public class Create implements Action
    @Option(name = "--shared-store", description = "Enable broker shared store")
    boolean sharedStore = false;
 
+   @Option(name = "--cluster-user", description = "The cluster user to use for clustering")
+   String clusterUser = null;
+
+   @Option(name = "--cluster-password", description = "The cluster password to use for clustering")
+   String clusterPassword = null;
+
    @Option(name = "--encoding", description = "The encoding that text files should use")
    String encoding = "UTF-8";
 
    ActionContext context;
+
+   private Scanner scanner;
+
    boolean IS_WINDOWS;
+
    boolean IS_CYGWIN;
 
    @Override
@@ -100,13 +119,9 @@ public class Create implements Action
    public Object run(ActionContext context) throws Exception
    {
       this.context = context;
+      scanner = new Scanner(System.in);
       IS_WINDOWS = System.getProperty("os.name").toLowerCase().trim().startsWith("win");
-      IS_CYGWIN = IS_WINDOWS && System.getenv("OSTYPE") == "cygwin";
-
-      if (clustered & sharedStore)
-      {
-
-      }
+      IS_CYGWIN = IS_WINDOWS && "cygwin".equals(System.getenv("OSTYPE"));
 
       context.out.println(String.format("Creating ActiveMQ Artemis instance at: %s", directory.getCanonicalPath()));
       if (host == null)
@@ -132,15 +147,47 @@ public class Create implements Action
       filters.put("${shared-store.settings}", sharedStoreSettings);
 
       String clusterSettings = "";
+      String clusterSecuritySettings = "";
+      String clusterUserSettings = "";
+      String clusterPasswordSettings = "";
       if (clustered)
       {
          clusterSettings = readTextFile("etc/cluster-settings.txt");
+
+         if (clusterUser == null)
+         {
+            clusterUser = input("Please provide a user name for clustering (leave empty for default)");
+         }
+
+         if (clusterUser != null && clusterUser.length() > 0)
+         {
+            clusterUserSettings = clusterUser;
+            clusterSecuritySettings = readTextFile("etc/cluster-security-settings.txt");
+         }
+
+         if (clusterPassword == null)
+         {
+            clusterPassword = input("Please provide a password for clustering (leave empty for default)");
+
+         }
+
+         if (clusterPassword != null && clusterPassword.length() > 0)
+         {
+            clusterPasswordSettings = clusterPassword;
+         }
       }
+      filters.put("${cluster-security.settings}", clusterSecuritySettings);
       filters.put("${cluster.settings}", clusterSettings);
+      filters.put("${cluster-user}", clusterUserSettings);
+      filters.put("${cluster-password}", clusterPasswordSettings);
 
 
       filters.put("${user}", System.getProperty("user.name", ""));
       filters.put("${host}", host);
+      filters.put("${default.port}", String.valueOf(DEFAULT_PORT + portOffset));
+      filters.put("${amqp.port}", String.valueOf(AMQP_PORT + portOffset));
+      filters.put("${stomp.port}", String.valueOf(STOMP_PORT + portOffset));
+      filters.put("${hq.port}", String.valueOf(HQ_PORT + portOffset));
       if (home != null)
       {
          filters.put("${home}", path(home, false));
@@ -223,6 +270,12 @@ public class Create implements Action
       }
 
       return null;
+   }
+
+   private String input(String prompt)
+   {
+      context.out.println(prompt);
+      return scanner.nextLine();
    }
 
    private void makeExec(String path) throws IOException
