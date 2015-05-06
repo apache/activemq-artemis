@@ -75,9 +75,6 @@ public class Create implements Action
    @Option(name = "--home", description = "Directory where ActiveMQ Artemis is installed")
    File home;
 
-   @Option(name = "--with-ssl", description = "Generate an SSL enabled configuration")
-   boolean with_ssl = true;
-
    @Option(name = "--clustered", description = "Enable clustering")
    boolean clustered = false;
 
