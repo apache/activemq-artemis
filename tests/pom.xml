@@ -80,6 +80,9 @@
          <modules>
             <module>extra-tests</module>
          </modules>
+         <properties>
+            <skipExtraTests>false</skipExtraTests>
+         </properties>
       </profile>
    </profiles>
 
