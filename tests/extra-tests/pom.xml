@@ -219,6 +219,14 @@
                   <BYTEMAN_HOME></BYTEMAN_HOME>
                </environmentVariables>
                <systemProperties>
+                  <property>
+                     <name>com.arjuna.ats.arjuna.objectstore.objectStoreDir</name>
+                     <value>target/ObjectStore</value>
+                  </property>
+                  <property>
+                     <name>ObjectStoreEnvironmentBean.objectStoreDir</name>
+                     <value>target/ObjectStore</value>
+                  </property>
                   <!--
                   <property>
                      <name>org.jboss.byteman.home</name>
