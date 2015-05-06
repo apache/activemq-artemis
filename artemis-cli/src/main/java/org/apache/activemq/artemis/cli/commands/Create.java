@@ -52,11 +52,22 @@ import static java.nio.file.attribute.PosixFilePermission.OWNER_WRITE;
 @Command(name = "create", description = "creates a new broker instance")
 public class Create implements Action
 {
+   private static final Integer DEFAULT_PORT = 61616;
+
+   private static final Integer AMQP_PORT = 5672;
+
+   private static final Integer STOMP_PORT = 61613;
+
+   private static final Integer HQ_PORT = 5445;
+
    @Arguments(description = "The instance directory to hold the broker's configuration and data", required = true)
    File directory;
 
    @Option(name = "--host", description = "The host name of the broker")
    String host;
+
+   @Option(name = "--port-offset", description = "Off sets the default ports")
+   int portOffset;
 
    @Option(name = "--force", description = "Overwrite configuration at destination directory")
    boolean force;
@@ -141,6 +152,10 @@ public class Create implements Action
 
       filters.put("${user}", System.getProperty("user.name", ""));
       filters.put("${host}", host);
+      filters.put("${default.port}", String.valueOf(DEFAULT_PORT + portOffset));
+      filters.put("${amqp.port}", String.valueOf(AMQP_PORT + portOffset));
+      filters.put("${stomp.port}", String.valueOf(STOMP_PORT + portOffset));
+      filters.put("${hq.port}", String.valueOf(HQ_PORT + portOffset));
       if (home != null)
       {
          filters.put("${home}", path(home, false));
