@@ -211,6 +211,7 @@
          <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-surefire-plugin</artifactId>
+            <version>2.18.1</version>
             <configuration>
                <skipTests>${skipExtraTests}</skipTests>
                <!-- ensure we don't inherit a byteman jar form any env settings -->
@@ -239,11 +240,15 @@
                </systemProperties>
                <!-- make sure maven puts the byteman jar in the classpath rather than in a manifest jar -->
                <useManifestOnlyJar>false</useManifestOnlyJar>
-               <forkMode>once</forkMode>
+               <!-- when upgrading this plugin from 2.4 to 2.18.1 <forkMode>once</forkMode> was replaced with these: -->
+               <forkCount>1</forkCount>
+               <reuseForks>true</reuseForks>
                <!--
                <debugForkedProcess>true</debugForkedProcess>
                -->
-               <parallel>false</parallel>
+
+               <!-- the option <parallel>false</parallel> is not supported after the plugin upgrade from 2.4 to 2.18.1 -->
+
                <!--<argLine>${activemq-surefire-argline} -Dorg.jboss.byteman.verbose -Dorg.jboss.byteman.contrib.bmunit.verbose</argLine>-->
                <!-- '-noverify' is needed here to fix VerifyErrors on ScaleDownFailoverTest and ScaleDownFailureTest (and their subclasses). I got the tip from https://issues.jboss.org/browse/BYTEMAN-248. -->
                <argLine>${activemq-surefire-argline} -noverify</argLine>
