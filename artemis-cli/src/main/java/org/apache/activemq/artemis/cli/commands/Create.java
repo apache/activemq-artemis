@@ -121,7 +121,7 @@ public class Create implements Action
       this.context = context;
       scanner = new Scanner(System.in);
       IS_WINDOWS = System.getProperty("os.name").toLowerCase().trim().startsWith("win");
-      IS_CYGWIN = IS_WINDOWS && System.getenv("OSTYPE") == "cygwin";
+      IS_CYGWIN = IS_WINDOWS && "cygwin".equals(System.getenv("OSTYPE"));
 
       context.out.println(String.format("Creating ActiveMQ Artemis instance at: %s", directory.getCanonicalPath()));
       if (host == null)
