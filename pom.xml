@@ -913,6 +913,8 @@
                   <exclude>**/target/</exclude>
                   <exclude>**/META-INF/services/*</exclude>
                   <exclude>**/*.iml</exclude>
+                  <exclude>**/*.jceks</exclude>
+                  <exclude>**/*.jks</exclude>
                   <exclude>**/org/apache/activemq/artemis/utils/json/**</exclude>
                   <exclude>**/org/apache/activemq/artemis/utils/Base64.java</exclude>
                   <exclude>ratReport.txt</exclude>
