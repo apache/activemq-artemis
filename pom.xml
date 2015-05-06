@@ -100,8 +100,8 @@
          -Djava.net.preferIPv4Stack=true
       </activemq-surefire-argline>
       <activemq.basedir>${project.basedir}</activemq.basedir>
-      <skipLicenseCheck>false</skipLicenseCheck>
-      <skipStyleCheck>false</skipStyleCheck>
+      <skipLicenseCheck>true</skipLicenseCheck>
+      <skipStyleCheck>true</skipStyleCheck>
       <geronimo.jms.2.spec.version>1.0-alpha-1</geronimo.jms.2.spec.version>
    </properties>
 
@@ -481,10 +481,41 @@
 
    <profiles>
       <profile>
-         <id>distro</id>
+         <id>dev</id>
          <activation>
             <activeByDefault>true</activeByDefault>
          </activation>
+         <modules>
+            <module>artemis-boot</module>
+            <module>artemis-dto</module>
+            <module>artemis-web</module>
+            <module>artemis-website</module>
+            <module>artemis-cli</module>
+            <module>artemis-commons</module>
+            <module>artemis-selector</module>
+            <module>artemis-core-client</module>
+            <module>artemis-server</module>
+            <module>artemis-jms-client</module>
+            <module>artemis-jms-server</module>
+            <module>artemis-native</module>
+            <module>artemis-protocols</module>
+            <module>artemis-journal</module>
+            <module>artemis-ra</module>
+            <module>artemis-rest</module>
+            <module>artemis-service-extensions</module>
+            <module>artemis-maven-plugin</module>
+            <module>integration/activemq-spring-integration</module>
+            <module>integration/activemq-aerogear-integration</module>
+            <module>integration/activemq-vertx-integration</module>
+            <module>tests</module>
+         </modules>
+         <properties>
+            <skipStyleCheck>false</skipStyleCheck>
+            <skipLicenseCheck>false</skipLicenseCheck>
+         </properties>
+      </profile>
+      <profile>
+         <id>distro</id>
          <modules>
             <module>artemis-dto</module>
             <module>artemis-web</module>
@@ -535,6 +566,10 @@
             <module>tests</module>
             <module>artemis-distribution</module>
          </modules>
+         <properties>
+            <skipStyleCheck>false</skipStyleCheck>
+            <skipLicenseCheck>false</skipLicenseCheck>
+         </properties>
       </profile>
       <profile>
          <!-- tests is the profile we use to run the entire testsuite
@@ -574,6 +609,8 @@
             <skipSoakTests>true</skipSoakTests>
             <skipPerformanceTests>true</skipPerformanceTests>
             <skipExtraTests>false</skipExtraTests>
+            <skipStyleCheck>false</skipStyleCheck>
+            <skipLicenseCheck>false</skipLicenseCheck>
          </properties>
       </profile>
       <profile>
@@ -609,6 +646,7 @@
             <skipRestTests>false</skipRestTests>
             <skipExtraTests>false</skipExtraTests>
             <skipStyleCheck>false</skipStyleCheck>
+            <skipLicenseCheck>false</skipLicenseCheck>
          </properties>
       </profile>
       <profile>
