@@ -67,10 +67,10 @@ public class ReplicationBackupTest extends ServiceTestBase
       final String suffix = "_backup";
 
       Configuration backupConfig = createDefaultConfig()
-         .setBindingsDirectory(ActiveMQDefaultConfiguration.getDefaultBindingsDirectory() + suffix)
-         .setJournalDirectory(ActiveMQDefaultConfiguration.getDefaultJournalDir() + suffix)
-         .setPagingDirectory(ActiveMQDefaultConfiguration.getDefaultPagingDir() + suffix)
-         .setLargeMessagesDirectory(ActiveMQDefaultConfiguration.getDefaultLargeMessagesDir() + suffix);
+         .setBindingsDirectory("./target/" + ActiveMQDefaultConfiguration.getDefaultBindingsDirectory() + suffix)
+         .setJournalDirectory("./target/" + ActiveMQDefaultConfiguration.getDefaultJournalDir() + suffix)
+         .setPagingDirectory("./target/" + ActiveMQDefaultConfiguration.getDefaultPagingDir() + suffix)
+         .setLargeMessagesDirectory("./target/" + ActiveMQDefaultConfiguration.getDefaultLargeMessagesDir() + suffix);
 
       Configuration liveConfig = createDefaultConfig();
 
