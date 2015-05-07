@@ -265,8 +265,8 @@ public interface ActiveMQServerLogger extends BasicLogger
    void timedOutWaitingCompletions(String bridgeName, long numberOfMessages);
 
    @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 221043, value = "Adding protocol support {0}", format = Message.Format.MESSAGE_FORMAT)
-   void addingProtocolSupport(String protocolKey);
+   @Message(id = 221043, value = "Protocol module found: [{1}]. Adding protocol support for: {0}", format = Message.Format.MESSAGE_FORMAT)
+   void addingProtocolSupport(String protocolKey, String moduleName);
 
    @LogMessage(level = Logger.Level.INFO)
    @Message(id = 221045, value = "libaio is not available, switching the configuration into NIO", format = Message.Format.MESSAGE_FORMAT)

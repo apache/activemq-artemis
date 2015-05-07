@@ -59,7 +59,7 @@ import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 
-class CoreProtocolManager implements ProtocolManager<Interceptor>
+public class CoreProtocolManager implements ProtocolManager<Interceptor>
 {
    private static final boolean isTrace = ActiveMQServerLogger.LOGGER.isTraceEnabled();
 
@@ -71,7 +71,7 @@ class CoreProtocolManager implements ProtocolManager<Interceptor>
 
    private final CoreProtocolManagerFactory protocolManagerFactory;
 
-   CoreProtocolManager(final CoreProtocolManagerFactory factory, final ActiveMQServer server, final List<Interceptor> incomingInterceptors, List<Interceptor> outgoingInterceptors)
+   public CoreProtocolManager(final CoreProtocolManagerFactory factory, final ActiveMQServer server, final List<Interceptor> incomingInterceptors, List<Interceptor> outgoingInterceptors)
    {
       this.protocolManagerFactory = factory;
 
@@ -185,13 +185,13 @@ class CoreProtocolManager implements ProtocolManager<Interceptor>
    public void handshake(NettyServerConnection connection, ActiveMQBuffer buffer)
    {
       //if we are not an old client then handshake
-      if (buffer.getByte(0) == 'H' &&
-         buffer.getByte(1) == 'O' &&
-         buffer.getByte(2) == 'R' &&
-         buffer.getByte(3) == 'N' &&
-         buffer.getByte(4) == 'E' &&
-         buffer.getByte(5) == 'T' &&
-         buffer.getByte(6) == 'Q')
+      if (buffer.getByte(0) == 'A' &&
+         buffer.getByte(1) == 'R' &&
+         buffer.getByte(2) == 'T' &&
+         buffer.getByte(3) == 'E' &&
+         buffer.getByte(4) == 'M' &&
+         buffer.getByte(5) == 'I' &&
+         buffer.getByte(6) == 'S')
       {
          //todo add some handshaking
          buffer.readBytes(7);

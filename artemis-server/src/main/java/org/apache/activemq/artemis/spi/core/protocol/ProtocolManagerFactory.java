@@ -42,4 +42,6 @@ public interface ProtocolManagerFactory<P extends BaseInterceptor>
    List<P> filterInterceptors(List<BaseInterceptor> interceptors);
 
    String[] getProtocols();
+
+   String getModuleName();
 }

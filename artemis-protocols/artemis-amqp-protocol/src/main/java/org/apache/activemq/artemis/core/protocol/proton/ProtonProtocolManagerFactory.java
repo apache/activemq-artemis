@@ -29,6 +29,8 @@ public class ProtonProtocolManagerFactory extends AbstractProtocolManagerFactory
 {
    private static final String AMQP_PROTOCOL_NAME = "AMQP";
 
+   private static final String MODULE_NAME = "artemis-amqp-protocol";
+
    private static String[] SUPPORTED_PROTOCOLS = {AMQP_PROTOCOL_NAME};
 
    @Override
@@ -48,5 +50,11 @@ public class ProtonProtocolManagerFactory extends AbstractProtocolManagerFactory
    public String[] getProtocols()
    {
       return SUPPORTED_PROTOCOLS;
+   }
+
+   @Override
+   public String getModuleName()
+   {
+      return MODULE_NAME;
    }
 }

@@ -29,6 +29,8 @@ public class OpenWireProtocolManagerFactory extends AbstractProtocolManagerFacto
 {
    public static final String OPENWIRE_PROTOCOL_NAME = "OPENWIRE";
 
+   private static final String MODULE_NAME = "artemis-openwire-protocol";
+
    private static String[] SUPPORTED_PROTOCOLS = {OPENWIRE_PROTOCOL_NAME};
 
    public ProtocolManager createProtocolManager(final ActiveMQServer server, final List<Interceptor> incomingInterceptors, List<Interceptor> outgoingInterceptors)
@@ -48,4 +50,9 @@ public class OpenWireProtocolManagerFactory extends AbstractProtocolManagerFacto
       return SUPPORTED_PROTOCOLS;
    }
 
+   @Override
+   public String getModuleName()
+   {
+      return MODULE_NAME;
+   }
 }

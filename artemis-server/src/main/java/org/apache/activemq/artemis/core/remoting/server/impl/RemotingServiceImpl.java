@@ -146,7 +146,7 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
       //i know there is only 1
       this.flushExecutor = flushExecutor;
 
-      ActiveMQServerLogger.LOGGER.addingProtocolSupport(coreProtocolManagerFactory.getProtocols()[0]);
+      ActiveMQServerLogger.LOGGER.addingProtocolSupport(coreProtocolManagerFactory.getProtocols()[0], coreProtocolManagerFactory.getModuleName());
       this.protocolMap.put(coreProtocolManagerFactory.getProtocols()[0],
                            coreProtocolManagerFactory.createProtocolManager(server, coreProtocolManagerFactory.filterInterceptors(incomingInterceptors),
                                                                             coreProtocolManagerFactory.filterInterceptors(outgoingInterceptors)));
@@ -161,9 +161,9 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
                String[] protocols = next.getProtocols();
                for (String protocol : protocols)
                {
-                  ActiveMQServerLogger.LOGGER.addingProtocolSupport(protocol);
+                  ActiveMQServerLogger.LOGGER.addingProtocolSupport(protocol, next.getModuleName());
                   protocolMap.put(protocol, next.createProtocolManager(server, next.filterInterceptors(incomingInterceptors),
-                                                                       next.filterInterceptors(outgoingInterceptors)));
+                        next.filterInterceptors(outgoingInterceptors)));
                }
             }
          }
@@ -176,7 +176,7 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
             String[] protocols = protocolManagerFactory.getProtocols();
             for (String protocol : protocols)
             {
-               ActiveMQServerLogger.LOGGER.addingProtocolSupport(protocol);
+               ActiveMQServerLogger.LOGGER.addingProtocolSupport(protocol, protocolManagerFactory.getModuleName());
                protocolMap.put(protocol, protocolManagerFactory.createProtocolManager(server, incomingInterceptors, outgoingInterceptors));
             }
          }
