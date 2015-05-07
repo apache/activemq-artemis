@@ -42,7 +42,7 @@ public class BackwardsCompatibilityUtils
    {
       if (tc != null)
       {
-         String className = tc.getFactoryClassName().replace("org.apache.activemq", "org.hornetq").replace("ActiveMQ", "HornetQ");
+         String className = tc.getFactoryClassName().replace("org.apache.activemq.artemis", "org.hornetq").replace("ActiveMQ", "HornetQ");
          return new TransportConfiguration(className, tc.getParams(), tc.getName());
       }
       return tc;
