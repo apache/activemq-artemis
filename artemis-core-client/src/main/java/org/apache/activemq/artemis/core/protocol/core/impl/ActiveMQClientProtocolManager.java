@@ -74,6 +74,8 @@ import org.apache.activemq.artemis.utils.VersionLoader;
 
 public class ActiveMQClientProtocolManager implements ClientProtocolManager
 {
+   private static final String handshake = "ARTEMIS";
+
    private final int versionID = VersionLoader.getVersion().getIncrementingVersion();
 
    private ClientSessionFactoryInternal factoryInternal;
@@ -479,7 +481,6 @@ public class ActiveMQClientProtocolManager implements ClientProtocolManager
       if (transportConnection.isUsingProtocolHandling())
       {
          // no need to send handshake on inVM as inVM is not using the NettyProtocolHandling
-         String handshake = "HORNETQ";
          ActiveMQBuffer amqbuffer = connection.createTransportBuffer(handshake.length());
          amqbuffer.writeBytes(handshake.getBytes());
          transportConnection.write(amqbuffer);
