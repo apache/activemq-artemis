@@ -1,4 +1,4 @@
-![ActiveMQ logo](images/activemq-logo.jpg)
+![ActiveMQ logo](images/artemis-logo.jpg)
 
 Apache ActiveMQ Artemis User Manual
 ====================
