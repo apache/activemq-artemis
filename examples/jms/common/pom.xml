@@ -27,7 +27,7 @@ under the License.
       <version>1.0.0-SNAPSHOT</version>
    </parent>
 
-   <artifactId>artemis-jms-examples-common</artifactId>
+   <artifactId>common</artifactId>
    <packaging>jar</packaging>
    <name>ActiveMQ Artemis Examples common</name>
 
