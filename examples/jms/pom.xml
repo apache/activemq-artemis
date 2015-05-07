@@ -41,8 +41,8 @@ under the License.
       <profile>
          <id>release</id>
          <modules>
+            <module>common</module>
             <module>aerogear</module>
-            <module>artemis-jms-examples-common</module>
             <module>artemis-ra-rar</module>
             <module>application-layer-failover</module>
             <module>bridge</module>
@@ -141,7 +141,7 @@ under the License.
             <activeByDefault>true</activeByDefault>
          </activation>
          <modules>
-            <module>artemis-jms-examples-common</module>
+            <module>common</module>
             <module>application-layer-failover</module>
             <module>bridge</module>
             <module>browser</module>
