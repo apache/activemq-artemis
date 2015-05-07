@@ -29,6 +29,8 @@ public class CoreProtocolManagerFactory extends AbstractProtocolManagerFactory<I
 {
    private static String[] SUPPORTED_PROTOCOLS = {ActiveMQClient.DEFAULT_CORE_PROTOCOL};
 
+   private static final String MODULE_NAME = "artemis-server";
+
    /**
     * {@inheritDoc} *
     * @param server
@@ -55,4 +57,11 @@ public class CoreProtocolManagerFactory extends AbstractProtocolManagerFactory<I
    {
       return SUPPORTED_PROTOCOLS;
    }
+
+   @Override
+   public String getModuleName()
+   {
+      return MODULE_NAME;
+   }
+
 }

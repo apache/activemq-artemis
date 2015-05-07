@@ -28,6 +28,8 @@ public class HornetQProtocolManagerFactory extends CoreProtocolManagerFactory
 {
    public static final String HORNETQ_PROTOCOL_NAME = "HORNETQ";
 
+   private static final String MODULE_NAME = "artemis-hornetq-protocol";
+
    private static String[] SUPPORTED_PROTOCOLS = {HORNETQ_PROTOCOL_NAME};
 
    public ProtocolManager createProtocolManager(final ActiveMQServer server, final List<Interceptor> incomingInterceptors, List<Interceptor> outgoingInterceptors)
@@ -42,5 +44,11 @@ public class HornetQProtocolManagerFactory extends CoreProtocolManagerFactory
    public String[] getProtocols()
    {
       return SUPPORTED_PROTOCOLS;
+   }
+
+   @Override
+   public String getModuleName()
+   {
+      return MODULE_NAME;
    }
 }
