@@ -59,7 +59,7 @@ import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 
-class CoreProtocolManager implements ProtocolManager<Interceptor>
+public class CoreProtocolManager implements ProtocolManager<Interceptor>
 {
    private static final boolean isTrace = ActiveMQServerLogger.LOGGER.isTraceEnabled();
 
@@ -71,7 +71,7 @@ class CoreProtocolManager implements ProtocolManager<Interceptor>
 
    private final CoreProtocolManagerFactory protocolManagerFactory;
 
-   CoreProtocolManager(final CoreProtocolManagerFactory factory, final ActiveMQServer server, final List<Interceptor> incomingInterceptors, List<Interceptor> outgoingInterceptors)
+   public CoreProtocolManager(final CoreProtocolManagerFactory factory, final ActiveMQServer server, final List<Interceptor> incomingInterceptors, List<Interceptor> outgoingInterceptors)
    {
       this.protocolManagerFactory = factory;
 
