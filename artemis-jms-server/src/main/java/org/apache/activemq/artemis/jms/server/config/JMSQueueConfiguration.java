@@ -32,5 +32,5 @@ public interface JMSQueueConfiguration
 
    String[] getBindings();
 
-   JMSQueueConfiguration setBindings(String[] bindings);
+   JMSQueueConfiguration setBindings(String... bindings);
 }
