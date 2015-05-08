@@ -1878,6 +1878,7 @@ public final class JMSBridgeImpl implements JMSBridge
       }
 
       @Override
+      @SuppressWarnings("WaitNotInLoop") // both lock.wait(..) either returns, throws or continue, thus avoiding spurious wakes
       public void run()
       {
          while (started)
