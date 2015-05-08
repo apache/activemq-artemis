@@ -266,7 +266,7 @@ public class ActiveMQRAStreamMessage extends ActiveMQRAMessage implements Stream
    {
       if (ActiveMQRAStreamMessage.trace)
       {
-         ActiveMQRALogger.LOGGER.trace("writeBytes(" + value + ", " + offset + ", " + length + ")");
+         ActiveMQRALogger.LOGGER.trace("writeBytes(" + Arrays.toString(value) + ", " + offset + ", " + length + ")");
       }
 
       ((StreamMessage)message).writeBytes(value, offset, length);
@@ -281,7 +281,7 @@ public class ActiveMQRAStreamMessage extends ActiveMQRAMessage implements Stream
    {
       if (ActiveMQRAStreamMessage.trace)
       {
-         ActiveMQRALogger.LOGGER.trace("writeBytes(" + value + ")");
+         ActiveMQRALogger.LOGGER.trace("writeBytes(" + Arrays.toString(value) + ")");
       }
 
       ((StreamMessage)message).writeBytes(value);
