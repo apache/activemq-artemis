@@ -391,7 +391,7 @@ public class DiscoveryTest extends DiscoveryBaseTest
 
          byte[] btreceived = client.receiveBroadcast(5, TimeUnit.SECONDS);
 
-         System.out.println("BTReceived = " + btreceived);
+         System.out.println("BTReceived = " + Arrays.toString(btreceived));
 
          assertNotNull(btreceived);
 

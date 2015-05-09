@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.management;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -193,12 +194,12 @@ public class ManagementHelperTest extends Assert
       String key1 = RandomUtil.randomString();
       String[] val1 = new String[]{"a", "b", "c"};
 
-      ManagementHelperTest.log.info("val1 type is " + val1);
+      ManagementHelperTest.log.info("val1 type is " + Arrays.toString(val1));
 
       String key2 = RandomUtil.randomString();
       Integer[] val2 = new Integer[]{1, 2, 3, 4, 5};
 
-      ManagementHelperTest.log.info("val2 type is " + val2);
+      ManagementHelperTest.log.info("val2 type is " + Arrays.toString(val2));
 
       map.put(key1, val1);
       map.put(key2, val2);
