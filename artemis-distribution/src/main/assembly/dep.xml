@@ -181,7 +181,7 @@
       </fileSet>
       <!-- Include license and notice files -->
       <fileSet>
-         <directory>${activemq.basedir}/distribution/activemq/src/main/resources/licenses/bin</directory>
+         <directory>${activemq.basedir}/artemis-distribution/src/main/resources/licenses/bin</directory>
          <outputDirectory>/</outputDirectory>
          <useDefaultExcludes>true</useDefaultExcludes>
       </fileSet>
