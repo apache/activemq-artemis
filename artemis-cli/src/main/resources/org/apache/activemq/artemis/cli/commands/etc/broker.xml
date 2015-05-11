@@ -52,7 +52,7 @@ under the License.
          <acceptor name="stomp">tcp://${activemq.remoting.stomp.host:${host}}:${activemq.remoting.stomp.port:${stomp.port}}?protocols=STOMP</acceptor>
 
          <!-- HornetQ Compatibility Acceptor.  Enables ActiveMQ Core and STOMP for legacy HornetQ clients. -->
-         <acceptor name="hornetq">tcp://${activemq.remoting.hornetq.host:${host}}:${activemq.remoting.hornetq.port:${hq.port}}?protocols=CORE,STOMP</acceptor>
+         <acceptor name="hornetq">tcp://${activemq.remoting.hornetq.host:${host}}:${activemq.remoting.hornetq.port:${hq.port}}?protocols=HORNETQ,STOMP</acceptor>
       </acceptors>
 
       ${cluster-security.settings}${cluster.settings}${replicated.settings}${shared-store.settings}
