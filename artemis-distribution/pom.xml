@@ -22,7 +22,7 @@
    <parent>
       <groupId>org.apache.activemq</groupId>
       <artifactId>artemis-pom</artifactId>
-      <version>1.0.0</version>
+      <version>1.0.1-SNAPSHOT</version>
    </parent>
 
    <artifactId>apache-artemis</artifactId>
