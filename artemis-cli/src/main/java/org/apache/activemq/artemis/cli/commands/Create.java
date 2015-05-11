@@ -61,6 +61,19 @@ public class Create implements Action
 
    private static final Integer HQ_PORT = 5445;
 
+   public static final String BIN_ARTEMIS_CMD = "bin/artemis.cmd";
+   public static final String BIN_ARTEMIS_SERVICE_EXE = "bin/artemis-service.exe";
+   public static final String BIN_ARTEMIS_SERVICE_XML = "bin/artemis-service.xml";
+   public static final String ETC_ARTEMIS_PROFILE_CMD = "etc/artemis.profile.cmd";
+   public static final String BIN_ARTEMIS = "bin/artemis";
+   public static final String BIN_ARTEMIS_SERVICE = "bin/artemis-service";
+   public static final String ETC_ARTEMIS_PROFILE = "etc/artemis.profile";
+   public static final String ETC_LOGGING_PROPERTIES = "etc/logging.properties";
+   public static final String ETC_BOOTSTRAP_XML = "etc/bootstrap.xml";
+   public static final String ETC_BROKER_XML = "etc/broker.xml";
+   public static final String ETC_ARTEMIS_ROLES_PROPERTIES = "etc/artemis-roles.properties";
+   public static final String ETC_ARTEMIS_USERS_PROPERTIES = "etc/artemis-users.properties";
+
    @Arguments(description = "The instance directory to hold the broker's configuration and data", required = true)
    File directory;
 
@@ -115,6 +128,14 @@ public class Create implements Action
          return e;
       }
    }
+
+
+   /** This method is made public for the testsuite */
+   public InputStream openStream(String source)
+   {
+      return this.getClass().getResourceAsStream(source);
+   }
+
 
    public Object run(ActionContext context) throws Exception
    {
@@ -205,34 +226,34 @@ public class Create implements Action
 
       if (IS_WINDOWS)
       {
-         write("bin/artemis.cmd", null, false);
-         write("bin/artemis-service.exe");
-         write("bin/artemis-service.xml", filters, false);
-         write("etc/artemis.profile.cmd", filters, false);
+         write(BIN_ARTEMIS_CMD, null, false);
+         write(BIN_ARTEMIS_SERVICE_EXE);
+         write(BIN_ARTEMIS_SERVICE_XML, filters, false);
+         write(ETC_ARTEMIS_PROFILE_CMD, filters, false);
       }
 
       if (!IS_WINDOWS || IS_CYGWIN)
       {
-         write("bin/artemis", null, true);
-         makeExec("bin/artemis");
-         write("bin/artemis-service", null, true);
-         makeExec("bin/artemis-service");
-         write("etc/artemis.profile", filters, true);
-         makeExec("etc/artemis.profile");
+         write(BIN_ARTEMIS, null, true);
+         makeExec(BIN_ARTEMIS);
+         write(BIN_ARTEMIS_SERVICE, null, true);
+         makeExec(BIN_ARTEMIS_SERVICE);
+         write(ETC_ARTEMIS_PROFILE, filters, true);
+         makeExec(ETC_ARTEMIS_PROFILE);
       }
 
-      write("etc/logging.properties", null, false);
-      write("etc/bootstrap.xml", null, false);
-      write("etc/broker.xml", filters, false);
-      write("etc/artemis-roles.properties", null, false);
-      write("etc/artemis-users.properties", null, false);
+      write(ETC_LOGGING_PROPERTIES, null, false);
+      write(ETC_BOOTSTRAP_XML, null, false);
+      write(ETC_BROKER_XML, filters, false);
+      write(ETC_ARTEMIS_ROLES_PROPERTIES, null, false);
+      write(ETC_ARTEMIS_USERS_PROPERTIES, null, false);
 
       context.out.println("");
       context.out.println("You can now start the broker by executing:  ");
       context.out.println("");
       context.out.println(String.format("   \"%s\" run", path(new File(directory, "bin/artemis"), true)));
 
-      File service = new File(directory, "bin/artemis-service");
+      File service = new File(directory, BIN_ARTEMIS_SERVICE);
       context.out.println("");
 
       if (!IS_WINDOWS || IS_CYGWIN)
@@ -351,7 +372,7 @@ public class Create implements Action
    private String readTextFile(String source) throws IOException
    {
       ByteArrayOutputStream out = new ByteArrayOutputStream();
-      try (InputStream in = this.getClass().getResourceAsStream(source))
+      try (InputStream in = openStream(source))
       {
          copy(in, out);
       }
@@ -367,7 +388,7 @@ public class Create implements Action
       }
       try (FileOutputStream fout = new FileOutputStream(target))
       {
-         try (InputStream in = this.getClass().getResourceAsStream(source))
+         try (InputStream in = openStream(source))
          {
             copy(in, fout);
          }
