@@ -28,32 +28,41 @@ under the License.
 
 <h1>Getting Started</h1>
 
-<h2>Starting the Broker</h2>
-
 <b>Note (Windows users):</b> The broker currently does not support spaces in path names.  For this reason the broker should be placed in a directory with no spaces in it's absolute path.</br></br>
 
 <b>Note (Windows users):</b> Examples below use the shell script `activemq` for use with linux, Windows users should use the `activemq.cmd` script with the same parameters.</br></br>
 
-To run the ActiveMQ broker with the default configuration, run the command shown below from the "bin" directory.</br></br>
+<h2>Creating a broker</h2>
 
-$ ./activemq run</br></br>
+To create a broker, navigate to the distribution 'bin/' directory and run: </br></br>
+
+$ ./artemis create $directory </br></br>Where $directory is the folder that you'd like the broker to be created.
+
+<h2>Starting the Broker</h2>
+
+Once the broker has been created, use the artemis (or artemis.cmd on windows) script of the under the bin directory of the newly created broker to manage the life cycle of the broker.
+
+To run the Apache ActiveMQ Artemis broker with the default configuration, run the command shown below from the "bin" directory of the created broker.</br></br>
+
+$ ./artemis run</br></br>
 
 To specify a broker configuration file:</br></br>
 
-$ ./activemq run --config scheme:location</br></br>
+$ ./artemis run --config scheme:location</br></br>
 
 e.g.</br></br>
 
-$ ./activemq run --config xml:/home/activemq/bootstrap.xml</br></br>
+$ ./artemis run --config xml:/home/activemq/bootstrap.xml</br></br>
 
 The distribution ships with a number of example configurations that can be used to get started.  You can find these under the "config" directory.</br></br>
 
-It is possible to configure run time paramters in the activemq.conf (activemq.conf.bat for windows) file under the "bin" directory.
+It is possible to configure run time paramters in the artemis.conf (artemis.conf.bat for windows) file under the "bin" directory of the broker directory.
+
 <h2>Stopping the Broker</h2>
 
-To stop the broker please use the activemq script:</br></br>
+To stop the broker please use the artemis script from the broker's bin directory:</br></br>
 
-$ ./activemq stop</br></br>
+$ ./artemis stop</br></br>
 
 <h2>Documentation</h2>
 
