@@ -194,7 +194,7 @@ public final class SharedStoreBackupActivation extends Activation
    @Override
    public JournalLoader createJournalLoader(PostOffice postOffice, PagingManager pagingManager, StorageManager storageManager, QueueFactory queueFactory, NodeManager nodeManager, ManagementService managementService, GroupingHandler groupingHandler, Configuration configuration, ActiveMQServer parentServer) throws ActiveMQException
    {
-      if (sharedStoreSlavePolicy.getScaleDownPolicy() != null)
+      if (sharedStoreSlavePolicy.getScaleDownPolicy() != null && sharedStoreSlavePolicy.getScaleDownPolicy().isEnabled())
       {
          return new BackupRecoveryJournalLoader(postOffice,
                pagingManager,
