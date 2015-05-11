@@ -53,7 +53,7 @@ public abstract class URISchema<T, P>
 
    void setFactory(URIFactory<T, P> factory)
    {
-      this.parentFactory = parentFactory;
+      this.parentFactory = factory;
    }
 
    protected URIFactory<T, P> getFactory()
