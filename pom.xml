@@ -949,6 +949,7 @@
                   <exclude>**/*.md</exclude>
                   <exclude>etc/org.eclipse.*</exclude>
                   <exclude>docs/user-manual/en/*.json</exclude>
+                  <exclude>docs/user-manual/en/_book/</exclude>
                   <exclude>**/target/</exclude>
                   <exclude>**/META-INF/services/*</exclude>
                   <exclude>**/*.iml</exclude>
