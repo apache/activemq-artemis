@@ -482,9 +482,6 @@
    <profiles>
       <profile>
          <id>dev</id>
-         <activation>
-            <activeByDefault>true</activeByDefault>
-         </activation>
          <modules>
             <module>artemis-boot</module>
             <module>artemis-dto</module>
@@ -516,6 +513,9 @@
       </profile>
       <profile>
          <id>distro</id>
+         <activation>
+            <activeByDefault>true</activeByDefault>
+         </activation>
          <modules>
             <module>artemis-dto</module>
             <module>artemis-web</module>
