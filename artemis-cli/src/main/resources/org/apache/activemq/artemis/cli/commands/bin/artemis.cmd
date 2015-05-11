@@ -25,7 +25,7 @@ set ARTEMIS_INSTANCE=%CD%
 POPD
 
 :CHECK_ARTEMIS_INSTANCE
-if exist "%ARTEMIS_INSTANCE%\bin\activemq.cmd" goto CHECK_JAVA
+if exist "%ARTEMIS_INSTANCE%\bin\artemis.cmd" goto CHECK_JAVA
 
 :NO_HOME
 echo ARTEMIS_INSTANCE environment variable is set incorrectly. Please set ARTEMIS_INSTANCE.

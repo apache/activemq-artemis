@@ -131,8 +131,8 @@
                    <version>1.9</version>
                    <classifier>bin</classifier>
                    <type>exe</type>
-                   <outputDirectory>${basedir}/target/classes/org/apache/artemis/cli/commands/bin</outputDirectory>
-                   <destFileName>activemq-service.exe</destFileName>
+                   <outputDirectory>${basedir}/target/classes/org/apache/activemq/artemis/cli/commands/bin/</outputDirectory>
+                   <destFileName>artemis-service.exe</destFileName>
                  </artifactItem>
                </artifactItems>
              </configuration>

@@ -30,7 +30,7 @@ under the License.
 
       <journal-directory>./target/journal</journal-directory>
 
-      <journal-min-files>10</journal-min-files>
+      <journal-min-files>2</journal-min-files>
 
       <large-messages-directory>./target/large-messages</large-messages-directory>
 
