@@ -66,7 +66,7 @@ public interface ActiveMQJMSServerLogger extends BasicLogger
    void noQueueOnTopic(String queueName, String name);
 
    @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 122008, value = "XA Recovery can not connect to any ActiveMQ server on recovery {0}"  , format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 122008, value = "XA Recovery can not connect to any broker on recovery {0}"  , format = Message.Format.MESSAGE_FORMAT)
    void recoveryConnectFailed(String s);
 
    @LogMessage(level = Logger.Level.WARN)

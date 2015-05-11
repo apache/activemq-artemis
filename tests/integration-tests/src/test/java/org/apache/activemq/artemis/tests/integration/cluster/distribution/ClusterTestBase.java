@@ -1111,7 +1111,7 @@ public abstract class ClusterTestBase extends ServiceTestBase
    {
       String br = "-------------------------\n";
       String out = br;
-      out += "ActiveMQ server " + server + "\n";
+      out += "ActiveMQ Artemis server " + server + "\n";
       ClusterManager clusterManager = server.getClusterManager();
       if (clusterManager == null)
       {

@@ -58,11 +58,11 @@ public interface ActiveMQRALogger extends BasicLogger
    void attemptingReconnect(ActiveMQActivationSpec spec);
 
    @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 151002, value = "Reconnected with ActiveMQ", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 151002, value = "Reconnected with broker", format = Message.Format.MESSAGE_FORMAT)
    void reconnected();
 
    @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 151003, value = "ActiveMQ resource adaptor stopped", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 151003, value = "resource adaptor stopped", format = Message.Format.MESSAGE_FORMAT)
    void raStopped();
 
    @LogMessage(level = Logger.Level.INFO)
@@ -70,11 +70,11 @@ public interface ActiveMQRALogger extends BasicLogger
    void instantiatingDestination(String destinationType, String destination);
 
    @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 151005, value = "awaiting ActiveMQ Server availability", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 151005, value = "awaiting server availability", format = Message.Format.MESSAGE_FORMAT)
    void awaitingJMSServerCreation();
 
    @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 152001, value = "problem resetting ActiveMQ xa session after failure", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 152001, value = "problem resetting xa session after failure", format = Message.Format.MESSAGE_FORMAT)
    void problemResettingXASession();
 
    @LogMessage(level = Logger.Level.WARN)
@@ -90,7 +90,7 @@ public interface ActiveMQRALogger extends BasicLogger
    void handlingJMSFailure(@Cause Exception e);
 
    @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 152005, value = "Failure in ActiveMQ activation {0}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 152005, value = "Failure in broker activation {0}", format = Message.Format.MESSAGE_FORMAT)
    void failureInActivation(@Cause Throwable t, ActiveMQActivationSpec spec);
 
    @LogMessage(level = Logger.Level.WARN)
@@ -102,7 +102,7 @@ public interface ActiveMQRALogger extends BasicLogger
    void errorCreatingReference(@Cause Exception e);
 
    @LogMessage(level = Logger.Level.ERROR)
-   @Message(id = 154001, value = "Unable to stop ActiveMQ resource adapter.", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 154001, value = "Unable to stop resource adapter.", format = Message.Format.MESSAGE_FORMAT)
    void errorStoppingRA(@Cause Exception e);
 
    @LogMessage(level = Logger.Level.ERROR)

@@ -905,7 +905,7 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
    {
       if (!server.isStarted())
       {
-         throw new IllegalStateException("ActiveMQ JMS Server is not started. it can not be managed yet");
+         throw new IllegalStateException("ActiveMQ Artemis JMS Server is not started. It can not be managed yet");
       }
    }
 

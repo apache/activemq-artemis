@@ -484,8 +484,8 @@ public interface ActiveMQServerControl
    /**
     * Closes all the connections of clients connected to this server which matches the specified IP address.
     */
-   @Operation(desc = "Closes all the consumer connections for the given ActiveMQ address", impact = MBeanOperationInfo.INFO)
-   boolean closeConsumerConnectionsForAddress(@Parameter(desc = "a ActiveMQ address", name = "address") String address) throws Exception;
+   @Operation(desc = "Closes all the consumer connections for the given messaging address", impact = MBeanOperationInfo.INFO)
+   boolean closeConsumerConnectionsForAddress(@Parameter(desc = "a messaging address", name = "address") String address) throws Exception;
 
    /**
     * Closes all the connections of sessions with a matching user name.

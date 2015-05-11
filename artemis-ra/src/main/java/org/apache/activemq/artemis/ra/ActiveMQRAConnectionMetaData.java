@@ -94,7 +94,7 @@ public class ActiveMQRAConnectionMetaData implements ConnectionMetaData
          ActiveMQRALogger.LOGGER.trace("getJMSProviderName()");
       }
 
-      return "ActiveMQ";
+      return "ActiveMQ Artemis";
    }
 
    /**

@@ -2148,7 +2148,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
    {
       if (!server.isStarted())
       {
-         throw new IllegalStateException("ActiveMQ Server is not started. It can not be managed yet");
+         throw new IllegalStateException("Broker is not started. It can not be managed yet");
       }
    }
 

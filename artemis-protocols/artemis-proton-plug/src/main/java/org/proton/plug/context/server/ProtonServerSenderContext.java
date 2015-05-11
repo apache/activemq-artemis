@@ -155,7 +155,7 @@ public class ProtonServerSenderContext extends AbstractProtonContextSender imple
          }
          catch (Exception e)
          {
-            throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.errorCreatingActiveMQConsumer(e.getMessage());
+            throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.errorCreatingConsumer(e.getMessage());
          }
       }
    }

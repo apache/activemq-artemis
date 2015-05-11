@@ -57,7 +57,7 @@ public class ActiveMQRAMetaData implements ManagedConnectionMetaData
          ActiveMQRALogger.LOGGER.trace("getEISProductName()");
       }
 
-      return "ActiveMQ";
+      return "ActiveMQ Artemis";
    }
 
    /**

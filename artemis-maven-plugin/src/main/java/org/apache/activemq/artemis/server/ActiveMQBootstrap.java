@@ -155,7 +155,7 @@ public class ActiveMQBootstrap
             {
                restartFile.delete();
             }
-            final Timer timer = new Timer("ActiveMQ Server Shutdown Timer", false);
+            final Timer timer = new Timer("ActiveMQ Artemis Server Shutdown Timer", false);
             timer.scheduleAtFixedRate(new ServerStopTimerTask(stopFile, killFile, restartFile, timer), 500, 500);
          }
       }
