@@ -49,8 +49,8 @@ import static org.apache.activemq.artemis.core.protocol.stomp.ActiveMQStompProto
 public final class StompConnection implements RemotingConnection
 {
    protected static final String CONNECTION_ID_PROP = "__AMQ_CID";
-   private static final String SERVER_NAME = "ActiveMQ/" + VersionLoader.getVersion().getFullVersion() +
-      " ActiveMQ Messaging Engine";
+   private static final String SERVER_NAME = "ActiveMQ-Artemis/" + VersionLoader.getVersion().getFullVersion() +
+      " ActiveMQ Artemis Messaging Engine";
 
    private final StompProtocolManager manager;
 

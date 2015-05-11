@@ -1031,7 +1031,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl
    {
       if (!postOffice.isStarted())
       {
-         throw new IllegalStateException("ActiveMQ Server is not started. Queue can not be managed yet");
+         throw new IllegalStateException("Broker is not started. Queue can not be managed yet");
       }
    }
 

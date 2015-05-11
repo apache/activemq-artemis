@@ -31,7 +31,7 @@ public class JMSManagementHelper
    {
       if (jmsMessage instanceof ActiveMQMessage == false)
       {
-         throw new IllegalArgumentException("Cannot send a non ActiveMQ message as a management message " + jmsMessage.getClass()
+         throw new IllegalArgumentException("Cannot send a foreign message as a management message " + jmsMessage.getClass()
                                                                                                                    .getName());
       }
 

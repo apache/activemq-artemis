@@ -68,7 +68,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
    /**
     * The Name of the product that this resource adapter represents.
     */
-   public static final String PRODUCT_NAME = "ActiveMQ";
+   public static final String PRODUCT_NAME = "ActiveMQ Artemis";
 
    /**
     * Trace enabled
@@ -262,7 +262,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
          }
       }
 
-      ActiveMQRALogger.LOGGER.info("ActiveMQ resource adaptor started");
+      ActiveMQRALogger.LOGGER.info("Resource adaptor started");
    }
 
    /**
@@ -1982,7 +1982,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
       }
       else
       {
-         throw new IllegalArgumentException("must provide either TransportType or DiscoveryGroupAddress and DiscoveryGroupPort for ActiveMQ ResourceAdapter Connection Factory");
+         throw new IllegalArgumentException("must provide either TransportType or DiscoveryGroupAddress and DiscoveryGroupPort for ResourceAdapter Connection Factory");
       }
 
       setParams(cf, overrideProperties);
@@ -2041,7 +2041,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
             }
             if (endpointFactory == null)
             {
-               throw new IllegalArgumentException("must provide either TransportType or DiscoveryGroupAddress and DiscoveryGroupPort for ActiveMQ ResourceAdapter Connection Factory");
+               throw new IllegalArgumentException("must provide either TransportType or DiscoveryGroupAddress and DiscoveryGroupPort for ResourceAdapter Connection Factory");
             }
          }
 

@@ -46,11 +46,11 @@ public interface ActiveMQBootstrapLogger extends BasicLogger
    ActiveMQBootstrapLogger LOGGER = Logger.getMessageLogger(ActiveMQBootstrapLogger.class, ActiveMQBootstrapLogger.class.getPackage().getName());
 
    @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 101000, value = "Starting ActiveMQ Server", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 101000, value = "Starting ActiveMQ Artemis Server", format = Message.Format.MESSAGE_FORMAT)
    void serverStarting();
 
    @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 101001, value = "Stopping ActiveMQ Server", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 101001, value = "Stopping ActiveMQ Artemis Server", format = Message.Format.MESSAGE_FORMAT)
    void serverStopping();
 
    @LogMessage(level = Logger.Level.INFO)

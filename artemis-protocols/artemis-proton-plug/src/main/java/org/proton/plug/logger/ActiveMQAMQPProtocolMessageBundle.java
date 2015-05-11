@@ -50,10 +50,10 @@ public interface ActiveMQAMQPProtocolMessageBundle
    @Message(id = 219003, value = "error finding temporary queue, {0}", format = Message.Format.MESSAGE_FORMAT)
    ActiveMQAMQPInternalErrorException errorFindingTemporaryQueue(String message);
 
-   @Message(id = 219005, value = "error creating ActiveMQ Consumer, {0}", format = Message.Format.MESSAGE_FORMAT)
-   ActiveMQAMQPInternalErrorException errorCreatingActiveMQConsumer(String message);
+   @Message(id = 219005, value = "error creating consumer, {0}", format = Message.Format.MESSAGE_FORMAT)
+   ActiveMQAMQPInternalErrorException errorCreatingConsumer(String message);
 
-   @Message(id = 219006, value = "error starting ActiveMQ Consumer, {0}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 219006, value = "error starting consumer, {0}", format = Message.Format.MESSAGE_FORMAT)
    ActiveMQAMQPIllegalStateException errorStartingConsumer(String message);
 
    @Message(id = 219007, value = "error acknowledging message {0}, {1}", format = Message.Format.MESSAGE_FORMAT)

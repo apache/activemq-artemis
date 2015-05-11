@@ -330,7 +330,7 @@ public class ActiveMQMessageProducer implements MessageProducer, QueueSender, To
    {
       if (destination != null && !(destination instanceof ActiveMQDestination))
       {
-         throw new InvalidDestinationException("Not a ActiveMQ Destination:" + destination);
+         throw new InvalidDestinationException("Foreign destination:" + destination);
       }
       if (destination != null && defaultDestination != null)
       {

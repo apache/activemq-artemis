@@ -1089,7 +1089,7 @@ public class ConfigurationImpl implements Configuration, Serializable
    @Override
    public String toString()
    {
-      StringBuilder sb = new StringBuilder("ActiveMQ Configuration (");
+      StringBuilder sb = new StringBuilder("Broker Configuration (");
       sb.append("clustered=").append(isClustered()).append(",");
       sb.append("journalDirectory=").append(journalDirectory).append(",");
       sb.append("bindingsDirectory=").append(bindingsDirectory).append(",");

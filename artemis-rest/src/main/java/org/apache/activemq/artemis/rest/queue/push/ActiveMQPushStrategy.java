@@ -48,7 +48,7 @@ public class ActiveMQPushStrategy extends UriTemplateStrategy
       ClientResponse<?> res = request.head();
       if (res.getStatus() != 200)
       {
-         throw new RuntimeException("Failed to query ActiveMQ REST destination for init information.  Status: " + res.getStatus());
+         throw new RuntimeException("Failed to query REST destination for init information.  Status: " + res.getStatus());
       }
       String url = (String)res.getHeaders().getFirst("msg-create-with-id");
       if (url == null)

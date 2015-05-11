@@ -398,7 +398,7 @@ public class ActiveMQMessage implements javax.jms.Message
       {
          if (dest instanceof ActiveMQDestination == false)
          {
-            throw new InvalidDestinationException("Not a ActiveMQ destination " + dest);
+            throw new InvalidDestinationException("Foreign destination " + dest);
          }
 
          ActiveMQDestination jbd = (ActiveMQDestination)dest;
