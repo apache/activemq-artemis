@@ -52,17 +52,6 @@
         example and then stop the broker.  You'll need to ensure there is not a broker already running as this may conflict
         with the broker that is configured and used in the example.</p>
 
-        <p>If you want to run an example against an already running broker then firstly you will need to start the broker using
-        the example configuration. An example configuration is provided which by default to run the queue example, to run this
-        use the command  <code>./activemq run --config xml:../config/examples/bootstrap.xml</code>.
-
-        Once the server has started run the example with the command <code>mvn -DskipBrokerStart verify -Pexample</code>. If you want
-        to run a different example simply edit the <code>config/examples/bootstrap.xml</code> aand change the paths to point
-        the correct configuration (this will be found in the directory of the example you wish to run). By default the broker
-        will use the <code>data/server0</code> directory for the journal, to avoid problems it is best to delete this
-        directory between running different examples or set the <code>ARTEMIS_DATA_DIR</code> environment property in
-        <code>activemq.conf</code>to use a different location</p>
-
             <div></div>
         </div>
     </div>
