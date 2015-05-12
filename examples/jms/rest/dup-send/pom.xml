@@ -23,7 +23,7 @@ under the License.
    <parent>
       <groupId>org.apache.activemq.examples.rest</groupId>
       <artifactId>artemis-rest-examples-pom</artifactId>
-      <version>1.0.0</version>
+      <version>1.0.1-SNAPSHOT</version>
    </parent>
    <artifactId>dup-send</artifactId>
    <packaging>war</packaging>
