@@ -16,8 +16,6 @@
  */
 package org.apache.activemq.artemis.jms.example;
 
-import java.util.Hashtable;
-
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -26,18 +24,17 @@ import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.naming.InitialContext;
+import java.util.ArrayList;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClusterTopologyListener;
 import org.apache.activemq.artemis.api.core.client.TopologyMember;
 import org.apache.activemq.artemis.common.example.ActiveMQExample;
-import org.apache.activemq.artemis.jms.client.ActiveMQConnection;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 /**
  * A simple example that demonstrates server side load-balancing of messages between the queue instances on different
@@ -46,7 +43,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class HAPolicyAutoBackupExample extends ActiveMQExample
 {
-   public static void main(final String[] args)
+   public static void main(final String[] args) throws Exception
    {
       new HAPolicyAutoBackupExample().run(args);
    }
@@ -67,13 +64,13 @@ public class HAPolicyAutoBackupExample extends ActiveMQExample
          // Step 1. Get an initial context for looking up JNDI from server 0 and 1
          Hashtable<String, Object> properties = new Hashtable<String, Object>();
          properties.put("java.naming.factory.initial", "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
-         properties.put("connectionFactory.ConnectionFactory", args[0] + "?ha=true&retryInterval=1000&retryIntervalMultiplier=1.0&reconnectAttempts=-1");
+         properties.put("connectionFactory.ConnectionFactory", DEFAULT_TCP1 + "?ha=true&retryInterval=1000&retryIntervalMultiplier=1.0&reconnectAttempts=-1");
          properties.put("queue.queue/exampleQueue", "exampleQueue");
          ic0 = new InitialContext(properties);
 
          properties = new Hashtable<String, Object>();
          properties.put("java.naming.factory.initial", "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
-         properties.put("connectionFactory.ConnectionFactory", args[1] + "?ha=true&retryInterval=1000&retryIntervalMultiplier=1.0&reconnectAttempts=-1");
+         properties.put("connectionFactory.ConnectionFactory", DEFAULT_TCP2 + "?ha=true&retryInterval=1000&retryIntervalMultiplier=1.0&reconnectAttempts=-1");
          ic1 = new InitialContext(properties);
 
          // Step 2. Look-up the JMS Queue object from JNDI
@@ -128,11 +125,12 @@ public class HAPolicyAutoBackupExample extends ActiveMQExample
             System.out.println("Got message: " + message0.getText() + " from node 0");
          }
 
-         // Step 14.now kill server1, messages will be scaled down to server0
-         killServer(1);
-
-         // Step 15.close the consumer so it doesnt get any messages
+         // Step 14.close the consumer so it doesnt get any messages
          consumer1.close();
+
+         // Step 15.now kill server1, messages will be scaled down to server0
+         killServer(1);
+         Thread.sleep(40000);
 
          // Step 16. we now receive the messages that were on server1 but were scaled down to server0
          for (int i = 0; i < numMessages / 2; i++)

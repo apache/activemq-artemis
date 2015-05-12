@@ -16,8 +16,6 @@
  */
 package org.apache.activemq.artemis.jms.example;
 
-import java.util.Hashtable;
-
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Message;
@@ -28,6 +26,7 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.jms.Topic;
 import javax.naming.InitialContext;
+import java.util.Hashtable;
 
 import org.apache.activemq.artemis.common.example.ActiveMQExample;
 
@@ -59,7 +58,7 @@ public class DivertExample extends ActiveMQExample
          // Step 1. Create an initial context to perform the JNDI lookup on the London server
          Hashtable<String, Object> properties = new Hashtable<String, Object>();
          properties.put("java.naming.factory.initial", "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
-         properties.put("connectionFactory.ConnectionFactory", args[0]);
+         properties.put("connectionFactory.ConnectionFactory", DEFAULT_TCP1);
          properties.put("queue.queue/orders", "orders");
          properties.put("topic.topic/priceUpdates", "priceUpdates");
          properties.put("topic.topic/spyTopic", "spyTopic");
@@ -78,7 +77,7 @@ public class DivertExample extends ActiveMQExample
          // Step 6. Create an initial context to perform the JNDI lookup on the New York server
          properties = new Hashtable<String, Object>();
          properties.put("java.naming.factory.initial", "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
-         properties.put("connectionFactory.ConnectionFactory", args[1]);
+         properties.put("connectionFactory.ConnectionFactory", DEFAULT_TCP2);
          properties.put("topic.topic/newYorkPriceUpdates", "newYorkPriceUpdates");
          initialContextNewYork = new InitialContext(properties);
 

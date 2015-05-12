@@ -30,10 +30,21 @@ import org.apache.activemq.artemis.common.example.ActiveMQExample;
 
 public class MultipleFailoverExample extends ActiveMQExample
 {
-   public static void main(final String[] args)
+   public static void main(final String[] args) throws Exception
    {
       new MultipleFailoverExample().run(args);
    }
+
+   protected void startServers(String[] serversArgs) throws Exception
+   {
+      for (int i = 0; i < serversArgs.length; i++)
+      {
+         startServer(i, i == 0 ? 5000 : 0);
+      }
+
+      Thread.sleep(5000);
+   }
+
 
    @Override
    public boolean runExample() throws Exception
@@ -92,8 +103,9 @@ public class MultipleFailoverExample extends ActiveMQExample
 
          // Step 10. Crash server #1, the live server, and wait a little while to make sure
          // it has really crashed
-         Thread.sleep(2000);
+         Thread.sleep(1000);
          killServer(0);
+         Thread.sleep(5000);
 
          // Step 11. Acknowledging the 2nd half of the sent messages will fail as failover to the
          // backup server has occurred
@@ -114,8 +126,9 @@ public class MultipleFailoverExample extends ActiveMQExample
          }
          message0.acknowledge();
 
-         Thread.sleep(2000);
+         Thread.sleep(1000);
          killServer(getServer(connection));
+         Thread.sleep(5000);
 
          // Step 11. Acknowledging the 2nd half of the sent messages will fail as failover to the
          // backup server has occurred

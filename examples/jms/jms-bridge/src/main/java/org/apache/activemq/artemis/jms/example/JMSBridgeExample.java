@@ -16,14 +16,6 @@
  */
 package org.apache.activemq.artemis.jms.example;
 
-import org.apache.activemq.artemis.jms.bridge.JMSBridge;
-import org.apache.activemq.artemis.jms.bridge.QualityOfServiceMode;
-import org.apache.activemq.artemis.jms.bridge.impl.JMSBridgeImpl;
-import org.apache.activemq.artemis.jms.bridge.impl.JNDIConnectionFactoryFactory;
-import org.apache.activemq.artemis.jms.bridge.impl.JNDIDestinationFactory;
-
-import java.util.Hashtable;
-
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -33,22 +25,32 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.jms.Topic;
 import javax.naming.InitialContext;
+import java.util.Hashtable;
+
+import org.apache.activemq.artemis.common.example.ActiveMQExample;
+import org.apache.activemq.artemis.jms.bridge.JMSBridge;
+import org.apache.activemq.artemis.jms.bridge.QualityOfServiceMode;
+import org.apache.activemq.artemis.jms.bridge.impl.JMSBridgeImpl;
+import org.apache.activemq.artemis.jms.bridge.impl.JNDIConnectionFactoryFactory;
+import org.apache.activemq.artemis.jms.bridge.impl.JNDIDestinationFactory;
 
 /**
  * An example which sends a message to a source topic and consume from a target queue.
  * The source and target destinations are located on 2 different ActiveMQ Artemis server.
  * The source and target queues are bridged by a JMS Bridge configured and running on the "target" server.
  */
-public class JMSBridgeExample
+public class JMSBridgeExample extends ActiveMQExample
 {
    public static void main(final String[] args) throws Exception
    {
-      if (args.length != 2)
-      {
-         throw new IllegalArgumentException("JMSBridgeExample needs 2 arguments: <source server> <target server>");
-      }
-      String sourceServer = args[0];
-      String targetServer = args[1];
+      new JMSBridgeExample().run(args);
+   }
+
+   @Override
+   public boolean runExample() throws Exception
+   {
+      String sourceServer = ActiveMQExample.DEFAULT_TCP1;
+      String targetServer = ActiveMQExample.DEFAULT_TCP2;
 
       System.out.println("client will publish messages to " + sourceServer +
                          " and receives message from " +
@@ -152,6 +154,8 @@ public class JMSBridgeExample
             targetConnection.close();
          }
       }
+
+      return true;
    }
 
    private static InitialContext createContext(final String server) throws Exception

@@ -71,10 +71,10 @@ under the License.
          </cluster-connection>
       </cluster-connections>
 
-      <large-messages-directory>target/server0/data/large-messages</large-messages-directory>
-      <bindings-directory>target/server0/data/bindings</bindings-directory>
-      <journal-directory>target/server0/data/journal</journal-directory>
-      <paging-directory>target/server0/data/paging</paging-directory>
+      <large-messages-directory>../../server0/data/large-messages</large-messages-directory>
+      <bindings-directory>../../server0/data/bindings</bindings-directory>
+      <journal-directory>../../server0/data/journal</journal-directory>
+      <paging-directory>../../server0/data/paging</paging-directory>
       <!-- Other config -->
 
       <security-settings>

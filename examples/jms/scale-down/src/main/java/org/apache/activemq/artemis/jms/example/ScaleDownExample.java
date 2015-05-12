@@ -16,8 +16,6 @@
  */
 package org.apache.activemq.artemis.jms.example;
 
-import java.util.Hashtable;
-
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -26,6 +24,7 @@ import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.naming.InitialContext;
+import java.util.Hashtable;
 
 import org.apache.activemq.artemis.common.example.ActiveMQExample;
 
@@ -56,13 +55,13 @@ public class ScaleDownExample extends ActiveMQExample
          // Step 1. Get an initial context for looking up JNDI for both servers
          Hashtable<String, Object> properties = new Hashtable<String, Object>();
          properties.put("java.naming.factory.initial", "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
-         properties.put("connectionFactory.ConnectionFactory", args[0] + "?ha=true&retryInterval=1000&retryIntervalMultiplier=1.0&reconnectAttempts=-1");
+         properties.put("connectionFactory.ConnectionFactory", DEFAULT_TCP1 + "?ha=true&retryInterval=1000&retryIntervalMultiplier=1.0&reconnectAttempts=-1");
          properties.put("queue.queue/exampleQueue", "exampleQueue");
          initialContext = new InitialContext(properties);
 
          properties = new Hashtable<String, Object>();
          properties.put("java.naming.factory.initial", "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
-         properties.put("connectionFactory.ConnectionFactory", args[1] + "?ha=true&retryInterval=1000&retryIntervalMultiplier=1.0&reconnectAttempts=-1");
+         properties.put("connectionFactory.ConnectionFactory", DEFAULT_TCP2 + "?ha=true&retryInterval=1000&retryIntervalMultiplier=1.0&reconnectAttempts=-1");
          initialContext1 = new InitialContext(properties);
 
          // Step 2. Look up the JMS resources from JNDI
@@ -97,6 +96,7 @@ public class ScaleDownExample extends ActiveMQExample
          // it has really crashed
          Thread.sleep(5000);
          killServer(1);
+         Thread.sleep(5000);
 
 
          // Step 8. start the connection ready to receive messages

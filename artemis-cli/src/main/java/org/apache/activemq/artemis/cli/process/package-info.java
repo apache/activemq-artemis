@@ -14,9 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.maven;
 
-public interface ActiveMQClient
-{
-   void run();
-}
+/** Contains useful classes for spawning process from client classes */
+package org.apache.activemq.artemis.cli.process;

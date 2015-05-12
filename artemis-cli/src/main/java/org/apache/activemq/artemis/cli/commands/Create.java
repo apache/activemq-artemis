@@ -118,6 +118,9 @@ public class Create extends InputAbstract
    @Option(name = "--shared-store", description = "Enable broker shared store")
    boolean sharedStore = false;
 
+   @Option(name = "--slave", description = "Valid for shared store or replication: this is a slave server?")
+   boolean slave;
+
    @Option(name = "--cluster-user", description = "The cluster user to use for clustering. (Default: input)")
    String clusterUser = null;
 
@@ -411,6 +414,26 @@ public class Create extends InputAbstract
       this.role = role;
    }
 
+   public boolean isSlave()
+   {
+      return slave;
+   }
+
+   public void setSlave(boolean slave)
+   {
+      this.slave = slave;
+   }
+
+   public Boolean getAllowAnonymous()
+   {
+      return allowAnonymous;
+   }
+
+   public void setAllowAnonymous(Boolean allowAnonymous)
+   {
+      this.allowAnonymous = allowAnonymous;
+   }
+
    @Override
    public Object execute(ActionContext context) throws Exception
    {
@@ -469,10 +492,12 @@ public class Create extends InputAbstract
 
       HashMap<String, String> filters = new HashMap<String, String>();
 
+      filters.put("${master-slave}", isSlave() ? "slave" : "master");
+
       if (replicated)
       {
          clustered = true;
-         filters.put("${replicated.settings}", readTextFile(ETC_REPLICATED_SETTINGS_TXT));
+         filters.put("${replicated.settings}", applyFilters(readTextFile(ETC_REPLICATED_SETTINGS_TXT), filters));
       }
       else
       {
@@ -482,7 +507,7 @@ public class Create extends InputAbstract
       if (sharedStore)
       {
          clustered = true;
-         filters.put("${shared-store.settings}", readTextFile(ETC_SHARED_STORE_SETTINGS_TXT));
+         filters.put("${shared-store.settings}", applyFilters(readTextFile(ETC_SHARED_STORE_SETTINGS_TXT), filters));
       }
       else
       {

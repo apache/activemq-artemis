@@ -16,8 +16,6 @@
  */
 package org.apache.activemq.artemis.jms.example;
 
-import java.util.Hashtable;
-
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -26,6 +24,7 @@ import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.naming.InitialContext;
+import java.util.Hashtable;
 
 import org.apache.activemq.artemis.common.example.ActiveMQExample;
 
@@ -60,7 +59,7 @@ public class ClusteredGroupingExample extends ActiveMQExample
          // Step 1. Get an initial context for looking up JNDI from server 0
          Hashtable<String, Object> properties = new Hashtable<String, Object>();
          properties.put("java.naming.factory.initial", "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
-         properties.put("connectionFactory.ConnectionFactory", args[0]);
+         properties.put("connectionFactory.ConnectionFactory", "tcp://localhost:61616");
          properties.put("queue.queue/exampleQueue", "exampleQueue");
          ic0 = new InitialContext(properties);
 
@@ -73,7 +72,7 @@ public class ClusteredGroupingExample extends ActiveMQExample
          // Step 4. Get an initial context for looking up JNDI from server 1
          properties = new Hashtable<String, Object>();
          properties.put("java.naming.factory.initial", "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
-         properties.put("connectionFactory.ConnectionFactory", args[1]);
+         properties.put("connectionFactory.ConnectionFactory", "tcp://localhost:61617");
          ic1 = new InitialContext(properties);
 
          // Step 5. Look-up a JMS Connection Factory object from JNDI on server 1
@@ -82,7 +81,7 @@ public class ClusteredGroupingExample extends ActiveMQExample
          // Step 4. Get an initial context for looking up JNDI from server 2
          properties = new Hashtable<String, Object>();
          properties.put("java.naming.factory.initial", "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
-         properties.put("connectionFactory.ConnectionFactory", args[2]);
+         properties.put("connectionFactory.ConnectionFactory", "tcp://localhost:61618");
          ic2 = new InitialContext(properties);
 
          // Step 5. Look-up a JMS Connection Factory object from JNDI on server 2

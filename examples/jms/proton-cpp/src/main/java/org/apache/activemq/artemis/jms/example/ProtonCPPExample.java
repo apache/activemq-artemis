@@ -26,13 +26,10 @@ import javax.jms.QueueConnection;
 import javax.jms.QueueRequestor;
 import javax.jms.QueueSession;
 import javax.jms.Session;
-import javax.jms.TextMessage;
 import javax.naming.InitialContext;
 
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
-import org.apache.activemq.artemis.api.jms.ActiveMQJMSConstants;
 import org.apache.activemq.artemis.api.jms.management.JMSManagementHelper;
-
 import org.apache.activemq.artemis.common.example.ActiveMQExample;
 
 /**

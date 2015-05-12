@@ -1,6 +1,6 @@
 
       <ha-policy>
          <replication>
-            <master/>
+            <${master-slave}/>
          </replication>
       </ha-policy>

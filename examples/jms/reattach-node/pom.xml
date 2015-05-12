@@ -57,12 +57,13 @@ under the License.
                   <artifactId>artemis-maven-plugin</artifactId>
                   <executions>
                      <execution>
-                        <id>start0</id>
+                        <id>create</id>
                         <goals>
-                           <goal>start</goal>
+                           <goal>create</goal>
                         </goals>
                         <configuration>
-                           <configurationDir>${basedir}/target/classes/activemq/server0</configurationDir>
+                           <instance>${basedir}/target/server0</instance>
+                           <configuration>${basedir}/target/classes/activemq/server0</configuration>
                         </configuration>
                      </execution>
                      <execution>
@@ -72,21 +73,9 @@ under the License.
                         </goals>
                         <configuration>
                            <clientClass>org.apache.activemq.artemis.jms.example.ReattachExample</clientClass>
-                           <systemProperties>
-                              <property>
-                                 <name>exampleConfigDir</name>
-                                 <value>${basedir}/target/classes/activemq</value>
-                              </property>
-                           </systemProperties>
-                        </configuration>
-                     </execution>
-                     <execution>
-                        <id>stop0</id>
-                        <goals>
-                           <goal>stop</goal>
-                        </goals>
-                        <configuration>
-                           <configurationDir>${basedir}/target/classes/activemq/server0</configurationDir>
+                           <args>
+                              <param>${basedir}/target/server0</param>
+                           </args>
                         </configuration>
                      </execution>
                   </executions>
@@ -96,46 +85,7 @@ under the License.
                         <artifactId>artemis-jms-reattach-node-example</artifactId>
                         <version>${project.version}</version>
                      </dependency>
-                     <dependency>
-                        <groupId>org.apache.activemq</groupId>
-                        <artifactId>artemis-core-client</artifactId>
-                        <version>${project.version}</version>
-                     </dependency>
-                     <dependency>
-                        <groupId>org.apache.activemq</groupId>
-                        <artifactId>artemis-server</artifactId>
-                        <version>${project.version}</version>
-                     </dependency>
-                     <dependency>
-                        <groupId>org.apache.activemq</groupId>
-                        <artifactId>artemis-jms-client</artifactId>
-                        <version>${project.version}</version>
-                     </dependency>
-                     <dependency>
-                        <groupId>org.apache.activemq</groupId>
-                        <artifactId>artemis-jms-server</artifactId>
-                        <version>${project.version}</version>
-                     </dependency>
-                     <dependency>
-                        <groupId>io.netty</groupId>
-                        <artifactId>netty-all</artifactId>
-                        <version>${netty.version}</version>
-                     </dependency>
-                     <dependency>
-                        <groupId>org.apache.geronimo.specs</groupId>
-                        <artifactId>geronimo-jms_2.0_spec</artifactId>
-                        <version>${geronimo.jms.2.spec.version}</version>
-                     </dependency>
                   </dependencies>
-                  <configuration>
-                     <waitOnStart>false</waitOnStart>
-                     <systemProperties>
-                        <property>
-                           <name>data.dir</name>
-                           <value>${basedir}/target/</value>
-                        </property>
-                     </systemProperties>
-                  </configuration>
                </plugin>
             </plugins>
          </build>

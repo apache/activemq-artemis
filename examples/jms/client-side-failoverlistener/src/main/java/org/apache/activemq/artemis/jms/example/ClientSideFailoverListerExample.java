@@ -38,10 +38,22 @@ import org.apache.activemq.artemis.jms.client.ActiveMQConnection;
  */
 public class ClientSideFailoverListerExample extends ActiveMQExample
 {
-   public static void main(final String[] args)
+   public static void main(final String[] args) throws Exception
    {
       new ClientSideFailoverListerExample().run(args);
    }
+
+   @Override
+   protected void startServers(String[] serversArgs) throws Exception
+   {
+      startServer(0, 5000);
+
+      // server 1 is a backup, it's not activated
+      startServer(1, 0);
+
+      Thread.sleep(1000);
+   }
+
 
    @Override
    public boolean runExample() throws Exception

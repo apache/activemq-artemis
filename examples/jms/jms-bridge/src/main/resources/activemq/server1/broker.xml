@@ -38,6 +38,7 @@ under the License.
 
       <acceptors>
          <acceptor name="netty">tcp://localhost:5455</acceptor>
+         <acceptor name="netty2">tcp://localhost:61617</acceptor>
       </acceptors>
 
       <security-settings>
@@ -50,4 +51,4 @@ under the License.
       </security-settings>
    </core>
 </configuration>
- 
+

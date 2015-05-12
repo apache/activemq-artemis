@@ -42,6 +42,12 @@ public class ReplicatedFailbackExample extends ActiveMQExample
       new ReplicatedFailbackExample().run(args);
    }
 
+   protected void startServers(String[] serversArgs) throws Exception
+   {
+      startServer(0, 60000);
+      startServer(1, 10000);
+   }
+
    @Override
    public boolean runExample() throws Exception
    {

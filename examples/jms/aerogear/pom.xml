@@ -31,6 +31,7 @@ under the License.
       <endpoint />
       <applicationid />
       <mastersecret />
+      <mavenVersion>2.2.1</mavenVersion>
       <activemq.basedir>${project.basedir}/../../..</activemq.basedir>
    </properties>
 
@@ -40,13 +41,46 @@ under the License.
 
    <dependencies>
       <dependency>
-         <groupId>org.apache.activemq.examples.jms</groupId>
-         <artifactId>common</artifactId>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>artemis-cli</artifactId>
          <version>${project.version}</version>
       </dependency>
+
+      <!-- maven -->
       <dependency>
-         <groupId>org.apache.geronimo.specs</groupId>
-         <artifactId>geronimo-jms_2.0_spec</artifactId>
+         <groupId>org.apache.maven</groupId>
+         <artifactId>maven-artifact</artifactId>
+         <version>${mavenVersion}</version>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.maven</groupId>
+         <artifactId>maven-plugin-api</artifactId>
+         <version>${mavenVersion}</version>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.maven</groupId>
+         <artifactId>maven-project</artifactId>
+         <version>${mavenVersion}</version>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.maven</groupId>
+         <artifactId>maven-model</artifactId>
+         <version>${mavenVersion}</version>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.maven</groupId>
+         <artifactId>maven-core</artifactId>
+         <version>${mavenVersion}</version>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.maven</groupId>
+         <artifactId>maven-artifact-manager</artifactId>
+         <version>${mavenVersion}</version>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.maven</groupId>
+         <artifactId>maven-repository-metadata</artifactId>
+         <version>${mavenVersion}</version>
       </dependency>
    </dependencies>
 
@@ -60,29 +94,39 @@ under the License.
                   <artifactId>artemis-maven-plugin</artifactId>
                   <executions>
                      <execution>
-                        <id>start</id>
+                        <id>create</id>
                         <goals>
-                           <goal>start</goal>
+                           <goal>create</goal>
+                           <!-- todo add integration layer -->
                         </goals>
                         <configuration>
-                           <systemProperties>
-                              <property>
-                                 <name>data.dir</name>
-                                 <value>${basedir}/target/</value>
-                              </property>
-                              <property>
-                                 <name>endpoint</name>
-                                 <value>${endpoint}</value>
-                              </property>
-                              <property>
-                                 <name>applicationid</name>
-                                 <value>${applicationid}</value>
-                              </property>
-                              <property>
-                                 <name>mastersecret</name>
-                                 <value>${mastersecret}</value>
-                              </property>
-                           </systemProperties>
+                           <!-- this list was extracted from mvn dependency:tree on integration/aerogear -->
+                           <libList>
+                              <param>org.apache.activemq:artemis-aerogear-integration:${project.version}</param>
+                              <param>org.jboss.aerogear:unifiedpush-java-client:1.0.0</param>
+                              <param>net.iharder:base64:2.3.8</param>
+                              <param>com.fasterxml.jackson.core:jackson-annotations:2.3.0</param>
+                              <param>com.fasterxml.jackson.core:jackson-core:2.3.0</param>
+                              <param>org.jboss.resteasy:resteasy-jackson-provider:2.3.2.Final</param>
+                              <param>org.codehaus.jackson:jackson-core-asl:1.8.5</param>
+                              <param>org.codehaus.jackson:jackson-mapper-asl:1.8.5</param>
+                              <param>org.codehaus.jackson:jackson-jaxrs:1.8.5</param>
+                              <param>org.codehaus.jackson:jackson-xc:1.8.5</param>
+                           </libList>
+                        </configuration>
+                     </execution>
+                     <execution>
+                        <id>start</id>
+                        <goals>
+                           <goal>cli</goal>
+                        </goals>
+                        <configuration>
+                           <spawn>true</spawn>
+                           <testServer>true</testServer>
+                           <!-- this list was extracted from mvn dependency:tree on integration/aerogear -->
+                           <args>
+                              <param>run</param>
+                           </args>
                         </configuration>
                      </execution>
                      <execution>
@@ -93,15 +137,20 @@ under the License.
                         <configuration>
                            <clientClass>org.apache.activemq.artemis.jms.example.AerogearExample</clientClass>
                            <args>
-                              <param>tcp://localhost:61616</param>
+                              <param>${basedir}/target/server0</param>
                            </args>
                         </configuration>
                      </execution>
                      <execution>
                         <id>stop</id>
                         <goals>
-                           <goal>stop</goal>
+                           <goal>cli</goal>
                         </goals>
+                        <configuration>
+                           <args>
+                              <param>stop</param>
+                           </args>
+                        </configuration>
                      </execution>
                   </executions>
                   <dependencies>
@@ -110,45 +159,7 @@ under the License.
                         <artifactId>artemis-jms-aerogear-example</artifactId>
                         <version>${project.version}</version>
                      </dependency>
-                     <dependency>
-                        <groupId>org.apache.activemq</groupId>
-                        <artifactId>artemis-core-client</artifactId>
-                        <version>${project.version}</version>
-                     </dependency>
-                     <dependency>
-                        <groupId>org.apache.activemq</groupId>
-                        <artifactId>artemis-server</artifactId>
-                        <version>${project.version}</version>
-                     </dependency>
-                     <dependency>
-                        <groupId>org.apache.activemq</groupId>
-                        <artifactId>artemis-jms-client</artifactId>
-                        <version>${project.version}</version>
-                     </dependency>
-                     <dependency>
-                        <groupId>org.apache.activemq</groupId>
-                        <artifactId>artemis-jms-server</artifactId>
-                        <version>${project.version}</version>
-                     </dependency>
-                     <dependency>
-                        <groupId>org.apache.activemq</groupId>
-                        <artifactId>artemis-aerogear-integration</artifactId>
-                        <version>${project.version}</version>
-                     </dependency>
-                     <dependency>
-                        <groupId>io.netty</groupId>
-                        <artifactId>netty-all</artifactId>
-                        <version>${netty.version}</version>
-                     </dependency>
-                     <dependency>
-                        <groupId>org.apache.geronimo.specs</groupId>
-                        <artifactId>geronimo-jms_2.0_spec</artifactId>
-                     </dependency>
                   </dependencies>
-                  <configuration>
-                     <waitOnStart>false</waitOnStart>
-                     <configurationDir>${basedir}/target/classes/activemq/server0</configurationDir>
-                  </configuration>
                </plugin>
             </plugins>
          </build>

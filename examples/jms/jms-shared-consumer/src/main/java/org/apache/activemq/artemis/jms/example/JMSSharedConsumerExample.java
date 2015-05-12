@@ -16,13 +16,10 @@
  */
 package org.apache.activemq.artemis.jms.example;
 
-import javax.jms.CompletionListener;
 import javax.jms.ConnectionFactory;
 import javax.jms.JMSConsumer;
 import javax.jms.JMSContext;
 import javax.jms.JMSProducer;
-import javax.jms.Message;
-import javax.jms.Queue;
 import javax.jms.Topic;
 import javax.naming.InitialContext;
 
@@ -33,7 +30,7 @@ import org.apache.activemq.artemis.common.example.ActiveMQExample;
  */
 public class JMSSharedConsumerExample extends ActiveMQExample
 {
-   public static void main(final String[] args)
+   public static void main(final String[] args) throws Exception
    {
       new JMSSharedConsumerExample().run(args);
    }

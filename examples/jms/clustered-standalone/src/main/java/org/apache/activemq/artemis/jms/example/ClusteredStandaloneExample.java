@@ -16,8 +16,6 @@
  */
 package org.apache.activemq.artemis.jms.example;
 
-import java.util.Hashtable;
-
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -26,6 +24,7 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.jms.Topic;
 import javax.naming.InitialContext;
+import java.util.Hashtable;
 
 import org.apache.activemq.artemis.common.example.ActiveMQExample;
 
@@ -53,18 +52,18 @@ public class ClusteredStandaloneExample extends ActiveMQExample
       {
          Hashtable<String, Object> properties = new Hashtable<String, Object>();
          properties.put("java.naming.factory.initial", "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
-         properties.put("connectionFactory.ConnectionFactory", args[0]);
+         properties.put("connectionFactory.ConnectionFactory", DEFAULT_TCP1);
          properties.put("topic.topic/exampleTopic", "exampleTopic");
          initialContext0 = new InitialContext(properties);
 
          properties = new Hashtable<String, Object>();
          properties.put("java.naming.factory.initial", "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
-         properties.put("connectionFactory.ConnectionFactory", args[1]);
+         properties.put("connectionFactory.ConnectionFactory", DEFAULT_TCP2);
          initialContext1 = new InitialContext(properties);
 
          properties = new Hashtable<String, Object>();
          properties.put("java.naming.factory.initial", "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
-         properties.put("connectionFactory.ConnectionFactory", args[2]);
+         properties.put("connectionFactory.ConnectionFactory", DEFAULT_TCP3);
          initialContext2 = new InitialContext(properties);
 
          // First we demonstrate a distributed topic.
@@ -147,7 +146,7 @@ public class ClusteredStandaloneExample extends ActiveMQExample
                return false;
             }
 
-           // System.out.println("Received message " + message2.getText());
+            System.out.println("Received message " + message2.getText());
          }
 
          producer.close();

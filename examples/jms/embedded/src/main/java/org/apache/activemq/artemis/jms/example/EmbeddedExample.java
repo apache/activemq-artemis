@@ -16,9 +16,6 @@
  */
 package org.apache.activemq.artemis.jms.example;
 
-import java.util.ArrayList;
-import java.util.Date;
-
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -26,6 +23,8 @@ import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+import java.util.ArrayList;
+import java.util.Date;
 
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.common.example.ActiveMQExample;
@@ -55,7 +54,7 @@ public final class EmbeddedExample extends ActiveMQExample
    @Override
    public boolean runExample() throws Exception
    {
-            try
+      try
       {
 
          // Step 1. Create ActiveMQ Artemis core configuration, and set the properties accordingly

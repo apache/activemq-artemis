@@ -16,10 +16,6 @@
  */
 package org.apache.activemq.artemis.jms.example;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -27,13 +23,16 @@ import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
+import org.apache.activemq.artemis.api.jms.JMSFactoryType;
 import org.apache.activemq.artemis.common.example.ActiveMQExample;
 import org.apache.activemq.artemis.core.config.impl.SecurityConfiguration;
-import org.apache.activemq.artemis.jms.server.embedded.EmbeddedJMS;
 import org.apache.activemq.artemis.jms.server.JMSServerManager;
+import org.apache.activemq.artemis.jms.server.embedded.EmbeddedJMS;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManagerImpl;
-import org.apache.activemq.artemis.api.jms.JMSFactoryType;
 
 /**
  * This example demonstrates how to run an ActiveMQ Artemis embedded with JMS

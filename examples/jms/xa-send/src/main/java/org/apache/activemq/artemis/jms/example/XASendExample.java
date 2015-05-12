@@ -16,9 +16,6 @@
  */
 package org.apache.activemq.artemis.jms.example;
 
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
@@ -33,9 +30,11 @@ import javax.jms.XASession;
 import javax.naming.InitialContext;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 
-import org.apache.activemq.artemis.common.example.DummyXid;
 import org.apache.activemq.artemis.common.example.ActiveMQExample;
+import org.apache.activemq.artemis.common.example.DummyXid;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 
 /**
@@ -95,8 +94,7 @@ public class XASendExample extends ActiveMQExample
          TextMessage worldMessage = session.createTextMessage("world");
 
          // Step 12. create a transaction
-         Xid xid1 =
-                  new DummyXid("xa-example1".getBytes(StandardCharsets.UTF_8), 1, UUIDGenerator.getInstance()
+         Xid xid1 = new DummyXid("xa-example1".getBytes(StandardCharsets.UTF_8), 1, UUIDGenerator.getInstance()
                                                                            .generateStringUUID()
                                                                            .getBytes());
 

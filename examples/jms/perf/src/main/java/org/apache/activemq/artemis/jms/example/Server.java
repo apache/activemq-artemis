@@ -14,36 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.maven;
 
-import java.io.File;
-import java.io.IOException;
+package org.apache.activemq.artemis.jms.example;
 
-public class TestNode
+public class Server
 {
-   String nodeId;
-   String workingDir;
-   String configDir;
-
-   public TestNode(String nodeId, String workingDir,
-                   String configDir)
+   public static void main(String arg[])
    {
-      this.nodeId = nodeId;
-      this.workingDir = workingDir;
-      this.configDir = configDir;
+      System.out.println("***********************************************************************************");
+      System.out.println("You need to start manually under ./target/server/bin just run ./artemis run");
+      System.out.println("***********************************************************************************");
    }
-
-   public void kill() throws IOException
-   {
-      File file = new File(configDir, "KILL_ME");
-      file.createNewFile();
-      try
-      {
-         Thread.sleep(3000);
-      }
-      catch (InterruptedException e)
-      {
-      }
-   }
-
 }

@@ -232,12 +232,12 @@ public class SymmetricClusterExample extends ActiveMQExample
       {
          // Step 15. Be sure to close our resources!
 
-         closeConnection(connection0);
-         closeConnection(connection1);
-         closeConnection(connection2);
-         closeConnection(connection3);
-         closeConnection(connection4);
-         closeConnection(connection5);
+         connection0.close();
+         connection1.close();
+         connection2.close();
+         connection3.close();
+         connection4.close();
+         connection5.close();
       }
    }
 }

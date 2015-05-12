@@ -1,6 +1,6 @@
 
       <ha-policy>
          <shared-store>
-            <master/>
+            <${master-slave}/>
          </shared-store>
       </ha-policy>

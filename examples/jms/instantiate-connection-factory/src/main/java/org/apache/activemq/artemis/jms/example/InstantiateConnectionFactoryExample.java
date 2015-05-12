@@ -16,9 +16,6 @@
  */
 package org.apache.activemq.artemis.jms.example;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -26,6 +23,8 @@ import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
@@ -61,7 +60,7 @@ public class InstantiateConnectionFactoryExample extends ActiveMQExample
          // The server port etc.
 
          Map<String, Object> connectionParams = new HashMap<String, Object>();
-         connectionParams.put(TransportConstants.PORT_PROP_NAME, 61617);
+         connectionParams.put(TransportConstants.PORT_PROP_NAME, 61616);
 
          TransportConfiguration transportConfiguration = new TransportConfiguration(NettyConnectorFactory.class.getName(),
                                                                                     connectionParams);

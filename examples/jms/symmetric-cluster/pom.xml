@@ -57,124 +57,72 @@ under the License.
                   <artifactId>artemis-maven-plugin</artifactId>
                   <executions>
                      <execution>
-                        <id>start0</id>
+                        <id>create</id>
                         <goals>
-                           <goal>start</goal>
+                           <goal>create</goal>
                         </goals>
                         <configuration>
-                           <configurationDir>${basedir}/target/classes/activemq/server0</configurationDir>
-                           <systemProperties>
-                              <property>
-                                 <name>data.dir</name>
-                                 <value>${basedir}/target/</value>
-                              </property>
-                              <property>
-                                 <name>udp-address</name>
-                                 <value>${udp-address}</value>
-                              </property>
-                           </systemProperties>
+                           <instance>${basedir}/target/server0</instance>
+                           <configuration>${basedir}/target/classes/activemq/server0</configuration>
+                           <javaOptions>-Dudp-address=${udp-address}</javaOptions>
                         </configuration>
                      </execution>
                      <execution>
-                        <id>start1</id>
+                        <id>create1</id>
                         <goals>
-                           <goal>start</goal>
+                           <goal>create</goal>
                         </goals>
                         <configuration>
-                           <configurationDir>${basedir}/target/classes/activemq/server1</configurationDir>
-                           <fork>true</fork>
-                           <systemProperties>
-                              <property>
-                                 <name>data.dir</name>
-                                 <value>${basedir}/target/</value>
-                              </property>
-                              <property>
-                                 <name>udp-address</name>
-                                 <value>${udp-address}</value>
-                              </property>
-                           </systemProperties>
+                           <instance>${basedir}/target/server1</instance>
+                           <configuration>${basedir}/target/classes/activemq/server1</configuration>
+                           <javaOptions>-Dudp-address=${udp-address}</javaOptions>
                         </configuration>
                      </execution>
                      <execution>
-                        <id>start2</id>
+                        <id>create2</id>
                         <goals>
-                           <goal>start</goal>
+                           <goal>create</goal>
                         </goals>
                         <configuration>
-                           <configurationDir>${basedir}/target/classes/activemq/server2</configurationDir>
-                           <fork>true</fork>
-                           <systemProperties>
-                              <property>
-                                 <name>data.dir</name>
-                                 <value>${basedir}/target/</value>
-                              </property>
-                              <property>
-                                 <name>udp-address</name>
-                                 <value>${udp-address}</value>
-                              </property>
-                           </systemProperties>
+                           <instance>${basedir}/target/server2</instance>
+                           <configuration>${basedir}/target/classes/activemq/server2</configuration>
+                           <javaOptions>-Dudp-address=${udp-address}</javaOptions>
                         </configuration>
                      </execution>
                      <execution>
-                        <id>start3</id>
+                        <id>create3</id>
                         <goals>
-                           <goal>start</goal>
+                           <goal>create</goal>
                         </goals>
                         <configuration>
-                           <configurationDir>${basedir}/target/classes/activemq/server3</configurationDir>
-                           <fork>true</fork>
-                           <systemProperties>
-                              <property>
-                                 <name>data.dir</name>
-                                 <value>${basedir}/target/</value>
-                              </property>
-                              <property>
-                                 <name>udp-address</name>
-                                 <value>${udp-address}</value>
-                              </property>
-                           </systemProperties>
+                           <instance>${basedir}/target/server3</instance>
+                           <configuration>${basedir}/target/classes/activemq/server3</configuration>
+                           <javaOptions>-Dudp-address=${udp-address}</javaOptions>
                         </configuration>
                      </execution>
                      <execution>
-                        <id>start4</id>
+                        <id>create4</id>
                         <goals>
-                           <goal>start</goal>
+                           <goal>create</goal>
                         </goals>
                         <configuration>
-                           <configurationDir>${basedir}/target/classes/activemq/server4</configurationDir>
-                           <fork>true</fork>
-                           <systemProperties>
-                              <property>
-                                 <name>data.dir</name>
-                                 <value>${basedir}/target/</value>
-                              </property>
-                              <property>
-                                 <name>udp-address</name>
-                                 <value>${udp-address}</value>
-                              </property>
-                           </systemProperties>
+                           <instance>${basedir}/target/server4</instance>
+                           <configuration>${basedir}/target/classes/activemq/server4</configuration>
+                           <javaOptions>-Dudp-address=${udp-address}</javaOptions>
                         </configuration>
                      </execution>
                      <execution>
-                        <id>start5</id>
+                        <id>create5</id>
                         <goals>
-                           <goal>start</goal>
+                           <goal>create</goal>
                         </goals>
                         <configuration>
-                           <configurationDir>${basedir}/target/classes/activemq/server5</configurationDir>
-                           <fork>true</fork>
-                           <systemProperties>
-                              <property>
-                                 <name>data.dir</name>
-                                 <value>${basedir}/target/</value>
-                              </property>
-                              <property>
-                                 <name>udp-address</name>
-                                 <value>${udp-address}</value>
-                              </property>
-                           </systemProperties>
+                           <instance>${basedir}/target/server5</instance>
+                           <configuration>${basedir}/target/classes/activemq/server5</configuration>
+                           <javaOptions>-Dudp-address=${udp-address}</javaOptions>
                         </configuration>
                      </execution>
+
                      <execution>
                         <id>runClient</id>
                         <goals>
@@ -183,73 +131,13 @@ under the License.
                         <configuration>
                            <clientClass>org.apache.activemq.artemis.jms.example.SymmetricClusterExample</clientClass>
                            <args>
-                              <param>tcp://localhost:61616</param>
-                              <param>tcp://localhost:61617</param>
-                              <param>tcp://localhost:61618</param>
-                              <param>tcp://localhost:61619</param>
-                              <param>tcp://localhost:61620</param>
-                              <param>tcp://localhost:5450</param>
+                              <param>${basedir}/target/server0</param>
+                              <param>${basedir}/target/server1</param>
+                              <param>${basedir}/target/server2</param>
+                              <param>${basedir}/target/server3</param>
+                              <param>${basedir}/target/server4</param>
+                              <param>${basedir}/target/server5</param>
                            </args>
-                           <systemProperties>
-                              <property>
-                                 <name>exampleConfigDir</name>
-                                 <value>${basedir}/target/classes/activemq</value>
-                              </property>
-                           </systemProperties>
-                        </configuration>
-                     </execution>
-                     <execution>
-                        <id>stop0</id>
-                        <goals>
-                           <goal>stop</goal>
-                        </goals>
-                        <configuration>
-                           <configurationDir>${basedir}/target/classes/activemq/server0</configurationDir>
-                        </configuration>
-                     </execution>
-                     <execution>
-                        <id>stop1</id>
-                        <goals>
-                           <goal>stop</goal>
-                        </goals>
-                        <configuration>
-                           <configurationDir>${basedir}/target/classes/activemq/server1</configurationDir>
-                        </configuration>
-                     </execution>
-                     <execution>
-                        <id>stop2</id>
-                        <goals>
-                           <goal>stop</goal>
-                        </goals>
-                        <configuration>
-                           <configurationDir>${basedir}/target/classes/activemq/server2</configurationDir>
-                        </configuration>
-                     </execution>
-                     <execution>
-                        <id>stop3</id>
-                        <goals>
-                           <goal>stop</goal>
-                        </goals>
-                        <configuration>
-                           <configurationDir>${basedir}/target/classes/activemq/server3</configurationDir>
-                        </configuration>
-                     </execution>
-                     <execution>
-                        <id>stop4</id>
-                        <goals>
-                           <goal>stop</goal>
-                        </goals>
-                        <configuration>
-                           <configurationDir>${basedir}/target/classes/activemq/server4</configurationDir>
-                        </configuration>
-                     </execution>
-                     <execution>
-                        <id>stop5</id>
-                        <goals>
-                           <goal>stop</goal>
-                        </goals>
-                        <configuration>
-                           <configurationDir>${basedir}/target/classes/activemq/server5</configurationDir>
                         </configuration>
                      </execution>
                   </executions>
@@ -259,46 +147,7 @@ under the License.
                         <artifactId>artemis-jms-symmetric-cluster-example</artifactId>
                         <version>${project.version}</version>
                      </dependency>
-                     <dependency>
-                        <groupId>org.apache.activemq</groupId>
-                        <artifactId>artemis-core-client</artifactId>
-                        <version>${project.version}</version>
-                     </dependency>
-                     <dependency>
-                        <groupId>org.apache.activemq</groupId>
-                        <artifactId>artemis-server</artifactId>
-                        <version>${project.version}</version>
-                     </dependency>
-                     <dependency>
-                        <groupId>org.apache.activemq</groupId>
-                        <artifactId>artemis-jms-client</artifactId>
-                        <version>${project.version}</version>
-                     </dependency>
-                     <dependency>
-                        <groupId>org.apache.activemq</groupId>
-                        <artifactId>artemis-jms-server</artifactId>
-                        <version>${project.version}</version>
-                     </dependency>
-                     <dependency>
-                        <groupId>io.netty</groupId>
-                        <artifactId>netty-all</artifactId>
-                        <version>${netty.version}</version>
-                     </dependency>
-                     <dependency>
-                        <groupId>org.apache.geronimo.specs</groupId>
-                        <artifactId>geronimo-jms_2.0_spec</artifactId>
-                        <version>${geronimo.jms.2.spec.version}</version>
-                     </dependency>
                   </dependencies>
-                  <configuration>
-                     <waitOnStart>false</waitOnStart>
-                     <systemProperties>
-                        <property>
-                           <name>data.dir</name>
-                           <value>${basedir}/target/</value>
-                        </property>
-                     </systemProperties>
-                  </configuration>
                </plugin>
             </plugins>
          </build>

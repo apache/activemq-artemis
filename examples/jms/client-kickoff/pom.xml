@@ -62,35 +62,13 @@ under the License.
                   <artifactId>artemis-maven-plugin</artifactId>
                   <executions>
                      <execution>
-                        <id>start</id>
+                        <id>create</id>
                         <goals>
-                           <goal>start</goal>
+                           <goal>create</goal>
                         </goals>
                         <configuration>
-                           <!--we need to fork the server as we have system props that need set pre runtime-->
-                           <fork>true</fork>
-                           <systemProperties>
-                              <property>
-                                 <name>data.dir</name>
-                                 <value>${basedir}/target/</value>
-                              </property>
-                              <property>
-                                 <name>com.sun.management.jmxremote</name>
-                                 <value />
-                              </property>
-                              <property>
-                                 <name>com.sun.management.jmxremote.port</name>
-                                 <value>3000</value>
-                              </property>
-                              <property>
-                                 <name>com.sun.management.jmxremote.ssl</name>
-                                 <value>false</value>
-                              </property>
-                              <property>
-                                 <name>com.sun.management.jmxremote.authenticate</name>
-                                 <value>false</value>
-                              </property>
-                           </systemProperties>
+                           <!-- options used for JMX on the example -->
+                           <javaOptions>-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=3000 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false</javaOptions>
                         </configuration>
                      </execution>
                      <execution>
@@ -101,15 +79,9 @@ under the License.
                         <configuration>
                            <clientClass>org.apache.activemq.artemis.jms.example.ClientKickoffExample</clientClass>
                            <args>
-                              <param>tcp://localhost:61616</param>
+                              <param>${basedir}/target/server0</param>
                            </args>
                         </configuration>
-                     </execution>
-                     <execution>
-                        <id>stop</id>
-                        <goals>
-                           <goal>stop</goal>
-                        </goals>
                      </execution>
                   </executions>
                   <dependencies>
@@ -118,41 +90,7 @@ under the License.
                         <artifactId>artemis-jms-client-kickoff-example</artifactId>
                         <version>${project.version}</version>
                      </dependency>
-                     <dependency>
-                        <groupId>org.apache.activemq</groupId>
-                        <artifactId>artemis-core-client</artifactId>
-                        <version>${project.version}</version>
-                     </dependency>
-                     <dependency>
-                        <groupId>org.apache.activemq</groupId>
-                        <artifactId>artemis-server</artifactId>
-                        <version>${project.version}</version>
-                     </dependency>
-                     <dependency>
-                        <groupId>org.apache.activemq</groupId>
-                        <artifactId>artemis-jms-client</artifactId>
-                        <version>${project.version}</version>
-                     </dependency>
-                     <dependency>
-                        <groupId>org.apache.activemq</groupId>
-                        <artifactId>artemis-jms-server</artifactId>
-                        <version>${project.version}</version>
-                     </dependency>
-                     <dependency>
-                        <groupId>io.netty</groupId>
-                        <artifactId>netty-all</artifactId>
-                        <version>${netty.version}</version>
-                     </dependency>
-                     <dependency>
-                        <groupId>org.apache.geronimo.specs</groupId>
-                        <artifactId>geronimo-jms_2.0_spec</artifactId>
-                        <version>${geronimo.jms.2.spec.version}</version>
-                     </dependency>
                   </dependencies>
-                  <configuration>
-                     <waitOnStart>false</waitOnStart>
-                     <configurationDir>${basedir}/target/classes/activemq/server0</configurationDir>
-                  </configuration>
                </plugin>
             </plugins>
          </build>

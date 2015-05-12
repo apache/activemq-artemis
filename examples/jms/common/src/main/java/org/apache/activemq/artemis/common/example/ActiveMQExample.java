@@ -16,156 +16,214 @@
  */
 package org.apache.activemq.artemis.common.example;
 
-import java.io.File;
+import javax.jms.Connection;
 import java.util.HashMap;
 import java.util.logging.Logger;
-
-import javax.jms.Connection;
-import javax.jms.JMSException;
 
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.api.jms.JMSFactoryType;
-import org.apache.activemq.artemis.core.client.impl.DelegatingSession;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnection;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 
 /**
- * Base class for ActiveMQ Artemis examples.
- * <p>
- * This takes care of starting and stopping the server as well as deploying any
- * queue needed.
+ * This cass is a base class for all the tests where we have a few utilities to start and stop servers *
  */
 public abstract class ActiveMQExample
 {
    protected static final Logger log = Logger.getLogger(ActiveMQExample.class.getName());
+   public static final int DEFAULT_PORT = 61616;
+
+   public static final String DEFAULT_TCP1 = "tcp://localhost:61616";
+   public static final String DEFAULT_TCP2 = "tcp://localhost:61617";
+   public static final String DEFAULT_TCP3 = "tcp://localhost:61618";
+   public static final String DEFAULT_TCP4 = "tcp://localhost:61619";
 
    protected boolean failure = false;
 
-   protected String[] args;
+   protected String[] serversArgs;
 
-   public abstract boolean runExample() throws Exception;
+   protected Process[] processes;
 
-   protected void run(final String[] args1)
+
+   // This is to make sure we stop the servers when the example is shutdown
+   // as we start the servers with the example
+   Thread hook;
+
+   public void run(String servers[])
    {
-      this.args = args1;
-      //if we have a cluster of servers wait a while for the cluster to form properly
-      if(args != null && args.length > 1)
-      {
-         System.out.println("****pausing to allow cluster to form****");
-         Thread.yield();
-         try
-         {
-            Thread.sleep(2000);
-         }
-         catch (InterruptedException e)
-         {
-            //ignore
-         }
-      }
-
       try
       {
+         setupServers(servers);
          if (!runExample())
          {
             failure = true;
          }
-         System.out.println("example complete");
       }
-      catch (Throwable e)
+      catch (Throwable throwable)
       {
          failure = true;
-         e.printStackTrace();
+         throwable.printStackTrace();
       }
+      finally
+      {
+         try
+         {
+            stopAllServers();
+         }
+         catch (Throwable ignored)
+         {
+            ignored.printStackTrace();
+         }
+      }
+
       reportResultAndExit();
+
+   }
+   public abstract boolean runExample() throws Exception;
+
+   public void close() throws Exception
+   {
+
+      if (hook != null)
+      {
+         Runtime.getRuntime().removeShutdownHook(hook);
+         hook = null;
+      }
+      stopAllServers();
+   }
+
+   /** This will start the servers */
+   private final ActiveMQExample setupServers(String[] serversArgs) throws Exception
+   {
+      hook = new Thread()
+      {
+         public void run()
+         {
+            try
+            {
+               System.out.println("Shutting down servers!!!");
+               System.out.flush();
+               ActiveMQExample.this.stopAllServers();
+            }
+            catch (Exception e)
+            {
+               e.printStackTrace();
+            }
+         }
+      };
+
+      Runtime.getRuntime().addShutdownHook(hook);
+      this.serversArgs = serversArgs;
+
+      if (serversArgs == null)
+      {
+         serversArgs = new String[0];
+      }
+
+      processes = new Process[serversArgs.length];
+      startServers(serversArgs);
+
+      return this;
+   }
+
+   protected void startServers(String[] serversArgs) throws Exception
+   {
+      for (int i = 0; i < serversArgs.length; i++)
+      {
+         startServer(i, 5000);
+      }
+   }
+
+   protected void stopAllServers() throws Exception
+   {
+      if (processes != null)
+      {
+         for (int i = 0; i < processes.length; i++)
+         {
+            killServer(i);
+         }
+      }
    }
 
    protected void killServer(final int id) throws Exception
    {
-      String configDir = System.getProperty("exampleConfigDir");
-      if(configDir == null)
+      if (id > processes.length)
       {
-         throw new Exception("exampleConfigDir must be set as a system property");
+         System.out.println("**********************************");
+         System.out.println("Kill server " + id + " manually, will wait 5 seconds for that being done");
+         Thread.sleep(5000);
       }
 
-      System.out.println("Killing server " + id);
-
-      // We kill the server by creating a new file in the server dir which is checked for by the server
-      // We can't use Process.destroy() since this does not do a hard kill - it causes shutdown hooks
-      // to be called which cleanly shutdown the server
-      System.out.println(configDir + "/server" + id + "/KILL_ME");
-      File file = new File(configDir + "/server" + id + "/KILL_ME");
-
-      file.createNewFile();
-
-      // Sleep longer than the KillChecker check period
-      Thread.sleep(3000);
-   }
-
-   protected void killServer(final int id, final int serverToWaitFor) throws Exception
-   {
-      String configDir = System.getProperty("exampleConfigDir");
-      if(configDir == null)
+      if (processes[id] != null)
       {
-         throw new Exception("exampleConfigDir must be set as a system property");
+         System.out.println("**********************************");
+         System.out.println("Kill server " + id);
+         processes[id].destroyForcibly();
+         processes[id].waitFor();
+//         processes[id].destroy();
+         processes[id] = null;
+         Thread.sleep(1000);
       }
-
-      System.out.println("Killing server " + id);
-
-      // We kill the server by creating a new file in the server dir which is checked for by the server
-      // We can't use Process.destroy() since this does not do a hard kill - it causes shutdown hooks
-      // to be called which cleanly shutdown the server
-      System.out.println(configDir + "/server" + id + "/KILL_ME");
-      File file = new File(configDir + "/server" + id + "/KILL_ME");
-
-      file.createNewFile();
-
-      waitForServerStart(serverToWaitFor, 20000);
    }
 
    protected void reStartServer(final int id, final long timeout) throws Exception
    {
-      String configDir = System.getProperty("exampleConfigDir");
-      if(configDir == null)
-      {
-         throw new Exception("exampleConfigDir must be set as a system property");
-      }
-
-      System.out.println("restarting server " + id);
-
-      // We kill the server by creating a new file in the server dir which is checked for by the server
-      // We can't use Process.destroy() since this does not do a hard kill - it causes shutdown hooks
-      // to be called which cleanly shutdown the server
-      File file = new File(configDir + "/server" + id + "/RESTART_ME");
-
-      file.createNewFile();
-
-      waitForServerStart(id, timeout);
-
+      startServer(id, timeout);
    }
 
-   private void waitForServerStart(int id, long timeout) throws InterruptedException
+   protected void startServer(final int id, final long timeout) throws Exception
+   {
+      if (id > processes.length)
+      {
+         System.out.println("**********************************");
+         System.out.println("Start server " + id + " manually");
+         Thread.sleep(5000);
+      }
+      else
+      {
+         // if started before, will kill it
+         if (processes[id] != null)
+         {
+            killServer(id);
+         }
+      }
+
+      processes[id] = ExampleUtil.startServer(serversArgs[id], "Server_" + id);
+
+      if (timeout != 0)
+      {
+         waitForServerStart(id, timeout);
+      }
+      else
+      {
+         // just some time wait to wait server to form clusters.. etc
+         Thread.sleep(500);
+      }
+   }
+
+   protected void waitForServerStart(int id, long timeoutParameter) throws InterruptedException
    {
       // wait for restart
-      long time = System.currentTimeMillis();
-      while (time < System.currentTimeMillis() + timeout)
+      long timeout = System.currentTimeMillis() + timeoutParameter;
+      while (System.currentTimeMillis() < timeout)
       {
          try
          {
             HashMap<String, Object> params = new HashMap<String, Object>();
             params.put("host", "localhost");
-            params.put("port", 61616 + id);
+            params.put("port", DEFAULT_PORT + id);
             TransportConfiguration transportConfiguration = new TransportConfiguration(NettyConnectorFactory.class.getName(), params);
             ActiveMQConnectionFactory cf = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, transportConfiguration);
             cf.createConnection().close();
-            System.out.println("server restarted");
+            System.out.println("server " + id + " started");
          }
          catch (Exception e)
          {
-            System.out.println("awaiting server restart");
-            Thread.sleep(1000);
+            System.out.println("awaiting server " + id + " start at " + (DEFAULT_PORT + id));
+            Thread.sleep(500);
             continue;
          }
          break;
@@ -177,7 +235,7 @@ public abstract class ActiveMQExample
       ClientSession session = ((ActiveMQConnection) connection).getInitialSession();
       TransportConfiguration transportConfiguration = session.getSessionFactory().getConnectorConfiguration();
       String port = (String) transportConfiguration.getParams().get("port");
-      return Integer.valueOf(port) - 61616;
+      return Integer.valueOf(port) - DEFAULT_PORT;
    }
 
    protected Connection getServerConnection(int server, Connection... connections)
@@ -211,14 +269,6 @@ public abstract class ActiveMQExample
          System.out.println("#####################");
          System.out.println("###    SUCCESS!   ###");
          System.out.println("#####################");
-      }
-   }
-
-   protected static final void closeConnection(final Connection connection) throws JMSException
-   {
-      if (connection != null)
-      {
-         connection.close();
       }
    }
 }

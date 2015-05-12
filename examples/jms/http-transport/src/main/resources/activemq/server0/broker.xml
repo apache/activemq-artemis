@@ -41,6 +41,8 @@ under the License.
 
       <acceptors>
          <acceptor name="netty-acceptor">tcp://localhost:8080</acceptor>
+         <!-- This is being defined just so the check-alive on the ArtemisExample super class works -->
+         <acceptor name="netty-accepto-checkalive">tcp://localhost:61616</acceptor>
       </acceptors>
 
       <!-- Other config -->

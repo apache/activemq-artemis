@@ -16,8 +16,6 @@
  */
 package org.apache.activemq.artemis.jms.example;
 
-import java.nio.charset.StandardCharsets;
-
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Queue;
@@ -29,9 +27,12 @@ import javax.jms.XASession;
 import javax.naming.InitialContext;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
+import java.nio.charset.StandardCharsets;
 
-import org.apache.activemq.artemis.common.example.DummyXid;
 import org.apache.activemq.artemis.common.example.ActiveMQExample;
+
+// Defined on xa-heuristic example, the maven dependency will take care of that
+import org.apache.activemq.artemis.common.example.DummyXid;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 
 /**
@@ -88,8 +89,7 @@ public class XAReceiveExample extends ActiveMQExample
          TextMessage worldMessage = session.createTextMessage("world");
 
          // Step 12. create a transaction
-         Xid xid1 =
-                  new DummyXid("xa-example1".getBytes(StandardCharsets.US_ASCII), 1, UUIDGenerator.getInstance()
+         Xid xid1 = new DummyXid("xa-example1".getBytes(StandardCharsets.US_ASCII), 1, UUIDGenerator.getInstance()
                                                                            .generateStringUUID()
                                                                            .getBytes());
 

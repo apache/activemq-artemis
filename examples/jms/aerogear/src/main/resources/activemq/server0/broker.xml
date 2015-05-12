@@ -29,13 +29,13 @@ under the License.
 
    <core xmlns="urn:activemq:core">
 
-      <bindings-directory>${data.dir}/server0/data/messaging/bindings</bindings-directory>
+      <bindings-directory>${data.dir:../data}/bindings</bindings-directory>
 
-      <journal-directory>${data.dir}/server0/data/messaging/journal</journal-directory>
+      <journal-directory>${data.dir:../data}/journal</journal-directory>
 
-      <large-messages-directory>${data.dir}/server0/data/messaging/largemessages</large-messages-directory>
+      <large-messages-directory>${data.dir:../data}/largemessages</large-messages-directory>
 
-      <paging-directory>${data.dir}/server0/data/messaging/paging</paging-directory>
+      <paging-directory>${data.dir:../data}/paging</paging-directory>
 
       <!-- Acceptors -->
       <acceptors>
@@ -52,7 +52,7 @@ under the License.
 
       <connector-services>
          <connector-service name="aerogear-connector">
-            <factory-class>org.apache.activemq.integration.aerogear.AeroGearConnectorServiceFactory</factory-class>
+            <factory-class>org.apache.activemq.artemis.integration.aerogear.AeroGearConnectorServiceFactory</factory-class>
             <param key="endpoint" value="${endpoint}"/>
             <param key="queue" value="jms.queue.exampleQueue"/>
             <param key="application-id" value="${applicationid}"/>

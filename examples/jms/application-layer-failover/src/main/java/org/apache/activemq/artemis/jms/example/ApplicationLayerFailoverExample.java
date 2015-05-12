@@ -99,7 +99,11 @@ public class ApplicationLayerFailoverExample extends ActiveMQExample
 
          System.out.println("Killing the server");
 
-         killServer(0, 1);
+         killServer(0);
+
+         // this utility method will wait for the server1 to be activated
+         waitForServerStart(1, 20000);
+
 
          // Step 6. Wait for the client side to register the failure and reconnect
 

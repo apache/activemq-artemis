@@ -29,13 +29,13 @@ under the License.
 
    <core xmlns="urn:activemq:core">
 
-      <bindings-directory>${data.dir}/server1/data/messaging/bindings</bindings-directory>
+      <bindings-directory>${data.dir}/bkp/bindings</bindings-directory>
 
-      <journal-directory>${data.dir}/server1/data/messaging/journal</journal-directory>
+      <journal-directory>${data.dir}/bkp/journal</journal-directory>
 
-      <large-messages-directory>${data.dir}/server1/data/messaging/largemessages</large-messages-directory>
+      <large-messages-directory>${data.dir}/bkp/largemessages</large-messages-directory>
 
-      <paging-directory>${data.dir}/server1/data/messaging/paging</paging-directory>
+      <paging-directory>${data.dir}/bkp/paging</paging-directory>
 
       <cluster-user>exampleUser</cluster-user>
 
@@ -73,7 +73,7 @@ under the License.
          <discovery-group name="dg-group1">
             <group-address>${udp-address:231.7.7.7}</group-address>
             <group-port>9876</group-port>
-            <refresh-timeout>60000</refresh-timeout>
+            <refresh-timeout>5000</refresh-timeout>
          </discovery-group>
       </discovery-groups>
 

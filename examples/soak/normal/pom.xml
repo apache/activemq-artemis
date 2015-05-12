@@ -44,47 +44,37 @@ under the License.
       <activemq.basedir>${project.basedir}/../../..</activemq.basedir>
    </properties>
 
-   <build>
-      <plugins>
-         <plugin>
-            <groupId>org.apache.activemq</groupId>
-            <artifactId>artemis-maven-plugin</artifactId>
-            <dependencies>
-               <dependency>
-                  <groupId>org.apache.activemq.example.soak</groupId>
-                  <artifactId>artemis-jms-soak-example</artifactId>
-                  <version>${project.version}</version>
-               </dependency>
-               <dependency>
-                  <groupId>org.apache.activemq</groupId>
-                  <artifactId>artemis-server</artifactId>
-                  <version>${project.version}</version>
-               </dependency>
-               <dependency>
-                  <groupId>org.apache.activemq</groupId>
-                  <artifactId>artemis-jms-server</artifactId>
-                  <version>${project.version}</version>
-               </dependency>
-               <dependency>
-                  <groupId>io.netty</groupId>
-                  <artifactId>netty-all</artifactId>
-                  <version>${netty.version}</version>
-               </dependency>
-            </dependencies>
-            <configuration>
-               <waitOnStart>false</waitOnStart>
-               <systemProperties>
-                  <property>
-                     <name>build.directory</name>
-                     <value>${basedir}/target/</value>
-                  </property>
-               </systemProperties>
-            </configuration>
-         </plugin>
-      </plugins>
-   </build>
-
    <profiles>
+      <profile>
+         <id>server</id>
+         <build>
+            <plugins>
+               <plugin>
+                  <groupId>org.apache.activemq</groupId>
+                  <artifactId>artemis-maven-plugin</artifactId>
+                  <executions>
+                     <execution>
+                        <id>create</id>
+                        <goals>
+                           <goal>create</goal>
+                        </goals>
+                        <configuration>
+                           <instance>${basedir}/target/server0</instance>
+                           <configuration>${basedir}/server0</configuration>
+                        </configuration>
+                     </execution>
+                  </executions>
+                  <dependencies>
+                     <dependency>
+                        <groupId>org.apache.activemq.examples.soak</groupId>
+                        <artifactId>artemis-jms-soak-example</artifactId>
+                        <version>${project.version}</version>
+                     </dependency>
+                  </dependencies>
+               </plugin>
+            </plugins>
+         </build>
+      </profile>
       <profile>
          <id>local</id>
          <build>
@@ -94,25 +84,12 @@ under the License.
                   <artifactId>artemis-maven-plugin</artifactId>
                   <executions>
                      <execution>
-                        <id>start</id>
-                        <goals>
-                           <goal>start</goal>
-                        </goals>
-                        <configuration>
-                           <fork>true</fork>
-                           <configurationDir>${server.dir}</configurationDir>
-                        </configuration>
-                     </execution>
-                     <execution>
                         <id>runConsumer</id>
                         <goals>
                            <goal>runClient</goal>
                         </goals>
                         <configuration>
                            <clientClass>org.apache.activemq.artemis.jms.soak.example.SoakReceiver</clientClass>
-                           <args>
-                              <param>tcp://localhost:61616</param>
-                           </args>
                         </configuration>
                      </execution>
                      <execution>
@@ -122,21 +99,16 @@ under the License.
                         </goals>
                         <configuration>
                            <clientClass>org.apache.activemq.artemis.jms.soak.example.SoakSender</clientClass>
-                           <args>
-                              <param>tcp://localhost:61616</param>
-                           </args>
-                        </configuration>
-                     </execution>
-                     <execution>
-                        <id>stop</id>
-                        <goals>
-                           <goal>stop</goal>
-                        </goals>
-                        <configuration>
-                           <configurationDir>${server.dir}</configurationDir>
                         </configuration>
                      </execution>
                   </executions>
+                  <dependencies>
+                     <dependency>
+                        <groupId>org.apache.activemq.examples.soak</groupId>
+                        <artifactId>artemis-jms-soak-example</artifactId>
+                        <version>${project.version}</version>
+                     </dependency>
+                  </dependencies>
                </plugin>
             </plugins>
          </build>
@@ -174,34 +146,17 @@ under the License.
                         </configuration>
                      </execution>
                   </executions>
+                  <dependencies>
+                     <dependency>
+                        <groupId>org.apache.activemq.example.soak</groupId>
+                        <artifactId>artemis-jms-soak-example</artifactId>
+                        <version>${project.version}</version>
+                     </dependency>
+                  </dependencies>
                </plugin>
             </plugins>
          </build>
       </profile>
-      <profile>
-         <id>server</id>
-         <build>
-            <plugins>
-               <plugin>
-                  <groupId>org.apache.activemq</groupId>
-                  <artifactId>artemis-maven-plugin</artifactId>
-                  <executions>
-                     <execution>
-                        <id>start</id>
-                        <goals>
-                           <goal>start</goal>
-                        </goals>
-                        <configuration>
-                           <configurationDir>${server.dir}</configurationDir>
-                           <fork>true</fork>
-                           <waitOnStart>true</waitOnStart>
-                        </configuration>
-                     </execution>
-                  </executions>
-               </plugin>
-            </plugins>
-         </build>
-      </profile>
-   </profiles>
 
+   </profiles>
 </project>
