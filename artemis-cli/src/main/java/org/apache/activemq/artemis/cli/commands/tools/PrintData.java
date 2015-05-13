@@ -59,11 +59,17 @@ import org.apache.activemq.artemis.utils.ExecutorFactory;
 @Command(name = "print", description = "Print data records information (WARNING: don't use while a production server is running)")
 public class PrintData extends DataAbstract implements Action
 {
-
    @Override
    public Object execute(ActionContext context) throws Exception
    {
-      printData(getBinding(), getJournal(), getPaging());
+      try
+      {
+         printData(getBinding(), getJournal(), getPaging());
+      }
+      catch (Exception e)
+      {
+         treatError(e, "data", "print");
+      }
       return null;
    }
 

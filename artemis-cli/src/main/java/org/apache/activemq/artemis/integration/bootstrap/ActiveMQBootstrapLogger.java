@@ -61,6 +61,10 @@ public interface ActiveMQBootstrapLogger extends BasicLogger
    @Message(id = 101003, value = "Halting ActiveMQ Artemis Server after user request", format = Message.Format.MESSAGE_FORMAT)
    void serverKilled();
 
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 101005, value = "Using broker configuration: {0}", format = Message.Format.MESSAGE_FORMAT)
+   void usingBrokerConfig(String location);
+
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 102000, value = "Error during undeployment: {0}", format = Message.Format.MESSAGE_FORMAT)
    void errorDuringUndeployment(@Cause Throwable t, String name);
@@ -72,4 +76,8 @@ public interface ActiveMQBootstrapLogger extends BasicLogger
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 104001, value = "Failed to start server", format = Message.Format.MESSAGE_FORMAT)
    void errorStartingServer(@Cause Exception e);
+
+   @LogMessage(level = Logger.Level.ERROR)
+   @Message(id = 104002, value = "The print data operation failed: {0}", format = Message.Format.MESSAGE_FORMAT)
+   void printDataFailed(String exceptionMessage);
 }

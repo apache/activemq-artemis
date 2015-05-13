@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.integration.bootstrap;
 
 
+import org.jboss.logging.Messages;
 import org.jboss.logging.annotations.MessageBundle;
 
 /**
@@ -27,6 +28,8 @@ import org.jboss.logging.annotations.MessageBundle;
  * so 109000 to 109999
  */
 @MessageBundle(projectCode = "AMQ")
-public class ActiveMQBootstrapBundle
+public interface ActiveMQBootstrapBundle
 {
+   ActiveMQBootstrapBundle BUNDLE = Messages.getBundle(ActiveMQBootstrapBundle.class);
+
 }
