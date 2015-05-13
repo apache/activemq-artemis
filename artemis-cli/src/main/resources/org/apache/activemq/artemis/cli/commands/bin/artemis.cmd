@@ -48,7 +48,6 @@ echo.
 :RUN_JAVA
 
 rem "Set Defaults."
-set JAVA_ARGS=-XX:+UseParallelGC -XX:+AggressiveOpts -XX:+UseFastAccessorMethods -Xms512M -Xmx1024M
 set ARTEMIS_LOGGING_CONF=file:%ARTEMIS_INSTANCE%\etc\logging.properties
 set ARTEMIS_DATA_DIR=%ARTEMIS_INSTANCE%\data
 set ARTEMIS_LOG_MANAGER=org.jboss.logmanager.LogManager

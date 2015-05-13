@@ -61,6 +61,8 @@ public class Create implements Action
 
    private static final Integer HQ_PORT = 5445;
 
+   private static final Integer HTTP_PORT = 8161;
+
    public static final String BIN_ARTEMIS_CMD = "bin/artemis.cmd";
    public static final String BIN_ARTEMIS_SERVICE_EXE = "bin/artemis-service.exe";
    public static final String BIN_ARTEMIS_SERVICE_XML = "bin/artemis-service.xml";
@@ -107,6 +109,9 @@ public class Create implements Action
    @Option(name = "--encoding", description = "The encoding that text files should use")
    String encoding = "UTF-8";
 
+   @Option(name = "--java-options", description = "Extra java options to be passed to the profile")
+   String javaOptions = "";
+
    ActionContext context;
 
    private Scanner scanner;
@@ -114,6 +119,110 @@ public class Create implements Action
    boolean IS_WINDOWS;
 
    boolean IS_CYGWIN;
+
+   public int getPortOffset()
+   {
+      return portOffset;
+   }
+
+   public void setPortOffset(int portOffset)
+   {
+      this.portOffset = portOffset;
+   }
+
+   public String getJavaOptions()
+   {
+      return javaOptions;
+   }
+
+   public void setJavaOptions(String javaOptions)
+   {
+      this.javaOptions = javaOptions;
+   }
+
+   public File getInstance()
+   {
+      return directory;
+   }
+
+   public void setInstance(File directory)
+   {
+      this.directory = directory;
+   }
+
+   public String getHost()
+   {
+      return host;
+   }
+
+   public void setHost(String host)
+   {
+      this.host = host;
+   }
+
+   public boolean isForce()
+   {
+      return force;
+   }
+
+   public void setForce(boolean force)
+   {
+      this.force = force;
+   }
+
+   public File getHome()
+   {
+      if (home == null)
+      {
+         home = new File(System.getProperty("artemis.home"));
+      }
+      return home;
+   }
+
+   public void setHome(File home)
+   {
+      this.home = home;
+   }
+
+   public boolean isClustered()
+   {
+      return clustered;
+   }
+
+   public void setClustered(boolean clustered)
+   {
+      this.clustered = clustered;
+   }
+
+   public boolean isReplicated()
+   {
+      return replicated;
+   }
+
+   public void setReplicated(boolean replicated)
+   {
+      this.replicated = replicated;
+   }
+
+   public boolean isSharedStore()
+   {
+      return sharedStore;
+   }
+
+   public void setSharedStore(boolean sharedStore)
+   {
+      this.sharedStore = sharedStore;
+   }
+
+   public String getEncoding()
+   {
+      return encoding;
+   }
+
+   public void setEncoding(String encoding)
+   {
+      this.encoding = encoding;
+   }
 
    @Override
    public Object execute(ActionContext context) throws Exception
@@ -125,7 +234,7 @@ public class Create implements Action
       catch (Throwable e)
       {
          e.printStackTrace(context.err);
-         return e;
+         throw e;
       }
    }
 
@@ -209,12 +318,15 @@ public class Create implements Action
       filters.put("${amqp.port}", String.valueOf(AMQP_PORT + portOffset));
       filters.put("${stomp.port}", String.valueOf(STOMP_PORT + portOffset));
       filters.put("${hq.port}", String.valueOf(HQ_PORT + portOffset));
+      filters.put("${http.port}", String.valueOf(HTTP_PORT + portOffset));
+
       if (home != null)
       {
          filters.put("${home}", path(home, false));
       }
-      filters.put("${artemis.home}", path(System.getProperty("artemis.home"), false));
+      filters.put("${artemis.home}", path(getHome().toString(), false));
       filters.put("${artemis.instance}", path(directory, false));
+      filters.put("${artemis.instance.name}", directory.getName());
       filters.put("${java.home}", path(System.getProperty("java.home"), false));
 
       new File(directory, "bin").mkdirs();
@@ -223,6 +335,12 @@ public class Create implements Action
       new File(directory, "tmp").mkdirs();
       new File(directory, "data").mkdirs();
 
+      if (javaOptions == null || javaOptions.length() == 0)
+      {
+         javaOptions = "";
+      }
+
+      filters.put("${java-opts}", javaOptions);
 
       if (IS_WINDOWS)
       {
@@ -243,7 +361,7 @@ public class Create implements Action
       }
 
       write(ETC_LOGGING_PROPERTIES, null, false);
-      write(ETC_BOOTSTRAP_XML, null, false);
+      write(ETC_BOOTSTRAP_XML, filters, false);
       write(ETC_BROKER_XML, filters, false);
       write(ETC_ARTEMIS_ROLES_PROPERTIES, null, false);
       write(ETC_ARTEMIS_USERS_PROPERTIES, null, false);
@@ -277,17 +395,21 @@ public class Create implements Action
             context.out.println(String.format("   \"%s\" start", path(service, true)));
             context.out.println("");
          }
-
       }
+
       if (IS_WINDOWS)
       {
-
+         service = new File(directory, BIN_ARTEMIS_SERVICE_EXE);
          context.out.println("Or you can setup the broker as Windows service and run it in the background:");
          context.out.println("");
          context.out.println(String.format("   \"%s\" install", path(service, true)));
          context.out.println(String.format("   \"%s\" start", path(service, true)));
          context.out.println("");
-
+         context.out.println("   To stop the windows service:");
+         context.out.println(String.format("      \"%s\" stop", path(service, true)));
+         context.out.println("");
+         context.out.println("   To uninstall the windows service");
+         context.out.println(String.format("      \"%s\" uninstall", path(service, true)));
       }
 
       return null;

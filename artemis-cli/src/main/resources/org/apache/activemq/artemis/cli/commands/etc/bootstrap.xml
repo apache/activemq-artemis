@@ -26,7 +26,7 @@
 
    <server configuration="file:${artemis.instance}/etc/broker.xml"/>
 
-   <web bind="http://localhost:8161" path="web">
+   <web bind="http://localhost:${http.port}" path="web">
        <app url="jolokia" war="jolokia-war-1.2.3.war"/>
    </web>
 

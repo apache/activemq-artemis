@@ -57,6 +57,10 @@ public interface ActiveMQBootstrapLogger extends BasicLogger
    @Message(id = 101002, value = "Starting Naming server on {0}:{1,number,#} (rmi {2}:{3,number,#})", format = Message.Format.MESSAGE_FORMAT)
    void startedNamingService(String bindAddress, int port, String rmiBindAddress, int rmiPort);
 
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 101003, value = "Halting ActiveMQ Artemis Server after user request", format = Message.Format.MESSAGE_FORMAT)
+   void serverKilled();
+
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 102000, value = "Error during undeployment: {0}", format = Message.Format.MESSAGE_FORMAT)
    void errorDuringUndeployment(@Cause Throwable t, String name);
