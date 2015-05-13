@@ -17,10 +17,15 @@
 
 package org.apache.activemq.artemis.cli.commands;
 
+import javax.inject.Inject;
 import java.io.File;
 
 import io.airlift.airline.Arguments;
+import io.airlift.airline.Help;
 import io.airlift.airline.Option;
+import io.airlift.airline.model.CommandGroupMetadata;
+import io.airlift.airline.model.CommandMetadata;
+import io.airlift.airline.model.GlobalMetadata;
 import org.apache.activemq.artemis.core.config.FileDeploymentManager;
 import org.apache.activemq.artemis.core.config.impl.FileConfiguration;
 import org.apache.activemq.artemis.dto.BrokerDTO;
@@ -39,6 +44,10 @@ public abstract class Configurable
    @Option(name = "--broker", description = "This would override the broker configuration from the bootstrap")
    String brokerConfig;
 
+
+   @Inject
+   public GlobalMetadata global;
+
    private BrokerDTO brokerDTO = null;
 
    private String brokerInstance;
@@ -46,6 +55,15 @@ public abstract class Configurable
    private String brokerHome;
 
    private FileConfiguration fileConfiguration;
+
+   protected void treatError(Exception e, String group, String command)
+   {
+      ActiveMQBootstrapLogger.LOGGER.debug(e.getMessage(), e);
+      System.err.println();
+      System.err.println("Error:" + e.getMessage());
+      System.err.println();
+      helpGroup(group, command);
+   }
 
    protected String getBrokerInstance()
    {
@@ -62,6 +80,24 @@ public abstract class Configurable
          }
       }
       return brokerInstance;
+   }
+
+   protected void helpGroup(String groupName, String commandName)
+   {
+      for (CommandGroupMetadata group: global.getCommandGroups())
+      {
+         if (group.getName().equals(groupName))
+         {
+            for (CommandMetadata command: group.getCommands())
+            {
+               if (command.getName().equals(commandName))
+               {
+                  Help.help(command);
+               }
+            }
+            break;
+         }
+      }
    }
 
    protected String getBrokerHome()
@@ -89,7 +125,6 @@ public abstract class Configurable
          if (getBrokerInstance() == null)
          {
             final String defaultLocation = "../data";
-            ActiveMQBootstrapLogger.LOGGER.brokerConfigNotFound(defaultLocation);
             fileConfiguration = new FileConfiguration();
             // These will be the default places in case the file can't be loaded
             fileConfiguration.setBindingsDirectory(defaultLocation + "/bindings");

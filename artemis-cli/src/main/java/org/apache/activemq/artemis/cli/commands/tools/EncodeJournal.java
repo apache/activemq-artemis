@@ -64,7 +64,7 @@ public class EncodeJournal extends Configurable implements Action
       }
       catch (Exception e)
       {
-         e.printStackTrace();
+         treatError(e, "data", "encode");
       }
 
       return null;

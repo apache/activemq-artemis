@@ -126,7 +126,14 @@ public final class XmlDataExporter extends DataAbstract implements Action
    @Override
    public Object execute(ActionContext context) throws Exception
    {
-      process(System.out, getBinding(), getJournal(), getPaging(), getLargeMessages());
+      try
+      {
+         process(System.out, getBinding(), getJournal(), getPaging(), getLargeMessages());
+      }
+      catch (Exception e)
+      {
+         treatError(e, "data", "exp");
+      }
       return null;
    }
 

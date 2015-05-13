@@ -69,7 +69,7 @@ public class DecodeJournal extends Configurable implements Action
       }
       catch (Exception e)
       {
-         e.printStackTrace();
+         treatError(e, "data", "decode");
       }
 
       return null;

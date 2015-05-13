@@ -17,11 +17,10 @@
 
 package org.apache.activemq.artemis.cli.commands.tools;
 
+import java.io.File;
+
 import io.airlift.airline.Option;
 import org.apache.activemq.artemis.cli.commands.Configurable;
-import org.apache.activemq.artemis.integration.bootstrap.ActiveMQBootstrapBundle;
-
-import java.io.File;
 
 /** Abstract class for places where you need bindings, journal paging and large messages configuration */
 public abstract class DataAbstract extends Configurable
@@ -44,8 +43,9 @@ public abstract class DataAbstract extends Configurable
       if (largeMessges == null)
       {
          largeMessges = getFileConfiguration().getLargeMessagesDirectory();
-         checkIfDirectoryExists(largeMessges);
       }
+
+      checkIfDirectoryExists(largeMessges);
 
       return largeMessges;
    }
@@ -56,8 +56,9 @@ public abstract class DataAbstract extends Configurable
       if (binding == null)
       {
          binding = getFileConfiguration().getBindingsDirectory();
-         checkIfDirectoryExists(binding);
       }
+
+      checkIfDirectoryExists(binding);
 
       return binding;
    }
@@ -67,8 +68,9 @@ public abstract class DataAbstract extends Configurable
       if (journal == null)
       {
          journal = getFileConfiguration().getJournalDirectory();
-         checkIfDirectoryExists(journal);
       }
+
+      checkIfDirectoryExists(journal);
 
       return journal;
    }
@@ -80,6 +82,8 @@ public abstract class DataAbstract extends Configurable
          paging = getFileConfiguration().getPagingDirectory();
       }
 
+      checkIfDirectoryExists(paging);
+
       return paging;
    }
 
@@ -88,7 +92,7 @@ public abstract class DataAbstract extends Configurable
       File f = new File(directory);
       if (!f.exists())
       {
-         throw ActiveMQBootstrapBundle.BUNDLE.directoryDoesNotExist(directory);
+         throw new IllegalStateException("Could not find folder: " + directory + ", please pass --bindings, --journal and --paging as arguments");
       }
    }
 

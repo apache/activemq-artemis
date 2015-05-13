@@ -62,10 +62,6 @@ public interface ActiveMQBootstrapLogger extends BasicLogger
    void serverKilled();
 
    @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 101004, value = "Broker configuration not found. Looking for data files in the ''{0}'' directory.", format = Message.Format.MESSAGE_FORMAT)
-   void brokerConfigNotFound(String defaultLocation);
-
-   @LogMessage(level = Logger.Level.INFO)
    @Message(id = 101005, value = "Using broker configuration: {0}", format = Message.Format.MESSAGE_FORMAT)
    void usingBrokerConfig(String location);
 
