@@ -1,0 +1,11 @@
+{
+    "title": "ActiveMQ Artemis Documentation",
+    "description": "ActiveMQ Artemis Hacking Guide",
+    "github": "apache/activemq-artemis",
+    "githubHost": "https://github.com/",
+    "links": {
+        "home": "http://activemq.apache.org/",
+        "issues": "http://activemq.apache.org/",
+        "contribute": "http://activemq.apache.org/contributing.html"
+    }
+}

@@ -949,8 +949,8 @@
                   <exclude>**/*.txt</exclude>
                   <exclude>**/*.md</exclude>
                   <exclude>etc/org.eclipse.*</exclude>
-                  <exclude>docs/user-manual/en/*.json</exclude>
-                  <exclude>docs/user-manual/en/_book/</exclude>
+                  <exclude>docs/**/*.json</exclude>
+                  <exclude>docs/**/_book/</exclude>
                   <exclude>**/target/</exclude>
                   <exclude>**/META-INF/services/*</exclude>
                   <exclude>**/*.iml</exclude>

@@ -1,0 +1,10 @@
+# Summary
+
+* [Legal Notice](notice.md)
+* [Working with the Code](code.md)
+* [IDE Integration](ide.md)
+* [Building](building.md)
+* [Tests](tests.md)
+* [Code Formatting](formatting.md)
+* [Notes for Maintainers](maintainers.md)
+
