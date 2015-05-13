@@ -39,8 +39,7 @@ The value can be:
 
 -   `-1` for an *unbounded* buffer
 
--   `0` to not buffer any messages. See ? for working example of a
-    consumer with no buffering.
+-   `0` to not buffer any messages.
 
 -   `>0` for a buffer with the given maximum size in bytes.
 

@@ -38,9 +38,20 @@
          should use this descriptor directly in future -->
          <excludes>
             <exclude>tests/extra-tests/</exclude>
-            
+
             <!-- in case some of the build generates data, this needs to be ignored -->
             <exclude>data/</exclude>
+
+            <!-- Exclude all docs except user manual -->
+            <exclude>docs/design-guide/</exclude>
+            <exclude>docs/diagrams/</exclude>
+            <exclude>docs/quickstart-guide/</exclude>
+
+            <!-- Exclude Release and Dev files -->
+            <exclude>RELEASING.md</exclude>
+            <exclude>ratReport.txt</exclude>
+            <exclude>.gitignore</exclude>
+            <exclude>artemis_doap.rdf</exclude>
 
             <!--  build output  -->
             <exclude>

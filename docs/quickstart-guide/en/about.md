@@ -11,14 +11,14 @@ What is ActiveMQ?
     isn't please visit the [FAQs wiki
     page](http://www.jboss.org/community/wiki/ActiveMQGeneralFAQs).
 
-Why use ActiveMQ? Here are just a few of the reasons:
+Why use ActiveMQ Artemis? Here are just a few of the reasons:
 
 -   100% open source software. ActiveMQ Artemis is licenced using the Apache
     Software License v2.0 to minimise barriers to adoption.
 
 -   ActiveMQ Artemis is designed with usability in mind.
 
--   Written in Java. Runs on any platform with a Java 6+ runtime, that's
+-   Written in Java. Runs on any platform with a Java 7+ runtime, that's
     everything from Windows desktops to IBM mainframes.
 
 -   Amazing performance. Our class beating high performance journal
