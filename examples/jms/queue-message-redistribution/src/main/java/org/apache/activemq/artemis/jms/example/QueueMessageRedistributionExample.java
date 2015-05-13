@@ -148,7 +148,7 @@ public class QueueMessageRedistributionExample extends ActiveMQExample
 
          // Step 17. Since there is no more consumer on node 1, the messages on node 1 are now stranded (no local
          // consumers)
-         // so ActiveMQ will redistribute them to node 0 so they can be consumed.
+         // so ActiveMQ Artemis will redistribute them to node 0 so they can be consumed.
 
          for (int i = 0; i < numMessages; i += 2)
          {

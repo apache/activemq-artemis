@@ -36,7 +36,7 @@
    </properties>
 
    <dependencies>
-     <!-- ActiveMQ artifacts -->
+     <!-- ActiveMQ Artemis artifacts -->
       <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-boot</artifactId>

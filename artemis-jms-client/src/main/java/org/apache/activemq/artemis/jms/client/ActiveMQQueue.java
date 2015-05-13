@@ -21,7 +21,7 @@ import javax.jms.Queue;
 import org.apache.activemq.artemis.api.core.SimpleString;
 
 /**
- * ActiveMQ implementation of a JMS Queue.
+ * ActiveMQ Artemis implementation of a JMS Queue.
  * <br>
  * This class can be instantiated directly.
  */

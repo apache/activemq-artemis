@@ -25,7 +25,7 @@ import org.apache.activemq.artemis.api.core.Message;
 
 /**
  *
- * A ClientMessage represents a message sent and/or received by ActiveMQ.
+ * A ClientMessage represents a message sent and/or received by ActiveMQ Artemis.
  */
 public interface ClientMessage extends Message
 {
@@ -37,7 +37,7 @@ public interface ClientMessage extends Message
    /**
     * Sets the delivery count for this message.
     * <p>
-    * This method is not meant to be called by ActiveMQ clients.
+    * This method is not meant to be called by ActiveMQ Artemis clients.
     * @param deliveryCount message delivery count
     * @return this ClientMessage
     */

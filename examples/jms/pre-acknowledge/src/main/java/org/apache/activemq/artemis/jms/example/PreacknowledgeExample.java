@@ -35,7 +35,7 @@ import org.apache.activemq.artemis.api.jms.management.JMSManagementHelper;
 import org.apache.activemq.artemis.common.example.ActiveMQExample;
 
 /**
- * This example demonstrates the use of ActiveMQ "pre-acknowledge" functionality where
+ * This example demonstrates the use of ActiveMQ Artemis "pre-acknowledge" functionality where
  * messages are acknowledged before they are delivered to the consumer.
  *
  * Please see the readme.html for more details.

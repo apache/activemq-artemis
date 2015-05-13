@@ -19,7 +19,7 @@ under the License.
 
 <html>
   <head>
-    <title>ActiveMQ Message Expiration Example</title>
+    <title>ActiveMQ Artemis Message Expiration Example</title>
     <link rel="stylesheet" type="text/css" href="../common/common.css" />
     <link rel="stylesheet" type="text/css" href="../common/prettify.css" />
     <script type="text/javascript" src="../common/prettify.js"></script>
@@ -27,10 +27,10 @@ under the License.
   <body onload="prettyPrint()">
      <h1>JMS Expiration Example</h1>
 
-     <p>This example shows you how to configure ActiveMQ so messages are expipired after a certain time..</p>
+     <p>This example shows you how to configure ActiveMQ Artemis so messages are expipired after a certain time..</p>
      <p>Messages can be retained in the messaging system for a limited period of time before being removed.
          JMS specification states that clients should not receive messages that have been expired (but it does not guarantee this will not happen).</p>
-     <p>ActiveMQ can assign a <em>expiry address</em> to a given queue so that when messages are expired, they are removed from the queue and
+     <p>ActiveMQ Artemis can assign a <em>expiry address</em> to a given queue so that when messages are expired, they are removed from the queue and
         routed to an this address. These "expired" messages can later be consumed for further inspection.
      <p>
          The example will send 1 message with a short <em>time-to-live</em> to a queue. We will wait for the message to expire and checks that the message
@@ -46,7 +46,7 @@ under the License.
          </code>
      </pre>          
      <p>This configuration will moved expired messages from the <code>exampleQueue</code> to the <code>expiryQueue</code></p>
-     <p>ActiveMQ allows to specify either a <code>Queue</code> by prefixing the <code>expiry-address</code> with <code>jms.queue.</code>
+     <p>ActiveMQ Artemis allows to specify either a <code>Queue</code> by prefixing the <code>expiry-address</code> with <code>jms.queue.</code>
          or a <code>Topic</code> by prefixing with <code>jms.topic.</code>.<br />
          In this example, we will use a <code>Queue</code> to hold the expired messages.</p>
      <p>Since we want to consume messages from this expiryQueue, we also need to add a JNDI binding to perform a lookup.
@@ -128,7 +128,7 @@ under the License.
            System.out.println("Received message from " + queue.getQueueName() + ": " + messageReceived);</code>
         </pre>
         
-        <p>However, we have configured ActiveMQ to send any expired messages to the <code>expiryQueue</code>.
+        <p>However, we have configured ActiveMQ Artemis to send any expired messages to the <code>expiryQueue</code>.
             We will now consume messages from this expiry queue and receives the <em>expired</em> message.</p>
             
         <li>We look up the JMS <em>expiry queue</em> object from JNDI</li>
@@ -154,7 +154,7 @@ under the License.
         <p>JMS does not specify the notion of expiry queue. From JMS point of view, the message received from the expiry queue
             is a <strong>different</strong> message than the message expired from the queue: the two messages have the same content (properties and body) but
             their JMS headers differ.<br />
-            ActiveMQ defines additional properties to correlate the message received from the expiry queue with the 
+            ActiveMQ Artemis defines additional properties to correlate the message received from the expiry queue with the 
             message expired from the queue</p>
             
         <li>The expired message's destination is the expiry queue</li>

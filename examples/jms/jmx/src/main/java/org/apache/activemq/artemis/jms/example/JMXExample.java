@@ -39,7 +39,7 @@ import org.apache.activemq.artemis.api.jms.management.JMSQueueControl;
 import org.apache.activemq.artemis.common.example.ActiveMQExample;
 
 /**
- * An example that shows how to manage ActiveMQ using JMX.
+ * An example that shows how to manage ActiveMQ Artemis using JMX.
  */
 public class JMXExample extends ActiveMQExample
 {

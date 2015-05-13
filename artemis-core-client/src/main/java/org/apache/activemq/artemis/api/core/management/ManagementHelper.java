@@ -28,7 +28,7 @@ import org.apache.activemq.artemis.utils.json.JSONArray;
 import org.apache.activemq.artemis.utils.json.JSONObject;
 
 /**
- * Helper class to use ActiveMQ Core messages to manage server resources.
+ * Helper class to use ActiveMQ Artemis Core messages to manage server resources.
  */
 public final class ManagementHelper
 {
@@ -298,7 +298,7 @@ public final class ManagementHelper
    }
 
    /**
-    * Used by ActiveMQ management service.
+    * Used by ActiveMQ Artemis management service.
     */
    public static Object[] retrieveOperationParameters(final Message message) throws Exception
    {
@@ -334,7 +334,7 @@ public final class ManagementHelper
    }
 
    /**
-    * Used by ActiveMQ management service.
+    * Used by ActiveMQ Artemis management service.
     */
    public static void storeResult(final Message message, final Object result) throws Exception
    {
@@ -418,7 +418,7 @@ public final class ManagementHelper
    }
 
    /**
-    * Used by ActiveMQ management service.
+    * Used by ActiveMQ Artemis management service.
     */
    public static Map<String, Object> fromCommaSeparatedKeyValues(final String str) throws Exception
    {
@@ -434,7 +434,7 @@ public final class ManagementHelper
    }
 
    /**
-    * Used by ActiveMQ management service.
+    * Used by ActiveMQ Artemis management service.
     */
    public static Object[] fromCommaSeparatedArrayOfCommaSeparatedKeyValues(final String str) throws Exception
    {

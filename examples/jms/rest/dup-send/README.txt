@@ -15,7 +15,7 @@ To run the example you will need 3 shell-script windows (or you'll need to run 2
 Step 1:
 $ mvn jetty:run
 
-This will bring up ActiveMQ and the ActiveMQ REST Interface.
+This will bring up ActiveMQ Artemis and the ActiveMQ Artemis REST Interface.
 
 Step 2:
 $ mvn exec:java -Dexec.mainClass="ReceiveOrder"

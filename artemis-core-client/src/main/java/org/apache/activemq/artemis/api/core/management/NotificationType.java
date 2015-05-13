@@ -17,7 +17,7 @@
 package org.apache.activemq.artemis.api.core.management;
 
 /**
- * Types of notification emitted by ActiveMQ servers.
+ * Types of notification emitted by ActiveMQ Artemis servers.
  * <p>
  * These notifications can be received through:
  * <ul>
@@ -25,7 +25,7 @@ package org.apache.activemq.artemis.api.core.management;
  * <li>Core messages to a notification address (default value is {@code activemq.notifications})
  * <li>JMS messages
  * </ul>
- * @see the ActiveMQ user manual section on "Management Notifications"
+ * @see the ActiveMQ Artemis user manual section on "Management Notifications"
  */
 public interface NotificationType
 {

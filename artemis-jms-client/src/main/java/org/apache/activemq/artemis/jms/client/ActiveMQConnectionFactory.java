@@ -53,7 +53,7 @@ import org.apache.activemq.artemis.uri.ConnectionFactoryParser;
 import org.apache.activemq.artemis.uri.ServerLocatorParser;
 
 /**
- * ActiveMQ implementation of a JMS ConnectionFactory.
+ * ActiveMQ Artemis implementation of a JMS ConnectionFactory.
  */
 public class ActiveMQConnectionFactory implements Externalizable, Referenceable, ConnectionFactory, XAConnectionFactory
 {

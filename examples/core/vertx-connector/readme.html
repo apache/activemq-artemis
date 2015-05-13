@@ -19,7 +19,7 @@ under the License.
 
 <html>
   <head>
-    <title>ActiveMQ Vert.x Connector Service Example</title>
+    <title>ActiveMQ Artemis Vert.x Connector Service Example</title>
     <link rel="stylesheet" type="text/css" href="../../common/common.css" />
     <link rel="stylesheet" type="text/css" href="../../common/prettify.css" />
     <script type="text/javascript" src="../../common/prettify.js"></script>
@@ -27,9 +27,9 @@ under the License.
   <body onload="prettyPrint()">
      <h1>Vert.x Connector Service Example</h1>
 
-     <p>This example shows you how to configure ActiveMQ to use the Vert.x Connector Service.</p>
+     <p>This example shows you how to configure ActiveMQ Artemis to use the Vert.x Connector Service.</p>
 
-     <p>ActiveMQ supports 2 types of Vert.x connector, incoming and outgoing.
+     <p>ActiveMQ Artemis supports 2 types of Vert.x connector, incoming and outgoing.
      Incoming connector consumes from Vert.x event bus and forwards to a configurable address.
      Outgoing connector consumes from a configurable address and forwards to a configurable Vert.x event bus.
      </p>
@@ -37,8 +37,8 @@ under the License.
      <p>In this example, an incoming connector and an outgoing connector are configured. A simple java Verticle
      is deployed. The verticle registers a message handler on the outgoing connector's address ("outgoing.vertx.address").
      A String message is sent to Vert.x event bus on the incoming connector's address("incoming.vertx.address").
-     The message then will be forwarded to a ActiveMQ queue by the incoming connector. The outgoing connector listens to
-     the ActiveMQ queue and forwards the message from ActiveMQ to Vert.x event bus on the outgoing connector's address.
+     The message then will be forwarded to a ActiveMQ Artemis queue by the incoming connector. The outgoing connector listens to
+     the ActiveMQ Artemis queue and forwards the message from ActiveMQ Artemis to Vert.x event bus on the outgoing connector's address.
      The verticle finally receives the message from it's event bus.</p>
 
      <p>For more information on Vert.x concept please visit the <a href="http://vertx.io/">Vertx site</a></p>

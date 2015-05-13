@@ -48,7 +48,7 @@ public interface ProtocolManager<P extends BaseInterceptor>
    boolean isProtocol(byte[] array);
 
    /**
-    * Gets the Message Converter towards ActiveMQ.
+    * Gets the Message Converter towards ActiveMQ Artemis.
     * Notice this being null means no need to convert
     *
     * @return

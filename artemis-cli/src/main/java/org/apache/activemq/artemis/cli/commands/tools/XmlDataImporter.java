@@ -59,7 +59,7 @@ import org.apache.activemq.artemis.utils.UUIDGenerator;
 
 /**
  * Read XML output from <code>org.apache.activemq.artemis.core.persistence.impl.journal.XmlDataExporter</code>, create a core session, and
- * send the messages to a running instance of ActiveMQ.  It uses the StAX <code>javax.xml.stream.XMLStreamReader</code>
+ * send the messages to a running instance of ActiveMQ Artemis.  It uses the StAX <code>javax.xml.stream.XMLStreamReader</code>
  * for speed and simplicity.
  */
 @Command(name = "imp", description = "Import all message-data using an XML that could be interpreted by any system.")

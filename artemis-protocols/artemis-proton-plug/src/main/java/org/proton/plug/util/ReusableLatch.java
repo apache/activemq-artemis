@@ -27,7 +27,7 @@ import java.util.concurrent.locks.AbstractQueuedSynchronizer;
  * <p/>
  * <p>It could be used for sync points when one process is feeding the latch while another will wait when everything is done. (e.g. waiting IO completions to finish)</p>
  * <p/>
- * <p>On ActiveMQ we have the requirement of increment and decrement a counter until the user fires a ready handler (commit). At that point we just act as a regular countDown.</p>
+ * <p>On ActiveMQ Artemis we have the requirement of increment and decrement a counter until the user fires a ready handler (commit). At that point we just act as a regular countDown.</p>
  * <p/>
  * <p>Note: This latch is reusable. Once it reaches zero, you can call up again, and reuse it on further waits.</p>
  * <p/>

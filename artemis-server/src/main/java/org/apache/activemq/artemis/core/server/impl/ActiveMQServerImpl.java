@@ -134,7 +134,7 @@ import org.apache.activemq.artemis.utils.SecurityFormatter;
 import org.apache.activemq.artemis.utils.VersionLoader;
 
 /**
- * The ActiveMQ server implementation
+ * The ActiveMQ Artemis server implementation
  */
 public class ActiveMQServerImpl implements ActiveMQServer
 {
@@ -1651,7 +1651,7 @@ public class ActiveMQServerImpl implements ActiveMQServer
    }
 
    /**
-    * Sets up ActiveMQ Executor Services.
+    * Sets up ActiveMQ Artemis Executor Services.
     */
    private void initializeExecutorServices()
    {

@@ -158,7 +158,7 @@ public interface Message
     * Returns the message timestamp.
     * <br>
     * The timestamp corresponds to the time this message
-    * was handled by a ActiveMQ server.
+    * was handled by a ActiveMQ Artemis server.
     */
    long getTimestamp();
 

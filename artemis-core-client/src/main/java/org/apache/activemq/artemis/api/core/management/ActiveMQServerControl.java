@@ -19,7 +19,7 @@ package org.apache.activemq.artemis.api.core.management;
 import javax.management.MBeanOperationInfo;
 
 /**
- * A ActiveMQServerControl is used to manage ActiveMQ servers.
+ * A ActiveMQServerControl is used to manage ActiveMQ Artemis servers.
  */
 public interface ActiveMQServerControl
 {
@@ -508,7 +508,7 @@ public interface ActiveMQServerControl
    String[] listSessions(@Parameter(desc = "a connection ID", name = "connectionID") String connectionID) throws Exception;
 
    /**
-    * This method is used by ActiveMQ clustering and must not be called by ActiveMQ clients.
+    * This method is used by ActiveMQ Artemis clustering and must not be called by ActiveMQ Artemis clients.
     */
    void sendQueueInfoToQueue(String queueName, String address) throws Exception;
 

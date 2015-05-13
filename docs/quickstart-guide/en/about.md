@@ -3,20 +3,20 @@ About ActiveMQ
 
 What is ActiveMQ?
 
--   ActiveMQ is an open source project to build a multi-protocol,
+-   ActiveMQ Artemis is an open source project to build a multi-protocol,
     embeddable, very high performance, clustered, asynchronous messaging
     system.
 
--   For answers to more questions about what ActiveMQ is and what it
+-   For answers to more questions about what ActiveMQ Artemis is and what it
     isn't please visit the [FAQs wiki
     page](http://www.jboss.org/community/wiki/ActiveMQGeneralFAQs).
 
 Why use ActiveMQ? Here are just a few of the reasons:
 
--   100% open source software. ActiveMQ is licenced using the Apache
+-   100% open source software. ActiveMQ Artemis is licenced using the Apache
     Software License v2.0 to minimise barriers to adoption.
 
--   ActiveMQ is designed with usability in mind.
+-   ActiveMQ Artemis is designed with usability in mind.
 
 -   Written in Java. Runs on any platform with a Java 6+ runtime, that's
     everything from Windows desktops to IBM mainframes.
@@ -30,7 +30,7 @@ Why use ActiveMQ? Here are just a few of the reasons:
     messaging system, and others you won't find anywhere else.
 
 -   Elegant, clean-cut design with minimal third party dependencies. Run
-    ActiveMQ stand-alone, run it in integrated in your favourite JEE
+    ActiveMQ Artemis stand-alone, run it in integrated in your favourite JEE
     application server, or run it embedded inside your own product. It's
     up to you.
 

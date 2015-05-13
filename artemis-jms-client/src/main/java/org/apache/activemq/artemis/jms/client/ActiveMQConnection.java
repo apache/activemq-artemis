@@ -53,7 +53,7 @@ import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.apache.activemq.artemis.utils.VersionLoader;
 
 /**
- * ActiveMQ implementation of a JMS Connection.
+ * ActiveMQ Artemis implementation of a JMS Connection.
  * <p>
  * The flat implementation of {@link TopicConnection} and {@link QueueConnection} is per design,
  * following the common usage of these as one flat API in JMS 1.1.

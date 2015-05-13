@@ -61,7 +61,7 @@ import org.apache.activemq.artemis.api.core.client.ClientSession.AddressQuery;
 import org.apache.activemq.artemis.api.core.client.ClientSession.QueueQuery;
 
 /**
- * ActiveMQ implementation of a JMS Session.
+ * ActiveMQ Artemis implementation of a JMS Session.
  * <br>
  * Note that we *do not* support JMS ASF (Application Server Facilities) optional
  * constructs such as ConnectionConsumer
@@ -307,7 +307,7 @@ public class ActiveMQSession implements QueueSession, TopicSession
    {
       if (destination != null && !(destination instanceof ActiveMQDestination))
       {
-         throw new InvalidDestinationException("Not a ActiveMQ Destination:" + destination);
+         throw new InvalidDestinationException("Not a ActiveMQ Artemis Destination:" + destination);
       }
 
       try

@@ -32,7 +32,7 @@ import javax.naming.InitialContext;
 import org.apache.activemq.artemis.common.example.ActiveMQExample;
 
 /**
- * This examples demonstrates the use of ActiveMQ "Diverts" to transparently divert or copy messages
+ * This examples demonstrates the use of ActiveMQ Artemis "Diverts" to transparently divert or copy messages
  * from one address to another.
  *
  * Please see the readme.html for more information.

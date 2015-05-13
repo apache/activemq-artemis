@@ -22,7 +22,7 @@ import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 
 
 /**
- * A ClientSessionFactory is the entry point to create and configure ActiveMQ resources to produce and consume messages.
+ * A ClientSessionFactory is the entry point to create and configure ActiveMQ Artemis resources to produce and consume messages.
  * <br>
  * It is possible to configure a factory using the setter methods only if no session has been created.
  * Once a session is created, the configuration is fixed and any call to a setter method will throw a IllegalStateException.

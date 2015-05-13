@@ -29,7 +29,7 @@ import java.util.Comparator;
 /**
  * <p>
  * A main class which setups up a classpath and then passes
- * execution off to the ActiveMQ cli main.
+ * execution off to the ActiveMQ Artemis cli main.
  * </p>
  */
 public class Artemis

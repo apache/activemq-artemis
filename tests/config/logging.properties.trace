@@ -23,7 +23,7 @@ loggers=org.jboss.logging,org.apache.activemq.artemis.core.server,org.apache.act
 
 # Root logger level
 logger.level=INFO
-# ActiveMQ logger levels
+# ActiveMQ Artemis logger levels
 logger.org.apache.activemq.artemis.core.server.level=TRACE
 logger.org.apache.activemq.artemis.journal.level=INFO
 logger.org.apache.activemq.artemis.utils.level=INFO

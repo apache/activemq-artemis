@@ -32,7 +32,7 @@ import org.apache.activemq.artemis.jms.client.ActiveMQXATopicConnectionFactory;
 import org.apache.activemq.artemis.uri.ConnectionFactoryParser;
 
 /**
- * A utility class for creating ActiveMQ client-side JMS managed resources.
+ * A utility class for creating ActiveMQ Artemis client-side JMS managed resources.
  */
 public class ActiveMQJMSClient
 {

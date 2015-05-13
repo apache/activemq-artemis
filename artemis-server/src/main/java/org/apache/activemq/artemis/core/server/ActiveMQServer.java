@@ -49,7 +49,7 @@ import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 
 /**
- * This interface defines the internal interface of the ActiveMQ Server exposed to other components
+ * This interface defines the internal interface of the ActiveMQ Artemis Server exposed to other components
  * of the server.
  * <p>
  * This is not part of our public API.
@@ -91,7 +91,7 @@ public interface ActiveMQServer extends ActiveMQComponent
    NodeManager getNodeManager();
 
    /**
-    * Returns the resource to manage this ActiveMQ server.
+    * Returns the resource to manage this ActiveMQ Artemis server.
     * @throws IllegalStateException if the server is not properly started.
     */
    ActiveMQServerControlImpl getActiveMQServerControl();

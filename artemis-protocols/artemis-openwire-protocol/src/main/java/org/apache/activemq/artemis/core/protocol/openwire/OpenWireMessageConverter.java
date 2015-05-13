@@ -103,7 +103,7 @@ public class OpenWireMessageConverter implements MessageConverter
       return null;
    }
 
-   //convert an ActiveMQ message to coreMessage
+   //convert an ActiveMQ Artemis message to coreMessage
    public static void toCoreMessage(ServerMessageImpl coreMessage, Message messageSend, WireFormat marshaller) throws IOException
    {
       String type = messageSend.getType();
@@ -400,7 +400,7 @@ public class OpenWireMessageConverter implements MessageConverter
          case CommandTypes.ACTIVEMQ_MESSAGE:
             return org.apache.activemq.artemis.api.core.Message.DEFAULT_TYPE;
          default:
-            throw new IllegalStateException("Unknown ActiveMQ message type: " + amqType);
+            throw new IllegalStateException("Unknown ActiveMQ Artemis message type: " + amqType);
       }
    }
 

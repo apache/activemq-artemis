@@ -29,7 +29,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * Tests the compliance with the ActiveMQ Filter syntax.
+ * Tests the compliance with the ActiveMQ Artemis Filter syntax.
  */
 public class FilterTest extends SilentTestCase
 {

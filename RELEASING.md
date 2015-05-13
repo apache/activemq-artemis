@@ -23,4 +23,4 @@ Things to do before issuing a new release:
 
 * If every thing is successful.  Follow the Apache guide (http://www.apache.org/dev/publishing-maven-artifacts.html) to build and publish artifacts to Nexus and send out a release vote.
 
-Note: There is one additional step to remove the activemq-pom-<version>-source-release.zip from the Nexus staging repository before closing the staging repository.  At the moment this artifact is uploaded automatically by the Apache release plugin.  In future versions the ActiveMQ pom will be updated to take this into account.
+Note: There is one additional step to remove the activemq-pom-<version>-source-release.zip from the Nexus staging repository before closing the staging repository.  At the moment this artifact is uploaded automatically by the Apache release plugin.  In future versions the ActiveMQ Artemis pom will be updated to take this into account.

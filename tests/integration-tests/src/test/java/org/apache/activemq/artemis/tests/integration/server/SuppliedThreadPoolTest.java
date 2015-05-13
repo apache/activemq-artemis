@@ -85,7 +85,7 @@ public class SuppliedThreadPoolTest extends UnitTestCase
       assertNotNull(threadPool);
       assertNotNull(scheduledExecutorService);
 
-      // Ensure that ActiveMQ does not shutdown supplied thread pools.
+      // Ensure that ActiveMQ Artemis does not shutdown supplied thread pools.
       assertFalse(threadPool.isShutdown());
       assertFalse(scheduledExecutorService.isShutdown());
    }

@@ -33,7 +33,7 @@ import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.service.extensions.xa.recovery.XARecoveryConfig;
 
 /**
- * ActiveMQ ManagedConnectionFactory
+ * ActiveMQ Artemis ManagedConnectionFactory
  */
 public final class ActiveMQRAManagedConnectionFactory implements ManagedConnectionFactory, ResourceAdapterAssociation
 {

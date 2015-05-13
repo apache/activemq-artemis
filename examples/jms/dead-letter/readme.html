@@ -19,7 +19,7 @@ under the License.
 
 <html>
   <head>
-    <title>ActiveMQ Dead Letter Example</title>
+    <title>ActiveMQ Artemis Dead Letter Example</title>
     <link rel="stylesheet" type="text/css" href="../common/common.css" />
     <link rel="stylesheet" type="text/css" href="../common/prettify.css" />
     <script type="text/javascript" src="../common/prettify.js"></script>
@@ -34,7 +34,7 @@ under the License.
      <p>To prevent this, messaging systems define dead letter messages: after a specified unsuccessful delivery attempts, the message is removed from the destination
          and instead routed to a <em>dead letter address</em> where they can be consumed for further investigation.
      <p>
-         The example will show how to configure ActiveMQ to route a message to a dead letter address after 3 unsuccessful delivery attempts.<br />
+         The example will show how to configure ActiveMQ Artemis to route a message to a dead letter address after 3 unsuccessful delivery attempts.<br />
          The example will send 1 message to a queue. We will deliver the message 3 times and rollback the session every time.<br />
          On the 4th attempt, there won't be any message to consume: it will have been moved to a <em>dead letter address</em>.<br />
          We will then consume this dead letter message.
@@ -49,7 +49,7 @@ under the License.
          </code>
      </pre>          
      <p>This configuration will moved dead letter messages from <code>exampleQueue</code> to the <code>deadLetterQueue</code>.</p>
-     <p>ActiveMQ allows to specify either a <code>Queue</code> by prefixing the <code>dead-letter-address</code> with <code>jms.queue.</code>
+     <p>ActiveMQ Artemis allows to specify either a <code>Queue</code> by prefixing the <code>dead-letter-address</code> with <code>jms.queue.</code>
          or a <code>Topic</code> by prefixing with <code>jms.topic.</code>.<br />
          In this example, we will use a <code>Queue</code> to hold the dead letter messages.</p>
      <p>The maximum attempts of delivery is <code>3</code>. Once this figure is reached, a message is considered a dead letter message and is moved to 
@@ -156,7 +156,7 @@ under the License.
            System.out.println("4th delivery from " + queue.getQueueName() + ": " + messageReceived);</code>
         </pre>
         
-        <p>We have configured ActiveMQ to send any dead letter messages to the <code>deadLetterQueue</code>.
+        <p>We have configured ActiveMQ Artemis to send any dead letter messages to the <code>deadLetterQueue</code>.
             We will now consume messages from this queue and receives the <em>dead letter messages</em>.</p>
             
         <li>We look up the JMS <em>dead letter queue</em> object from JNDI</li>
@@ -182,7 +182,7 @@ under the License.
         <p>JMS does not specify the notion of dead letter destinations and messages. From JMS point of view, the message received from the dead letter queue
             is a <strong>different</strong> message than the message removed from the queue after the unsuccessful delivery attempts:
             the messages have the same content (properties and body) but their JMS headers differ.<br />
-            ActiveMQ defines additional properties for messages received from a dead letter destination</p>
+            ActiveMQ Artemis defines additional properties for messages received from a dead letter destination</p>
             
         <li>The message's destination is the dead letter queue</li>
         <pre class="prettyprint">

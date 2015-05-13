@@ -115,7 +115,7 @@ public class ConnectionFactoryTest extends JMSTestCase
    @Test
    public void testNoClientIDConfigured_1() throws Exception
    {
-      // the ConnectionFactories that ship with ActiveMQ do not have their clientID
+      // the ConnectionFactories that ship with ActiveMQ Artemis do not have their clientID
       // administratively configured.
 
       deployConnectionFactory(0, JMSFactoryType.TOPIC_CF, "CF_XA_FALSE", "/CF_XA_FALSE");
@@ -131,7 +131,7 @@ public class ConnectionFactoryTest extends JMSTestCase
    @Test
    public void testNoClientIDConfigured_2() throws Exception
    {
-      // the ConnectionFactories that ship with ActiveMQ do not have their clientID
+      // the ConnectionFactories that ship with ActiveMQ Artemis do not have their clientID
       // administratively configured.
 
       deployConnectionFactory(0, JMSFactoryType.TOPIC_CF, "CF_XA_FALSE", "/CF_XA_FALSE");

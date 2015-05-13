@@ -19,7 +19,7 @@ under the License.
 
 <html>
   <head>
-    <title>ActiveMQ JMS Load Balanced Static Clustered Queue Example</title>
+    <title>ActiveMQ Artemis JMS Load Balanced Static Clustered Queue Example</title>
     <link rel="stylesheet" type="text/css" href="../common/common.css" />
     <link rel="stylesheet" type="text/css" href="../common/prettify.css" />
     <script type="text/javascript" src="../common/prettify.js"></script>
@@ -32,7 +32,7 @@ under the License.
      <p>We then create a consumer on the queue on each node, and we create a producer on only one of the nodes.</p>
      <p>We then send some messages via the producer, and we verify that <b>both</b> consumers receive the sent messages
      in a round-robin fashion.</p>
-     <p>In other words, ActiveMQ <b>load balances</b> the sent messages across all consumers on the cluster</p>
+     <p>In other words, ActiveMQ Artemis <b>load balances</b> the sent messages across all consumers on the cluster</p>
      <p>This example uses JNDI to lookup the JMS Queue and ConnectionFactory objects. If you prefer not to use
      JNDI, these could be instantiated directly.</p>     
      <p>Here's the relevant snippet from the server configuration, which tells the server to form a cluster between the two nodes
@@ -51,7 +51,7 @@ under the License.
      &lt;/cluster-connection&gt;
      </code>
      </pre>    
-     <p>For more information on ActiveMQ load balancing, and clustering in general, please see the clustering
+     <p>For more information on ActiveMQ Artemis load balancing, and clustering in general, please see the clustering
      section of the user manual.</p>      
      <h2>Example step-by-step</h2>
      <p><i>To run the example, simply type <code>mvn verify -Pexample</code> from this directory</i></p>
@@ -155,8 +155,8 @@ under the License.
         
         <li>We now consume those messages on *both* server 0 and server 1.
          We note the messages have been distributed between servers in a round robin fashion.
-         ActiveMQ has <b>load balanced</b> the messages between the available consumers on the different nodes.
-         ActiveMQ can be configured to always load balance messages to all nodes, or to only balance messages
+         ActiveMQ Artemis has <b>load balanced</b> the messages between the available consumers on the different nodes.
+         ActiveMQ Artemis can be configured to always load balance messages to all nodes, or to only balance messages
          to nodes which have consumers with no or matching selectors. See the user manual for more details.</li>
          JMS Queues implement point-to-point message where each message is only ever consumed by a
          maximum of one consumer.

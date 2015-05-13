@@ -51,7 +51,7 @@ public class OpenWireExample extends ActiveMQExample
       {
          String urlString = "tcp://" + OWHOST + ":" + OWPORT;
 
-         // Step 1. Create an ActiveMQ Connection Factory
+         // Step 1. Create an ActiveMQ Artemis Connection Factory
          ConnectionFactory factory = new ActiveMQConnectionFactory(urlString);
 
          // Step 2. Create the target queue

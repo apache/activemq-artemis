@@ -114,7 +114,7 @@ public class HttpMessageHelper
          }
          else
          {
-            // assume posted as a JMS or ActiveMQ object message
+            // assume posted as a JMS or ActiveMQ Artemis object message
             size = message.getBodyBuffer().readInt();
             byte[] body = new byte[size];
             message.getBodyBuffer().readBytes(body);

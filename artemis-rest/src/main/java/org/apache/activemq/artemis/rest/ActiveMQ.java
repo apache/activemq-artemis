@@ -178,7 +178,7 @@ public class ActiveMQ
    }
 
    /**
-    * Was this ActiveMQ message generated from a REST call?
+    * Was this ActiveMQ Artemis message generated from a REST call?
     *
     * @param msg
     * @return

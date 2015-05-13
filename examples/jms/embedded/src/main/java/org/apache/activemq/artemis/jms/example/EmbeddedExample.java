@@ -42,7 +42,7 @@ import org.apache.activemq.artemis.jms.server.config.impl.JMSQueueConfigurationI
 import org.apache.activemq.artemis.jms.server.embedded.EmbeddedJMS;
 
 /**
- * This example demonstrates how to run a ActiveMQ embedded with JMS
+ * This example demonstrates how to run a ActiveMQ Artemis embedded with JMS
  */
 public final class EmbeddedExample extends ActiveMQExample
 {
@@ -58,7 +58,7 @@ public final class EmbeddedExample extends ActiveMQExample
             try
       {
 
-         // Step 1. Create ActiveMQ core configuration, and set the properties accordingly
+         // Step 1. Create ActiveMQ Artemis core configuration, and set the properties accordingly
          Configuration configuration = new ConfigurationImpl();
          configuration.setPersistenceEnabled(false);
          configuration.setJournalDirectory("target/data/journal");
@@ -90,7 +90,7 @@ public final class EmbeddedExample extends ActiveMQExample
             .setBindings("queue/queue1");
          jmsConfig.getQueueConfigurations().add(queueConfig);
 
-         // Step 5. Start the JMS Server using the ActiveMQ core server and the JMS configuration
+         // Step 5. Start the JMS Server using the ActiveMQ Artemis core server and the JMS configuration
          EmbeddedJMS jmsServer = new EmbeddedJMS();
          jmsServer.setConfiguration(configuration);
          jmsServer.setJmsConfiguration(jmsConfig);

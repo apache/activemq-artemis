@@ -153,7 +153,7 @@ can be set via the `ActiveMQConnectionFactory.setConsumerMaxRate(int
 > buffer. So if you had a slow rate limit and a high window based limit
 > the clients internal buffer would soon fill up with messages.
 
-Please see ? for an example which shows how to configure ActiveMQ to
+Please see ? for an example which shows how to configure ActiveMQ Artemis to
 prevent consumer buffering when dealing with slow consumers.
 
 ## Producer flow control

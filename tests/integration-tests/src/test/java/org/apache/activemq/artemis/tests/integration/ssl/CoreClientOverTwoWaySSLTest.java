@@ -77,12 +77,12 @@ public class CoreClientOverTwoWaySSLTest extends ServiceTestBase
    /** These artifacts are required for testing 2-way SSL
     *
     * Commands to create the JKS artifacts:
-    * keytool -genkey -keystore client-side-keystore.jks -storepass secureexample -keypass secureexample -dname "CN=ActiveMQ, OU=ActiveMQ, O=ActiveMQ, L=ActiveMQ, S=ActiveMQ, C=AMQ"
+    * keytool -genkey -keystore client-side-keystore.jks -storepass secureexample -keypass secureexample -dname "CN=ActiveMQ Artemis, OU=ActiveMQ Artemis, O=ActiveMQ Artemis, L=ActiveMQ Artemis, S=ActiveMQ Artemis, C=AMQ"
     * keytool -export -keystore client-side-keystore.jks -file activemq-jks.cer -storepass secureexample
     * keytool -import -keystore server-side-truststore.jks -file activemq-jks.cer -storepass secureexample -keypass secureexample -noprompt
     *
     * Commands to create the JCEKS artifacts:
-    * keytool -genkey -keystore client-side-keystore.jceks -storetype JCEKS -storepass secureexample -keypass secureexample -dname "CN=ActiveMQ, OU=ActiveMQ, O=ActiveMQ, L=ActiveMQ, S=ActiveMQ, C=AMQ"
+    * keytool -genkey -keystore client-side-keystore.jceks -storetype JCEKS -storepass secureexample -keypass secureexample -dname "CN=ActiveMQ Artemis, OU=ActiveMQ Artemis, O=ActiveMQ Artemis, L=ActiveMQ Artemis, S=ActiveMQ Artemis, C=AMQ"
     * keytool -export -keystore client-side-keystore.jceks -file activemq-jceks.cer -storetype jceks -storepass secureexample
     * keytool -import -keystore server-side-truststore.jceks -storetype JCEKS -file activemq-jceks.cer -storepass secureexample -keypass secureexample -noprompt
     */

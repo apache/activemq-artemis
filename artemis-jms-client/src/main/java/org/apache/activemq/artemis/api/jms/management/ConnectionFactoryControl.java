@@ -23,7 +23,7 @@ import org.apache.activemq.artemis.api.core.management.Parameter;
 
 /**
  * A ConnectionFactoryControl is used to manage a JMS ConnectionFactory. <br>
- * ActiveMQ JMS ConnectionFactory uses an underlying ClientSessionFactory to connect to ActiveMQ
+ * ActiveMQ Artemis JMS ConnectionFactory uses an underlying ClientSessionFactory to connect to ActiveMQ
  * servers. Please refer to the ClientSessionFactory for a detailed description.
  *
  * @see org.apache.activemq.artemis.api.core.client.ServerLocator

@@ -17,7 +17,7 @@ rem under the License.
 
 set ARTEMIS_HOME=${artemis.home}
 
-rem Cluster Properties: Used to pass arguments to ActiveMQ which can be referenced in broker.xml
+rem Cluster Properties: Used to pass arguments to ActiveMQ Artemis which can be referenced in broker.xml
 rem set ARTEMIS_CLUSTER_PROPS=-Dactivemq.remoting.default.port=61617 -Dactivemq.remoting.amqp.port=5673 -Dactivemq.remoting.stomp.port=61614 -Dactivemq.remoting.hornetq.port=5446
 
 rem Java Opts

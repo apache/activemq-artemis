@@ -34,7 +34,7 @@ import org.apache.activemq.artemis.api.core.client.MessageHandler;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSConstants;
 
 /**
- * ActiveMQ implementation of a JMS MessageConsumer.
+ * ActiveMQ Artemis implementation of a JMS MessageConsumer.
  */
 public final class ActiveMQMessageConsumer implements QueueReceiver, TopicSubscriber
 {

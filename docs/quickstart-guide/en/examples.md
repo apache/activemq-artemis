@@ -44,7 +44,7 @@ Type the command `mvn verify` and you should see the following output:
     [INFO] Scanning for projects...
     [INFO]
     [INFO] ------------------------------------------------------------------------
-    [INFO] Building ActiveMQ JMS Queue Example 2.3.0.BETA-SNAPSHOT
+    [INFO] Building ActiveMQ Artemis JMS Queue Example 2.3.0.BETA-SNAPSHOT
     [INFO] ------------------------------------------------------------------------
     [INFO]
     [INFO] --- maven-resources-plugin:2.6:resources (default-resources) @ activemq-jms-queue-example ---
@@ -85,13 +85,13 @@ Type the command `mvn verify` and you should see the following output:
     Apr 17, 2013 10:51:01 AM org.apache.activemq.core.deployers.impl.FileConfigurationParser parseMainConfig
     WARN: AMQ222018: AIO was not located on this platform, it will fall back to using pure Java NIO. If your platform is Linux, install LibAIO to enable the AIO journal
     Apr 17, 2013 10:51:01 AM org.apache.activemq.core.server.impl.ActiveMQServerImpl start
-    INFO: AMQ221000: live server is starting with configuration ActiveMQ Configuration (clustered=false,backup=false,sharedStore=true,journalDirectory=/home/andy/projects/activemq-master/examples/jms/queue/target//server0/data/messaging/journal,bindingsDirectory=/home/andy/projects/activemq-master/examples/jms/queue/target//server0/data/messaging/bindings,largeMessagesDirectory=/home/andy/projects/activemq-master/examples/jms/queue/target//server0/data/messaging/largemessages,pagingDirectory=/home/andy/projects/activemq-master/examples/jms/queue/target//server0/data/messaging/paging)
+    INFO: AMQ221000: live server is starting with configuration ActiveMQ Artemis Configuration (clustered=false,backup=false,sharedStore=true,journalDirectory=/home/andy/projects/activemq-master/examples/jms/queue/target//server0/data/messaging/journal,bindingsDirectory=/home/andy/projects/activemq-master/examples/jms/queue/target//server0/data/messaging/bindings,largeMessagesDirectory=/home/andy/projects/activemq-master/examples/jms/queue/target//server0/data/messaging/largemessages,pagingDirectory=/home/andy/projects/activemq-master/examples/jms/queue/target//server0/data/messaging/paging)
     Apr 17, 2013 10:51:01 AM org.apache.activemq.core.server.impl.ActiveMQServerImpl$SharedStoreLiveActivation run
     INFO: AMQ221006: Waiting to obtain live lock
     Apr 17, 2013 10:51:01 AM org.apache.activemq.core.persistence.impl.journal.JournalStorageManager <init>
     INFO: AMQ221013: Using NIO Journal
     Apr 17, 2013 10:51:01 AM org.apache.activemq.core.server.impl.ActiveMQServerImpl initialisePart1
-    WARN: AMQ222007: Security risk! ActiveMQ is running with the default cluster admin user and default password. Please see the ActiveMQ user guide, cluster chapter, for instructions on how to change this.
+    WARN: AMQ222007: Security risk! ActiveMQ Artemis is running with the default cluster admin user and default password. Please see the ActiveMQ Artemis user guide, cluster chapter, for instructions on how to change this.
     Apr 17, 2013 10:51:01 AM org.apache.activemq.core.server.impl.FileLockNodeManager startLiveNode
     INFO: AMQ221034: Waiting to obtain live lock
     Apr 17, 2013 10:51:01 AM org.apache.activemq.core.server.impl.FileLockNodeManager startLiveNode
@@ -103,7 +103,7 @@ Type the command `mvn verify` and you should see the following output:
     Apr 17, 2013 10:51:02 AM org.apache.activemq.core.server.impl.ActiveMQServerImpl$SharedStoreLiveActivation run
     INFO: AMQ221007: Server is now live
     Apr 17, 2013 10:51:02 AM org.apache.activemq.core.server.impl.ActiveMQServerImpl start
-    INFO: AMQ221001: ActiveMQ Server version 2.3.0.SNAPSHOT (black'n'yellow, 123) [a57893ff-7783-11e2-9787-07ca142fc9f7]
+    INFO: AMQ221001: ActiveMQ Artemis Server version 2.3.0.SNAPSHOT (black'n'yellow, 123) [a57893ff-7783-11e2-9787-07ca142fc9f7]
     [INFO]
     [INFO] --- activemq-maven-plugin:1.1.1-SNAPSHOT:runClient (runClient) @ activemq-jms-queue-example ---
     Apr 17, 2013 10:51:02 AM org.apache.activemq.common.example.ActiveMQExample getContext
@@ -120,7 +120,7 @@ Type the command `mvn verify` and you should see the following output:
     Apr 17, 2013 10:51:03 AM org.apache.activemq.core.server.management.impl.ManagementServiceImpl stop
     WARN: AMQ222113: On ManagementService stop, there are 1 unexpected registered MBeans: [core.acceptor.netty-acceptor]
     Apr 17, 2013 10:51:03 AM org.apache.activemq.core.server.impl.ActiveMQServerImpl stop
-    INFO: AMQ221002: ActiveMQ Server version 2.3.0.SNAPSHOT (black'n'yellow, 123) [a57893ff-7783-11e2-9787-07ca142fc9f7] stopped
+    INFO: AMQ221002: ActiveMQ Artemis Server version 2.3.0.SNAPSHOT (black'n'yellow, 123) [a57893ff-7783-11e2-9787-07ca142fc9f7] stopped
     [INFO] ------------------------------------------------------------------------
     [INFO] BUILD SUCCESS
     [INFO] ------------------------------------------------------------------------
@@ -129,7 +129,7 @@ Type the command `mvn verify` and you should see the following output:
     [INFO] Final Memory: 11M/456M
     [INFO] ------------------------------------------------------------------------
 
-Congratulations! You have successfully run your first ActiveMQ example.
+Congratulations! You have successfully run your first ActiveMQ Artemis example.
 Try some of the others.
 
 The Java EE Examples
@@ -157,7 +157,7 @@ In the shell window you should see something like the following output:
     [INFO] Scanning for projects...
     [INFO]
     [INFO] ------------------------------------------------------------------------
-    [INFO] Building ActiveMQ JEE MDB Example 2.3.0.BETA-SNAPSHOT
+    [INFO] Building ActiveMQ Artemis JEE MDB Example 2.3.0.BETA-SNAPSHOT
     [INFO] ------------------------------------------------------------------------
     [INFO]
     [INFO] --- maven-resources-plugin:2.6:resources (default-resources) @ activemq-jee-mdb-bmt-example ---
@@ -220,7 +220,7 @@ In the shell window you should see something like the following output:
     10:58:05,831 INFO  [org.jboss.ws.common.management.AbstractServerConfig] (MSC service thread 1-4) JBoss Web Services - Stack CXF Server 4.0.2.GA
     10:58:05,943 INFO  [org.apache.coyote.http11.Http11Protocol] (MSC service thread 1-6) Starting Coyote HTTP/1.1 on http-localhost.localdomain-127.0.0.1-8080
     10:58:05,966 INFO  [org.jboss.as.jacorb] (MSC service thread 1-2) JBAS016330: CORBA ORB Service started
-    10:58:05,988 INFO  [org.apache.activemq.core.server.impl.ActiveMQServerImpl] (MSC service thread 1-11) live server is starting with configuration ActiveMQ Configuration (clustered=false,backup=false,sharedStore=true,journalDirectory=/home/andy/projects/activemq-master/examples/javaee/mdb-bmt/target/jbossas-node0/standalone/data/messagingjournal,bindingsDirectory=/home/andy/projects/activemq-master/examples/javaee/mdb-bmt/target/jbossas-node0/standalone/data/messagingbindings,largeMessagesDirectory=/home/andy/projects/activemq-master/examples/javaee/mdb-bmt/target/jbossas-node0/standalone/data/messaginglargemessages,pagingDirectory=/home/andy/projects/activemq-master/examples/javaee/mdb-bmt/target/jbossas-node0/standalone/data/messagingpaging)
+    10:58:05,988 INFO  [org.apache.activemq.core.server.impl.ActiveMQServerImpl] (MSC service thread 1-11) live server is starting with configuration ActiveMQ Artemis Configuration (clustered=false,backup=false,sharedStore=true,journalDirectory=/home/andy/projects/activemq-master/examples/javaee/mdb-bmt/target/jbossas-node0/standalone/data/messagingjournal,bindingsDirectory=/home/andy/projects/activemq-master/examples/javaee/mdb-bmt/target/jbossas-node0/standalone/data/messagingbindings,largeMessagesDirectory=/home/andy/projects/activemq-master/examples/javaee/mdb-bmt/target/jbossas-node0/standalone/data/messaginglargemessages,pagingDirectory=/home/andy/projects/activemq-master/examples/javaee/mdb-bmt/target/jbossas-node0/standalone/data/messagingpaging)
     10:58:05,996 INFO  [org.apache.activemq.core.server.impl.ActiveMQServerImpl] (MSC service thread 1-11) Waiting to obtain live lock
     10:58:06,037 INFO  [org.apache.activemq.core.persistence.impl.journal.JournalStorageManager] (MSC service thread 1-11) Using AIO Journal
     10:58:06,122 INFO  [org.jboss.as.jacorb] (MSC service thread 1-14) JBAS016328: CORBA Naming Service started
@@ -233,7 +233,7 @@ In the shell window you should see something like the following output:
     10:58:08,790 INFO  [org.apache.activemq.core.remoting.impl.netty.NettyAcceptor] (MSC service thread 1-11) Started Netty Acceptor version 3.2.5.Final-a96d88c localhost.localdomain:61616 for CORE protocol
     10:58:08,793 INFO  [org.apache.activemq.core.remoting.impl.netty.NettyAcceptor] (MSC service thread 1-11) Started Netty Acceptor version 3.2.5.Final-a96d88c localhost.localdomain:5455 for CORE protocol
     10:58:08,795 INFO  [org.apache.activemq.core.server.impl.ActiveMQServerImpl] (MSC service thread 1-11) Server is now live
-    10:58:08,797 INFO  [org.apache.activemq.core.server.impl.ActiveMQServerImpl] (MSC service thread 1-11) ActiveMQ Server version 2.2.13.Final (AMQ_2_2_13_FINAL_AS7, 122) [5c499e88-9c63-11e2-bfa3-fe5400591699]) started
+    10:58:08,797 INFO  [org.apache.activemq.core.server.impl.ActiveMQServerImpl] (MSC service thread 1-11) ActiveMQ Artemis Server version 2.2.13.Final (AMQ_2_2_13_FINAL_AS7, 122) [5c499e88-9c63-11e2-bfa3-fe5400591699]) started
     10:58:08,822 INFO  [org.jboss.as.messaging] (MSC service thread 1-4) JBAS011601: Bound messaging object to jndi name java:jboss/exported/jms/RemoteConnectionFactory
     10:58:08,824 INFO  [org.jboss.as.messaging] (MSC service thread 1-4) JBAS011601: Bound messaging object to jndi name java:/RemoteConnectionFactory
     10:58:08,825 INFO  [org.jboss.as.messaging] (MSC service thread 1-10) JBAS011601: Bound messaging object to jndi name java:/ConnectionFactory
@@ -241,7 +241,7 @@ In the shell window you should see something like the following output:
     10:58:08,836 INFO  [org.jboss.as.messaging] (MSC service thread 1-3) JBAS011601: Bound messaging object to jndi name java:/queue/test
     10:58:08,840 INFO  [org.jboss.as.messaging] (MSC service thread 1-3) JBAS011601: Bound messaging object to jndi name java:jboss/exported/jms/queues/testQueue
     10:58:08,859 INFO  [org.jboss.as.deployment.connector] (MSC service thread 1-9) JBAS010406: Registered connection factory java:/JmsXA
-    10:58:08,866 INFO  [org.apache.activemq.ra.ActiveMQResourceAdapter] (MSC service thread 1-9) ActiveMQ resource adaptor started
+    10:58:08,866 INFO  [org.apache.activemq.ra.ActiveMQResourceAdapter] (MSC service thread 1-9) ActiveMQ Artemis resource adaptor started
     10:58:08,867 INFO  [org.jboss.as.connector.services.ResourceAdapterActivatorService$ResourceAdapterActivator] (MSC service thread 1-9) IJ020002: Deployed: file://RaActivatoractivemq-ra
     10:58:08,870 INFO  [org.jboss.as.deployment.connector] (MSC service thread 1-5) JBAS010401: Bound JCA ConnectionFactory [java:/JmsXA]
     10:58:08,898 INFO  [org.jboss.as.server.deployment] (MSC service thread 1-10) JBAS015876: Starting deployment of "ONT001-1.0.war"

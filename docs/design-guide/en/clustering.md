@@ -20,4 +20,4 @@ Topology Discovery
 
 blah blah blah, topology etc
 
-![ActiveMQ topology-update.jpg](images/topology-update.jpg)
+![ActiveMQ Artemis topology-update.jpg](images/topology-update.jpg)

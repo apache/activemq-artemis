@@ -30,7 +30,7 @@ import static org.apache.activemq.artemis.reader.TextMessageUtil.writeBodyText;
 
 
 /**
- * ActiveMQ implementation of a JMS TextMessage.
+ * ActiveMQ Artemis implementation of a JMS TextMessage.
  * <br>
  * This class was ported from SpyTextMessage in JBossMQ.
  */
@@ -61,7 +61,7 @@ public class ActiveMQTextMessage extends ActiveMQMessage implements TextMessage
    }
 
    /**
-    * A copy constructor for non-ActiveMQ JMS TextMessages.
+    * A copy constructor for non-ActiveMQ Artemis JMS TextMessages.
     */
    public ActiveMQTextMessage(final TextMessage foreign, final ClientSession session) throws JMSException
    {

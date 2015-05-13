@@ -81,7 +81,7 @@ adds a header that records the time the divert happened.
 
 This example is actually diverting messages to a local store and forward
 queue, which is configured with a bridge which forwards the message to
-an address on another ActiveMQ server. Please see the example for more
+an address on another ActiveMQ Artemis server. Please see the example for more
 details.
 
 ## Non-exclusive Divert

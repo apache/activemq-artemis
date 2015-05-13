@@ -104,7 +104,7 @@ public class PagingExample extends ActiveMQExample
          // Step 16. Start the JMS Connection. This step will activate the subscribers to receive messages.
          connection.start();
 
-         // Step 17. Receive the messages. It's important to ACK for messages as ActiveMQ will not read messages from
+         // Step 17. Receive the messages. It's important to ACK for messages as ActiveMQ Artemis will not read messages from
          // paging
          // until messages are ACKed
 

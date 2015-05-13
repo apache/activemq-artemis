@@ -1,4 +1,4 @@
-Running the ActiveMQ Examples
+Running the ActiveMQ Artemis Examples
 ============================
 
 To run an individual example firstly cd into the example directory and run

@@ -371,7 +371,7 @@ public class StompDecoder
                   // trim off leading whitespace from header values.
                   // The STOMP spec examples seem to imply that whitespace should be trimmed although it is not
                   // explicit in the spec
-                  // ActiveMQ + StompConnect also seem to trim whitespace from header values.
+                  // ActiveMQ Artemis + StompConnect also seem to trim whitespace from header values.
                   // Trimming is problematic though if the user has set a header with a value which deliberately
                   // has
                   // leading whitespace since

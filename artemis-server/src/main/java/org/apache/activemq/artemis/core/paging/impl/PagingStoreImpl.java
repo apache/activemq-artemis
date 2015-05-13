@@ -663,7 +663,7 @@ public class PagingStoreImpl implements PagingStore
                   returnPage.delete(null);
 
                   // This will trigger this address to exit the page mode,
-                  // and this will make ActiveMQ start using the journal again
+                  // and this will make ActiveMQ Artemis start using the journal again
                   return null;
                }
                else

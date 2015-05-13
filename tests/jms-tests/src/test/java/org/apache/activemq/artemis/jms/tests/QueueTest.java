@@ -90,7 +90,7 @@ public class QueueTest extends JMSTestCase
 
       startNoDelete();
 
-      // ActiveMQ server restart implies new ConnectionFactory lookup
+      // ActiveMQ Artemis server restart implies new ConnectionFactory lookup
       deployAndLookupAdministeredObjects();
 
       conn = createConnection();

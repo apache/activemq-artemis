@@ -38,7 +38,7 @@ import org.apache.activemq.artemis.utils.ConcurrentHashSet;
 import org.apache.activemq.artemis.utils.TypedProperties;
 
 /**
- * The ActiveMQ SecurityStore implementation
+ * The ActiveMQ Artemis SecurityStore implementation
  */
 public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryChangeListener
 {

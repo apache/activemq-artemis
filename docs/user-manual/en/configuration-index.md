@@ -72,7 +72,7 @@ Name | Description
 [page-max-concurrent-io](paging.md "24.3. Paging Mode")                                               |  The max number of concurrent reads allowed on paging. Default=5
 [paging-directory](paging.md "24.2. Configuration")                                                   |  the directory to store paged messages in. Default=data/paging
 [persist-delivery-count-before-delivery](undelivered-messages.md "21.3. Delivery Count Persistence")  |  True means that the delivery count is persisted before delivery. False means that this only happens after a message has been cancelled. Default=false
-[persistence-enabled](persistence.md "15.6. Configuring ActiveMQ for Zero Persistence")               |  true means that the server will use the file based journal for persistence. Default=true
+[persistence-enabled](persistence.md "15.6. Configuring ActiveMQ Artemis for Zero Persistence")               |  true means that the server will use the file based journal for persistence. Default=true
 [persist-id-cache](duplicate-detection.md "37.2. Configuring the Duplicate ID Cache")                 |  true means that ID's are persisted to the journal. Default=true
 [queues](queue-attributes.md "25.1. Predefined Queues")       |  [a list of queue to be created](#queue-type)
 [remoting-incoming-interceptors](intercepting-operations.md "Chapter 47. Intercepting Operations")                                                   |  A list of interceptor
@@ -354,7 +354,7 @@ Apache ActiveMQ Artemis will load this property and initialize the class with a
 parameter map containing the "key"-\>"value" pair. If `passwordCodec` is
 not specified, the built-in decoder is used.
 
-### Masking passwords in ActiveMQ ResourceAdapters and MDB activation configurations
+### Masking passwords in ActiveMQ Artemis ResourceAdapters and MDB activation configurations
 
 Both ra.xml and MDB activation configuration have a 'password' property
 that can be masked. They are controlled by the following two optional

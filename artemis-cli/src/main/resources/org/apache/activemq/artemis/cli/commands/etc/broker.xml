@@ -42,7 +42,7 @@ under the License.
       </connectors>
 
       <acceptors>
-         <!-- Default ActiveMQ Acceptor.  Multi-protocol adapter.  Currently supports Core, OpenWire, Stomp and AMQP. -->
+         <!-- Default ActiveMQ Artemis Acceptor.  Multi-protocol adapter.  Currently supports Core, OpenWire, Stomp and AMQP. -->
          <acceptor name="activemq">tcp://${activemq.remoting.default.host:${host}}:${activemq.remoting.default.port:${default.port}}</acceptor>
 
          <!-- AMQP Acceptor.  Listens on default AMQP port for AMQP traffic.-->
@@ -51,7 +51,7 @@ under the License.
          <!-- STOMP Acceptor. -->
          <acceptor name="stomp">tcp://${activemq.remoting.stomp.host:${host}}:${activemq.remoting.stomp.port:${stomp.port}}?protocols=STOMP</acceptor>
 
-         <!-- HornetQ Compatibility Acceptor.  Enables ActiveMQ Core and STOMP for legacy HornetQ clients. -->
+         <!-- HornetQ Compatibility Acceptor.  Enables ActiveMQ Artemis Core and STOMP for legacy HornetQ clients. -->
          <acceptor name="hornetq">tcp://${activemq.remoting.hornetq.host:${host}}:${activemq.remoting.hornetq.port:${hq.port}}?protocols=HORNETQ,STOMP</acceptor>
       </acceptors>
 

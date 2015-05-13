@@ -17,23 +17,23 @@
 package org.apache.activemq.artemis.api.core;
 
 /**
- * Constants representing pre-defined message attributes that can be referenced in ActiveMQ core
+ * Constants representing pre-defined message attributes that can be referenced in ActiveMQ Artemis core
  * filter expressions.
  */
 public final class FilterConstants
 {
    /**
-    * Name of the ActiveMQ UserID header.
+    * Name of the ActiveMQ Artemis UserID header.
     */
    public static final SimpleString ACTIVEMQ_USERID = new SimpleString("AMQUserID");
 
    /**
-    * Name of the ActiveMQ Message expiration header.
+    * Name of the ActiveMQ Artemis Message expiration header.
     */
    public static final SimpleString ACTIVEMQ_EXPIRATION = new SimpleString("AMQExpiration");
 
    /**
-    * Name of the ActiveMQ Message durable header.
+    * Name of the ActiveMQ Artemis Message durable header.
     */
    public static final SimpleString ACTIVEMQ_DURABLE = new SimpleString("AMQDurable");
 
@@ -48,22 +48,22 @@ public final class FilterConstants
    public static final SimpleString DURABLE = new SimpleString("DURABLE");
 
    /**
-    * Name of the ActiveMQ Message timestamp header.
+    * Name of the ActiveMQ Artemis Message timestamp header.
     */
    public static final SimpleString ACTIVEMQ_TIMESTAMP = new SimpleString("AMQTimestamp");
 
    /**
-    * Name of the ActiveMQ Message priority header.
+    * Name of the ActiveMQ Artemis Message priority header.
     */
    public static final SimpleString ACTIVEMQ_PRIORITY = new SimpleString("AMQPriority");
 
    /**
-    * Name of the ActiveMQ Message size header.
+    * Name of the ActiveMQ Artemis Message size header.
     */
    public static final SimpleString ACTIVEMQ_SIZE = new SimpleString("AMQSize");
 
    /**
-    * All ActiveMQ headers are prepended by this prefix.
+    * All ActiveMQ Artemis headers are prepended by this prefix.
     */
    public static final SimpleString ACTIVEMQ_PREFIX = new SimpleString("AMQ");
 
