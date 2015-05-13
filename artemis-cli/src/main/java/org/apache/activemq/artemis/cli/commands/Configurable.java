@@ -25,6 +25,7 @@ import org.apache.activemq.artemis.core.config.FileDeploymentManager;
 import org.apache.activemq.artemis.core.config.impl.FileConfiguration;
 import org.apache.activemq.artemis.dto.BrokerDTO;
 import org.apache.activemq.artemis.factory.BrokerFactory;
+import org.apache.activemq.artemis.integration.bootstrap.ActiveMQBootstrapLogger;
 import org.apache.activemq.artemis.jms.server.config.impl.FileJMSConfiguration;
 
 /**
@@ -87,12 +88,14 @@ public abstract class Configurable
       {
          if (getBrokerInstance() == null)
          {
+            final String defaultLocation = "../data";
+            ActiveMQBootstrapLogger.LOGGER.brokerConfigNotFound(defaultLocation);
             fileConfiguration = new FileConfiguration();
             // These will be the default places in case the file can't be loaded
-            fileConfiguration.setBindingsDirectory("../data/bindings");
-            fileConfiguration.setJournalDirectory("../data/journal");
-            fileConfiguration.setLargeMessagesDirectory("../data/largemessages");
-            fileConfiguration.setPagingDirectory("../data/paging");
+            fileConfiguration.setBindingsDirectory(defaultLocation + "/bindings");
+            fileConfiguration.setJournalDirectory(defaultLocation + "/journal");
+            fileConfiguration.setLargeMessagesDirectory(defaultLocation + "/largemessages");
+            fileConfiguration.setPagingDirectory(defaultLocation + "/paging");
          }
          else
          {
@@ -143,7 +146,7 @@ public abstract class Configurable
          // To support Windows paths as explained above.
          configuration = configuration.replace("\\", "/");
 
-         System.out.println("Loading configuration file: " + configuration);
+         ActiveMQBootstrapLogger.LOGGER.usingBrokerConfig(configuration);
       }
 
       return configuration;

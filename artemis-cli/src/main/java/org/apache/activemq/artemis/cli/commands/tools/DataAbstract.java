@@ -19,6 +19,9 @@ package org.apache.activemq.artemis.cli.commands.tools;
 
 import io.airlift.airline.Option;
 import org.apache.activemq.artemis.cli.commands.Configurable;
+import org.apache.activemq.artemis.integration.bootstrap.ActiveMQBootstrapBundle;
+
+import java.io.File;
 
 /** Abstract class for places where you need bindings, journal paging and large messages configuration */
 public abstract class DataAbstract extends Configurable
@@ -41,6 +44,7 @@ public abstract class DataAbstract extends Configurable
       if (largeMessges == null)
       {
          largeMessges = getFileConfiguration().getLargeMessagesDirectory();
+         checkIfDirectoryExists(largeMessges);
       }
 
       return largeMessges;
@@ -52,6 +56,7 @@ public abstract class DataAbstract extends Configurable
       if (binding == null)
       {
          binding = getFileConfiguration().getBindingsDirectory();
+         checkIfDirectoryExists(binding);
       }
 
       return binding;
@@ -62,6 +67,7 @@ public abstract class DataAbstract extends Configurable
       if (journal == null)
       {
          journal = getFileConfiguration().getJournalDirectory();
+         checkIfDirectoryExists(journal);
       }
 
       return journal;
@@ -75,6 +81,15 @@ public abstract class DataAbstract extends Configurable
       }
 
       return paging;
+   }
+
+   private void checkIfDirectoryExists(String directory)
+   {
+      File f = new File(directory);
+      if (!f.exists())
+      {
+         throw ActiveMQBootstrapBundle.BUNDLE.directoryDoesNotExist(directory);
+      }
    }
 
 }

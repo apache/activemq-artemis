@@ -54,6 +54,7 @@ import org.apache.activemq.artemis.core.server.impl.FileLockNodeManager;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.settings.impl.HierarchicalObjectRepository;
+import org.apache.activemq.artemis.integration.bootstrap.ActiveMQBootstrapLogger;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 
 @Command(name = "print", description = "Print data records information (WARNING: don't use while a production server is running)")
@@ -63,7 +64,14 @@ public class PrintData extends DataAbstract implements Action
    @Override
    public Object execute(ActionContext context) throws Exception
    {
-      printData(getBinding(), getJournal(), getPaging());
+      try
+      {
+         printData(getBinding(), getJournal(), getPaging());
+      }
+      catch (Exception e)
+      {
+         ActiveMQBootstrapLogger.LOGGER.printDataFailed(e.getMessage());
+      }
       return null;
    }
 
