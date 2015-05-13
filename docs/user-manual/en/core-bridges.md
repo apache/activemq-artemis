@@ -98,7 +98,7 @@ Let's take a look at all the parameters in turn:
 -   `filter-string`. An optional filter string can be supplied. If
     specified then only messages which match the filter expression
     specified in the filter string will be forwarded. The filter string
-    follows the ActiveMQ filter expression syntax described in [Filter Expressions](filter-expressions.md).
+    follows the ActiveMQ Artemis filter expression syntax described in [Filter Expressions](filter-expressions.md).
 
 -   `transformer-class-name`. An optional transformer-class-name can be
     specified. This is the name of a user-defined class which implements

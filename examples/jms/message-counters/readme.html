@@ -19,7 +19,7 @@ under the License.
 
 <html>
   <head>
-    <title>ActiveMQ Message Counter Example</title>
+    <title>ActiveMQ Artemis Message Counter Example</title>
     <link rel="stylesheet" type="text/css" href="../common/common.css" />
     <link rel="stylesheet" type="text/css" href="../common/prettify.css" />
     <script type="text/javascript" src="../common/prettify.js"></script>
@@ -41,9 +41,9 @@ under the License.
      </pre>
      <p>By default, Message counter is not enabled (for performance reason). To enable them, set <code>message-counter-enabled</code> to <code>true</code>.<br />
      Queues are sampled every 10 seconds by default. For this example we will reduce it to 2 seconds by setting <code>message-counter-sample-period</code> to <code>2000</code>.<br />
-     ActiveMQ holds in memory the message counters' history for a maximum number of days (10 by default). We can change the number of days the history is kept by setting
+     ActiveMQ Artemis holds in memory the message counters' history for a maximum number of days (10 by default). We can change the number of days the history is kept by setting
          the <code>message-counter-max-day-history</code> parameter.</p>
-     <p>The sample period and the max day history parameters have an small impact on the performance of ActiveMQ (the resources taken to sample a queue are not available to the system's
+     <p>The sample period and the max day history parameters have an small impact on the performance of ActiveMQ Artemis (the resources taken to sample a queue are not available to the system's
          normal use). You should set these parameters accordingly to the use and throughput of your messages.</p>
          
      <h2>Example step-by-step</h2>
@@ -87,7 +87,7 @@ under the License.
         
         <p>We now need to retrieve the message counters. They're available from the JMS Queue management resource. In this example, we
             will retrieve them using JMX (see the <a href="../jmx/readme.html">JMX example</a> for a more complete description). You can also use JMS message to retrieve them (see the <a href="../management/readme.html">Management example</a> to
-            learn about managing ActiveMQ using JMS messages).</p>
+            learn about managing ActiveMQ Artemis using JMS messages).</p>
 
        <li>We retrieve the JMX MBean used to manage the JMS queue</li>
         <pre class="prettyprint">

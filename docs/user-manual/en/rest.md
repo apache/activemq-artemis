@@ -54,7 +54,7 @@ of the REST interface?
 
 ## Installation and Configuration
 
-Apache ActiveMQ Artemis's REST interface is installed as a Web archive (WAR). It depends on the [RESTEasy](http://jboss.org/resteasy) project and can currently only run within a servlet container. Installing the Apache ActiveMQ Artemis REST interface is a little bit different depending whether Apache ActiveMQ Artemis is already installed and configured for your environment (e.g. you're deploying within Wildfly) or you want the ActiveMQ REST WAR to startup and manage the Apache ActiveMQ Artemis server (e.g. you're deploying within something like Apache Tomcat).
+Apache ActiveMQ Artemis's REST interface is installed as a Web archive (WAR). It depends on the [RESTEasy](http://jboss.org/resteasy) project and can currently only run within a servlet container. Installing the Apache ActiveMQ Artemis REST interface is a little bit different depending whether Apache ActiveMQ Artemis is already installed and configured for your environment (e.g. you're deploying within Wildfly) or you want the ActiveMQ Artemis REST WAR to startup and manage the Apache ActiveMQ Artemis server (e.g. you're deploying within something like Apache Tomcat).
 
 ### Installing Within Pre-configured Environment
 
@@ -126,7 +126,7 @@ The project structure should look this like:
 
 It is worth noting that when deploying a WAR in a Java EE application server like Wildfly the URL for the resulting application will include the name of the WAR by default. For example, if you've constructed a WAR as described above named "activemq-rest.war" then clients will access it at, e.g. http://localhost:8080/activemq-rest/[queues|topics]. We'll see more about this later.
 
-### Bootstrapping ActiveMQ Along with REST
+### Bootstrapping ActiveMQ Artemis Along with REST
 
 You can bootstrap Apache ActiveMQ Artemis within your WAR as well. To do this, you must have the Apache ActiveMQ Artemis core and JMS jars along with Netty, RESTEasy, and the Apache ActiveMQ Artemis REST jar within your WEB-INF/lib. You must also have an Apache ActiveMQ Artemis-configuration.xml config file within WEB-INF/classes. The examples that come with the Apache ActiveMQ Artemis REST distribution show how to do this. You must also add an additional listener to your web.xml file. Here's an example:
 

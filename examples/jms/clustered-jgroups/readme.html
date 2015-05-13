@@ -19,13 +19,13 @@ under the License.
 
 <html>
   <head>
-    <title>ActiveMQ Clustering with JGroups Example</title>
+    <title>ActiveMQ Artemis Clustering with JGroups Example</title>
     <link rel="stylesheet" type="text/css" href="../common/common.css" />
     <link rel="stylesheet" type="text/css" href="../common/prettify.css" />
     <script type="text/javascript" src="../common/prettify.js"></script>
   </head>
   <body onload="prettyPrint()">
-     <h1>ActiveMQ Clustering with JGroups Example</h1>
+     <h1>ActiveMQ Artemis Clustering with JGroups Example</h1>
 
      <p>This example demonstrates the working of a two node cluster using JGroups as the underlying topology broadcasting/discovery 
      technique.</p>
@@ -34,7 +34,7 @@ under the License.
      in a round-robin fashion.</p>
      <p>This example uses JNDI to lookup the JMS Queue and ConnectionFactory objects. If you prefer not to use
      JNDI, these could be instantiated directly.</p>
-     <p>To enable ActiveMQ to use JGroups you need to configure JGroups configuration file and make sure it is on the classpath
+     <p>To enable ActiveMQ Artemis to use JGroups you need to configure JGroups configuration file and make sure it is on the classpath
          by placing in the configuration directory, the file test-jgroups-file_ping.xml is the configuration used in this
      exaample</p>
      <p>You then configure the jgroups file used by the broadcast and discovery groups in the configuration along with the
@@ -59,7 +59,7 @@ under the License.
    &lt;/discovery-groups&gt;
      </code>
      </pre>    
-     <p>For more information on ActiveMQ clustering in general, please see the clustering
+     <p>For more information on ActiveMQ Artemis clustering in general, please see the clustering
      section of the user manual.</p>      
      <h2>Example step-by-step</h2>
      <p><i>To run the example, simply type <code>./build.sh</code> (or <code>build.bat</code> on windows) from this directory</i></p>
@@ -163,8 +163,8 @@ under the License.
         
         <li>We now consume those messages on *both* server 0 and server 1.
          We note the messages have been distributed between servers in a round robin fashion.
-         ActiveMQ has <b>load balanced</b> the messages between the available consumers on the different nodes.
-         ActiveMQ can be configured to always load balance messages to all nodes, or to only balance messages
+         ActiveMQ Artemis has <b>load balanced</b> the messages between the available consumers on the different nodes.
+         ActiveMQ Artemis can be configured to always load balance messages to all nodes, or to only balance messages
          to nodes which have consumers with no or matching selectors. See the user manual for more details.</li>
          JMS Queues implement point-to-point message where each message is only ever consumed by a
          maximum of one consumer.

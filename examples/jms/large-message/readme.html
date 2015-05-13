@@ -19,7 +19,7 @@ under the License.
 
 <html>
   <head>
-    <title>ActiveMQ Large Message Example</title>
+    <title>ActiveMQ Artemis Large Message Example</title>
     <link rel="stylesheet" type="text/css" href="../common/common.css" />
     <link rel="stylesheet" type="text/css" href="../common/prettify.css" />
     <script type="text/javascript" src="../common/prettify.js"></script>
@@ -27,19 +27,19 @@ under the License.
   <body onload="prettyPrint()">
      <h1>Large Message Example</h1>
 
-     <p>This example shows you how to send and receive very large messages with ActiveMQ.</p>
-     <p>ActiveMQ supports the sending and receiving of huge messages, much larger than can fit in available RAM
+     <p>This example shows you how to send and receive very large messages with ActiveMQ Artemis.</p>
+     <p>ActiveMQ Artemis supports the sending and receiving of huge messages, much larger than can fit in available RAM
      on the client or server. Effectively the only limit to message size is the amount of disk space you have on the server.</p>
-     <p>Large messages are persisted on the server so they can survive a server restart. In other words ActiveMQ doesn't just
+     <p>Large messages are persisted on the server so they can survive a server restart. In other words ActiveMQ Artemis doesn't just
      do a simple socket stream from the sender to the consumer.</p>
-     <p>In order to do this ActiveMQ provides an extension to JMS where you can use an InputStream or OutputStream as the source and destination for your messages. You can send messages as large as it would fit in your disk.</p>
+     <p>In order to do this ActiveMQ Artemis provides an extension to JMS where you can use an InputStream or OutputStream as the source and destination for your messages. You can send messages as large as it would fit in your disk.</p>
      <p>You may also choose to read LargeMessages using the regular ByteStream or ByteMessage methods, but using the InputStream and OutputStream will provide you a much better performance</p>
 
      <h2>Example step-by-step</h2>     
      <p><i>To run the example, simply type <code>mvn verify -Pexample</code> from this directory</i></p>
      <p>In this example we limit both the server and the client to be running in a maximum of 50MB of RAM,
      and we send a message with a body of size 256MB.</p>
-     <p>ActiveMQ can support much large message sizes but we
+     <p>ActiveMQ Artemis can support much large message sizes but we
      choose these sizes and limit RAM so the example runs more quickly.</p>
      <p>We create a file on disk representing the message body, create
      a FileInputStream on that file and set that InputStream as the body of the message before sending.</p>

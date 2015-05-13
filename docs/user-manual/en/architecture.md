@@ -57,7 +57,7 @@ The server always just deals with core API interactions.
 
 A schematic illustrating this relationship is shown in figure 3.1 below:
 
-![ActiveMQ architecture1](images/architecture1.jpg)
+![ActiveMQ Artemis architecture1](images/architecture1.jpg)
 
 Figure 3.1 shows two user applications interacting with an Apache ActiveMQ Artemis
 server. User Application 1 is using the JMS API, while User Application
@@ -119,7 +119,7 @@ talking directly to the Apache ActiveMQ Artemis server. This is not recommended 
 you'll most likely end up creating a new connection and session every
 time you want to interact from the EJB, which is an anti-pattern.
 
-![ActiveMQ architecture2](images/architecture2.jpg)
+![ActiveMQ Artemis architecture2](images/architecture2.jpg)
 
 For more information on using the JCA adaptor, please see [Application Server Integration and Java EE](appserver-integration.md).
 
@@ -137,7 +137,7 @@ ConnectionFactory instances from any server side JMS
 configuration. It also provides a simple management API for
 creating and destroying Queues and Topics
 which can be accessed via JMX or the connection. It is a separate
-service to the ActiveMQ core server, since the core server is JMS
+service to the ActiveMQ Artemis core server, since the core server is JMS
 agnostic. If you don't want to deploy any JMS Queue or Topic via
 server side XML configuration and don't require a JMS management
 API on the server side then you can disable this service.
@@ -147,6 +147,6 @@ for bootstrapping the Broker.
 
 The stand-alone server architecture is shown in figure 3.3 below:
 
-![ActiveMQ architecture3](images/architecture3.jpg)
+![ActiveMQ Artemis architecture3](images/architecture3.jpg)
 
 For more information on server configuration files see [Server Configuration](configuration-index.md)

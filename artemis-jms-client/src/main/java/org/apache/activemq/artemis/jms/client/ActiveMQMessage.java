@@ -48,7 +48,7 @@ import org.apache.activemq.artemis.utils.UUID;
 
 
 /**
- * ActiveMQ implementation of a JMS Message.
+ * ActiveMQ Artemis implementation of a JMS Message.
  * <br>
  * JMS Messages only live on the client side - the server only deals with MessageImpl
  * instances
@@ -271,7 +271,7 @@ public class ActiveMQMessage implements javax.jms.Message
       else
       {
          // Some providers, like WSMQ do automatic conversions between native byte[] correlation id
-         // and String correlation id. This makes it impossible for ActiveMQ to guarantee to return the correct
+         // and String correlation id. This makes it impossible for ActiveMQ Artemis to guarantee to return the correct
          // type as set by the user
          // So we allow the behaviour to be overridden by a system property
          // https://jira.jboss.org/jira/browse/HORNETQ-356

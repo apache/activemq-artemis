@@ -1,7 +1,7 @@
 Download
 ========
 
-The official ActiveMQ project page is <http://activemq.org/>.
+The official ActiveMQ Artemis project page is <http://activemq.org/>.
 
 Software Download
 =================
@@ -28,7 +28,7 @@ Project Information
 
 -   Follow us on [twitter](http://twitter.com/activemq)
 
--   ActiveMQ Git repository is <https://github.com/activemq/activemq>
+-   ActiveMQ Artemis Git repository is <https://github.com/activemq/activemq>
 
 -   All release tags are available from
     <https://github.com/activemq/activemq/tags>

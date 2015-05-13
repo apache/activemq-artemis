@@ -41,7 +41,7 @@ import org.proton.plug.AMQPServerConnectionContext;
 import org.proton.plug.context.server.ProtonServerConnectionContextFactory;
 
 /**
- * A proton protocol manager, basically reads the Proton Input and maps proton resources to ActiveMQ resources
+ * A proton protocol manager, basically reads the Proton Input and maps proton resources to ActiveMQ Artemis resources
  */
 public class ProtonProtocolManager implements ProtocolManager<Interceptor>, NotificationListener
 {

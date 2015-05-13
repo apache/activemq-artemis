@@ -38,7 +38,7 @@ under the License.
       <paging-directory>${data.dir}/server0/data/messaging/paging</paging-directory>
 
 
-      <!-- true to expose ActiveMQ resources through JMX -->
+      <!-- true to expose ActiveMQ Artemis resources through JMX -->
       <jmx-management-enabled>true</jmx-management-enabled>
 
       <!-- Acceptors -->

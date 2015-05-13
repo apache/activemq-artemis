@@ -113,7 +113,7 @@ connector(s)* for the underlying connection.
 
 The `udp` scheme is also supported which should use an host:port
 combination that matches the `group-address` and `group-port` from the
-corresponding `broadcast-group` configured on the ActiveMQ server(s).
+corresponding `broadcast-group` configured on the ActiveMQ Artemis server(s).
 
 Each scheme has a specific set of properties which can be set using the
 traditional URL query string format (e.g.

@@ -21,7 +21,7 @@ import org.jgroups.JChannel;
 import java.net.URL;
 
 /**
- * This class is the implementation of ActiveMQ members discovery that will use JGroups.
+ * This class is the implementation of ActiveMQ Artemis members discovery that will use JGroups.
  */
 public final class JGroupsFileBroadcastEndpoint extends JGroupsBroadcastEndpoint
 {

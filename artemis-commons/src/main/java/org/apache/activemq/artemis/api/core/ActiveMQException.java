@@ -17,7 +17,7 @@
 package org.apache.activemq.artemis.api.core;
 
 /**
- * ActiveMQException is the root exception for the ActiveMQ API.
+ * ActiveMQException is the root exception for the ActiveMQ Artemis API.
  */
 public class ActiveMQException extends Exception
 {

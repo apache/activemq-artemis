@@ -31,7 +31,7 @@ import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.uri.ConnectionFactoryParser;
 
 /**
- * A factory of the ActiveMQ InitialContext which contains
+ * A factory of the ActiveMQ Artemis InitialContext which contains
  * {@link javax.jms.ConnectionFactory} instances as well as a child context called
  * <i>destinations</i> which contain all of the current active destinations, in
  * child context depending on the QoS such as transient or durable and queue or

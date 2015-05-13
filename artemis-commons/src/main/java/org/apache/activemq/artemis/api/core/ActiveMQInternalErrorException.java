@@ -17,7 +17,7 @@
 package org.apache.activemq.artemis.api.core;
 
 /**
- * Internal error which prevented ActiveMQ from performing an important operation.
+ * Internal error which prevented ActiveMQ Artemis from performing an important operation.
  */
 public final class ActiveMQInternalErrorException extends ActiveMQException
 {

@@ -87,7 +87,7 @@ public class SubscriptionInfo
    // Public --------------------------------------------------------
 
    /**
-    * Returns the name of the ActiveMQ core queue corresponding to this subscription.
+    * Returns the name of the ActiveMQ Artemis core queue corresponding to this subscription.
     */
    public String getQueueName()
    {

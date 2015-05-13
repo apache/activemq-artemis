@@ -30,7 +30,7 @@ import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 
 /**
- * ActiveMQ implementation of a JMS QueueBrowser.
+ * ActiveMQ Artemis implementation of a JMS QueueBrowser.
  */
 public final class ActiveMQQueueBrowser implements QueueBrowser
 {

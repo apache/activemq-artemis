@@ -28,7 +28,7 @@ import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 
 /**
- * This class is the implementation of ActiveMQ members discovery that will use JGroups.
+ * This class is the implementation of ActiveMQ Artemis members discovery that will use JGroups.
  */
 public abstract class JGroupsBroadcastEndpoint implements BroadcastEndpoint
 {

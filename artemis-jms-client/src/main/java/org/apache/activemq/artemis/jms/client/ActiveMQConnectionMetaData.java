@@ -25,7 +25,7 @@ import javax.jms.JMSException;
 import org.apache.activemq.artemis.core.version.Version;
 
 /**
- * ActiveMQ implementation of a JMS ConnectionMetaData.
+ * ActiveMQ Artemis implementation of a JMS ConnectionMetaData.
  */
 public class ActiveMQConnectionMetaData implements ConnectionMetaData
 {

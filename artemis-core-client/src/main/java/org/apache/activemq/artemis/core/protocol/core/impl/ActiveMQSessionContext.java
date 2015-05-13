@@ -384,7 +384,7 @@ public class ActiveMQSessionContext extends SessionContext
    }
 
    /**
-    * ActiveMQ does support large messages
+    * ActiveMQ Artemis does support large messages
     *
     * @return
     */
@@ -750,7 +750,7 @@ public class ActiveMQSessionContext extends SessionContext
 
 
    /**
-    * This doesn't apply to other protocols probably, so it will be an ActiveMQ exclusive feature
+    * This doesn't apply to other protocols probably, so it will be an ActiveMQ Artemis exclusive feature
     *
     * @throws ActiveMQException
     */

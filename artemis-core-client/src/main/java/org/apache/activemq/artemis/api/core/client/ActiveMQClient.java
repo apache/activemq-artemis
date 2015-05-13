@@ -26,7 +26,7 @@ import org.apache.activemq.artemis.uri.ServerLocatorParser;
 import java.net.URI;
 
 /**
- * Utility class for creating ActiveMQ {@link ClientSessionFactory} objects.
+ * Utility class for creating ActiveMQ Artemis {@link ClientSessionFactory} objects.
  * <p>
  * Once a {@link ClientSessionFactory} has been created, it can be further configured using its
  * setter methods before creating the sessions. Once a session is created, the factory can no longer

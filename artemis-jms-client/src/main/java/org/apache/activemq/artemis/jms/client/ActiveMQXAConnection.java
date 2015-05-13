@@ -27,7 +27,7 @@ import javax.jms.XATopicSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 
 /**
- * ActiveMQ implementation of a JMS XAConnection.
+ * ActiveMQ Artemis implementation of a JMS XAConnection.
  * <p>
  * The flat implementation of {@link XATopicConnection} and {@link XAQueueConnection} is per design,
  * following common practices of JMS 1.1.

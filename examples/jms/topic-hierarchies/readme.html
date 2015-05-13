@@ -19,7 +19,7 @@ under the License.
 
 <html>
   <head>
-    <title>ActiveMQ Topic Hierarchy Example</title>
+    <title>ActiveMQ Artemis Topic Hierarchy Example</title>
     <link rel="stylesheet" type="text/css" href="../common/common.css" />
     <link rel="stylesheet" type="text/css" href="../common/prettify.css" />
     <script type="text/javascript" src="../common/prettify.js"></script>
@@ -27,9 +27,9 @@ under the License.
   <body onload="prettyPrint()">
      <h1>Topic Hierarchy Example</h1>
 
-     <p>ActiveMQ supports topic hierarchies. With a topic hierarchy you can register a subscriber with a wild-card
+     <p>ActiveMQ Artemis supports topic hierarchies. With a topic hierarchy you can register a subscriber with a wild-card
      and that subscriber will receive any messages routed to an address that match the wildcard.</p>
-     <p>ActiveMQ wild-cards can use the character '#' which means "match any number of words", and
+     <p>ActiveMQ Artemis wild-cards can use the character '#' which means "match any number of words", and
      the character '*' which means "match a single word". Words are delimited by the character "."</p>
      <p>For example if I subscribe using the wild-card "news.europe.#", then that would match messages sent to the addresses
      "news.europe", "news.europe.sport" and "news.europe.entertainment", but it does not match messages sent to the

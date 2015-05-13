@@ -38,7 +38,7 @@ import org.apache.activemq.artemis.utils.UUID;
 /**
  * A concrete implementation of a message
  * <p>
- * All messages handled by ActiveMQ core are of this type
+ * All messages handled by ActiveMQ Artemis core are of this type
  */
 public abstract class MessageImpl implements MessageInternal
 {

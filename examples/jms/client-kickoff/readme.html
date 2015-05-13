@@ -19,7 +19,7 @@ under the License.
 
 <html>
   <head>
-    <title>ActiveMQ Client Kickoff Example</title>
+    <title>ActiveMQ Artemis Client Kickoff Example</title>
     <link rel="stylesheet" type="text/css" href="../common/common.css" />
     <link rel="stylesheet" type="text/css" href="../common/prettify.css" />
     <script type="text/javascript" src="../common/prettify.js"></script>
@@ -30,13 +30,13 @@ under the License.
      <p>This example shows how to kick off a client connected to ActiveMQ
          using <a href="http://java.sun.com/javase/technologies/core/mntr-mgmt/javamanagement/">JMX</a></p>
 
-     <p>The example will connect to ActiveMQ. Using JMX, we will list the remote addresses connected to the
-         server and close the corresponding connections. The client will be kicked off from ActiveMQ receiving
+     <p>The example will connect to ActiveMQ Artemis. Using JMX, we will list the remote addresses connected to the
+         server and close the corresponding connections. The client will be kicked off from ActiveMQ Artemis receiving
          an exception that its JMS connection was interrupted.</p>
 
      <h2>Example configuration</h2>
 
-     <p>ActiveMQ exposes its managed resources by default on the platform MBeanServer.</p>
+     <p>ActiveMQ Artemis exposes its managed resources by default on the platform MBeanServer.</p>
      <p>To access this MBeanServer remotely, the Java Virtual machine must be started with system properties:
          <pre class="prettyprint">
              <code>-Dcom.sun.management.jmxremote
@@ -46,7 +46,7 @@ under the License.
         </pre>
         <p>These properties are explained in the Java 5 <a href="http://java.sun.com/j2se/1.5.0/docs/guide/management/agent.html#remote">Management guide</a>
             (please note that for this example, we will disable user authentication for simplicity).</p>
-        <p>With these properties, ActiveMQ server will be manageable remotely using standard JMX URL on port <code>3000</code>.</p>
+        <p>With these properties, ActiveMQ Artemis server will be manageable remotely using standard JMX URL on port <code>3000</code>.</p>
      </p>
 
      <h2>Example step-by-step</h2>
@@ -84,7 +84,7 @@ under the License.
             <code>connection.start();</code>
        </pre>
 
-        <li>We create a MBean proxy to the ActiveMQServerControlMBean used to manage ActiveMQ server
+        <li>We create a MBean proxy to the ActiveMQServerControlMBean used to manage ActiveMQ Artemis server
             (see <a href="../jmx/readme.html">JMX example</a> for a complete explanation of the different steps)</li>
         <pre class="prettyprint">
             <code>ObjectName on = ObjectNameBuilder.DEFAULT.getActiveMQServerObjectName();

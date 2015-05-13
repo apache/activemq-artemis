@@ -1,20 +1,20 @@
 Installation
 ============
 
-This section describes how to install ActiveMQ.
+This section describes how to install ActiveMQ Artemis.
 
 Prerequisites
 =============
 
 > **Note**
 >
-> ActiveMQ only runs on Java 7 or later.
+> ActiveMQ Artemis only runs on Java 7 or later.
 
-By default, ActiveMQ server runs with 1GiB of memory. If your computer
+By default, ActiveMQ Artemis server runs with 1GiB of memory. If your computer
 has less memory, or you want to run it with more available RAM, modify
 the value in `bin/run.sh` accordingly.
 
-For persistence, ActiveMQ uses its own fast journal, which you can
+For persistence, ActiveMQ Artemis uses its own fast journal, which you can
 configure to use libaio (which is the default when running on Linux) or
 Java NIO. In order to use the libaio module on Linux, you'll need to
 install libaio, if it's not already installed.
@@ -58,7 +58,7 @@ structure:
              |___ schemas
           
 
--   `bin` -- binaries and scripts needed to run ActiveMQ.
+-   `bin` -- binaries and scripts needed to run ActiveMQ Artemis.
 
 -   `docs` -- guides and javadocs for ActiveMQ
 
@@ -69,5 +69,5 @@ structure:
 
 -   `licenses` -- licenses for ActiveMQ
 
--   `schemas` -- XML Schemas used to validate ActiveMQ configuration
+-   `schemas` -- XML Schemas used to validate ActiveMQ Artemis configuration
     files

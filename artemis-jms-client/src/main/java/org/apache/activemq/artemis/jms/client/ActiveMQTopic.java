@@ -21,7 +21,7 @@ import javax.jms.Topic;
 import org.apache.activemq.artemis.api.core.SimpleString;
 
 /**
- * ActiveMQ implementation of a JMS Topic.
+ * ActiveMQ Artemis implementation of a JMS Topic.
  * <br>
  * This class can be instantiated directly.
  */

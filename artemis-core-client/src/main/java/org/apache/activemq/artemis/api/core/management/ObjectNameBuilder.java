@@ -22,7 +22,7 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 
 /**
- * Helper class to build ObjectNames for ActiveMQ resources.
+ * Helper class to build ObjectNames for ActiveMQ Artemis resources.
  */
 public final class ObjectNameBuilder
 {
@@ -30,7 +30,7 @@ public final class ObjectNameBuilder
    // Constants -----------------------------------------------------
 
    /**
-    * Default JMX domain for ActiveMQ resources.
+    * Default JMX domain for ActiveMQ Artemis resources.
     */
    public static final ObjectNameBuilder DEFAULT = new ObjectNameBuilder(ActiveMQDefaultConfiguration.getDefaultJmxDomain());
 

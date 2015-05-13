@@ -19,7 +19,7 @@ under the License.
 
 <html>
    <head>
-      <title>ActiveMQ Embedded JMS Server Example</title>
+      <title>ActiveMQ Artemis Embedded JMS Server Example</title>
       <link rel="stylesheet" type="text/css" href="../common/common.css" />
       <link rel="stylesheet" type="text/css" href="../common/prettify.css" />
       <script type="text/javascript" src="../common/prettify.js"></script>
@@ -27,15 +27,15 @@ under the License.
    <body onload="prettyPrint()">
       <h1>Embedded JMS Server Example</h1>
       
-      <p>This examples shows how to setup and run an embedded JMS server using ActiveMQ along with ActiveMQ configuration files.</p>
+      <p>This examples shows how to setup and run an embedded JMS server using ActiveMQ Artemis along with ActiveMQ Artemis configuration files.</p>
      
       <h2>Example step-by-step</h2>     
       <p><i>To run the example, simply type <code>mvn verify -Pexample</code> from this directory</i></p>
 
       <ol>
-         <li>Create ActiveMQ core configuration files and make sure they are within your classpath.  By default, ActiveMQ
+         <li>Create ActiveMQ Artemis core configuration files and make sure they are within your classpath.  By default, ActiveMQ
              expects the configuration file name to be "broker.xml".</li>
-         <li>Create an embedded ActiveMQ JMS server</li>
+         <li>Create an embedded ActiveMQ Artemis JMS server</li>
          <pre class="prettyprint">
             <code>EmbeddedJMS jmsServer = new EmbeddedJMS();</code>
          </pre>
@@ -49,7 +49,7 @@ under the License.
             jmsServer.setSecurityManager(new ActiveMQSecurityManagerImpl(securityConfig));</code>
          </pre>
 
-         <li>Start the embedded ActiveMQ JMS server</li>
+         <li>Start the embedded ActiveMQ Artemis JMS server</li>
          <pre class="prettyprint">
             <code>jmsServer.start()</code>
          </pre>

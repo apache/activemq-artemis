@@ -36,7 +36,7 @@ import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
 import org.apache.activemq.artemis.common.example.ActiveMQExample;
 
 /**
- * An example that shows how to kick off a client connected to ActiveMQ by using JMX.
+ * An example that shows how to kick off a client connected to ActiveMQ Artemis by using JMX.
  */
 public class ClientKickoffExample extends ActiveMQExample
 {

@@ -22,7 +22,7 @@ import org.apache.activemq.artemis.api.core.management.Operation;
 import org.apache.activemq.artemis.api.core.management.Parameter;
 
 /**
- * A JMSSserverControl is used to manage ActiveMQ JMS server.
+ * A JMSSserverControl is used to manage ActiveMQ Artemis JMS server.
  */
 public interface JMSServerControl
 {

@@ -346,7 +346,7 @@ If you require the highest performance during normal operation, have
 access to a fast SAN and live with a slightly slower failover (depending
 on amount of data).
 
-![ActiveMQ ha-shared-store.png](images/ha-shared-store.png)
+![ActiveMQ Artemis ha-shared-store.png](images/ha-shared-store.png)
 
 #### Configuration
 
@@ -587,7 +587,7 @@ the above example is configured to use replication, in this case the
 `master` and `slave` configurations must match those for normal
 replication as in the previous chapter. `shared-store` is also supported
 
-![ActiveMQ ha-colocated.png](images/ha-colocated.png)
+![ActiveMQ Artemis ha-colocated.png](images/ha-colocated.png)
 
 #### Configuring Connectors and Acceptors
 
@@ -685,7 +685,7 @@ so server 1 could have messages 1,3,5,7,9 and server 2 would have
 2,4,6,8,10, if server 2 scales down the order in server 1 would be
 1,3,5,7,9,2,4,6,8,10.
 
-![ActiveMQ ha-scaledown.png](images/ha-scaledown.png)
+![ActiveMQ Artemis ha-scaledown.png](images/ha-scaledown.png)
 
 The configuration for a live server to scale down would be something
 like:
@@ -994,7 +994,7 @@ The Apache ActiveMQ Artemis core API also provides a similar feature in the form
 class `org.apache.activemq.artemis.core.client.SessionFailureListener`
 
 Any ExceptionListener or SessionFailureListener instance will always be
-called by ActiveMQ on event of connection failure, **irrespective** of
+called by ActiveMQ Artemis on event of connection failure, **irrespective** of
 whether the connection was successfully failed over, reconnected or
 reattached, however you can find out if reconnect or reattach has
 happened by either the `failedOver` flag passed in on the

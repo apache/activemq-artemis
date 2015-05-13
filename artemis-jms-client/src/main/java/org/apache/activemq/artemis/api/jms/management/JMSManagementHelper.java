@@ -23,7 +23,7 @@ import org.apache.activemq.artemis.api.core.management.ManagementHelper;
 import org.apache.activemq.artemis.jms.client.ActiveMQMessage;
 
 /**
- * Helper class to use JMS messages to manage ActiveMQ server resources.
+ * Helper class to use JMS messages to manage ActiveMQ Artemis server resources.
  */
 public class JMSManagementHelper
 {

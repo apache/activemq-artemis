@@ -20,7 +20,7 @@ import org.jgroups.JChannel;
 import org.jgroups.conf.PlainConfigurator;
 
 /**
- * This class is the implementation of ActiveMQ members discovery that will use JGroups.
+ * This class is the implementation of ActiveMQ Artemis members discovery that will use JGroups.
  */
 public final class JGroupsPropertiesBroadcastEndpoint extends JGroupsBroadcastEndpoint
 {

@@ -106,7 +106,7 @@ public interface PagingStore extends ActiveMQComponent
     * The file will still exist until Page.delete is called,
     * So, case the system is reloaded the same Page will be loaded back if delete is not called.
     *
-    * @throws Exception Note: This should still be part of the interface, even though ActiveMQ only uses through the
+    * @throws Exception Note: This should still be part of the interface, even though ActiveMQ Artemis only uses through the
     */
    Page depage() throws Exception;
 

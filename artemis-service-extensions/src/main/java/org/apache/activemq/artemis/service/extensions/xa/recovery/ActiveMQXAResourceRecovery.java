@@ -34,13 +34,13 @@ import org.apache.activemq.artemis.api.core.TransportConfiguration;
  *                 value="org.apache.activemq.artemis.jms.server.recovery.ActiveMQXAResourceRecovery;org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory"/&gt;
  * </pre>
  * <p>
- * you'll need something like this if the ActiveMQ Server is remote
+ * you'll need something like this if the ActiveMQ Artemis Server is remote
  * <pre>
  *      &lt;property name="com.arjuna.ats.jta.recovery.XAResourceRecovery.ACTIVEMQ2"
  *                  value="org.apache.activemq.artemis.jms.server.recovery.ActiveMQXAResourceRecovery;org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory,guest,guest,host=localhost,port=61616"/&gt;
  * </pre>
  * <p>
- * you'll need something like this if the ActiveMQ Server is remote and has failover configured
+ * you'll need something like this if the ActiveMQ Artemis Server is remote and has failover configured
  * <pre>
  *             &lt;property name="com.arjuna.ats.jta.recovery.XAResourceRecovery.ACTIVEMQ2"
  *                       value="org.apache.activemq.artemis.jms.server.recovery.ActiveMQXAResourceRecovery;org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory,guest,guest,host=localhost,port=61616;org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory,guest,guest,host=localhost2,port=61617"/&gt;

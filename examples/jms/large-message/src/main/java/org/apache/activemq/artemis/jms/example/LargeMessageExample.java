@@ -36,7 +36,7 @@ import javax.naming.InitialContext;
 import org.apache.activemq.artemis.common.example.ActiveMQExample;
 
 /**
- * This example demonstrates the ability of ActiveMQ to send and consume a very large message, much
+ * This example demonstrates the ability of ActiveMQ Artemis to send and consume a very large message, much
  * bigger than can fit in RAM.
  */
 public class LargeMessageExample extends ActiveMQExample

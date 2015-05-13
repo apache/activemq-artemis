@@ -178,4 +178,4 @@ Some best practices should be followed when using clustered grouping:
 
 ## Clustered Grouping Example
 
-See the [examples](examples.md) chapter for an example of how to configure message groups with a ActiveMQ Cluster.
+See the [examples](examples.md) chapter for an example of how to configure message groups with a ActiveMQ Artemis Cluster.

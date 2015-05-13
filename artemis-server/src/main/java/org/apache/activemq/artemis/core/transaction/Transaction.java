@@ -25,7 +25,7 @@ import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.impl.RefsOperation;
 
 /**
- * A ActiveMQ internal transaction
+ * A ActiveMQ Artemis internal transaction
  */
 public interface Transaction
 {

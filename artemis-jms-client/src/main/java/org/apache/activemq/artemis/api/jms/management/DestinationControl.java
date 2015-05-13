@@ -34,7 +34,7 @@ public interface DestinationControl
    String getName();
 
    /**
-    * Returns the ActiveMQ address corresponding to this destination.
+    * Returns the ActiveMQ Artemis address corresponding to this destination.
     */
    String getAddress();
 

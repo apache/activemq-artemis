@@ -9,7 +9,7 @@ The example is a very simple chat application between two browser windows.
 Step 1:
 $ mvn jetty:run
 
-This will bring up ActiveMQ and the ActiveMQ REST Interface.
+This will bring up ActiveMQ Artemis and the ActiveMQ Artemis REST Interface.
 
 Step 2:
 Bring up two browsers and point them to http://localhost:9095.  In the textbox type a message you want to send.  Click

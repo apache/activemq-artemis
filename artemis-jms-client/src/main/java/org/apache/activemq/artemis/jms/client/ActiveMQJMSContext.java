@@ -43,7 +43,7 @@ import javax.transaction.xa.XAResource;
 import java.io.Serializable;
 
 /**
- * ActiveMQ implementation of a JMSContext.
+ * ActiveMQ Artemis implementation of a JMSContext.
  */
 public class ActiveMQJMSContext implements JMSContext
 {

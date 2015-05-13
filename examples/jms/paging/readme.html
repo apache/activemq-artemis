@@ -19,7 +19,7 @@ under the License.
 
 <html>
   <head>
-    <title>ActiveMQ Paging Example</title>
+    <title>ActiveMQ Artemis Paging Example</title>
     <link rel="stylesheet" type="text/css" href="../common/common.css" />
     <link rel="stylesheet" type="text/css" href="../common/prettify.css" />
     <script type="text/javascript" src="../common/prettify.js"></script>
@@ -27,7 +27,7 @@ under the License.
   <body onload="prettyPrint()">
      <h1>Paging Example</h1>
 
-     <p>This example shows how ActiveMQ would avoid running out of memory resources by paging messages.</p>
+     <p>This example shows how ActiveMQ Artemis would avoid running out of memory resources by paging messages.</p>
      <p>A maxSize can be specified per Destination via the destinations settings configuration file (broker.xml).</p>
      <p>When messages routed to an address exceed the specified maxSize the server will begin to write messages to the file
      system, this is called paging. This will continue to occur until messages have been delivered to consumers and subsequently
@@ -133,7 +133,7 @@ under the License.
          </pre></code>
          
          
-         <li>Receive the messages. It's important to ACK for messages as ActiveMQ will not read messages from paging until messages are ACKed</li>
+         <li>Receive the messages. It's important to ACK for messages as ActiveMQ Artemis will not read messages from paging until messages are ACKed</li>
          
          <pre class="prettyprint"><code>
          for (int i = 0; i < 30000; i++)

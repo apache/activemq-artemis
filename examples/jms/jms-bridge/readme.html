@@ -19,21 +19,21 @@ under the License.
 
 <html>
   <head>
-    <title>ActiveMQ JMS Bridge Example</title>
+    <title>ActiveMQ Artemis JMS Bridge Example</title>
     <link rel="stylesheet" type="text/css" href="../common/common.css" />
     <link rel="stylesheet" type="text/css" href="../common/prettify.css" />
     <script type="text/javascript" src="../common/prettify.js"></script>
   </head>
   <body onload="prettyPrint()">
      <h1>JMS Bridge Example</h1>
-     <p>This example shows you how to create a JMS Bridge between two ActiveMQ servers.</p>
+     <p>This example shows you how to create a JMS Bridge between two ActiveMQ Artemis servers.</p>
      <img src="jms-bridge.png"  />
-     <p>The example will use two ActiveMQ servers:</p>
+     <p>The example will use two ActiveMQ Artemis servers:</p>
      <ul>
         <li>Server #0 &ndash; the <em>Source</em> server. It will be configured with a JMS Topic bound to JNDI under <code>source/topic</code>
         <li>Server #1 &ndash; the <em>Target</em> server. It will be configured with a JMS Queue bound to JNDI under <code>target/queue</code><br />
      </ul>
-     <p>Both ActiveMQ server will run their own JNDI server used by the JMS Bridge and the JMS Client to lookup JMS
+     <p>Both ActiveMQ Artemis server will run their own JNDI server used by the JMS Bridge and the JMS Client to lookup JMS
         resources (ConnectionFactory and Destination).</p>
      <p>The JMS Bridge will be started in the example code and be configured to bridge messages from the <em>source</em> destination
      (the topic hosted on server #0) and the <em>target</em> destination (the queue hosted on server #1)</p>
@@ -46,7 +46,7 @@ under the License.
      <h3>JMS Bridge Configuration</h3>
      <p>The JMS Bridge is a <abbr title="Plain Old Java Object">POJO</abbr> that we configure with both source and target
         JNDI configurations. In the actual example we are programatically creating the Bridge, however the following section
-        describes how you would do this if you wanted to deploy with an actual ActiveMQ server via the activemq-beans.xml.
+        describes how you would do this if you wanted to deploy with an actual ActiveMQ Artemis server via the activemq-beans.xml.
 
      <h4>Configuring the Bridge with the JBoss Microcontainer</h4>
      <p>
@@ -107,7 +107,7 @@ under the License.
        &lt;/bean>
       </pre>
      <h2>Example step-by-step</h2>
-     <p>To run the example after having setup both ActiveMQ servers and the JMS bridge:</p>
+     <p>To run the example after having setup both ActiveMQ Artemis servers and the JMS bridge:</p>
      <ol>
         <li>To run the example simply run <code>mvn verify -Pexample</code></li>
      </ol>

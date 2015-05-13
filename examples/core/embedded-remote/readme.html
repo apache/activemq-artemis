@@ -19,20 +19,20 @@ under the License.
 
 <html>
   <head>
-    <title>ActiveMQ Embedded Example</title>
+    <title>ActiveMQ Artemis Embedded Example</title>
     <link rel="stylesheet" type="text/css" href="../../common/common.css" />
     <link rel="stylesheet" type="text/css" href="../../common/prettify.css" />
     <script type="text/javascript" src="../../common/prettify.js"></script>
   </head>
   <body onload="prettyPrint()">
      <h1>Embedded Example</h1>
-     <p>This example shows how to setup and run ActiveMQ embedded with remote clients connecting.</p>
-     <p>ActiveMQ was designed to use POJOs (Plain Old Java Objects), what makes embedding ActiveMQ as simple as instantiating a few objects.</p>
+     <p>This example shows how to setup and run ActiveMQ Artemis embedded with remote clients connecting.</p>
+     <p>ActiveMQ Artemis was designed to use POJOs (Plain Old Java Objects), what makes embedding ActiveMQ Artemis as simple as instantiating a few objects.</p>
 
-     <p>ActiveMQ Embedded could be used from very simple use cases with only InVM support to very complex cases with clustering, persistence and fail over.</p>
+     <p>ActiveMQ Artemis Embedded could be used from very simple use cases with only InVM support to very complex cases with clustering, persistence and fail over.</p>
 
 
-     <h2>Example step-by-step</h2>     
+     <h2>Example step-by-step</h2>
      <p><i>To run the example, simply type <code>mvn verify -Pserver</code> from this directory to start the server and <code>mvn verify -Pclient</code> to run the client example</i></p>
      <p>In this we don't use any configuration files. (Everything is embedded). We simply instantiate ConfigurationImpl, ActiveMQServer, start it and operate on JMS regularly</p>
      <br/>
@@ -43,7 +43,7 @@ under the License.
            configuration.setEnablePersistence(false);
            configuration.setSecurityEnabled(false);
         </pre>
-         
+
         <li>On EmbeddedServer: Create and start the server</li>
         <pre class="prettyprint">
            ActiveMQServer server = ActiveMQ.newActiveMQServer(configuration);
@@ -67,7 +67,7 @@ under the License.
         <li>Create the session and producer</li>
         <pre class="prettyprint">
            session = sf.createSession();
-                                   
+
            ClientProducer producer = session.createProducer(queueName);
         </pre>
 

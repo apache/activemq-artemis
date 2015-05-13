@@ -32,7 +32,7 @@ import org.apache.activemq.artemis.jms.referenceable.DestinationObjectFactory;
 import org.apache.activemq.artemis.jms.referenceable.SerializableObjectRefAddr;
 
 /**
- * ActiveMQ implementation of a JMS Destination.
+ * ActiveMQ Artemis implementation of a JMS Destination.
  */
 public class ActiveMQDestination implements Destination, Serializable, Referenceable
 {

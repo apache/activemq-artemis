@@ -26,7 +26,7 @@ import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.proton.plug.AMQPConnectionContext;
 
 /**
- * This is a Server's Connection representation used by ActiveMQ.
+ * This is a Server's Connection representation used by ActiveMQ Artemis.
  */
 public class ActiveMQProtonRemotingConnection extends AbstractRemotingConnection
 {

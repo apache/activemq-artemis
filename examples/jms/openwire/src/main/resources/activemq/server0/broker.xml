@@ -49,7 +49,7 @@ under the License.
       <!-- Other config -->
 
       <security-settings>
-         <security-setting match="jms.topic.ActiveMQ.Advisory.#">
+         <security-setting match="jms.topic.ActiveMQ Artemis.Advisory.#">
             <permission type="createNonDurableQueue" roles="guest"/>
             <permission type="consume" roles="guest"/>
             <permission type="send" roles="guest"/>

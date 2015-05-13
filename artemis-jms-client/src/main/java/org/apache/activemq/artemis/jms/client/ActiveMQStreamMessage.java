@@ -42,7 +42,7 @@ import static org.apache.activemq.artemis.reader.StreamMessageUtil.streamReadSho
 import static org.apache.activemq.artemis.reader.StreamMessageUtil.streamReadString;
 
 /**
- * ActiveMQ implementation of a JMS StreamMessage.
+ * ActiveMQ Artemis implementation of a JMS StreamMessage.
  */
 public final class ActiveMQStreamMessage extends ActiveMQMessage implements StreamMessage
 {

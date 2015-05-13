@@ -31,7 +31,7 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.settings.impl.ResourceLimitSettings;
 
 /**
- * A Configuration is used to configure ActiveMQ servers.
+ * A Configuration is used to configure ActiveMQ Artemis servers.
  */
 public interface Configuration
 {
@@ -187,7 +187,7 @@ public interface Configuration
    /**
     * Sets the domain used by JMX MBeans (provided JMX management is enabled).
     * <p/>
-    * Changing this JMX domain is required if multiple ActiveMQ servers are run inside
+    * Changing this JMX domain is required if multiple ActiveMQ Artemis servers are run inside
     * the same JVM and all servers are using the same MBeanServer.
     */
    Configuration setJMXDomain(String domain);
@@ -837,14 +837,14 @@ public interface Configuration
    boolean isMaskPassword();
 
    /*
-   * Whether or not that ActiveMQ should use all protocols available on the classpath. If false only the core protocol will
+   * Whether or not that ActiveMQ Artemis should use all protocols available on the classpath. If false only the core protocol will
    * be set, any other protocols will need to be set directly on the ActiveMQServer
    * */
    Configuration setResolveProtocols(boolean resolveProtocols);
 
    /*
    * @see #setResolveProtocols()
-   * @return whether ActiveMQ should resolve and use any Protocols available on the classpath
+   * @return whether ActiveMQ Artemis should resolve and use any Protocols available on the classpath
    * Default value is {@value org.apache.activemq.artemis.api.config.org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration#DEFAULT_RESOLVE_PROTOCOLS}.
    * */
    boolean isResolveProtocols();

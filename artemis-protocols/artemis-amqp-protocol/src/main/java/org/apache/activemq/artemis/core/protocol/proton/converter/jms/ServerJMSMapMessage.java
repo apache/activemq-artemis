@@ -34,7 +34,7 @@ import static org.apache.activemq.artemis.reader.MapMessageUtil.readBodyMap;
 import static org.apache.activemq.artemis.reader.MapMessageUtil.writeBodyMap;
 
 /**
- * ActiveMQ implementation of a JMS MapMessage.
+ * ActiveMQ Artemis implementation of a JMS MapMessage.
  */
 public final class ServerJMSMapMessage extends ServerJMSMessage implements MapMessage
 {

@@ -8,8 +8,8 @@
            http://java.sun.com/xml/ns/j2ee/connector_1_5.xsd"
            version="1.5">
 
-   <description>ActiveMQ 2.0 Resource Adapter</description>
-   <display-name>ActiveMQ 2.0 Resource Adapter</display-name>
+   <description>ActiveMQ Artemis 2.0 Resource Adapter</description>
+   <display-name>ActiveMQ Artemis 2.0 Resource Adapter</display-name>
 
    <vendor-name>Red Hat Middleware LLC</vendor-name>
    <eis-type>JMS 1.1 Server</eis-type>

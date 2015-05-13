@@ -19,7 +19,7 @@ under the License.
 
 <html>
    <head>
-      <title>ActiveMQ Embedded JMS Server Example</title>
+      <title>ActiveMQ Artemis Embedded JMS Server Example</title>
       <link rel="stylesheet" type="text/css" href="../common/common.css" />
       <link rel="stylesheet" type="text/css" href="../common/prettify.css" />
       <script type="text/javascript" src="../common/prettify.js"></script>
@@ -27,8 +27,8 @@ under the License.
    <body onload="prettyPrint()">
       <h1>Embedded JMS Server Example</h1>
       
-      <p>This examples shows how to setup and run an embedded JMS server using ActiveMQ.</p>
-      <p>ActiveMQ was designed using POJOs (Plain Old Java Objects) which means embedding ActiveMQ in your own application
+      <p>This examples shows how to setup and run an embedded JMS server using ActiveMQ Artemis.</p>
+      <p>ActiveMQ Artemis was designed using POJOs (Plain Old Java Objects) which means embedding ActiveMQ Artemis in your own application
           is as simple as instantiating a few objects.</p>
       <p>This example does not use any configuration files. The server is configured using POJOs and can be easily ported to any dependency injection framework.<br /> 
          We will setup and run a full-fledged JMS server which binds its JMS resources to JNDI and can be accessed by remote clients.</p>
@@ -37,7 +37,7 @@ under the License.
       <p><i>To run the example, simply type <code>mvn verify -Pexample</code> from this directory</i></p>
 
       <ol>
-         <li>Create ActiveMQ core configuration, and set the properties accordingly</li>
+         <li>Create ActiveMQ Artemis core configuration, and set the properties accordingly</li>
          <pre class="prettyprint">
             <code>Configuration configuration = new ConfigurationImpl();
             configuration.setPersistenceEnabled(false);
@@ -45,9 +45,9 @@ under the License.
             configuration.getAcceptorConfigurations().add(new TransportConfiguration(NettyAcceptorFactory.class.getName()));</code>
             Configuration configuration = new ConfigurationImpl();</pre>
 
-         <li>Create the ActiveMQ core server</li>
+         <li>Create the ActiveMQ Artemis core server</li>
          <pre class="prettyprint">
-            <code>ActiveMQServer activemqServer = ActiveMQ.newActiveMQServer(configuration);</code>
+            <code>ActiveMQServer activemqServer = ActiveMQ Artemis.newActiveMQServer(configuration);</code>
          </pre>
 
          <li>Create the JMS configuration</li>
@@ -68,7 +68,7 @@ under the License.
             jmsConfig.getQueueConfigurations().add(queueConfig);</code>
          </pre>
      
-         <li>Start the JMS Server using the ActiveMQ core server and the JMS configuration</li>
+         <li>Start the JMS Server using the ActiveMQ Artemis core server and the JMS configuration</li>
          <pre class="prettyprint">
             <code>JMSServerManager jmsServer = new JMSServerManagerImpl(activemqServer, jmsConfig);
             jmsServer.start();</code>

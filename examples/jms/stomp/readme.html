@@ -19,7 +19,7 @@ under the License.
 
 <html>
   <head>
-    <title>ActiveMQ Stomp Example</title>
+    <title>ActiveMQ Artemis Stomp Example</title>
     <link rel="stylesheet" type="text/css" href="../common/common.css" />
     <link rel="stylesheet" type="text/css" href="../common/prettify.css" />
     <script type="text/javascript" src="../common/prettify.js"></script>
@@ -27,8 +27,8 @@ under the License.
   <body onload="prettyPrint()">
      <h1>Stomp Example</h1>
 
-     <p>This example shows you how to configure ActiveMQ to send and receive Stomp messages.</p>
-     <p>The example will start a ActiveMQ server configured with Stomp and JMS.</p>
+     <p>This example shows you how to configure ActiveMQ Artemis to send and receive Stomp messages.</p>
+     <p>The example will start a ActiveMQ Artemis server configured with Stomp and JMS.</p>
      <p>The client will open a socket to send one Stomp message (using TCP directly). 
        The client will then consume a message from a JMS Queue and check it is the message sent with Stomp.</p>
 
@@ -53,7 +53,7 @@ under the License.
         </pre>
 
         <li>We send a SEND frame (a Stomp message) to the destination <code>jms.queue.exampleQueue</code> 
-          (which corresponds to the ActiveMQ address for the JMS Queue <code>exampleQueue</code>) with a text body</li>
+          (which corresponds to the ActiveMQ Artemis address for the JMS Queue <code>exampleQueue</code>) with a text body</li>
         <pre class="prettyprint">
           String text = "Hello, world from Stomp!";
           String message = "SEND\n" + 

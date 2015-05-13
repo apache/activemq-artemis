@@ -85,7 +85,7 @@ public class ProtonServerSenderContext extends AbstractProtonContextSender imple
    }
 
    /**
-    * create the actual underlying ActiveMQ Server Consumer
+    * create the actual underlying ActiveMQ Artemis Server Consumer
     */
    @Override
    public void initialise() throws Exception
@@ -252,7 +252,7 @@ public class ProtonServerSenderContext extends AbstractProtonContextSender imple
 
 
    /**
-    * handle an out going message from ActiveMQ, send via the Proton Sender
+    * handle an out going message from ActiveMQ Artemis, send via the Proton Sender
     */
    public int deliverMessage(Object message, int deliveryCount) throws Exception
    {

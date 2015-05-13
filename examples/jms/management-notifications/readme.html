@@ -19,15 +19,15 @@ under the License.
 
 <html>
   <head>
-    <title>ActiveMQ Management Notification Example</title>
+    <title>ActiveMQ Artemis Management Notification Example</title>
     <link rel="stylesheet" type="text/css" href="../common/common.css" />
     <link rel="stylesheet" type="text/css" href="../common/prettify.css" />
     <script type="text/javascript" src="../common/prettify.js"></script>
   </head>
   <body onload="prettyPrint()">
      <h1>Management Notification Example</h1>
-     <p>This example shows how to receive management notifications from ActiveMQ using JMS Messages.</p>
-     <p>ActiveMQ servers emit management notifications when events of interest occur (consumers are created or closed,
+     <p>This example shows how to receive management notifications from ActiveMQ Artemis using JMS Messages.</p>
+     <p>ActiveMQ Artemis servers emit management notifications when events of interest occur (consumers are created or closed,
          destinations are created or deleted, security authentication fails, etc.).<br />
          These notifications can be received either by using JMX (see <a href="../jmx/readme.html">JMX example</a>) or by receiving JMS Messages
          from a well-known destination.</p>
@@ -36,7 +36,7 @@ under the License.
      
      <h2>Example configuration</h2>
 
-     <p>ActiveMQ can configured to send JMS messages when management notifications are emitted on the server.</p>
+     <p>ActiveMQ Artemis can configured to send JMS messages when management notifications are emitted on the server.</p>
      <p>By default, the management name is called <code>activemq.notifications</code> but this can be configured in <a href="server0/broker.xml">broker.xml</a>.
         For this example, we will set it to <code>jms.topic.notificationsTopic</code> to be able to receive notifications from a JMS Topic.</p>
       <pre class="prettyprint">
@@ -184,7 +184,7 @@ under the License.
             ------------------------
             </code>
         </pre>
-        <p>The notification tells us that a user named <code>not.a.valid.user</code> failed to authenticate when creating a connection to ActiveMQ.</p>
+        <p>The notification tells us that a user named <code>not.a.valid.user</code> failed to authenticate when creating a connection to ActiveMQ Artemis.</p>
         
         <li>And finally, <b>always</b> remember to close your JMS connections and resources after use, in a <code>finally</code> block. Closing a JMS connection will automatically close all of its sessions, consumers, producer and browser objects</li>
 

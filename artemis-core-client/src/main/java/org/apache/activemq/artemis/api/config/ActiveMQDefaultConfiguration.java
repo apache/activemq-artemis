@@ -20,7 +20,7 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.journal.impl.JournalConstants;
 
 /**
- * Default values of ActiveMQ configuration parameters.
+ * Default values of ActiveMQ Artemis configuration parameters.
  */
 public final class ActiveMQDefaultConfiguration
 {
@@ -135,7 +135,7 @@ public final class ActiveMQDefaultConfiguration
    // Following fields are generated from the activemq-schema.xsd annotations
    // -------------------------------------------------------------------
 
-   // If true then the ActiveMQ Server will make use of any Protocol Managers that are in available on the classpath. If false then only the core protocol will be available, unless in Embedded mode where users can inject their own Protocol Managers.
+   // If true then the ActiveMQ Artemis Server will make use of any Protocol Managers that are in available on the classpath. If false then only the core protocol will be available, unless in Embedded mode where users can inject their own Protocol Managers.
    private static boolean DEFAULT_RESOLVE_PROTOCOLS = true;
 
    // true means that the server will load configuration from the configuration files
@@ -407,7 +407,7 @@ public final class ActiveMQDefaultConfiguration
 
 
    /**
-    * If true then the ActiveMQ Server will make use of any Protocol Managers that are in available on the classpath. If false then only the core protocol will be available, unless in Embedded mode where users can inject their own Protocol Managers.
+    * If true then the ActiveMQ Artemis Server will make use of any Protocol Managers that are in available on the classpath. If false then only the core protocol will be available, unless in Embedded mode where users can inject their own Protocol Managers.
     */
    public static boolean isDefaultResolveProtocols()
    {
@@ -543,7 +543,7 @@ public final class ActiveMQDefaultConfiguration
    }
 
    /**
-    * the JMX domain used to registered ActiveMQ MBeans in the MBeanServer
+    * the JMX domain used to registered ActiveMQ Artemis MBeans in the MBeanServer
     */
    public static String getDefaultJmxDomain()
    {

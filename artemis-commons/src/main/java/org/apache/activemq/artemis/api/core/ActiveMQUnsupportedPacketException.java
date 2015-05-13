@@ -17,7 +17,7 @@
 package org.apache.activemq.artemis.api.core;
 
 /**
- * A packet of unsupported type was received by ActiveMQ PacketHandler.
+ * A packet of unsupported type was received by ActiveMQ Artemis PacketHandler.
  */
 public final class ActiveMQUnsupportedPacketException extends ActiveMQException
 {

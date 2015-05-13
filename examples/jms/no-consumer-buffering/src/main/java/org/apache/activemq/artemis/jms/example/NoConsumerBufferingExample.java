@@ -28,7 +28,7 @@ import javax.naming.InitialContext;
 import org.apache.activemq.artemis.common.example.ActiveMQExample;
 
 /**
- * This example demonstrates how ActiveMQ consumers can be configured to not buffer any messages from
+ * This example demonstrates how ActiveMQ Artemis consumers can be configured to not buffer any messages from
  * the server.
  */
 public class NoConsumerBufferingExample extends ActiveMQExample

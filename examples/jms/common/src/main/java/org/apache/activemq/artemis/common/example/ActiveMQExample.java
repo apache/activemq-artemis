@@ -33,7 +33,7 @@ import org.apache.activemq.artemis.jms.client.ActiveMQConnection;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 
 /**
- * Base class for ActiveMQ examples.
+ * Base class for ActiveMQ Artemis examples.
  * <p>
  * This takes care of starting and stopping the server as well as deploying any
  * queue needed.

@@ -524,7 +524,7 @@ To manage several Apache ActiveMQ Artemis servers from the *same* MBeanServer, t
 domain can be configured for each individual Apache ActiveMQ Artemis server by setting
 `jmx-domain` in `broker.xml`:
 
-    <!-- use a specific JMX domain for ActiveMQ MBeans -->
+    <!-- use a specific JMX domain for ActiveMQ Artemis MBeans -->
     <jmx-domain>my.org.apache.activemq</jmx-domain>
 
 #### MBeanServer configuration
@@ -553,7 +553,7 @@ This would give you back something like the following:
 
 ## Using Management Via Core API
 
-The core management API in ActiveMQ is called by sending Core messages
+The core management API in ActiveMQ Artemis is called by sending Core messages
 to a special address, the *management address*.
 
 *Management messages* are regular Core messages with well-known
@@ -643,7 +643,7 @@ configured in broker.xml:
 
 ## Using Management Via JMS
 
-Using JMS messages to manage ActiveMQ is very similar to using core API.
+Using JMS messages to manage ActiveMQ Artemis is very similar to using core API.
 
 An important difference is that JMS requires a JMS queue to send the
 messages to (instead of an address for the core API).
@@ -794,7 +794,7 @@ notificationConsumer.setMessageListener(new MessageListener()
 ```
 ### Example
 
-See the [examples](examples.md) chapter for an example which shows how to use a JMS `MessageListener` to receive management notifications from ActiveMQ server.
+See the [examples](examples.md) chapter for an example which shows how to use a JMS `MessageListener` to receive management notifications from ActiveMQ Artemis server.
 
 ### Notification Types and Headers
 

@@ -19,14 +19,14 @@ under the License.
 
 <html>
   <head>
-    <title>ActiveMQ JMS XA Heuristic Example</title>
+    <title>ActiveMQ Artemis JMS XA Heuristic Example</title>
     <link rel="stylesheet" type="text/css" href="../common/common.css" />
     <link rel="stylesheet" type="text/css" href="../common/prettify.css" />
     <script type="text/javascript" src="../common/prettify.js"></script>
   </head>
   <body onload="prettyPrint()">
      <h1>JMS XA Heuristic Example</h1>
-     <p>This example shows you how to make an XA heuristic decision through the ActiveMQ Management Interface.</p>
+     <p>This example shows you how to make an XA heuristic decision through the ActiveMQ Artemis Management Interface.</p>
      
      <p>A heuristic decision is a unilateral decision to commit or rollback an XA transaction branch after it has 
      been prepared. </p>
@@ -39,7 +39,7 @@ under the License.
      Then we get the MBeanServerConnection object to manipulate the prepared transactions. To illustrate, we roll back the first 
      transaction but commit the second. This will result in that only the message 'world' is received. </p>
 
-     <p>This example uses JMX to manipulate transactions in a ActiveMQ Server. For details on JMX facilities with ActiveMQ,
+     <p>This example uses JMX to manipulate transactions in a ActiveMQ Artemis Server. For details on JMX facilities with ActiveMQ Artemis,
      please look at the JMX Example.</p>
      
      <h2>Example step-by-step</h2>

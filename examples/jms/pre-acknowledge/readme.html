@@ -19,7 +19,7 @@ under the License.
 
 <html>
   <head>
-    <title>ActiveMQ JMS Pre-Acknowledge Example</title>
+    <title>ActiveMQ Artemis JMS Pre-Acknowledge Example</title>
     <link rel="stylesheet" type="text/css" href="../common/common.css" />
     <link rel="stylesheet" type="text/css" href="../common/prettify.css" />
     <script type="text/javascript" src="../common/prettify.js"></script>
@@ -42,8 +42,8 @@ under the License.
      <p>An example of a use-case where it might be a good idea to use pre-acknowledge, is for stock price update
      messages. With these messages it might be ok to lose a message in event of crash, since the next price
      update message will arrive soon, overriding the previous price.</p>
-     <p>In order to use pre-acknowledge functionality with ActiveMQ the session has to be created with
-     a special, ActiveMQ specific acknowledgement mode, given by the value of
+     <p>In order to use pre-acknowledge functionality with ActiveMQ Artemis the session has to be created with
+     a special, ActiveMQ Artemis specific acknowledgement mode, given by the value of
      <code>ActiveMQJMSConstants.PRE_ACKNOWLEDGE</code>.     
      <h2>Example step-by-step</h2>
      <p><i>To run the example, simply type <code>mvn verify -Pexample</code> from this directory</i></p>

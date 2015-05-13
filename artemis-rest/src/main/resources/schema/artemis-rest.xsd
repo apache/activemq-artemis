@@ -24,8 +24,8 @@
                 <xsd:element name="server-in-vm-id" type="xsd:string" minOccurs="0" maxOccurs="1">
                     <xsd:annotation>
                         <xsd:documentation>
-                            The ActiveMQ REST implementation uses the IN-VM transport to communicate
-                            with ActiveMQ. It uses the default server id, which is "0".
+                            The ActiveMQ Artemis REST implementation uses the IN-VM transport to communicate
+                            with ActiveMQ Artemis. It uses the default server id, which is "0".
                         </xsd:documentation>
                     </xsd:annotation>
                 </xsd:element>
@@ -33,7 +33,7 @@
                     <xsd:annotation>
                         <xsd:documentation>
                             By default, all links (URLs) are published using custom headers.
-                            You can instead have the ActiveMQ REST implementation publish links
+                            You can instead have the ActiveMQ Artemis REST implementation publish links
                             using the Link Header specification instead if you desire.
                         </xsd:documentation>
                     </xsd:annotation>
@@ -73,7 +73,7 @@
                 <xsd:element name="producer-session-pool-size" type="xsd:int" minOccurs="0" maxOccurs="1">
                     <xsd:annotation>
                         <xsd:documentation>
-                            The REST implementation pools ActiveMQ sessions for sending messages.
+                            The REST implementation pools ActiveMQ Artemis sessions for sending messages.
                             This is the size of the pool. That number of sessions will be created
                             at startup time.
                         </xsd:documentation>
@@ -106,8 +106,8 @@
                 <xsd:element name="consumer-window-size" type="xsd:int" minOccurs="0" maxOccurs="1">
                     <xsd:annotation>
                         <xsd:documentation>
-                            For consumers, this config option is the same as the ActiveMQ one of the
-                            same name. It will be used by sessions created by the ActiveMQ REST
+                            For consumers, this config option is the same as the ActiveMQ Artemis one of the
+                            same name. It will be used by sessions created by the ActiveMQ Artemis REST
                             implementation.
                         </xsd:documentation>
                     </xsd:annotation>

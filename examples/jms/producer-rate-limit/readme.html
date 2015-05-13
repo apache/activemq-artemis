@@ -19,7 +19,7 @@ under the License.
 
 <html>
   <head>
-    <title>ActiveMQ JMS Message Producer Rate Limiting</title>
+    <title>ActiveMQ Artemis JMS Message Producer Rate Limiting</title>
     <link rel="stylesheet" type="text/css" href="../common/common.css" />
     <link rel="stylesheet" type="text/css" href="../common/prettify.css" />
     <script type="text/javascript" src="../common/prettify.js"></script>
@@ -27,9 +27,9 @@ under the License.
   <body onload="prettyPrint()">
      <h1>JMS Message Producer Rate Limiting</h1>
 
-     <p>With ActiveMQ you can specify a maximum send rate at which a JMS MessageProducer will send messages.
+     <p>With ActiveMQ Artemis you can specify a maximum send rate at which a JMS MessageProducer will send messages.
      This can be specified when creating or deploying the connection factory. See <code>activemq-jms.xml</code></p>
-     <p>If this value is specified then ActiveMQ will ensure that messages are never produced at a rate higher than
+     <p>If this value is specified then ActiveMQ Artemis will ensure that messages are never produced at a rate higher than
      specified. This is a form of producer <i>throttling</i>.</p>     
      <h2>Example step-by-step</h2>
      <p>In this example we specify a <code>producer-max-rate</code> of <code>50</code> messages per second in the <code>activemq-jms.xml</code>

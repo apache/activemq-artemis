@@ -28,7 +28,7 @@ import javax.naming.InitialContext;
 import org.apache.activemq.artemis.common.example.ActiveMQExample;
 
 /**
- * A simple JMS example that shows how to implement and use interceptors with ActiveMQ.
+ * A simple JMS example that shows how to implement and use interceptors with ActiveMQ Artemis.
  */
 public class InterceptorExample extends ActiveMQExample
 {

@@ -55,7 +55,7 @@ public class PersistenceTest extends JMSTestCase
 
          startNoDelete();
 
-         // ActiveMQ server restart implies new ConnectionFactory lookup
+         // ActiveMQ Artemis server restart implies new ConnectionFactory lookup
          deployAndLookupAdministeredObjects();
 
          conn = createConnection();
@@ -146,7 +146,7 @@ public class PersistenceTest extends JMSTestCase
 
          startNoDelete();
 
-         // ActiveMQ server restart implies new ConnectionFactory lookup
+         // ActiveMQ Artemis server restart implies new ConnectionFactory lookup
          deployAndLookupAdministeredObjects();
 
          conn = createConnection();
@@ -217,7 +217,7 @@ public class PersistenceTest extends JMSTestCase
 
          startNoDelete();
 
-         // ActiveMQ server restart implies new ConnectionFactory lookup
+         // ActiveMQ Artemis server restart implies new ConnectionFactory lookup
          deployAndLookupAdministeredObjects();
 
          conn = createConnection();
@@ -494,7 +494,7 @@ public class PersistenceTest extends JMSTestCase
 
          startNoDelete();
 
-         // ActiveMQ server restart implies new ConnectionFactory lookup
+         // ActiveMQ Artemis server restart implies new ConnectionFactory lookup
          deployAndLookupAdministeredObjects();
 
          conn = createConnection();

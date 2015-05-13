@@ -28,7 +28,7 @@ import org.proton.plug.util.CreditsSemaphore;
 import org.proton.plug.util.NettyWritable;
 
 /**
- * A this is a wrapper around a ActiveMQ ServerConsumer for handling outgoing messages and incoming acks via a Proton Sender
+ * A this is a wrapper around a ActiveMQ Artemis ServerConsumer for handling outgoing messages and incoming acks via a Proton Sender
  */
 public abstract class AbstractProtonContextSender extends ProtonInitializable implements ProtonDeliveryHandler
 {
@@ -79,7 +79,7 @@ public abstract class AbstractProtonContextSender extends ProtonInitializable im
 
    @Override
    /*
-   * handle an incoming Ack from Proton, basically pass to ActiveMQ to handle
+   * handle an incoming Ack from Proton, basically pass to ActiveMQ Artemis to handle
    * */
    public abstract void onMessage(Delivery delivery) throws ActiveMQAMQPException;
 

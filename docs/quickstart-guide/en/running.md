@@ -5,7 +5,7 @@ Creating a Broker Instance
 A broker instance is the directory containing all the configuration and runtime
 data, such as logs and data files, associated with a broker process.  It is recommended that
 you do *not* create the instance directory under `${ARTEMIS_HOME}`.  This separation is
-encouraged so that you can more easily upgrade when the next version of ActiveMQ is released.
+encouraged so that you can more easily upgrade when the next version of ActiveMQ Artemis is released.
 
 On Unix systems, it is a common convention to store this kind of runtime data under 
 the `/var/lib` directory.  For example, to create an instance at '/var/lib/mybroker', run

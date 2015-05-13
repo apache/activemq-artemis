@@ -5,7 +5,7 @@
 Running the Soak Tests
 =======================
 
-The default soak tests with start a ActiveMQ instance, 1 producer and 1 consumer.  To run the default suite.
+The default soak tests with start a ActiveMQ Artemis instance, 1 producer and 1 consumer.  To run the default suite.
 
   $mvn verify
 

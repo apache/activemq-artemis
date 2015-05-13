@@ -19,7 +19,7 @@ under the License.
 
 <html>
   <head>
-    <title>ActiveMQ JMS Client-Side Load-Balancing Example</title>
+    <title>ActiveMQ Artemis JMS Client-Side Load-Balancing Example</title>
     <link rel="stylesheet" type="text/css" href="../common/common.css" />
     <link rel="stylesheet" type="text/css" href="../common/prettify.css" />
     <script type="text/javascript" src="../common/prettify.js"></script>
@@ -28,12 +28,12 @@ under the License.
      <h1>JMS Client-Side Load-Balancing Example</h1>
 
      <p>This example demonstrates how connnections created from a single JMS Connection factory can be created
-     to different nodes of the cluster. In other words it demonstrates how ActiveMQ does <b>client side load balancing</b> of
+     to different nodes of the cluster. In other words it demonstrates how ActiveMQ Artemis does <b>client side load balancing</b> of
      connections across the cluster.</p>
      <p>The particular load-balancing policy can be chosen to be random, round-robin or user-defined. Please see the user
      guide for more details of how to configure the specific load-balancing policy. In this example we will use
      the default round-robin load balancing policy.</p>
-     <p>The list of servers over which ActiveMQ will round-robin the connections can either be specified explicitly
+     <p>The list of servers over which ActiveMQ Artemis will round-robin the connections can either be specified explicitly
      in the connection factory when instantiating it directly, when configuring it on the server or configured
      to use UDP discovery to discover the list of servers over which to round-robin. This example will use UDP
      discovery to obtain the list.</p>
@@ -41,7 +41,7 @@ under the License.
      can be seen in the <code>broker.xml</code> file.</p>
      <p>A JMS ConnectionFactory is deployed on each server specifying the discovery group that will be used by that
      connection factory.</p>      
-     <p>For more information on ActiveMQ load balancing, and clustering in general, please see the clustering
+     <p>For more information on ActiveMQ Artemis load balancing, and clustering in general, please see the clustering
      section of the user manual.</p>      
 
      <h2>Example step-by-step</h2>
