@@ -116,7 +116,7 @@ Name | Description
 [queue-name](core-bridges.md "Chapter 36. Core Bridges")                         |  name of queue that this bridge consumes from
 [forwarding-address](core-bridges.md "Chapter 36. Core Bridges")                 |  address to forward to. If omitted original address is used
 [ha](core-bridges.md "Chapter 36. Core Bridges")                                 |  whether this bridge supports fail-over
-[filter](core-bridges.md "Chapter 36. Core Bridges")         |  optional core filter expression                    |
+[filter](core-bridges.md "Chapter 36. Core Bridges")         |  optional core filter expression
 [transformer-class-name](core-bridges.md "Chapter 36. Core Bridges")             |  optional name of transformer class
 [min-large-message-size](core-bridges.md "Chapter 36. Core Bridges")             |  Limit before message is considered large. default 100KB
 [check-period](connection-ttl.md "Chapter 17. Detecting Dead Connections")       |  [TTL](http://en.wikipedia.org/wiki/Time_to_live "Time to Live") check period for the bridge. -1 means disabled. default 30000 (ms)
