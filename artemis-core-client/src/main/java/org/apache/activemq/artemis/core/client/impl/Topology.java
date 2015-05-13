@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.core.client.impl;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -32,14 +31,13 @@ import org.apache.activemq.artemis.api.core.client.ClusterTopologyListener;
 import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
 import org.apache.activemq.artemis.spi.core.remoting.Connector;
 
-public final class Topology implements Serializable
+public final class Topology
 {
 
-   private static final long serialVersionUID = -9037171688692471371L;
 
    private final Set<ClusterTopologyListener> topologyListeners = new HashSet<ClusterTopologyListener>();
 
-   private transient Executor executor = null;
+   private final Executor executor = null;
 
    /**
     * Used to debug operations.
@@ -58,7 +56,7 @@ public final class Topology implements Serializable
     */
    private final Map<String, TopologyMemberImpl> topology = new ConcurrentHashMap<String, TopologyMemberImpl>();
 
-   private transient Map<String, Long> mapDelete;
+   private Map<String, Long> mapDelete;
 
    public Topology(final Object owner)
    {
