@@ -25,7 +25,7 @@
 
    <artifactId>artemis-cli</artifactId>
    <packaging>jar</packaging>
-   <name>ActiveMQ Artemis Bootstrap</name>
+   <name>ActiveMQ Artemis CLI</name>
 
    <properties>
       <activemq.basedir>${project.basedir}/..</activemq.basedir>

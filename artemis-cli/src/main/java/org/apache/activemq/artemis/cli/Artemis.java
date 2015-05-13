@@ -25,6 +25,7 @@ import org.apache.activemq.artemis.cli.commands.Action;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.cli.commands.Create;
 import org.apache.activemq.artemis.cli.commands.HelpAction;
+import org.apache.activemq.artemis.cli.commands.Kill;
 import org.apache.activemq.artemis.cli.commands.Run;
 import org.apache.activemq.artemis.cli.commands.Stop;
 import org.apache.activemq.artemis.cli.commands.tools.DecodeJournal;
@@ -53,14 +54,13 @@ public class Artemis
       if (instance != null)
       {
          builder = builder
-            .withCommands(Run.class, Stop.class);
+            .withCommands(Run.class, Stop.class, Kill.class);
       }
       else
       {
          builder = builder
             .withCommand(Create.class);
       }
-
 
       Cli<Action> parser = builder.build();
       try

@@ -48,7 +48,6 @@ fi
 ARTEMIS_LOGGING_CONF="file:$ARTEMIS_INSTANCE/etc/logging.properties"
 ARTEMIS_DATA_DIR="$ARTEMIS_INSTANCE/data"
 ARTEMIS_LOG_MANAGER=org.jboss.logmanager.LogManager
-JAVA_ARGS="-XX:+UseParallelGC -XX:+AggressiveOpts -XX:+UseFastAccessorMethods -Xms512M -Xmx1024M"
 
 # Load Profile Data
 . "$ARTEMIS_INSTANCE/etc/artemis.profile"
@@ -116,4 +115,4 @@ exec "$JAVACMD" $JAVA_ARGS $ARTEMIS_CLUSTER_PROPS \
     -Djava.util.logging.manager="$ARTEMIS_LOG_MANAGER" \
     -Dlogging.configuration="$ARTEMIS_LOGGING_CONF" \
     $DEBUG_ARGS \
-    org.apache.activemq.artemis.boot.Artemis $@
+    org.apache.activemq.artemis.boot.Artemis "$@"

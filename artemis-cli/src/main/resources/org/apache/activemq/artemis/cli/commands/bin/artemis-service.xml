@@ -18,14 +18,14 @@
 -->
 
 <service>
-   <id>armetis-${host}</id>
-   <name>ActiveMQ Artemis: ${host}</name>
+   <id>armetis-${artemis.instance.name}-${host}</id>
+   <name>ActiveMQ Artemis: ${artemis.instance.name} @ ${host}</name>
    <description>Apache ActiveMQ Artemis is a reliable messaging broker</description>
 
    <logpath>${artemis.instance}\log</logpath>
    <logmode>roll</logmode>
 
-   <executable>"${java.home}\bin\java.exe"</executable>
+   <executable>java</executable>
    <argument>-XX:+UseParallelGC</argument>
    <argument>-XX:+AggressiveOpts</argument>
    <argument>-XX:+UseFastAccessorMethods</argument>
@@ -41,18 +41,18 @@
 
    <argument>-classpath</argument>
    <argument>"${artemis.home}\lib\artemis-boot.jar"</argument>
-   <argument>"-artemis.home=${artemis.home}"</argument>
-   <argument>"-artemis.instance=${artemis.instance}"</argument>
-   <argument>"-Ddata.dir=${artemis.instance}/data"</argument>
+   <argument>-Dartemis.home="${artemis.home}"</argument>
+   <argument>-Dartemis.instance="${artemis.instance}"</argument>
+   <argument>-Ddata.dir="${artemis.instance}/data"</argument>
    <argument>-Djava.util.logging.manager=org.jboss.logmanager.LogManager</argument>
-   <argument>"-Dlogging.configuration=file:${artemis.instance}\etc\logging.properties"</argument>
+   <argument>-Dlogging.configuration="file:${artemis.instance}\etc\logging.properties"</argument>
 
 
    <!-- Debug args: Uncomment to enable debug
    <argument>-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005</argument>
    -->
 
-   <argument>Armetis</argument>
+   <argument>org.apache.activemq.artemis.boot.Artemis</argument>
 
    <argument>run</argument>
 

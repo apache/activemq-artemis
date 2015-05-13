@@ -22,6 +22,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import io.airlift.airline.Command;
+import io.airlift.airline.Option;
 import org.apache.activemq.artemis.cli.Artemis;
 import org.apache.activemq.artemis.components.ExternalComponent;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
@@ -36,6 +37,8 @@ import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
 @Command(name = "run", description = "runs the broker instance")
 public class Run extends Configurable implements Action
 {
+   @Option(name = "--allow-kill", description = "This will allow the server to kill itself. Useful for tests (failover tests for instance)")
+   boolean allowKill;
 
    private Broker server;
 
@@ -88,12 +91,33 @@ public class Run extends Configurable implements Action
             ActiveMQBootstrapLogger.LOGGER.errorDeletingFile(file.getAbsolutePath());
          }
       }
+      final File fileKill = new File(configurationDir,"KILL_ME");
+      if (fileKill.exists())
+      {
+         if (!fileKill.delete())
+         {
+            ActiveMQBootstrapLogger.LOGGER.errorDeletingFile(fileKill.getAbsolutePath());
+         }
+      }
+
       final Timer timer = new Timer("ActiveMQ Artemis Server Shutdown Timer", true);
       timer.scheduleAtFixedRate(new TimerTask()
       {
          @Override
          public void run()
          {
+            if (allowKill && fileKill.exists())
+            {
+               try
+               {
+                  System.err.println("Halting by user request");
+                  fileKill.delete();
+               }
+               catch (Throwable ignored)
+               {
+               }
+               Runtime.getRuntime().halt(0);
+            }
             if (file.exists())
             {
                try
@@ -116,5 +140,22 @@ public class Run extends Configurable implements Action
             }
          }
       }, 500, 500);
+
+
+      Runtime.getRuntime().addShutdownHook(new Thread()
+      {
+         public void run()
+         {
+            try
+            {
+               server.stop();
+            }
+            catch (Exception e)
+            {
+               e.printStackTrace();
+            }
+         }
+      });
+
    }
 }

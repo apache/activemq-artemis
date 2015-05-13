@@ -38,16 +38,19 @@ public class Artemis
    public static void main(String[] args) throws Throwable
    {
       ArrayList<File> dirs = new ArrayList<File>();
-      String instance = System.getProperty("artemis.instance");
-      if (instance != null)
-      {
-         dirs.add(new File(new File(instance), "lib"));
-      }
 
       String home = System.getProperty("artemis.home");
       if (home != null)
       {
          dirs.add(new File(new File(home), "lib"));
+      }
+
+      String instance = System.getProperty("artemis.instance");
+      File instanceFile = null;
+      if (instance != null)
+      {
+         instanceFile = new File(instance);
+         dirs.add(new File(instanceFile, "lib"));
       }
 
       ArrayList<URL> urls = new ArrayList<URL>();
@@ -93,6 +96,14 @@ public class Artemis
       if (loggingConfig != null)
       {
          System.setProperty("logging.configuration", fixupFileURI(loggingConfig));
+      }
+
+      // Without the etc on the config, things like JGroups configuration wouldn't be loaded
+      if (instanceFile != null)
+      {
+         File etcFile = new File(instance, "etc");
+         // Adding etc to the classLoader so modules can lookup for their configs
+         urls.add(etcFile.toURI().toURL());
       }
 
       // Now setup our classloader..
