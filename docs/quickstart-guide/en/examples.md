@@ -44,7 +44,7 @@ Type the command `mvn verify` and you should see the following output:
     [INFO] Scanning for projects...
     [INFO]
     [INFO] ------------------------------------------------------------------------
-    [INFO] Building ActiveMQ Artemis JMS Queue Example 2.3.0.BETA-SNAPSHOT
+    [INFO] Building ActiveMQ Artemis JMS Queue Example 1.0.0
     [INFO] ------------------------------------------------------------------------
     [INFO]
     [INFO] --- maven-resources-plugin:2.6:resources (default-resources) @ activemq-jms-queue-example ---
@@ -64,21 +64,21 @@ Type the command `mvn verify` and you should see the following output:
     [INFO] --- maven-surefire-plugin:2.13:test (default-test) @ activemq-jms-queue-example ---
     [INFO]
     [INFO] --- maven-jar-plugin:2.4:jar (default-jar) @ activemq-jms-queue-example ---
-    [INFO] Building jar: /home/andy/projects/activemq-master/examples/jms/queue/target/activemq-jms-queue-example-2.3.0.BETA-SNAPSHOT.jar
+    [INFO] Building jar: /home/andy/projects/activemq-master/examples/jms/queue/target/activemq-jms-queue-example-1.0.0.jar
     [INFO]
     [INFO] >>> maven-source-plugin:2.2.1:jar (attach-sources) @ activemq-jms-queue-example >>>
     [INFO]
     [INFO] <<< maven-source-plugin:2.2.1:jar (attach-sources) @ activemq-jms-queue-example <<<
     [INFO]
     [INFO] --- maven-source-plugin:2.2.1:jar (attach-sources) @ activemq-jms-queue-example ---
-    [INFO] Building jar: /home/andy/projects/activemq-master/examples/jms/queue/target/activemq-jms-queue-example-2.3.0.BETA-SNAPSHOT-sources.jar
+    [INFO] Building jar: /home/andy/projects/activemq-master/examples/jms/queue/target/activemq-jms-queue-example-1.0.0-sources.jar
     [INFO]
     [INFO] >>> maven-source-plugin:2.2.1:jar (default) @ activemq-jms-queue-example >>>
     [INFO]
     [INFO] <<< maven-source-plugin:2.2.1:jar (default) @ activemq-jms-queue-example <<<
     [INFO]
     [INFO] --- maven-source-plugin:2.2.1:jar (default) @ activemq-jms-queue-example ---
-    [WARNING] Artifact org.apache.activemq.examples.jms:activemq-jms-queue-example:java-source:sources:2.3.0.BETA-SNAPSHOT already attached to project, ignoring duplicate
+    [WARNING] Artifact org.apache.activemq.examples.jms:activemq-jms-queue-example:java-source:sources:1.0.0 already attached to project, ignoring duplicate
     [INFO]
     [INFO] --- activemq-maven-plugin:1.1.1-SNAPSHOT:start (start) @ activemq-jms-queue-example ---
     [file:/home/andy/projects/activemq-master/examples/jms/queue/target/classes/activemq/server0/]
@@ -103,7 +103,7 @@ Type the command `mvn verify` and you should see the following output:
     Apr 17, 2013 10:51:02 AM org.apache.activemq.core.server.impl.ActiveMQServerImpl$SharedStoreLiveActivation run
     INFO: AMQ221007: Server is now live
     Apr 17, 2013 10:51:02 AM org.apache.activemq.core.server.impl.ActiveMQServerImpl start
-    INFO: AMQ221001: ActiveMQ Artemis Server version 2.3.0.SNAPSHOT (black'n'yellow, 123) [a57893ff-7783-11e2-9787-07ca142fc9f7]
+    INFO: AMQ221001: ActiveMQ Artemis Server version 1.0.0 (black'n'yellow, 123) [a57893ff-7783-11e2-9787-07ca142fc9f7]
     [INFO]
     [INFO] --- activemq-maven-plugin:1.1.1-SNAPSHOT:runClient (runClient) @ activemq-jms-queue-example ---
     Apr 17, 2013 10:51:02 AM org.apache.activemq.common.example.ActiveMQExample getContext
@@ -120,7 +120,7 @@ Type the command `mvn verify` and you should see the following output:
     Apr 17, 2013 10:51:03 AM org.apache.activemq.core.server.management.impl.ManagementServiceImpl stop
     WARN: AMQ222113: On ManagementService stop, there are 1 unexpected registered MBeans: [core.acceptor.netty-acceptor]
     Apr 17, 2013 10:51:03 AM org.apache.activemq.core.server.impl.ActiveMQServerImpl stop
-    INFO: AMQ221002: ActiveMQ Artemis Server version 2.3.0.SNAPSHOT (black'n'yellow, 123) [a57893ff-7783-11e2-9787-07ca142fc9f7] stopped
+    INFO: AMQ221002: ActiveMQ Artemis Server version 1.0.0 (black'n'yellow, 123) [a57893ff-7783-11e2-9787-07ca142fc9f7] stopped
     [INFO] ------------------------------------------------------------------------
     [INFO] BUILD SUCCESS
     [INFO] ------------------------------------------------------------------------
@@ -157,7 +157,7 @@ In the shell window you should see something like the following output:
     [INFO] Scanning for projects...
     [INFO]
     [INFO] ------------------------------------------------------------------------
-    [INFO] Building ActiveMQ Artemis JEE MDB Example 2.3.0.BETA-SNAPSHOT
+    [INFO] Building ActiveMQ Artemis JEE MDB Example 1.0.0
     [INFO] ------------------------------------------------------------------------
     [INFO]
     [INFO] --- maven-resources-plugin:2.6:resources (default-resources) @ activemq-jee-mdb-bmt-example ---
