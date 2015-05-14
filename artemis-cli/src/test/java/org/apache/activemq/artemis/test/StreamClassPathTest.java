@@ -42,6 +42,12 @@ public class StreamClassPathTest
       openStream(Create.ETC_BROKER_XML);
       openStream(Create.ETC_ARTEMIS_ROLES_PROPERTIES);
       openStream(Create.ETC_ARTEMIS_USERS_PROPERTIES);
+      openStream(Create.ETC_REPLICATED_SETTINGS_TXT);
+      openStream(Create.ETC_REPLICATED_SETTINGS_TXT);
+      openStream(Create.ETC_SHARED_STORE_SETTINGS_TXT);
+      openStream(Create.ETC_CLUSTER_SECURITY_SETTINGS_TXT);
+      openStream(Create.ETC_CLUSTER_SETTINGS_TXT);
+      openStream(Create.ETC_CONNECTOR_SETTINGS_TXT);
    }
 
 

@@ -22,12 +22,14 @@ import io.airlift.airline.Command;
 import org.apache.activemq.artemis.dto.BrokerDTO;
 
 @Command(name = "kill", description = "Kills a broker instance started with --allow-kill")
-public class Kill extends Configurable implements Action
+public class Kill extends Configurable
 {
    @Override
    public Object execute(ActionContext context) throws Exception
 
    {
+      super.execute(context);
+
       BrokerDTO broker = getBrokerDTO();
 
       File file = broker.server.getConfigurationFile().getParentFile();

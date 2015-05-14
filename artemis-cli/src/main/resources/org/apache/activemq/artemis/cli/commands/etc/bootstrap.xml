@@ -21,11 +21,11 @@
    <basic-security
            users="file:${artemis.instance}/etc/artemis-users.properties"
            roles="file:${artemis.instance}/etc/artemis-roles.properties"
-           default-user="guest"
-           />
+           ${bootstrap.guest}/>
 
    <server configuration="file:${artemis.instance}/etc/broker.xml"/>
 
+   <!-- The web server is only bound to loalhost by default -->
    <web bind="http://localhost:${http.port}" path="web">
        <app url="jolokia" war="jolokia-war-1.2.3.war"/>
    </web>

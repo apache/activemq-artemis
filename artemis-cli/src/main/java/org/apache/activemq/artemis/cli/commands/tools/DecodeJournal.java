@@ -59,6 +59,7 @@ public class DecodeJournal extends Configurable implements Action
 
    public Object execute(ActionContext context) throws Exception
    {
+      super.execute(context);
       try
       {
          if (directory == null)

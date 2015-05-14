@@ -62,6 +62,7 @@ public class PrintData extends DataAbstract implements Action
    @Override
    public Object execute(ActionContext context) throws Exception
    {
+      super.execute(context);
       try
       {
          printData(getBinding(), getJournal(), getPaging());

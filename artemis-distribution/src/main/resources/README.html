@@ -23,6 +23,9 @@ under the License.
    <meta content="text/html; charset=ISO-8859-1"
          http-equiv="content-type">
    <title>Apache ActiveMQ Artemis README</title>
+   <link rel="stylesheet" type="text/css" href="./examples/jms/common/common.css" />
+   <link rel="stylesheet" type="text/css" href="./examples/jms/common/prettify.css" />
+   <script type="text/javascript" src="./examples/jms/common/prettify.js"></script>
 </head>
 <body>
 
@@ -37,6 +40,42 @@ under the License.
 To create a broker, navigate to the distribution 'bin/' directory and run: </br></br>
 
 $ ./artemis create $directory </br></br>Where $directory is the folder that you'd like the broker to be created.
+
+The create process will input for any required property not specified. Example:
+
+<PRE>
+--user: is mandatory at the current context:
+Please provide the default username:
+admin
+
+--password: is mandatory at the current context:
+Please provide the default password:
+
+
+--allow-anonymous: is mandatory at the current context:
+Allow anonymous access? (Y/N):
+Y
+</PRE>
+
+For a full list of availble options for the create process you may use:
+
+$ ./artemis help create
+
+<PRE>
+NAME
+        artemis create - creates a new broker instance
+
+SYNOPSIS
+        artemis create [--allow-anonymous]
+                [--cluster-password <clusterPassword>] [--cluster-user <clusterUser>]
+    [--clustered] [--data <data>] [--encoding <encoding>] [--force]
+        [--home <home>] [--host <host>] [--java-options <javaOptions>]
+            [--password <password>] [--port-offset <portOffset>] [--replicated]
+                [--role <role>] [--shared-store] [--silent-input] [--user <user>] [--]
+                    <directory>
+     ...
+</PRE>
+
 
 <h2>Starting the Broker</h2>
 

@@ -30,13 +30,13 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import io.airlift.airline.Arguments;
 import io.airlift.airline.Command;
 import io.airlift.airline.Option;
+import org.apache.activemq.artemis.core.asyncio.impl.AsynchronousFileImpl;
 
 import static java.nio.file.attribute.PosixFilePermission.GROUP_EXECUTE;
 import static java.nio.file.attribute.PosixFilePermission.GROUP_READ;
@@ -51,7 +51,7 @@ import static java.nio.file.attribute.PosixFilePermission.OWNER_WRITE;
  * CLI action that creates a broker instance directory.
  */
 @Command(name = "create", description = "creates a new broker instance")
-public class Create implements Action
+public class Create extends ActionAbstract
 {
    private static final Integer DEFAULT_PORT = 61616;
 
@@ -75,11 +75,16 @@ public class Create implements Action
    public static final String ETC_BROKER_XML = "etc/broker.xml";
    public static final String ETC_ARTEMIS_ROLES_PROPERTIES = "etc/artemis-roles.properties";
    public static final String ETC_ARTEMIS_USERS_PROPERTIES = "etc/artemis-users.properties";
+   public static final String ETC_REPLICATED_SETTINGS_TXT = "etc/replicated-settings.txt";
+   public static final String ETC_SHARED_STORE_SETTINGS_TXT = "etc/shared-store-settings.txt";
+   public static final String ETC_CLUSTER_SECURITY_SETTINGS_TXT = "etc/cluster-security-settings.txt";
+   public static final String ETC_CLUSTER_SETTINGS_TXT = "etc/cluster-settings.txt";
+   public static final String ETC_CONNECTOR_SETTINGS_TXT = "etc/connector-settings.txt";
 
    @Arguments(description = "The instance directory to hold the broker's configuration and data", required = true)
    File directory;
 
-   @Option(name = "--host", description = "The host name of the broker")
+   @Option(name = "--host", description = "The host name of the broker (Default: 0.0.0.0 or input if clustered)")
    String host;
 
    @Option(name = "--port-offset", description = "Off sets the default ports")
@@ -91,6 +96,9 @@ public class Create implements Action
    @Option(name = "--home", description = "Directory where ActiveMQ Artemis is installed")
    File home;
 
+   @Option(name = "--data", description = "Directory where ActiveMQ Data is used. Path are relative to artemis.instance/bin")
+   String data = "../data";
+
    @Option(name = "--clustered", description = "Enable clustering")
    boolean clustered = false;
 
@@ -100,10 +108,10 @@ public class Create implements Action
    @Option(name = "--shared-store", description = "Enable broker shared store")
    boolean sharedStore = false;
 
-   @Option(name = "--cluster-user", description = "The cluster user to use for clustering")
+   @Option(name = "--cluster-user", description = "The cluster user to use for clustering. (Default: input)")
    String clusterUser = null;
 
-   @Option(name = "--cluster-password", description = "The cluster password to use for clustering")
+   @Option(name = "--cluster-password", description = "The cluster password to use for clustering. (Default: input)")
    String clusterPassword = null;
 
    @Option(name = "--encoding", description = "The encoding that text files should use")
@@ -112,9 +120,20 @@ public class Create implements Action
    @Option(name = "--java-options", description = "Extra java options to be passed to the profile")
    String javaOptions = "";
 
-   ActionContext context;
+   @Option(name = "--allow-anonymous", description = "Enables anonymous configuration on security (Default: input)")
+   Boolean allowAnonymous = null;
 
-   private Scanner scanner;
+   @Option(name = "--user", description = "The username (Default: input)")
+   String user;
+
+   @Option(name = "--password", description = "The user's password (Default: input)")
+   String password;
+
+   @Option(name = "--role", description = "The name for the role created (Default: amq)")
+   String role;
+
+   @Option(name = "--silent-input", description = "It will disable all the inputs, and it would make a best guess for any required input")
+   boolean silentInput;
 
    boolean IS_WINDOWS;
 
@@ -152,6 +171,20 @@ public class Create implements Action
 
    public String getHost()
    {
+      if (host == null)
+      {
+         host = "0.0.0.0";
+      }
+      return host;
+   }
+
+   public String getHostForClustered()
+   {
+      if (getHost().equals("0.0.0.0"))
+      {
+         host = input("--host", "Host " + host + " is not valid for clustering, please provide a valid IP or hostname", "localhost");
+      }
+
       return host;
    }
 
@@ -224,9 +257,113 @@ public class Create implements Action
       this.encoding = encoding;
    }
 
+   public String getData()
+   {
+      return data;
+   }
+
+   public void setData(String data)
+   {
+      this.data = data;
+   }
+
+   public String getClusterUser()
+   {
+      if (clusterUser == null)
+      {
+         clusterUser = input("--cluster-user", "Please provide the username:", "cluster-admin");
+      }
+      return clusterUser;
+   }
+
+   public void setClusterUser(String clusterUser)
+   {
+      this.clusterUser = clusterUser;
+   }
+
+   public String getClusterPassword()
+   {
+      if (clusterPassword == null)
+      {
+         clusterPassword = inputPassword("--cluster-password", "Please enter the password:", "password-admin");
+      }
+      return clusterPassword;
+   }
+
+   public void setClusterPassword(String clusterPassword)
+   {
+      this.clusterPassword = clusterPassword;
+   }
+
+   public boolean isAllowAnonymous()
+   {
+      if (allowAnonymous == null)
+      {
+         String value = input("--allow-anonymous", "Allow anonymous access? (Y/N):", "Y");
+         allowAnonymous = Boolean.valueOf(value.toLowerCase().equals("y"));
+      }
+      return allowAnonymous.booleanValue();
+   }
+
+   public void setAllowAnonymous(boolean allowGuest)
+   {
+      this.allowAnonymous = Boolean.valueOf(allowGuest);
+   }
+
+   public String getPassword()
+   {
+
+      if (password == null)
+      {
+         this.password = inputPassword("--password", "Please provide the default password:", "admin");
+      }
+
+      return password;
+   }
+
+   public void setPassword(String password)
+   {
+      this.password = password;
+   }
+
+   public String getUser()
+   {
+      if (user == null)
+      {
+         user = input("--user", "Please provide the default username:", "admin");
+      }
+      return user;
+   }
+
+   public void setUser(String user)
+   {
+      this.user = user;
+   }
+
+   public String getRole()
+   {
+      if (role == null)
+      {
+         role = "amq";
+      }
+      return role;
+   }
+
+   public void setRole(String role)
+   {
+      this.role = role;
+   }
+
    @Override
    public Object execute(ActionContext context) throws Exception
    {
+      super.execute(context);
+
+      if (silentInput)
+      {
+         this.disableInputs();
+      }
+
       try
       {
          return run(context);
@@ -248,77 +385,77 @@ public class Create implements Action
 
    public Object run(ActionContext context) throws Exception
    {
-      this.context = context;
-      scanner = new Scanner(System.in);
       IS_WINDOWS = System.getProperty("os.name").toLowerCase().trim().startsWith("win");
       IS_CYGWIN = IS_WINDOWS && "cygwin".equals(System.getenv("OSTYPE"));
 
       context.out.println(String.format("Creating ActiveMQ Artemis instance at: %s", directory.getCanonicalPath()));
-      if (host == null)
-      {
-         host = "localhost";
-      }
 
       HashMap<String, String> filters = new HashMap<String, String>();
-      String replicatedSettings = "";
+
       if (replicated)
       {
          clustered = true;
-         replicatedSettings = readTextFile("etc/replicated-settings.txt");
+         filters.put("${replicated.settings}", readTextFile(ETC_REPLICATED_SETTINGS_TXT));
       }
-      filters.put("${replicated.settings}", replicatedSettings);
+      else
+      {
+         filters.put("${replicated.settings}", "");
+      }
 
-      String sharedStoreSettings = "";
       if (sharedStore)
       {
          clustered = true;
-         sharedStoreSettings = readTextFile("etc/shared-store-settings.txt");
+         filters.put("${shared-store.settings}", readTextFile(ETC_SHARED_STORE_SETTINGS_TXT));
       }
-      filters.put("${shared-store.settings}", sharedStoreSettings);
-
-      String clusterSettings = "";
-      String clusterSecuritySettings = "";
-      String clusterUserSettings = "";
-      String clusterPasswordSettings = "";
-      if (clustered)
+      else
       {
-         clusterSettings = readTextFile("etc/cluster-settings.txt");
-
-         if (clusterUser == null)
-         {
-            clusterUser = input("Please provide a user name for clustering (leave empty for default)");
-         }
-
-         if (clusterUser != null && clusterUser.length() > 0)
-         {
-            clusterUserSettings = clusterUser;
-            clusterSecuritySettings = readTextFile("etc/cluster-security-settings.txt");
-         }
-
-         if (clusterPassword == null)
-         {
-            clusterPassword = input("Please provide a password for clustering (leave empty for default)");
-
-         }
-
-         if (clusterPassword != null && clusterPassword.length() > 0)
-         {
-            clusterPasswordSettings = clusterPassword;
-         }
+         filters.put("${shared-store.settings}", "");
       }
-      filters.put("${cluster-security.settings}", clusterSecuritySettings);
-      filters.put("${cluster.settings}", clusterSettings);
-      filters.put("${cluster-user}", clusterUserSettings);
-      filters.put("${cluster-password}", clusterPasswordSettings);
 
+      if (IS_WINDOWS || !AsynchronousFileImpl.isLoaded())
+      {
+         filters.put("${journal.settings}", "NIO");
+      }
+      else
+      {
+         filters.put("${journal.settings}", "AIO");
+      }
 
       filters.put("${user}", System.getProperty("user.name", ""));
-      filters.put("${host}", host);
       filters.put("${default.port}", String.valueOf(DEFAULT_PORT + portOffset));
       filters.put("${amqp.port}", String.valueOf(AMQP_PORT + portOffset));
       filters.put("${stomp.port}", String.valueOf(STOMP_PORT + portOffset));
       filters.put("${hq.port}", String.valueOf(HQ_PORT + portOffset));
       filters.put("${http.port}", String.valueOf(HTTP_PORT + portOffset));
+      filters.put("${data.dir}", data);
+
+      filters.put("${user}", getUser());
+      filters.put("${password}", getPassword());
+      filters.put("${role}", getRole());
+
+
+      if (clustered)
+      {
+         filters.put("${host}", getHostForClustered());
+         String connectorSettings = readTextFile(ETC_CONNECTOR_SETTINGS_TXT);
+         connectorSettings = applyFilters(connectorSettings, filters);
+
+         filters.put("${connector-config.settings}", connectorSettings);
+         filters.put("${cluster-security.settings}", readTextFile(ETC_CLUSTER_SECURITY_SETTINGS_TXT));
+         filters.put("${cluster.settings}", readTextFile(ETC_CLUSTER_SETTINGS_TXT));
+         filters.put("${cluster-user}", getClusterUser());
+         filters.put("${cluster-password}", getClusterPassword());
+      }
+      else
+      {
+         filters.put("${host}", getHost());
+         filters.put("${connector-config.settings}", "");
+         filters.put("${cluster-security.settings}", "");
+         filters.put("${cluster.settings}", "");
+         filters.put("${cluster-user}", "");
+         filters.put("${cluster-password}", "");
+      }
+
 
       if (home != null)
       {
@@ -361,10 +498,20 @@ public class Create implements Action
       }
 
       write(ETC_LOGGING_PROPERTIES, null, false);
+
+      if (isAllowAnonymous())
+      {
+         filters.put("${bootstrap.guest}", "default-user=\"" + getUser() + "\"");
+      }
+      else
+      {
+         filters.put("${bootstrap.guest}", "");
+      }
+
       write(ETC_BOOTSTRAP_XML, filters, false);
       write(ETC_BROKER_XML, filters, false);
-      write(ETC_ARTEMIS_ROLES_PROPERTIES, null, false);
-      write(ETC_ARTEMIS_USERS_PROPERTIES, null, false);
+      write(ETC_ARTEMIS_ROLES_PROPERTIES, filters, false);
+      write(ETC_ARTEMIS_USERS_PROPERTIES, filters, false);
 
       context.out.println("");
       context.out.println("You can now start the broker by executing:  ");
@@ -415,12 +562,6 @@ public class Create implements Action
       return null;
    }
 
-   private String input(String prompt)
-   {
-      context.out.println(prompt);
-      return scanner.nextLine();
-   }
-
    private void makeExec(String path) throws IOException
    {
       try
@@ -447,8 +588,6 @@ public class Create implements Action
    {
       if (unixPaths && IS_CYGWIN)
       {
-//        import scala.sys.process._
-//        Seq("cygpath", value.getCanonicalPath).!!.trim
          return value.getCanonicalPath();
       }
       else
@@ -469,15 +608,7 @@ public class Create implements Action
          throw new RuntimeException(String.format("The file '%s' already exists.  Use --force to overwrite.", target));
       }
 
-      String content = readTextFile(source);
-
-      if (filters != null)
-      {
-         for (Map.Entry<String, String> entry : filters.entrySet())
-         {
-            content = replace(content, entry.getKey(), entry.getValue());
-         }
-      }
+      String content = applyFilters(readTextFile(source), filters);
 
       // and then writing out in the new target encoding..  Let's also replace \n with the values
       // that is correct for the current platform.
@@ -489,6 +620,19 @@ public class Create implements Action
       {
          copy(in, fout);
       }
+   }
+
+   private String applyFilters(String content, HashMap<String, String> filters) throws IOException
+   {
+
+      if (filters != null)
+      {
+         for (Map.Entry<String, String> entry : filters.entrySet())
+         {
+            content = replace(content, entry.getKey(), entry.getValue());
+         }
+      }
+      return content;
    }
 
    private String readTextFile(String source) throws IOException
@@ -517,54 +661,9 @@ public class Create implements Action
       }
    }
 
-   private boolean canLoad(String name)
-   {
-      try
-      {
-         this.getClass().getClassLoader().loadClass(name);
-         return true;
-      }
-      catch (Throwable e)
-      {
-         return false;
-      }
-   }
-
    private String replace(String content, String key, String value)
    {
       return content.replaceAll(Pattern.quote(key), Matcher.quoteReplacement(value));
-   }
-
-   private int system(File wd, String... command) throws IOException, InterruptedException
-   {
-      Process process = Runtime.getRuntime().exec(command, null, wd);
-      process.getOutputStream().close();
-      drain(command[0], process.getInputStream(), context.out);
-      drain(command[0], process.getErrorStream(), context.err);
-      process.waitFor();
-      return process.exitValue();
-   }
-
-   private void drain(String threadName, final InputStream is, final OutputStream os)
-   {
-      new Thread(threadName)
-      {
-         {
-            setDaemon(true);
-         }
-
-         @Override
-         public void run()
-         {
-            try
-            {
-               copy(is, os);
-            }
-            catch (Throwable e)
-            {
-            }
-         }
-      }.start();
    }
 
    private void copy(InputStream is, OutputStream os) throws IOException

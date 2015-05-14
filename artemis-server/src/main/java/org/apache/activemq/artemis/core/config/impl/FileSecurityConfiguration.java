@@ -16,12 +16,13 @@
  */
 package org.apache.activemq.artemis.core.config.impl;
 
-import org.apache.activemq.artemis.utils.PasswordMaskingUtil;
-import org.apache.activemq.artemis.utils.SensitiveDataCodec;
-
 import java.net.URL;
 import java.util.Properties;
 import java.util.Set;
+
+import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.apache.activemq.artemis.utils.PasswordMaskingUtil;
+import org.apache.activemq.artemis.utils.SensitiveDataCodec;
 
 public class FileSecurityConfiguration extends SecurityConfiguration
 {
@@ -111,10 +112,17 @@ public class FileSecurityConfiguration extends SecurityConfiguration
       for (String username : keys)
       {
          String roles = roleProps.getProperty(username);
-         String[] split = roles.split(",");
-         for (String role : split)
+         if (roles ==  null)
          {
-            addRole(username, role.trim());
+            ActiveMQServerLogger.LOGGER.cannotFindRoleForUser(username);
+         }
+         else
+         {
+            String[] split = roles.split(",");
+            for (String role : split)
+            {
+               addRole(username, role.trim());
+            }
          }
       }
 

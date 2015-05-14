@@ -22,12 +22,12 @@ import io.airlift.airline.Command;
 import org.apache.activemq.artemis.dto.BrokerDTO;
 
 @Command(name = "stop", description = "stops the broker instance")
-public class Stop extends Configurable implements Action
+public class Stop extends Configurable
 {
    @Override
    public Object execute(ActionContext context) throws Exception
-
    {
+      super.execute(context);
       BrokerDTO broker = getBrokerDTO();
 
       File file = broker.server.getConfigurationFile().getParentFile();

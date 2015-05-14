@@ -126,6 +126,8 @@ public final class XmlDataExporter extends DataAbstract implements Action
    @Override
    public Object execute(ActionContext context) throws Exception
    {
+      super.execute(context);
+
       try
       {
          process(System.out, getBinding(), getJournal(), getPaging(), getLargeMessages());
