@@ -372,13 +372,13 @@ public class FileConfigurationTest extends ConfigurationImplTest
       {
 
          // copy working configuration to a location where the standard classloader cannot find it
-         final Path workingConfiguration = new File(getClass().getResource(File.separator + fullConfigurationName).toURI()).toPath();
+         final Path workingConfiguration = new File(getClass().getResource("/" + fullConfigurationName).toURI()).toPath();
          final Path targetFile = customConfiguration.toPath();
 
          Files.copy(workingConfiguration, targetFile, StandardCopyOption.REPLACE_EXISTING);
 
          // build a custom classloader knowing the location of the config created above (used as context class loader)
-         final URL customConfigurationDirUrl = new URL("file://" + customConfiguration.getParentFile().getAbsolutePath() + File.separator);
+         final URL customConfigurationDirUrl = customConfiguration.getParentFile().toURI().toURL();
          final ClassLoader testWebappClassLoader = new URLClassLoader(new URL[]{customConfigurationDirUrl});
 
          /*
@@ -388,7 +388,7 @@ public class FileConfigurationTest extends ConfigurationImplTest
 
          final class ThrowableHolder
          {
-            public Exception t = null;
+            volatile Exception t;
          }
 
          final ThrowableHolder holder = new ThrowableHolder();
