@@ -151,7 +151,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
 
    // Stuff that used to be on the ClusterManager
 
-   private final Topology topology = new Topology(this);
+   private final Topology topology;
 
    private volatile boolean stopping = false;
 
@@ -228,7 +228,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
 
       this.executor = executorFactory.getExecutor();
 
-      this.topology.setExecutor(executor);
+      this.topology = new Topology(this, executor);
 
       this.server = server;
 
@@ -341,7 +341,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
 
       this.executor = executorFactory.getExecutor();
 
-      this.topology.setExecutor(executor);
+      this.topology = new Topology(this, executor);
 
       this.server = server;
 

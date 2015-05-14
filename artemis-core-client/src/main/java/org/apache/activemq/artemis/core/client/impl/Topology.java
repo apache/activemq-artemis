@@ -34,10 +34,9 @@ import org.apache.activemq.artemis.spi.core.remoting.Connector;
 public final class Topology
 {
 
+   private final Set<ClusterTopologyListener> topologyListeners;
 
-   private final Set<ClusterTopologyListener> topologyListeners = new HashSet<ClusterTopologyListener>();
-
-   private final Executor executor = null;
+   private final Executor executor;
 
    /**
     * Used to debug operations.
@@ -54,23 +53,37 @@ public final class Topology
     * keys are node IDs
     * values are a pair of live/backup transport configurations
     */
-   private final Map<String, TopologyMemberImpl> topology = new ConcurrentHashMap<String, TopologyMemberImpl>();
+   private final Map<String, TopologyMemberImpl> topology;
 
    private Map<String, Long> mapDelete;
 
+   private static final class DirectExecutor implements Executor
+   {
+      public void execute(final Runnable runnable)
+      {
+         runnable.run();
+      }
+   }
    public Topology(final Object owner)
    {
+      this(owner, new DirectExecutor());
+   }
+
+   public Topology(final Object owner, final Executor executor)
+   {
+      this.topologyListeners = new HashSet<>();
+      this.topology = new ConcurrentHashMap<>();
+      if (executor == null)
+      {
+         throw new IllegalArgumentException("Executor is required");
+      }
+      this.executor = executor;
       this.owner = owner;
       if (ActiveMQClientLogger.LOGGER.isTraceEnabled())
       {
          ActiveMQClientLogger.LOGGER.trace("Topology@" + Integer.toHexString(System.identityHashCode(this)) + " CREATE",
                             new Exception("trace"));
       }
-   }
-
-   public void setExecutor(final Executor executor)
-   {
-      this.executor = executor;
    }
 
    /**
@@ -271,7 +284,7 @@ public final class Topology
 
       if (copy.size() > 0)
       {
-         execute(new Runnable()
+         executor.execute(new Runnable()
          {
             public void run()
             {
@@ -351,7 +364,7 @@ public final class Topology
       {
          final ArrayList<ClusterTopologyListener> copy = copyListeners();
 
-         execute(new Runnable()
+         executor.execute(new Runnable()
          {
             public void run()
             {
@@ -372,21 +385,8 @@ public final class Topology
                }
             }
          });
-
       }
       return member != null;
-   }
-
-   private void execute(final Runnable runnable)
-   {
-      if (executor != null)
-      {
-         executor.execute(runnable);
-      }
-      else
-      {
-         runnable.run();
-      }
    }
 
    public synchronized void sendTopology(final ClusterTopologyListener listener)
@@ -396,7 +396,7 @@ public final class Topology
          ActiveMQClientLogger.LOGGER.debug(this + " is sending topology to " + listener);
       }
 
-      execute(new Runnable()
+      executor.execute(new Runnable()
       {
          public void run()
          {
