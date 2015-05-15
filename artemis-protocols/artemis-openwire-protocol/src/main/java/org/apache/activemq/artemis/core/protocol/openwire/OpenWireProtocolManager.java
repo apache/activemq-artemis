@@ -232,6 +232,13 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>
       {
          case CommandTypes.CONNECTION_INFO:
             break;
+         case CommandTypes.CONNECTION_CONTROL:
+            /** The ConnectionControl packet sent from client informs the broker that is capable of supporting dynamic
+             * failover and load balancing.  These features are not yet implemented for Artemis OpenWire.  Instead we
+             * simply drop the packet.  See: ACTIVEMQ6-108 */
+            break;
+         case CommandTypes.CONSUMER_CONTROL:
+            break;
          default:
             throw new IllegalStateException("Cannot handle command: " + command);
       }
