@@ -96,7 +96,10 @@ public class BasicOpenWireTest extends OpenWireTestBase
          while (iterQueues.hasNext())
          {
             SimpleString coreQ = iterQueues.next();
-            this.server.destroyQueue(coreQ);
+            if (server.locateQueue(coreQ) != null)
+            {
+               this.server.destroyQueue(coreQ);
+            }
             System.out.println("Destroyed queue: " + coreQ);
          }
          testQueues.clear();

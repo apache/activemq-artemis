@@ -292,6 +292,15 @@ public class AMQSession implements SessionCallback
       for (ActiveMQDestination dest : actualDestinations)
       {
          ServerMessageImpl coreMsg = new ServerMessageImpl(-1, 1024);
+
+         /* ActiveMQ failover transport will attempt to reconnect after connection failure.  Any sent messages that did
+         * not receive acks will be resent.  (ActiveMQ broker handles this by returning a last sequence id received to
+         * the client).  To handle this in Artemis we use a duplicate ID cache.  To do this we check to see if the
+         * message comes from failover connection.  If so we add a DUPLICATE_ID to handle duplicates after a resend. */
+         if (producerExchange.getConnectionContext().isFaultTolerant() && !messageSend.getProperties().containsKey(ServerMessage.HDR_DUPLICATE_DETECTION_ID))
+         {
+            coreMsg.putStringProperty(ServerMessage.HDR_DUPLICATE_DETECTION_ID.toString(), messageSend.getMessageId().toString());
+         }
          OpenWireMessageConverter.toCoreMessage(coreMsg, messageSend, connection.getMarshaller());
          SimpleString address = OpenWireUtil.toCoreAddress(dest);
          coreMsg.setAddress(address);

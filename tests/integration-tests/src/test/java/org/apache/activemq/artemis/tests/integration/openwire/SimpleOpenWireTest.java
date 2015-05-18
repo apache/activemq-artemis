@@ -37,6 +37,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import java.util.concurrent.TimeUnit;
+
 public class SimpleOpenWireTest extends BasicOpenWireTest
 {
    @Rule
@@ -375,5 +377,45 @@ public class SimpleOpenWireTest extends BasicOpenWireTest
          }
       }
 
+   }
+
+   @Test
+   public void testFailoverTransportReconnect() throws Exception
+   {
+      Connection exConn = null;
+
+      try
+      {
+         String urlString = "failover:(tcp://" + OWHOST + ":" + OWPORT + ")";
+         ActiveMQConnectionFactory exFact = new ActiveMQConnectionFactory(urlString);
+
+         Queue queue = new ActiveMQQueue(durableQueueName);
+
+         exConn = exFact.createConnection();
+         exConn.start();
+
+         Session session = exConn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         MessageProducer messageProducer = session.createProducer(queue);
+         messageProducer.send(session.createTextMessage("Test"));
+
+         MessageConsumer consumer = session.createConsumer(queue);
+         assertNotNull(consumer.receive(5000));
+
+         server.stop();
+         Thread.sleep(3000);
+
+         server.start();
+         server.waitForActivation(10, TimeUnit.SECONDS);
+
+         messageProducer.send(session.createTextMessage("Test2"));
+         assertNotNull(consumer.receive(5000));
+      }
+      finally
+      {
+         if (exConn != null)
+         {
+            exConn.close();
+         }
+      }
    }
 }
