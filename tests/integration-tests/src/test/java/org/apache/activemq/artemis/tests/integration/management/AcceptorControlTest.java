@@ -53,7 +53,8 @@ public class AcceptorControlTest extends ManagementTestBase
 
       Configuration conf = createBasicConfig()
          .addAcceptorConfiguration(acceptorConfig);
-      ActiveMQServer service = createServer(false, conf, mbeanServer);
+      ActiveMQServer service = createServer(false, conf);
+      service.setMBeanServer(mbeanServer);
       service.start();
 
       AcceptorControl acceptorControl = createManagementControl(acceptorConfig.getName());
@@ -70,7 +71,8 @@ public class AcceptorControlTest extends ManagementTestBase
                                                                          RandomUtil.randomString());
       Configuration conf = createBasicConfig()
          .addAcceptorConfiguration(acceptorConfig);
-      ActiveMQServer service = createServer(false, conf, mbeanServer);
+      ActiveMQServer service = createServer(false, conf);
+      service.setMBeanServer(mbeanServer);
       service.start();
 
       AcceptorControl acceptorControl = createManagementControl(acceptorConfig.getName());
@@ -129,7 +131,8 @@ public class AcceptorControlTest extends ManagementTestBase
                                                                          RandomUtil.randomString());
       Configuration conf = createBasicConfig()
          .addAcceptorConfiguration(acceptorConfig);
-      ActiveMQServer service = createServer(false, conf, mbeanServer);
+      ActiveMQServer service = createServer(false, conf);
+      service.setMBeanServer(mbeanServer);
       service.start();
 
       AcceptorControl acceptorControl = createManagementControl(acceptorConfig.getName());

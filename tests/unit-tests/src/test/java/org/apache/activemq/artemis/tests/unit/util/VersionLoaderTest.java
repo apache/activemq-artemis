@@ -19,13 +19,13 @@ package org.apache.activemq.artemis.tests.unit.util;
 import java.util.Properties;
 import java.util.StringTokenizer;
 
-import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
 import org.apache.activemq.artemis.core.version.Version;
 import org.apache.activemq.artemis.utils.VersionLoader;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class VersionLoaderTest extends UnitTestCase
+public class VersionLoaderTest extends ServiceTestBase
 {
    // Constants -----------------------------------------------------
 

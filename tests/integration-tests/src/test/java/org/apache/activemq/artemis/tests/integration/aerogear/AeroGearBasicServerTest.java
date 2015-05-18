@@ -17,32 +17,23 @@
 package org.apache.activemq.artemis.tests.integration.aerogear;
 
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
-import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.SendAcknowledgementHandler;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
-import org.apache.activemq.artemis.tests.util.UnitTestCase;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.ConnectorServiceConfiguration;
 import org.apache.activemq.artemis.core.config.CoreQueueConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.integration.aerogear.AeroGearConnectorServiceFactory;
 import org.apache.activemq.artemis.integration.aerogear.AeroGearConstants;
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
 import org.apache.activemq.artemis.utils.json.JSONArray;
 import org.apache.activemq.artemis.utils.json.JSONException;
 import org.apache.activemq.artemis.utils.json.JSONObject;
@@ -53,6 +44,14 @@ import org.mortbay.jetty.Request;
 import org.mortbay.jetty.Server;
 import org.mortbay.jetty.handler.AbstractHandler;
 import org.mortbay.jetty.nio.SelectChannelConnector;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 public class AeroGearBasicServerTest extends ServiceTestBase
 {
@@ -128,7 +127,7 @@ public class AeroGearBasicServerTest extends ServiceTestBase
       CountDownLatch latch = new CountDownLatch(1);
       AeroGearHandler aeroGearHandler = new AeroGearHandler(latch);
       jetty.addHandler(aeroGearHandler);
-      TransportConfiguration tpconf = new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY);
+      TransportConfiguration tpconf = new TransportConfiguration(INVM_CONNECTOR_FACTORY);
       locator = ActiveMQClient.createServerLocatorWithoutHA(tpconf);
       ClientSessionFactory sf = createSessionFactory(locator);
       ClientSession session = sf.createSession(false, true, true);
@@ -277,7 +276,7 @@ public class AeroGearBasicServerTest extends ServiceTestBase
          }
 
       });
-      TransportConfiguration tpconf = new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY);
+      TransportConfiguration tpconf = new TransportConfiguration(INVM_CONNECTOR_FACTORY);
       locator = ActiveMQClient.createServerLocatorWithoutHA(tpconf);
       ClientSessionFactory sf = createSessionFactory(locator);
       ClientSession session = sf.createSession(false, true, true);
@@ -331,7 +330,7 @@ public class AeroGearBasicServerTest extends ServiceTestBase
          }
 
       });
-      TransportConfiguration tpconf = new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY);
+      TransportConfiguration tpconf = new TransportConfiguration(INVM_CONNECTOR_FACTORY);
       locator = ActiveMQClient.createServerLocatorWithoutHA(tpconf);
       ClientSessionFactory sf = createSessionFactory(locator);
       ClientSession session = sf.createSession(false, true, true);
@@ -369,7 +368,7 @@ public class AeroGearBasicServerTest extends ServiceTestBase
          }
 
       });
-      TransportConfiguration tpconf = new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY);
+      TransportConfiguration tpconf = new TransportConfiguration(INVM_CONNECTOR_FACTORY);
       locator = ActiveMQClient.createServerLocatorWithoutHA(tpconf);
       ClientSessionFactory sf = createSessionFactory(locator);
       ClientSession session = sf.createSession(false, true, true);

@@ -181,7 +181,8 @@ public class AddressControlUsingCoreTest extends ManagementTestBase
 
       Configuration conf = createBasicConfig()
          .addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName()));
-      server = createServer(false, conf, mbeanServer);
+      server = createServer(false, conf);
+      server.setMBeanServer(mbeanServer);
       server.start();
 
       ServerLocator locator = createInVMNonHALocator();

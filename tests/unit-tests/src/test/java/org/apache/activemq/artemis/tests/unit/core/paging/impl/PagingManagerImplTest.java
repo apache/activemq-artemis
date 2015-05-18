@@ -38,12 +38,12 @@ import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.settings.impl.HierarchicalObjectRepository;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
-import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class PagingManagerImplTest extends UnitTestCase
+public class PagingManagerImplTest extends ServiceTestBase
 {
    private final ReadLock lock = new ReentrantReadWriteLock().readLock();
 
@@ -86,7 +86,7 @@ public class PagingManagerImplTest extends UnitTestCase
 
       Assert.assertEquals(1, msgs.size());
 
-      UnitTestCase.assertEqualsByteArrays(msg.getBodyBuffer().writerIndex(), msg.getBodyBuffer().toByteBuffer().array(), msgs.get(0)
+      ServiceTestBase.assertEqualsByteArrays(msg.getBodyBuffer().writerIndex(), msg.getBodyBuffer().toByteBuffer().array(), msgs.get(0)
          .getMessage()
          .getBodyBuffer()
          .toByteBuffer()

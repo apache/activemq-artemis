@@ -16,21 +16,15 @@
  */
 package org.apache.activemq.artemis.tests.integration.server;
 
-import javax.transaction.xa.XAResource;
-import javax.transaction.xa.Xid;
-
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
-import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.apache.activemq.artemis.tests.util.UnitTestCase;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
@@ -40,6 +34,9 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import javax.transaction.xa.XAResource;
+import javax.transaction.xa.Xid;
 
 public class LVQRecoveryTest extends ServiceTestBase
 {
@@ -231,7 +228,7 @@ public class LVQRecoveryTest extends ServiceTestBase
       qs.setLastValueQueue(true);
       server.getAddressSettingsRepository().addMatch(address.toString(), qs);
       // then we create a client as normal
-      locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
+      locator = createInVMNonHALocator();
 
       locator.setBlockOnAcknowledge(true);
       locator.setAckBatchSize(0);
@@ -255,7 +252,7 @@ public class LVQRecoveryTest extends ServiceTestBase
       server.getAddressSettingsRepository().addMatch(address.toString(), qs1);
       // then we create a client as normal
       locator.close();
-      locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
+      locator = createInVMNonHALocator();
 
       locator.setBlockOnAcknowledge(true);
       locator.setAckBatchSize(0);

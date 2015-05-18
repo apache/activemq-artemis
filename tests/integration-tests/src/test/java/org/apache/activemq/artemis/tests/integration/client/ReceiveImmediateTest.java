@@ -52,7 +52,7 @@ public class ReceiveImmediateTest extends ServiceTestBase
    {
       super.setUp();
 
-      Configuration config = createDefaultConfig(false);
+      Configuration config = createDefaultConfig();
       server = createServer(false, config);
       server.start();
       locator = createInVMNonHALocator();

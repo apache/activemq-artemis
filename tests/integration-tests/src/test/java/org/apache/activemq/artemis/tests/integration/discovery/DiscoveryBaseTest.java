@@ -28,7 +28,7 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
-import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
 import org.apache.activemq.artemis.core.cluster.DiscoveryEntry;
 import org.apache.activemq.artemis.core.cluster.DiscoveryGroup;
 import org.apache.activemq.artemis.core.cluster.DiscoveryListener;
@@ -39,7 +39,7 @@ import org.apache.activemq.artemis.core.server.management.NotificationService;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.junit.Assert;
 
-public class DiscoveryBaseTest extends UnitTestCase
+public class DiscoveryBaseTest extends ServiceTestBase
 {
    protected static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 

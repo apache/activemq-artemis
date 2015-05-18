@@ -33,7 +33,7 @@ import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.integration.cluster.distribution.ClusterTestBase;
-import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -149,7 +149,7 @@ public class ScaleDown3NodeTest extends ClusterTestBase
 
          for (int i = 0; i < 2 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE; i++)
          {
-            fileMessage.addBytes(new byte[]{UnitTestCase.getSamplebyte(i)});
+            fileMessage.addBytes(new byte[]{ServiceTestBase.getSamplebyte(i)});
          }
 
          fileMessage.putLongProperty(Message.HDR_LARGE_BODY_SIZE, 2 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE);
@@ -254,7 +254,7 @@ public class ScaleDown3NodeTest extends ClusterTestBase
 
             for (int j = 0; j < 2 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE; j++)
             {
-               Assert.assertEquals(UnitTestCase.getSamplebyte(j), clientMessage.getBodyBuffer().readByte());
+               Assert.assertEquals(ServiceTestBase.getSamplebyte(j), clientMessage.getBodyBuffer().readByte());
             }
          }
          IntegrationTestLogger.LOGGER.info("Received: " + clientMessage);

@@ -18,7 +18,7 @@ package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
-import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
 import org.junit.Test;
 
 import java.io.File;
@@ -130,7 +130,7 @@ public class BackupSyncLargeMessageTest extends BackupSyncJournalTest
       final ClientProducer producer = session.createProducer(FailoverTestBase.ADDRESS);
       final ClientMessage message = session.createMessage(true);
       final int largeMessageSize = 1000 * MIN_LARGE_MESSAGE;
-      message.setBodyInputStream(UnitTestCase.createFakeLargeStream(largeMessageSize));
+      message.setBodyInputStream(ServiceTestBase.createFakeLargeStream(largeMessageSize));
 
       final AtomicBoolean caughtException = new AtomicBoolean(false);
       final CountDownLatch latch = new CountDownLatch(1);
@@ -162,7 +162,7 @@ public class BackupSyncLargeMessageTest extends BackupSyncJournalTest
       Executors.defaultThreadFactory().newThread(r).start();
       waitForLatch(latch);
       startBackupFinishSyncing();
-      UnitTestCase.waitForLatch(latch2);
+      ServiceTestBase.waitForLatch(latch2);
       crash(session);
       assertFalse("no exceptions while sending message", caughtException.get());
 
@@ -174,7 +174,7 @@ public class BackupSyncLargeMessageTest extends BackupSyncJournalTest
       for (int j = 0; j < largeMessageSize; j++)
       {
          Assert.assertTrue("large msg , expecting " + largeMessageSize + " bytes, got " + j, buffer.readable());
-         Assert.assertEquals("equal at " + j, UnitTestCase.getSamplebyte(j), buffer.readByte());
+         Assert.assertEquals("equal at " + j, ServiceTestBase.getSamplebyte(j), buffer.readByte());
       }
       receiveMessages(consumer, 0, 20, true);
       assertNull("there should be no more messages!", consumer.receiveImmediate());

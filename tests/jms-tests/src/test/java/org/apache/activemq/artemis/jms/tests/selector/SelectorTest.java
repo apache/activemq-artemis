@@ -31,7 +31,7 @@ import java.util.concurrent.CountDownLatch;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.tests.ActiveMQServerTestCase;
 import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
-import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -635,8 +635,8 @@ public class SelectorTest extends ActiveMQServerTestCase
             }
          }, "consumer thread 2").start();
 
-         UnitTestCase.waitForLatch(latch);
-         UnitTestCase.waitForLatch(latch2);
+         ServiceTestBase.waitForLatch(latch);
+         ServiceTestBase.waitForLatch(latch2);
 
          ProxyAssertSupport.assertEquals(5, received.size());
          for (Message m : received)

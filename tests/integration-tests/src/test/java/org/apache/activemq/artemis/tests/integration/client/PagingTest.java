@@ -16,23 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
-import javax.transaction.xa.XAResource;
-import javax.transaction.xa.Xid;
-import java.io.File;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
@@ -46,9 +29,6 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.MessageHandler;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
-import org.apache.activemq.artemis.tests.util.UnitTestCase;
 import org.apache.activemq.artemis.core.client.impl.ClientConsumerInternal;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.DivertConfiguration;
@@ -76,9 +56,28 @@ import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
+import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import javax.transaction.xa.XAResource;
+import javax.transaction.xa.Xid;
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class PagingTest extends ServiceTestBase
 {
@@ -1236,12 +1235,8 @@ public class PagingTest extends ServiceTestBase
       Configuration config = createDefaultConfig()
          .setJournalSyncNonTransactional(false);
 
-      server = createServer(true,
-                            config,
-                            PagingTest.PAGE_SIZE,
-                            PagingTest.PAGE_MAX,
-                            AddressFullMessagePolicy.BLOCK,
-                            new HashMap<String, AddressSettings>());
+      server = createServer(true, config, PagingTest.PAGE_SIZE, PagingTest.PAGE_MAX, new HashMap<String, AddressSettings>());
+      server.getAddressSettingsRepository().getMatch("#").setAddressFullMessagePolicy(AddressFullMessagePolicy.BLOCK);
 
       server.start();
 
@@ -2342,8 +2337,8 @@ public class PagingTest extends ServiceTestBase
                         }
                         catch (AssertionError e)
                         {
-                           PagingTest.log.info("Expected buffer:" + UnitTestCase.dumbBytesHex(body, 40));
-                           PagingTest.log.info("Arriving buffer:" + UnitTestCase.dumbBytesHex(message2.getBodyBuffer()
+                           PagingTest.log.info("Expected buffer:" + ServiceTestBase.dumbBytesHex(body, 40));
+                           PagingTest.log.info("Arriving buffer:" + ServiceTestBase.dumbBytesHex(message2.getBodyBuffer()
                                                                                                  .toByteBuffer()
                                                                                                  .array(), 40));
                            throw e;
@@ -2541,8 +2536,8 @@ public class PagingTest extends ServiceTestBase
                   }
                   catch (AssertionError e)
                   {
-                     PagingTest.log.info("Expected buffer:" + UnitTestCase.dumbBytesHex(body, 40));
-                     PagingTest.log.info("Arriving buffer:" + UnitTestCase.dumbBytesHex(message2.getBodyBuffer()
+                     PagingTest.log.info("Expected buffer:" + ServiceTestBase.dumbBytesHex(body, 40));
+                     PagingTest.log.info("Arriving buffer:" + ServiceTestBase.dumbBytesHex(message2.getBodyBuffer()
                                                                                            .toByteBuffer()
                                                                                            .array(), 40));
                      throw e;
@@ -2694,8 +2689,8 @@ public class PagingTest extends ServiceTestBase
          }
          catch (AssertionError e)
          {
-            PagingTest.log.info("Expected buffer:" + UnitTestCase.dumbBytesHex(body, 40));
-            PagingTest.log.info("Arriving buffer:" + UnitTestCase.dumbBytesHex(message2.getBodyBuffer()
+            PagingTest.log.info("Expected buffer:" + ServiceTestBase.dumbBytesHex(body, 40));
+            PagingTest.log.info("Arriving buffer:" + ServiceTestBase.dumbBytesHex(message2.getBodyBuffer()
                                                                                   .toByteBuffer()
                                                                                   .array(), 40));
             throw e;
@@ -2713,7 +2708,7 @@ public class PagingTest extends ServiceTestBase
 
       buffer.readBytes(other);
 
-      UnitTestCase.assertEqualsByteArrays(body, other);
+      ServiceTestBase.assertEqualsByteArrays(body, other);
    }
 
    /**
@@ -3360,7 +3355,7 @@ public class PagingTest extends ServiceTestBase
 
       for (int j = 0; j < numberOfBytes; j++)
       {
-         body[j] = UnitTestCase.getSamplebyte(j);
+         body[j] = ServiceTestBase.getSamplebyte(j);
       }
 
       long scheduledTime = System.currentTimeMillis() + 5000;
@@ -3429,8 +3424,8 @@ public class PagingTest extends ServiceTestBase
          }
          catch (AssertionError e)
          {
-            PagingTest.log.info("Expected buffer:" + UnitTestCase.dumbBytesHex(body, 40));
-            PagingTest.log.info("Arriving buffer:" + UnitTestCase.dumbBytesHex(message2.getBodyBuffer()
+            PagingTest.log.info("Expected buffer:" + ServiceTestBase.dumbBytesHex(body, 40));
+            PagingTest.log.info("Arriving buffer:" + ServiceTestBase.dumbBytesHex(message2.getBodyBuffer()
                                                                                   .toByteBuffer()
                                                                                   .array(), 40));
             throw e;

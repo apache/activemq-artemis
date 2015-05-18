@@ -56,7 +56,7 @@ public class JMSConfigurationTest extends ServiceTestBase
    {
       Context context = new InVMNamingContext();
 
-      Configuration coreConfiguration = createDefaultConfig(false);
+      Configuration coreConfiguration = createDefaultConfig();
       ActiveMQServer coreServer = new ActiveMQServerImpl(coreConfiguration);
 
       JMSConfiguration jmsConfiguration = new JMSConfigurationImpl();

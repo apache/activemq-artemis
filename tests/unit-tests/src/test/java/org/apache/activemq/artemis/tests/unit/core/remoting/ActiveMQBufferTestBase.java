@@ -16,7 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.unit.core.remoting;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
-import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
 import org.junit.Before;
 import org.junit.After;
 
@@ -27,7 +27,7 @@ import org.junit.Assert;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
 
-public abstract class ActiveMQBufferTestBase extends UnitTestCase
+public abstract class ActiveMQBufferTestBase extends ServiceTestBase
 {
    // Constants -----------------------------------------------------
 
@@ -100,7 +100,7 @@ public abstract class ActiveMQBufferTestBase extends UnitTestCase
       SimpleString result = putAndGetNullableSimpleString(emptySimpleString);
 
       Assert.assertNotNull(result);
-      UnitTestCase.assertEqualsByteArrays(emptySimpleString.getData(), result.getData());
+      ServiceTestBase.assertEqualsByteArrays(emptySimpleString.getData(), result.getData());
    }
 
    @Test
@@ -110,7 +110,7 @@ public abstract class ActiveMQBufferTestBase extends UnitTestCase
       SimpleString result = putAndGetNullableSimpleString(junk);
 
       Assert.assertNotNull(result);
-      UnitTestCase.assertEqualsByteArrays(junk.getData(), result.getData());
+      ServiceTestBase.assertEqualsByteArrays(junk.getData(), result.getData());
    }
 
    @Test
@@ -144,7 +144,7 @@ public abstract class ActiveMQBufferTestBase extends UnitTestCase
 
       byte[] b = new byte[bytes.length];
       wrapper.readBytes(b);
-      UnitTestCase.assertEqualsByteArrays(bytes, b);
+      ServiceTestBase.assertEqualsByteArrays(bytes, b);
    }
 
    @Test
@@ -156,7 +156,7 @@ public abstract class ActiveMQBufferTestBase extends UnitTestCase
 
       byte[] b = new byte[bytes.length / 2];
       wrapper.readBytes(b, 0, b.length);
-      UnitTestCase.assertEqualsByteArrays(b.length, bytes, b);
+      ServiceTestBase.assertEqualsByteArrays(b.length, bytes, b);
    }
 
    @Test
@@ -289,7 +289,7 @@ public abstract class ActiveMQBufferTestBase extends UnitTestCase
 
       byte[] array = wrapper.toByteBuffer().array();
       Assert.assertEquals(wrapper.capacity(), array.length);
-      UnitTestCase.assertEqualsByteArrays(128, bytes, wrapper.toByteBuffer().array());
+      ServiceTestBase.assertEqualsByteArrays(128, bytes, wrapper.toByteBuffer().array());
    }
 
    @Test

@@ -16,21 +16,17 @@
  */
 package org.apache.activemq.artemis.tests.integration.management;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
-import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.api.core.management.AddressControl;
 import org.apache.activemq.artemis.api.core.management.RoleInfo;
-import org.apache.activemq.artemis.tests.util.UnitTestCase;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.remoting.impl.invm.InVMAcceptorFactory;
 import org.apache.activemq.artemis.core.security.CheckType;
@@ -42,6 +38,9 @@ import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.HashSet;
+import java.util.Set;
 
 import static org.apache.activemq.artemis.tests.util.RandomUtil.randomString;
 
@@ -221,7 +220,7 @@ public class AddressControlTest extends ManagementTestBase
       server.start();
       ServerLocator locator2 =
          ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(
-            UnitTestCase.INVM_CONNECTOR_FACTORY));
+            INVM_CONNECTOR_FACTORY));
       addServerLocator(locator2);
       ClientSessionFactory sf2 = createSessionFactory(locator2);
 
@@ -289,7 +288,7 @@ public class AddressControlTest extends ManagementTestBase
       server.getAddressSettingsRepository().addMatch(address.toString(), addressSettings);
       server.start();
       ServerLocator locator2 = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(
-         UnitTestCase.INVM_CONNECTOR_FACTORY));
+         INVM_CONNECTOR_FACTORY));
       addServerLocator(locator2);
       ClientSessionFactory sf2 = createSessionFactory(locator2);
 
@@ -310,7 +309,8 @@ public class AddressControlTest extends ManagementTestBase
 
       Configuration conf = createBasicConfig()
          .addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName()));
-      server = createServer(false, conf, mbeanServer);
+      server = createServer(false, conf);
+      server.setMBeanServer(mbeanServer);
       server.start();
 
       locator = createInVMNonHALocator();

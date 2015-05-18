@@ -17,7 +17,7 @@
 package org.apache.activemq.artemis.tests.unit.util;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
-import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
 import org.junit.After;
 
 import org.junit.Test;
@@ -35,7 +35,7 @@ import org.apache.activemq.artemis.utils.DataConstants;
 import org.apache.activemq.artemis.utils.Random;
 import org.apache.activemq.artemis.utils.UTF8Util;
 
-public class UTF8Test extends UnitTestCase
+public class UTF8Test extends ServiceTestBase
 {
 
    @Test

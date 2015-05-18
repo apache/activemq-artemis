@@ -32,7 +32,7 @@ public class ValidateAIOTest extends ServiceTestBase
    @Test
    public void testValidateAIO() throws Exception
    {
-      Configuration config = createDefaultConfig(false)
+      Configuration config = createDefaultConfig()
          // This will force AsyncIO
          .setJournalType(JournalType.ASYNCIO);
       ActiveMQServer server = ActiveMQServers.newActiveMQServer(config, true);

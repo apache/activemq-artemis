@@ -26,11 +26,11 @@ import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.core.settings.impl.ResourceLimitSettings;
-import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
 import org.junit.Before;
 import org.junit.Test;
 
-public class ResourceLimitTest extends UnitTestCase
+public class ResourceLimitTest extends ServiceTestBase
 {
    private ActiveMQServer server;
 

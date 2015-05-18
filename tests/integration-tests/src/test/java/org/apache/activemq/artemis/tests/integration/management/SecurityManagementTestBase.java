@@ -16,7 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.management;
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
-import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
 import org.junit.Before;
 import org.junit.After;
 
@@ -33,7 +33,7 @@ import org.apache.activemq.artemis.api.core.management.ManagementHelper;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 
-public abstract class SecurityManagementTestBase extends UnitTestCase
+public abstract class SecurityManagementTestBase extends ServiceTestBase
 {
 
    // Constants -----------------------------------------------------
@@ -78,7 +78,7 @@ public abstract class SecurityManagementTestBase extends UnitTestCase
    {
       ServerLocator locator =
                addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(
-                  UnitTestCase.INVM_CONNECTOR_FACTORY)));
+                  INVM_CONNECTOR_FACTORY)));
       ClientSessionFactory sf = locator.createSessionFactory();
       try
       {

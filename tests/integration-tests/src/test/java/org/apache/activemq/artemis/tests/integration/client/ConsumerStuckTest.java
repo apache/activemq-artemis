@@ -17,19 +17,17 @@
 package org.apache.activemq.artemis.tests.integration.client;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
-import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryImpl;
 import org.apache.activemq.artemis.core.protocol.core.impl.RemotingConnectionImpl;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnection;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -59,7 +57,7 @@ public class ConsumerStuckTest extends ServiceTestBase
    public void testClientStuckTest() throws Exception
    {
 
-      ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(NETTY_CONNECTOR_FACTORY));
+      ServerLocator locator = createNettyNonHALocator();
       locator.setConnectionTTL(1000);
       locator.setClientFailureCheckPeriod(100);
       locator.setConsumerWindowSize(10 * 1024 * 1024);
@@ -170,7 +168,7 @@ public class ConsumerStuckTest extends ServiceTestBase
    public void testClientStuckTestWithDirectDelivery() throws Exception
    {
 
-      ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(NETTY_CONNECTOR_FACTORY));
+      ServerLocator locator = createNettyNonHALocator();
       locator.setConnectionTTL(1000);
       locator.setClientFailureCheckPeriod(100);
       locator.setConsumerWindowSize(10 * 1024 * 1024);
@@ -228,7 +226,7 @@ public class ConsumerStuckTest extends ServiceTestBase
          public void run()
          {
             try (
-               ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(NETTY_CONNECTOR_FACTORY));
+               ServerLocator locator = createNettyNonHALocator();
                ClientSessionFactory factory = locator.createSessionFactory();
                ClientSession session = factory.createSession(false, true, true, true);
                ClientProducer producer = session.createProducer(QUEUE);

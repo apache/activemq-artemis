@@ -17,7 +17,7 @@
 package org.apache.activemq.artemis.tests.integration.management;
 
 import org.apache.activemq.artemis.tests.unit.core.postoffice.impl.FakeQueue;
-import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
 import org.junit.Test;
 
 import org.junit.Assert;
@@ -38,7 +38,7 @@ import org.apache.activemq.artemis.core.server.management.impl.ManagementService
 import org.apache.activemq.artemis.tests.integration.server.FakeStorageManager;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
 
-public class ManagementServiceImplTest extends UnitTestCase
+public class ManagementServiceImplTest extends ServiceTestBase
 {
    @Test
    public void testHandleManagementMessageWithOperation() throws Exception

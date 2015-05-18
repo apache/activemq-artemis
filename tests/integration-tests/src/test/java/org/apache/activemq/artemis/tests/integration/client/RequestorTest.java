@@ -27,7 +27,6 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.MessageHandler;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.apache.activemq.artemis.tests.util.UnitTestCase;
 import org.apache.activemq.artemis.core.client.impl.ClientMessageImpl;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
@@ -214,7 +213,7 @@ public class RequestorTest extends ServiceTestBase
          }
       };
 
-      UnitTestCase.expectActiveMQException("ClientRequestor's session must not be closed",
+      ServiceTestBase.expectActiveMQException("ClientRequestor's session must not be closed",
               ActiveMQExceptionType.OBJECT_CLOSED,
               activeMQAction);
    }
@@ -258,7 +257,7 @@ public class RequestorTest extends ServiceTestBase
          }
       };
 
-      UnitTestCase.expectActiveMQException("can not send a request on a closed ClientRequestor",
+      ServiceTestBase.expectActiveMQException("can not send a request on a closed ClientRequestor",
                                            ActiveMQExceptionType.OBJECT_CLOSED, activeMQAction);
    }
 

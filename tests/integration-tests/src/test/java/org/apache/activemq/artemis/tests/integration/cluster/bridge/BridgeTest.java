@@ -16,33 +16,27 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.bridge;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Interceptor;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
-import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
-import org.apache.activemq.artemis.tests.util.UnitTestCase;
 import org.apache.activemq.artemis.core.config.BridgeConfiguration;
 import org.apache.activemq.artemis.core.config.CoreQueueConfiguration;
+import org.apache.activemq.artemis.core.journal.PreparedTransactionInfo;
+import org.apache.activemq.artemis.core.journal.RecordInfo;
+import org.apache.activemq.artemis.core.journal.SequentialFileFactory;
+import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
+import org.apache.activemq.artemis.core.journal.impl.NIOSequentialFileFactory;
+import org.apache.activemq.artemis.core.persistence.impl.journal.DescribeJournal;
+import org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds;
 import org.apache.activemq.artemis.core.postoffice.DuplicateIDCache;
 import org.apache.activemq.artemis.core.postoffice.impl.PostOfficeImpl;
 import org.apache.activemq.artemis.core.protocol.core.Packet;
@@ -56,6 +50,7 @@ import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.cluster.impl.BridgeImpl;
 import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.apache.activemq.artemis.tests.util.ServiceTestBase;
 import org.apache.activemq.artemis.utils.LinkedListIterator;
@@ -65,6 +60,18 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @RunWith(value = Parameterized.class)
 public class BridgeTest extends ServiceTestBase
@@ -226,7 +233,7 @@ public class BridgeTest extends ServiceTestBase
 
          if (largeMessage)
          {
-            message.setBodyInputStream(UnitTestCase.createFakeLargeStream(1024 * 1024));
+            message.setBodyInputStream(ServiceTestBase.createFakeLargeStream(1024 * 1024));
          }
 
          message.putIntProperty(propKey, i);
@@ -403,7 +410,7 @@ public class BridgeTest extends ServiceTestBase
 
          if (largeMessage)
          {
-            message.setBodyInputStream(UnitTestCase.createFakeLargeStream(1024 * 1024));
+            message.setBodyInputStream(ServiceTestBase.createFakeLargeStream(1024 * 1024));
          }
 
          message.putIntProperty(propKey, i);
@@ -588,7 +595,7 @@ public class BridgeTest extends ServiceTestBase
 
          if (largeMessage)
          {
-            message.setBodyInputStream(UnitTestCase.createFakeLargeStream(1024 * 1024));
+            message.setBodyInputStream(ServiceTestBase.createFakeLargeStream(1024 * 1024));
          }
 
          producer0.send(message);
@@ -606,7 +613,7 @@ public class BridgeTest extends ServiceTestBase
 
          if (largeMessage)
          {
-            message.setBodyInputStream(UnitTestCase.createFakeLargeStream(1024 * 1024));
+            message.setBodyInputStream(ServiceTestBase.createFakeLargeStream(1024 * 1024));
          }
 
          producer0.send(message);
@@ -1867,6 +1874,61 @@ public class BridgeTest extends ServiceTestBase
 
       assertEquals(0, loadQueues(server0).size());
 
+
+   }
+
+   /**
+    * It will inspect the journal directly and determine if there are queues on this journal,
+    *
+    * @param serverToInvestigate
+    * @return a Map containing the reference counts per queue
+    * @throws Exception
+    */
+   protected Map<Long, AtomicInteger> loadQueues(ActiveMQServer serverToInvestigate) throws Exception
+   {
+      SequentialFileFactory messagesFF = new NIOSequentialFileFactory(serverToInvestigate.getConfiguration()
+                                                                              .getJournalDirectory());
+
+      JournalImpl messagesJournal = new JournalImpl(serverToInvestigate.getConfiguration().getJournalFileSize(),
+                                                    serverToInvestigate.getConfiguration().getJournalMinFiles(),
+                                                    0,
+                                                    0,
+                                                    messagesFF,
+                                                    "activemq-data",
+                                                    "amq",
+                                                    1);
+      List<RecordInfo> records = new LinkedList<RecordInfo>();
+
+      List<PreparedTransactionInfo> preparedTransactions = new LinkedList<PreparedTransactionInfo>();
+
+      messagesJournal.start();
+      messagesJournal.load(records, preparedTransactions, null);
+
+      // These are more immutable integers
+      Map<Long, AtomicInteger> messageRefCounts = new HashMap<Long, AtomicInteger>();
+
+      for (RecordInfo info : records)
+      {
+         Object o = DescribeJournal.newObjectEncoding(info);
+         if (info.getUserRecordType() == JournalRecordIds.ADD_REF)
+         {
+            DescribeJournal.ReferenceDescribe ref = (DescribeJournal.ReferenceDescribe) o;
+            AtomicInteger count = messageRefCounts.get(ref.refEncoding.queueID);
+            if (count == null)
+            {
+               count = new AtomicInteger(1);
+               messageRefCounts.put(ref.refEncoding.queueID, count);
+            }
+            else
+            {
+               count.incrementAndGet();
+            }
+         }
+      }
+
+      messagesJournal.stop();
+
+      return messageRefCounts;
 
    }
 }

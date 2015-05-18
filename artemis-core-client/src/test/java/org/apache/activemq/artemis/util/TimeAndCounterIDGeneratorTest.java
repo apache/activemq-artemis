@@ -16,16 +16,13 @@
  */
 package org.apache.activemq.artemis.util;
 
+import org.apache.activemq.artemis.utils.ConcurrentHashSet;
+import org.apache.activemq.artemis.utils.TimeAndCounterIDGenerator;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.concurrent.CountDownLatch;
-
-import org.junit.Assert;
-
-
-import org.apache.activemq.artemis.tests.CoreUnitTestCase;
-import org.apache.activemq.artemis.utils.ConcurrentHashSet;
-import org.apache.activemq.artemis.utils.TimeAndCounterIDGenerator;
+import java.util.concurrent.TimeUnit;
 
 public class TimeAndCounterIDGeneratorTest extends Assert
 {
@@ -105,7 +102,7 @@ public class TimeAndCounterIDGeneratorTest extends Assert
             try
             {
                latchAlign.countDown();
-               CoreUnitTestCase.waitForLatch(latchStart);
+               assertTrue("Latch has got to return within a minute", latchStart.await(1, TimeUnit.MINUTES));
 
                long lastValue = 0L;
                for (int i = 0; i < NUMBER_OF_IDS; i++)
@@ -136,7 +133,7 @@ public class TimeAndCounterIDGeneratorTest extends Assert
          arrays[i].start();
       }
 
-      CoreUnitTestCase.waitForLatch(latchAlign);
+      assertTrue("Latch has got to return within a minute", latchAlign.await(1, TimeUnit.MINUTES));
 
       latchStart.countDown();
 

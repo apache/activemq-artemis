@@ -17,7 +17,7 @@
 package org.apache.activemq.artemis.tests.unit.core.postoffice.impl;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
-import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
 import org.apache.activemq.artemis.core.server.impl.RefsOperation;
 import org.junit.Test;
 
@@ -42,7 +42,7 @@ import org.apache.activemq.artemis.core.server.impl.ServerMessageImpl;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.core.transaction.TransactionOperation;
 
-public class BindingsImplTest extends UnitTestCase
+public class BindingsImplTest extends ServiceTestBase
 {
    // Constants -----------------------------------------------------
 

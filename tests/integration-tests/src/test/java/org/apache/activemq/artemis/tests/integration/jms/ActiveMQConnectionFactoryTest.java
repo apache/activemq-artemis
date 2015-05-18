@@ -16,7 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
-import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
 import org.apache.activemq.artemis.core.config.ha.SharedStoreMasterPolicyConfiguration;
 import org.junit.Before;
 
@@ -50,7 +50,7 @@ import org.apache.activemq.artemis.tests.util.RandomUtil;
  *
  * A ActiveMQConnectionFactoryTest
  */
-public class ActiveMQConnectionFactoryTest extends UnitTestCase
+public class ActiveMQConnectionFactoryTest extends ServiceTestBase
 {
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 

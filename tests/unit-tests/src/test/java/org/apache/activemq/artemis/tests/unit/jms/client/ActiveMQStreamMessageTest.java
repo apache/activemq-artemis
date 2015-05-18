@@ -16,7 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.unit.jms.client;
 
-import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -29,7 +29,7 @@ import org.junit.Assert;
 import org.apache.activemq.artemis.jms.client.ActiveMQStreamMessage;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
 
-public class ActiveMQStreamMessageTest extends UnitTestCase
+public class ActiveMQStreamMessageTest extends ServiceTestBase
 {
    // Constants -----------------------------------------------------
 
@@ -180,7 +180,7 @@ public class ActiveMQStreamMessageTest extends UnitTestCase
       byte[] v = new byte[value.length];
       message.readBytes(v);
 
-      UnitTestCase.assertEqualsByteArrays(value, v);
+      ServiceTestBase.assertEqualsByteArrays(value, v);
    }
 
    @Test
@@ -195,7 +195,7 @@ public class ActiveMQStreamMessageTest extends UnitTestCase
       byte[] v = new byte[256];
       message.readBytes(v);
 
-      UnitTestCase.assertEqualsByteArrays(256, value, v);
+      ServiceTestBase.assertEqualsByteArrays(256, value, v);
    }
 
    @Test
@@ -922,7 +922,7 @@ public class ActiveMQStreamMessageTest extends UnitTestCase
       message.reset();
 
       byte[] v = (byte[])message.readObject();
-      UnitTestCase.assertEqualsByteArrays(value, v);
+      ServiceTestBase.assertEqualsByteArrays(value, v);
    }
 
    @Test
@@ -1041,7 +1041,7 @@ public class ActiveMQStreamMessageTest extends UnitTestCase
       Object v = reader.readType(message);
       if (value instanceof byte[])
       {
-         UnitTestCase.assertEqualsByteArrays((byte[])value, (byte[])v);
+         ServiceTestBase.assertEqualsByteArrays((byte[])value, (byte[])v);
       }
       else
       {

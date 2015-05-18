@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.integration.management;
-import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
 import org.junit.Before;
 import org.junit.After;
 
@@ -108,12 +108,12 @@ public class ClusterConnectionControl2Test extends ManagementTestBase
 
       Map<String, Object> acceptorParams_1 = new HashMap<String, Object>();
       acceptorParams_1.put(TransportConstants.PORT_PROP_NAME, port_1);
-      TransportConfiguration acceptorConfig_0 = new TransportConfiguration(UnitTestCase.NETTY_ACCEPTOR_FACTORY);
+      TransportConfiguration acceptorConfig_0 = new TransportConfiguration(ServiceTestBase.NETTY_ACCEPTOR_FACTORY);
 
-      TransportConfiguration acceptorConfig_1 = new TransportConfiguration(UnitTestCase.NETTY_ACCEPTOR_FACTORY, acceptorParams_1);
+      TransportConfiguration acceptorConfig_1 = new TransportConfiguration(ServiceTestBase.NETTY_ACCEPTOR_FACTORY, acceptorParams_1);
 
-      TransportConfiguration connectorConfig_1 = new TransportConfiguration(UnitTestCase.NETTY_CONNECTOR_FACTORY, acceptorParams_1);
-      TransportConfiguration connectorConfig_0 = new TransportConfiguration(UnitTestCase.NETTY_CONNECTOR_FACTORY);
+      TransportConfiguration connectorConfig_1 = new TransportConfiguration(ServiceTestBase.NETTY_CONNECTOR_FACTORY, acceptorParams_1);
+      TransportConfiguration connectorConfig_0 = new TransportConfiguration(ServiceTestBase.NETTY_CONNECTOR_FACTORY);
 
       CoreQueueConfiguration queueConfig = new CoreQueueConfiguration()
          .setAddress(RandomUtil.randomString())

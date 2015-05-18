@@ -15,34 +15,31 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.integration.client;
+
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
-import org.apache.activemq.artemis.tests.util.UnitTestCase;
-import org.junit.Before;
-import org.junit.After;
-
-import org.junit.Test;
-
-import javax.transaction.xa.XAException;
-import javax.transaction.xa.XAResource;
-
-import org.junit.Assert;
-
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
-import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.remoting.impl.invm.InVMAcceptorFactory;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
-public class SessionCloseTest extends UnitTestCase
+import javax.transaction.xa.XAException;
+import javax.transaction.xa.XAResource;
+
+public class SessionCloseTest extends ServiceTestBase
 {
 
    // Constants -----------------------------------------------------
@@ -69,7 +66,7 @@ public class SessionCloseTest extends UnitTestCase
 
       Assert.assertTrue(session.isClosed());
 
-      UnitTestCase.expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, new ActiveMQAction()
+      ServiceTestBase.expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, new ActiveMQAction()
       {
          public void run() throws ActiveMQException
          {
@@ -77,7 +74,7 @@ public class SessionCloseTest extends UnitTestCase
          }
       });
 
-      UnitTestCase.expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, new ActiveMQAction()
+      ServiceTestBase.expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, new ActiveMQAction()
       {
          public void run() throws ActiveMQException
          {
@@ -85,7 +82,7 @@ public class SessionCloseTest extends UnitTestCase
          }
       });
 
-      UnitTestCase.expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, new ActiveMQAction()
+      ServiceTestBase.expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, new ActiveMQAction()
       {
          public void run() throws ActiveMQException
          {
@@ -95,7 +92,7 @@ public class SessionCloseTest extends UnitTestCase
          }
       });
 
-      UnitTestCase.expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, new ActiveMQAction()
+      ServiceTestBase.expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, new ActiveMQAction()
       {
          public void run() throws ActiveMQException
          {
@@ -103,7 +100,7 @@ public class SessionCloseTest extends UnitTestCase
          }
       });
 
-      UnitTestCase.expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, new ActiveMQAction()
+      ServiceTestBase.expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, new ActiveMQAction()
       {
          public void run() throws ActiveMQException
          {
@@ -111,7 +108,7 @@ public class SessionCloseTest extends UnitTestCase
          }
       });
 
-      UnitTestCase.expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, new ActiveMQAction()
+      ServiceTestBase.expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, new ActiveMQAction()
       {
          public void run() throws ActiveMQException
          {
@@ -119,7 +116,7 @@ public class SessionCloseTest extends UnitTestCase
          }
       });
 
-      UnitTestCase.expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, new ActiveMQAction()
+      ServiceTestBase.expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, new ActiveMQAction()
       {
          public void run() throws ActiveMQException
          {
@@ -127,7 +124,7 @@ public class SessionCloseTest extends UnitTestCase
          }
       });
 
-      UnitTestCase.expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, new ActiveMQAction()
+      ServiceTestBase.expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, new ActiveMQAction()
       {
          public void run() throws ActiveMQException
          {
@@ -135,7 +132,7 @@ public class SessionCloseTest extends UnitTestCase
          }
       });
 
-      UnitTestCase.expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, new ActiveMQAction()
+      ServiceTestBase.expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, new ActiveMQAction()
       {
          public void run() throws ActiveMQException
          {
@@ -143,7 +140,7 @@ public class SessionCloseTest extends UnitTestCase
          }
       });
 
-      UnitTestCase.expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, new ActiveMQAction()
+      ServiceTestBase.expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, new ActiveMQAction()
       {
          public void run() throws ActiveMQException
          {
@@ -164,7 +161,7 @@ public class SessionCloseTest extends UnitTestCase
       Assert.assertTrue(session.isXA());
       Assert.assertTrue(session.isClosed());
 
-      UnitTestCase.expectXAException(XAException.XA_RETRY, new ActiveMQAction()
+      ServiceTestBase.expectXAException(XAException.XA_RETRY, new ActiveMQAction()
       {
          public void run() throws XAException
          {
@@ -172,7 +169,7 @@ public class SessionCloseTest extends UnitTestCase
          }
       });
 
-      UnitTestCase.expectXAException(XAException.XAER_RMERR, new ActiveMQAction()
+      ServiceTestBase.expectXAException(XAException.XAER_RMERR, new ActiveMQAction()
       {
          public void run() throws XAException
          {
@@ -180,7 +177,7 @@ public class SessionCloseTest extends UnitTestCase
          }
       });
 
-      UnitTestCase.expectXAException(XAException.XAER_RMERR, new ActiveMQAction()
+      ServiceTestBase.expectXAException(XAException.XAER_RMERR, new ActiveMQAction()
       {
          public void run() throws XAException
          {
@@ -188,7 +185,7 @@ public class SessionCloseTest extends UnitTestCase
          }
       });
 
-      UnitTestCase.expectXAException(XAException.XAER_RMERR, new ActiveMQAction()
+      ServiceTestBase.expectXAException(XAException.XAER_RMERR, new ActiveMQAction()
       {
          public void run() throws XAException
          {
@@ -196,7 +193,7 @@ public class SessionCloseTest extends UnitTestCase
          }
       });
 
-      UnitTestCase.expectXAException(XAException.XAER_RMERR, new ActiveMQAction()
+      ServiceTestBase.expectXAException(XAException.XAER_RMERR, new ActiveMQAction()
       {
          public void run() throws XAException
          {
@@ -204,7 +201,7 @@ public class SessionCloseTest extends UnitTestCase
          }
       });
 
-      UnitTestCase.expectXAException(XAException.XAER_RMERR, new ActiveMQAction()
+      ServiceTestBase.expectXAException(XAException.XAER_RMERR, new ActiveMQAction()
       {
          public void run() throws XAException
          {
@@ -212,7 +209,7 @@ public class SessionCloseTest extends UnitTestCase
          }
       });
 
-      UnitTestCase.expectXAException(XAException.XAER_RMERR, new ActiveMQAction()
+      ServiceTestBase.expectXAException(XAException.XAER_RMERR, new ActiveMQAction()
       {
          public void run() throws XAException
          {
@@ -260,7 +257,7 @@ public class SessionCloseTest extends UnitTestCase
 
       server.start();
 
-      ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
+      ServerLocator locator = createInVMNonHALocator();
       sf = createSessionFactory(locator);
 
    }

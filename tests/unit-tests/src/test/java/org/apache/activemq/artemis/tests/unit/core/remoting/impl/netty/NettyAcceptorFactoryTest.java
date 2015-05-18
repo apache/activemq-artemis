@@ -30,11 +30,11 @@ import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
 import org.apache.activemq.artemis.spi.core.remoting.BufferHandler;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.activemq.artemis.spi.core.remoting.ConnectionLifeCycleListener;
-import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class NettyAcceptorFactoryTest extends UnitTestCase
+public class NettyAcceptorFactoryTest extends ServiceTestBase
 {
    @Test
    public void testCreateAcceptor() throws Exception

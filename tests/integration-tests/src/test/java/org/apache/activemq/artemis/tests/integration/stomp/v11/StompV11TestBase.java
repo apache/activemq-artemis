@@ -16,7 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.stomp.v11;
 import org.apache.activemq.artemis.tests.unit.util.InVMNamingContext;
-import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
 import org.apache.activemq.artemis.core.registry.JndiBindingRegistry;
 import org.junit.Before;
 import org.junit.After;
@@ -52,7 +52,7 @@ import org.apache.activemq.artemis.jms.server.config.impl.JMSQueueConfigurationI
 import org.apache.activemq.artemis.jms.server.config.impl.TopicConfigurationImpl;
 import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
 
-public abstract class StompV11TestBase extends UnitTestCase
+public abstract class StompV11TestBase extends ServiceTestBase
 {
    protected String hostname = "127.0.0.1";
 

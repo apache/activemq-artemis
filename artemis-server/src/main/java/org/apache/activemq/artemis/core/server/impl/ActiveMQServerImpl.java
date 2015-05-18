@@ -183,7 +183,7 @@ public class ActiveMQServerImpl implements ActiveMQServer
 
    private final Configuration configuration;
 
-   private final MBeanServer mbeanServer;
+   private MBeanServer mbeanServer;
 
    private volatile SecurityStore securityStore;
 
@@ -517,6 +517,16 @@ public class ActiveMQServerImpl implements ActiveMQServer
    public void setHAPolicy(HAPolicy haPolicy)
    {
       this.haPolicy = haPolicy;
+   }
+
+   @Override
+   public void setMBeanServer(MBeanServer mbeanServer)
+   {
+      if (state == SERVER_STATE.STARTING || state == SERVER_STATE.STARTED)
+      {
+         throw ActiveMQMessageBundle.BUNDLE.cannotSetMBeanserver();
+      }
+      this.mbeanServer = mbeanServer;
    }
 
    public ExecutorService getThreadPool()

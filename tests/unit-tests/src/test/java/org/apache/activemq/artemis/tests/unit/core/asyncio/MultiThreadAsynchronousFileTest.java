@@ -25,7 +25,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
-import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
 import org.apache.activemq.artemis.core.asyncio.AIOCallback;
 import org.apache.activemq.artemis.core.asyncio.impl.AsynchronousFileImpl;
 import org.apache.activemq.artemis.core.journal.impl.AIOSequentialFileFactory;
@@ -125,7 +125,7 @@ public class MultiThreadAsynchronousFileTest extends AIOTestBase
          }
 
          latchStart.countDown();
-         UnitTestCase.waitForLatch(latchStart);
+         ServiceTestBase.waitForLatch(latchStart);
 
          long startTime = System.currentTimeMillis();
 

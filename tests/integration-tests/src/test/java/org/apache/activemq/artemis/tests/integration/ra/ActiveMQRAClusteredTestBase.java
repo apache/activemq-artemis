@@ -25,7 +25,7 @@ import org.apache.activemq.artemis.core.remoting.impl.invm.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
-import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
 import org.junit.Before;
 
 public class ActiveMQRAClusteredTestBase extends ActiveMQRATestBase
@@ -96,7 +96,7 @@ public class ActiveMQRAClusteredTestBase extends ActiveMQRATestBase
          .setPagingDirectory(getTestDir() + "/" + directoryPrefix + "Page / ")
          .addConnectorConfiguration(secondaryConnectorName, secondaryConnector)
          .addConnectorConfiguration(primaryConnectorName, primaryConnector)
-         .addClusterConfiguration(UnitTestCase.basicClusterConnectionConfig(secondaryConnectorName, primaryConnectorName));
+         .addClusterConfiguration(ServiceTestBase.basicClusterConnectionConfig(secondaryConnectorName, primaryConnectorName));
 
       return configuration;
    }

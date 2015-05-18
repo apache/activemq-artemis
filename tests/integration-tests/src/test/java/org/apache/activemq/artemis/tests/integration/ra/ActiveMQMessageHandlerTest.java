@@ -16,14 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.ra;
 
-import javax.jms.Message;
-import javax.resource.ResourceException;
-import javax.resource.spi.InvalidPropertyException;
-import java.lang.reflect.Method;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -38,8 +30,15 @@ import org.apache.activemq.artemis.ra.ActiveMQResourceAdapter;
 import org.apache.activemq.artemis.ra.inflow.ActiveMQActivation;
 import org.apache.activemq.artemis.ra.inflow.ActiveMQActivationSpec;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
-import org.apache.activemq.artemis.tests.util.UnitTestCase;
 import org.junit.Test;
+
+import javax.jms.Message;
+import javax.resource.ResourceException;
+import javax.resource.spi.InvalidPropertyException;
+import java.lang.reflect.Method;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase
 {
@@ -199,7 +198,7 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase
    protected ActiveMQResourceAdapter newResourceAdapter()
    {
       ActiveMQResourceAdapter qResourceAdapter = new ActiveMQResourceAdapter();
-      qResourceAdapter.setConnectorClassName(UnitTestCase.INVM_CONNECTOR_FACTORY);
+      qResourceAdapter.setConnectorClassName(INVM_CONNECTOR_FACTORY);
       return qResourceAdapter;
    }
 

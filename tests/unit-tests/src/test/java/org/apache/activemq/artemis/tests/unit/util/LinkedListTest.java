@@ -22,13 +22,13 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
 import org.apache.activemq.artemis.utils.LinkedListImpl;
 import org.apache.activemq.artemis.utils.LinkedListIterator;
 import org.junit.Before;
 import org.junit.Test;
 
-public class LinkedListTest extends UnitTestCase
+public class LinkedListTest extends ServiceTestBase
 {
    private LinkedListImpl<Integer> list;
 

@@ -16,7 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.timing.core.server.impl;
 import org.apache.activemq.artemis.tests.unit.core.server.impl.fakes.FakeQueueFactory;
-import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
 import org.junit.Before;
 import org.junit.After;
 
@@ -40,7 +40,7 @@ import org.apache.activemq.artemis.tests.unit.core.server.impl.fakes.FakeConsume
  *
  * All the concurrent queue tests go in here
  */
-public class QueueConcurrentTest extends UnitTestCase
+public class QueueConcurrentTest extends ServiceTestBase
 {
    private static final UnitTestLogger log = UnitTestLogger.LOGGER;
 

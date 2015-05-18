@@ -18,7 +18,7 @@ package org.apache.activemq.artemis.tests.unit.core.remoting.impl.netty;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
-import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
 import org.junit.Test;
 
 import java.util.HashMap;
@@ -34,7 +34,7 @@ import org.apache.activemq.artemis.spi.core.remoting.BufferHandler;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.activemq.artemis.spi.core.remoting.ConnectionLifeCycleListener;
 
-public class NettyConnectorTest extends UnitTestCase
+public class NettyConnectorTest extends ServiceTestBase
 {
 
    @Test

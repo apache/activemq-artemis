@@ -38,6 +38,6 @@ public class RemoveFolder extends ExternalResource
     */
    protected void after()
    {
-      UnitTestCase.deleteDirectory(new File(folderName));
+      ServiceTestBase.deleteDirectory(new File(folderName));
    }
 }

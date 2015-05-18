@@ -37,7 +37,7 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.MessageHandler;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.tests.util.SingleServerTestBase;
-import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
 import org.apache.activemq.artemis.core.client.impl.ClientProducerImpl;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionInternal;
 import org.apache.activemq.artemis.core.protocol.core.Packet;
@@ -574,7 +574,7 @@ public class TemporaryQueueTest extends SingleServerTestBase
          }
       };
 
-      UnitTestCase.expectActiveMQException("temp queue must not exist after the server detected the client crash",
+      ServiceTestBase.expectActiveMQException("temp queue must not exist after the server detected the client crash",
               ActiveMQExceptionType.QUEUE_DOES_NOT_EXIST, activeMQAction);
 
       session.close();

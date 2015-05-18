@@ -17,13 +17,11 @@
 package org.apache.activemq.artemis.tests.integration.cluster;
 
 import org.apache.activemq.artemis.api.core.ActiveMQClusterSecurityException;
-import org.apache.activemq.artemis.api.core.TransportConfiguration;
-import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal;
 import org.apache.activemq.artemis.core.client.impl.ServerLocatorImpl;
+import org.apache.activemq.artemis.core.server.cluster.ActiveMQServerSideProtocolManagerFactory;
 import org.apache.activemq.artemis.core.server.cluster.ClusterControl;
 import org.apache.activemq.artemis.core.server.cluster.ClusterController;
-import org.apache.activemq.artemis.core.server.cluster.ActiveMQServerSideProtocolManagerFactory;
 import org.apache.activemq.artemis.tests.integration.cluster.distribution.ClusterTestBase;
 import org.junit.After;
 import org.junit.Before;
@@ -70,7 +68,7 @@ public class ClusterControllerTest extends ClusterTestBase
    @Test
    public void controlWithDifferentConnector() throws Exception
    {
-      try (ServerLocatorImpl locator = (ServerLocatorImpl) ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(INVM_CONNECTOR_FACTORY)))
+      try (ServerLocatorImpl locator = (ServerLocatorImpl) createInVMNonHALocator())
       {
          locator.setProtocolManagerFactory(ActiveMQServerSideProtocolManagerFactory.getInstance());
          ClusterController controller = new ClusterController(getServer(0), getServer(0).getScheduledPool());
@@ -82,7 +80,7 @@ public class ClusterControllerTest extends ClusterTestBase
    @Test
    public void controlWithDifferentPassword() throws Exception
    {
-      try (ServerLocatorImpl locator = (ServerLocatorImpl) ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(INVM_CONNECTOR_FACTORY)))
+      try (ServerLocatorImpl locator = (ServerLocatorImpl) createInVMNonHALocator())
       {
          locator.setProtocolManagerFactory(ActiveMQServerSideProtocolManagerFactory.getInstance());
          ClusterController controller = new ClusterController(getServer(1), getServer(1).getScheduledPool());

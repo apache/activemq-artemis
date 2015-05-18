@@ -16,10 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.unit.jms.referenceable;
 
-import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
 import org.junit.Test;
 
-public class ConnectionFactoryObjectFactoryTest extends UnitTestCase
+public class ConnectionFactoryObjectFactoryTest extends ServiceTestBase
 {
    // Constants -----------------------------------------------------
 

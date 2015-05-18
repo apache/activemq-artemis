@@ -15,16 +15,8 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.integration.server;
+
 import org.apache.activemq.artemis.api.core.ActiveMQException;
-import org.apache.activemq.artemis.tests.util.UnitTestCase;
-import org.apache.activemq.artemis.core.server.Queue;
-import org.junit.Before;
-import org.junit.After;
-
-import org.junit.Test;
-
-import org.junit.Assert;
-
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
@@ -33,14 +25,19 @@ import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
-import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
+import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
-public class LVQTest extends UnitTestCase
+public class LVQTest extends ServiceTestBase
 {
    private ActiveMQServer server;
 
@@ -675,7 +672,7 @@ public class LVQTest extends UnitTestCase
       super.setUp();
 
       ConfigurationImpl configuration = createBasicConfig()
-         .addAcceptorConfiguration(new TransportConfiguration(UnitTestCase.INVM_ACCEPTOR_FACTORY));
+         .addAcceptorConfiguration(new TransportConfiguration(ServiceTestBase.INVM_ACCEPTOR_FACTORY));
       server = ActiveMQServers.newActiveMQServer(configuration, false);
       // start the server
       server.start();
@@ -684,7 +681,7 @@ public class LVQTest extends UnitTestCase
       qs.setLastValueQueue(true);
       server.getAddressSettingsRepository().addMatch(address.toString(), qs);
       // then we create a client as normalServer
-      ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
+      ServerLocator locator = createInVMNonHALocator();
       locator.setBlockOnAcknowledge(true);
       locator.setAckBatchSize(0);
       ClientSessionFactory sessionFactory = createSessionFactory(locator);

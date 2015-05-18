@@ -16,18 +16,18 @@
  */
 package org.apache.activemq.artemis.core.settings;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.settings.impl.HierarchicalObjectRepository;
-import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class RepositoryTest extends UnitTestCase
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.concurrent.atomic.AtomicInteger;
+
+public class RepositoryTest extends ServiceTestBase
 {
    HierarchicalRepository<HashSet<Role>> securityRepository;
 

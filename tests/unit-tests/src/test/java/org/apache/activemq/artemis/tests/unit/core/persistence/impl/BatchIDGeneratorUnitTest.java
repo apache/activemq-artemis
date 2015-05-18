@@ -19,7 +19,7 @@ import java.util.ArrayList;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
-import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
 import org.apache.activemq.artemis.core.journal.Journal;
 import org.apache.activemq.artemis.core.journal.PreparedTransactionInfo;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
@@ -32,7 +32,7 @@ import org.apache.activemq.artemis.core.persistence.impl.nullpm.NullStorageManag
 import org.junit.Assert;
 import org.junit.Test;
 
-public class BatchIDGeneratorUnitTest extends UnitTestCase
+public class BatchIDGeneratorUnitTest extends ServiceTestBase
 {
 
    @Test

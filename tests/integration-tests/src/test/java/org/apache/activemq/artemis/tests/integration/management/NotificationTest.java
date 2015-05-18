@@ -27,7 +27,7 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
-import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionInternal;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.remoting.impl.invm.InVMAcceptorFactory;
@@ -45,7 +45,7 @@ import static org.apache.activemq.artemis.api.core.management.CoreNotificationTy
 import static org.apache.activemq.artemis.api.core.management.CoreNotificationType.CONSUMER_CLOSED;
 import static org.apache.activemq.artemis.api.core.management.CoreNotificationType.CONSUMER_CREATED;
 
-public class NotificationTest extends UnitTestCase
+public class NotificationTest extends ServiceTestBase
 {
 
    // Constants -----------------------------------------------------

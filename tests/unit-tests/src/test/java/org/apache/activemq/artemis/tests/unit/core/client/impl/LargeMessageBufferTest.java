@@ -36,7 +36,7 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.MessageHandler;
-import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
 import org.apache.activemq.artemis.core.client.impl.ClientConsumerInternal;
 import org.apache.activemq.artemis.core.client.impl.ClientLargeMessageInternal;
 import org.apache.activemq.artemis.core.client.impl.ClientMessageInternal;
@@ -52,7 +52,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class LargeMessageBufferTest extends UnitTestCase
+public class LargeMessageBufferTest extends ServiceTestBase
 {
 
    // Constants -----------------------------------------------------
@@ -340,7 +340,7 @@ public class LargeMessageBufferTest extends UnitTestCase
 
       t.start();
 
-      UnitTestCase.waitForLatch(latchGo);
+      ServiceTestBase.waitForLatch(latchGo);
 
       buffer.cancel();
 
@@ -632,7 +632,7 @@ public class LargeMessageBufferTest extends UnitTestCase
          }
       });
 
-      UnitTestCase.waitForLatch(latchBytesWritten1);
+      ServiceTestBase.waitForLatch(latchBytesWritten1);
 
       try
       {

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.integration.http;
-import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
 import org.junit.Before;
 
 import org.junit.Test;
@@ -40,7 +40,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
 
-public class CoreClientOverHttpTest extends UnitTestCase
+public class CoreClientOverHttpTest extends ServiceTestBase
 {
    private static final SimpleString QUEUE = new SimpleString("CoreClientOverHttpTestQueue");
    private Configuration conf;

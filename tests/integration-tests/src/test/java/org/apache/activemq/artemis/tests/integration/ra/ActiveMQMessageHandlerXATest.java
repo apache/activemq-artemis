@@ -16,18 +16,16 @@
  */
 package org.apache.activemq.artemis.tests.integration.ra;
 
-import org.apache.activemq.artemis.core.postoffice.Binding;
-import org.apache.activemq.artemis.core.server.Queue;
-import org.apache.activemq.artemis.ra.inflow.ActiveMQActivationSpec;
-import org.junit.Test;
-
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.core.postoffice.Binding;
+import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
 import org.apache.activemq.artemis.ra.ActiveMQResourceAdapter;
-import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.ra.inflow.ActiveMQActivationSpec;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
+import org.junit.Test;
 
 import javax.jms.Message;
 import javax.resource.ResourceException;
@@ -163,7 +161,7 @@ public class ActiveMQMessageHandlerXATest extends ActiveMQRATestBase
    {
       setupDLQ(10);
       ActiveMQResourceAdapter qResourceAdapter = newResourceAdapter();
-      qResourceAdapter.setConnectorClassName(UnitTestCase.INVM_CONNECTOR_FACTORY);
+      qResourceAdapter.setConnectorClassName(INVM_CONNECTOR_FACTORY);
       MyBootstrapContext ctx = new MyBootstrapContext();
       qResourceAdapter.start(ctx);
       ActiveMQActivationSpec spec = new ActiveMQActivationSpec();

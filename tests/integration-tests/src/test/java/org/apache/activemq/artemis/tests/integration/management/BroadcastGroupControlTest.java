@@ -16,7 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.management;
 
-import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -66,7 +66,7 @@ public class BroadcastGroupControlTest extends ManagementTestBase
    @Test
    public void testAttributes() throws Exception
    {
-      TransportConfiguration connectorConfiguration = new TransportConfiguration(UnitTestCase.NETTY_CONNECTOR_FACTORY);
+      TransportConfiguration connectorConfiguration = new TransportConfiguration(ServiceTestBase.NETTY_CONNECTOR_FACTORY);
       List<String> connectorInfos = new ArrayList<String>();
       connectorInfos.add(connectorConfiguration.getName());
       BroadcastGroupConfiguration broadcastGroupConfig = BroadcastGroupControlTest.randomBroadcastGroupConfiguration(connectorInfos);
@@ -74,7 +74,7 @@ public class BroadcastGroupControlTest extends ManagementTestBase
       Configuration conf = createBasicConfig()
          .addConnectorConfiguration(connectorConfiguration.getName(), connectorConfiguration)
          .addBroadcastGroupConfiguration(broadcastGroupConfig)
-         .addAcceptorConfiguration(new TransportConfiguration(UnitTestCase.INVM_ACCEPTOR_FACTORY));
+         .addAcceptorConfiguration(new TransportConfiguration(ServiceTestBase.INVM_ACCEPTOR_FACTORY));
       service = addServer(ActiveMQServers.newActiveMQServer(conf, mbeanServer, false));
       service.start();
 
@@ -104,7 +104,7 @@ public class BroadcastGroupControlTest extends ManagementTestBase
    @Test
    public void testStartStop() throws Exception
    {
-      TransportConfiguration connectorConfiguration = new TransportConfiguration(UnitTestCase.NETTY_CONNECTOR_FACTORY);
+      TransportConfiguration connectorConfiguration = new TransportConfiguration(ServiceTestBase.NETTY_CONNECTOR_FACTORY);
       List<String> connectorInfos = new ArrayList<String>();
       connectorInfos.add(connectorConfiguration.getName());
       BroadcastGroupConfiguration broadcastGroupConfig = BroadcastGroupControlTest.randomBroadcastGroupConfiguration(connectorInfos);
@@ -112,7 +112,7 @@ public class BroadcastGroupControlTest extends ManagementTestBase
       Configuration conf = createBasicConfig()
          .addConnectorConfiguration(connectorConfiguration.getName(), connectorConfiguration)
          .addBroadcastGroupConfiguration(broadcastGroupConfig)
-         .addAcceptorConfiguration(new TransportConfiguration(UnitTestCase.INVM_ACCEPTOR_FACTORY));
+         .addAcceptorConfiguration(new TransportConfiguration(ServiceTestBase.INVM_ACCEPTOR_FACTORY));
       service = addServer(ActiveMQServers.newActiveMQServer(conf, mbeanServer, false));
       service.start();
 

@@ -62,7 +62,7 @@ public class ConcurrentCreateDeleteProduceTest extends ServiceTestBase
    {
       super.setUp();
 
-      Configuration config = createDefaultConfig(false)
+      Configuration config = createDefaultConfig()
          .setJournalSyncNonTransactional(false)
          .setJournalSyncTransactional(false);
 

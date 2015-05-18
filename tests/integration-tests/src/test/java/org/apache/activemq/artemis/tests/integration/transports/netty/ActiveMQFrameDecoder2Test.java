@@ -23,14 +23,14 @@ import java.util.Random;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.embedded.EmbeddedChannel;
-import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
 import org.apache.activemq.artemis.core.remoting.impl.netty.ActiveMQFrameDecoder2;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class ActiveMQFrameDecoder2Test extends UnitTestCase
+public class ActiveMQFrameDecoder2Test extends ServiceTestBase
 {
    private static final int MSG_CNT = 10000;
 

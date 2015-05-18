@@ -17,7 +17,7 @@
 package org.apache.activemq.artemis.tests.unit.core.journal.impl;
 
 import org.apache.activemq.artemis.tests.unit.core.journal.impl.fakes.FakeSequentialFileFactory;
-import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
 import org.junit.Test;
 
 import java.nio.ByteBuffer;
@@ -29,7 +29,7 @@ import org.apache.activemq.artemis.core.journal.SequentialFileFactory;
 import org.apache.activemq.artemis.core.journal.impl.AIOSequentialFileFactory;
 import org.apache.activemq.artemis.core.journal.impl.NIOSequentialFileFactory;
 
-public class CleanBufferTest extends UnitTestCase
+public class CleanBufferTest extends ServiceTestBase
 {
 
    // Constants -----------------------------------------------------

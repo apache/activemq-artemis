@@ -16,6 +16,22 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
+import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
+import org.apache.activemq.artemis.api.jms.JMSFactoryType;
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory;
+import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.junit.Assert;
+import org.junit.Test;
+
 import javax.jms.BytesMessage;
 import javax.jms.Connection;
 import javax.jms.DeliveryMode;
@@ -25,22 +41,6 @@ import javax.jms.Session;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import org.apache.activemq.artemis.api.core.TransportConfiguration;
-import org.apache.activemq.artemis.api.core.client.ClientSession;
-import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
-import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
-import org.apache.activemq.artemis.api.jms.JMSFactoryType;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
-import org.apache.activemq.artemis.core.config.Configuration;
-import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory;
-import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
-import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
-import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
-import org.junit.Assert;
-import org.junit.Test;
 
 /**
  * -- https://issues.jboss.org/browse/HORNETQ-746
@@ -92,7 +92,11 @@ public class JmsNettyNioStressTest extends ServiceTestBase
       // minimize threads to maximize possibility for deadlock
       params.put(TransportConstants.NIO_REMOTING_THREADS_PROPNAME, 1);
       params.put(TransportConstants.BATCH_DELAY, 50);
-      Configuration config = createDefaultConfig(params, ServiceTestBase.NETTY_ACCEPTOR_FACTORY);
+      TransportConfiguration transportConfig = new TransportConfiguration(ServiceTestBase.NETTY_ACCEPTOR_FACTORY, params);
+      Configuration config = createBasicConfig(-1)
+              .setJMXManagementEnabled(false)
+              .clearAcceptorConfigurations()
+              .addAcceptorConfiguration(transportConfig);
       ActiveMQServer server = createServer(true, config);
       server.getConfiguration().setThreadPoolMaxSize(2);
       server.start();

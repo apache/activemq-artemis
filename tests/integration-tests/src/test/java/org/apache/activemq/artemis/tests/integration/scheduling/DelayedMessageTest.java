@@ -15,11 +15,6 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.integration.scheduling;
-import org.junit.Before;
-
-import org.junit.Test;
-
-import org.junit.Assert;
 
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -33,7 +28,9 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.ServiceTestBase;
-import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 public class DelayedMessageTest extends ServiceTestBase
 {
@@ -90,7 +87,7 @@ public class DelayedMessageTest extends ServiceTestBase
 
       final int NUM_MESSAGES = 5;
 
-      UnitTestCase.forceGC();
+      ServiceTestBase.forceGC();
 
       for (int i = 0; i < NUM_MESSAGES; i++)
       {

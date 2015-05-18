@@ -48,7 +48,7 @@ import org.apache.activemq.artemis.core.persistence.impl.journal.OperationContex
 import org.apache.activemq.artemis.core.server.impl.ServerMessageImpl;
 import org.apache.activemq.artemis.tests.unit.core.journal.impl.JournalImplTestBase;
 import org.apache.activemq.artemis.tests.unit.core.journal.impl.fakes.SimpleEncoding;
-import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
 import org.apache.activemq.artemis.utils.IDGenerator;
 import org.apache.activemq.artemis.utils.OrderedExecutorFactory;
 import org.apache.activemq.artemis.utils.SimpleIDGenerator;
@@ -556,7 +556,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase
             System.out.println("Waiting on Compact");
             try
             {
-               UnitTestCase.waitForLatch(latchWait);
+               ServiceTestBase.waitForLatch(latchWait);
             }
             catch (InterruptedException e)
             {
@@ -650,7 +650,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase
 
       t.start();
 
-      UnitTestCase.waitForLatch(latchDone);
+      ServiceTestBase.waitForLatch(latchDone);
 
       int nextID = NIOJournalCompactTest.NUMBER_OF_RECORDS;
 

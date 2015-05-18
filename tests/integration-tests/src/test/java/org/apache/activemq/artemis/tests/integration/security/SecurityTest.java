@@ -92,7 +92,7 @@ public class SecurityTest extends ServiceTestBase
     */
    private ActiveMQServer createServer() throws Exception
    {
-      configuration = createDefaultConfig(false)
+      configuration = createDefaultConfig()
          .setSecurityEnabled(true);
       ActiveMQServer server = createServer(false, configuration);
       return server;
@@ -569,7 +569,7 @@ public class SecurityTest extends ServiceTestBase
    @Test
    public void testSendMessageUpdateRoleCached() throws Exception
    {
-      Configuration configuration = createDefaultConfig(false)
+      Configuration configuration = createDefaultConfig()
          .setSecurityEnabled(true)
          .setSecurityInvalidationInterval(10000);
       ActiveMQServer server = createServer(false, configuration);
@@ -625,7 +625,7 @@ public class SecurityTest extends ServiceTestBase
    @Test
    public void testSendMessageUpdateRoleCached2() throws Exception
    {
-      Configuration configuration = createDefaultConfig(false)
+      Configuration configuration = createDefaultConfig()
          .setSecurityEnabled(true)
          .setSecurityInvalidationInterval(0);
       ActiveMQServer server = createServer(false, configuration);
@@ -695,7 +695,7 @@ public class SecurityTest extends ServiceTestBase
    @Test
    public void testSendMessageUpdateSender() throws Exception
    {
-      Configuration configuration = createDefaultConfig(false)
+      Configuration configuration = createDefaultConfig()
          .setSecurityEnabled(true)
          .setSecurityInvalidationInterval(-1);
       ActiveMQServer server = createServer(false, configuration);

@@ -51,7 +51,7 @@ import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.tests.unit.util.InVMNamingContext;
-import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.protocol.stomp.StompProtocolManagerFactory;
 import org.apache.activemq.artemis.core.registry.JndiBindingRegistry;
@@ -72,7 +72,7 @@ import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
 import org.junit.After;
 import org.junit.Before;
 
-public abstract class StompTestBase extends UnitTestCase
+public abstract class StompTestBase extends ServiceTestBase
 {
    protected final int port = 61613;
 

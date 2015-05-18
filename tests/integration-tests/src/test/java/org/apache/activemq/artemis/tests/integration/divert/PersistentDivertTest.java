@@ -16,27 +16,24 @@
  */
 package org.apache.activemq.artemis.tests.integration.divert;
 
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
-import org.apache.activemq.artemis.tests.util.UnitTestCase;
-import org.junit.Test;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import org.junit.Assert;
-
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
-import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.DivertConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.junit.Assert;
+import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class PersistentDivertTest extends ServiceTestBase
 {
@@ -144,7 +141,7 @@ public class PersistentDivertTest extends ServiceTestBase
 
          if (largeMessage)
          {
-            message.setBodyInputStream(UnitTestCase.createFakeLargeStream(minLargeMessageSize));
+            message.setBodyInputStream(ServiceTestBase.createFakeLargeStream(minLargeMessageSize));
          }
 
          message.putIntProperty(propKey, i);
@@ -235,7 +232,7 @@ public class PersistentDivertTest extends ServiceTestBase
    {
       for (int j = 0; j < minLargeMessageSize; j++)
       {
-         Assert.assertEquals(UnitTestCase.getSamplebyte(j), message.getBodyBuffer().readByte());
+         Assert.assertEquals(ServiceTestBase.getSamplebyte(j), message.getBodyBuffer().readByte());
       }
    }
 
@@ -332,7 +329,7 @@ public class PersistentDivertTest extends ServiceTestBase
 
          if (largeMessage)
          {
-            message.setBodyInputStream(UnitTestCase.createFakeLargeStream(minLargeMessageSize));
+            message.setBodyInputStream(ServiceTestBase.createFakeLargeStream(minLargeMessageSize));
          }
 
          producer.send(message);

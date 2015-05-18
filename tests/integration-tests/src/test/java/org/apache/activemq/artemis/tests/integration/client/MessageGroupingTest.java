@@ -15,40 +15,37 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.integration.client;
+
 import org.apache.activemq.artemis.api.core.ActiveMQException;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
-import org.apache.activemq.artemis.tests.util.UnitTestCase;
-import org.junit.Assume;
-import org.junit.Before;
-
-import org.junit.Test;
-
-import java.util.ArrayList;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-
-import javax.transaction.xa.XAResource;
-import javax.transaction.xa.Xid;
-
-import org.junit.Assert;
-
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
-import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.MessageHandler;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
+import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.junit.Assert;
+import org.junit.Assume;
+import org.junit.Before;
+import org.junit.Test;
 
-public class MessageGroupingTest extends UnitTestCase
+import javax.transaction.xa.XAResource;
+import javax.transaction.xa.Xid;
+import java.util.ArrayList;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
+public class MessageGroupingTest extends ServiceTestBase
 {
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
@@ -282,7 +279,7 @@ public class MessageGroupingTest extends UnitTestCase
 
    private void doTestMultipleGroupingTXCommit() throws Exception
    {
-      ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
+      ServerLocator locator = createInVMNonHALocator();
       ClientSessionFactory sessionFactory = createSessionFactory(locator);
       ClientSession clientSession = sessionFactory.createSession(false, false, false);
       ClientProducer clientProducer = this.clientSession.createProducer(qName);
@@ -343,7 +340,7 @@ public class MessageGroupingTest extends UnitTestCase
    private void doTestMultipleGroupingTXRollback() throws Exception
    {
       log.info("*** starting test");
-      ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
+      ServerLocator locator = createInVMNonHALocator();
       locator.setBlockOnAcknowledge(true);
       ClientSessionFactory sessionFactory = createSessionFactory(locator);
       ClientSession clientSession = sessionFactory.createSession(false, false, false);
@@ -419,7 +416,7 @@ public class MessageGroupingTest extends UnitTestCase
 
    private void dotestMultipleGroupingXACommit() throws Exception
    {
-      ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
+      ServerLocator locator = createInVMNonHALocator();
       ClientSessionFactory sessionFactory = createSessionFactory(locator);
       ClientSession clientSession = sessionFactory.createSession(true, false, false);
       ClientProducer clientProducer = this.clientSession.createProducer(qName);
@@ -479,7 +476,7 @@ public class MessageGroupingTest extends UnitTestCase
 
    private void doTestMultipleGroupingXARollback() throws Exception
    {
-      ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
+      ServerLocator locator = createInVMNonHALocator();
       locator.setBlockOnAcknowledge(true);
       ClientSessionFactory sessionFactory = createSessionFactory(locator);
       ClientSession clientSession = sessionFactory.createSession(true, false, false);
@@ -611,7 +608,7 @@ public class MessageGroupingTest extends UnitTestCase
    public void setUp() throws Exception
    {
       super.setUp();
-      TransportConfiguration transportConfig = new TransportConfiguration(UnitTestCase.INVM_ACCEPTOR_FACTORY);
+      TransportConfiguration transportConfig = new TransportConfiguration(ServiceTestBase.INVM_ACCEPTOR_FACTORY);
 
       Configuration configuration = createDefaultConfig()
          .setSecurityEnabled(false)
@@ -623,7 +620,7 @@ public class MessageGroupingTest extends UnitTestCase
       // then we create a client as normal
       locator =
                addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(
-                  UnitTestCase.INVM_CONNECTOR_FACTORY)));
+                  INVM_CONNECTOR_FACTORY)));
       clientSessionFactory = createSessionFactory(locator);
       clientSession = addClientSession(clientSessionFactory.createSession(false, true, true));
       clientSession.createQueue(qName, qName, null, false);

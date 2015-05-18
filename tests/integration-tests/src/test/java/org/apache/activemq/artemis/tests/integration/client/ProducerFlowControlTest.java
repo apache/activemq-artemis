@@ -16,13 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-
 import org.apache.activemq.artemis.api.core.ActiveMQObjectClosedException;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
@@ -32,7 +25,6 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.MessageHandler;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.apache.activemq.artemis.tests.util.UnitTestCase;
 import org.apache.activemq.artemis.core.client.impl.ClientProducerCreditManagerImpl;
 import org.apache.activemq.artemis.core.client.impl.ClientProducerCredits;
 import org.apache.activemq.artemis.core.client.impl.ClientProducerInternal;
@@ -47,6 +39,13 @@ import org.apache.activemq.artemis.tests.util.ServiceTestBase;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ProducerFlowControlTest extends ServiceTestBase
 {
@@ -274,7 +273,7 @@ public class ProducerFlowControlTest extends ServiceTestBase
 
                message.getBodyBuffer().readBytes(bytesRead);
 
-               UnitTestCase.assertEqualsByteArrays(bytes, bytesRead);
+               ServiceTestBase.assertEqualsByteArrays(bytes, bytesRead);
 
                message.acknowledge();
 

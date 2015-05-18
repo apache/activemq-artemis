@@ -22,11 +22,11 @@ import org.junit.Test;
 import org.junit.Assert;
 
 import org.apache.activemq.artemis.core.config.impl.FileConfiguration;
-import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
 import org.apache.activemq.artemis.utils.XMLUtil;
 import org.w3c.dom.Element;
 
-public class ConfigurationValidationTest extends UnitTestCase
+public class ConfigurationValidationTest extends ServiceTestBase
 {
 
    // Constants -----------------------------------------------------

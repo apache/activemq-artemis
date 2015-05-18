@@ -16,7 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
-import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
 import org.junit.Before;
 import org.junit.After;
 
@@ -42,7 +42,7 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
  *
  * A NewDeadLetterAddressTest
  */
-public class NewDeadLetterAddressTest extends UnitTestCase
+public class NewDeadLetterAddressTest extends ServiceTestBase
 {
    private ActiveMQServer server;
 
@@ -75,7 +75,7 @@ public class NewDeadLetterAddressTest extends UnitTestCase
    public void setUp() throws Exception
    {
       super.setUp();
-      TransportConfiguration transportConfig = new TransportConfiguration(UnitTestCase.INVM_ACCEPTOR_FACTORY);
+      TransportConfiguration transportConfig = new TransportConfiguration(ServiceTestBase.INVM_ACCEPTOR_FACTORY);
 
       Configuration configuration = createDefaultConfig()
          .setSecurityEnabled(false)
@@ -86,7 +86,7 @@ public class NewDeadLetterAddressTest extends UnitTestCase
       // then we create a client as normal
       locator =
                addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(
-                  UnitTestCase.INVM_CONNECTOR_FACTORY)));
+                  INVM_CONNECTOR_FACTORY)));
       ClientSessionFactory sessionFactory = createSessionFactory(locator);
       clientSession = sessionFactory.createSession(false, true, false);
    }
