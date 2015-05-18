@@ -529,15 +529,25 @@ public class QueueControlTest extends ManagementTestBase
       assertEquals(msgRec.getIntProperty("key").intValue(), intValue);
 
 
-      assertEquals(1, srvqueue.getDeliveringCount());
+      ClientSessionFactory sf2 = createSessionFactory(locator);
+      ClientSession session2 = sf2.createSession(false, true, false);
+      ClientConsumer consumer2 = session2.createConsumer(queue);
+      session2.start();
+      ClientMessage msgRec2 = consumer2.receive(5000);
+      assertNotNull(msgRec2);
+
+
+      assertEquals(2, srvqueue.getDeliveringCount());
+      assertEquals(2, srvqueue.getConsumerCount());
+      assertEquals(2, server.getConnectionCount());
 
       System.out.println(queueControl.listDeliveringMessagesAsJSON());
 
       Map<String, Map<String, Object> []> deliveringMap = queueControl.listDeliveringMessages();
-      assertEquals(1, deliveringMap.size());
-      //Map<String, Object[]> msgs = deliveringMap.get(key)
+      assertEquals(2, deliveringMap.size());
 
       consumer.close();
+      consumer2.close();
 
       session.deleteQueue(queue);
    }
