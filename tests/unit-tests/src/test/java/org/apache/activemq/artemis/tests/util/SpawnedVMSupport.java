@@ -20,6 +20,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -70,7 +71,8 @@ public final class SpawnedVMSupport
                                  final String... args) throws Exception
    {
       ProcessBuilder builder = new ProcessBuilder();
-      builder.command("java", memoryArg1, memoryArg2, "-cp", System.getProperty("java.class.path"));
+      final String javaPath = Paths.get(System.getProperty("java.home"), "bin", "java").toAbsolutePath().toString();
+      builder.command(javaPath, memoryArg1, memoryArg2, "-cp", System.getProperty("java.class.path"));
 
       List<String> commandList = builder.command();
 
