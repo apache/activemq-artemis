@@ -29,7 +29,7 @@ under the License.
 
    <core xmlns="urn:activemq:core">
 
-      <!-- this could be AIO or NIO
+      <!-- this could be ASYNCIO or NIO
        -->
       <journal-type>${journal.settings}</journal-type>
 

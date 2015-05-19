@@ -418,7 +418,7 @@ public class Create extends ActionAbstract
       }
       else
       {
-         filters.put("${journal.settings}", "AIO");
+         filters.put("${journal.settings}", "ASYNCIO");
       }
 
       filters.put("${user}", System.getProperty("user.name", ""));
