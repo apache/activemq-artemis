@@ -38,12 +38,12 @@ under the License.
 
       <connectors>
          <!-- Default Connector.  Returned to clients during broadcast and distributed around cluster.  See broadcast and discovery-groups -->
-         <connector name="activemq">tcp://${activemq.remoting.default.host:${host}}:${activemq.remoting.default.port:${default.port}}</connector>
+         <connector name="artemis">tcp://${activemq.remoting.default.host:${host}}:${activemq.remoting.default.port:${default.port}}</connector>
       </connectors>
 
       <acceptors>
          <!-- Default ActiveMQ Artemis Acceptor.  Multi-protocol adapter.  Currently supports Core, OpenWire, Stomp and AMQP. -->
-         <acceptor name="activemq">tcp://${activemq.remoting.default.host:${host}}:${activemq.remoting.default.port:${default.port}}</acceptor>
+         <acceptor name="artemis">tcp://${activemq.remoting.default.host:${host}}:${activemq.remoting.default.port:${default.port}}</acceptor>
 
          <!-- AMQP Acceptor.  Listens on default AMQP port for AMQP traffic.-->
          <acceptor name="amqp">tcp://${activemq.remoting.amqp.host:${host}}:${activemq.remoting.amqp.port:${amqp.port}}?protocols=AMQP</acceptor>

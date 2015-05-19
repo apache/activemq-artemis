@@ -4,7 +4,7 @@
             <group-address>231.7.7.7</group-address>
             <group-port>9876</group-port>
             <broadcast-period>5000</broadcast-period>
-            <connector-ref>activemq</connector-ref>
+            <connector-ref>artemis</connector-ref>
          </broadcast-group>
       </broadcast-groups>
 
