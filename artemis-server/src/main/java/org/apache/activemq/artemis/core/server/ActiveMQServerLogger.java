@@ -567,7 +567,7 @@ public interface ActiveMQServerLogger extends BasicLogger
    @Message(id = 222063, value = "Error processing IOCallback code = {0} message = {1}", format = Message.Format.MESSAGE_FORMAT)
    void errorProcessingIOCallback(Integer errorCode, String errorMessage);
 
-   @LogMessage(level = Logger.Level.WARN)
+   @LogMessage(level = Logger.Level.DEBUG)
    @Message(id = 222065, value = "Client is not being consistent on the request versioning. It just sent a version id={0} while it informed {1} previously", format = Message.Format.MESSAGE_FORMAT)
    void incompatibleVersionAfterConnect(int version, int clientVersion);
 
