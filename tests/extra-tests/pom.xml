@@ -232,6 +232,7 @@
          <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-surefire-plugin</artifactId>
+            <version>2.18.1</version>
             <configuration>
                <skipTests>${skipExtraTests}</skipTests>
                <!-- ensure we don't inherit a byteman jar form any env settings -->
@@ -239,6 +240,14 @@
                   <BYTEMAN_HOME></BYTEMAN_HOME>
                </environmentVariables>
                <systemProperties>
+                  <property>
+                     <name>com.arjuna.ats.arjuna.objectstore.objectStoreDir</name>
+                     <value>target/ObjectStore</value>
+                  </property>
+                  <property>
+                     <name>ObjectStoreEnvironmentBean.objectStoreDir</name>
+                     <value>target/ObjectStore</value>
+                  </property>
                   <!--
                   <property>
                      <name>org.jboss.byteman.home</name>
@@ -260,7 +269,9 @@
                </systemProperties>
                <!-- make sure maven puts the byteman jar in the classpath rather than in a manifest jar -->
                <useManifestOnlyJar>false</useManifestOnlyJar>
-               <forkMode>once</forkMode>
+               <!-- when upgrading this plugin from 2.4 to 2.18.1 <forkMode>once</forkMode> was replaced with these: -->
+               <forkCount>1</forkCount>
+               <reuseForks>true</reuseForks>
                <!--
                <debugForkedProcess>true</debugForkedProcess>
                -->
