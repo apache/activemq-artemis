@@ -2236,7 +2236,7 @@ public class ActiveMQServerImpl implements ActiveMQServer
    {
       File journalDir = new File(configuration.getJournalDirectory());
 
-      if (!journalDir.exists())
+      if (!journalDir.exists() && configuration.isPersistenceEnabled())
       {
          if (configuration.isCreateJournalDir())
          {
