@@ -539,7 +539,6 @@ public class QueueControlTest extends ManagementTestBase
 
       assertEquals(2, srvqueue.getDeliveringCount());
       assertEquals(2, srvqueue.getConsumerCount());
-      assertEquals(2, server.getConnectionCount());
 
       System.out.println(queueControl.listDeliveringMessagesAsJSON());
 

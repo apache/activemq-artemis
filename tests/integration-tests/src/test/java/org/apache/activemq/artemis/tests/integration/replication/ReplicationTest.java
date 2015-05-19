@@ -16,21 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.replication;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -85,13 +70,27 @@ import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.tests.util.ReplicatedBackupUtils;
 import org.apache.activemq.artemis.tests.util.ServiceTestBase;
 import org.apache.activemq.artemis.tests.util.TransportConfigurationUtils;
-import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
+import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.OrderedExecutorFactory;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public final class ReplicationTest extends ServiceTestBase
 {
@@ -140,15 +139,14 @@ public final class ReplicationTest extends ServiceTestBase
          backupAcceptor = TransportConfigurationUtils.getInVMAcceptor(false);
       }
 
-      final String suffix = "_backup";
       Configuration liveConfig = createDefaultConfig();
 
       Configuration backupConfig = createDefaultConfig()
          .setHAPolicyConfiguration(new SharedStoreSlavePolicyConfiguration())
-         .setBindingsDirectory(ActiveMQDefaultConfiguration.getDefaultBindingsDirectory() + suffix)
-         .setJournalDirectory(ActiveMQDefaultConfiguration.getDefaultJournalDir() + suffix)
-         .setPagingDirectory(ActiveMQDefaultConfiguration.getDefaultPagingDir() + suffix)
-         .setLargeMessagesDirectory(ActiveMQDefaultConfiguration.getDefaultLargeMessagesDir() + suffix)
+         .setBindingsDirectory(getBindingsDir(0, true))
+         .setJournalDirectory(getJournalDir(0, true))
+         .setPagingDirectory(getPageDir(0, true))
+         .setLargeMessagesDirectory(getLargeMessagesDir(0, true))
          .setIncomingInterceptorClassNames(incomingInterceptors.length > 0 ? Arrays.asList(incomingInterceptors) : new ArrayList<String>());
 
       ReplicatedBackupUtils.configureReplicationPair(backupConfig, backupConnector, backupAcceptor, liveConfig, liveConnector, liveAcceptor);

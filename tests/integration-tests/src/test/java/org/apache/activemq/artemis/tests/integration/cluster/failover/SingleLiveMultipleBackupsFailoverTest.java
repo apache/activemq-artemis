@@ -16,12 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal;
@@ -38,6 +32,11 @@ import org.apache.activemq.artemis.tests.integration.cluster.util.SameProcessAct
 import org.apache.activemq.artemis.tests.integration.cluster.util.TestableServer;
 import org.junit.After;
 import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  */
@@ -142,10 +141,10 @@ public class SingleLiveMultipleBackupsFailoverTest extends MultipleBackupsFailov
          .setSecurityEnabled(false)
          .setHAPolicyConfiguration(sharedStore ? new SharedStoreSlavePolicyConfiguration() : new ReplicatedPolicyConfiguration())
          .addConnectorConfiguration(backupConnector.getName(), backupConnector)
-         .setBindingsDirectory(ActiveMQDefaultConfiguration.getDefaultBindingsDirectory() + "_" + liveNode)
-         .setJournalDirectory(ActiveMQDefaultConfiguration.getDefaultJournalDir() + "_" + liveNode)
-         .setPagingDirectory(ActiveMQDefaultConfiguration.getDefaultPagingDir() + "_" + liveNode)
-         .setLargeMessagesDirectory(ActiveMQDefaultConfiguration.getDefaultLargeMessagesDir() + "_" + liveNode);
+         .setBindingsDirectory(getBindingsDir() + "_" + liveNode)
+         .setJournalDirectory(getJournalDir() + "_" + liveNode)
+         .setPagingDirectory(getPageDir() + "_" + liveNode)
+         .setLargeMessagesDirectory(getLargeMessagesDir() + "_" + liveNode);
 
       List<String> staticConnectors = new ArrayList<String>();
 
@@ -171,10 +170,10 @@ public class SingleLiveMultipleBackupsFailoverTest extends MultipleBackupsFailov
          .setHAPolicyConfiguration(sharedStore ? new SharedStoreMasterPolicyConfiguration() : new ReplicatedPolicyConfiguration())
          .addClusterConfiguration(basicClusterConnectionConfig(liveConnector.getName()))
          .addConnectorConfiguration(liveConnector.getName(), liveConnector)
-         .setBindingsDirectory(ActiveMQDefaultConfiguration.getDefaultBindingsDirectory() + "_" + liveNode)
-         .setJournalDirectory(ActiveMQDefaultConfiguration.getDefaultJournalDir() + "_" + liveNode)
-         .setPagingDirectory(ActiveMQDefaultConfiguration.getDefaultPagingDir() + "_" + liveNode)
-         .setLargeMessagesDirectory(ActiveMQDefaultConfiguration.getDefaultLargeMessagesDir() + "_" + liveNode);
+         .setBindingsDirectory(getBindingsDir() + "_" + liveNode)
+         .setJournalDirectory(getJournalDir() + "_" + liveNode)
+         .setPagingDirectory(getPageDir() + "_" + liveNode)
+         .setLargeMessagesDirectory(getLargeMessagesDir() + "_" + liveNode);
 
       servers.put(liveNode, new SameProcessActiveMQServer(createInVMFailoverServer(true, config0, nodeManager, liveNode)));
    }
