@@ -516,6 +516,7 @@ public abstract class ServiceTestBase extends Assert
       ConfigurationImpl configuration = new ConfigurationImpl()
               .setSecurityEnabled(false)
               .setJournalType(getDefaultJournalType())
+              .setPersistenceEnabled(false)
               .setJournalCompactMinFiles(0)
               .setJournalCompactPercentage(0)
               .setClusterPassword(CLUSTER_PASSWORD);
