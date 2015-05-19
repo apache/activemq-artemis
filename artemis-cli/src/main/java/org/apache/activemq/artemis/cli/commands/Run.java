@@ -36,7 +36,7 @@ import org.apache.activemq.artemis.integration.bootstrap.ActiveMQBootstrapLogger
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
 
 @Command(name = "run", description = "runs the broker instance")
-public class Run extends Configurable implements Action
+public class Run extends Configurable
 {
    @Option(name = "--allow-kill", description = "This will allow the server to kill itself. Useful for tests (failover tests for instance)")
    boolean allowKill;
@@ -48,6 +48,7 @@ public class Run extends Configurable implements Action
    @Override
    public Object execute(ActionContext context) throws Exception
    {
+      super.execute(context);
 
       Artemis.printBanner();
 

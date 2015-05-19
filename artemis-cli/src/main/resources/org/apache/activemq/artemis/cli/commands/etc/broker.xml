@@ -21,48 +21,50 @@ under the License.
 <configuration xmlns="urn:activemq"
                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                xsi:schemaLocation="urn:activemq /schema/artemis-configuration.xsd">
+
    <jms xmlns="urn:activemq:jms">
       <queue name="DLQ"/>
       <queue name="ExpiryQueue"/>
    </jms>
+
    <core xmlns="urn:activemq:core">
-      <paging-directory>${data.dir:../data}/paging</paging-directory>
 
-      <bindings-directory>${data.dir:../data}/bindings</bindings-directory>
+      <!-- this could be AIO or NIO
+       -->
+      <journal-type>${journal.settings}</journal-type>
 
-      <journal-directory>${data.dir:../data}/journal</journal-directory>
+      <paging-directory>${data.dir}/paging</paging-directory>
+
+      <bindings-directory>${data.dir}/bindings</bindings-directory>
+
+      <journal-directory>${data.dir}/journal</journal-directory>
+
+      <large-messages-directory>${data.dir}/large-messages</large-messages-directory>
 
       <journal-min-files>10</journal-min-files>
-
-      <large-messages-directory>${data.dir:../data}/large-messages</large-messages-directory>
-
-      <connectors>
-         <!-- Default Connector.  Returned to clients during broadcast and distributed around cluster.  See broadcast and discovery-groups -->
-         <connector name="artemis">tcp://${activemq.remoting.default.host:${host}}:${activemq.remoting.default.port:${default.port}}</connector>
-      </connectors>
-
+${connector-config.settings}
       <acceptors>
          <!-- Default ActiveMQ Artemis Acceptor.  Multi-protocol adapter.  Currently supports Core, OpenWire, Stomp and AMQP. -->
-         <acceptor name="artemis">tcp://${activemq.remoting.default.host:${host}}:${activemq.remoting.default.port:${default.port}}</acceptor>
+         <acceptor name="artemis">tcp://${host}:${default.port}</acceptor>
 
          <!-- AMQP Acceptor.  Listens on default AMQP port for AMQP traffic.-->
-         <acceptor name="amqp">tcp://${activemq.remoting.amqp.host:${host}}:${activemq.remoting.amqp.port:${amqp.port}}?protocols=AMQP</acceptor>
+         <acceptor name="amqp">tcp://${host}:${amqp.port}?protocols=AMQP</acceptor>
 
          <!-- STOMP Acceptor. -->
-         <acceptor name="stomp">tcp://${activemq.remoting.stomp.host:${host}}:${activemq.remoting.stomp.port:${stomp.port}}?protocols=STOMP</acceptor>
+         <acceptor name="stomp">tcp://${host}:${stomp.port}?protocols=STOMP</acceptor>
 
          <!-- HornetQ Compatibility Acceptor.  Enables ActiveMQ Artemis Core and STOMP for legacy HornetQ clients. -->
-         <acceptor name="hornetq">tcp://${activemq.remoting.hornetq.host:${host}}:${activemq.remoting.hornetq.port:${hq.port}}?protocols=HORNETQ,STOMP</acceptor>
+         <acceptor name="hornetq">tcp://${host}:${hq.port}?protocols=HORNETQ,STOMP</acceptor>
       </acceptors>
-
-      ${cluster-security.settings}${cluster.settings}${replicated.settings}${shared-store.settings}
-
+${cluster-security.settings}${cluster.settings}${replicated.settings}${shared-store.settings}
       <security-settings>
          <security-setting match="#">
-            <permission type="createNonDurableQueue" roles="guest"/>
-            <permission type="deleteNonDurableQueue" roles="guest"/>
-            <permission type="consume" roles="guest"/>
-            <permission type="send" roles="guest"/>
+            <permission type="createNonDurableQueue" roles="${role}"/>
+            <permission type="deleteNonDurableQueue" roles="${role}"/>
+            <permission type="createDurableQueue" roles="${role}"/>
+            <permission type="deleteDurableQueue" roles="${role}"/>
+            <permission type="consume" roles="${role}"/>
+            <permission type="send" roles="${role}"/>
          </security-setting>
       </security-settings>
 

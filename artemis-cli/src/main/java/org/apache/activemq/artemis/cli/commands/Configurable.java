@@ -36,7 +36,7 @@ import org.apache.activemq.artemis.jms.server.config.impl.FileJMSConfiguration;
 /**
  * Abstract class where we can replace the configuration in various places *
  */
-public abstract class Configurable
+public abstract class Configurable extends ActionAbstract
 {
    @Arguments(description = "Broker Configuration URI, default 'xml:${ARTEMIS_INSTANCE}/etc/bootstrap.xml'")
    String configuration;

@@ -1,7 +1,0 @@
-* [Legal Notice](notice.md)
-* [Introduction](introduction.md)
-* [About](about.md)
-* [Download](download.md)
-* [Installation](installation.md)
-* [Running](running.md)
-* [Examples](examples.md)

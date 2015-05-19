@@ -1104,6 +1104,13 @@ public interface ActiveMQServerLogger extends BasicLogger
          format = Message.Format.MESSAGE_FORMAT)
    void disallowedProtocol(String protocol);
 
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 222191,
+      value = "Could not find any configured role for user {0}.",
+      format = Message.Format.MESSAGE_FORMAT)
+   void cannotFindRoleForUser(String user);
+
+
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 224000, value = "Failure in initialisation", format = Message.Format.MESSAGE_FORMAT)
    void initializationError(@Cause Throwable e);
