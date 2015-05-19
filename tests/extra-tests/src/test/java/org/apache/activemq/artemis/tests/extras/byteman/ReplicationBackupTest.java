@@ -16,9 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.extras.byteman;
 
-import java.util.concurrent.CountDownLatch;
-
-import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
@@ -30,6 +27,8 @@ import org.jboss.byteman.contrib.bmunit.BMRules;
 import org.jboss.byteman.contrib.bmunit.BMUnitRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.util.concurrent.CountDownLatch;
 
 @RunWith(BMUnitRunner.class)
 public class ReplicationBackupTest extends ServiceTestBase
@@ -67,10 +66,10 @@ public class ReplicationBackupTest extends ServiceTestBase
       final String suffix = "_backup";
 
       Configuration backupConfig = createDefaultConfig()
-         .setBindingsDirectory("./target/" + ActiveMQDefaultConfiguration.getDefaultBindingsDirectory() + suffix)
-         .setJournalDirectory("./target/" + ActiveMQDefaultConfiguration.getDefaultJournalDir() + suffix)
-         .setPagingDirectory("./target/" + ActiveMQDefaultConfiguration.getDefaultPagingDir() + suffix)
-         .setLargeMessagesDirectory("./target/" + ActiveMQDefaultConfiguration.getDefaultLargeMessagesDir() + suffix);
+         .setBindingsDirectory(getBindingsDir() + suffix)
+         .setJournalDirectory(getJournalDir() + suffix)
+         .setPagingDirectory(getPageDir() + suffix)
+         .setLargeMessagesDirectory(getLargeMessagesDir() + suffix);
 
       Configuration liveConfig = createDefaultConfig();
 

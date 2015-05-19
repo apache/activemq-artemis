@@ -16,16 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.apache.activemq.artemis.tests.integration.cluster.util.TestableServer;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal;
 import org.apache.activemq.artemis.core.client.impl.ServerLocatorInternal;
 import org.apache.activemq.artemis.core.config.Configuration;
@@ -36,8 +29,14 @@ import org.apache.activemq.artemis.core.config.ha.SharedStoreSlavePolicyConfigur
 import org.apache.activemq.artemis.core.server.NodeManager;
 import org.apache.activemq.artemis.core.server.impl.InVMNodeManager;
 import org.apache.activemq.artemis.tests.integration.cluster.util.SameProcessActiveMQServer;
+import org.apache.activemq.artemis.tests.integration.cluster.util.TestableServer;
 import org.junit.After;
 import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  */
@@ -164,10 +163,10 @@ public class MultipleLivesMultipleBackupsFailoverTest extends MultipleBackupsFai
          .addAcceptorConfiguration(createTransportConfiguration(isNetty(), true, generateParams(nodeid, isNetty())))
          .setSecurityEnabled(false)
          .setHAPolicyConfiguration(sharedStore ? new SharedStoreSlavePolicyConfiguration() : new ReplicaPolicyConfiguration())
-         .setBindingsDirectory(ActiveMQDefaultConfiguration.getDefaultBindingsDirectory() + "_" + liveNode)
-         .setJournalDirectory(ActiveMQDefaultConfiguration.getDefaultJournalDir() + "_" + liveNode)
-         .setPagingDirectory(ActiveMQDefaultConfiguration.getDefaultPagingDir() + "_" + liveNode)
-         .setLargeMessagesDirectory(ActiveMQDefaultConfiguration.getDefaultLargeMessagesDir() + "_" + liveNode);
+         .setBindingsDirectory(getBindingsDir() + "_" + liveNode)
+         .setJournalDirectory(getJournalDir() + "_" + liveNode)
+         .setPagingDirectory(getPageDir() + "_" + liveNode)
+         .setLargeMessagesDirectory(getLargeMessagesDir() + "_" + liveNode);
 
       for (int node : otherBackupNodes)
       {
@@ -199,10 +198,10 @@ public class MultipleLivesMultipleBackupsFailoverTest extends MultipleBackupsFai
          .addAcceptorConfiguration(createTransportConfiguration(isNetty(), true, generateParams(liveNode, isNetty())))
          .setSecurityEnabled(false)
          .setHAPolicyConfiguration(sharedStore ? new SharedStoreMasterPolicyConfiguration() : new ReplicatedPolicyConfiguration())
-         .setBindingsDirectory(ActiveMQDefaultConfiguration.getDefaultBindingsDirectory() + "_" + liveNode)
-         .setJournalDirectory(ActiveMQDefaultConfiguration.getDefaultJournalDir() + "_" + liveNode)
-         .setPagingDirectory(ActiveMQDefaultConfiguration.getDefaultPagingDir() + "_" + liveNode)
-         .setLargeMessagesDirectory(ActiveMQDefaultConfiguration.getDefaultLargeMessagesDir() + "_" + liveNode)
+         .setBindingsDirectory(getBindingsDir() + "_" + liveNode)
+         .setJournalDirectory(getJournalDir() + "_" + liveNode)
+         .setPagingDirectory(getPageDir() + "_" + liveNode)
+         .setLargeMessagesDirectory(getLargeMessagesDir() + "_" + liveNode)
          .addConnectorConfiguration(liveConnector.getName(), liveConnector);
 
       List<String> pairs = new ArrayList<String>();

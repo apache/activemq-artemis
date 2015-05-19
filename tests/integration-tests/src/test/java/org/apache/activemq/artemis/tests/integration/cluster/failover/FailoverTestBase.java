@@ -207,11 +207,10 @@ public abstract class FailoverTestBase extends ServiceTestBase
 
       ReplicatedBackupUtils.configureReplicationPair(backupConfig, backupConnector, backupAcceptor, liveConfig, liveConnector, null);
 
-      final String suffix = "_backup";
-      backupConfig.setBindingsDirectory(backupConfig.getBindingsDirectory() + suffix)
-         .setJournalDirectory(backupConfig.getJournalDirectory() + suffix)
-         .setPagingDirectory(backupConfig.getPagingDirectory() + suffix)
-         .setLargeMessagesDirectory(backupConfig.getLargeMessagesDirectory() + suffix)
+      backupConfig.setBindingsDirectory(getBindingsDir(0, true))
+         .setJournalDirectory(getJournalDir(0, true))
+         .setPagingDirectory(getPageDir(0, true))
+         .setLargeMessagesDirectory(getLargeMessagesDir(0, true))
          .setSecurityEnabled(false);
 
       setupHAPolicyConfiguration();
