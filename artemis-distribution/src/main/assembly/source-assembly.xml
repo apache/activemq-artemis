@@ -45,7 +45,6 @@
             <!-- Exclude all docs except user manual -->
             <exclude>docs/design-guide/</exclude>
             <exclude>docs/diagrams/</exclude>
-            <exclude>docs/quickstart-guide/</exclude>
 
             <!-- Exclude Release and Dev files -->
             <exclude>RELEASING.md</exclude>

@@ -4,6 +4,7 @@
 * [Legal Notice](notice.md)
 * [Preface](preface.md)
 * [Project Info](project-info.md)
+* [Running the Server](running-server.md)
 * [Messaging Concepts](messaging-concepts.md)
 * [Architecture](architecture.md)
 * [Using the Server](using-server.md)
