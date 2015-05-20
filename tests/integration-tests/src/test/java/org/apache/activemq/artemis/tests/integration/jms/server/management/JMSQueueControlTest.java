@@ -1386,9 +1386,9 @@ public class JMSQueueControlTest extends ManagementTestBase
    {
       super.setUp();
 
-      Configuration conf = createBasicConfig()
-         .addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY));
-      server = createServer(this.getName().contains("WithRealData"), conf);
+      Configuration config = createDefaultInVMConfig()
+              .setJMXManagementEnabled(true);
+      server = createServer(this.getName().contains("WithRealData"), config);
       server.setMBeanServer(mbeanServer);
 
       serverManager = new JMSServerManagerImpl(server);

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.integration.client;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Before;
 
 import org.junit.Test;
@@ -32,7 +32,7 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
 
-public class QueueBrowserTest extends ServiceTestBase
+public class QueueBrowserTest extends ActiveMQTestBase
 {
    private ActiveMQServer server;
 

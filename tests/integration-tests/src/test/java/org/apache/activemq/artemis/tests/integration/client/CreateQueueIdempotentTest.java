@@ -16,24 +16,22 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException;
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
-import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class CreateQueueIdempotentTest extends ServiceTestBase
+import java.util.concurrent.atomic.AtomicInteger;
+
+public class CreateQueueIdempotentTest extends ActiveMQTestBase
 {
 
    private ActiveMQServer server;
@@ -43,12 +41,7 @@ public class CreateQueueIdempotentTest extends ServiceTestBase
    public void setUp() throws Exception
    {
       super.setUp();
-
-      Configuration conf = createDefaultConfig()
-         .setSecurityEnabled(false)
-         .addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY));
-
-      server = addServer(ActiveMQServers.newActiveMQServer(conf, true));
+      server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig(), true));
       server.start();
    }
 

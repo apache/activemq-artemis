@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.unit.core.security.impl;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Before;
 import org.junit.After;
 
@@ -32,7 +32,7 @@ import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManagerImpl
 /**
  * tests ActiveMQSecurityManagerImpl
  */
-public class ActiveMQSecurityManagerImplTest extends ServiceTestBase
+public class ActiveMQSecurityManagerImplTest extends ActiveMQTestBase
 {
    private ActiveMQSecurityManagerImpl securityManager;
 

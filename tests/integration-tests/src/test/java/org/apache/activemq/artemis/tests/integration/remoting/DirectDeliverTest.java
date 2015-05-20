@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.integration.remoting;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Before;
 
 import org.junit.Test;
@@ -41,7 +41,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.impl.QueueImpl;
 
-public class DirectDeliverTest extends ServiceTestBase
+public class DirectDeliverTest extends ActiveMQTestBase
 {
 
    private ActiveMQServer server;

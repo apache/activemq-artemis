@@ -25,7 +25,7 @@ import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.unit.util.InVMNamingContext;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.registry.JndiBindingRegistry;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory;
@@ -37,7 +37,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class JMSServerDeployerTest extends ServiceTestBase
+public class JMSServerDeployerTest extends ActiveMQTestBase
 {
    // Constants -----------------------------------------------------
 

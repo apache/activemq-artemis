@@ -53,7 +53,7 @@ import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.server.JMSServerManager;
 import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
 import org.apache.activemq.artemis.tests.unit.util.InVMContext;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.After;
 import org.junit.Before;
 
@@ -62,7 +62,7 @@ import org.junit.Before;
  * This class serves as a base class for jms bridge tests in
  * clustered scenarios.
  */
-public abstract class ClusteredBridgeTestBase extends ServiceTestBase
+public abstract class ClusteredBridgeTestBase extends ActiveMQTestBase
 {
    private static int index = 0;
 
@@ -170,7 +170,7 @@ public abstract class ClusteredBridgeTestBase extends ServiceTestBase
          liveNode.setRegistry(new JndiBindingRegistry(liveContext));
 
          //backup
-         Configuration conf = createBasicConfig()
+         Configuration config = createBasicConfig()
             .setJournalDirectory(getJournalDir(id, true))
             .setBindingsDirectory(getBindingsDir(id, true))
             .addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY, params))
@@ -179,7 +179,7 @@ public abstract class ClusteredBridgeTestBase extends ServiceTestBase
             .setHAPolicyConfiguration(new ReplicaPolicyConfiguration())
             .addClusterConfiguration(basicClusterConnectionConfig(backupConnector.getName(), liveConnector.getName()));
 
-         ActiveMQServer backup = addServer(ActiveMQServers.newActiveMQServer(conf, true));
+         ActiveMQServer backup = addServer(ActiveMQServers.newActiveMQServer(config, true));
 
          Context context = new InVMContext();
 

@@ -27,7 +27,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.tests.unit.core.postoffice.impl.FakeQueue;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.paging.cursor.PageCache;
@@ -54,7 +54,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class PageCursorStressTest extends ServiceTestBase
+public class PageCursorStressTest extends ActiveMQTestBase
 {
 
    // Constants -----------------------------------------------------
@@ -884,7 +884,7 @@ public class PageCursorStressTest extends ServiceTestBase
    {
       OperationContextImpl.clearContext();
 
-      Configuration config = createDefaultConfig()
+      Configuration config = createDefaultInVMConfig()
          .setJournalSyncNonTransactional(true);
 
       server = createServer(true, config, PAGE_SIZE, PAGE_MAX, new HashMap<String, AddressSettings>());

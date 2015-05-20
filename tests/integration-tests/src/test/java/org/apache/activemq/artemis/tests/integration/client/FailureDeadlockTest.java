@@ -15,15 +15,24 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.integration.client;
+
 import org.apache.activemq.artemis.api.core.ActiveMQNotConnectedException;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
+import org.apache.activemq.artemis.api.jms.JMSFactoryType;
+import org.apache.activemq.artemis.core.client.impl.ClientSessionInternal;
+import org.apache.activemq.artemis.core.registry.JndiBindingRegistry;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.jms.client.ActiveMQSession;
+import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
+import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.integration.jms.server.management.NullInitialContext;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
-import org.apache.activemq.artemis.core.registry.JndiBindingRegistry;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.After;
-
 import org.junit.Test;
 
 import javax.jms.Connection;
@@ -31,18 +40,7 @@ import javax.jms.ExceptionListener;
 import javax.jms.JMSException;
 import javax.jms.Session;
 
-import org.apache.activemq.artemis.api.core.TransportConfiguration;
-import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
-import org.apache.activemq.artemis.api.jms.JMSFactoryType;
-import org.apache.activemq.artemis.core.client.impl.ClientSessionInternal;
-import org.apache.activemq.artemis.core.config.Configuration;
-import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
-import org.apache.activemq.artemis.jms.client.ActiveMQSession;
-import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
-import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
-
-public class FailureDeadlockTest extends ServiceTestBase
+public class FailureDeadlockTest extends ActiveMQTestBase
 {
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
@@ -59,21 +57,13 @@ public class FailureDeadlockTest extends ServiceTestBase
    public void setUp() throws Exception
    {
       super.setUp();
-
-      Configuration conf = createDefaultConfig()
-         .setSecurityEnabled(false)
-         .addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY));
-      server = createServer(false, conf);
+      server = createServer(false, createDefaultInVMConfig());
       jmsServer = new JMSServerManagerImpl(server);
       jmsServer.setRegistry(new JndiBindingRegistry(new NullInitialContext()));
       jmsServer.start();
 
-      cf1 =
-               ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF,
-                                                                  new TransportConfiguration(INVM_CONNECTOR_FACTORY));
-      cf2 =
-               ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF,
-                                                                  new TransportConfiguration(INVM_CONNECTOR_FACTORY));
+      cf1 = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration(INVM_CONNECTOR_FACTORY));
+      cf2 = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration(INVM_CONNECTOR_FACTORY));
    }
 
    @Override

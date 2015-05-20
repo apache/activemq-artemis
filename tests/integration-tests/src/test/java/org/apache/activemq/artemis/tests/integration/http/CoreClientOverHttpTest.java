@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.integration.http;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Before;
 
 import org.junit.Test;
@@ -40,7 +40,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
 
-public class CoreClientOverHttpTest extends ServiceTestBase
+public class CoreClientOverHttpTest extends ActiveMQTestBase
 {
    private static final SimpleString QUEUE = new SimpleString("CoreClientOverHttpTestQueue");
    private Configuration conf;
@@ -55,15 +55,13 @@ public class CoreClientOverHttpTest extends ServiceTestBase
       HashMap<String, Object> params = new HashMap<String, Object>();
       params.put(TransportConstants.HTTP_ENABLED_PROP_NAME, true);
 
-      conf = createDefaultConfig()
-         .setSecurityEnabled(false)
-         .addAcceptorConfiguration(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY));
+      conf = createDefaultInVMConfig()
+              .clearAcceptorConfigurations()
+              .addAcceptorConfiguration(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, params));
 
       server = addServer(ActiveMQServers.newActiveMQServer(conf, false));
-
       server.start();
-      locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(NETTY_CONNECTOR_FACTORY, params));
-      addServerLocator(locator);
+      locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(NETTY_CONNECTOR_FACTORY, params)));
    }
 
    @Test

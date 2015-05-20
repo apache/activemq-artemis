@@ -437,7 +437,7 @@ public class SimpleStringTest extends Assert
             x[i].start();
          }
 
-         ServiceTestBase.waitForLatch(latch);
+         ActiveMQTestBase.waitForLatch(latch);
          start.countDown();
 
          for (T t : x)

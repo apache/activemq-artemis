@@ -29,7 +29,7 @@ import org.apache.activemq.artemis.core.config.ha.ReplicatedPolicyConfiguration;
 import org.apache.activemq.artemis.core.server.group.impl.GroupingHandlerConfiguration;
 import org.apache.activemq.artemis.core.server.impl.SharedNothingBackupActivation;
 import org.apache.activemq.artemis.tests.integration.cluster.distribution.ClusterTestBase;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Test;
 
 public abstract class GroupingFailoverTestBase extends ClusterTestBase
@@ -129,7 +129,7 @@ public abstract class GroupingFailoverTestBase extends ClusterTestBase
 
          Thread.sleep(10);
       }
-      while (System.currentTimeMillis() - start < ServiceTestBase.WAIT_TIMEOUT);
+      while (System.currentTimeMillis() - start < ActiveMQTestBase.WAIT_TIMEOUT);
 
       throw new IllegalStateException("Timed out waiting for backup announce");
    }

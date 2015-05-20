@@ -17,10 +17,10 @@
 package org.apache.activemq.artemis.tests.unit.core.server.group.impl;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.core.server.group.impl.GroupingHandlerConfiguration;
 
-public class SystemPropertyOverrideTest extends ServiceTestBase
+public class SystemPropertyOverrideTest extends ActiveMQTestBase
 {
    // Constants -----------------------------------------------------
 

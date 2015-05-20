@@ -16,18 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.cluster;
 
-import javax.jms.BytesMessage;
-import javax.jms.Connection;
-import javax.jms.MapMessage;
-import javax.jms.MessageConsumer;
-import javax.jms.MessageProducer;
-import javax.jms.Queue;
-import javax.jms.Session;
-import javax.jms.TextMessage;
-
-import java.util.Arrays;
-import java.util.Collection;
-
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.api.jms.JMSFactoryType;
@@ -39,6 +27,17 @@ import org.apache.activemq.artemis.tests.util.JMSClusteredTestBase;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+
+import javax.jms.BytesMessage;
+import javax.jms.Connection;
+import javax.jms.MapMessage;
+import javax.jms.MessageConsumer;
+import javax.jms.MessageProducer;
+import javax.jms.Queue;
+import javax.jms.Session;
+import javax.jms.TextMessage;
+import java.util.Arrays;
+import java.util.Collection;
 
 @RunWith(value = Parameterized.class)
 public class LargeMessageOverBridgeTest extends JMSClusteredTestBase
@@ -168,16 +167,6 @@ public class LargeMessageOverBridgeTest extends JMSClusteredTestBase
    }
 
 
-   protected Configuration createConfigServer2()
-   {
-      Configuration config = super.createConfigServer2();
-
-      installHack(config);
-
-      return config;
-   }
-
-
    /**
     * the hack to create the failing condition in certain tests
     *
@@ -194,12 +183,11 @@ public class LargeMessageOverBridgeTest extends JMSClusteredTestBase
       }
    }
 
-   protected Configuration createConfigServer1()
+   protected Configuration createConfigServer(final int source, final int destination) throws Exception
    {
-      Configuration config = super.createConfigServer1();
+      Configuration config = super.createConfigServer(source, destination);
 
       installHack(config);
-
 
       return config;
    }
@@ -273,7 +261,7 @@ public class LargeMessageOverBridgeTest extends JMSClusteredTestBase
       Queue queue = (Queue) context1.lookup("queue/Q1");
 
 
-      ActiveMQConnectionFactory cf1 = ActiveMQJMSClient.createConnectionFactoryWithHA(JMSFactoryType.CF, new TransportConfiguration(INVM_CONNECTOR_FACTORY, generateInVMParams(0)));
+      ActiveMQConnectionFactory cf1 = ActiveMQJMSClient.createConnectionFactoryWithHA(JMSFactoryType.CF, new TransportConfiguration(INVM_CONNECTOR_FACTORY, generateInVMParams(1)));
       cf1.setMinLargeMessageSize(200 * 1024);
 
       Connection conn1 = cf1.createConnection();

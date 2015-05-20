@@ -20,7 +20,7 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.jboss.byteman.contrib.bmunit.BMRule;
 import org.jboss.byteman.contrib.bmunit.BMRules;
 import org.jboss.byteman.contrib.bmunit.BMUnitRunner;
@@ -28,7 +28,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(BMUnitRunner.class)
-public class LatencyTest extends ServiceTestBase
+public class LatencyTest extends ActiveMQTestBase
 {
    /*
    * simple test to make sure connect still works with some network latency  built into netty
@@ -58,7 +58,7 @@ public class LatencyTest extends ServiceTestBase
       )
    public void testLatency() throws Exception
    {
-      ActiveMQServer server = createServer(createDefaultConfig(true));
+      ActiveMQServer server = createServer(createDefaultNettyConfig());
       server.start();
       ServerLocator locator = createNettyNonHALocator();
       ClientSessionFactory factory = createSessionFactory(locator);

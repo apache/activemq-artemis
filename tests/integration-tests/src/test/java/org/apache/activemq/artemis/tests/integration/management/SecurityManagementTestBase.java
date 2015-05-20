@@ -16,7 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.management;
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Before;
 import org.junit.After;
 
@@ -33,7 +33,7 @@ import org.apache.activemq.artemis.api.core.management.ManagementHelper;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 
-public abstract class SecurityManagementTestBase extends ServiceTestBase
+public abstract class SecurityManagementTestBase extends ActiveMQTestBase
 {
 
    // Constants -----------------------------------------------------

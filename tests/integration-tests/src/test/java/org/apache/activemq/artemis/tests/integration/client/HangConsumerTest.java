@@ -63,7 +63,7 @@ import org.apache.activemq.artemis.spi.core.protocol.SessionCallback;
 import org.apache.activemq.artemis.spi.core.remoting.ReadyListener;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManagerImpl;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.ReusableLatch;
 import org.junit.After;
@@ -76,7 +76,7 @@ import org.junit.Test;
  * and it will make sure we can still perform certain operations on the queue such as produce
  * and verify the counters
  */
-public class HangConsumerTest extends ServiceTestBase
+public class HangConsumerTest extends ActiveMQTestBase
 {
 
    private ActiveMQServer server;
@@ -93,12 +93,10 @@ public class HangConsumerTest extends ServiceTestBase
    {
       super.setUp();
 
-      Configuration config = createDefaultConfig()
+      Configuration config = createDefaultInVMConfig()
          .setMessageExpiryScanPeriod(10);
 
       ActiveMQSecurityManager securityManager = new ActiveMQSecurityManagerImpl();
-
-      config.setPersistenceEnabled(true);
 
       server = new MyActiveMQServer(config, ManagementFactory.getPlatformMBeanServer(), securityManager);
 

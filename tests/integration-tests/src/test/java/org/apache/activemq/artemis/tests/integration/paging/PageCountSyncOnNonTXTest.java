@@ -26,11 +26,11 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Before;
 import org.junit.Test;
 
-public class PageCountSyncOnNonTXTest extends ServiceTestBase
+public class PageCountSyncOnNonTXTest extends ActiveMQTestBase
 {
 
    // We will add a random factor on the wait time

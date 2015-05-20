@@ -16,7 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.unit.util;
 
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
@@ -40,7 +40,7 @@ import org.junit.Assert;
 
 import org.apache.activemq.artemis.utils.ObjectInputStreamWithClassLoader;
 
-public class ObjectInputStreamWithClassLoaderTest extends ServiceTestBase
+public class ObjectInputStreamWithClassLoaderTest extends ActiveMQTestBase
 {
    // Constants -----------------------------------------------------
 

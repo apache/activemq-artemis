@@ -23,7 +23,7 @@ import org.apache.activemq.artemis.core.config.ClusterConnectionConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -32,7 +32,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class IsolatedTopologyTest extends ServiceTestBase
+public class IsolatedTopologyTest extends ActiveMQTestBase
 {
 
    @Test
@@ -108,7 +108,7 @@ public class IsolatedTopologyTest extends ServiceTestBase
       params.put(TransportConstants.CLUSTER_CONNECTION, "cc1");
       params.put(org.apache.activemq.artemis.core.remoting.impl.invm.TransportConstants.SERVER_ID_PROP_NAME, "1");
 
-      TransportConfiguration acceptor1VM1 = new TransportConfiguration(ServiceTestBase.INVM_ACCEPTOR_FACTORY,
+      TransportConfiguration acceptor1VM1 = new TransportConfiguration(ActiveMQTestBase.INVM_ACCEPTOR_FACTORY,
                                                                        params,
                                                                        "acceptor-cc1");
 
@@ -116,7 +116,7 @@ public class IsolatedTopologyTest extends ServiceTestBase
       params.put(TransportConstants.CLUSTER_CONNECTION, "cc2");
       params.put(org.apache.activemq.artemis.core.remoting.impl.invm.TransportConstants.SERVER_ID_PROP_NAME, "2");
 
-      TransportConfiguration acceptor2VM1 = new TransportConfiguration(ServiceTestBase.INVM_ACCEPTOR_FACTORY,
+      TransportConfiguration acceptor2VM1 = new TransportConfiguration(ActiveMQTestBase.INVM_ACCEPTOR_FACTORY,
                                                                        params,
                                                                        "acceptor-cc2");
 
@@ -145,7 +145,7 @@ public class IsolatedTopologyTest extends ServiceTestBase
       // Server1 with two acceptors, each acceptor on a different cluster connection
       // talking to a different connector.
       // i.e. two cluster connections isolated on the same node
-      Configuration config1 = createBasicConfig(0)
+      Configuration config1 = createBasicConfig(1)
          .addConnectorConfiguration("local-cc1", createInVMTransportConnectorConfig(1, "local-cc1"))
          .addConnectorConfiguration("local-cc2", createInVMTransportConnectorConfig(2, "local-cc2"))
          .addConnectorConfiguration("other-cc1", createInVMTransportConnectorConfig(3, "other-cc1"))
@@ -165,7 +165,7 @@ public class IsolatedTopologyTest extends ServiceTestBase
       params.put(TransportConstants.CLUSTER_CONNECTION, "cc1");
       params.put(org.apache.activemq.artemis.core.remoting.impl.invm.TransportConstants.SERVER_ID_PROP_NAME, "3");
 
-      TransportConfiguration acceptor1VM1 = new TransportConfiguration(ServiceTestBase.INVM_ACCEPTOR_FACTORY,
+      TransportConfiguration acceptor1VM1 = new TransportConfiguration(ActiveMQTestBase.INVM_ACCEPTOR_FACTORY,
                                                                        params,
                                                                        "acceptor-cc1");
 
@@ -173,7 +173,7 @@ public class IsolatedTopologyTest extends ServiceTestBase
       params.put(TransportConstants.CLUSTER_CONNECTION, "cc2");
       params.put(org.apache.activemq.artemis.core.remoting.impl.invm.TransportConstants.SERVER_ID_PROP_NAME, "4");
 
-      TransportConfiguration acceptor2VM1 = new TransportConfiguration(ServiceTestBase.INVM_ACCEPTOR_FACTORY,
+      TransportConfiguration acceptor2VM1 = new TransportConfiguration(ActiveMQTestBase.INVM_ACCEPTOR_FACTORY,
                                                                        params,
                                                                        "acceptor-cc2");
 
@@ -199,10 +199,10 @@ public class IsolatedTopologyTest extends ServiceTestBase
          .setConfirmationWindowSize(1024)
          .setStaticConnectors(connectTo2);
 
-      // Server1 with two acceptors, each acceptor on a different cluster connection
+      // Server2 with two acceptors, each acceptor on a different cluster connection
       // talking to a different connector.
       // i.e. two cluster connections isolated on the same node
-      Configuration config1 = createBasicConfig(3)
+      Configuration config1 = createBasicConfig(2)
          .addAcceptorConfiguration(acceptor1VM1)
          .addAcceptorConfiguration(acceptor2VM1)
          .addConnectorConfiguration("local-cc1", createInVMTransportConnectorConfig(3, "local-cc1"))

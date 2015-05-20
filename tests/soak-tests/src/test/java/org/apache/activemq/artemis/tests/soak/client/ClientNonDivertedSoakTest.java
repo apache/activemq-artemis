@@ -28,11 +28,11 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Before;
 import org.junit.Test;
 
-public class ClientNonDivertedSoakTest extends ServiceTestBase
+public class ClientNonDivertedSoakTest extends ActiveMQTestBase
 {
 
    // Constants -----------------------------------------------------
@@ -41,11 +41,14 @@ public class ClientNonDivertedSoakTest extends ServiceTestBase
 
    private static final SimpleString ADDRESS = new SimpleString("ADD");
 
-   private static final boolean IS_NETTY = false;
-
    private static final boolean IS_JOURNAL = false;
 
    public static final int MIN_MESSAGES_ON_QUEUE = 5000;
+
+   protected boolean isNetty()
+   {
+      return false;
+   }
 
    // Static --------------------------------------------------------
 
@@ -61,14 +64,14 @@ public class ClientNonDivertedSoakTest extends ServiceTestBase
    {
       super.setUp();
 
-      Configuration config = createDefaultConfig(ClientNonDivertedSoakTest.IS_NETTY)
+      Configuration config = createDefaultConfig(isNetty())
          .setJournalFileSize(10 * 1024 * 1024);
 
       server = createServer(IS_JOURNAL, config, -1, -1, new HashMap<String, AddressSettings>());
 
       server.start();
 
-      ServerLocator locator = createFactory(ClientNonDivertedSoakTest.IS_NETTY);
+      ServerLocator locator = createFactory(isNetty());
 
       ClientSessionFactory sf = createSessionFactory(locator);
 
@@ -87,7 +90,7 @@ public class ClientNonDivertedSoakTest extends ServiceTestBase
    @Test
    public void testSoakClient() throws Exception
    {
-      ServerLocator locator = createFactory(ClientNonDivertedSoakTest.IS_NETTY);
+      ServerLocator locator = createFactory(isNetty());
 
       final ClientSessionFactory sf = createSessionFactory(locator);
 

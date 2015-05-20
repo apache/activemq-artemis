@@ -34,7 +34,7 @@ import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
@@ -46,7 +46,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class PagingSendTest extends ServiceTestBase
+public class PagingSendTest extends ActiveMQTestBase
 {
    public static final SimpleString ADDRESS = new SimpleString("SimpleAddress");
 

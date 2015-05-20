@@ -146,9 +146,10 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       return autoCreateJmsQueues != null ? autoCreateJmsQueues : AddressSettings.DEFAULT_AUTO_CREATE_QUEUES;
    }
 
-   public void setAutoCreateJmsQueues(final boolean autoCreateJmsQueues)
+   public AddressSettings setAutoCreateJmsQueues(final boolean autoCreateJmsQueues)
    {
       this.autoCreateJmsQueues = autoCreateJmsQueues;
+      return this;
    }
 
    public boolean isAutoDeleteJmsQueues()
@@ -156,9 +157,10 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       return autoDeleteJmsQueues != null ? autoDeleteJmsQueues : AddressSettings.DEFAULT_AUTO_DELETE_QUEUES;
    }
 
-   public void setAutoDeleteJmsQueues(final boolean autoDeleteJmsQueues)
+   public AddressSettings setAutoDeleteJmsQueues(final boolean autoDeleteJmsQueues)
    {
       this.autoDeleteJmsQueues = autoDeleteJmsQueues;
+      return this;
    }
 
    public boolean isLastValueQueue()
@@ -166,9 +168,10 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       return lastValueQueue != null ? lastValueQueue : AddressSettings.DEFAULT_LAST_VALUE_QUEUE;
    }
 
-   public void setLastValueQueue(final boolean lastValueQueue)
+   public AddressSettings setLastValueQueue(final boolean lastValueQueue)
    {
       this.lastValueQueue = lastValueQueue;
+      return this;
    }
 
    public AddressFullMessagePolicy getAddressFullMessagePolicy()
@@ -177,9 +180,10 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
          : AddressSettings.DEFAULT_ADDRESS_FULL_MESSAGE_POLICY;
    }
 
-   public void setAddressFullMessagePolicy(final AddressFullMessagePolicy addressFullMessagePolicy)
+   public AddressSettings setAddressFullMessagePolicy(final AddressFullMessagePolicy addressFullMessagePolicy)
    {
       this.addressFullMessagePolicy = addressFullMessagePolicy;
+      return this;
    }
 
    public long getPageSizeBytes()
@@ -187,9 +191,10 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       return pageSizeBytes != null ? pageSizeBytes : AddressSettings.DEFAULT_PAGE_SIZE;
    }
 
-   public void setPageSizeBytes(final long pageSize)
+   public AddressSettings setPageSizeBytes(final long pageSize)
    {
       pageSizeBytes = pageSize;
+      return this;
    }
 
    public int getPageCacheMaxSize()
@@ -197,9 +202,10 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       return pageMaxCache != null ? pageMaxCache : AddressSettings.DEFAULT_PAGE_MAX_CACHE;
    }
 
-   public void setPageCacheMaxSize(final int pageMaxCache)
+   public AddressSettings setPageCacheMaxSize(final int pageMaxCache)
    {
       this.pageMaxCache = pageMaxCache;
+      return this;
    }
 
    public long getMaxSizeBytes()
@@ -207,9 +213,10 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       return maxSizeBytes != null ? maxSizeBytes : AddressSettings.DEFAULT_MAX_SIZE_BYTES;
    }
 
-   public void setMaxSizeBytes(final long maxSizeBytes)
+   public AddressSettings setMaxSizeBytes(final long maxSizeBytes)
    {
       this.maxSizeBytes = maxSizeBytes;
+      return this;
    }
 
    public int getMaxDeliveryAttempts()
@@ -217,9 +224,10 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       return maxDeliveryAttempts != null ? maxDeliveryAttempts : AddressSettings.DEFAULT_MAX_DELIVERY_ATTEMPTS;
    }
 
-   public void setMaxDeliveryAttempts(final int maxDeliveryAttempts)
+   public AddressSettings setMaxDeliveryAttempts(final int maxDeliveryAttempts)
    {
       this.maxDeliveryAttempts = maxDeliveryAttempts;
+      return this;
    }
 
    public int getMessageCounterHistoryDayLimit()
@@ -228,9 +236,10 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
          : AddressSettings.DEFAULT_MESSAGE_COUNTER_HISTORY_DAY_LIMIT;
    }
 
-   public void setMessageCounterHistoryDayLimit(final int messageCounterHistoryDayLimit)
+   public AddressSettings setMessageCounterHistoryDayLimit(final int messageCounterHistoryDayLimit)
    {
       this.messageCounterHistoryDayLimit = messageCounterHistoryDayLimit;
+      return this;
    }
 
    public long getRedeliveryDelay()
@@ -238,9 +247,10 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       return redeliveryDelay != null ? redeliveryDelay : AddressSettings.DEFAULT_REDELIVER_DELAY;
    }
 
-   public void setRedeliveryDelay(final long redeliveryDelay)
+   public AddressSettings setRedeliveryDelay(final long redeliveryDelay)
    {
       this.redeliveryDelay = redeliveryDelay;
+      return this;
    }
 
    public double getRedeliveryMultiplier()
@@ -248,9 +258,10 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       return redeliveryMultiplier != null ? redeliveryMultiplier : AddressSettings.DEFAULT_REDELIVER_MULTIPLIER;
    }
 
-   public void setRedeliveryMultiplier(final double redeliveryMultiplier)
+   public AddressSettings setRedeliveryMultiplier(final double redeliveryMultiplier)
    {
       this.redeliveryMultiplier = redeliveryMultiplier;
+      return this;
    }
 
    public long getMaxRedeliveryDelay()
@@ -260,9 +271,10 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       return maxRedeliveryDelay != null ? maxRedeliveryDelay : (getRedeliveryDelay() * 10);
    }
 
-   public void setMaxRedeliveryDelay(final long maxRedeliveryDelay)
+   public AddressSettings setMaxRedeliveryDelay(final long maxRedeliveryDelay)
    {
       this.maxRedeliveryDelay = maxRedeliveryDelay;
+      return this;
    }
 
    public SimpleString getDeadLetterAddress()
@@ -270,9 +282,10 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       return deadLetterAddress;
    }
 
-   public void setDeadLetterAddress(final SimpleString deadLetterAddress)
+   public AddressSettings setDeadLetterAddress(final SimpleString deadLetterAddress)
    {
       this.deadLetterAddress = deadLetterAddress;
+      return this;
    }
 
    public SimpleString getExpiryAddress()
@@ -280,9 +293,10 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       return expiryAddress;
    }
 
-   public void setExpiryAddress(final SimpleString expiryAddress)
+   public AddressSettings setExpiryAddress(final SimpleString expiryAddress)
    {
       this.expiryAddress = expiryAddress;
+      return this;
    }
 
    public Long getExpiryDelay()
@@ -290,9 +304,10 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       return expiryDelay;
    }
 
-   public void setExpiryDelay(final Long expiryDelay)
+   public AddressSettings setExpiryDelay(final Long expiryDelay)
    {
       this.expiryDelay = expiryDelay;
+      return this;
    }
 
    public boolean isSendToDLAOnNoRoute()
@@ -300,9 +315,10 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       return sendToDLAOnNoRoute != null ? sendToDLAOnNoRoute : AddressSettings.DEFAULT_SEND_TO_DLA_ON_NO_ROUTE;
    }
 
-   public void setSendToDLAOnNoRoute(final boolean value)
+   public AddressSettings setSendToDLAOnNoRoute(final boolean value)
    {
       sendToDLAOnNoRoute = value;
+      return this;
    }
 
    public long getRedistributionDelay()
@@ -310,9 +326,10 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       return redistributionDelay != null ? redistributionDelay : AddressSettings.DEFAULT_REDISTRIBUTION_DELAY;
    }
 
-   public void setRedistributionDelay(final long redistributionDelay)
+   public AddressSettings setRedistributionDelay(final long redistributionDelay)
    {
       this.redistributionDelay = redistributionDelay;
+      return this;
    }
 
    public long getSlowConsumerThreshold()
@@ -320,9 +337,10 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       return slowConsumerThreshold != null ? slowConsumerThreshold : AddressSettings.DEFAULT_SLOW_CONSUMER_THRESHOLD;
    }
 
-   public void setSlowConsumerThreshold(final long slowConsumerThreshold)
+   public AddressSettings setSlowConsumerThreshold(final long slowConsumerThreshold)
    {
       this.slowConsumerThreshold = slowConsumerThreshold;
+      return this;
    }
 
    public long getSlowConsumerCheckPeriod()
@@ -330,9 +348,10 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       return slowConsumerCheckPeriod != null ? slowConsumerCheckPeriod : AddressSettings.DEFAULT_SLOW_CONSUMER_CHECK_PERIOD;
    }
 
-   public void setSlowConsumerCheckPeriod(final long slowConsumerCheckPeriod)
+   public AddressSettings setSlowConsumerCheckPeriod(final long slowConsumerCheckPeriod)
    {
       this.slowConsumerCheckPeriod = slowConsumerCheckPeriod;
+      return this;
    }
 
    public SlowConsumerPolicy getSlowConsumerPolicy()
@@ -341,9 +360,10 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
          : AddressSettings.DEFAULT_SLOW_CONSUMER_POLICY;
    }
 
-   public void setSlowConsumerPolicy(final SlowConsumerPolicy slowConsumerPolicy)
+   public AddressSettings setSlowConsumerPolicy(final SlowConsumerPolicy slowConsumerPolicy)
    {
       this.slowConsumerPolicy = slowConsumerPolicy;
+      return this;
    }
 
    /**

@@ -17,7 +17,7 @@
 package org.apache.activemq.artemis.tests.integration.client;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -38,7 +38,7 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
  * Multiple Threads producing Messages, with Multiple Consumers with different queues, each queue with a different filter
  * This is similar to MultipleThreadFilterTwoTest but it uses multiple queues
  */
-public class MultipleThreadFilterOneTest extends ServiceTestBase
+public class MultipleThreadFilterOneTest extends ActiveMQTestBase
 {
 
    // Constants -----------------------------------------------------

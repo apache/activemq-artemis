@@ -18,7 +18,7 @@ package org.apache.activemq.artemis.tests.integration.journal;
 
 import java.io.File;
 
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.core.journal.SequentialFileFactory;
 import org.apache.activemq.artemis.core.journal.impl.AIOSequentialFileFactory;
 import org.apache.activemq.artemis.core.journal.impl.JournalConstants;
@@ -37,7 +37,7 @@ public class AIOJournalCompactTest extends NIOJournalCompactTest
    {
       File file = new File(getTestDir());
 
-      ServiceTestBase.deleteDirectory(file);
+      ActiveMQTestBase.deleteDirectory(file);
 
       file.mkdir();
 

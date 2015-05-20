@@ -40,9 +40,9 @@ import org.apache.activemq.artemis.core.protocol.core.impl.RemotingConnectionImp
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 
-public class OrderReattachTest extends ServiceTestBase
+public class OrderReattachTest extends ActiveMQTestBase
 {
    // Constants -----------------------------------------------------
 

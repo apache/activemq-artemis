@@ -34,7 +34,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -42,10 +42,8 @@ import org.junit.Test;
 /**
  * test Written to replicate https://issues.jboss.org/browse/HORNETQ-1312
  */
-public class RemoteConnectionStressTest extends ServiceTestBase
+public class RemoteConnectionStressTest extends ActiveMQTestBase
 {
-
-
    ActiveMQServer server;
    MBeanServer mbeanServer;
    JMSServerManagerImpl jmsServer;
@@ -55,12 +53,12 @@ public class RemoteConnectionStressTest extends ServiceTestBase
    {
       super.setUp();
 
-      Configuration conf = ServiceTestBase.createBasicConfigNoDataFolder();
-      conf.getAcceptorConfigurations().add(new TransportConfiguration("org.apache.activemq.artemis.core.remoting.impl.netty.NettyAcceptorFactory"));
+      Configuration config = createDefaultNettyConfig()
+              .setPersistenceEnabled(false);
 
       mbeanServer = MBeanServerFactory.createMBeanServer();
 
-      server = ActiveMQServers.newActiveMQServer(conf, mbeanServer, false);
+      server = ActiveMQServers.newActiveMQServer(config, mbeanServer, false);
 
       InVMNamingContext namingContext = new InVMNamingContext();
       jmsServer = new JMSServerManagerImpl(server);

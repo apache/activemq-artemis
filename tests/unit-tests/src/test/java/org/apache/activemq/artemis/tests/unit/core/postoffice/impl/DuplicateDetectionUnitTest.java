@@ -28,7 +28,7 @@ import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.tests.unit.core.server.impl.fakes.FakePostOffice;
 import org.apache.activemq.artemis.tests.unit.util.FakePagingManager;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.persistence.GroupingInfo;
 import org.apache.activemq.artemis.core.persistence.QueueBindingInfo;
@@ -45,7 +45,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class DuplicateDetectionUnitTest extends ServiceTestBase
+public class DuplicateDetectionUnitTest extends ActiveMQTestBase
 {
    // Constants -----------------------------------------------------
 
@@ -90,7 +90,7 @@ public class DuplicateDetectionUnitTest extends ServiceTestBase
 
          SimpleString ADDRESS = new SimpleString("address");
 
-         Configuration configuration = createDefaultConfig();
+         Configuration configuration = createDefaultInVMConfig();
 
          PostOffice postOffice = new FakePostOffice();
 

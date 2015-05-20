@@ -28,7 +28,7 @@ import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
 import org.apache.activemq.artemis.core.journal.impl.NIOSequentialFileFactory;
 import org.apache.activemq.artemis.core.persistence.impl.journal.OperationContextImpl;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.OrderedExecutorFactory;
 import org.apache.activemq.artemis.utils.SimpleIDGenerator;
@@ -52,7 +52,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-public class JournalCleanupCompactStressTest extends ServiceTestBase
+public class JournalCleanupCompactStressTest extends ActiveMQTestBase
 {
 
    public static SimpleIDGenerator idGen = new SimpleIDGenerator(1);
@@ -266,7 +266,7 @@ public class JournalCleanupCompactStressTest extends ServiceTestBase
          }
       });
 
-      ServiceTestBase.waitForLatch(latchExecutorDone);
+      ActiveMQTestBase.waitForLatch(latchExecutorDone);
 
       journal.stop();
 

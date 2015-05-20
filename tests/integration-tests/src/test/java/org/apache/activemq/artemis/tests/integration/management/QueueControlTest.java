@@ -19,7 +19,6 @@ package org.apache.activemq.artemis.tests.integration.management;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
@@ -33,7 +32,6 @@ import org.apache.activemq.artemis.api.core.management.DayCounterInfo;
 import org.apache.activemq.artemis.api.core.management.MessageCounterInfo;
 import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
 import org.apache.activemq.artemis.api.core.management.QueueControl;
-import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.message.impl.MessageImpl;
 import org.apache.activemq.artemis.core.messagecounter.impl.MessageCounterManagerImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
@@ -43,7 +41,6 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.integration.jms.server.management.JMSUtil;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.apache.activemq.artemis.utils.json.JSONArray;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -2028,29 +2025,16 @@ public class QueueControlTest extends ManagementTestBase
    {
       super.setUp();
 
-      Configuration conf = createBasicConfig()
-         .addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY));
-      server = addServer(ActiveMQServers.newActiveMQServer(conf, mbeanServer, false));
+      server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig(), mbeanServer, false));
       server.start();
 
-      locator = createInVMNonHALocator();
-      locator.setBlockOnNonDurableSend(true);
-      locator.setBlockOnNonDurableSend(true);
-      locator.setConsumerWindowSize(0);
+      locator = createInVMNonHALocator()
+              .setBlockOnNonDurableSend(true)
+              .setBlockOnNonDurableSend(true)
+              .setConsumerWindowSize(0);
       ClientSessionFactory sf = createSessionFactory(locator);
       session = sf.createSession(false, true, false);
       session.start();
-   }
-
-   @Override
-   @After
-   public void tearDown() throws Exception
-   {
-      session = null;
-      locator = null;
-      server = null;
-
-      super.tearDown();
    }
 
    protected QueueControl createManagementControl(final SimpleString address, final SimpleString queue) throws Exception

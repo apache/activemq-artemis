@@ -27,11 +27,11 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class SelfExpandingBufferTest extends ServiceTestBase
+public class SelfExpandingBufferTest extends ActiveMQTestBase
 {
 
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
@@ -117,7 +117,7 @@ public class SelfExpandingBufferTest extends ServiceTestBase
 
          msg2.getBodyBuffer().readBytes(receivedBytes);
 
-         ServiceTestBase.assertEqualsByteArrays(bytes, receivedBytes);
+         ActiveMQTestBase.assertEqualsByteArrays(bytes, receivedBytes);
 
          msg2 = cons.receive(3000);
 
@@ -125,7 +125,7 @@ public class SelfExpandingBufferTest extends ServiceTestBase
 
          msg2.getBodyBuffer().readBytes(receivedBytes);
 
-         ServiceTestBase.assertEqualsByteArrays(bytes, receivedBytes);
+         ActiveMQTestBase.assertEqualsByteArrays(bytes, receivedBytes);
       }
       finally
       {

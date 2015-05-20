@@ -25,7 +25,7 @@ import org.apache.activemq.artemis.core.remoting.impl.invm.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Before;
 
 public class ActiveMQRAClusteredTestBase extends ActiveMQRATestBase
@@ -45,9 +45,8 @@ public class ActiveMQRAClusteredTestBase extends ActiveMQRATestBase
       HashMap<String, Object> params = new HashMap();
       params.put(TransportConstants.SERVER_ID_PROP_NAME, "1");
       secondaryConnector = new TransportConfiguration(INVM_CONNECTOR_FACTORY, params);
-      Configuration conf = createSecondaryDefaultConfig(true, true);
 
-      secondaryServer = ActiveMQServers.newActiveMQServer(conf, mbeanServer, usePersistence());
+      secondaryServer = ActiveMQServers.newActiveMQServer(createSecondaryDefaultConfig(true, true), mbeanServer, usePersistence());
       addServer(secondaryServer);
       secondaryJmsServer = new JMSServerManagerImpl(secondaryServer);
       secondaryJmsServer.start();
@@ -64,8 +63,7 @@ public class ActiveMQRAClusteredTestBase extends ActiveMQRATestBase
 
    protected Configuration createDefaultConfig(boolean netty) throws Exception
    {
-      Configuration conf = createSecondaryDefaultConfig(netty, false);
-      return conf;
+      return createSecondaryDefaultConfig(netty, false);
    }
 
    protected Configuration createSecondaryDefaultConfig(boolean netty, boolean secondary) throws Exception
@@ -85,7 +83,7 @@ public class ActiveMQRAClusteredTestBase extends ActiveMQRATestBase
          directoryPrefix = "second";
       }
 
-      ConfigurationImpl configuration = createBasicConfig(-1)
+      ConfigurationImpl configuration = createBasicConfig()
          .setJMXManagementEnabled(false)
          .clearAcceptorConfigurations()
          .addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY, invmMap))
@@ -96,7 +94,7 @@ public class ActiveMQRAClusteredTestBase extends ActiveMQRATestBase
          .setPagingDirectory(getTestDir() + "/" + directoryPrefix + "Page / ")
          .addConnectorConfiguration(secondaryConnectorName, secondaryConnector)
          .addConnectorConfiguration(primaryConnectorName, primaryConnector)
-         .addClusterConfiguration(ServiceTestBase.basicClusterConnectionConfig(secondaryConnectorName, primaryConnectorName));
+         .addClusterConfiguration(ActiveMQTestBase.basicClusterConnectionConfig(secondaryConnectorName, primaryConnectorName));
 
       return configuration;
    }

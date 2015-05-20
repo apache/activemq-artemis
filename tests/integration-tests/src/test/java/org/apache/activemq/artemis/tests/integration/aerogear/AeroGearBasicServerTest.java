@@ -33,7 +33,7 @@ import org.apache.activemq.artemis.core.config.CoreQueueConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.integration.aerogear.AeroGearConnectorServiceFactory;
 import org.apache.activemq.artemis.integration.aerogear.AeroGearConstants;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.json.JSONArray;
 import org.apache.activemq.artemis.utils.json.JSONException;
 import org.apache.activemq.artemis.utils.json.JSONObject;
@@ -53,7 +53,7 @@ import java.util.HashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-public class AeroGearBasicServerTest extends ServiceTestBase
+public class AeroGearBasicServerTest extends ActiveMQTestBase
 {
 
    private ActiveMQServer server;
@@ -88,7 +88,7 @@ public class AeroGearBasicServerTest extends ServiceTestBase
       params.put(AeroGearConstants.DEVICE_TYPE_NAME, "android,ipad");
       params.put(AeroGearConstants.SOUND_NAME, "sound1");
       params.put(AeroGearConstants.VARIANTS_NAME, "variant1,variant2");
-      Configuration configuration = createDefaultConfig()
+      Configuration configuration = createDefaultInVMConfig()
          .addConnectorServiceConfiguration(
             new ConnectorServiceConfiguration()
                .setFactoryClassName(AeroGearConnectorServiceFactory.class.getName())

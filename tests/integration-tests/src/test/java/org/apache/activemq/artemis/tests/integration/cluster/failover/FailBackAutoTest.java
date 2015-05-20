@@ -260,10 +260,9 @@ public class FailBackAutoTest extends FailoverTestBase
       TransportConfiguration liveConnector = getConnectorTransportConfiguration(true);
       TransportConfiguration backupConnector = getConnectorTransportConfiguration(false);
 
-      backupConfig = super.createDefaultConfig()
+      backupConfig = super.createDefaultInVMConfig()
          .clearAcceptorConfigurations()
          .addAcceptorConfiguration(getAcceptorTransportConfiguration(false))
-         .setSecurityEnabled(false)
          .setHAPolicyConfiguration(new SharedStoreSlavePolicyConfiguration()
                                       .setFailbackDelay(1000)
                                       .setRestartBackup(true))
@@ -273,10 +272,9 @@ public class FailBackAutoTest extends FailoverTestBase
 
       backupServer = createTestableServer(backupConfig);
 
-      liveConfig = super.createDefaultConfig()
+      liveConfig = super.createDefaultInVMConfig()
          .clearAcceptorConfigurations()
          .addAcceptorConfiguration(getAcceptorTransportConfiguration(true))
-         .setSecurityEnabled(false)
          .setHAPolicyConfiguration(new SharedStoreMasterPolicyConfiguration()
                                       .setFailbackDelay(100))
          .addClusterConfiguration(basicClusterConnectionConfig(liveConnector.getName(), backupConnector.getName()))

@@ -33,7 +33,7 @@ import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
 import org.apache.activemq.artemis.core.journal.impl.NIOSequentialFileFactory;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.JournalType;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -44,7 +44,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
-public class NIOMultiThreadCompactorStressTest extends ServiceTestBase
+public class NIOMultiThreadCompactorStressTest extends ActiveMQTestBase
 {
 
    // Constants -----------------------------------------------------
@@ -230,7 +230,7 @@ public class NIOMultiThreadCompactorStressTest extends ServiceTestBase
          threads.add(cons[i]);
       }
 
-      ServiceTestBase.waitForLatch(latchReady);
+      ActiveMQTestBase.waitForLatch(latchReady);
       latchStart.countDown();
 
       for (BaseThread t : threads)
@@ -345,7 +345,7 @@ public class NIOMultiThreadCompactorStressTest extends ServiceTestBase
       }
       if (server == null)
       {
-         Configuration config = createDefaultConfig(true)
+         Configuration config = createDefaultNettyConfig()
             .setJournalFileSize(ActiveMQDefaultConfiguration.getDefaultJournalFileSize())
             .setJournalType(journalType)
             .setJMXManagementEnabled(false)
@@ -439,7 +439,7 @@ public class NIOMultiThreadCompactorStressTest extends ServiceTestBase
          latchReady.countDown();
          try
          {
-            ServiceTestBase.waitForLatch(latchStart);
+            ActiveMQTestBase.waitForLatch(latchStart);
             session = sf.createSession(!transactional, !transactional);
             ClientProducer prod = session.createProducer(ADDRESS);
             for (int i = 0; i < numberOfMessages; i++)
@@ -508,7 +508,7 @@ public class NIOMultiThreadCompactorStressTest extends ServiceTestBase
          latchReady.countDown();
          try
          {
-            ServiceTestBase.waitForLatch(latchStart);
+            ActiveMQTestBase.waitForLatch(latchStart);
             session = sf.createSession(!transactional, !transactional);
             session.start();
             ClientConsumer cons = session.createConsumer(QUEUE);

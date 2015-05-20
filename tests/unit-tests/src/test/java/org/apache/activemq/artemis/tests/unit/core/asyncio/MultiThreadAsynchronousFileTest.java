@@ -16,6 +16,18 @@
  */
 package org.apache.activemq.artemis.tests.unit.core.asyncio;
 
+import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
+import org.apache.activemq.artemis.core.asyncio.AIOCallback;
+import org.apache.activemq.artemis.core.asyncio.impl.AsynchronousFileImpl;
+import org.apache.activemq.artemis.core.journal.impl.AIOSequentialFileFactory;
+import org.apache.activemq.artemis.tests.unit.UnitTestLogger;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -23,18 +35,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
-import org.apache.activemq.artemis.core.asyncio.AIOCallback;
-import org.apache.activemq.artemis.core.asyncio.impl.AsynchronousFileImpl;
-import org.apache.activemq.artemis.core.journal.impl.AIOSequentialFileFactory;
-import org.apache.activemq.artemis.tests.unit.UnitTestLogger;
-import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
 
 /**
  * you need to define -Djava.library.path=${project-root}/native/src/.libs when calling the JVM
@@ -125,7 +125,7 @@ public class MultiThreadAsynchronousFileTest extends AIOTestBase
          }
 
          latchStart.countDown();
-         ServiceTestBase.waitForLatch(latchStart);
+         ActiveMQTestBase.waitForLatch(latchStart);
 
          long startTime = System.currentTimeMillis();
 

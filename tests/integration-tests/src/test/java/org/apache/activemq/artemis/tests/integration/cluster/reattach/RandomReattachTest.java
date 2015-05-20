@@ -36,7 +36,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -50,7 +50,7 @@ import java.util.TimerTask;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-public class RandomReattachTest extends ServiceTestBase
+public class RandomReattachTest extends ActiveMQTestBase
 {
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
@@ -249,7 +249,7 @@ public class RandomReattachTest extends ServiceTestBase
       {
          RandomReattachTest.log.info("####" + getName() + " iteration #" + its);
          start();
-         ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(ServiceTestBase.INVM_CONNECTOR_FACTORY));
+         ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(ActiveMQTestBase.INVM_CONNECTOR_FACTORY));
 
          locator.setReconnectAttempts(-1);
          locator.setConfirmationWindowSize(1024 * 1024);
@@ -1493,9 +1493,7 @@ public class RandomReattachTest extends ServiceTestBase
 
    private void start() throws Exception
    {
-      Configuration liveConf = createDefaultConfig()
-         .setSecurityEnabled(false)
-         .addAcceptorConfiguration(new TransportConfiguration("org.apache.activemq.artemis.core.remoting.impl.invm.InVMAcceptorFactory"));
+      Configuration liveConf = createDefaultInVMConfig();
       liveService = ActiveMQServers.newActiveMQServer(liveConf, false);
       liveService.start();
    }

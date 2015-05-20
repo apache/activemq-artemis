@@ -78,9 +78,9 @@ public class JMSServerControl2Test extends ManagementTestBase
 
    private void startActiveMQServer(final String acceptorFactory) throws Exception
    {
-      Configuration conf = createBasicConfig()
+      Configuration config = createBasicConfig()
          .addAcceptorConfiguration(new TransportConfiguration(acceptorFactory));
-      server = addServer(ActiveMQServers.newActiveMQServer(conf, mbeanServer, true));
+      server = addServer(ActiveMQServers.newActiveMQServer(config, mbeanServer, true));
       server.start();
 
       context = new InVMNamingContext();

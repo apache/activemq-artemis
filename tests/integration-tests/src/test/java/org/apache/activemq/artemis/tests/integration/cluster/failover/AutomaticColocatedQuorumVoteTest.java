@@ -32,7 +32,7 @@ import org.apache.activemq.artemis.core.config.ha.SharedStoreMasterPolicyConfigu
 import org.apache.activemq.artemis.core.config.ha.SharedStoreSlavePolicyConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -47,7 +47,7 @@ import java.util.Map;
 import java.util.Set;
 
 @RunWith(value = Parameterized.class)
-public class AutomaticColocatedQuorumVoteTest extends ServiceTestBase
+public class AutomaticColocatedQuorumVoteTest extends ActiveMQTestBase
 {
    private final boolean replicated;
 
@@ -309,7 +309,7 @@ public class AutomaticColocatedQuorumVoteTest extends ServiceTestBase
 
    private Configuration getConfiguration(String identity, boolean scaleDown, TransportConfiguration liveConnector, TransportConfiguration liveAcceptor, TransportConfiguration... otherLiveNodes) throws Exception
    {
-      Configuration configuration = createDefaultConfig()
+      Configuration configuration = createDefaultInVMConfig()
          .clearAcceptorConfigurations()
          .addAcceptorConfiguration(liveAcceptor)
          .addConnectorConfiguration(liveConnector.getName(), liveConnector)

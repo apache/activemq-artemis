@@ -26,19 +26,18 @@ import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.message.impl.MessageImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class ExpiryAddressTest extends ServiceTestBase
+public class ExpiryAddressTest extends ActiveMQTestBase
 {
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
@@ -385,21 +384,14 @@ public class ExpiryAddressTest extends ServiceTestBase
    public void setUp() throws Exception
    {
       super.setUp();
-      TransportConfiguration transportConfig = new TransportConfiguration(ServiceTestBase.INVM_ACCEPTOR_FACTORY);
-
-      Configuration configuration = createDefaultConfig()
-         .setSecurityEnabled(false)
-         .addAcceptorConfiguration(transportConfig);
-      server = addServer(ActiveMQServers.newActiveMQServer(configuration, false));
-      // start the server
+      server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig(), false));
       server.start();
       // then we create a client as normal
-      locator = createInVMNonHALocator();
-      locator.setBlockOnAcknowledge(true);
+      locator = createInVMNonHALocator()
+              .setBlockOnAcknowledge(true);
       ClientSessionFactory sessionFactory = createSessionFactory(locator);
       // There are assertions over sizes that needs to be done after the ACK
       // was received on server
       clientSession = addClientSession(sessionFactory.createSession(null, null, false, true, true, false, 0));
    }
-
 }

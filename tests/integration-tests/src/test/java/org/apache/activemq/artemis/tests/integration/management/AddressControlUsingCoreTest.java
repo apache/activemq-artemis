@@ -15,31 +15,27 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.integration.management;
-import org.junit.Before;
-import org.junit.After;
-
-import org.junit.Test;
-
-import static org.apache.activemq.artemis.tests.util.RandomUtil.randomString;
-
-import java.util.HashSet;
-import java.util.Set;
-
-import org.junit.Assert;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.api.core.management.AddressControl;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.core.config.Configuration;
-import org.apache.activemq.artemis.core.remoting.impl.invm.InVMAcceptorFactory;
 import org.apache.activemq.artemis.core.security.CheckType;
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+
+import java.util.HashSet;
+import java.util.Set;
+
+import static org.apache.activemq.artemis.tests.util.RandomUtil.randomString;
 
 public class AddressControlUsingCoreTest extends ManagementTestBase
 {
@@ -179,9 +175,9 @@ public class AddressControlUsingCoreTest extends ManagementTestBase
    {
       super.setUp();
 
-      Configuration conf = createBasicConfig()
-         .addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName()));
-      server = createServer(false, conf);
+      Configuration config = createDefaultInVMConfig()
+         .setJMXManagementEnabled(true);
+      server = createServer(false, config);
       server.setMBeanServer(mbeanServer);
       server.start();
 

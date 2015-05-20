@@ -33,7 +33,7 @@ import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 
 /**
  *
@@ -43,7 +43,7 @@ import org.apache.activemq.artemis.tests.util.ServiceTestBase;
  * http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4806007
  * http://jira.jboss.com/jira/browse/JBAS-2641
  */
-public class String64KLimitTest extends ServiceTestBase
+public class String64KLimitTest extends ActiveMQTestBase
 {
    // Constants -----------------------------------------------------
 

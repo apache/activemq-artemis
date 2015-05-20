@@ -23,16 +23,15 @@ import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.concurrent.CountDownLatch;
 
-public class MeasurePagingMultiThreadTest extends ServiceTestBase
+public class MeasurePagingMultiThreadTest extends ActiveMQTestBase
 {
 
    @Test
@@ -43,16 +42,13 @@ public class MeasurePagingMultiThreadTest extends ServiceTestBase
       final int NUMBER_OF_MESSAGES = 50000;
       final int SIZE_OF_MESSAGE = 1024;
 
-      Configuration config = createDefaultConfig();
-
       HashMap<String, AddressSettings> settings = new HashMap<String, AddressSettings>();
 
-      ActiveMQServer messagingService = createServer(true, config, 10 * 1024, 20 * 1024, settings);
+      ActiveMQServer messagingService = createServer(true, createDefaultInVMConfig(), 10 * 1024, 20 * 1024, settings);
       messagingService.start();
       ServerLocator locator = createInVMNonHALocator();
       try
       {
-
          final ClientSessionFactory factory = createSessionFactory(locator);
          final SimpleString adr = new SimpleString("test-adr");
 
@@ -98,7 +94,7 @@ public class MeasurePagingMultiThreadTest extends ServiceTestBase
                try
                {
                   latchAlign.countDown();
-                  ServiceTestBase.waitForLatch(latchStart);
+                  ActiveMQTestBase.waitForLatch(latchStart);
 
                   long start = System.currentTimeMillis();
                   sendMessages(NUMBER_OF_MESSAGES, producer, msg);
@@ -125,7 +121,7 @@ public class MeasurePagingMultiThreadTest extends ServiceTestBase
             senders[i].start();
          }
 
-         ServiceTestBase.waitForLatch(latchAlign);
+         ActiveMQTestBase.waitForLatch(latchAlign);
 
          long timeStart = System.currentTimeMillis();
 

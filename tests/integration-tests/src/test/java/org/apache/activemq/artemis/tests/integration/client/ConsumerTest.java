@@ -39,7 +39,7 @@ import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.ConcurrentHashSet;
 import org.junit.Assert;
 import org.junit.Before;
@@ -48,7 +48,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 @RunWith(value = Parameterized.class)
-public class ConsumerTest extends ServiceTestBase
+public class ConsumerTest extends ActiveMQTestBase
 {
    @Parameterized.Parameters(name = "isNetty={0}")
    public static Collection getParameters()

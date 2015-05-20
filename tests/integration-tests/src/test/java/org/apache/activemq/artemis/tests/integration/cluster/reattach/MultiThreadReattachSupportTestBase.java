@@ -25,7 +25,7 @@ import org.apache.activemq.artemis.core.client.impl.ClientSessionInternal;
 import org.apache.activemq.artemis.core.protocol.core.impl.RemotingConnectionImpl;
 import org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnector;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -35,7 +35,7 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public abstract class MultiThreadReattachSupportTestBase extends ServiceTestBase
+public abstract class MultiThreadReattachSupportTestBase extends ActiveMQTestBase
 {
 
    private final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
@@ -120,8 +120,8 @@ public abstract class MultiThreadReattachSupportTestBase extends ServiceTestBase
 
                   // Case a failure happened here, it should print the Thread dump
                   // Sending it to System.out, as it would show on the Tests report
-                  System.out.println(ServiceTestBase.threadDump(" - fired by MultiThreadRandomReattachTestBase::runTestMultipleThreads (" + t.getLocalizedMessage() +
-                                                             ")"));
+                  System.out.println(ActiveMQTestBase.threadDump(" - fired by MultiThreadRandomReattachTestBase::runTestMultipleThreads (" + t.getLocalizedMessage() +
+                                                                         ")"));
                }
             }
          }

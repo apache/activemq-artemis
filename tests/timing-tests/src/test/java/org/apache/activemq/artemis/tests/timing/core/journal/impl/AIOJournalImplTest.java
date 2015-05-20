@@ -17,7 +17,7 @@
 package org.apache.activemq.artemis.tests.timing.core.journal.impl;
 import java.io.File;
 
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.core.journal.SequentialFileFactory;
 import org.apache.activemq.artemis.core.journal.impl.AIOSequentialFileFactory;
 import org.junit.BeforeClass;
@@ -35,7 +35,7 @@ public class AIOJournalImplTest extends JournalImplTestUnit
    {
       File file = new File(getTestDir());
 
-      ServiceTestBase.deleteDirectory(file);
+      ActiveMQTestBase.deleteDirectory(file);
 
       file.mkdir();
 

@@ -51,7 +51,7 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 
-public class JMSTestBase extends ServiceTestBase
+public class JMSTestBase extends ActiveMQTestBase
 {
    protected ActiveMQServer server;
 
@@ -148,9 +148,8 @@ public class JMSTestBase extends ServiceTestBase
 
       mbeanServer = MBeanServerFactory.createMBeanServer();
 
-      Configuration conf = createDefaultConfig(true)
-         .setSecurityEnabled(useSecurity())
-         .addConnectorConfiguration("invm", new TransportConfiguration(INVM_CONNECTOR_FACTORY));
+      Configuration conf = createDefaultNettyConfig()
+         .setSecurityEnabled(useSecurity());
 
       server = ActiveMQServers.newActiveMQServer(conf, mbeanServer, usePersistence());
       addServer(server);
@@ -166,7 +165,6 @@ public class JMSTestBase extends ServiceTestBase
    protected Configuration createDefaultConfig(boolean netty) throws Exception
    {
       Configuration conf = super.createDefaultConfig(netty)
-         .setSecurityEnabled(false)
          .setJMXManagementEnabled(true);
 
       return conf;

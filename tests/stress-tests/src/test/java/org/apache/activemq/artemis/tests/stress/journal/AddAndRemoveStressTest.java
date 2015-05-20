@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.activemq.artemis.tests.unit.core.journal.impl.fakes.SimpleEncoding;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.core.journal.LoaderCallback;
 import org.apache.activemq.artemis.core.journal.PreparedTransactionInfo;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
@@ -29,7 +29,7 @@ import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class AddAndRemoveStressTest extends ServiceTestBase
+public class AddAndRemoveStressTest extends ActiveMQTestBase
 {
 
    // Constants -----------------------------------------------------

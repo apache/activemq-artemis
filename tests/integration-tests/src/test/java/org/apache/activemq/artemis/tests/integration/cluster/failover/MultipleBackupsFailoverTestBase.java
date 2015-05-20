@@ -29,14 +29,14 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.integration.cluster.util.TestableServer;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal;
 import org.apache.activemq.artemis.core.client.impl.ServerLocatorImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
 import org.junit.Assert;
 
-public abstract class MultipleBackupsFailoverTestBase extends ServiceTestBase
+public abstract class MultipleBackupsFailoverTestBase extends ActiveMQTestBase
 {
    IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 

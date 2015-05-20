@@ -23,7 +23,7 @@ import org.apache.activemq.artemis.core.config.ha.LiveOnlyPolicyConfiguration;
 import org.apache.activemq.artemis.core.journal.impl.JournalConstants;
 import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -33,7 +33,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-public class ConfigurationImplTest extends ServiceTestBase
+public class ConfigurationImplTest extends ActiveMQTestBase
 {
    protected Configuration conf;
 

@@ -18,7 +18,7 @@ package org.apache.activemq.artemis.tests.integration.cluster.distribution;
 
 import org.apache.activemq.artemis.core.config.ha.SharedStoreSlavePolicyConfiguration;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Test;
 
 public class SymmetricClusterWithBackupTest extends SymmetricClusterTest
@@ -121,7 +121,7 @@ public class SymmetricClusterWithBackupTest extends SymmetricClusterTest
       }
       catch (Throwable e)
       {
-         System.out.println(ServiceTestBase.threadDump("SymmetricClusterWithBackupTest::testStopAllStartAll"));
+         System.out.println(ActiveMQTestBase.threadDump("SymmetricClusterWithBackupTest::testStopAllStartAll"));
          throw e;
       }
    }

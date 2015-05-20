@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.reattach;
 
-import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.core.config.Configuration;
 
@@ -29,9 +28,7 @@ public class MultiThreadRandomReattachTest extends MultiThreadRandomReattachTest
    @Override
    protected void start() throws Exception
    {
-      Configuration liveConf = createDefaultConfig()
-         .setSecurityEnabled(false)
-         .addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY));
+      Configuration liveConf = createDefaultInVMConfig();
       liveServer = createServer(false, liveConf);
       liveServer.start();
       waitForServer(liveServer);

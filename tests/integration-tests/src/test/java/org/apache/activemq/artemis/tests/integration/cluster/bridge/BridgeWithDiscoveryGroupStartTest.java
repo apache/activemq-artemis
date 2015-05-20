@@ -42,14 +42,14 @@ import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactor
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.cluster.Bridge;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 @RunWith(value = Parameterized.class)
-public class BridgeWithDiscoveryGroupStartTest extends ServiceTestBase
+public class BridgeWithDiscoveryGroupStartTest extends ActiveMQTestBase
 {
 
    @Parameterized.Parameters(name = "isNetty={0}")

@@ -20,7 +20,7 @@ import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.util.ReplicatedBackupUtils;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.TransportConfigurationUtils;
 import org.jboss.byteman.contrib.bmunit.BMRule;
 import org.jboss.byteman.contrib.bmunit.BMRules;
@@ -31,7 +31,7 @@ import org.junit.runner.RunWith;
 import java.util.concurrent.CountDownLatch;
 
 @RunWith(BMUnitRunner.class)
-public class ReplicationBackupTest extends ServiceTestBase
+public class ReplicationBackupTest extends ActiveMQTestBase
 {
    private static final CountDownLatch ruleFired = new CountDownLatch(1);
    private ActiveMQServer backupServer;
@@ -63,15 +63,13 @@ public class ReplicationBackupTest extends ServiceTestBase
       TransportConfiguration backupConnector = TransportConfigurationUtils.getNettyConnector(false, 0);
       TransportConfiguration backupAcceptor = TransportConfigurationUtils.getNettyAcceptor(false, 0);
 
-      final String suffix = "_backup";
+      Configuration backupConfig = createDefaultInVMConfig()
+         .setBindingsDirectory(getBindingsDir(0, true))
+         .setJournalDirectory(getJournalDir(0, true))
+         .setPagingDirectory(getPageDir(0, true))
+         .setLargeMessagesDirectory(getLargeMessagesDir(0, true));
 
-      Configuration backupConfig = createDefaultConfig()
-         .setBindingsDirectory(getBindingsDir() + suffix)
-         .setJournalDirectory(getJournalDir() + suffix)
-         .setPagingDirectory(getPageDir() + suffix)
-         .setLargeMessagesDirectory(getLargeMessagesDir() + suffix);
-
-      Configuration liveConfig = createDefaultConfig();
+      Configuration liveConfig = createDefaultInVMConfig();
 
       ReplicatedBackupUtils.configureReplicationPair(backupConfig, backupConnector, backupAcceptor, liveConfig, liveConnector, liveAcceptor);
 
@@ -99,7 +97,7 @@ public class ReplicationBackupTest extends ServiceTestBase
 
       backupServer = createServer(backupConfig);
       backupServer.start();
-      ServiceTestBase.waitForRemoteBackup(null, 3, true, backupServer);
+      ActiveMQTestBase.waitForRemoteBackup(null, 3, true, backupServer);
    }
 
    public static void breakIt()

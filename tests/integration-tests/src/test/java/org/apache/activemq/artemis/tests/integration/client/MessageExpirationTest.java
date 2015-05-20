@@ -33,9 +33,9 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 
-public class MessageExpirationTest extends ServiceTestBase
+public class MessageExpirationTest extends ActiveMQTestBase
 {
 
    private static final int EXPIRATION = 1000;

@@ -94,7 +94,7 @@ public class SecurityFailoverTest extends FailoverTest
       TransportConfiguration liveConnector = getConnectorTransportConfiguration(true);
       TransportConfiguration backupConnector = getConnectorTransportConfiguration(false);
 
-      backupConfig = super.createDefaultConfig()
+      backupConfig = super.createDefaultInVMConfig()
          .clearAcceptorConfigurations()
          .addAcceptorConfiguration(getAcceptorTransportConfiguration(false))
          .setSecurityEnabled(true)
@@ -108,7 +108,7 @@ public class SecurityFailoverTest extends FailoverTest
       ActiveMQSecurityManagerImpl securityManager = installSecurity(backupServer);
       securityManager.getConfiguration().setDefaultUser(null);
 
-      liveConfig = super.createDefaultConfig()
+      liveConfig = super.createDefaultInVMConfig()
          .clearAcceptorConfigurations()
          .addAcceptorConfiguration(getAcceptorTransportConfiguration(true))
          .setSecurityEnabled(true)

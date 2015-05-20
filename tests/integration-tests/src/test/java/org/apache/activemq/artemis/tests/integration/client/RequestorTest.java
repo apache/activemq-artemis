@@ -28,19 +28,17 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.MessageHandler;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.client.impl.ClientMessageImpl;
-import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
-import org.apache.activemq.artemis.tests.util.TransportConfigurationUtils;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class RequestorTest extends ServiceTestBase
+public class RequestorTest extends ActiveMQTestBase
 {
 
    private ActiveMQServer service;
@@ -213,9 +211,9 @@ public class RequestorTest extends ServiceTestBase
          }
       };
 
-      ServiceTestBase.expectActiveMQException("ClientRequestor's session must not be closed",
-              ActiveMQExceptionType.OBJECT_CLOSED,
-              activeMQAction);
+      ActiveMQTestBase.expectActiveMQException("ClientRequestor's session must not be closed",
+                                               ActiveMQExceptionType.OBJECT_CLOSED,
+                                               activeMQAction);
    }
 
    @Test
@@ -257,8 +255,8 @@ public class RequestorTest extends ServiceTestBase
          }
       };
 
-      ServiceTestBase.expectActiveMQException("can not send a request on a closed ClientRequestor",
-                                           ActiveMQExceptionType.OBJECT_CLOSED, activeMQAction);
+      ActiveMQTestBase.expectActiveMQException("can not send a request on a closed ClientRequestor",
+                                               ActiveMQExceptionType.OBJECT_CLOSED, activeMQAction);
    }
 
    @Override
@@ -266,14 +264,10 @@ public class RequestorTest extends ServiceTestBase
    public void setUp() throws Exception
    {
       super.setUp();
-
-      Configuration conf = createDefaultConfig()
-         .addAcceptorConfiguration(TransportConfigurationUtils.getInVMAcceptor(true));
-      service = createServer(false, conf);
+      service = createServer(false, createDefaultInVMConfig());
       service.start();
-
-      locator = createInVMNonHALocator();
-      locator.setAckBatchSize(0);
+      locator = createInVMNonHALocator()
+              .setAckBatchSize(0);
       sf = createSessionFactory(locator);
    }
 

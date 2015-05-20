@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.integration.client;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Before;
 import org.junit.After;
 
@@ -34,7 +34,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.apache.activemq.artemis.utils.DataConstants;
 
-public class InVMNonPersistentMessageBufferTest extends ServiceTestBase
+public class InVMNonPersistentMessageBufferTest extends ActiveMQTestBase
 {
    public static final String address = "testaddress";
 

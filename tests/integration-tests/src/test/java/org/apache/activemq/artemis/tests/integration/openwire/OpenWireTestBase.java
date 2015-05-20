@@ -31,7 +31,7 @@ import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.jms.management.JMSServerControl;
 import org.apache.activemq.artemis.tests.integration.management.ManagementControlHelper;
 import org.apache.activemq.artemis.tests.unit.util.InVMNamingContext;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.registry.JndiBindingRegistry;
 import org.apache.activemq.artemis.core.security.Role;
@@ -44,7 +44,7 @@ import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManagerImpl
 import org.junit.After;
 import org.junit.Before;
 
-public class OpenWireTestBase extends ServiceTestBase
+public class OpenWireTestBase extends ActiveMQTestBase
 {
    public static final String OWHOST = "localhost";
    public static final int OWPORT = 61616;
