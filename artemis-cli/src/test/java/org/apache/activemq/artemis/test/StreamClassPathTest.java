@@ -48,6 +48,7 @@ public class StreamClassPathTest
       openStream(Create.ETC_CLUSTER_SECURITY_SETTINGS_TXT);
       openStream(Create.ETC_CLUSTER_SETTINGS_TXT);
       openStream(Create.ETC_CONNECTOR_SETTINGS_TXT);
+      openStream(Create.ETC_BOOTSTRAP_WEB_SETTINGS_TXT);
    }
 
 
