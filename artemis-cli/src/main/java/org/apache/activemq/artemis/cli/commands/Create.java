@@ -51,7 +51,7 @@ import static java.nio.file.attribute.PosixFilePermission.OWNER_WRITE;
  * CLI action that creates a broker instance directory.
  */
 @Command(name = "create", description = "creates a new broker instance")
-public class Create extends ActionAbstract
+public class Create extends InputAbstract
 {
    private static final Integer DEFAULT_PORT = 61616;
 
@@ -131,9 +131,6 @@ public class Create extends ActionAbstract
 
    @Option(name = "--role", description = "The name for the role created (Default: amq)")
    String role;
-
-   @Option(name = "--silent-input", description = "It will disable all the inputs, and it would make a best guess for any required input")
-   boolean silentInput;
 
    boolean IS_WINDOWS;
 
@@ -358,11 +355,6 @@ public class Create extends ActionAbstract
    public Object execute(ActionContext context) throws Exception
    {
       super.execute(context);
-
-      if (silentInput)
-      {
-         this.disableInputs();
-      }
 
       try
       {
