@@ -84,7 +84,7 @@ public class AMQConnectorImpl implements AMQConnector
    public boolean isAllowLinkStealing()
    {
       // TODO Auto-generated method stub
-      return false;
+      return true;
    }
 
    @Override

@@ -447,8 +447,11 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor
    @Override
    public void fail(ActiveMQException me)
    {
-      ActiveMQServerLogger.LOGGER.connectionFailureDetected(me.getMessage(),
-            me.getType());
+      if (me != null)
+      {
+         ActiveMQServerLogger.LOGGER.connectionFailureDetected(me.getMessage(), me.getType());
+      }
+
       // Then call the listeners
       callFailureListeners(me);
 
@@ -1465,8 +1468,10 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor
                   || (context.isNetworkConnection() && this.acceptorUsed
                         .isAuditNetworkProducers()))
             {
-               result.setLastStoredSequenceId(protocolManager
-                     .getPersistenceAdapter().getLastProducerSequenceId(id));
+               if (protocolManager.getPersistenceAdapter() != null)
+               {
+                  result.setLastStoredSequenceId(protocolManager.getPersistenceAdapter().getLastProducerSequenceId(id));
+               }
             }
             SessionState ss = state.getSessionState(id.getParentId());
             if (ss != null)
