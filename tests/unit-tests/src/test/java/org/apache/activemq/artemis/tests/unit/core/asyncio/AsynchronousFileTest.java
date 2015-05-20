@@ -39,7 +39,7 @@ import org.apache.activemq.artemis.core.asyncio.BufferCallback;
 import org.apache.activemq.artemis.core.asyncio.impl.AsynchronousFileImpl;
 import org.apache.activemq.artemis.core.journal.impl.AIOSequentialFileFactory;
 import org.apache.activemq.artemis.tests.unit.UnitTestLogger;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.junit.After;
 import org.junit.Assert;
@@ -151,7 +151,7 @@ public class AsynchronousFileTest extends AIOTestBase
 
       for (int i = 0; i < 1024; i++)
       {
-         write.put(ServiceTestBase.getSamplebyte(i));
+         write.put(ActiveMQTestBase.getSamplebyte(i));
       }
 
       final CountDownLatch latch = new CountDownLatch(1);
@@ -177,7 +177,7 @@ public class AsynchronousFileTest extends AIOTestBase
 
       write = null;
 
-      ServiceTestBase.forceGC(bufferCheck2, 5000);
+      ActiveMQTestBase.forceGC(bufferCheck2, 5000);
 
       assertNull(bufferCheck2.get());
 
@@ -185,7 +185,7 @@ public class AsynchronousFileTest extends AIOTestBase
 
       controller = null;
 
-      ServiceTestBase.forceGC(bufferCheck, 5000);
+      ActiveMQTestBase.forceGC(bufferCheck, 5000);
 
       assertNull(bufferCheck.get());
    }
@@ -272,8 +272,8 @@ public class AsynchronousFileTest extends AIOTestBase
 
          }
 
-         ServiceTestBase.waitForLatch(latchDone);
-         ServiceTestBase.waitForLatch(latchDone2);
+         ActiveMQTestBase.waitForLatch(latchDone);
+         ActiveMQTestBase.waitForLatch(latchDone2);
 
          CountDownCallback.checkResults(numberOfLines, listResult1);
          CountDownCallback.checkResults(numberOfLines, listResult2);
@@ -626,7 +626,7 @@ public class AsynchronousFileTest extends AIOTestBase
             final ByteBuffer buffer0 = AsynchronousFileImpl.newBuffer(SIZE);
             for (int j = 0; j < SIZE; j++)
             {
-               buffer0.put(ServiceTestBase.getSamplebyte(j));
+               buffer0.put(ActiveMQTestBase.getSamplebyte(j));
             }
 
             CountDownCallback aio = new CountDownCallback(latch, errors, result, i);
@@ -673,7 +673,7 @@ public class AsynchronousFileTest extends AIOTestBase
          for (int count = 0; count < SIZE; count++)
          {
             Assert.assertEquals("byte position " + count + " differs on line " + i + " position = " + count,
-                                ServiceTestBase.getSamplebyte(count),
+                                ActiveMQTestBase.getSamplebyte(count),
                                 bytesRead[count]);
          }
       }
@@ -803,7 +803,7 @@ public class AsynchronousFileTest extends AIOTestBase
 
       }
 
-      ServiceTestBase.waitForLatch(latchDone);
+      ActiveMQTestBase.waitForLatch(latchDone);
 
       long timeTotal = System.currentTimeMillis() - valueInitial;
 
@@ -853,7 +853,7 @@ public class AsynchronousFileTest extends AIOTestBase
          CountDownLatch latchDone = new CountDownLatch(1);
          CountDownCallback aioBlock = new CountDownCallback(latchDone, null, null, 0);
          controller.write(i * 512, 512, buffer, aioBlock);
-         ServiceTestBase.waitForLatch(latchDone);
+         ActiveMQTestBase.waitForLatch(latchDone);
          assertTrue(aioBlock.doneCalled);
          assertEquals(0, aioBlock.errorCalled);
       }
@@ -922,7 +922,7 @@ public class AsynchronousFileTest extends AIOTestBase
       CountDownCallback aioBlock = new CountDownCallback(latchDone, null, null, 0);
       controller.write(11, 512, buffer, aioBlock);
 
-      ServiceTestBase.waitForLatch(latchDone);
+      ActiveMQTestBase.waitForLatch(latchDone);
 
       assertTrue(aioBlock.errorCalled != 0);
       assertFalse(aioBlock.doneCalled);

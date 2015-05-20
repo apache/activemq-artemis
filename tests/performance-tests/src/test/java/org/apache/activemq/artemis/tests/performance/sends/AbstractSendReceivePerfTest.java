@@ -58,9 +58,9 @@ public abstract class AbstractSendReceivePerfTest extends JMSTestBase
       jmsServer.createQueue(false, Q_NAME, null, true, Q_NAME);
       queue = ActiveMQJMSClient.createQueue(Q_NAME);
 
-      AddressSettings settings = new AddressSettings();
-      settings.setAddressFullMessagePolicy(AddressFullMessagePolicy.BLOCK);
-      settings.setMaxSizeBytes(Long.MAX_VALUE);
+      AddressSettings settings = new AddressSettings()
+              .setAddressFullMessagePolicy(AddressFullMessagePolicy.BLOCK)
+              .setMaxSizeBytes(Long.MAX_VALUE);
       server.getAddressSettingsRepository().clear();
       server.getAddressSettingsRepository().addMatch("#", settings);
 

@@ -22,7 +22,6 @@ import org.apache.activemq.artemis.core.config.ha.LiveOnlyPolicyConfiguration;
 import org.apache.activemq.artemis.tests.integration.cluster.distribution.ClusterTestBase;
 import org.jboss.byteman.contrib.bmunit.BMRule;
 import org.jboss.byteman.contrib.bmunit.BMUnitRunner;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -60,18 +59,6 @@ public class ScaleDownFailureTest extends ClusterTestBase
    protected boolean isGrouped()
    {
       return false;
-   }
-
-   @Override
-   @After
-   public void tearDown() throws Exception
-   {
-      closeAllConsumers();
-      closeAllSessionFactories();
-      closeAllServerLocatorsFactories();
-      ((LiveOnlyPolicyConfiguration) servers[0].getConfiguration().getHAPolicyConfiguration()).setScaleDownConfiguration(null);
-      stopServers(0, 1);
-      super.tearDown();
    }
 
    @Test

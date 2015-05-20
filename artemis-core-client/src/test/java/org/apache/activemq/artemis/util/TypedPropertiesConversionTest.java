@@ -15,11 +15,11 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.util;
+
 import org.apache.activemq.artemis.api.core.ActiveMQPropertyConversionException;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.apache.activemq.artemis.utils.TypedProperties;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -46,19 +46,8 @@ public class TypedPropertiesConversionTest
    @Before
    public void setUp() throws Exception
    {
-
-
       key = RandomUtil.randomSimpleString();
       props = new TypedProperties();
-   }
-
-   @After
-   public void tearDown() throws Exception
-   {
-      key = null;
-      props = null;
-
-
    }
 
    @Test

@@ -270,6 +270,8 @@ public interface Configuration
 
    Configuration addConnectorConfiguration(final String key, final TransportConfiguration info);
 
+   Configuration clearConnectorConfigurations();
+
    /**
     * Returns the broadcast groups configured for this server.
     */
@@ -323,6 +325,8 @@ public interface Configuration
     * Sets the diverts configured for this server.
     */
    Configuration setDivertConfigurations(final List<DivertConfiguration> configs);
+
+   Configuration addDivertConfiguration(final DivertConfiguration config);
 
    /**
     * Returns the cluster connections configured for this server.
@@ -796,6 +800,8 @@ public interface Configuration
    Configuration setAddressesSettings(Map<String, AddressSettings> addressesSettings);
 
    Configuration addAddressesSetting(String key, AddressSettings addressesSetting);
+
+   Configuration clearAddressesSettings();
 
    /**
     * @param roles a list of roles per matching

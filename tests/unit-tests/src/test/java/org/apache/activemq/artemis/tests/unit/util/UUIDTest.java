@@ -16,7 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.unit.util;
 
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Test;
 
 import java.util.HashSet;
@@ -27,7 +27,7 @@ import org.junit.Assert;
 import org.apache.activemq.artemis.utils.UUID;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 
-public class UUIDTest extends ServiceTestBase
+public class UUIDTest extends ActiveMQTestBase
 {
    static final int MANY_TIMES = 100000;
 

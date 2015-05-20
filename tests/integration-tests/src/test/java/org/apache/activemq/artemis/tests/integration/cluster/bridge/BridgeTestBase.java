@@ -20,7 +20,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.ha.SharedStoreMasterPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.SharedStoreSlavePolicyConfiguration;
@@ -31,7 +31,7 @@ import org.apache.activemq.artemis.core.server.NodeManager;
 import org.apache.activemq.artemis.tests.util.InVMNodeManagerServer;
 import org.junit.After;
 
-public abstract class BridgeTestBase extends ServiceTestBase
+public abstract class BridgeTestBase extends ActiveMQTestBase
 {
 
    @Override
@@ -46,11 +46,6 @@ public abstract class BridgeTestBase extends ServiceTestBase
    protected ActiveMQServer createActiveMQServer(final int id, final boolean netty, final Map<String, Object> params) throws Exception
    {
       return createActiveMQServer(id, params, netty, null);
-   }
-
-   protected ActiveMQServer createActiveMQServer(final int id, final boolean netty, final Map<String, Object> params, NodeManager nodeManager) throws Exception
-   {
-      return createActiveMQServer(id, params, netty, nodeManager);
    }
 
    protected ActiveMQServer createActiveMQServer(final int id,
@@ -84,17 +79,17 @@ public abstract class BridgeTestBase extends ServiceTestBase
          .addAcceptorConfiguration(tc)
          .setHAPolicyConfiguration(new SharedStoreMasterPolicyConfiguration());
 
-      ActiveMQServer service;
+      ActiveMQServer server;
       if (nodeManager == null)
       {
-         service = ActiveMQServers.newActiveMQServer(serviceConf, true);
+         server = ActiveMQServers.newActiveMQServer(serviceConf, true);
       }
       else
       {
-         service = new InVMNodeManagerServer(serviceConf, nodeManager);
+         server = new InVMNodeManagerServer(serviceConf, nodeManager);
       }
 
-      return addServer(service);
+      return addServer(server);
    }
 
    protected ActiveMQServer createBackupActiveMQServer(final int id,
@@ -130,16 +125,16 @@ public abstract class BridgeTestBase extends ServiceTestBase
          .addAcceptorConfiguration(tc)
          .setHAPolicyConfiguration(new SharedStoreSlavePolicyConfiguration());
 
-      ActiveMQServer service;
+      ActiveMQServer server;
       if (nodeManager == null)
       {
-         service = ActiveMQServers.newActiveMQServer(serviceConf, true);
+         server = ActiveMQServers.newActiveMQServer(serviceConf, true);
       }
       else
       {
-         service = new InVMNodeManagerServer(serviceConf, nodeManager);
+         server = new InVMNodeManagerServer(serviceConf, nodeManager);
       }
-      return addServer(service);
+      return addServer(server);
    }
 
 

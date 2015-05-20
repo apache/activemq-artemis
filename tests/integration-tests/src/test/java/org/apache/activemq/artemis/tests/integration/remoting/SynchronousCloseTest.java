@@ -15,22 +15,18 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.integration.remoting;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
-import org.junit.Before;
 
-import org.junit.Test;
-
-import org.junit.Assert;
-
-import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
-import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
-public class SynchronousCloseTest extends ServiceTestBase
+public class SynchronousCloseTest extends ActiveMQTestBase
 {
 
    private ActiveMQServer server;
@@ -67,11 +63,11 @@ public class SynchronousCloseTest extends ServiceTestBase
       ServerLocator locator;
       if (isNetty())
       {
-         locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(ServiceTestBase.NETTY_CONNECTOR_FACTORY));
+         locator = createNettyNonHALocator();
       }
       else
       {
-         locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(ServiceTestBase.INVM_CONNECTOR_FACTORY));
+         locator = createInVMNonHALocator();
       }
 
       return createSessionFactory(locator);

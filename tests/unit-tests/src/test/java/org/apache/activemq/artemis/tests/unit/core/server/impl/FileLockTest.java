@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.unit.core.server.impl;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Before;
 
 import org.junit.Test;
@@ -26,7 +26,7 @@ import org.apache.activemq.artemis.core.asyncio.impl.AsynchronousFileImpl;
 import org.apache.activemq.artemis.core.server.impl.AIOFileLockNodeManager;
 import org.apache.activemq.artemis.core.server.impl.FileLockNodeManager;
 
-public class FileLockTest extends ServiceTestBase
+public class FileLockTest extends ActiveMQTestBase
 {
 
    @Override

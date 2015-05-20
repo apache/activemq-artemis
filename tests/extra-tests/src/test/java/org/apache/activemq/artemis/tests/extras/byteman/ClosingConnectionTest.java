@@ -31,7 +31,7 @@ import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.integration.management.ManagementControlHelper;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.jboss.byteman.contrib.bmunit.BMRule;
 import org.jboss.byteman.contrib.bmunit.BMRules;
 import org.jboss.byteman.contrib.bmunit.BMUnitRunner;
@@ -40,7 +40,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(BMUnitRunner.class)
-public class ClosingConnectionTest extends ServiceTestBase
+public class ClosingConnectionTest extends ActiveMQTestBase
 {
    public static final SimpleString ADDRESS = new SimpleString("SimpleAddress");
 
@@ -68,7 +68,7 @@ public class ClosingConnectionTest extends ServiceTestBase
       server.getConfiguration().setJournalType(JournalType.NIO);
       server.getConfiguration().setJMXManagementEnabled(true);
       server.start();
-      waitForServer(server);
+      waitForServerToStart(server);
       locator = createFactory(isNetty());
       readyToKill = false;
    }
@@ -135,9 +135,9 @@ public class ClosingConnectionTest extends ServiceTestBase
       )
    public void testKillConnection() throws Exception
    {
-      locator.setBlockOnNonDurableSend(true);
-      locator.setBlockOnDurableSend(true);
-      locator.setBlockOnAcknowledge(true);
+      locator.setBlockOnNonDurableSend(true)
+              .setBlockOnDurableSend(true)
+              .setBlockOnAcknowledge(true);
 
       ClientSessionFactory sf = createSessionFactory(locator);
       ClientSession session = sf.createSession("guest", null, false, true, true, false, 0);
@@ -182,9 +182,9 @@ public class ClosingConnectionTest extends ServiceTestBase
       ActiveMQServer server = createServer(true, createDefaultConfig(isNetty()));
       server.setMBeanServer(mBeanServer);
 
-      AddressSettings defaultSetting = new AddressSettings();
-      defaultSetting.setPageSizeBytes(10 * 1024);
-      defaultSetting.setMaxSizeBytes(20 * 1024);
+      AddressSettings defaultSetting = new AddressSettings()
+              .setPageSizeBytes(10 * 1024)
+              .setMaxSizeBytes(20 * 1024);
 
       server.getAddressSettingsRepository().addMatch("#", defaultSetting);
 

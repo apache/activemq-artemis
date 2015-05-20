@@ -51,7 +51,7 @@ import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.tests.unit.util.InVMNamingContext;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.protocol.stomp.StompProtocolManagerFactory;
 import org.apache.activemq.artemis.core.registry.JndiBindingRegistry;
@@ -72,7 +72,7 @@ import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
 import org.junit.After;
 import org.junit.Before;
 
-public abstract class StompTestBase extends ServiceTestBase
+public abstract class StompTestBase extends ActiveMQTestBase
 {
    protected final int port = 61613;
 
@@ -206,7 +206,7 @@ public abstract class StompTestBase extends ServiceTestBase
          .addAcceptorConfiguration(stompTransport)
          .addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName()));
 
-      ActiveMQServer activeMQServer = ActiveMQServers.newActiveMQServer(config, defUser, defPass);
+      ActiveMQServer activeMQServer = addServer(ActiveMQServers.newActiveMQServer(config, defUser, defPass));
 
       JMSConfiguration jmsConfig = new JMSConfigurationImpl();
       jmsConfig.getQueueConfigurations().add(new JMSQueueConfigurationImpl()

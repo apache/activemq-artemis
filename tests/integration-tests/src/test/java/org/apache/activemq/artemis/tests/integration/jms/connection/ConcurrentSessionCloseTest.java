@@ -15,21 +15,18 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.integration.jms.connection;
-import org.apache.activemq.artemis.tests.util.JMSTestBase;
-import org.junit.Before;
-import org.junit.After;
-
-import org.junit.Test;
-
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import javax.jms.Connection;
-import javax.jms.Session;
 
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.api.jms.JMSFactoryType;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.tests.util.JMSTestBase;
+import org.junit.Before;
+import org.junit.Test;
+
+import javax.jms.Connection;
+import javax.jms.Session;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  *
@@ -45,21 +42,7 @@ public class ConcurrentSessionCloseTest extends JMSTestBase
    {
       super.setUp();
 
-      cf =
-               ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF,
-                                                                  new TransportConfiguration(INVM_CONNECTOR_FACTORY));
-
-   }
-
-   @Override
-   @After
-   public void tearDown() throws Exception
-   {
-      if (cf != null)
-         cf.close();
-      cf = null;
-
-      super.tearDown();
+      cf = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration(INVM_CONNECTOR_FACTORY));
    }
 
    // https://jira.jboss.org/browse/HORNETQ-525
@@ -112,8 +95,5 @@ public class ConcurrentSessionCloseTest extends JMSTestBase
 
          assertFalse(failed.get());
       }
-
-      jmsServer.stop();
    }
-
 }

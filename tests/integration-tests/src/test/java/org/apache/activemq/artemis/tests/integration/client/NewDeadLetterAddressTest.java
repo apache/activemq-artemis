@@ -15,34 +15,27 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.integration.client;
-import org.apache.activemq.artemis.api.core.ActiveMQException;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
-import org.junit.Before;
-import org.junit.After;
-
-import org.junit.Test;
-
-import org.junit.Assert;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
-import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  *
  * A NewDeadLetterAddressTest
  */
-public class NewDeadLetterAddressTest extends ServiceTestBase
+public class NewDeadLetterAddressTest extends ActiveMQTestBase
 {
    private ActiveMQServer server;
 
@@ -54,9 +47,9 @@ public class NewDeadLetterAddressTest extends ServiceTestBase
    {
       SimpleString dla = new SimpleString("DLA");
       SimpleString address = new SimpleString("empty_address");
-      AddressSettings addressSettings = new AddressSettings();
-      addressSettings.setDeadLetterAddress(dla);
-      addressSettings.setSendToDLAOnNoRoute(true);
+      AddressSettings addressSettings = new AddressSettings()
+              .setDeadLetterAddress(dla)
+              .setSendToDLAOnNoRoute(true);
       server.getAddressSettingsRepository().addMatch(address.toString(), addressSettings);
       SimpleString dlq = new SimpleString("DLQ1");
       clientSession.createQueue(dla, dlq, null, false);
@@ -75,39 +68,10 @@ public class NewDeadLetterAddressTest extends ServiceTestBase
    public void setUp() throws Exception
    {
       super.setUp();
-      TransportConfiguration transportConfig = new TransportConfiguration(ServiceTestBase.INVM_ACCEPTOR_FACTORY);
-
-      Configuration configuration = createDefaultConfig()
-         .setSecurityEnabled(false)
-         .addAcceptorConfiguration(transportConfig);
-      server = addServer(ActiveMQServers.newActiveMQServer(configuration, false));
-      // start the server
+      server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig(), false));
       server.start();
-      // then we create a client as normal
-      locator =
-               addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(
-                  INVM_CONNECTOR_FACTORY)));
+      locator = createInVMNonHALocator();
       ClientSessionFactory sessionFactory = createSessionFactory(locator);
       clientSession = sessionFactory.createSession(false, true, false);
    }
-
-   @Override
-   @After
-   public void tearDown() throws Exception
-   {
-      if (clientSession != null)
-      {
-         try
-         {
-            clientSession.close();
-         }
-         catch (ActiveMQException e1)
-         {
-            //
-         }
-      }
-      clientSession = null;
-      super.tearDown();
-   }
-
 }

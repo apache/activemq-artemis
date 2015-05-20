@@ -18,27 +18,24 @@ package org.apache.activemq.artemis.tests.integration.client;
 
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.api.core.TransportConfiguration;
-import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.message.impl.MessageImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class ExpiryAddressTest extends ServiceTestBase
+public class ExpiryAddressTest extends ActiveMQTestBase
 {
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
@@ -54,8 +51,7 @@ public class ExpiryAddressTest extends ServiceTestBase
       SimpleString adSend = new SimpleString("a1");
       SimpleString qName = new SimpleString("q1");
       SimpleString eq = new SimpleString("EA1");
-      AddressSettings addressSettings = new AddressSettings();
-      addressSettings.setExpiryAddress(ea);
+      AddressSettings addressSettings = new AddressSettings().setExpiryAddress(ea);
       server.getAddressSettingsRepository().addMatch("#", addressSettings);
       clientSession.createQueue(ea, eq, null, false);
       clientSession.createQueue(adSend, qName, null, false);
@@ -89,8 +85,7 @@ public class ExpiryAddressTest extends ServiceTestBase
       SimpleString expiryAddress1 = new SimpleString("expiryAddress1");
       SimpleString qName = new SimpleString("q1");
       SimpleString expiryQueue1 = new SimpleString("expiryQueue1");
-      AddressSettings addressSettings = new AddressSettings();
-      addressSettings.setExpiryAddress(expiryAddress1);
+      AddressSettings addressSettings = new AddressSettings().setExpiryAddress(expiryAddress1);
       server.getAddressSettingsRepository().addMatch(qName.toString(), addressSettings);
       clientSession.createQueue(expiryAddress1, expiryQueue1, null, false);
       clientSession.createQueue(qName, qName, null, false);
@@ -98,8 +93,7 @@ public class ExpiryAddressTest extends ServiceTestBase
       // override "original" address settings
       SimpleString expiryAddress2 = new SimpleString("expiryAddress2");
       SimpleString expiryQueue2 = new SimpleString("expiryQueue2");
-      addressSettings = new AddressSettings();
-      addressSettings.setExpiryAddress(expiryAddress2);
+      addressSettings = new AddressSettings().setExpiryAddress(expiryAddress2);
       server.getAddressSettingsRepository().addMatch(qName.toString(), addressSettings);
       clientSession.createQueue(expiryAddress2, expiryQueue2, null, false);
 
@@ -142,8 +136,7 @@ public class ExpiryAddressTest extends ServiceTestBase
       SimpleString qName = new SimpleString("q1");
       SimpleString eq = new SimpleString("EQ1");
       SimpleString eq2 = new SimpleString("EQ2");
-      AddressSettings addressSettings = new AddressSettings();
-      addressSettings.setExpiryAddress(ea);
+      AddressSettings addressSettings = new AddressSettings().setExpiryAddress(ea);
       server.getAddressSettingsRepository().addMatch(qName.toString(), addressSettings);
       clientSession.createQueue(ea, eq, null, false);
       clientSession.createQueue(ea, eq2, null, false);
@@ -225,15 +218,12 @@ public class ExpiryAddressTest extends ServiceTestBase
       final int NUM_MESSAGES = 5;
       SimpleString ea = new SimpleString("DLA");
       SimpleString qName = new SimpleString("q1");
-      AddressSettings addressSettings = new AddressSettings();
-      addressSettings.setExpiryAddress(ea);
+      AddressSettings addressSettings = new AddressSettings().setExpiryAddress(ea);
       server.getAddressSettingsRepository().addMatch(qName.toString(), addressSettings);
       SimpleString eq = new SimpleString("EA1");
       clientSession.createQueue(ea, eq, null, false);
       clientSession.createQueue(qName, qName, null, false);
-      ServerLocator locator1 =
-               addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(
-                  INVM_CONNECTOR_FACTORY)));
+      ServerLocator locator1 = createInVMNonHALocator();
 
       ClientSessionFactory sessionFactory = createSessionFactory(locator1);
 
@@ -282,8 +272,7 @@ public class ExpiryAddressTest extends ServiceTestBase
       SimpleString ea = new SimpleString("EA");
       SimpleString qName = new SimpleString("q1");
       SimpleString eq = new SimpleString("EA1");
-      AddressSettings addressSettings = new AddressSettings();
-      addressSettings.setExpiryAddress(ea);
+      AddressSettings addressSettings = new AddressSettings().setExpiryAddress(ea);
       server.getAddressSettingsRepository().setDefault(addressSettings);
       clientSession.createQueue(ea, eq, null, false);
       clientSession.createQueue(qName, qName, null, false);
@@ -312,8 +301,7 @@ public class ExpiryAddressTest extends ServiceTestBase
       SimpleString ea = new SimpleString("EA");
       SimpleString qName = new SimpleString("q1");
       SimpleString eq = new SimpleString("EA1");
-      AddressSettings addressSettings = new AddressSettings();
-      addressSettings.setExpiryAddress(ea);
+      AddressSettings addressSettings = new AddressSettings().setExpiryAddress(ea);
       server.getAddressSettingsRepository().addMatch("*", addressSettings);
       clientSession.createQueue(ea, eq, null, false);
       clientSession.createQueue(qName, qName, null, false);
@@ -346,11 +334,9 @@ public class ExpiryAddressTest extends ServiceTestBase
       SimpleString specificExpiryAddress = RandomUtil.randomSimpleString();
       SimpleString specificExpiryQueue = RandomUtil.randomSimpleString();
 
-      AddressSettings defaultAddressSettings = new AddressSettings();
-      defaultAddressSettings.setExpiryAddress(defaultExpiryAddress);
+      AddressSettings defaultAddressSettings = new AddressSettings().setExpiryAddress(defaultExpiryAddress);
       server.getAddressSettingsRepository().addMatch("prefix.*", defaultAddressSettings);
-      AddressSettings specificAddressSettings = new AddressSettings();
-      specificAddressSettings.setExpiryAddress(specificExpiryAddress);
+      AddressSettings specificAddressSettings = new AddressSettings().setExpiryAddress(specificExpiryAddress);
       server.getAddressSettingsRepository().addMatch("prefix.address", specificAddressSettings);
 
       clientSession.createQueue(address, queue, false);
@@ -385,21 +371,14 @@ public class ExpiryAddressTest extends ServiceTestBase
    public void setUp() throws Exception
    {
       super.setUp();
-      TransportConfiguration transportConfig = new TransportConfiguration(ServiceTestBase.INVM_ACCEPTOR_FACTORY);
-
-      Configuration configuration = createDefaultConfig()
-         .setSecurityEnabled(false)
-         .addAcceptorConfiguration(transportConfig);
-      server = addServer(ActiveMQServers.newActiveMQServer(configuration, false));
-      // start the server
+      server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig(), false));
       server.start();
       // then we create a client as normal
-      locator = createInVMNonHALocator();
-      locator.setBlockOnAcknowledge(true);
+      locator = createInVMNonHALocator()
+              .setBlockOnAcknowledge(true);
       ClientSessionFactory sessionFactory = createSessionFactory(locator);
       // There are assertions over sizes that needs to be done after the ACK
       // was received on server
       clientSession = addClientSession(sessionFactory.createSession(null, null, false, true, true, false, 0));
    }
-
 }

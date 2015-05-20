@@ -31,14 +31,14 @@ import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.junit.Assert;
 import org.junit.Test;
 
-public abstract class NetworkAddressTestBase extends ServiceTestBase
+public abstract class NetworkAddressTestBase extends ActiveMQTestBase
 {
 
    // Constants -----------------------------------------------------
@@ -208,7 +208,7 @@ public abstract class NetworkAddressTestBase extends ServiceTestBase
       Set<TransportConfiguration> transportConfigs = new HashSet<TransportConfiguration>();
       transportConfigs.add(acceptorConfig);
 
-      Configuration config = createDefaultConfig(true);
+      Configuration config = createDefaultNettyConfig();
       config.setAcceptorConfigurations(transportConfigs);
       ActiveMQServer messagingService = createServer(false, config);
       try

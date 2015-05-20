@@ -30,7 +30,7 @@ import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.client.ActiveMQBytesMessage;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,207 +38,177 @@ import org.junit.Test;
 /**
  * This is an integration-tests that will take some time to run.
  */
-public class PageStressTest extends ServiceTestBase
+public class PageStressTest extends ActiveMQTestBase
 {
-
-   // Constants -----------------------------------------------------
-
-   // Attributes ----------------------------------------------------
-
-   private ActiveMQServer messagingService;
+   private ActiveMQServer server;
 
    private ServerLocator locator;
 
    @Test
    public void testStopDuringDepage() throws Exception
    {
-      Configuration config = createDefaultConfig()
-         .setJournalSyncNonTransactional(false)
-         .setJournalSyncTransactional(false);
+      Configuration config = createDefaultInVMConfig()
+              .setJournalSyncNonTransactional(false)
+              .setJournalSyncTransactional(false);
 
       HashMap<String, AddressSettings> settings = new HashMap<String, AddressSettings>();
 
-      AddressSettings setting = new AddressSettings();
-      setting.setMaxSizeBytes(20 * 1024 * 1024);
+      AddressSettings setting = new AddressSettings().setMaxSizeBytes(20 * 1024 * 1024);
       settings.put("page-adr", setting);
 
-      messagingService = createServer(true, config, 10 * 1024 * 1024, 20 * 1024 * 1024, settings);
-      messagingService.start();
+      server = addServer(createServer(true, config, 10 * 1024 * 1024, 20 * 1024 * 1024, settings));
+      server.start();
 
+      final int NUMBER_OF_MESSAGES = 60000;
       ClientSessionFactory factory = createSessionFactory(locator);
-      ClientSession session = null;
+      ClientSession session = addClientSession(factory.createSession(null, null, false, false, true, false, 1024 * NUMBER_OF_MESSAGES));
 
-      try
+      SimpleString address = new SimpleString("page-adr");
+
+      session.createQueue(address, address, null, true);
+
+      ClientProducer prod = session.createProducer(address);
+
+      ClientMessage message = createBytesMessage(session, ActiveMQBytesMessage.TYPE, new byte[700], true);
+
+      for (int i = 0; i < NUMBER_OF_MESSAGES; i++)
       {
-
-         final int NUMBER_OF_MESSAGES = 60000;
-
-         session = factory.createSession(null, null, false, false, true, false, 1024 * NUMBER_OF_MESSAGES);
-
-         SimpleString address = new SimpleString("page-adr");
-
-         session.createQueue(address, address, null, true);
-
-         ClientProducer prod = session.createProducer(address);
-
-         ClientMessage message = createBytesMessage(session, ActiveMQBytesMessage.TYPE, new byte[700], true);
-
-         for (int i = 0; i < NUMBER_OF_MESSAGES; i++)
+         if (i % 10000 == 0)
          {
-            if (i % 10000 == 0)
-            {
-               System.out.println("Sent " + i);
-            }
-            prod.send(message);
+            System.out.println("Sent " + i);
          }
-
-         session.commit();
-
-         session.start();
-
-         ClientConsumer consumer = session.createConsumer(address);
-
-         int msgs = 0;
-         ClientMessage msg = null;
-         do
-         {
-            msg = consumer.receive(10000);
-            if (msg != null)
-            {
-               msg.acknowledge();
-               if (++msgs % 1000 == 0)
-               {
-                  System.out.println("Received " + msgs);
-               }
-            }
-         }
-         while (msg != null);
-
-         session.commit();
-
-         session.close();
-
-         messagingService.stop();
-
-         System.out.println("server stopped, nr msgs: " + msgs);
-
-         messagingService = createServer(true, config, 10 * 1024 * 1024, 20 * 1024 * 1024, settings);
-
-         messagingService.start();
-
-         factory = createSessionFactory(locator);
-
-         session = factory.createSession(false, false, false);
-
-         consumer = session.createConsumer(address);
-
-         session.start();
-
-         msg = null;
-         do
-         {
-            msg = consumer.receive(10000);
-            if (msg != null)
-            {
-               msg.acknowledge();
-               session.commit();
-               if (++msgs % 1000 == 0)
-               {
-                  System.out.println("Received " + msgs);
-               }
-            }
-         }
-         while (msg != null);
-
-         System.out.println("msgs second time: " + msgs);
-
-         Assert.assertEquals(NUMBER_OF_MESSAGES, msgs);
-      }
-      finally
-      {
-         session.close();
+         prod.send(message);
       }
 
+      session.commit();
+
+      session.start();
+
+      ClientConsumer consumer = session.createConsumer(address);
+
+      int msgs = 0;
+      ClientMessage msg;
+      do
+      {
+         msg = consumer.receive(10000);
+         if (msg != null)
+         {
+            msg.acknowledge();
+            if (++msgs % 1000 == 0)
+            {
+               System.out.println("Received " + msgs);
+            }
+         }
+      }
+      while (msg != null);
+
+      session.commit();
+
+      session.close();
+
+      server.stop();
+
+      System.out.println("server stopped, nr msgs: " + msgs);
+
+      server = addServer(createServer(true, config, 10 * 1024 * 1024, 20 * 1024 * 1024, settings));
+
+      server.start();
+
+      factory = createSessionFactory(locator);
+
+      session = addClientSession(factory.createSession(false, false, false));
+
+      consumer = session.createConsumer(address);
+
+      session.start();
+
+      do
+      {
+         msg = consumer.receive(10000);
+         if (msg != null)
+         {
+            msg.acknowledge();
+            session.commit();
+            if (++msgs % 1000 == 0)
+            {
+               System.out.println("Received " + msgs);
+            }
+         }
+      }
+      while (msg != null);
+
+      System.out.println("msgs second time: " + msgs);
+
+      Assert.assertEquals(NUMBER_OF_MESSAGES, msgs);
    }
 
    @Test
    public void testPageOnMultipleDestinations() throws Exception
    {
-      Configuration config = createDefaultConfig();
+      HashMap<String, AddressSettings> settings = new HashMap<>();
 
-      HashMap<String, AddressSettings> settings = new HashMap<String, AddressSettings>();
-
-      AddressSettings setting = new AddressSettings();
-      setting.setMaxSizeBytes(20 * 1024 * 1024);
+      AddressSettings setting = new AddressSettings()
+              .setMaxSizeBytes(20 * 1024 * 1024);
       settings.put("page-adr", setting);
 
-      messagingService = createServer(true, config, 10 * 1024 * 1024, 20 * 1024 * 1024, settings);
-      messagingService.start();
+      server = addServer(createServer(true, createDefaultInVMConfig(), 10 * 1024 * 1024, 20 * 1024 * 1024, settings));
+      server.start();
 
       ClientSessionFactory factory = createSessionFactory(locator);
       ClientSession session = null;
 
-      try
+      session = factory.createSession(false, false, false);
+
+      SimpleString address = new SimpleString("page-adr");
+      SimpleString[] queue = new SimpleString[]{new SimpleString("queue1"), new SimpleString("queue2")};
+
+      session.createQueue(address, queue[0], null, true);
+      session.createQueue(address, queue[1], null, true);
+
+      ClientProducer prod = session.createProducer(address);
+
+      ClientMessage message = createBytesMessage(session, ActiveMQBytesMessage.TYPE, new byte[700], false);
+
+      int NUMBER_OF_MESSAGES = 60000;
+
+      for (int i = 0; i < NUMBER_OF_MESSAGES; i++)
       {
-         session = factory.createSession(false, false, false);
-
-         SimpleString address = new SimpleString("page-adr");
-         SimpleString[] queue = new SimpleString[]{new SimpleString("queue1"), new SimpleString("queue2")};
-
-         session.createQueue(address, queue[0], null, true);
-         session.createQueue(address, queue[1], null, true);
-
-         ClientProducer prod = session.createProducer(address);
-
-         ClientMessage message = createBytesMessage(session, ActiveMQBytesMessage.TYPE, new byte[700], false);
-
-         int NUMBER_OF_MESSAGES = 60000;
-
-         for (int i = 0; i < NUMBER_OF_MESSAGES; i++)
+         if (i % 10000 == 0)
          {
-            if (i % 10000 == 0)
-            {
-               System.out.println(i);
-            }
-            prod.send(message);
+            System.out.println(i);
          }
-
-         session.commit();
-
-         session.start();
-
-         int[] counters = new int[2];
-
-         ClientConsumer[] consumers = new ClientConsumer[]{session.createConsumer(queue[0]),
-            session.createConsumer(queue[1])};
-
-         while (true)
-         {
-            int msgs1 = readMessages(session, consumers[0], queue[0]);
-            int msgs2 = readMessages(session, consumers[1], queue[1]);
-            counters[0] += msgs1;
-            counters[1] += msgs2;
-
-            System.out.println("msgs1 = " + msgs1 + " msgs2 = " + msgs2);
-
-            if (msgs1 + msgs2 == 0)
-            {
-               break;
-            }
-         }
-
-         consumers[0].close();
-         consumers[1].close();
-
-         Assert.assertEquals(NUMBER_OF_MESSAGES, counters[0]);
-         Assert.assertEquals(NUMBER_OF_MESSAGES, counters[1]);
-      }
-      finally
-      {
-         session.close();
-         messagingService.stop();
+         prod.send(message);
       }
 
+      session.commit();
+
+      session.start();
+
+      int[] counters = new int[2];
+
+      ClientConsumer[] consumers = new ClientConsumer[]{session.createConsumer(queue[0]),
+              session.createConsumer(queue[1])};
+
+      while (true)
+      {
+         int msgs1 = readMessages(session, consumers[0], queue[0]);
+         int msgs2 = readMessages(session, consumers[1], queue[1]);
+         counters[0] += msgs1;
+         counters[1] += msgs2;
+
+         System.out.println("msgs1 = " + msgs1 + " msgs2 = " + msgs2);
+
+         if (msgs1 + msgs2 == 0)
+         {
+            break;
+         }
+      }
+
+      consumers[0].close();
+      consumers[1].close();
+
+      Assert.assertEquals(NUMBER_OF_MESSAGES, counters[0]);
+      Assert.assertEquals(NUMBER_OF_MESSAGES, counters[1]);
    }
 
    private int readMessages(final ClientSession session, final ClientConsumer consumer, final SimpleString queue) throws ActiveMQException
@@ -272,9 +242,9 @@ public class PageStressTest extends ServiceTestBase
 
    // Protected -----------------------------------------------------
    @Override
-   protected Configuration createDefaultConfig() throws Exception
+   protected Configuration createDefaultInVMConfig() throws Exception
    {
-      Configuration config = super.createDefaultConfig()
+      Configuration config = super.createDefaultInVMConfig()
          .setJournalFileSize(10 * 1024 * 1024)
          .setJournalMinFiles(5);
 
@@ -286,11 +256,9 @@ public class PageStressTest extends ServiceTestBase
    public void setUp() throws Exception
    {
       super.setUp();
-      locator = createInVMNonHALocator();
-
-      locator.setBlockOnAcknowledge(true);
-      locator.setBlockOnDurableSend(false);
-      locator.setBlockOnNonDurableSend(false);
-
+      locator = createInVMNonHALocator()
+              .setBlockOnAcknowledge(true)
+              .setBlockOnDurableSend(false)
+              .setBlockOnNonDurableSend(false);
    }
 }

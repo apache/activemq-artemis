@@ -16,28 +16,24 @@
  */
 package org.apache.activemq.artemis.tests.integration.server;
 
-import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
-import org.junit.After;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class LVQTest extends ServiceTestBase
+public class LVQTest extends ActiveMQTestBase
 {
    private ActiveMQServer server;
 
@@ -610,84 +606,25 @@ public class LVQTest extends ServiceTestBase
    }
 
    @Override
-   @After
-   public void tearDown() throws Exception
-   {
-      if (clientSession != null)
-      {
-         try
-         {
-            clientSession.close();
-         }
-         catch (ActiveMQException e1)
-         {
-            //
-         }
-      }
-
-      if (clientSessionTxReceives != null)
-      {
-         try
-         {
-            clientSessionTxReceives.close();
-         }
-         catch (ActiveMQException e1)
-         {
-            //
-         }
-      }
-
-      if (clientSessionTxSends != null)
-      {
-         try
-         {
-            clientSessionTxSends.close();
-         }
-         catch (ActiveMQException e1)
-         {
-            //
-         }
-      }
-      if (server != null && server.isStarted())
-      {
-         try
-         {
-            server.stop();
-         }
-         catch (Exception e1)
-         {
-            //
-         }
-      }
-      server = null;
-      clientSession = null;
-
-      super.tearDown();
-   }
-
-   @Override
    @Before
    public void setUp() throws Exception
    {
       super.setUp();
 
-      ConfigurationImpl configuration = createBasicConfig()
-         .addAcceptorConfiguration(new TransportConfiguration(ServiceTestBase.INVM_ACCEPTOR_FACTORY));
-      server = ActiveMQServers.newActiveMQServer(configuration, false);
+      server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig(), false));
       // start the server
       server.start();
 
-      AddressSettings qs = new AddressSettings();
-      qs.setLastValueQueue(true);
-      server.getAddressSettingsRepository().addMatch(address.toString(), qs);
+      server.getAddressSettingsRepository().addMatch(address.toString(), new AddressSettings().setLastValueQueue(true));
       // then we create a client as normalServer
-      ServerLocator locator = createInVMNonHALocator();
-      locator.setBlockOnAcknowledge(true);
-      locator.setAckBatchSize(0);
-      ClientSessionFactory sessionFactory = createSessionFactory(locator);
-      clientSession = sessionFactory.createSession(false, true, true);
-      clientSessionTxReceives = sessionFactory.createSession(false, true, false);
-      clientSessionTxSends = sessionFactory.createSession(false, false, true);
+      ServerLocator locator = createInVMNonHALocator()
+              .setBlockOnAcknowledge(true)
+              .setAckBatchSize(0);
+
+      ClientSessionFactory sf = createSessionFactory(locator);
+      clientSession = addClientSession(sf.createSession(false, true, true));
+      clientSessionTxReceives = addClientSession(sf.createSession(false, true, false));
+      clientSessionTxSends = addClientSession(sf.createSession(false, false, true));
       clientSession.createQueue(address, qName1, null, true);
    }
 }

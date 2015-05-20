@@ -49,14 +49,14 @@ import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.server.JMSServerManager;
 import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
 import org.apache.activemq.artemis.tests.unit.util.InVMContext;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.junit.Test;
 
 /**
  * A test of the XML export/import functionality
  */
-public class XmlImportExportTest extends ServiceTestBase
+public class XmlImportExportTest extends ActiveMQTestBase
 {
    public static final int CONSUMER_TIMEOUT = 5000;
    private static final String QUEUE_NAME = "A1";
@@ -112,7 +112,7 @@ public class XmlImportExportTest extends ServiceTestBase
 
       ByteArrayOutputStream xmlOutputStream = new ByteArrayOutputStream();
       XmlDataExporter xmlDataExporter = new XmlDataExporter();
-      xmlDataExporter.process(xmlOutputStream, getBindingsDir(), getJournalDir(), getPageDir(), getLargeMessagesDir());
+      xmlDataExporter.process(xmlOutputStream, server.getConfiguration().getBindingsDirectory(), server.getConfiguration().getJournalDirectory(), server.getConfiguration().getPagingDirectory(), server.getConfiguration().getLargeMessagesDirectory());
       System.out.print(new String(xmlOutputStream.toByteArray()));
 
       clearDataRecreateServerDirs();
@@ -207,7 +207,7 @@ public class XmlImportExportTest extends ServiceTestBase
 
       ByteArrayOutputStream xmlOutputStream = new ByteArrayOutputStream();
       XmlDataExporter xmlDataExporter = new XmlDataExporter();
-      xmlDataExporter.process(xmlOutputStream, getBindingsDir(), getJournalDir(), getPageDir(), getLargeMessagesDir());
+      xmlDataExporter.process(xmlOutputStream, server.getConfiguration().getBindingsDirectory(), server.getConfiguration().getJournalDirectory(), server.getConfiguration().getPagingDirectory(), server.getConfiguration().getLargeMessagesDirectory());
       System.out.print(new String(xmlOutputStream.toByteArray()));
 
       clearDataRecreateServerDirs();
@@ -261,7 +261,7 @@ public class XmlImportExportTest extends ServiceTestBase
 
       ByteArrayOutputStream xmlOutputStream = new ByteArrayOutputStream();
       XmlDataExporter xmlDataExporter = new XmlDataExporter();
-      xmlDataExporter.process(xmlOutputStream, getBindingsDir(), getJournalDir(), getPageDir(), getLargeMessagesDir());
+      xmlDataExporter.process(xmlOutputStream, server.getConfiguration().getBindingsDirectory(), server.getConfiguration().getJournalDirectory(), server.getConfiguration().getPagingDirectory(), server.getConfiguration().getLargeMessagesDirectory());
       System.out.print(new String(xmlOutputStream.toByteArray()));
 
       clearDataRecreateServerDirs();
@@ -297,7 +297,7 @@ public class XmlImportExportTest extends ServiceTestBase
 
       ByteArrayOutputStream xmlOutputStream = new ByteArrayOutputStream();
       XmlDataExporter xmlDataExporter = new XmlDataExporter();
-      xmlDataExporter.process(xmlOutputStream, getBindingsDir(), getJournalDir(), getPageDir(), getLargeMessagesDir());
+      xmlDataExporter.process(xmlOutputStream, server.getConfiguration().getBindingsDirectory(), server.getConfiguration().getJournalDirectory(), server.getConfiguration().getPagingDirectory(), server.getConfiguration().getLargeMessagesDirectory());
       System.out.print(new String(xmlOutputStream.toByteArray()));
 
       clearDataRecreateServerDirs();
@@ -409,7 +409,7 @@ public class XmlImportExportTest extends ServiceTestBase
 
       ByteArrayOutputStream xmlOutputStream = new ByteArrayOutputStream();
       XmlDataExporter xmlDataExporter = new XmlDataExporter();
-      xmlDataExporter.process(xmlOutputStream, getBindingsDir(), getJournalDir(), getPageDir(), getLargeMessagesDir());
+      xmlDataExporter.process(xmlOutputStream, server.getConfiguration().getBindingsDirectory(), server.getConfiguration().getJournalDirectory(), server.getConfiguration().getPagingDirectory(), server.getConfiguration().getLargeMessagesDirectory());
       System.out.print(new String(xmlOutputStream.toByteArray()));
 
       clearDataRecreateServerDirs();
@@ -477,7 +477,7 @@ public class XmlImportExportTest extends ServiceTestBase
 
       ByteArrayOutputStream xmlOutputStream = new ByteArrayOutputStream();
       XmlDataExporter xmlDataExporter = new XmlDataExporter();
-      xmlDataExporter.process(xmlOutputStream, getBindingsDir(), getJournalDir(), getPageDir(), getLargeMessagesDir());
+      xmlDataExporter.process(xmlOutputStream, server.getConfiguration().getBindingsDirectory(), server.getConfiguration().getJournalDirectory(), server.getConfiguration().getPagingDirectory(), server.getConfiguration().getLargeMessagesDirectory());
       System.out.print(new String(xmlOutputStream.toByteArray()));
 
       clearDataRecreateServerDirs();
@@ -554,12 +554,12 @@ public class XmlImportExportTest extends ServiceTestBase
 
       ByteArrayOutputStream xmlOutputStream = new ByteArrayOutputStream();
       XmlDataExporter xmlDataExporter = new XmlDataExporter();
-      xmlDataExporter.process(xmlOutputStream, getBindingsDir(), getJournalDir(), getPageDir(), getLargeMessagesDir());
+      xmlDataExporter.process(xmlOutputStream, server.getConfiguration().getBindingsDirectory(), server.getConfiguration().getJournalDirectory(), server.getConfiguration().getPagingDirectory(), server.getConfiguration().getLargeMessagesDirectory());
       System.out.print(new String(xmlOutputStream.toByteArray()));
 
       clearDataRecreateServerDirs();
       server.start();
-      locator = createFactory(false);
+      locator = createInVMNonHALocator();
       factory = createSessionFactory(locator);
       session = factory.createSession(false, true, true);
 
@@ -613,7 +613,7 @@ public class XmlImportExportTest extends ServiceTestBase
 
       ByteArrayOutputStream xmlOutputStream = new ByteArrayOutputStream();
       XmlDataExporter xmlDataExporter = new XmlDataExporter();
-      xmlDataExporter.process(xmlOutputStream, getBindingsDir(), getJournalDir(), getPageDir(), getLargeMessagesDir());
+      xmlDataExporter.process(xmlOutputStream, server.getConfiguration().getBindingsDirectory(), server.getConfiguration().getJournalDirectory(), server.getConfiguration().getPagingDirectory(), server.getConfiguration().getLargeMessagesDirectory());
       System.out.print(new String(xmlOutputStream.toByteArray()));
 
       clearDataRecreateServerDirs();
@@ -645,18 +645,18 @@ public class XmlImportExportTest extends ServiceTestBase
 
       ActiveMQServer server = createServer(true);
 
-      AddressSettings defaultSetting = new AddressSettings();
-      defaultSetting.setPageSizeBytes(10 * 1024);
-      defaultSetting.setMaxSizeBytes(20 * 1024);
+      AddressSettings defaultSetting = new AddressSettings()
+              .setPageSizeBytes(10 * 1024)
+              .setMaxSizeBytes(20 * 1024);
       server.getAddressSettingsRepository().addMatch("#", defaultSetting);
       server.start();
 
-      ServerLocator locator = createInVMNonHALocator();
-      // Making it synchronous, just because we want to stop sending messages as soon as the page-store becomes in
-      // page mode and we could only guarantee that by setting it to synchronous
-      locator.setBlockOnNonDurableSend(true);
-      locator.setBlockOnDurableSend(true);
-      locator.setBlockOnAcknowledge(true);
+      ServerLocator locator = createInVMNonHALocator()
+              // Making it synchronous, just because we want to stop sending messages as soon as the page-store becomes in
+              // page mode and we could only guarantee that by setting it to synchronous
+              .setBlockOnNonDurableSend(true)
+              .setBlockOnDurableSend(true)
+              .setBlockOnAcknowledge(true);
 
       ClientSessionFactory factory = locator.createSessionFactory();
       ClientSession session = factory.createSession(false, true, true);
@@ -682,7 +682,7 @@ public class XmlImportExportTest extends ServiceTestBase
 
       ByteArrayOutputStream xmlOutputStream = new ByteArrayOutputStream();
       XmlDataExporter xmlDataExporter = new XmlDataExporter();
-      xmlDataExporter.process(xmlOutputStream, getBindingsDir(), getJournalDir(), getPageDir(), getLargeMessagesDir());
+      xmlDataExporter.process(xmlOutputStream, server.getConfiguration().getBindingsDirectory(), server.getConfiguration().getJournalDirectory(), server.getConfiguration().getPagingDirectory(), server.getConfiguration().getLargeMessagesDirectory());
       System.out.print(new String(xmlOutputStream.toByteArray()));
 
       clearDataRecreateServerDirs();
@@ -719,18 +719,18 @@ public class XmlImportExportTest extends ServiceTestBase
 
       server = createServer(true);
 
-      AddressSettings defaultSetting = new AddressSettings();
-      defaultSetting.setPageSizeBytes(10 * 1024);
-      defaultSetting.setMaxSizeBytes(20 * 1024);
+      AddressSettings defaultSetting = new AddressSettings()
+              .setPageSizeBytes(10 * 1024)
+              .setMaxSizeBytes(20 * 1024);
       server.getAddressSettingsRepository().addMatch("#", defaultSetting);
       server.start();
 
-      locator = createInVMNonHALocator();
-      // Making it synchronous, just because we want to stop sending messages as soon as the page-store becomes in
-      // page mode and we could only guarantee that by setting it to synchronous
-      locator.setBlockOnNonDurableSend(true);
-      locator.setBlockOnDurableSend(true);
-      locator.setBlockOnAcknowledge(true);
+      locator = createInVMNonHALocator()
+              // Making it synchronous, just because we want to stop sending messages as soon as the page-store becomes in
+              // page mode and we could only guarantee that by setting it to synchronous
+              .setBlockOnNonDurableSend(true)
+              .setBlockOnDurableSend(true)
+              .setBlockOnAcknowledge(true);
 
       factory = createSessionFactory(locator);
       ClientSession session = factory.createSession(false, true, true);
@@ -753,7 +753,7 @@ public class XmlImportExportTest extends ServiceTestBase
 
       ByteArrayOutputStream xmlOutputStream = new ByteArrayOutputStream();
       XmlDataExporter xmlDataExporter = new XmlDataExporter();
-      xmlDataExporter.process(xmlOutputStream, getBindingsDir(), getJournalDir(), getPageDir(), getLargeMessagesDir());
+      xmlDataExporter.process(xmlOutputStream, server.getConfiguration().getBindingsDirectory(), server.getConfiguration().getJournalDirectory(), server.getConfiguration().getPagingDirectory(), server.getConfiguration().getLargeMessagesDirectory());
       System.out.print(new String(xmlOutputStream.toByteArray()));
 
       clearDataRecreateServerDirs();
@@ -786,18 +786,18 @@ public class XmlImportExportTest extends ServiceTestBase
 
       ActiveMQServer server = createServer(true);
 
-      AddressSettings defaultSetting = new AddressSettings();
-      defaultSetting.setPageSizeBytes(10 * 1024);
-      defaultSetting.setMaxSizeBytes(20 * 1024);
+      AddressSettings defaultSetting = new AddressSettings()
+              .setPageSizeBytes(10 * 1024)
+              .setMaxSizeBytes(20 * 1024);
       server.getAddressSettingsRepository().addMatch("#", defaultSetting);
       server.start();
 
-      ServerLocator locator = createInVMNonHALocator();
-      // Making it synchronous, just because we want to stop sending messages as soon as the page-store becomes in
-      // page mode and we could only guarantee that by setting it to synchronous
-      locator.setBlockOnNonDurableSend(true);
-      locator.setBlockOnDurableSend(true);
-      locator.setBlockOnAcknowledge(true);
+      ServerLocator locator = createInVMNonHALocator()
+              // Making it synchronous, just because we want to stop sending messages as soon as the page-store becomes in
+              // page mode and we could only guarantee that by setting it to synchronous
+              .setBlockOnNonDurableSend(true)
+              .setBlockOnDurableSend(true)
+              .setBlockOnAcknowledge(true);
 
       ClientSessionFactory factory = locator.createSessionFactory();
       ClientSession session = factory.createSession(false, true, true);
@@ -838,7 +838,7 @@ public class XmlImportExportTest extends ServiceTestBase
 
       ByteArrayOutputStream xmlOutputStream = new ByteArrayOutputStream();
       XmlDataExporter xmlDataExporter = new XmlDataExporter();
-      xmlDataExporter.process(xmlOutputStream, getBindingsDir(), getJournalDir(), getPageDir(), getLargeMessagesDir());
+      xmlDataExporter.process(xmlOutputStream, server.getConfiguration().getBindingsDirectory(), server.getConfiguration().getJournalDirectory(), server.getConfiguration().getPagingDirectory(), server.getConfiguration().getLargeMessagesDirectory());
       //System.out.print(new String(xmlOutputStream.toByteArray()));
 
       clearDataRecreateServerDirs();
@@ -897,7 +897,7 @@ public class XmlImportExportTest extends ServiceTestBase
 
       ByteArrayOutputStream xmlOutputStream = new ByteArrayOutputStream();
       XmlDataExporter xmlDataExporter = new XmlDataExporter();
-      xmlDataExporter.process(xmlOutputStream, getBindingsDir(), getJournalDir(), getPageDir(), getLargeMessagesDir());
+      xmlDataExporter.process(xmlOutputStream, server.getConfiguration().getBindingsDirectory(), server.getConfiguration().getJournalDirectory(), server.getConfiguration().getPagingDirectory(), server.getConfiguration().getLargeMessagesDirectory());
       System.out.print(new String(xmlOutputStream.toByteArray()));
 
       clearDataRecreateServerDirs();
@@ -941,7 +941,7 @@ public class XmlImportExportTest extends ServiceTestBase
 
       ByteArrayOutputStream xmlOutputStream = new ByteArrayOutputStream();
       XmlDataExporter xmlDataExporter = new XmlDataExporter();
-      xmlDataExporter.process(xmlOutputStream, getBindingsDir(), getJournalDir(), getPageDir(), getLargeMessagesDir());
+      xmlDataExporter.process(xmlOutputStream, server.getConfiguration().getBindingsDirectory(), server.getConfiguration().getJournalDirectory(), server.getConfiguration().getPagingDirectory(), server.getConfiguration().getLargeMessagesDirectory());
       System.out.print(new String(xmlOutputStream.toByteArray()));
 
       clearDataRecreateServerDirs();
@@ -996,7 +996,7 @@ public class XmlImportExportTest extends ServiceTestBase
 
       ByteArrayOutputStream xmlOutputStream = new ByteArrayOutputStream();
       XmlDataExporter xmlDataExporter = new XmlDataExporter();
-      xmlDataExporter.process(xmlOutputStream, getBindingsDir(), getJournalDir(), getPageDir(), getLargeMessagesDir());
+      xmlDataExporter.process(xmlOutputStream, server.getConfiguration().getBindingsDirectory(), server.getConfiguration().getJournalDirectory(), server.getConfiguration().getPagingDirectory(), server.getConfiguration().getLargeMessagesDirectory());
       System.out.print(new String(xmlOutputStream.toByteArray()));
 
       clearDataRecreateServerDirs();

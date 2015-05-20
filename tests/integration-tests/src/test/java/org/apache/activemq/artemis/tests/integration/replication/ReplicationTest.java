@@ -68,7 +68,7 @@ import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.tests.util.ReplicatedBackupUtils;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.TransportConfigurationUtils;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
@@ -92,7 +92,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public final class ReplicationTest extends ServiceTestBase
+public final class ReplicationTest extends ActiveMQTestBase
 {
 
    private ThreadFactory tFactory;
@@ -139,9 +139,9 @@ public final class ReplicationTest extends ServiceTestBase
          backupAcceptor = TransportConfigurationUtils.getInVMAcceptor(false);
       }
 
-      Configuration liveConfig = createDefaultConfig();
+      Configuration liveConfig = createDefaultInVMConfig();
 
-      Configuration backupConfig = createDefaultConfig()
+      Configuration backupConfig = createDefaultInVMConfig()
          .setHAPolicyConfiguration(new SharedStoreSlavePolicyConfiguration())
          .setBindingsDirectory(getBindingsDir(0, true))
          .setJournalDirectory(getJournalDir(0, true))
@@ -176,7 +176,7 @@ public final class ReplicationTest extends ServiceTestBase
       backupServer.start();
       if (backup)
       {
-         ServiceTestBase.waitForRemoteBackup(null, 5, true, backupServer);
+         ActiveMQTestBase.waitForRemoteBackup(null, 5, true, backupServer);
       }
       int count = 0;
       waitForReplication(count);
@@ -479,7 +479,7 @@ public final class ReplicationTest extends ServiceTestBase
     */
    private JournalStorageManager getStorage() throws Exception
    {
-      return new JournalStorageManager(createDefaultConfig(), factory, null);
+      return new JournalStorageManager(createDefaultInVMConfig(), factory, null);
    }
 
    /**

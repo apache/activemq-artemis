@@ -15,11 +15,10 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.integration.cluster.distribution;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
-import org.junit.Before;
-import org.junit.After;
 
+import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.junit.Before;
 import org.junit.Test;
 
 /**
@@ -38,16 +37,6 @@ public class SymmetricClusterTest extends ClusterTestBase
       super.setUp();
 
       setupServers();
-   }
-
-   @Override
-   @After
-   public void tearDown() throws Exception
-   {
-      log.info("#test tearDown");
-      stopServers();
-
-      super.tearDown();
    }
 
    protected boolean isNetty()
@@ -153,7 +142,7 @@ public class SymmetricClusterTest extends ClusterTestBase
       }
       catch (Throwable e)
       {
-         System.out.println(ServiceTestBase.threadDump("SymmetricClusterTest::testStopAllStartAll"));
+         System.out.println(ActiveMQTestBase.threadDump("SymmetricClusterTest::testStopAllStartAll"));
          throw e;
       }
 

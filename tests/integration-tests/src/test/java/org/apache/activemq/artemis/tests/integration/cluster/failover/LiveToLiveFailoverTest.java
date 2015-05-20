@@ -32,7 +32,6 @@ import org.apache.activemq.artemis.tests.util.TransportConfigurationUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -57,7 +56,7 @@ public class LiveToLiveFailoverTest extends FailoverTest
       TransportConfiguration liveConnector0 = getConnectorTransportConfiguration(true, 0);
       TransportConfiguration liveConnector1 = getConnectorTransportConfiguration(true, 1);
 
-      backupConfig = super.createDefaultConfig(1, new HashMap<String, Object>(), INVM_ACCEPTOR_FACTORY)
+      backupConfig = super.createDefaultInVMConfig(1)
          .clearAcceptorConfigurations()
          .addAcceptorConfiguration(getAcceptorTransportConfiguration(true, 1))
          .setHAPolicyConfiguration(new ColocatedPolicyConfiguration()
@@ -73,7 +72,7 @@ public class LiveToLiveFailoverTest extends FailoverTest
 
       backupServer = createColocatedTestableServer(backupConfig, nodeManager1, nodeManager0, 1);
 
-      liveConfig = super.createDefaultConfig(0, new HashMap<String, Object>(), INVM_ACCEPTOR_FACTORY)
+      liveConfig = super.createDefaultInVMConfig(0)
          .clearAcceptorConfigurations()
          .addAcceptorConfiguration(getAcceptorTransportConfiguration(true, 0))
          .setHAPolicyConfiguration(new ColocatedPolicyConfiguration()
@@ -204,9 +203,9 @@ public class LiveToLiveFailoverTest extends FailoverTest
 
    protected void createSessionFactory() throws Exception
    {
-      locator.setBlockOnNonDurableSend(true);
-      locator.setBlockOnDurableSend(true);
-      locator.setReconnectAttempts(-1);
+      locator.setBlockOnNonDurableSend(true)
+              .setBlockOnDurableSend(true)
+              .setReconnectAttempts(-1);
 
       sf = createSessionFactoryAndWaitForTopology(locator, getConnectorTransportConfiguration(true, 0),  2);
 
@@ -264,10 +263,10 @@ public class LiveToLiveFailoverTest extends FailoverTest
    @Test
    public void testFailoverOnInitialConnection() throws Exception
    {
-      locator.setBlockOnNonDurableSend(true);
-      locator.setBlockOnDurableSend(true);
-      locator.setFailoverOnInitialConnection(true);
-      locator.setReconnectAttempts(-1);
+      locator.setBlockOnNonDurableSend(true)
+              .setBlockOnDurableSend(true)
+              .setFailoverOnInitialConnection(true)
+              .setReconnectAttempts(-1);
 
       sf = createSessionFactoryAndWaitForTopology(locator, 2);
 
@@ -296,9 +295,9 @@ public class LiveToLiveFailoverTest extends FailoverTest
    public void testCreateNewFactoryAfterFailover() throws Exception
    {
       this.disableCheckThread();
-      locator.setBlockOnNonDurableSend(true);
-      locator.setBlockOnDurableSend(true);
-      locator.setFailoverOnInitialConnection(true);
+      locator.setBlockOnNonDurableSend(true)
+              .setBlockOnDurableSend(true)
+              .setFailoverOnInitialConnection(true);
       sf = createSessionFactoryAndWaitForTopology(locator, 2);
 
       ClientSession session = sendAndConsume(sf, true);

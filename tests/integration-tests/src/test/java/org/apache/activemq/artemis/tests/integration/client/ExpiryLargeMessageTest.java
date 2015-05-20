@@ -27,7 +27,7 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
@@ -37,7 +37,7 @@ import org.junit.Test;
 /**
  * This test will send large messages in page-mode, DLQ then, expiry then, and they should be received fine
  */
-public class ExpiryLargeMessageTest extends ServiceTestBase
+public class ExpiryLargeMessageTest extends ActiveMQTestBase
 {
 
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
@@ -69,20 +69,14 @@ public class ExpiryLargeMessageTest extends ServiceTestBase
 
       server.getConfiguration().setMessageExpiryScanPeriod(600000);
 
-      AddressSettings setting = new AddressSettings();
-      setting.setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE);
-      setting.setMaxDeliveryAttempts(5);
-      setting.setMaxSizeBytes(50 * 1024);
-      setting.setPageSizeBytes(10 * 1024);
-      setting.setExpiryAddress(EXPIRY);
-      setting.setDeadLetterAddress(DLQ);
+      AddressSettings setting = new AddressSettings()
+              .setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE)
+              .setMaxDeliveryAttempts(5)
+              .setMaxSizeBytes(50 * 1024)
+              .setPageSizeBytes(10 * 1024)
+              .setExpiryAddress(EXPIRY)
+              .setDeadLetterAddress(DLQ);
       server.getAddressSettingsRepository().addMatch(MY_QUEUE.toString(), setting);
-
-      setting.setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE);
-      setting.setMaxDeliveryAttempts(5);
-      setting.setMaxSizeBytes(50 * 1024);
-      setting.setPageSizeBytes(10 * 1024);
-      setting.setDeadLetterAddress(DLQ);
       server.getAddressSettingsRepository().addMatch(EXPIRY.toString(), setting);
 
       server.start();
@@ -281,20 +275,14 @@ public class ExpiryLargeMessageTest extends ServiceTestBase
 
       server.getConfiguration().setMessageExpiryScanPeriod(600000);
 
-      AddressSettings setting = new AddressSettings();
-      setting.setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE);
-      setting.setMaxDeliveryAttempts(5);
-      setting.setMaxSizeBytes(-1);
-      setting.setPageSizeBytes(10 * 1024);
-      setting.setExpiryAddress(EXPIRY);
-      setting.setDeadLetterAddress(DLQ);
+      AddressSettings setting = new AddressSettings()
+              .setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE)
+              .setMaxDeliveryAttempts(5)
+              .setMaxSizeBytes(-1)
+              .setPageSizeBytes(10 * 1024)
+              .setExpiryAddress(EXPIRY)
+              .setDeadLetterAddress(DLQ);
       server.getAddressSettingsRepository().addMatch(MY_QUEUE.toString(), setting);
-
-      setting.setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE);
-      setting.setMaxDeliveryAttempts(5);
-      setting.setMaxSizeBytes(-1);
-      setting.setPageSizeBytes(10 * 1024);
-      setting.setDeadLetterAddress(DLQ);
       server.getAddressSettingsRepository().addMatch(EXPIRY.toString(), setting);
 
       server.start();

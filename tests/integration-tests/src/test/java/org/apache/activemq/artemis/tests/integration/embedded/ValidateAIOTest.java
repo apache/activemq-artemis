@@ -20,22 +20,21 @@ import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.core.server.JournalType;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Test;
 
 /**
  * Validate if the embedded server will start even with AIO selected
  */
-public class ValidateAIOTest extends ServiceTestBase
+public class ValidateAIOTest extends ActiveMQTestBase
 {
-
    @Test
    public void testValidateAIO() throws Exception
    {
-      Configuration config = createDefaultConfig()
+      Configuration config = createDefaultInVMConfig()
          // This will force AsyncIO
          .setJournalType(JournalType.ASYNCIO);
-      ActiveMQServer server = ActiveMQServers.newActiveMQServer(config, true);
+      ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(config, true));
       try
       {
          server.start();
@@ -44,6 +43,5 @@ public class ValidateAIOTest extends ServiceTestBase
       {
          server.stop();
       }
-
    }
 }

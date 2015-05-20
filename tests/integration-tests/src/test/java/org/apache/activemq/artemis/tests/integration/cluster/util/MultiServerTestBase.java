@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.integration.cluster.util;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.core.config.ha.ReplicaPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicatedPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.SharedStoreMasterPolicyConfiguration;
@@ -36,7 +36,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.core.server.NodeManager;
 import org.apache.activemq.artemis.core.server.impl.InVMNodeManager;
 
-public class MultiServerTestBase extends ServiceTestBase
+public class MultiServerTestBase extends ActiveMQTestBase
 {
 
 
@@ -131,7 +131,7 @@ public class MultiServerTestBase extends ServiceTestBase
 
       for (ActiveMQServer server: servers)
       {
-         waitForServer(server);
+         waitForServerToStart(server);
       }
 
       if (backupServers != null)
@@ -143,7 +143,7 @@ public class MultiServerTestBase extends ServiceTestBase
 
          for (ActiveMQServer server: backupServers)
          {
-            waitForServer(server);
+            waitForServerToStart(server);
          }
 
       }
@@ -159,7 +159,7 @@ public class MultiServerTestBase extends ServiceTestBase
       for (int s : serverID)
       {
          servers[s].start();
-         waitForServer(servers[s]);
+         waitForServerToStart(servers[s]);
       }
    }
 
@@ -168,7 +168,7 @@ public class MultiServerTestBase extends ServiceTestBase
       for (int s : serverID)
       {
          backupServers[s].start();
-         waitForServer(backupServers[s]);
+         waitForServerToStart(backupServers[s]);
       }
 
    }

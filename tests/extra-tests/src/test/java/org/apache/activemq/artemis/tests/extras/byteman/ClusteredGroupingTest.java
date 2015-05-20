@@ -16,14 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.extras.byteman;
 
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-
 import org.apache.activemq.artemis.api.core.ActiveMQNonExistentQueueException;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.api.core.management.ManagementHelper;
 import org.apache.activemq.artemis.api.core.management.CoreNotificationType;
+import org.apache.activemq.artemis.api.core.management.ManagementHelper;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.group.impl.GroupingHandlerConfiguration;
 import org.apache.activemq.artemis.core.server.group.impl.Response;
@@ -32,10 +29,11 @@ import org.apache.activemq.artemis.tests.integration.cluster.distribution.Cluste
 import org.jboss.byteman.contrib.bmunit.BMRule;
 import org.jboss.byteman.contrib.bmunit.BMRules;
 import org.jboss.byteman.contrib.bmunit.BMUnitRunner;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 @RunWith(BMUnitRunner.class)
 public class ClusteredGroupingTest extends ClusterTestBase
@@ -443,24 +441,6 @@ public class ClusteredGroupingTest extends ClusterTestBase
    public static void restart2()
    {
       latch.countDown();
-   }
-
-
-   @Override
-   @Before
-   public void setUp() throws Exception
-   {
-      super.setUp();
-   }
-
-   @Override
-   @After
-   public void tearDown() throws Exception
-   {
-      closeAllConsumers();
-      closeAllSessionFactories();
-      closeAllServerLocatorsFactories();
-      super.tearDown();
    }
 
    public boolean isNetty()

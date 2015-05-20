@@ -16,15 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.distribution;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -34,7 +25,6 @@ import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.management.CoreNotificationType;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.core.postoffice.impl.BindingsImpl;
 import org.apache.activemq.artemis.core.server.group.GroupingHandler;
 import org.apache.activemq.artemis.core.server.group.UnproposalListener;
@@ -47,8 +37,17 @@ import org.apache.activemq.artemis.core.server.management.Notification;
 import org.apache.activemq.artemis.core.server.management.NotificationListener;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
-import org.junit.After;
+import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class ClusteredGroupingTest extends ClusterTestBase
 {
@@ -1731,16 +1730,6 @@ public class ClusteredGroupingTest extends ClusterTestBase
       }
 
       verifyReceiveAllWithGroupIDRoundRobin(0, 30, 0, 1, 2);
-   }
-
-   @Override
-   @After
-   public void tearDown() throws Exception
-   {
-      closeAllConsumers();
-      closeAllSessionFactories();
-      closeAllServerLocatorsFactories();
-      super.tearDown();
    }
 
    public boolean isNetty()

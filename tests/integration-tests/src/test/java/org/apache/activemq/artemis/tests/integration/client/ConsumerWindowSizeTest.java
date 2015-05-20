@@ -33,7 +33,7 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.MessageHandler;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.core.client.impl.ClientConsumerInternal;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.Bindings;
@@ -46,7 +46,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class ConsumerWindowSizeTest extends ServiceTestBase
+public class ConsumerWindowSizeTest extends ActiveMQTestBase
 {
    private final SimpleString addressA = new SimpleString("addressA");
 
@@ -923,9 +923,8 @@ public class ConsumerWindowSizeTest extends ServiceTestBase
 
          server.start();
 
-         locator.setConsumerWindowSize(0);
-
-         locator.setMinLargeMessageSize(100);
+         locator.setConsumerWindowSize(0)
+                 .setMinLargeMessageSize(100);
 
          ClientSessionFactory sf = createSessionFactory(locator);
 
@@ -1027,8 +1026,7 @@ public class ConsumerWindowSizeTest extends ServiceTestBase
 
       ActiveMQServer server = createServer(false, isNetty());
 
-      AddressSettings settings = new AddressSettings();
-      settings.setMaxDeliveryAttempts(-1);
+      AddressSettings settings = new AddressSettings().setMaxDeliveryAttempts(-1);
       server.getAddressSettingsRepository().addMatch("#", settings);
 
       ClientSession session = null;

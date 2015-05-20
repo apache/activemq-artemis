@@ -18,8 +18,6 @@ package org.apache.activemq.artemis.tests.integration.server;
 
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.ActiveMQSessionCreationException;
-import org.apache.activemq.artemis.api.core.TransportConfiguration;
-import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
@@ -27,23 +25,22 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Test;
 
-public class GracefulShutdownTest extends ServiceTestBase
+public class GracefulShutdownTest extends ActiveMQTestBase
 {
    @Test
    public void testGracefulShutdown() throws Exception
    {
-      Configuration conf = createDefaultConfig();
+      Configuration config = createDefaultInVMConfig()
+              .setGracefulShutdownEnabled(true);
 
-      conf.setGracefulShutdownEnabled(true);
-
-      final ActiveMQServer server = ActiveMQServers.newActiveMQServer(conf, false);
+      final ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(config, false));
 
       server.start();
 
-      ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(ServiceTestBase.INVM_CONNECTOR_FACTORY));
+      ServerLocator locator = createInVMNonHALocator();
 
       ClientSessionFactory sf = createSessionFactory(locator);
 
@@ -117,20 +114,17 @@ public class GracefulShutdownTest extends ServiceTestBase
    {
       long timeout = 10000;
 
-      Configuration conf = createDefaultConfig();
+      Configuration config = createDefaultInVMConfig()
+              .setGracefulShutdownEnabled(true)
+              .setGracefulShutdownTimeout(timeout);
 
-      conf.setGracefulShutdownEnabled(true);
-      conf.setGracefulShutdownTimeout(timeout);
-
-      final ActiveMQServer server = ActiveMQServers.newActiveMQServer(conf, false);
+      final ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(config, false));
 
       server.start();
 
-      ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(ServiceTestBase.INVM_CONNECTOR_FACTORY));
+      ServerLocator locator = createInVMNonHALocator();
 
       ClientSessionFactory sf = createSessionFactory(locator);
-
-      ClientSession session = sf.createSession();
 
       Thread t = new Thread(new Runnable()
       {
@@ -179,7 +173,5 @@ public class GracefulShutdownTest extends ServiceTestBase
       }
 
       assertTrue("thread terminated too soon, the graceful shutdown timeout wasn't enforced properly", System.currentTimeMillis() - start >= timeout);
-
-      locator.close();
    }
 }

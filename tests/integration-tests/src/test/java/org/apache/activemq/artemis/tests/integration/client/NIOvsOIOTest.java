@@ -32,7 +32,7 @@ import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.junit.Test;
 
@@ -42,7 +42,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
-public class NIOvsOIOTest extends ServiceTestBase
+public class NIOvsOIOTest extends ActiveMQTestBase
 {
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
@@ -153,24 +153,19 @@ public class NIOvsOIOTest extends ServiceTestBase
 
    private void testPerf(boolean nio) throws Exception
    {
-      String acceptorFactoryClassName = "org.apache.activemq.artemis.core.remoting.impl.netty.NettyAcceptorFactory";
-
-      Configuration conf = createDefaultConfig()
-         .setSecurityEnabled(false);
+      Configuration config = createDefaultInVMConfig();
 
       Map<String, Object> params = new HashMap<String, Object>();
 
       params.put(TransportConstants.USE_NIO_PROP_NAME, nio);
 
-      conf.getAcceptorConfigurations().add(new TransportConfiguration(acceptorFactoryClassName, params));
+      config.getAcceptorConfigurations().add(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, params));
 
-      ActiveMQServer server = ActiveMQServers.newActiveMQServer(conf, false);
+      ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(config, false));
 
-      AddressSettings addressSettings = new AddressSettings();
-
-      addressSettings.setAddressFullMessagePolicy(AddressFullMessagePolicy.BLOCK);
-
-      addressSettings.setMaxSizeBytes(10 * 1024 * 1024);
+      AddressSettings addressSettings = new AddressSettings()
+              .setAddressFullMessagePolicy(AddressFullMessagePolicy.BLOCK)
+              .setMaxSizeBytes(10 * 1024 * 1024);
 
       final String dest = "test-destination";
 
@@ -184,8 +179,6 @@ public class NIOvsOIOTest extends ServiceTestBase
       {
          doTest(dest);
       }
-
-      server.stop();
    }
 
    private class Sender extends Thread

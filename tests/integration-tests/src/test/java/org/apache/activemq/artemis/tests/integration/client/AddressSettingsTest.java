@@ -26,11 +26,11 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class AddressSettingsTest extends ServiceTestBase
+public class AddressSettingsTest extends ActiveMQTestBase
 {
    private final SimpleString addressA = new SimpleString("addressA");
 
@@ -66,12 +66,12 @@ public class AddressSettingsTest extends ServiceTestBase
       ActiveMQServer server = createServer(false);
 
       server.start();
-      AddressSettings addressSettings = new AddressSettings();
-      addressSettings.setDeadLetterAddress(dlaA);
-      addressSettings.setMaxDeliveryAttempts(1);
-      AddressSettings addressSettings2 = new AddressSettings();
-      addressSettings2.setDeadLetterAddress(dlaB);
-      addressSettings2.setMaxDeliveryAttempts(1);
+      AddressSettings addressSettings = new AddressSettings()
+              .setDeadLetterAddress(dlaA)
+              .setMaxDeliveryAttempts(1);
+      AddressSettings addressSettings2 = new AddressSettings()
+              .setDeadLetterAddress(dlaB)
+              .setMaxDeliveryAttempts(1);
       HierarchicalRepository<AddressSettings> repos = server.getAddressSettingsRepository();
       repos.addMatch(addressA.toString(), addressSettings);
       repos.addMatch(addressB.toString(), addressSettings2);
@@ -123,12 +123,12 @@ public class AddressSettingsTest extends ServiceTestBase
       ActiveMQServer server = createServer(false);
 
       server.start();
-      AddressSettings addressSettings = new AddressSettings();
-      addressSettings.setDeadLetterAddress(dlaA);
-      addressSettings.setMaxDeliveryAttempts(1);
-      AddressSettings addressSettings2 = new AddressSettings();
-      addressSettings2.setDeadLetterAddress(dlaB);
-      addressSettings2.setMaxDeliveryAttempts(1);
+      AddressSettings addressSettings = new AddressSettings()
+              .setDeadLetterAddress(dlaA)
+              .setMaxDeliveryAttempts(1);
+      AddressSettings addressSettings2 = new AddressSettings()
+              .setDeadLetterAddress(dlaB)
+              .setMaxDeliveryAttempts(1);
       HierarchicalRepository<AddressSettings> repos = server.getAddressSettingsRepository();
       repos.addMatch(addressA.toString(), addressSettings);
       repos.addMatch("#", addressSettings2);
@@ -179,12 +179,12 @@ public class AddressSettingsTest extends ServiceTestBase
    {
       ActiveMQServer server = createServer(false);
       server.start();
-      AddressSettings addressSettings = new AddressSettings();
-      addressSettings.setDeadLetterAddress(dlaA);
-      addressSettings.setMaxDeliveryAttempts(1);
-      AddressSettings addressSettings2 = new AddressSettings();
-      addressSettings2.setDeadLetterAddress(dlaB);
-      addressSettings2.setMaxDeliveryAttempts(1);
+      AddressSettings addressSettings = new AddressSettings()
+              .setDeadLetterAddress(dlaA)
+              .setMaxDeliveryAttempts(1);
+      AddressSettings addressSettings2 = new AddressSettings()
+              .setDeadLetterAddress(dlaB)
+              .setMaxDeliveryAttempts(1);
       HierarchicalRepository<AddressSettings> repos = server.getAddressSettingsRepository();
       repos.addMatch(addressA.toString(), addressSettings);
       repos.addMatch("*", addressSettings2);
@@ -235,15 +235,15 @@ public class AddressSettingsTest extends ServiceTestBase
       ActiveMQServer server = createServer(false);
 
       server.start();
-      AddressSettings addressSettings = new AddressSettings();
-      addressSettings.setDeadLetterAddress(dlaA);
-      addressSettings.setMaxDeliveryAttempts(1);
-      AddressSettings addressSettings2 = new AddressSettings();
-      addressSettings2.setDeadLetterAddress(dlaB);
-      addressSettings2.setMaxDeliveryAttempts(1);
-      AddressSettings addressSettings3 = new AddressSettings();
-      addressSettings3.setDeadLetterAddress(dlaC);
-      addressSettings3.setMaxDeliveryAttempts(1);
+      AddressSettings addressSettings = new AddressSettings()
+              .setDeadLetterAddress(dlaA)
+              .setMaxDeliveryAttempts(1);
+      AddressSettings addressSettings2 = new AddressSettings()
+              .setDeadLetterAddress(dlaB)
+              .setMaxDeliveryAttempts(1);
+      AddressSettings addressSettings3 = new AddressSettings()
+              .setDeadLetterAddress(dlaC)
+              .setMaxDeliveryAttempts(1);
       HierarchicalRepository<AddressSettings> repos = server.getAddressSettingsRepository();
       repos.addMatch(addressA2.toString(), addressSettings);
       repos.addMatch("add.*", addressSettings2);
@@ -311,13 +311,13 @@ public class AddressSettingsTest extends ServiceTestBase
       ActiveMQServer server = createServer(false);
 
       server.start();
-      AddressSettings addressSettings = new AddressSettings();
-      addressSettings.setMaxDeliveryAttempts(1);
-      AddressSettings addressSettings2 = new AddressSettings();
-      addressSettings2.setMaxDeliveryAttempts(1);
-      AddressSettings addressSettings3 = new AddressSettings();
-      addressSettings3.setDeadLetterAddress(dlaC);
-      addressSettings3.setMaxDeliveryAttempts(1);
+      AddressSettings addressSettings = new AddressSettings()
+              .setMaxDeliveryAttempts(1);
+      AddressSettings addressSettings2 = new AddressSettings()
+              .setMaxDeliveryAttempts(1);
+      AddressSettings addressSettings3 = new AddressSettings()
+              .setDeadLetterAddress(dlaC)
+              .setMaxDeliveryAttempts(1);
       HierarchicalRepository<AddressSettings> repos = server.getAddressSettingsRepository();
       repos.addMatch(addressA2.toString(), addressSettings);
       repos.addMatch("add.*", addressSettings2);

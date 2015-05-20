@@ -65,8 +65,8 @@ public class HAClientTopologyWithDiscoveryTest extends TopologyClusterTestBase
                                                                           .setBroadcastEndpointFactory(new UDPBroadcastEndpointFactory()
                                                                                                              .setGroupAddress(groupAddress)
                                                                                                              .setGroupPort(groupPort)));
-      locator.setBlockOnNonDurableSend(true);
-      locator.setBlockOnDurableSend(true);
+      locator.setBlockOnNonDurableSend(true)
+              .setBlockOnDurableSend(true);
       addServerLocator(locator);
       return locator;
    }

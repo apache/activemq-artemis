@@ -28,13 +28,13 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.MessageHandler;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class CommitRollbackTest extends ServiceTestBase
+public class CommitRollbackTest extends ActiveMQTestBase
 {
    public final SimpleString addressA = new SimpleString("addressA");
 
@@ -169,9 +169,9 @@ public class CommitRollbackTest extends ServiceTestBase
    {
       ActiveMQServer server = createServer(false);
       server.start();
-      ServerLocator locator = createInVMNonHALocator();
-      locator.setBlockOnAcknowledge(true);
-      locator.setAckBatchSize(0);
+      ServerLocator locator = createInVMNonHALocator()
+              .setBlockOnAcknowledge(true)
+              .setAckBatchSize(0);
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession sendSession = cf.createSession(false, true, true);
       final ClientSession session = cf.createSession(false, true, false);
@@ -224,9 +224,9 @@ public class CommitRollbackTest extends ServiceTestBase
    {
       ActiveMQServer server = createServer(false);
       server.start();
-      ServerLocator locator = createInVMNonHALocator();
-      locator.setBlockOnAcknowledge(true);
-      locator.setAckBatchSize(0);
+      ServerLocator locator = createInVMNonHALocator()
+              .setBlockOnAcknowledge(true)
+              .setAckBatchSize(0);
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession sendSession = cf.createSession(false, true, true);
       final ClientSession session = cf.createSession(false, true, false);

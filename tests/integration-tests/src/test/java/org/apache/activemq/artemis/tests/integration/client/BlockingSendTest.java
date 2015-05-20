@@ -23,11 +23,11 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class BlockingSendTest extends ServiceTestBase
+public class BlockingSendTest extends ActiveMQTestBase
 {
 
    // Constants -----------------------------------------------------
@@ -55,8 +55,8 @@ public class BlockingSendTest extends ServiceTestBase
       server.start();
 
       System.out.println("sync = " + server.getConfiguration().isJournalSyncNonTransactional());
-      locator = createFactory(false);
-      locator.setBlockOnDurableSend(true);
+      locator = createInVMNonHALocator()
+              .setBlockOnDurableSend(true);
       factory = createSessionFactory(locator);
 
       session = factory.createSession();

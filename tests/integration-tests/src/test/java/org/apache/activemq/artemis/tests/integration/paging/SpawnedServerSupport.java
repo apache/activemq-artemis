@@ -36,7 +36,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 
 /**
  * Support class for server that are using an external process on the testsuite
@@ -46,35 +46,34 @@ public class SpawnedServerSupport
 
    static ActiveMQServer createServer(String folder)
    {
-      Configuration conf = createConfig(folder);
-      return ActiveMQServers.newActiveMQServer(conf, true);
+      return ActiveMQServers.newActiveMQServer(createConfig(folder), true);
    }
 
    static Configuration createConfig(String folder)
    {
-      AddressSettings settings = new AddressSettings();
-      settings.setMaxDeliveryAttempts(-1);
-      settings.setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE);
-      settings.setPageSizeBytes(10 * 1024);
-      settings.setMaxSizeBytes(100 * 1024);
+      AddressSettings settings = new AddressSettings()
+              .setMaxDeliveryAttempts(-1)
+              .setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE)
+              .setPageSizeBytes(10 * 1024)
+              .setMaxSizeBytes(100 * 1024);
 
-      Configuration conf = new ConfigurationImpl()
+      Configuration config = new ConfigurationImpl()
               .setSecurityEnabled(false)
               .setJournalMinFiles(2)
               .setJournalFileSize(100 * 1024)
-              .setJournalType(ServiceTestBase.getDefaultJournalType())
+              .setJournalType(ActiveMQTestBase.getDefaultJournalType())
               .setJournalCompactMinFiles(0)
               .setJournalCompactPercentage(0)
-              .setClusterPassword(ServiceTestBase.CLUSTER_PASSWORD)
-              .setJournalDirectory(ServiceTestBase.getJournalDir(folder, 0, false))
-              .setBindingsDirectory(ServiceTestBase.getBindingsDir(folder, 0, false))
-              .setPagingDirectory(ServiceTestBase.getPageDir(folder, 0, false))
-              .setLargeMessagesDirectory(ServiceTestBase.getLargeMessagesDir(folder, 0, false))
+              .setClusterPassword(ActiveMQTestBase.CLUSTER_PASSWORD)
+              .setJournalDirectory(ActiveMQTestBase.getJournalDir(folder, 0, false))
+              .setBindingsDirectory(ActiveMQTestBase.getBindingsDir(folder, 0, false))
+              .setPagingDirectory(ActiveMQTestBase.getPageDir(folder, 0, false))
+              .setLargeMessagesDirectory(ActiveMQTestBase.getLargeMessagesDir(folder, 0, false))
               .setPersistenceEnabled(true)
               .addAddressesSetting("#", settings)
-              .addAcceptorConfiguration(new TransportConfiguration("org.apache.activemq.artemis.core.remoting.impl.netty.NettyAcceptorFactory"));
+              .addAcceptorConfiguration(new TransportConfiguration(ActiveMQTestBase.NETTY_ACCEPTOR_FACTORY));
 
-      return conf;
+      return config;
    }
 
    static Configuration createSharedFolderConfig(String folder, int thisport, int otherport, boolean isBackup)
@@ -91,7 +90,7 @@ public class SpawnedServerSupport
          haPolicyConfiguration = new SharedStoreMasterPolicyConfiguration();
       }
 
-      Configuration conf = createConfig(folder)
+      Configuration config = createConfig(folder)
          .clearAcceptorConfigurations()
          .setJournalFileSize(15 * 1024 * 1024)
          .addAcceptorConfiguration(createTransportConfigiguration(true, thisport))
@@ -101,7 +100,7 @@ public class SpawnedServerSupport
          .addClusterConfiguration(isBackup ? setupClusterConn("thisServer", "otherServer") : setupClusterConn("thisServer"))
          .setHAPolicyConfiguration(haPolicyConfiguration);
 
-      return conf;
+      return config;
    }
 
    protected static final ClusterConnectionConfiguration setupClusterConn(String connectorName, String... connectors)
@@ -153,7 +152,6 @@ public class SpawnedServerSupport
 
    static ActiveMQServer createSharedFolderServer(String folder, int thisPort, int otherPort, boolean isBackup)
    {
-      Configuration conf = createSharedFolderConfig(folder, thisPort, otherPort, isBackup);
-      return ActiveMQServers.newActiveMQServer(conf, true);
+      return ActiveMQServers.newActiveMQServer(createSharedFolderConfig(folder, thisPort, otherPort, isBackup), true);
    }
 }

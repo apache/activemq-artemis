@@ -16,6 +16,19 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.client;
 
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
+import org.apache.activemq.artemis.api.jms.JMSFactoryType;
+import org.apache.activemq.artemis.core.registry.JndiBindingRegistry;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.ActiveMQServers;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
+import org.apache.activemq.artemis.tests.unit.util.InVMNamingContext;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.junit.Before;
+import org.junit.Test;
+
 import javax.jms.Connection;
 import javax.jms.MessageProducer;
 import javax.jms.Queue;
@@ -24,28 +37,11 @@ import javax.jms.TextMessage;
 import javax.management.MBeanServer;
 import javax.management.MBeanServerFactory;
 
-import org.apache.activemq.artemis.api.core.TransportConfiguration;
-import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
-import org.apache.activemq.artemis.api.jms.JMSFactoryType;
-import org.apache.activemq.artemis.tests.unit.util.InVMNamingContext;
-import org.apache.activemq.artemis.core.config.Configuration;
-import org.apache.activemq.artemis.core.registry.JndiBindingRegistry;
-import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.apache.activemq.artemis.core.server.ActiveMQServers;
-import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
-import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-
 /**
  * test Written to replicate https://issues.jboss.org/browse/HORNETQ-1312
  */
-public class RemoteConnectionStressTest extends ServiceTestBase
+public class RemoteConnectionStressTest extends ActiveMQTestBase
 {
-
-
    ActiveMQServer server;
    MBeanServer mbeanServer;
    JMSServerManagerImpl jmsServer;
@@ -55,12 +51,9 @@ public class RemoteConnectionStressTest extends ServiceTestBase
    {
       super.setUp();
 
-      Configuration conf = ServiceTestBase.createBasicConfigNoDataFolder();
-      conf.getAcceptorConfigurations().add(new TransportConfiguration("org.apache.activemq.artemis.core.remoting.impl.netty.NettyAcceptorFactory"));
-
       mbeanServer = MBeanServerFactory.createMBeanServer();
 
-      server = ActiveMQServers.newActiveMQServer(conf, mbeanServer, false);
+      server = addServer(ActiveMQServers.newActiveMQServer(createDefaultNettyConfig(), mbeanServer, false));
 
       InVMNamingContext namingContext = new InVMNamingContext();
       jmsServer = new JMSServerManagerImpl(server);
@@ -69,14 +62,6 @@ public class RemoteConnectionStressTest extends ServiceTestBase
       jmsServer.start();
 
       jmsServer.createQueue(true, "SomeQueue", null, true, "/jms/SomeQueue");
-   }
-
-   @After
-   public void tearDown() throws Exception
-   {
-      jmsServer.stop();
-
-      super.tearDown();
    }
 
    @Test

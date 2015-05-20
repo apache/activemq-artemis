@@ -244,8 +244,6 @@ public class BasicOpenWireTest extends OpenWireTestBase
       {
       }
    }
-
-
 }
 
 

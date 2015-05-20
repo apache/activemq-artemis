@@ -25,7 +25,7 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.junit.Assert;
@@ -52,10 +52,9 @@ public class LargeMessageAvoidLargeMessagesTest extends LargeMessageTest
    @Override
    protected ServerLocator createFactory(final boolean isNetty) throws Exception
    {
-      ServerLocator locator1 = super.createFactory(isNetty);
-      locator1.setMinLargeMessageSize(10240);
-      locator1.setCompressLargeMessage(true);
-      return locator1;
+      return super.createFactory(isNetty)
+              .setMinLargeMessageSize(10240)
+              .setCompressLargeMessage(true);
    }
 
    @Test
@@ -194,7 +193,7 @@ public class LargeMessageAvoidLargeMessagesTest extends LargeMessageTest
       session.start();
 
       //no file should be in the dir as we send it as regular
-      validateNoFilesOnLargeDir(num);
+      validateNoFilesOnLargeDir(server.getConfiguration().getLargeMessagesDirectory(), num);
 
       ClientConsumer consumer = session.createConsumer(ADDRESS);
       for (int j = 0; j < num; j++)
@@ -259,7 +258,7 @@ public class LargeMessageAvoidLargeMessagesTest extends LargeMessageTest
       session.start();
 
       //half the messages are sent as large
-      validateNoFilesOnLargeDir(num / 2);
+      validateNoFilesOnLargeDir(server.getConfiguration().getLargeMessagesDirectory(), num / 2);
 
       ClientConsumer consumer = session.createConsumer(ADDRESS);
       for (int j = 0; j < num; j++)
@@ -316,10 +315,9 @@ public class LargeMessageAvoidLargeMessagesTest extends LargeMessageTest
 
       SimpleString ADDRESS_DLA = ADDRESS.concat("-dla");
 
-      AddressSettings addressSettings = new AddressSettings();
-
-      addressSettings.setDeadLetterAddress(ADDRESS_DLA);
-      addressSettings.setMaxDeliveryAttempts(1);
+      AddressSettings addressSettings = new AddressSettings()
+              .setDeadLetterAddress(ADDRESS_DLA)
+              .setMaxDeliveryAttempts(1);
 
       server.getAddressSettingsRepository().addMatch("*", addressSettings);
 
@@ -350,7 +348,7 @@ public class LargeMessageAvoidLargeMessagesTest extends LargeMessageTest
 
       for (int i = 0; i < messageSize; i++)
       {
-         Assert.assertEquals(ServiceTestBase.getSamplebyte(i), msg1
+         Assert.assertEquals(ActiveMQTestBase.getSamplebyte(i), msg1
             .getBodyBuffer().readByte());
       }
 
@@ -375,7 +373,7 @@ public class LargeMessageAvoidLargeMessagesTest extends LargeMessageTest
 
       for (int i = 0; i < messageSize; i++)
       {
-         Assert.assertEquals(ServiceTestBase.getSamplebyte(i), msg1
+         Assert.assertEquals(ActiveMQTestBase.getSamplebyte(i), msg1
             .getBodyBuffer().readByte());
       }
 
@@ -384,7 +382,7 @@ public class LargeMessageAvoidLargeMessagesTest extends LargeMessageTest
       session.commit();
 
       //large message becomes a regular at server.
-      validateNoFilesOnLargeDir(0);
+      validateNoFilesOnLargeDir(server.getConfiguration().getLargeMessagesDirectory(), 0);
 
       consumer = session.createConsumer(ADDRESS.concat("-2"));
 
@@ -394,7 +392,7 @@ public class LargeMessageAvoidLargeMessagesTest extends LargeMessageTest
 
       for (int i = 0; i < messageSize; i++)
       {
-         Assert.assertEquals(ServiceTestBase.getSamplebyte(i), msg1
+         Assert.assertEquals(ActiveMQTestBase.getSamplebyte(i), msg1
             .getBodyBuffer().readByte());
       }
 

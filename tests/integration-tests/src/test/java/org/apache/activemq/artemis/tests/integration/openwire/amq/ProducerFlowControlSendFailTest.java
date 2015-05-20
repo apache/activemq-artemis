@@ -63,9 +63,9 @@ public class ProducerFlowControlSendFailTest extends ProducerFlowControlTest
    {
       String match = "jms.queue.#";
       Map<String, AddressSettings> asMap = serverConfig.getAddressesSettings();
-      AddressSettings settings = asMap.get(match);
-      settings.setMaxSizeBytes(1);
-      settings.setAddressFullMessagePolicy(AddressFullMessagePolicy.FAIL);
+      asMap.get(match)
+              .setMaxSizeBytes(1)
+              .setAddressFullMessagePolicy(AddressFullMessagePolicy.FAIL);
    }
 
    @Override

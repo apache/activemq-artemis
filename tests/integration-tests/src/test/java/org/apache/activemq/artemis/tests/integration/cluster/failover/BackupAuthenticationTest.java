@@ -46,7 +46,7 @@ public class BackupAuthenticationTest extends FailoverTestBase
    @Test
    public void testPasswordSetting() throws Exception
    {
-      waitForServer(liveServer.getServer());
+      waitForServerToStart(liveServer.getServer());
       backupServer.start();
       assertTrue(latch.await(5, TimeUnit.SECONDS));
       /*

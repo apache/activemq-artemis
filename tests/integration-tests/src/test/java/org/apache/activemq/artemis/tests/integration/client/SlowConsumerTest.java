@@ -40,14 +40,14 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.settings.impl.SlowConsumerPolicy;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 @RunWith(value = Parameterized.class)
-public class SlowConsumerTest extends ServiceTestBase
+public class SlowConsumerTest extends ActiveMQTestBase
 {
    private boolean isNetty = false;
 
@@ -81,10 +81,10 @@ public class SlowConsumerTest extends ServiceTestBase
 
       server = createServer(false, isNetty);
 
-      AddressSettings addressSettings = new AddressSettings();
-      addressSettings.setSlowConsumerCheckPeriod(2);
-      addressSettings.setSlowConsumerThreshold(10);
-      addressSettings.setSlowConsumerPolicy(SlowConsumerPolicy.KILL);
+      AddressSettings addressSettings = new AddressSettings()
+              .setSlowConsumerCheckPeriod(2)
+              .setSlowConsumerThreshold(10)
+              .setSlowConsumerPolicy(SlowConsumerPolicy.KILL);
 
       server.start();
 
@@ -137,10 +137,10 @@ public class SlowConsumerTest extends ServiceTestBase
 
       session.createQueue(QUEUE, QUEUE, null, false);
 
-      AddressSettings addressSettings = new AddressSettings();
-      addressSettings.setSlowConsumerCheckPeriod(2);
-      addressSettings.setSlowConsumerThreshold(10);
-      addressSettings.setSlowConsumerPolicy(SlowConsumerPolicy.NOTIFY);
+      AddressSettings addressSettings = new AddressSettings()
+              .setSlowConsumerCheckPeriod(2)
+              .setSlowConsumerThreshold(10)
+              .setSlowConsumerPolicy(SlowConsumerPolicy.NOTIFY);
 
       server.getAddressSettingsRepository().removeMatch(QUEUE.toString());
       server.getAddressSettingsRepository().addMatch(QUEUE.toString(), addressSettings);
@@ -320,10 +320,10 @@ public class SlowConsumerTest extends ServiceTestBase
       SimpleString queueName2 = new SimpleString("Q2");
       SimpleString queueName = new SimpleString("Q");
 
-      AddressSettings addressSettings = new AddressSettings();
-      addressSettings.setSlowConsumerCheckPeriod(2);
-      addressSettings.setSlowConsumerThreshold(10);
-      addressSettings.setSlowConsumerPolicy(SlowConsumerPolicy.KILL);
+      AddressSettings addressSettings = new AddressSettings()
+              .setSlowConsumerCheckPeriod(2)
+              .setSlowConsumerThreshold(10)
+              .setSlowConsumerPolicy(SlowConsumerPolicy.KILL);
 
       server.getAddressSettingsRepository().addMatch(address.toString(), addressSettings);
 

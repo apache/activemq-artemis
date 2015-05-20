@@ -40,7 +40,7 @@ import org.apache.activemq.artemis.api.core.JGroupsPropertiesBroadcastEndpointFa
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory;
 import org.apache.activemq.artemis.api.jms.JMSFactoryType;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.ha.SharedStoreMasterPolicyConfiguration;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
@@ -56,7 +56,7 @@ import org.junit.Test;
  *
  * A ActiveMQConnectionFactoryTest
  */
-public class SimpleJNDIClientTest extends ServiceTestBase
+public class SimpleJNDIClientTest extends ActiveMQTestBase
 {
    private final String groupAddress = getUDPDiscoveryAddress();
 

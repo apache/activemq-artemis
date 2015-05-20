@@ -34,9 +34,9 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 
-public class ReceiveImmediateTest extends ServiceTestBase
+public class ReceiveImmediateTest extends ActiveMQTestBase
 {
    private ActiveMQServer server;
 
@@ -51,8 +51,7 @@ public class ReceiveImmediateTest extends ServiceTestBase
    public void setUp() throws Exception
    {
       super.setUp();
-
-      Configuration config = createDefaultConfig();
+      Configuration config = createDefaultInVMConfig();
       server = createServer(false, config);
       server.start();
       locator = createInVMNonHALocator();
@@ -87,9 +86,10 @@ public class ReceiveImmediateTest extends ServiceTestBase
    @Test
    public void testConsumerReceiveImmediateWithSessionStop() throws Exception
    {
-      locator.setBlockOnNonDurableSend(true);
-      locator.setBlockOnAcknowledge(true);
-      locator.setAckBatchSize(0);
+      locator.setBlockOnNonDurableSend(true)
+              .setBlockOnAcknowledge(true)
+              .setAckBatchSize(0);
+
       sf = createSessionFactory(locator);
       ClientSession session = sf.createSession(false, true, true);
 
@@ -195,9 +195,10 @@ public class ReceiveImmediateTest extends ServiceTestBase
 
    private void doConsumerReceiveImmediateWithNoMessages(final boolean browser) throws Exception
    {
-      locator.setBlockOnNonDurableSend(true);
-      locator.setBlockOnAcknowledge(true);
-      locator.setAckBatchSize(0);
+      locator.setBlockOnNonDurableSend(true)
+              .setBlockOnAcknowledge(true)
+              .setAckBatchSize(0);
+
       sf = createSessionFactory(locator);
 
       ClientSession session = sf.createSession(false, true, false);
@@ -215,10 +216,10 @@ public class ReceiveImmediateTest extends ServiceTestBase
 
    private void doConsumerReceiveImmediate(final boolean browser) throws Exception
    {
+      locator.setBlockOnNonDurableSend(true)
+              .setBlockOnAcknowledge(true)
+              .setAckBatchSize(0);
 
-      locator.setBlockOnNonDurableSend(true);
-      locator.setBlockOnAcknowledge(true);
-      locator.setAckBatchSize(0);
       sf = createSessionFactory(locator);
       ClientSession session = sf.createSession(false, true, true);
 

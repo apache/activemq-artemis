@@ -15,14 +15,11 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.integration.jms.server.management;
-import org.junit.Before;
-import org.junit.After;
-
-import org.junit.Test;
 
 import org.apache.activemq.artemis.api.jms.management.TopicControl;
 import org.apache.activemq.artemis.tests.integration.management.ManagementControlHelper;
 import org.apache.activemq.artemis.tests.util.JMSClusteredTestBase;
+import org.junit.Test;
 
 import javax.jms.Connection;
 import javax.jms.Session;
@@ -31,19 +28,6 @@ import javax.jms.Topic;
 
 public class TopicControlClusterTest extends JMSClusteredTestBase
 {
-   @After
-   public void tearDown() throws Exception
-   {
-      super.tearDown();
-   }
-
-
-   @Before
-   public void setUp() throws Exception
-   {
-      super.setUp();
-   }
-
    @Test
    public void testClusteredSubscriptionCount() throws Exception
    {

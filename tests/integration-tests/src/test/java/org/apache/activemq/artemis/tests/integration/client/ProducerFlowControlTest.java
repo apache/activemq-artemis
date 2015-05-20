@@ -35,7 +35,7 @@ import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -47,7 +47,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class ProducerFlowControlTest extends ServiceTestBase
+public class ProducerFlowControlTest extends ActiveMQTestBase
 {
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
@@ -224,19 +224,19 @@ public class ProducerFlowControlTest extends ServiceTestBase
 
       server = createServer(realFiles, isNetty());
 
-      AddressSettings addressSettings = new AddressSettings();
-      addressSettings.setMaxSizeBytes(maxSize);
-      addressSettings.setAddressFullMessagePolicy(AddressFullMessagePolicy.BLOCK);
+      AddressSettings addressSettings = new AddressSettings()
+              .setMaxSizeBytes(maxSize)
+              .setAddressFullMessagePolicy(AddressFullMessagePolicy.BLOCK);
 
       HierarchicalRepository<AddressSettings> repos = server.getAddressSettingsRepository();
       repos.addMatch(address.toString(), addressSettings);
 
       server.start();
-      waitForServer(server);
+      waitForServerToStart(server);
 
-      locator.setProducerWindowSize(producerWindowSize);
-      locator.setConsumerWindowSize(consumerWindowSize);
-      locator.setAckBatchSize(ackBatchSize);
+      locator.setProducerWindowSize(producerWindowSize)
+              .setConsumerWindowSize(consumerWindowSize)
+              .setAckBatchSize(ackBatchSize);
 
       if (minLargeMessageSize != -1)
       {
@@ -273,7 +273,7 @@ public class ProducerFlowControlTest extends ServiceTestBase
 
                message.getBodyBuffer().readBytes(bytesRead);
 
-               ServiceTestBase.assertEqualsByteArrays(bytes, bytesRead);
+               ActiveMQTestBase.assertEqualsByteArrays(bytes, bytesRead);
 
                message.acknowledge();
 
@@ -367,19 +367,19 @@ public class ProducerFlowControlTest extends ServiceTestBase
 
       server = createServer(false, isNetty());
 
-      AddressSettings addressSettings = new AddressSettings();
-      addressSettings.setMaxSizeBytes(1024);
-      addressSettings.setAddressFullMessagePolicy(AddressFullMessagePolicy.BLOCK);
+      AddressSettings addressSettings = new AddressSettings()
+              .setMaxSizeBytes(1024)
+              .setAddressFullMessagePolicy(AddressFullMessagePolicy.BLOCK);
 
       HierarchicalRepository<AddressSettings> repos = server.getAddressSettingsRepository();
       repos.addMatch(address.toString(), addressSettings);
 
       server.start();
-      waitForServer(server);
+      waitForServerToStart(server);
 
-      locator.setProducerWindowSize(1024);
-      locator.setConsumerWindowSize(1024);
-      locator.setAckBatchSize(1024);
+      locator.setProducerWindowSize(1024)
+              .setConsumerWindowSize(1024)
+              .setAckBatchSize(1024);
 
       sf = createSessionFactory(locator);
       session = sf.createSession(false, true, true, true);
@@ -442,19 +442,19 @@ public class ProducerFlowControlTest extends ServiceTestBase
 
       server = createServer(false, isNetty());
 
-      AddressSettings addressSettings = new AddressSettings();
-      addressSettings.setMaxSizeBytes(1024);
-      addressSettings.setAddressFullMessagePolicy(AddressFullMessagePolicy.BLOCK);
+      AddressSettings addressSettings = new AddressSettings()
+              .setMaxSizeBytes(1024)
+              .setAddressFullMessagePolicy(AddressFullMessagePolicy.BLOCK);
 
       HierarchicalRepository<AddressSettings> repos = server.getAddressSettingsRepository();
       repos.addMatch(address.toString(), addressSettings);
 
       server.start();
-      waitForServer(server);
+      waitForServerToStart(server);
 
-      locator.setProducerWindowSize(1024);
-      locator.setConsumerWindowSize(1024);
-      locator.setAckBatchSize(1024);
+      locator.setProducerWindowSize(1024)
+              .setConsumerWindowSize(1024)
+              .setAckBatchSize(1024);
 
       sf = createSessionFactory(locator);
 
@@ -483,7 +483,7 @@ public class ProducerFlowControlTest extends ServiceTestBase
       server = createServer(false, isNetty());
 
       server.start();
-      waitForServer(server);
+      waitForServerToStart(server);
 
       sf = createSessionFactory(locator);
 
@@ -548,7 +548,7 @@ public class ProducerFlowControlTest extends ServiceTestBase
       server = createServer(false, isNetty());
 
       server.start();
-      waitForServer(server);
+      waitForServerToStart(server);
 
       sf = createSessionFactory(locator);
 
@@ -583,7 +583,7 @@ public class ProducerFlowControlTest extends ServiceTestBase
       server = createServer(false, isNetty());
 
       server.start();
-      waitForServer(server);
+      waitForServerToStart(server);
       sf = createSessionFactory(locator);
 
       session = sf.createSession(false, true, true, true);
@@ -619,7 +619,7 @@ public class ProducerFlowControlTest extends ServiceTestBase
       server = createServer(false, isNetty());
 
       server.start();
-      waitForServer(server);
+      waitForServerToStart(server);
 
       sf = createSessionFactory(locator);
 
@@ -654,7 +654,7 @@ public class ProducerFlowControlTest extends ServiceTestBase
       server = createServer(false, isNetty());
 
       server.start();
-      waitForServer(server);
+      waitForServerToStart(server);
       sf = createSessionFactory(locator);
 
       session = sf.createSession(false, true, true, true);
@@ -690,7 +690,7 @@ public class ProducerFlowControlTest extends ServiceTestBase
       server = createServer(false, isNetty());
 
       server.start();
-      waitForServer(server);
+      waitForServerToStart(server);
 
       sf = createSessionFactory(locator);
 
@@ -755,7 +755,7 @@ public class ProducerFlowControlTest extends ServiceTestBase
       server = createServer(false, isNetty());
 
       server.start();
-      waitForServer(server);
+      waitForServerToStart(server);
       sf = createSessionFactory(locator);
 
       session = sf.createSession(false, true, true, true);
@@ -780,7 +780,7 @@ public class ProducerFlowControlTest extends ServiceTestBase
       server = createServer(false, isNetty());
 
       server.start();
-      waitForServer(server);
+      waitForServerToStart(server);
 
       sf = createSessionFactory(locator);
 
@@ -830,7 +830,7 @@ public class ProducerFlowControlTest extends ServiceTestBase
       server = createServer(false, isNetty());
 
       server.start();
-      waitForServer(server);
+      waitForServerToStart(server);
 
       sf = createSessionFactory(locator);
 

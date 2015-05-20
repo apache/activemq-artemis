@@ -16,11 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.management;
 
-import java.nio.ByteBuffer;
-
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
@@ -35,10 +32,11 @@ import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.apache.activemq.artemis.utils.json.JSONArray;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.nio.ByteBuffer;
 
 /**
  * This class contains tests for core management
@@ -200,45 +198,28 @@ public class ManagementWithPagingServerTest extends ManagementTestBase
    {
       super.setUp();
 
-      Configuration conf = createBasicConfig()
-         .addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY));
+      Configuration config = createDefaultInVMConfig()
+              .setJMXManagementEnabled(true);
 
-      server = addServer(ActiveMQServers.newActiveMQServer(conf, mbeanServer, true));
+      server = addServer(ActiveMQServers.newActiveMQServer(config, mbeanServer, true));
 
-      AddressSettings defaultSetting = new AddressSettings();
-      defaultSetting.setPageSizeBytes(5120);
-      defaultSetting.setMaxSizeBytes(10240);
-      defaultSetting.setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE);
+      AddressSettings defaultSetting = new AddressSettings()
+              .setPageSizeBytes(5120)
+              .setMaxSizeBytes(10240)
+              .setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE);
 
       server.getAddressSettingsRepository().addMatch("#", defaultSetting);
 
       server.start();
 
-      locator = createInVMNonHALocator();
-      locator.setBlockOnNonDurableSend(false);
-      locator.setBlockOnNonDurableSend(false);
-      locator.setConsumerWindowSize(0);
+      locator = createInVMNonHALocator()
+              .setBlockOnNonDurableSend(false)
+              .setConsumerWindowSize(0);
       ClientSessionFactory sf = createSessionFactory(locator);
       session1 = sf.createSession(false, true, false);
       session1.start();
       session2 = sf.createSession(false, true, false);
       session2.start();
-   }
-
-   @Override
-   @After
-   public void tearDown() throws Exception
-   {
-      session1.close();
-      session1 = null;
-      session2.close();
-      session2 = null;
-      locator.close();
-      locator = null;
-      server.stop();
-      server = null;
-
-      super.tearDown();
    }
 
    private class SenderThread extends Thread

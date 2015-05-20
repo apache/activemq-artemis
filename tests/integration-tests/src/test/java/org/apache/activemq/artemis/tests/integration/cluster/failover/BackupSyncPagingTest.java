@@ -44,10 +44,10 @@ public class BackupSyncPagingTest extends BackupSyncJournalTest
             final NodeManager nodeManager, int id)
    {
       Map<String, AddressSettings> conf = new HashMap<String, AddressSettings>();
-      AddressSettings as = new AddressSettings();
-      as.setMaxSizeBytes(PAGE_MAX);
-      as.setPageSizeBytes(PAGE_SIZE);
-      as.setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE);
+      AddressSettings as = new AddressSettings()
+              .setMaxSizeBytes(PAGE_MAX)
+              .setPageSizeBytes(PAGE_SIZE)
+              .setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE);
       conf.put(ADDRESS.toString(), as);
       return createInVMFailoverServer(realFiles, configuration, PAGE_SIZE, PAGE_MAX, conf, nodeManager, id);
    }

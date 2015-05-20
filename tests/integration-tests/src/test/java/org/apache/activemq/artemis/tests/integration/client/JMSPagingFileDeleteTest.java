@@ -16,6 +16,14 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.paging.PagingStore;
+import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
+import org.apache.activemq.artemis.tests.util.JMSTestBase;
+import org.junit.Before;
+import org.junit.Test;
+
 import javax.jms.BytesMessage;
 import javax.jms.Connection;
 import javax.jms.Message;
@@ -23,15 +31,6 @@ import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.Topic;
-
-import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
-import org.apache.activemq.artemis.tests.util.JMSTestBase;
-import org.apache.activemq.artemis.core.paging.PagingStore;
-import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
 
 /**
  * This will perform cleanup tests on paging while using JMS topics
@@ -77,19 +76,10 @@ public class JMSPagingFileDeleteTest extends JMSTestBase
       topic1 = createTopic("topic1");
 
       // Paging Setting
-      AddressSettings setting = new AddressSettings();
-      setting.setPageSizeBytes(JMSPagingFileDeleteTest.PAGE_SIZE);
-      setting.setMaxSizeBytes(JMSPagingFileDeleteTest.PAGE_MAX);
+      AddressSettings setting = new AddressSettings()
+              .setPageSizeBytes(JMSPagingFileDeleteTest.PAGE_SIZE)
+              .setMaxSizeBytes(JMSPagingFileDeleteTest.PAGE_MAX);
       server.getAddressSettingsRepository().addMatch("#", setting);
-   }
-
-   @Override
-   @After
-   public void tearDown() throws Exception
-   {
-      log.info("#tearDown");
-      topic1 = null;
-      super.tearDown();
    }
 
    /**

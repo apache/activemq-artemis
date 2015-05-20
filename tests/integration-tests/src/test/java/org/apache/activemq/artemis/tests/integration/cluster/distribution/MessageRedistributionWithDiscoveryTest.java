@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.integration.cluster.distribution;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Before;
 
@@ -34,9 +34,9 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 
 public class MessageRedistributionWithDiscoveryTest extends ClusterTestBase
 {
-   protected final String groupAddress = ServiceTestBase.getUDPDiscoveryAddress();
+   protected final String groupAddress = ActiveMQTestBase.getUDPDiscoveryAddress();
 
-   protected final int groupPort = ServiceTestBase.getUDPDiscoveryPort();
+   protected final int groupPort = ActiveMQTestBase.getUDPDiscoveryPort();
 
    protected boolean isNetty()
    {
@@ -77,9 +77,9 @@ public class MessageRedistributionWithDiscoveryTest extends ClusterTestBase
                                    isNetty(),
                                    false);
 
-      AddressSettings setting = new AddressSettings();
-      setting.setRedeliveryDelay(0);
-      setting.setRedistributionDelay(0);
+      AddressSettings setting = new AddressSettings()
+              .setRedeliveryDelay(0)
+              .setRedistributionDelay(0);
 
       servers[server].getAddressSettingsRepository().addMatch("#", setting);
 

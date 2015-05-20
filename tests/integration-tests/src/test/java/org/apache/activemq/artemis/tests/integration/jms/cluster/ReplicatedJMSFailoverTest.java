@@ -45,18 +45,18 @@ public class ReplicatedJMSFailoverTest extends JMSFailoverTest
          .setLargeMessagesDirectory(getLargeMessagesDir(0, true))
          .setHAPolicyConfiguration(new ReplicaPolicyConfiguration());
 
-      backupService = ActiveMQServers.newActiveMQServer(backupConf, true);
+      backupServer = addServer(ActiveMQServers.newActiveMQServer(backupConf, true));
 
-      backupJMSService = new JMSServerManagerImpl(backupService);
+      backupJMSServer = new JMSServerManagerImpl(backupServer);
 
-      backupJMSService.setRegistry(new JndiBindingRegistry(ctx2));
+      backupJMSServer.setRegistry(new JndiBindingRegistry(ctx2));
 
-      backupJMSService.start();
+      backupJMSServer.start();
 
       liveConf = createBasicConfig()
          .setJournalType(getDefaultJournalType())
          .addConnectorConfiguration("toBackup", new TransportConfiguration(INVM_CONNECTOR_FACTORY, backupParams))
-         .addAcceptorConfiguration(new TransportConfiguration("org.apache.activemq.artemis.core.remoting.impl.invm.InVMAcceptorFactory"))
+         .addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY))
          .setBindingsDirectory(getBindingsDir(0, false))
          .setJournalMinFiles(2)
          .setJournalDirectory(getJournalDir(0, false))
@@ -64,13 +64,13 @@ public class ReplicatedJMSFailoverTest extends JMSFailoverTest
          .setLargeMessagesDirectory(getLargeMessagesDir(0, false))
          .setHAPolicyConfiguration(new ReplicatedPolicyConfiguration());
 
-      liveService = ActiveMQServers.newActiveMQServer(liveConf, true);
+      liveServer = addServer(ActiveMQServers.newActiveMQServer(liveConf, true));
 
-      liveJMSService = new JMSServerManagerImpl(liveService);
+      liveJMSServer = new JMSServerManagerImpl(liveServer);
 
-      liveJMSService.setRegistry(new JndiBindingRegistry(ctx1));
+      liveJMSServer.setRegistry(new JndiBindingRegistry(ctx1));
 
-      liveJMSService.start();
+      liveJMSServer.start();
    }
 
    // Private -------------------------------------------------------

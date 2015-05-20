@@ -16,9 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.management;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
@@ -27,8 +24,10 @@ import org.apache.activemq.artemis.core.remoting.impl.invm.InVMAcceptorFactory;
 import org.apache.activemq.artemis.core.remoting.impl.invm.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
-import org.junit.After;
 import org.junit.Test;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class JMXDomainTest extends ManagementTestBase
 {
@@ -38,7 +37,7 @@ public class JMXDomainTest extends ManagementTestBase
    @Test
    public void test2ActiveMQServersManagedFrom1MBeanServer() throws Exception
    {
-      Configuration config_0 = createDefaultConfig()
+      Configuration config_0 = createDefaultInVMConfig()
          .setJMXManagementEnabled(true);
 
       String jmxDomain_1 = ActiveMQDefaultConfiguration.getDefaultJmxDomain() + ".1";
@@ -49,8 +48,8 @@ public class JMXDomainTest extends ManagementTestBase
          .addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName(), params))
          .setJMXDomain(jmxDomain_1);
 
-      server_0 = ActiveMQServers.newActiveMQServer(config_0, mbeanServer, false);
-      server_1 = ActiveMQServers.newActiveMQServer(config_1, mbeanServer, false);
+      server_0 = addServer(ActiveMQServers.newActiveMQServer(config_0, mbeanServer, false));
+      server_1 = addServer(ActiveMQServers.newActiveMQServer(config_1, mbeanServer, false));
 
       ObjectNameBuilder builder_0 = ObjectNameBuilder.DEFAULT;
       ObjectNameBuilder builder_1 = ObjectNameBuilder.create(jmxDomain_1);
@@ -77,22 +76,5 @@ public class JMXDomainTest extends ManagementTestBase
 
       checkNoResource(builder_0.getActiveMQServerObjectName());
       checkNoResource(builder_1.getActiveMQServerObjectName());
-   }
-
-   @Override
-   @After
-   public void tearDown() throws Exception
-   {
-      if (server_0 != null)
-      {
-         server_0.stop();
-      }
-
-      if (server_1 != null)
-      {
-         server_1.stop();
-      }
-
-      super.tearDown();
    }
 }

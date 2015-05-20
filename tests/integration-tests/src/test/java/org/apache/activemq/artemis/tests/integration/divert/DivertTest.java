@@ -16,9 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.divert;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -32,18 +29,17 @@ import org.apache.activemq.artemis.core.message.impl.MessageImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class DivertTest extends ServiceTestBase
+public class DivertTest extends ActiveMQTestBase
 {
    private static final int TIMEOUT = 500;
 
    @Test
    public void testSingleNonExclusiveDivert() throws Exception
    {
-      Configuration conf = createDefaultConfig();
       final String testAddress = "testAddress";
 
       final String forwardAddress = "forwardAddress";
@@ -54,15 +50,12 @@ public class DivertTest extends ServiceTestBase
          .setAddress(testAddress)
          .setForwardingAddress(forwardAddress);
 
-      List<DivertConfiguration> divertConfs = new ArrayList<DivertConfiguration>();
+      Configuration config = createDefaultInVMConfig()
+              .addDivertConfiguration(divertConf);
 
-      divertConfs.add(divertConf);
+      ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(config, false));
 
-      conf.setDivertConfigurations(divertConfs);
-
-      ActiveMQServer messagingService = addServer(ActiveMQServers.newActiveMQServer(conf, false));
-
-      messagingService.start();
+      server.start();
 
       ServerLocator locator = createInVMNonHALocator();
 
@@ -124,31 +117,20 @@ public class DivertTest extends ServiceTestBase
       }
 
       Assert.assertNull(consumer2.receiveImmediate());
-
-      session.close();
-
-      sf.close();
-
-      messagingService.stop();
    }
 
 
    @Test
    public void testSingleDivertWithExpiry() throws Exception
    {
-      Configuration conf = createDefaultConfig();
       final String testAddress = "testAddress";
 
       final String forwardAddress = "forwardAddress";
 
       final String expiryAddress = "expiryAddress";
 
-      conf.getAddressesSettings().clear();
-
-      AddressSettings expirySettings = new AddressSettings();
-      expirySettings.setExpiryAddress(new SimpleString(expiryAddress));
-
-      conf.getAddressesSettings().put("#", expirySettings);
+      AddressSettings expirySettings = new AddressSettings()
+              .setExpiryAddress(new SimpleString(expiryAddress));
 
       DivertConfiguration divertConf = new DivertConfiguration()
          .setName("divert1")
@@ -156,16 +138,14 @@ public class DivertTest extends ServiceTestBase
          .setAddress(testAddress)
          .setForwardingAddress(forwardAddress);
 
-      List<DivertConfiguration> divertConfs = new ArrayList<DivertConfiguration>();
+      Configuration config = createDefaultInVMConfig()
+              .addDivertConfiguration(divertConf)
+              .clearAddressesSettings()
+              .addAddressesSetting("#", expirySettings);
 
-      divertConfs.add(divertConf);
+      ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(config, true));
 
-      conf.setDivertConfigurations(divertConfs);
-
-      ActiveMQServer messagingService = addServer(ActiveMQServers.newActiveMQServer(conf, true));
-
-      messagingService.start();
-
+      server.start();
 
       ServerLocator locator = createInVMNonHALocator();
 
@@ -263,18 +243,11 @@ public class DivertTest extends ServiceTestBase
 
       assertEquals(numMessages, countOriginal1);
       assertEquals(numMessages, countOriginal2);
-
-      session.close();
-
-      sf.close();
-
-      messagingService.stop();
    }
 
    @Test
    public void testSingleNonExclusiveDivert2() throws Exception
    {
-      Configuration conf = createDefaultConfig();
       final String testAddress = "testAddress";
 
       final String forwardAddress = "forwardAddress";
@@ -285,15 +258,12 @@ public class DivertTest extends ServiceTestBase
          .setAddress(testAddress)
          .setForwardingAddress(forwardAddress);
 
-      List<DivertConfiguration> divertConfs = new ArrayList<DivertConfiguration>();
+      Configuration config = createDefaultInVMConfig()
+              .addDivertConfiguration(divertConf);
 
-      divertConfs.add(divertConf);
+      ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(config, false));
 
-      conf.setDivertConfigurations(divertConfs);
-
-      ActiveMQServer messagingService = addServer(ActiveMQServers.newActiveMQServer(conf, false));
-
-      messagingService.start();
+      server.start();
 
       ServerLocator locator = createInVMNonHALocator();
 
@@ -393,18 +363,11 @@ public class DivertTest extends ServiceTestBase
       }
 
       Assert.assertNull(consumer4.receiveImmediate());
-
-      session.close();
-
-      sf.close();
-
-      messagingService.stop();
    }
 
    @Test
    public void testSingleNonExclusiveDivert3() throws Exception
    {
-      Configuration conf = createDefaultConfig();
       final String testAddress = "testAddress";
 
       final String forwardAddress = "forwardAddress";
@@ -415,15 +378,12 @@ public class DivertTest extends ServiceTestBase
          .setAddress(testAddress)
          .setForwardingAddress(forwardAddress);
 
-      List<DivertConfiguration> divertConfs = new ArrayList<DivertConfiguration>();
+      Configuration config = createDefaultInVMConfig()
+              .addDivertConfiguration(divertConf);
 
-      divertConfs.add(divertConf);
+      ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(config, false));
 
-      conf.setDivertConfigurations(divertConfs);
-
-      ActiveMQServer messagingService = addServer(ActiveMQServers.newActiveMQServer(conf, false));
-
-      messagingService.start();
+      server.start();
 
       ServerLocator locator = createInVMNonHALocator();
       ClientSessionFactory sf = createSessionFactory(locator);
@@ -465,18 +425,11 @@ public class DivertTest extends ServiceTestBase
       }
 
       Assert.assertNull(consumer1.receiveImmediate());
-
-      session.close();
-
-      sf.close();
-
-      messagingService.stop();
    }
 
    @Test
    public void testSingleExclusiveDivert() throws Exception
    {
-      Configuration conf = createDefaultConfig();
       final String testAddress = "testAddress";
 
       final String forwardAddress = "forwardAddress";
@@ -488,15 +441,12 @@ public class DivertTest extends ServiceTestBase
          .setForwardingAddress(forwardAddress)
          .setExclusive(true);
 
-      List<DivertConfiguration> divertConfs = new ArrayList<DivertConfiguration>();
+      Configuration config = createDefaultInVMConfig()
+              .addDivertConfiguration(divertConf);
 
-      divertConfs.add(divertConf);
+      ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(config, false));
 
-      conf.setDivertConfigurations(divertConfs);
-
-      ActiveMQServer messagingService = addServer(ActiveMQServers.newActiveMQServer(conf, false));
-
-      messagingService.start();
+      server.start();
 
       ServerLocator locator = createInVMNonHALocator();
       ClientSessionFactory sf = createSessionFactory(locator);
@@ -560,19 +510,11 @@ public class DivertTest extends ServiceTestBase
       Assert.assertNull(consumer3.receiveImmediate());
 
       Assert.assertNull(consumer4.receiveImmediate());
-
-      session.close();
-
-      sf.close();
-
-      messagingService.stop();
    }
 
    @Test
    public void testMultipleNonExclusiveDivert() throws Exception
    {
-      Configuration conf = createDefaultConfig();
-
       final String testAddress = "testAddress";
 
       final String forwardAddress1 = "forwardAddress1";
@@ -597,17 +539,14 @@ public class DivertTest extends ServiceTestBase
          .setAddress(testAddress)
          .setForwardingAddress(forwardAddress3);
 
-      List<DivertConfiguration> divertConfs = new ArrayList<DivertConfiguration>();
+      Configuration config = createDefaultInVMConfig()
+              .addDivertConfiguration(divertConf1)
+              .addDivertConfiguration(divertConf2)
+              .addDivertConfiguration(divertConf3);
 
-      divertConfs.add(divertConf1);
-      divertConfs.add(divertConf2);
-      divertConfs.add(divertConf3);
+      ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(config, false));
 
-      conf.setDivertConfigurations(divertConfs);
-
-      ActiveMQServer messagingService = addServer(ActiveMQServers.newActiveMQServer(conf, false));
-
-      messagingService.start();
+      server.start();
 
       ServerLocator locator = createInVMNonHALocator();
       ClientSessionFactory sf = createSessionFactory(locator);
@@ -706,18 +645,11 @@ public class DivertTest extends ServiceTestBase
       }
 
       Assert.assertNull(consumer4.receiveImmediate());
-
-      session.close();
-
-      sf.close();
-
-      messagingService.stop();
    }
 
    @Test
    public void testMultipleExclusiveDivert() throws Exception
    {
-      Configuration conf = createDefaultConfig();
       final String testAddress = "testAddress";
 
       final String forwardAddress1 = "forwardAddress1";
@@ -745,19 +677,17 @@ public class DivertTest extends ServiceTestBase
          .setForwardingAddress(forwardAddress3)
          .setExclusive(true);
 
-      List<DivertConfiguration> divertConfs = new ArrayList<DivertConfiguration>();
+      Configuration config = createDefaultInVMConfig()
+              .addDivertConfiguration(divertConf1)
+              .addDivertConfiguration(divertConf2)
+              .addDivertConfiguration(divertConf3);
 
-      divertConfs.add(divertConf1);
-      divertConfs.add(divertConf2);
-      divertConfs.add(divertConf3);
+      ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(config, false));
 
-      conf.setDivertConfigurations(divertConfs);
-
-      ActiveMQServer messagingService = addServer(ActiveMQServers.newActiveMQServer(conf, false));
-
-      messagingService.start();
+      server.start();
 
       ServerLocator locator = createInVMNonHALocator();
+
       ClientSessionFactory sf = createSessionFactory(locator);
 
       ClientSession session = sf.createSession(false, true, true);
@@ -843,19 +773,11 @@ public class DivertTest extends ServiceTestBase
       Assert.assertNull(consumer3.receiveImmediate());
 
       Assert.assertNull(consumer4.receiveImmediate());
-
-      session.close();
-
-      sf.close();
-
-      messagingService.stop();
    }
 
    @Test
    public void testMixExclusiveAndNonExclusiveDiverts() throws Exception
    {
-      Configuration conf = createDefaultConfig();
-
       final String testAddress = "testAddress";
 
       final String forwardAddress1 = "forwardAddress1";
@@ -882,17 +804,14 @@ public class DivertTest extends ServiceTestBase
          .setAddress(testAddress)
          .setForwardingAddress(forwardAddress3);
 
-      List<DivertConfiguration> divertConfs = new ArrayList<DivertConfiguration>();
+      Configuration config = createDefaultInVMConfig()
+              .addDivertConfiguration(divertConf1)
+              .addDivertConfiguration(divertConf2)
+              .addDivertConfiguration(divertConf3);
 
-      divertConfs.add(divertConf1);
-      divertConfs.add(divertConf2);
-      divertConfs.add(divertConf3);
+      ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(config, false));
 
-      conf.setDivertConfigurations(divertConfs);
-
-      ActiveMQServer messagingService = addServer(ActiveMQServers.newActiveMQServer(conf, false));
-
-      messagingService.start();
+      server.start();
 
       ServerLocator locator = createInVMNonHALocator();
       ClientSessionFactory sf = createSessionFactory(locator);
@@ -969,19 +888,12 @@ public class DivertTest extends ServiceTestBase
       Assert.assertNull(consumer3.receiveImmediate());
 
       Assert.assertNull(consumer4.receiveImmediate());
-
-      session.close();
-
-      sf.close();
-
-      messagingService.stop();
    }
 
    // If no exclusive diverts match then non exclusive ones should be called
    @Test
    public void testSingleExclusiveNonMatchingAndNonExclusiveDiverts() throws Exception
    {
-      Configuration conf = createDefaultConfig();
       final String testAddress = "testAddress";
 
       final String forwardAddress1 = "forwardAddress1";
@@ -1010,19 +922,17 @@ public class DivertTest extends ServiceTestBase
          .setAddress(testAddress)
          .setForwardingAddress(forwardAddress3);
 
-      List<DivertConfiguration> divertConfs = new ArrayList<DivertConfiguration>();
+      Configuration config = createDefaultInVMConfig()
+              .addDivertConfiguration(divertConf1)
+              .addDivertConfiguration(divertConf2)
+              .addDivertConfiguration(divertConf3);
 
-      divertConfs.add(divertConf1);
-      divertConfs.add(divertConf2);
-      divertConfs.add(divertConf3);
+      ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(config, false));
 
-      conf.setDivertConfigurations(divertConfs);
-
-      ActiveMQServer messagingService = addServer(ActiveMQServers.newActiveMQServer(conf, false));
-
-      messagingService.start();
+      server.start();
 
       ServerLocator locator = createInVMNonHALocator();
+
       ClientSessionFactory sf = createSessionFactory(locator);
 
       ClientSession session = sf.createSession(false, true, true);
@@ -1151,18 +1061,11 @@ public class DivertTest extends ServiceTestBase
       Assert.assertNull(consumer3.receiveImmediate());
 
       Assert.assertNull(consumer4.receiveImmediate());
-
-      session.close();
-
-      sf.close();
-
-      messagingService.stop();
    }
 
    @Test
    public void testRoundRobinDiverts() throws Exception
    {
-      Configuration conf = createDefaultConfig();
       final String testAddress = "testAddress";
 
       final String forwardAddress1 = "forwardAddress1";
@@ -1187,19 +1090,17 @@ public class DivertTest extends ServiceTestBase
          .setAddress(testAddress)
          .setForwardingAddress(forwardAddress3);
 
-      List<DivertConfiguration> divertConfs = new ArrayList<DivertConfiguration>();
+      Configuration config = createDefaultInVMConfig()
+              .addDivertConfiguration(divertConf1)
+              .addDivertConfiguration(divertConf2)
+              .addDivertConfiguration(divertConf3);
 
-      divertConfs.add(divertConf1);
-      divertConfs.add(divertConf2);
-      divertConfs.add(divertConf3);
+      ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(config, false));
 
-      conf.setDivertConfigurations(divertConfs);
-
-      ActiveMQServer messagingService = addServer(ActiveMQServers.newActiveMQServer(conf, false));
-
-      messagingService.start();
+      server.start();
 
       ServerLocator locator = createInVMNonHALocator();
+
       ClientSessionFactory sf = createSessionFactory(locator);
 
       ClientSession session = sf.createSession(false, true, true);
@@ -1304,19 +1205,11 @@ public class DivertTest extends ServiceTestBase
       }
 
       Assert.assertNull(consumer4.receiveImmediate());
-
-      session.close();
-
-      sf.close();
-
-      messagingService.stop();
    }
 
    @Test
    public void testDeployDivertsSameUniqueName() throws Exception
    {
-      Configuration conf = createDefaultConfig();
-
       final String testAddress = "testAddress";
 
       final String forwardAddress1 = "forwardAddress1";
@@ -1341,21 +1234,19 @@ public class DivertTest extends ServiceTestBase
          .setAddress(testAddress)
          .setForwardingAddress(forwardAddress3);
 
-      List<DivertConfiguration> divertConfs = new ArrayList<DivertConfiguration>();
+      Configuration config = createDefaultInVMConfig()
+              .addDivertConfiguration(divertConf1)
+              .addDivertConfiguration(divertConf2)
+              .addDivertConfiguration(divertConf3);
 
-      divertConfs.add(divertConf1);
-      divertConfs.add(divertConf2);
-      divertConfs.add(divertConf3);
+      ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(config, false));
 
-      conf.setDivertConfigurations(divertConfs);
-
-      ActiveMQServer messagingService = addServer(ActiveMQServers.newActiveMQServer(conf, false));
-
-      messagingService.start();
+      server.start();
 
       // Only the first and third should be deployed
 
       ServerLocator locator = createInVMNonHALocator();
+
       ClientSessionFactory sf = createSessionFactory(locator);
 
       ClientSession session = sf.createSession(false, true, true);
@@ -1441,12 +1332,6 @@ public class DivertTest extends ServiceTestBase
       }
 
       Assert.assertNull(consumer4.receiveImmediate());
-
-      session.close();
-
-      sf.close();
-
-      messagingService.stop();
    }
 
 }

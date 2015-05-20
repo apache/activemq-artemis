@@ -42,14 +42,13 @@ public class SpawnedJMSServer
    {
       try
       {
-         Configuration conf = new ConfigurationImpl()
-            .addAcceptorConfiguration(new TransportConfiguration(NettyAcceptorFactory.class.getName()))
-            .setSecurityEnabled(false);
-
-         conf.getConnectorConfigurations().put("netty", new TransportConfiguration(NettyConnectorFactory.class.getName()));
+         Configuration config = new ConfigurationImpl()
+                 .addAcceptorConfiguration(new TransportConfiguration(NettyAcceptorFactory.class.getName()))
+                 .setSecurityEnabled(false)
+                 .addConnectorConfiguration("netty", new TransportConfiguration(NettyConnectorFactory.class.getName()));
 
          // disable server persistence since JORAM tests do not restart server
-         final ActiveMQServer server = ActiveMQServers.newActiveMQServer(conf, false);
+         final ActiveMQServer server = ActiveMQServers.newActiveMQServer(config, false);
 
          JMSServerManager serverManager = new JMSServerManagerImpl(server);
          serverManager.start();

@@ -16,12 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.extras.byteman;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
@@ -34,7 +29,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.jboss.byteman.contrib.bmunit.BMRule;
 import org.jboss.byteman.contrib.bmunit.BMRules;
 import org.jboss.byteman.contrib.bmunit.BMUnitRunner;
@@ -43,8 +38,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+
 @RunWith(BMUnitRunner.class)
-public class PagingLeakTest extends ServiceTestBase
+public class PagingLeakTest extends ActiveMQTestBase
 {
 
    private static final AtomicInteger pagePosInstances = new AtomicInteger(0);
@@ -120,25 +119,18 @@ public class PagingLeakTest extends ServiceTestBase
 
       final ArrayList<Exception> errors = new ArrayList<Exception>();
       // A backup that will be waiting to be activated
-      Configuration conf = createDefaultConfig(true)
-         .setSecurityEnabled(false)
-         .addConnectorConfiguration("invm", new TransportConfiguration(INVM_CONNECTOR_FACTORY));
+      Configuration config = createDefaultNettyConfig();
 
-      final ActiveMQServer server = ActiveMQServers.newActiveMQServer(conf, true);
-      addServer(server);
-
+      final ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(config, true));
 
       server.start();
 
-
-      AddressSettings settings = new AddressSettings();
-      settings.setPageSizeBytes(20 * 1024);
-      settings.setMaxSizeBytes(200 * 1024);
-      settings.setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE);
-
+      AddressSettings settings = new AddressSettings()
+              .setPageSizeBytes(20 * 1024)
+              .setMaxSizeBytes(200 * 1024)
+              .setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE);
 
       server.getAddressSettingsRepository().addMatch("#", settings);
-
 
       final SimpleString address = new SimpleString("pgdAddress");
 
@@ -154,7 +146,6 @@ public class PagingLeakTest extends ServiceTestBase
 
          Consumer(int sleepTime, String suffix, int maxConsumed) throws Exception
          {
-
             server.createQueue(address, address.concat(suffix), null, true, false);
 
             this.sleepTime = sleepTime;

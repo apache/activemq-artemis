@@ -16,14 +16,14 @@
  */
 package org.apache.activemq.artemis.tests.unit.jms.client;
 
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Test;
 
 import org.junit.Assert;
 
 import org.apache.activemq.artemis.jms.client.SelectorTranslator;
 
-public class SelectorTranslatorTest extends ServiceTestBase
+public class SelectorTranslatorTest extends ActiveMQTestBase
 {
    @Test
    public void testParseNull()

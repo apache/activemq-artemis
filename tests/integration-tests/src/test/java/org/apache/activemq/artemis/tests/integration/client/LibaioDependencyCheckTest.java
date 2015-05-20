@@ -19,7 +19,7 @@ package org.apache.activemq.artemis.tests.integration.client;
 import org.junit.Test;
 
 import org.apache.activemq.artemis.core.asyncio.impl.AsynchronousFileImpl;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 
 /**
  * This tests is placed in duplication here to validate that the libaio module is properly loaded on this
@@ -27,7 +27,7 @@ import org.apache.activemq.artemis.tests.util.ServiceTestBase;
  *
  * This test should be placed on each one of the tests modules to make sure the library is loaded correctly.
  */
-public class LibaioDependencyCheckTest extends ServiceTestBase
+public class LibaioDependencyCheckTest extends ActiveMQTestBase
 {
 
    // Constants -----------------------------------------------------

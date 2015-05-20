@@ -29,8 +29,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
 import org.apache.activemq.artemis.tests.integration.management.ManagementControlHelper;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
-import org.junit.After;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -40,7 +39,7 @@ import javax.management.MBeanServerFactory;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 
-public class HeuristicXATest extends ServiceTestBase
+public class HeuristicXATest extends ActiveMQTestBase
 {
    // Constants -----------------------------------------------------
    final SimpleString ADDRESS = new SimpleString("ADDRESS");
@@ -62,7 +61,7 @@ public class HeuristicXATest extends ServiceTestBase
    @Test
    public void testInvalidCall() throws Exception
    {
-      Configuration configuration = createDefaultConfig()
+      Configuration configuration = createDefaultInVMConfig()
          .setJMXManagementEnabled(true);
 
       ActiveMQServer server = createServer(false, configuration);
@@ -88,7 +87,7 @@ public class HeuristicXATest extends ServiceTestBase
 
    private void internalTest(final boolean isCommit) throws Exception
    {
-      Configuration configuration = createDefaultConfig()
+      Configuration configuration = createDefaultInVMConfig()
          .setJMXManagementEnabled(true);
 
       ActiveMQServer server = createServer(false, configuration);
@@ -184,7 +183,7 @@ public class HeuristicXATest extends ServiceTestBase
 
    private void doHeuristicCompletionWithRestart(final boolean isCommit) throws Exception
    {
-      Configuration configuration = createDefaultConfig()
+      Configuration configuration = createDefaultInVMConfig()
          .setJMXManagementEnabled(true);
 
       ActiveMQServer server = createServer(true, configuration);
@@ -285,7 +284,7 @@ public class HeuristicXATest extends ServiceTestBase
 
    private void doRecoverHeuristicCompletedTxWithRestart(final boolean heuristicCommit) throws Exception
    {
-      Configuration configuration = createDefaultConfig()
+      Configuration configuration = createDefaultInVMConfig()
          .setJMXManagementEnabled(true);
 
       ActiveMQServer server = createServer(true, configuration);
@@ -356,7 +355,7 @@ public class HeuristicXATest extends ServiceTestBase
       server.stop();
 
       server.start();
-      // we need to recreate the locator and session factory
+      // we need to recreate the locator and session sf
       sf = createSessionFactory(locator);
       jmxServer = ManagementControlHelper.createActiveMQServerControl(mbeanServer);
       if (heuristicCommit)
@@ -395,7 +394,7 @@ public class HeuristicXATest extends ServiceTestBase
 
    private void doForgetHeuristicCompletedTxAndRestart(final boolean heuristicCommit) throws Exception
    {
-      Configuration configuration = createDefaultConfig()
+      Configuration configuration = createDefaultInVMConfig()
          .setJMXManagementEnabled(true);
 
       ActiveMQServer server = createServer(true, configuration);
@@ -479,15 +478,6 @@ public class HeuristicXATest extends ServiceTestBase
    // Package protected ---------------------------------------------
 
    // Protected -----------------------------------------------------
-
-   @Override
-   @After
-   public void tearDown() throws Exception
-   {
-      locator.close();
-      MBeanServerFactory.releaseMBeanServer(mbeanServer);
-      super.tearDown();
-   }
 
    @Override
    @Before

@@ -16,10 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.unit.core.paging.impl;
 
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Test;
 
-public class PagePositionTest extends ServiceTestBase
+public class PagePositionTest extends ActiveMQTestBase
 {
 
    // Constants -----------------------------------------------------

@@ -31,7 +31,7 @@ import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.jms.management.JMSServerControl;
 import org.apache.activemq.artemis.tests.integration.management.ManagementControlHelper;
 import org.apache.activemq.artemis.tests.unit.util.InVMNamingContext;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.registry.JndiBindingRegistry;
 import org.apache.activemq.artemis.core.security.Role;
@@ -44,7 +44,7 @@ import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManagerImpl
 import org.junit.After;
 import org.junit.Before;
 
-public class OpenWireTestBase extends ServiceTestBase
+public class OpenWireTestBase extends ActiveMQTestBase
 {
    public static final String OWHOST = "localhost";
    public static final int OWPORT = 61616;
@@ -66,20 +66,14 @@ public class OpenWireTestBase extends ServiceTestBase
    {
       super.setUp();
       server = this.createServer(realStore, true);
-      HashMap<String, Object> params = new HashMap<String, Object>();
-      TransportConfiguration transportConfiguration = new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, params);
 
       Configuration serverConfig = server.getConfiguration();
 
-      Map<String, AddressSettings> addressSettings = serverConfig.getAddressesSettings();
-      String match = "jms.queue.#";
-      AddressSettings dlaSettings = new AddressSettings();
-      dlaSettings.setAutoCreateJmsQueues(false);
-      SimpleString dla = new SimpleString("jms.queue.ActiveMQ.DLQ");
-      dlaSettings.setDeadLetterAddress(dla);
-      addressSettings.put(match, dlaSettings);
+      serverConfig.getAddressesSettings().put("jms.queue.#", new AddressSettings()
+              .setAutoCreateJmsQueues(false)
+              .setDeadLetterAddress(new SimpleString("jms.queue.ActiveMQ.DLQ")));
 
-      serverConfig.getAcceptorConfigurations().add(transportConfiguration);
+      serverConfig.getAcceptorConfigurations().add(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY));
       serverConfig.setSecurityEnabled(enableSecurity);
 
       extraServerConfig(serverConfig);

@@ -27,11 +27,11 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Before;
 import org.junit.Test;
 
-public class ExpireTestOnRestartTest extends ServiceTestBase
+public class ExpireTestOnRestartTest extends ActiveMQTestBase
 {
 
    ActiveMQServer server;
@@ -43,11 +43,11 @@ public class ExpireTestOnRestartTest extends ServiceTestBase
    {
       super.setUp();
       server = createServer(true);
-      AddressSettings setting = new AddressSettings();
-      setting.setExpiryAddress(SimpleString.toSimpleString("exp"));
-      setting.setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE);
-      setting.setPageSizeBytes(100 * 1024);
-      setting.setMaxSizeBytes(200 * 1024);
+      AddressSettings setting = new AddressSettings()
+              .setExpiryAddress(SimpleString.toSimpleString("exp"))
+              .setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE)
+              .setPageSizeBytes(100 * 1024)
+              .setMaxSizeBytes(200 * 1024);
       server.getConfiguration().setJournalSyncNonTransactional(false);
       server.getConfiguration().setMessageExpiryScanPeriod(-1);
       server.getConfiguration().setJournalSyncTransactional(false);

@@ -32,9 +32,9 @@ import org.apache.activemq.artemis.api.core.client.SessionFailureListener;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionInternal;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 
-public class ReconnectTest extends ServiceTestBase
+public class ReconnectTest extends ActiveMQTestBase
 {
 
    @Test
@@ -61,12 +61,12 @@ public class ReconnectTest extends ServiceTestBase
 
       try
       {
-         ServerLocator locator = createFactory(isNetty);
-         locator.setClientFailureCheckPeriod(pingPeriod);
-         locator.setRetryInterval(500);
-         locator.setRetryIntervalMultiplier(1d);
-         locator.setReconnectAttempts(-1);
-         locator.setConfirmationWindowSize(1024 * 1024);
+         ServerLocator locator = createFactory(isNetty)
+                 .setClientFailureCheckPeriod(pingPeriod)
+                 .setRetryInterval(500)
+                 .setRetryIntervalMultiplier(1d)
+                 .setReconnectAttempts(-1)
+                 .setConfirmationWindowSize(1024 * 1024);
          ClientSessionFactory factory = createSessionFactory(locator);
 
 
@@ -161,12 +161,12 @@ public class ReconnectTest extends ServiceTestBase
 
       try
       {
-         ServerLocator locator = createFactory(isNetty);
-         locator.setClientFailureCheckPeriod(pingPeriod);
-         locator.setRetryInterval(500);
-         locator.setRetryIntervalMultiplier(1d);
-         locator.setReconnectAttempts(-1);
-         locator.setConfirmationWindowSize(1024 * 1024);
+         ServerLocator locator = createFactory(isNetty)
+                 .setClientFailureCheckPeriod(pingPeriod)
+                 .setRetryInterval(500)
+                 .setRetryIntervalMultiplier(1d)
+                 .setReconnectAttempts(-1)
+                 .setConfirmationWindowSize(1024 * 1024);
          ClientSessionFactoryInternal factory = (ClientSessionFactoryInternal)locator.createSessionFactory();
 
          // One for beforeReconnecto from the Factory, and one for the commit about to be done

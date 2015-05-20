@@ -15,18 +15,23 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.integration.jms;
-import org.apache.activemq.artemis.tests.unit.util.InVMNamingContext;
+
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.registry.JndiBindingRegistry;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.jms.server.JMSServerManager;
+import org.apache.activemq.artemis.jms.server.config.ConnectionFactoryConfiguration;
+import org.apache.activemq.artemis.jms.server.config.JMSConfiguration;
+import org.apache.activemq.artemis.jms.server.config.impl.ConnectionFactoryConfigurationImpl;
+import org.apache.activemq.artemis.jms.server.config.impl.JMSConfigurationImpl;
+import org.apache.activemq.artemis.jms.server.config.impl.JMSQueueConfigurationImpl;
+import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
+import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
+import org.apache.activemq.artemis.tests.unit.util.InVMNamingContext;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.junit.Assert;
 import org.junit.Before;
-import org.junit.After;
-
 import org.junit.Test;
-
-import static java.util.concurrent.TimeUnit.SECONDS;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.concurrent.CountDownLatch;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -40,23 +45,13 @@ import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
 import javax.naming.Context;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.concurrent.CountDownLatch;
 
-import org.junit.Assert;
+import static java.util.concurrent.TimeUnit.SECONDS;
 
-import org.apache.activemq.artemis.api.core.TransportConfiguration;
-import org.apache.activemq.artemis.core.config.Configuration;
-import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.apache.activemq.artemis.jms.server.JMSServerManager;
-import org.apache.activemq.artemis.jms.server.config.ConnectionFactoryConfiguration;
-import org.apache.activemq.artemis.jms.server.config.JMSConfiguration;
-import org.apache.activemq.artemis.jms.server.config.impl.ConnectionFactoryConfigurationImpl;
-import org.apache.activemq.artemis.jms.server.config.impl.JMSConfigurationImpl;
-import org.apache.activemq.artemis.jms.server.config.impl.JMSQueueConfigurationImpl;
-import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
-
-public class ManualReconnectionToSingleServerTest extends ServiceTestBase
+public class ManualReconnectionToSingleServerTest extends ActiveMQTestBase
 {
    // Constants -----------------------------------------------------
 
@@ -152,10 +147,7 @@ public class ManualReconnectionToSingleServerTest extends ServiceTestBase
 
       context = new InVMNamingContext();
 
-      Configuration conf = createBasicConfig()
-         .addAcceptorConfiguration(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY));
-
-      server = createServer(false, conf);
+      server = createServer(false, createDefaultNettyConfig());
 
       JMSConfiguration configuration = new JMSConfigurationImpl();
       serverManager = new JMSServerManagerImpl(server, configuration);
@@ -179,26 +171,6 @@ public class ManualReconnectionToSingleServerTest extends ServiceTestBase
       exceptionLatch = new CountDownLatch(1);
       reconnectionLatch = new CountDownLatch(1);
       allMessagesReceived = new CountDownLatch(1);
-   }
-
-   @Override
-   @After
-   public void tearDown() throws Exception
-   {
-      try
-      {
-         serverManager.stop();
-         serverManager = null;
-         if (connection != null)
-         {
-            connection.close();
-         }
-         connection = null;
-      }
-      finally
-      {
-         super.tearDown();
-      }
    }
 
    // Private -------------------------------------------------------

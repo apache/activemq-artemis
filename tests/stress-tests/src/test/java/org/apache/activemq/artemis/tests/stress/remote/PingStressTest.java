@@ -15,30 +15,26 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.stress.remote;
+
 import org.apache.activemq.artemis.api.core.ActiveMQException;
-import org.junit.Before;
-
-import org.junit.Test;
-
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-
 import org.apache.activemq.artemis.api.core.Interceptor;
-import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
-import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.protocol.core.Packet;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.tests.unit.UnitTestLogger;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.junit.Before;
+import org.junit.Test;
 
-public class PingStressTest extends ServiceTestBase
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
+public class PingStressTest extends ActiveMQTestBase
 {
    private static final UnitTestLogger log = UnitTestLogger.LOGGER;
 
@@ -51,8 +47,7 @@ public class PingStressTest extends ServiceTestBase
    public void setUp() throws Exception
    {
       super.setUp();
-      Configuration config = createDefaultConfig(true);
-      server = createServer(false, config);
+      server = createServer(false, createDefaultNettyConfig());
       server.start();
    }
 
@@ -81,8 +76,6 @@ public class PingStressTest extends ServiceTestBase
     */
    private void internalTest() throws Exception
    {
-      final TransportConfiguration transportConfig = new TransportConfiguration("org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory");
-
       Interceptor noPongInterceptor = new Interceptor()
       {
          public boolean intercept(final Packet packet, final RemotingConnection conn) throws ActiveMQException
@@ -101,10 +94,10 @@ public class PingStressTest extends ServiceTestBase
       };
 
       server.getRemotingService().addIncomingInterceptor(noPongInterceptor);
-      ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(transportConfig));
-      locator.setClientFailureCheckPeriod(PingStressTest.PING_INTERVAL);
-      locator.setConnectionTTL((long)(PingStressTest.PING_INTERVAL * 1.5));
-      locator.setCallTimeout(PingStressTest.PING_INTERVAL * 10);
+      ServerLocator locator = createNettyNonHALocator()
+              .setClientFailureCheckPeriod(PingStressTest.PING_INTERVAL)
+              .setConnectionTTL((long) (PingStressTest.PING_INTERVAL * 1.5))
+              .setCallTimeout(PingStressTest.PING_INTERVAL * 10);
       final ClientSessionFactory csf1 = createSessionFactory(locator);
 
 
@@ -132,10 +125,10 @@ public class PingStressTest extends ServiceTestBase
             try
             {
 
-               ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(transportConfig));
-               locator.setClientFailureCheckPeriod(PingStressTest.PING_INTERVAL);
-               locator.setConnectionTTL((long)(PingStressTest.PING_INTERVAL * 1.5));
-               locator.setCallTimeout(PingStressTest.PING_INTERVAL * 10);
+               ServerLocator locator = createNettyNonHALocator()
+                       .setClientFailureCheckPeriod(PingStressTest.PING_INTERVAL)
+                       .setConnectionTTL((long) (PingStressTest.PING_INTERVAL * 1.5))
+                       .setCallTimeout(PingStressTest.PING_INTERVAL * 10);
 
                final ClientSessionFactory csf2 = createSessionFactory(locator);
 

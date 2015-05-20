@@ -16,10 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.extras.byteman;
 
-import javax.transaction.xa.XAException;
-import javax.transaction.xa.XAResource;
-import javax.transaction.xa.Xid;
-
 import org.apache.activemq.artemis.api.core.ActiveMQTransactionOutcomeUnknownException;
 import org.apache.activemq.artemis.api.core.ActiveMQTransactionRolledBackException;
 import org.apache.activemq.artemis.api.core.ActiveMQUnBlockedException;
@@ -45,11 +41,14 @@ import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.jboss.byteman.contrib.bmunit.BMRule;
 import org.jboss.byteman.contrib.bmunit.BMRules;
 import org.jboss.byteman.contrib.bmunit.BMUnitRunner;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import javax.transaction.xa.XAException;
+import javax.transaction.xa.XAResource;
+import javax.transaction.xa.Xid;
 
 @RunWith(BMUnitRunner.class)
 public class BMFailoverTest extends FailoverTestBase
@@ -66,13 +65,6 @@ public class BMFailoverTest extends FailoverTestBase
       super.setUp();
       stopped = false;
       locator = getServerLocator();
-   }
-
-   @After
-   @Override
-   public void tearDown() throws Exception
-   {
-      super.tearDown();
    }
 
    private static boolean stopped = false;
@@ -209,8 +201,8 @@ public class BMFailoverTest extends FailoverTestBase
    public void testFailoverOnCommit2() throws Exception
    {
       serverToStop = liveServer;
-      locator = getServerLocator();
-      locator.setFailoverOnInitialConnection(true);
+      locator = getServerLocator()
+              .setFailoverOnInitialConnection(true);
       SimpleString inQueue = new SimpleString("inQueue");
       SimpleString outQueue = new SimpleString("outQueue");
       createSessionFactory();
@@ -312,8 +304,8 @@ public class BMFailoverTest extends FailoverTestBase
    public void testFailoverOnCommit() throws Exception
    {
       serverToStop = liveServer;
-      locator = getServerLocator();
-      locator.setFailoverOnInitialConnection(true);
+      locator = getServerLocator()
+              .setFailoverOnInitialConnection(true);
       createSessionFactory();
       ClientSession session = createSessionAndQueue();
 
@@ -353,8 +345,8 @@ public class BMFailoverTest extends FailoverTestBase
    public void testFailoverOnReceiveCommit() throws Exception
    {
       serverToStop = liveServer;
-      locator = getServerLocator();
-      locator.setFailoverOnInitialConnection(true);
+      locator = getServerLocator()
+              .setFailoverOnInitialConnection(true);
       createSessionFactory();
       ClientSession session = createSessionAndQueue();
 
@@ -433,9 +425,9 @@ public class BMFailoverTest extends FailoverTestBase
 
    private void createSessionFactory() throws Exception
    {
-      locator.setBlockOnNonDurableSend(true);
-      locator.setBlockOnDurableSend(true);
-      locator.setReconnectAttempts(-1);
+      locator.setBlockOnNonDurableSend(true)
+              .setBlockOnDurableSend(true)
+              .setReconnectAttempts(-1);
 
       sf = createSessionFactoryAndWaitForTopology(locator, 2);
    }

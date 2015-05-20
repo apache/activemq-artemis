@@ -16,7 +16,13 @@
  */
 package org.apache.activemq.artemis.tests.integration.openwire.interop;
 
-import java.io.Serializable;
+import org.apache.activemq.ActiveMQMessageConsumer;
+import org.apache.activemq.ActiveMQMessageProducer;
+import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.tests.integration.openwire.BasicOpenWireTest;
+import org.apache.activemq.command.ActiveMQDestination;
+import org.junit.Before;
+import org.junit.Test;
 
 import javax.jms.BytesMessage;
 import javax.jms.Connection;
@@ -28,15 +34,7 @@ import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.StreamMessage;
 import javax.jms.TextMessage;
-
-import org.apache.activemq.ActiveMQMessageConsumer;
-import org.apache.activemq.ActiveMQMessageProducer;
-import org.apache.activemq.command.ActiveMQDestination;
-import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.apache.activemq.artemis.tests.integration.openwire.BasicOpenWireTest;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import java.io.Serializable;
 
 /**
  * This test covers interactions between core clients and
@@ -53,14 +51,6 @@ public class GeneralInteropTest extends BasicOpenWireTest
    {
       super.setUp();
       locator = this.createInVMNonHALocator();
-   }
-
-   @After
-   @Override
-   public void tearDown() throws Exception
-   {
-      locator.close();
-      super.tearDown();
    }
 
    @Test

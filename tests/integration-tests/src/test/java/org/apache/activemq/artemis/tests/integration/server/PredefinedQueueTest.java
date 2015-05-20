@@ -16,39 +16,46 @@
  */
 package org.apache.activemq.artemis.tests.integration.server;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException;
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
-import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.CoreQueueConfiguration;
 import org.apache.activemq.artemis.core.postoffice.Bindings;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
+import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
-public class PredefinedQueueTest extends ServiceTestBase
+import java.util.ArrayList;
+import java.util.List;
+
+public class PredefinedQueueTest extends ActiveMQTestBase
 {
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
+
+   private Configuration configuration = null;
+
+   @Override
+   @Before
+   public void setUp() throws Exception
+   {
+      super.setUp();
+      configuration = createDefaultInVMConfig();
+   }
 
    @Test
    public void testFailOnCreatePredefinedQueues() throws Exception
    {
-      Configuration conf = createDefaultConfig();
-
       final String testAddress = "testAddress";
 
       final String queueName1 = "queue1";
@@ -75,17 +82,17 @@ public class PredefinedQueueTest extends ServiceTestBase
       queueConfs.add(queue2);
       queueConfs.add(queue3);
 
-      conf.setQueueConfigurations(queueConfs);
+      configuration.setQueueConfigurations(queueConfs);
 
-      ActiveMQServer server = ActiveMQServers.newActiveMQServer(conf, false);
+      ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(configuration, false));
 
       server.start();
 
-      ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(ServiceTestBase.INVM_CONNECTOR_FACTORY));
+      ServerLocator locator = createInVMNonHALocator();
 
       ClientSessionFactory sf = createSessionFactory(locator);
 
-      ClientSession session = sf.createSession(false, true, true);
+      ClientSession session = addClientSession(sf.createSession(false, true, true));
 
       try
       {
@@ -129,21 +136,11 @@ public class PredefinedQueueTest extends ServiceTestBase
       {
          fail("Invalid Exception type:" + e.getType());
       }
-
-      session.close();
-
-      sf.close();
-
-      locator.close();
-
-      server.stop();
    }
 
    @Test
    public void testDeploySameNames() throws Exception
    {
-      Configuration conf = createDefaultConfig();
-
       final String testAddress = "testAddress";
 
       final String queueName1 = "queue1";
@@ -158,36 +155,31 @@ public class PredefinedQueueTest extends ServiceTestBase
          .setAddress(testAddress)
          .setName(queueName2);
 
-      List<CoreQueueConfiguration> queueConfs = new ArrayList<CoreQueueConfiguration>();
+      configuration
+              .addQueueConfiguration(queue1)
+              .addQueueConfiguration(queue2);
 
-      queueConfs.add(queue1);
-      queueConfs.add(queue2);
-
-      conf.setQueueConfigurations(queueConfs);
-
-      ActiveMQServer server = ActiveMQServers.newActiveMQServer(conf, false);
+      ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(configuration, false));
 
       server.start();
 
-      Bindings bindings = server.getPostOffice()
-         .getBindingsForAddress(new SimpleString(testAddress));
+      Bindings bindings = server.getPostOffice().getBindingsForAddress(new SimpleString(testAddress));
 
-      Assert.assertEquals(2, bindings.getBindings()
-         .size());
+      Assert.assertEquals(2, bindings.getBindings().size());
 
-      ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(ServiceTestBase.INVM_CONNECTOR_FACTORY));
+      ServerLocator locator = createInVMNonHALocator();
 
       ClientSessionFactory sf = createSessionFactory(locator);
 
-      ClientSession session = sf.createSession(false, true, true);
+      ClientSession session = addClientSession(sf.createSession(false, true, true));
 
       session.start();
 
-      ClientProducer producer = session.createProducer(new SimpleString(testAddress));
+      ClientProducer producer = addClientProducer(session.createProducer(new SimpleString(testAddress)));
 
-      ClientConsumer consumer1 = session.createConsumer(queueName1);
+      ClientConsumer consumer1 = addClientConsumer(session.createConsumer(queueName1));
 
-      ClientConsumer consumer2 = session.createConsumer(queueName2);
+      ClientConsumer consumer2 = addClientConsumer(session.createConsumer(queueName2));
 
       final int numMessages = 10;
 
@@ -217,21 +209,11 @@ public class PredefinedQueueTest extends ServiceTestBase
 
       Assert.assertNull(consumer1.receiveImmediate());
       Assert.assertNull(consumer2.receiveImmediate());
-
-      session.close();
-
-      sf.close();
-
-      locator.close();
-
-      server.stop();
    }
 
    @Test
    public void testDeployPreexistingQueues() throws Exception
    {
-      Configuration conf = createDefaultConfig();
-
       final String testAddress = "testAddress";
 
       final String queueName1 = "queue1";
@@ -240,15 +222,15 @@ public class PredefinedQueueTest extends ServiceTestBase
 
       final String queueName3 = "queue3";
 
-      ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(conf));
+      ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(configuration));
 
       server.start();
 
-      ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(ServiceTestBase.INVM_CONNECTOR_FACTORY));
+      ServerLocator locator = createInVMNonHALocator();
 
       ClientSessionFactory sf = createSessionFactory(locator);
 
-      ClientSession session = sf.createSession(false, true, true);
+      ClientSession session = addClientSession(sf.createSession(false, true, true));
 
       session.createQueue(testAddress, queueName1, null, true);
 
@@ -274,19 +256,16 @@ public class PredefinedQueueTest extends ServiceTestBase
          .setAddress(testAddress)
          .setName(queueName3);
 
-      List<CoreQueueConfiguration> queueConfs = new ArrayList<CoreQueueConfiguration>();
-
-      queueConfs.add(queue1);
-      queueConfs.add(queue2);
-      queueConfs.add(queue3);
-
-      conf.setQueueConfigurations(queueConfs);
+      configuration
+              .addQueueConfiguration(queue1)
+              .addQueueConfiguration(queue2)
+              .addQueueConfiguration(queue3);
 
       server.start();
 
       sf = createSessionFactory(locator);
 
-      session = sf.createSession(false, true, true);
+      session = addClientSession(sf.createSession(false, true, true));
 
       session.start();
 
@@ -332,21 +311,11 @@ public class PredefinedQueueTest extends ServiceTestBase
       Assert.assertNull(consumer1.receiveImmediate());
       Assert.assertNull(consumer2.receiveImmediate());
       Assert.assertNull(consumer3.receiveImmediate());
-
-      session.close();
-
-      sf.close();
-
-      locator.close();
-
-      server.stop();
    }
 
    @Test
    public void testDurableNonDurable() throws Exception
    {
-      Configuration conf = createDefaultConfig();
-
       final String testAddress = "testAddress";
 
       final String queueName1 = "queue1";
@@ -367,9 +336,11 @@ public class PredefinedQueueTest extends ServiceTestBase
       queueConfs.add(queue1);
       queueConfs.add(queue2);
 
-      conf.setQueueConfigurations(queueConfs);
+      configuration
+              .addQueueConfiguration(queue1)
+              .addQueueConfiguration(queue2);
 
-      ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(conf));
+      ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(configuration));
 
       server.start();
 
@@ -377,7 +348,7 @@ public class PredefinedQueueTest extends ServiceTestBase
 
       ClientSessionFactory sf = createSessionFactory(locator);
 
-      ClientSession session = sf.createSession(false, true, true);
+      ClientSession session = addClientSession(sf.createSession(false, true, true));
 
       ClientProducer producer = session.createProducer(new SimpleString(testAddress));
 
@@ -408,7 +379,7 @@ public class PredefinedQueueTest extends ServiceTestBase
 
       sf = createSessionFactory(locator);
 
-      session = sf.createSession(false, true, true);
+      session = addClientSession(sf.createSession(false, true, true));
 
       session.start();
 
@@ -430,21 +401,11 @@ public class PredefinedQueueTest extends ServiceTestBase
 
       Assert.assertNull(consumer1.receiveImmediate());
       Assert.assertNull(consumer2.receiveImmediate());
-
-      session.close();
-
-      sf.close();
-
-      locator.close();
-
-      server.stop();
    }
 
    @Test
    public void testDeployWithFilter() throws Exception
    {
-      Configuration conf = createDefaultConfig();
-
       final String testAddress = "testAddress";
 
       final String queueName1 = "queue1";
@@ -457,21 +418,17 @@ public class PredefinedQueueTest extends ServiceTestBase
          .setFilterString(filter)
          .setDurable(false);
 
-      List<CoreQueueConfiguration> queueConfs = new ArrayList<CoreQueueConfiguration>();
+      configuration.addQueueConfiguration(queue1);
 
-      queueConfs.add(queue1);
-
-      conf.setQueueConfigurations(queueConfs);
-
-      ActiveMQServer server = ActiveMQServers.newActiveMQServer(conf, false);
+      ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(configuration, false));
 
       server.start();
 
-      ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(ServiceTestBase.INVM_CONNECTOR_FACTORY));
+      ServerLocator locator = createInVMNonHALocator();
 
       ClientSessionFactory sf = createSessionFactory(locator);
 
-      ClientSession session = sf.createSession(false, true, true);
+      ClientSession session = addClientSession(sf.createSession(false, true, true));
 
       ClientProducer producer = session.createProducer(new SimpleString(testAddress));
 
@@ -518,14 +475,6 @@ public class PredefinedQueueTest extends ServiceTestBase
       }
 
       Assert.assertNull(consumer1.receiveImmediate());
-
-      session.close();
-
-      sf.close();
-
-      locator.close();
-
-      server.stop();
    }
 
 }

@@ -27,11 +27,8 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
-
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.hornetq.api.core.client.HornetQClient;
-
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -41,7 +38,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-public class HornetQProtocolTest extends ServiceTestBase
+public class HornetQProtocolTest extends ActiveMQTestBase
 {
    protected ActiveMQServer server;
 
@@ -50,41 +47,17 @@ public class HornetQProtocolTest extends ServiceTestBase
    @Before
    public void setUp() throws Exception
    {
-      startBroker();
-   }
-
-   @After
-   public void tearDown() throws Exception
-   {
-      stopBroker();
-   }
-
-   public void startBroker() throws Exception
-   {
-      super.setUp();
-      server = createServer(true, true);
-      addHornetQConnector();
-      server.start();
-      waitForServer(server);
-   }
-
-   public void stopBroker() throws Exception
-   {
-      if (server.isStarted())
-      {
-         server.stop();
-         server = null;
-      }
-   }
-
-   protected void addHornetQConnector() throws Exception
-   {
       HashMap<String, Object> params = new HashMap<String, Object>();
       params.put(org.hornetq.core.remoting.impl.netty.TransportConstants.PORT_PROP_NAME, "" + 5445);
       params.put(org.hornetq.core.remoting.impl.netty.TransportConstants.PROTOCOLS_PROP_NAME, "HORNETQ");
       TransportConfiguration transportConfig = new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, params);
+
+      super.setUp();
+      server = createServer(true, true);
       server.getConfiguration().getAcceptorConfigurations().add(transportConfig);
       LOG.info("Added connector {} to broker", "HornetQ");
+      server.start();
+      waitForServerToStart(server);
    }
 
    @Test

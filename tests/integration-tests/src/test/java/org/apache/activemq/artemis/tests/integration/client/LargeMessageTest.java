@@ -49,7 +49,7 @@ import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -299,7 +299,7 @@ public class LargeMessageTest extends LargeMessageTestBase
       final int PAGE_SIZE = 10 * 1024;
       final int MESSAGE_SIZE = 1024; // 1k
 
-      Configuration config = createDefaultConfig()
+      Configuration config = createDefaultInVMConfig()
          .setJournalSyncNonTransactional(false);
 
       ActiveMQServer server = createServer(true,
@@ -312,11 +312,10 @@ public class LargeMessageTest extends LargeMessageTestBase
 
       server.getAddressSettingsRepository().getMatch("#").setAddressFullMessagePolicy(AddressFullMessagePolicy.DROP);
 
-      locator = createInVMNonHALocator();
-
-      locator.setBlockOnNonDurableSend(true);
-      locator.setBlockOnDurableSend(true);
-      locator.setBlockOnAcknowledge(true);
+      locator = createInVMNonHALocator()
+              .setBlockOnNonDurableSend(true)
+              .setBlockOnDurableSend(true)
+              .setBlockOnAcknowledge(true);
 
       ClientSessionFactory sf = createSessionFactory(locator);
 
@@ -456,10 +455,9 @@ public class LargeMessageTest extends LargeMessageTestBase
 
       SimpleString ADDRESS_DLA = ADDRESS.concat("-dla");
 
-      AddressSettings addressSettings = new AddressSettings();
-
-      addressSettings.setDeadLetterAddress(ADDRESS_DLA);
-      addressSettings.setMaxDeliveryAttempts(1);
+      AddressSettings addressSettings = new AddressSettings()
+              .setDeadLetterAddress(ADDRESS_DLA)
+              .setMaxDeliveryAttempts(1);
 
       server.getAddressSettingsRepository().addMatch("*", addressSettings);
 
@@ -490,7 +488,7 @@ public class LargeMessageTest extends LargeMessageTestBase
 
       for (int i = 0; i < messageSize; i++)
       {
-         Assert.assertEquals(ServiceTestBase.getSamplebyte(i), msg1.getBodyBuffer().readByte());
+         Assert.assertEquals(ActiveMQTestBase.getSamplebyte(i), msg1.getBodyBuffer().readByte());
       }
 
       session.close();
@@ -514,14 +512,14 @@ public class LargeMessageTest extends LargeMessageTestBase
 
       for (int i = 0; i < messageSize; i++)
       {
-         Assert.assertEquals(ServiceTestBase.getSamplebyte(i), msg1.getBodyBuffer().readByte());
+         Assert.assertEquals(ActiveMQTestBase.getSamplebyte(i), msg1.getBodyBuffer().readByte());
       }
 
       msg1.acknowledge();
 
       session.commit();
 
-      validateNoFilesOnLargeDir(isCompressedTest ? 0 : 1);
+      validateNoFilesOnLargeDir(server.getConfiguration().getLargeMessagesDirectory(), isCompressedTest ? 0 : 1);
 
       consumer = session.createConsumer(ADDRESS.concat("-2"));
 
@@ -531,7 +529,7 @@ public class LargeMessageTest extends LargeMessageTestBase
 
       for (int i = 0; i < messageSize; i++)
       {
-         Assert.assertEquals(ServiceTestBase.getSamplebyte(i), msg1.getBodyBuffer().readByte());
+         Assert.assertEquals(ActiveMQTestBase.getSamplebyte(i), msg1.getBodyBuffer().readByte());
       }
 
       msg1.acknowledge();
@@ -580,7 +578,7 @@ public class LargeMessageTest extends LargeMessageTestBase
 
       for (int i = 0; i < messageSize; i++)
       {
-         Assert.assertEquals(ServiceTestBase.getSamplebyte(i), msg.getBodyBuffer().readByte());
+         Assert.assertEquals(ActiveMQTestBase.getSamplebyte(i), msg.getBodyBuffer().readByte());
       }
       session.rollback();
 
@@ -595,7 +593,7 @@ public class LargeMessageTest extends LargeMessageTestBase
       msg.acknowledge();
       for (int i = 0; i < messageSize; i++)
       {
-         Assert.assertEquals(ServiceTestBase.getSamplebyte(i), msg.getBodyBuffer().readByte());
+         Assert.assertEquals(ActiveMQTestBase.getSamplebyte(i), msg.getBodyBuffer().readByte());
       }
       Assert.assertEquals(2, msg.getDeliveryCount());
       msg.acknowledge();
@@ -623,11 +621,10 @@ public class LargeMessageTest extends LargeMessageTestBase
       SimpleString ADDRESS_DLA = ADDRESS.concat("-dla");
       SimpleString ADDRESS_EXPIRY = ADDRESS.concat("-expiry");
 
-      AddressSettings addressSettings = new AddressSettings();
-
-      addressSettings.setDeadLetterAddress(ADDRESS_DLA);
-      addressSettings.setExpiryAddress(ADDRESS_EXPIRY);
-      addressSettings.setMaxDeliveryAttempts(1);
+      AddressSettings addressSettings = new AddressSettings()
+              .setDeadLetterAddress(ADDRESS_DLA)
+              .setExpiryAddress(ADDRESS_EXPIRY)
+              .setMaxDeliveryAttempts(1);
 
       server.getAddressSettingsRepository().addMatch("*", addressSettings);
 
@@ -663,7 +660,7 @@ public class LargeMessageTest extends LargeMessageTestBase
 
       for (int j = 0; j < messageSize; j++)
       {
-         Assert.assertEquals(ServiceTestBase.getSamplebyte(j), msg1.getBodyBuffer().readByte());
+         Assert.assertEquals(ActiveMQTestBase.getSamplebyte(j), msg1.getBodyBuffer().readByte());
       }
 
       session.rollback();
@@ -681,7 +678,7 @@ public class LargeMessageTest extends LargeMessageTestBase
 
          for (int j = 0; j < messageSize; j++)
          {
-            Assert.assertEquals(ServiceTestBase.getSamplebyte(j), msg1.getBodyBuffer().readByte());
+            Assert.assertEquals(ActiveMQTestBase.getSamplebyte(j), msg1.getBodyBuffer().readByte());
          }
 
          session.rollback();
@@ -705,7 +702,7 @@ public class LargeMessageTest extends LargeMessageTestBase
 
       for (int i = 0; i < messageSize; i++)
       {
-         Assert.assertEquals(ServiceTestBase.getSamplebyte(i), msg1.getBodyBuffer().readByte());
+         Assert.assertEquals(ActiveMQTestBase.getSamplebyte(i), msg1.getBodyBuffer().readByte());
       }
 
       session.commit();
@@ -740,11 +737,10 @@ public class LargeMessageTest extends LargeMessageTestBase
       SimpleString ADDRESS_DLA = ADDRESS.concat("-dla");
       SimpleString ADDRESS_EXPIRY = ADDRESS.concat("-expiry");
 
-      AddressSettings addressSettings = new AddressSettings();
-
-      addressSettings.setDeadLetterAddress(ADDRESS_DLA);
-      addressSettings.setExpiryAddress(ADDRESS_EXPIRY);
-      addressSettings.setMaxDeliveryAttempts(1);
+      AddressSettings addressSettings = new AddressSettings()
+              .setDeadLetterAddress(ADDRESS_DLA)
+              .setExpiryAddress(ADDRESS_EXPIRY)
+              .setMaxDeliveryAttempts(1);
 
       server.getAddressSettingsRepository().addMatch("*", addressSettings);
 
@@ -779,7 +775,7 @@ public class LargeMessageTest extends LargeMessageTestBase
 
       for (int j = 0; j < messageSize; j++)
       {
-         Assert.assertEquals(ServiceTestBase.getSamplebyte(j), msg1.getBodyBuffer().readByte());
+         Assert.assertEquals(ActiveMQTestBase.getSamplebyte(j), msg1.getBodyBuffer().readByte());
       }
 
       session.rollback();
@@ -796,7 +792,7 @@ public class LargeMessageTest extends LargeMessageTestBase
 
          for (int j = 0; j < messageSize; j++)
          {
-            Assert.assertEquals(ServiceTestBase.getSamplebyte(j), msg1.getBodyBuffer().readByte());
+            Assert.assertEquals(ActiveMQTestBase.getSamplebyte(j), msg1.getBodyBuffer().readByte());
          }
 
          session.rollback();
@@ -825,7 +821,7 @@ public class LargeMessageTest extends LargeMessageTestBase
 
       for (int i = 0; i < messageSize; i++)
       {
-         Assert.assertEquals(ServiceTestBase.getSamplebyte(i), msg1.getBodyBuffer().readByte());
+         Assert.assertEquals(ActiveMQTestBase.getSamplebyte(i), msg1.getBodyBuffer().readByte());
       }
 
       session.commit();
@@ -852,11 +848,9 @@ public class LargeMessageTest extends LargeMessageTestBase
 
          server.start();
 
-         AddressSettings addressSettings = new AddressSettings();
-
          SimpleString ADDRESS_EXPIRY = ADDRESS.concat("-expiry");
 
-         addressSettings.setExpiryAddress(ADDRESS_EXPIRY);
+         AddressSettings addressSettings = new AddressSettings().setExpiryAddress(ADDRESS_EXPIRY);
 
          server.getAddressSettingsRepository().addMatch("*", addressSettings);
 
@@ -892,7 +886,7 @@ public class LargeMessageTest extends LargeMessageTestBase
 
          for (int i = 0; i < messageSize; i++)
          {
-            Assert.assertEquals(ServiceTestBase.getSamplebyte(i), msg1.getBodyBuffer().readByte());
+            Assert.assertEquals(ActiveMQTestBase.getSamplebyte(i), msg1.getBodyBuffer().readByte());
          }
 
          session.close();
@@ -916,7 +910,7 @@ public class LargeMessageTest extends LargeMessageTestBase
 
          for (int i = 0; i < messageSize; i++)
          {
-            Assert.assertEquals(ServiceTestBase.getSamplebyte(i), msg1.getBodyBuffer().readByte());
+            Assert.assertEquals(ActiveMQTestBase.getSamplebyte(i), msg1.getBodyBuffer().readByte());
          }
 
          msg1.acknowledge();
@@ -1128,9 +1122,8 @@ public class LargeMessageTest extends LargeMessageTestBase
 
          server.start();
 
-         locator.setMinLargeMessageSize(200);
-
-         locator.setCacheLargeMessagesClient(true);
+         locator.setMinLargeMessageSize(200)
+                 .setCacheLargeMessagesClient(true);
 
          ClientSessionFactory sf = addSessionFactory(createSessionFactory(locator));
 
@@ -1196,7 +1189,7 @@ public class LargeMessageTest extends LargeMessageTestBase
       assertNotNull(msg);
       for (long i = 0; i < messageSize; i++)
       {
-         Assert.assertEquals("position " + i, ServiceTestBase.getSamplebyte(i), msg.getBodyBuffer().readByte());
+         Assert.assertEquals("position " + i, ActiveMQTestBase.getSamplebyte(i), msg.getBodyBuffer().readByte());
       }
    }
 
@@ -2434,8 +2427,8 @@ public class LargeMessageTest extends LargeMessageTestBase
 
          server.start();
 
-         locator.setMinLargeMessageSize(1024);
-         locator.setConsumerWindowSize(1024 * 1024);
+         locator.setMinLargeMessageSize(1024)
+                 .setConsumerWindowSize(1024 * 1024);
 
          ClientSessionFactory sf = addSessionFactory(createSessionFactory(locator));
 
@@ -2448,7 +2441,7 @@ public class LargeMessageTest extends LargeMessageTestBase
          for (int i = 0; i < NUMBER_OF_MESSAGES; i++)
          {
             ClientMessage clientFile = session.createMessage(true);
-            clientFile.setBodyInputStream(ServiceTestBase.createFakeLargeStream(SIZE));
+            clientFile.setBodyInputStream(ActiveMQTestBase.createFakeLargeStream(SIZE));
             producer.send(clientFile);
 
          }
@@ -2481,7 +2474,7 @@ public class LargeMessageTest extends LargeMessageTestBase
                {
                   for (int byteRead = 0; byteRead < SIZE; byteRead++)
                   {
-                     Assert.assertEquals(ServiceTestBase.getSamplebyte(byteRead), msg.getBodyBuffer().readByte());
+                     Assert.assertEquals(ActiveMQTestBase.getSamplebyte(byteRead), msg.getBodyBuffer().readByte());
                   }
                }
 
@@ -2538,8 +2531,8 @@ public class LargeMessageTest extends LargeMessageTestBase
 
          server.start();
 
-         locator.setMinLargeMessageSize(1024);
-         locator.setConsumerWindowSize(1024 * 1024);
+         locator.setMinLargeMessageSize(1024)
+                 .setConsumerWindowSize(1024 * 1024);
 
          ClientSessionFactory sf = addSessionFactory(createSessionFactory(locator));
 
@@ -2552,7 +2545,7 @@ public class LargeMessageTest extends LargeMessageTestBase
          for (int i = 0; i < NUMBER_OF_MESSAGES; i++)
          {
             ClientMessage clientFile = session.createMessage(true);
-            clientFile.setBodyInputStream(ServiceTestBase.createFakeLargeStream(SIZE));
+            clientFile.setBodyInputStream(ActiveMQTestBase.createFakeLargeStream(SIZE));
             producer.send(clientFile);
 
          }
@@ -2584,7 +2577,7 @@ public class LargeMessageTest extends LargeMessageTestBase
                {
                   for (int byteRead = 0; byteRead < SIZE; byteRead++)
                   {
-                     Assert.assertEquals(ServiceTestBase.getSamplebyte(byteRead), msg.getBodyBuffer().readByte());
+                     Assert.assertEquals(ActiveMQTestBase.getSamplebyte(byteRead), msg.getBodyBuffer().readByte());
                   }
                }
 
@@ -2649,9 +2642,9 @@ public class LargeMessageTest extends LargeMessageTestBase
 
       final int numberOfBytesBigMessage = 400000;
 
-      locator.setBlockOnNonDurableSend(true);
-      locator.setBlockOnDurableSend(true);
-      locator.setBlockOnAcknowledge(true);
+      locator.setBlockOnNonDurableSend(true)
+              .setBlockOnDurableSend(true)
+              .setBlockOnAcknowledge(true);
 
       ClientSessionFactory sf = addSessionFactory(createSessionFactory(locator));
 
@@ -2788,10 +2781,10 @@ public class LargeMessageTest extends LargeMessageTestBase
 
       final int numberOfBytesBigMessage = 400000;
 
-      locator.setBlockOnNonDurableSend(true);
-      locator.setBlockOnDurableSend(true);
-      locator.setBlockOnAcknowledge(true);
-      locator.setCompressLargeMessage(true);
+      locator.setBlockOnNonDurableSend(true)
+              .setBlockOnDurableSend(true)
+              .setBlockOnAcknowledge(true)
+              .setCompressLargeMessage(true);
 
       ClientSessionFactory sf = addSessionFactory(createSessionFactory(locator));
 
@@ -2911,7 +2904,7 @@ public class LargeMessageTest extends LargeMessageTestBase
          session.createQueue(ADDRESS, ADDRESS, null, true);
 
          ClientMessage clientFile = session.createMessage(true);
-         clientFile.setBodyInputStream(ServiceTestBase.createFakeLargeStream(SIZE));
+         clientFile.setBodyInputStream(ActiveMQTestBase.createFakeLargeStream(SIZE));
 
          ClientProducer producer = session.createProducer(ADDRESS);
 
@@ -2990,7 +2983,7 @@ public class LargeMessageTest extends LargeMessageTestBase
       for (int i = 0; i < NUMBER_OF_MESSAGES; i++)
       {
          ClientMessage msg = session.createMessage(true);
-         msg.setBodyInputStream(ServiceTestBase.createFakeLargeStream(SIZE));
+         msg.setBodyInputStream(ActiveMQTestBase.createFakeLargeStream(SIZE));
          msg.putIntProperty(new SimpleString("key"), i);
          producer.send(msg);
 
@@ -3048,7 +3041,7 @@ public class LargeMessageTest extends LargeMessageTestBase
 
       for (int i = 0; i < LARGE_MESSAGE_SIZE; i++)
       {
-         fileMessage.addBytes(new byte[]{ServiceTestBase.getSamplebyte(i)});
+         fileMessage.addBytes(new byte[]{ActiveMQTestBase.getSamplebyte(i)});
       }
 
       // The server would be doing this
@@ -3078,7 +3071,7 @@ public class LargeMessageTest extends LargeMessageTestBase
 
       for (int i = 0; i < LARGE_MESSAGE_SIZE; i++)
       {
-         Assert.assertEquals(ServiceTestBase.getSamplebyte(i), msg.getBodyBuffer().readByte());
+         Assert.assertEquals(ActiveMQTestBase.getSamplebyte(i), msg.getBodyBuffer().readByte());
       }
 
       msg.acknowledge();
@@ -3121,9 +3114,9 @@ public class LargeMessageTest extends LargeMessageTestBase
 
       if (sendBlocking)
       {
-         sf.getServerLocator().setBlockOnNonDurableSend(true);
-         sf.getServerLocator().setBlockOnDurableSend(true);
-         sf.getServerLocator().setBlockOnAcknowledge(true);
+         sf.getServerLocator().setBlockOnNonDurableSend(true)
+                 .setBlockOnDurableSend(true)
+                 .setBlockOnAcknowledge(true);
       }
 
       ClientSession session = sf.createSession(null, null, false, true, true, false, 0);

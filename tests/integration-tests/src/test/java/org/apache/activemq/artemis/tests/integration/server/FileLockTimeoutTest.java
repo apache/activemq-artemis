@@ -22,7 +22,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.core.asyncio.impl.AsynchronousFileImpl;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.ha.SharedStoreMasterPolicyConfiguration;
@@ -33,7 +33,7 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 
-public class FileLockTimeoutTest extends ServiceTestBase
+public class FileLockTimeoutTest extends ActiveMQTestBase
 {
    @BeforeClass
    public static void prepareLogger()
@@ -56,7 +56,7 @@ public class FileLockTimeoutTest extends ServiceTestBase
                            AsynchronousFileImpl.isLoaded()
          );
       }
-      Configuration config = super.createDefaultConfig()
+      Configuration config = super.createDefaultInVMConfig()
          .setHAPolicyConfiguration(new SharedStoreMasterPolicyConfiguration())
          .clearAcceptorConfigurations();
 

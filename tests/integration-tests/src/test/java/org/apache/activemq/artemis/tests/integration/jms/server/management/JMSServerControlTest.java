@@ -16,6 +16,43 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.server.management;
 
+import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
+import org.apache.activemq.artemis.api.core.ActiveMQObjectClosedException;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
+import org.apache.activemq.artemis.api.core.management.AddressControl;
+import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
+import org.apache.activemq.artemis.api.core.management.ResourceNames;
+import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
+import org.apache.activemq.artemis.api.jms.management.JMSServerControl;
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.postoffice.QueueBinding;
+import org.apache.activemq.artemis.core.registry.JndiBindingRegistry;
+import org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.ActiveMQServers;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnection;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
+import org.apache.activemq.artemis.jms.client.ActiveMQMessageConsumer;
+import org.apache.activemq.artemis.jms.client.ActiveMQQueueConnectionFactory;
+import org.apache.activemq.artemis.jms.persistence.JMSStorageManager;
+import org.apache.activemq.artemis.jms.persistence.config.PersistedBindings;
+import org.apache.activemq.artemis.jms.persistence.config.PersistedConnectionFactory;
+import org.apache.activemq.artemis.jms.persistence.config.PersistedDestination;
+import org.apache.activemq.artemis.jms.persistence.config.PersistedType;
+import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
+import org.apache.activemq.artemis.tests.integration.management.ManagementControlHelper;
+import org.apache.activemq.artemis.tests.integration.management.ManagementTestBase;
+import org.apache.activemq.artemis.tests.unit.util.InVMNamingContext;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.json.JSONArray;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
@@ -37,44 +74,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
-import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
-import org.apache.activemq.artemis.api.core.ActiveMQObjectClosedException;
-import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.api.core.TransportConfiguration;
-import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
-import org.apache.activemq.artemis.api.core.management.AddressControl;
-import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
-import org.apache.activemq.artemis.api.core.management.ResourceNames;
-import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
-import org.apache.activemq.artemis.api.jms.management.JMSServerControl;
-import org.apache.activemq.artemis.tests.integration.management.ManagementControlHelper;
-import org.apache.activemq.artemis.tests.integration.management.ManagementTestBase;
-import org.apache.activemq.artemis.tests.unit.util.InVMNamingContext;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
-import org.apache.activemq.artemis.core.config.Configuration;
-import org.apache.activemq.artemis.core.postoffice.QueueBinding;
-import org.apache.activemq.artemis.core.registry.JndiBindingRegistry;
-import org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory;
-import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.apache.activemq.artemis.core.server.ActiveMQServers;
-import org.apache.activemq.artemis.jms.client.ActiveMQConnection;
-import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
-import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
-import org.apache.activemq.artemis.jms.client.ActiveMQMessageConsumer;
-import org.apache.activemq.artemis.jms.client.ActiveMQQueueConnectionFactory;
-import org.apache.activemq.artemis.jms.persistence.JMSStorageManager;
-import org.apache.activemq.artemis.jms.persistence.config.PersistedConnectionFactory;
-import org.apache.activemq.artemis.jms.persistence.config.PersistedDestination;
-import org.apache.activemq.artemis.jms.persistence.config.PersistedBindings;
-import org.apache.activemq.artemis.jms.persistence.config.PersistedType;
-import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
-import org.apache.activemq.artemis.utils.json.JSONArray;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
 
 public class JMSServerControlTest extends ManagementTestBase
 {
@@ -134,22 +133,22 @@ public class JMSServerControlTest extends ManagementTestBase
       String queueName = RandomUtil.randomString();
 
       String bindingsCSV = JMSServerControlTest.toCSV(bindings);
-      ServiceTestBase.checkNoBinding(context, bindingsCSV);
+      ActiveMQTestBase.checkNoBinding(context, bindingsCSV);
 
       checkNoResource(ObjectNameBuilder.DEFAULT.getJMSQueueObjectName(queueName));
 
       JMSServerControl control = createManagementControl();
       control.createQueue(queueName, bindingsCSV);
 
-      Object o = ServiceTestBase.checkBinding(context, bindings[0]);
+      Object o = ActiveMQTestBase.checkBinding(context, bindings[0]);
       Assert.assertTrue(o instanceof Queue);
       Queue queue = (Queue) o;
       Assert.assertEquals(queueName, queue.getQueueName());
-      o = ServiceTestBase.checkBinding(context, bindings[1]);
+      o = ActiveMQTestBase.checkBinding(context, bindings[1]);
       Assert.assertTrue(o instanceof Queue);
       queue = (Queue) o;
       Assert.assertEquals(queueName, queue.getQueueName());
-      o = ServiceTestBase.checkBinding(context, bindings[2]);
+      o = ActiveMQTestBase.checkBinding(context, bindings[2]);
       Assert.assertTrue(o instanceof Queue);
       queue = (Queue) o;
       Assert.assertEquals(queueName, queue.getQueueName());
@@ -172,22 +171,22 @@ public class JMSServerControlTest extends ManagementTestBase
       String queueName = RandomUtil.randomString();
 
       String bindingsCSV = JMSServerControlTest.toCSV(bindings);
-      ServiceTestBase.checkNoBinding(context, bindingsCSV);
+      ActiveMQTestBase.checkNoBinding(context, bindingsCSV);
 
       checkNoResource(ObjectNameBuilder.DEFAULT.getJMSQueueObjectName(queueName));
 
       JMSServerControl control = createManagementControl();
       control.createQueue(queueName, bindingsCSV);
 
-      Object o = ServiceTestBase.checkBinding(context, "first,first");
+      Object o = ActiveMQTestBase.checkBinding(context, "first,first");
       Assert.assertTrue(o instanceof Queue);
       Queue queue = (Queue) o;
       Assert.assertEquals(queueName, queue.getQueueName());
-      o = ServiceTestBase.checkBinding(context, "second,second");
+      o = ActiveMQTestBase.checkBinding(context, "second,second");
       Assert.assertTrue(o instanceof Queue);
       queue = (Queue) o;
       Assert.assertEquals(queueName, queue.getQueueName());
-      o = ServiceTestBase.checkBinding(context, "third,third");
+      o = ActiveMQTestBase.checkBinding(context, "third,third");
       Assert.assertTrue(o instanceof Queue);
       queue = (Queue) o;
       Assert.assertEquals(queueName, queue.getQueueName());
@@ -210,7 +209,7 @@ public class JMSServerControlTest extends ManagementTestBase
       String queueName = RandomUtil.randomString();
 
       String bindingsCSV = JMSServerControlTest.toCSV(bindings);
-      ServiceTestBase.checkNoBinding(context, bindingsCSV);
+      ActiveMQTestBase.checkNoBinding(context, bindingsCSV);
 
       checkNoResource(ObjectNameBuilder.DEFAULT.getJMSQueueObjectName(queueName));
 
@@ -218,7 +217,7 @@ public class JMSServerControlTest extends ManagementTestBase
       String selector = "foo='bar'";
       control.createQueue(queueName, bindingsCSV, selector);
 
-      Object o = ServiceTestBase.checkBinding(context, bindings[0]);
+      Object o = ActiveMQTestBase.checkBinding(context, bindings[0]);
       Assert.assertTrue(o instanceof Queue);
       Queue queue = (Queue) o;
       // assertEquals(((ActiveMQDestination)queue).get);
@@ -228,7 +227,7 @@ public class JMSServerControlTest extends ManagementTestBase
          .getFilter()
          .getFilterString()
          .toString());
-      o = ServiceTestBase.checkBinding(context, bindings[1]);
+      o = ActiveMQTestBase.checkBinding(context, bindings[1]);
       Assert.assertTrue(o instanceof Queue);
       queue = (Queue) o;
       Assert.assertEquals(queueName, queue.getQueueName());
@@ -237,7 +236,7 @@ public class JMSServerControlTest extends ManagementTestBase
          .getFilter()
          .getFilterString()
          .toString());
-      o = ServiceTestBase.checkBinding(context, bindings[2]);
+      o = ActiveMQTestBase.checkBinding(context, bindings[2]);
       Assert.assertTrue(o instanceof Queue);
       queue = (Queue) o;
       Assert.assertEquals(queueName, queue.getQueueName());
@@ -261,13 +260,13 @@ public class JMSServerControlTest extends ManagementTestBase
       String queueName = RandomUtil.randomString();
       String binding = RandomUtil.randomString();
 
-      ServiceTestBase.checkNoBinding(context, binding);
+      ActiveMQTestBase.checkNoBinding(context, binding);
       checkNoResource(ObjectNameBuilder.DEFAULT.getJMSQueueObjectName(queueName));
 
       JMSServerControl control = createManagementControl();
       control.createQueue(queueName, binding, null, false);
 
-      Object o = ServiceTestBase.checkBinding(context, binding);
+      Object o = ActiveMQTestBase.checkBinding(context, binding);
       Assert.assertTrue(o instanceof Queue);
       Queue queue = (Queue) o;
       Assert.assertEquals(queueName, queue.getQueueName());
@@ -287,18 +286,18 @@ public class JMSServerControlTest extends ManagementTestBase
       String queueJNDIBinding = RandomUtil.randomString();
       String queueName = RandomUtil.randomString();
 
-      ServiceTestBase.checkNoBinding(context, queueJNDIBinding);
+      ActiveMQTestBase.checkNoBinding(context, queueJNDIBinding);
       checkNoResource(ObjectNameBuilder.DEFAULT.getJMSQueueObjectName(queueName));
 
       JMSServerControl control = createManagementControl();
       control.createQueue(queueName, queueJNDIBinding);
 
-      ServiceTestBase.checkBinding(context, queueJNDIBinding);
+      ActiveMQTestBase.checkBinding(context, queueJNDIBinding);
       checkResource(ObjectNameBuilder.DEFAULT.getJMSQueueObjectName(queueName));
 
       control.destroyQueue(queueName);
 
-      ServiceTestBase.checkNoBinding(context, queueJNDIBinding);
+      ActiveMQTestBase.checkNoBinding(context, queueJNDIBinding);
       checkNoResource(ObjectNameBuilder.DEFAULT.getJMSQueueObjectName(queueName));
 
       Assert.assertNull(fakeJMSStorageManager.destinationMap.get(queueName));
@@ -310,13 +309,13 @@ public class JMSServerControlTest extends ManagementTestBase
       String queueJNDIBinding = RandomUtil.randomString();
       String queueName = RandomUtil.randomString();
 
-      ServiceTestBase.checkNoBinding(context, queueJNDIBinding);
+      ActiveMQTestBase.checkNoBinding(context, queueJNDIBinding);
       checkNoResource(ObjectNameBuilder.DEFAULT.getJMSQueueObjectName(queueName));
 
       JMSServerControl control = createManagementControl();
       control.createQueue(queueName, queueJNDIBinding);
 
-      ServiceTestBase.checkBinding(context, queueJNDIBinding);
+      ActiveMQTestBase.checkBinding(context, queueJNDIBinding);
       checkResource(ObjectNameBuilder.DEFAULT.getJMSQueueObjectName(queueName));
 
       ActiveMQConnectionFactory cf =
@@ -330,7 +329,7 @@ public class JMSServerControlTest extends ManagementTestBase
 
          control.destroyQueue(queueName, true);
 
-         ServiceTestBase.checkNoBinding(context, queueJNDIBinding);
+         ActiveMQTestBase.checkNoBinding(context, queueJNDIBinding);
          checkNoResource(ObjectNameBuilder.DEFAULT.getJMSQueueObjectName(queueName));
 
          Assert.assertNull(fakeJMSStorageManager.destinationMap.get(queueName));
@@ -367,13 +366,13 @@ public class JMSServerControlTest extends ManagementTestBase
       String queueJNDIBinding = RandomUtil.randomString();
       String queueName = RandomUtil.randomString();
 
-      ServiceTestBase.checkNoBinding(context, queueJNDIBinding);
+      ActiveMQTestBase.checkNoBinding(context, queueJNDIBinding);
       checkNoResource(ObjectNameBuilder.DEFAULT.getJMSQueueObjectName(queueName));
 
       JMSServerControl control = createManagementControl();
       control.createQueue(queueName, queueJNDIBinding);
 
-      ServiceTestBase.checkBinding(context, queueJNDIBinding);
+      ActiveMQTestBase.checkBinding(context, queueJNDIBinding);
       checkResource(ObjectNameBuilder.DEFAULT.getJMSQueueObjectName(queueName));
 
       ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory(false, new TransportConfiguration(INVM_CONNECTOR_FACTORY));
@@ -397,7 +396,7 @@ public class JMSServerControlTest extends ManagementTestBase
             Assert.assertTrue(e.getMessage().startsWith("AMQ119025"));
          }
 
-         ServiceTestBase.checkBinding(context, queueJNDIBinding);
+         ActiveMQTestBase.checkBinding(context, queueJNDIBinding);
          checkResource(ObjectNameBuilder.DEFAULT.getJMSQueueObjectName(queueName));
 
          Assert.assertNotNull(fakeJMSStorageManager.destinationMap.get(queueName));
@@ -422,13 +421,13 @@ public class JMSServerControlTest extends ManagementTestBase
       String topicJNDIBinding = RandomUtil.randomString();
       String topicName = RandomUtil.randomString();
 
-      ServiceTestBase.checkNoBinding(context, topicJNDIBinding);
+      ActiveMQTestBase.checkNoBinding(context, topicJNDIBinding);
       checkNoResource(ObjectNameBuilder.DEFAULT.getJMSTopicObjectName(topicName));
 
       JMSServerControl control = createManagementControl();
       control.createTopic(topicName, topicJNDIBinding);
 
-      ServiceTestBase.checkBinding(context, topicJNDIBinding);
+      ActiveMQTestBase.checkBinding(context, topicJNDIBinding);
       checkResource(ObjectNameBuilder.DEFAULT.getJMSTopicObjectName(topicName));
 
       ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory(false, new TransportConfiguration(INVM_CONNECTOR_FACTORY));
@@ -452,7 +451,7 @@ public class JMSServerControlTest extends ManagementTestBase
             Assert.assertTrue(e.getMessage().startsWith("AMQ119025"));
          }
 
-         ServiceTestBase.checkBinding(context, topicJNDIBinding);
+         ActiveMQTestBase.checkBinding(context, topicJNDIBinding);
          checkResource(ObjectNameBuilder.DEFAULT.getJMSTopicObjectName(topicName));
          Assert.assertFalse(cons.isClosed());
 
@@ -474,13 +473,13 @@ public class JMSServerControlTest extends ManagementTestBase
       String topicJNDIBinding = RandomUtil.randomString();
       String topicName = RandomUtil.randomString();
 
-      ServiceTestBase.checkNoBinding(context, topicJNDIBinding);
+      ActiveMQTestBase.checkNoBinding(context, topicJNDIBinding);
       checkNoResource(ObjectNameBuilder.DEFAULT.getJMSTopicObjectName(topicName));
 
       JMSServerControl control = createManagementControl();
       control.createTopic(topicName, topicJNDIBinding);
 
-      ServiceTestBase.checkBinding(context, topicJNDIBinding);
+      ActiveMQTestBase.checkBinding(context, topicJNDIBinding);
       checkResource(ObjectNameBuilder.DEFAULT.getJMSTopicObjectName(topicName));
 
       ActiveMQConnectionFactory cf =
@@ -494,7 +493,7 @@ public class JMSServerControlTest extends ManagementTestBase
 
          control.destroyTopic(topicName, true);
 
-         ServiceTestBase.checkNoBinding(context, topicJNDIBinding);
+         ActiveMQTestBase.checkNoBinding(context, topicJNDIBinding);
          checkNoResource(ObjectNameBuilder.DEFAULT.getJMSTopicObjectName(topicName));
 
          long time = System.currentTimeMillis();
@@ -529,17 +528,17 @@ public class JMSServerControlTest extends ManagementTestBase
       String queueJNDIBinding = RandomUtil.randomString();
       String queueName = RandomUtil.randomString();
 
-      ServiceTestBase.checkNoBinding(context, queueJNDIBinding);
+      ActiveMQTestBase.checkNoBinding(context, queueJNDIBinding);
       checkNoResource(ObjectNameBuilder.DEFAULT.getJMSQueueObjectName(queueName));
 
       JMSServerControl control = createManagementControl();
       control.createQueue(queueName, queueJNDIBinding);
 
-      ServiceTestBase.checkBinding(context, queueJNDIBinding);
+      ActiveMQTestBase.checkBinding(context, queueJNDIBinding);
       checkResource(ObjectNameBuilder.DEFAULT.getJMSQueueObjectName(queueName));
 
       ActiveMQConnectionFactory cf =
-         new ActiveMQConnectionFactory(false, new TransportConfiguration(ServiceTestBase.NETTY_CONNECTOR_FACTORY));
+         new ActiveMQConnectionFactory(false, new TransportConfiguration(ActiveMQTestBase.NETTY_CONNECTOR_FACTORY));
       cf.setReconnectAttempts(-1);
       ActiveMQConnection connection = (ActiveMQConnection) cf.createConnection();
       try
@@ -550,7 +549,7 @@ public class JMSServerControlTest extends ManagementTestBase
 
          control.destroyQueue(queueName, true);
 
-         ServiceTestBase.checkNoBinding(context, queueJNDIBinding);
+         ActiveMQTestBase.checkNoBinding(context, queueJNDIBinding);
          checkNoResource(ObjectNameBuilder.DEFAULT.getJMSQueueObjectName(queueName));
 
          Assert.assertNull(fakeJMSStorageManager.destinationMap.get(queueName));
@@ -610,24 +609,24 @@ public class JMSServerControlTest extends ManagementTestBase
       bindings[1] = RandomUtil.randomString();
       bindings[2] = RandomUtil.randomString();
       String topicJNDIBinding = JMSServerControlTest.toCSV(bindings);
-      ServiceTestBase.checkNoBinding(context, topicJNDIBinding);
+      ActiveMQTestBase.checkNoBinding(context, topicJNDIBinding);
       String topicName = RandomUtil.randomString();
 
-      ServiceTestBase.checkNoBinding(context, topicJNDIBinding);
+      ActiveMQTestBase.checkNoBinding(context, topicJNDIBinding);
       checkNoResource(ObjectNameBuilder.DEFAULT.getJMSTopicObjectName(topicName));
 
       JMSServerControl control = createManagementControl();
       control.createTopic(topicName, topicJNDIBinding);
 
-      Object o = ServiceTestBase.checkBinding(context, bindings[0]);
+      Object o = ActiveMQTestBase.checkBinding(context, bindings[0]);
       Assert.assertTrue(o instanceof Topic);
       Topic topic = (Topic) o;
       Assert.assertEquals(topicName, topic.getTopicName());
-      o = ServiceTestBase.checkBinding(context, bindings[1]);
+      o = ActiveMQTestBase.checkBinding(context, bindings[1]);
       Assert.assertTrue(o instanceof Topic);
       topic = (Topic) o;
       Assert.assertEquals(topicName, topic.getTopicName());
-      o = ServiceTestBase.checkBinding(context, bindings[2]);
+      o = ActiveMQTestBase.checkBinding(context, bindings[2]);
       Assert.assertTrue(o instanceof Topic);
       topic = (Topic) o;
       Assert.assertEquals(topicName, topic.getTopicName());
@@ -646,7 +645,7 @@ public class JMSServerControlTest extends ManagementTestBase
       String topicJNDIBinding = RandomUtil.randomString();
       String topicName = RandomUtil.randomString();
 
-      ServiceTestBase.checkNoBinding(context, topicJNDIBinding);
+      ActiveMQTestBase.checkNoBinding(context, topicJNDIBinding);
       checkNoResource(ObjectNameBuilder.DEFAULT.getJMSTopicObjectName(topicName));
 
       JMSServerControl control = createManagementControl();
@@ -673,7 +672,7 @@ public class JMSServerControlTest extends ManagementTestBase
       control.destroyTopic(topicName);
 
       Assert.assertNull(server.getManagementService().getResource(ResourceNames.CORE_ADDRESS + topicAddress));
-      ServiceTestBase.checkNoBinding(context, topicJNDIBinding);
+      ActiveMQTestBase.checkNoBinding(context, topicJNDIBinding);
       checkNoResource(ObjectNameBuilder.DEFAULT.getJMSTopicObjectName(topicName));
 
       Assert.assertNull(fakeJMSStorageManager.destinationMap.get(topicName));
@@ -685,7 +684,7 @@ public class JMSServerControlTest extends ManagementTestBase
       String topicJNDIBinding = RandomUtil.randomString();
       String topicName = RandomUtil.randomString();
 
-      ServiceTestBase.checkNoBinding(context, topicJNDIBinding);
+      ActiveMQTestBase.checkNoBinding(context, topicJNDIBinding);
       checkNoResource(ObjectNameBuilder.DEFAULT.getJMSTopicObjectName(topicName));
 
       JMSServerControl control = createManagementControl();
@@ -722,7 +721,7 @@ public class JMSServerControlTest extends ManagementTestBase
       control.destroyTopic(topicName);
 
       Assert.assertNull(server.getManagementService().getResource(ResourceNames.CORE_ADDRESS + topicAddress));
-      ServiceTestBase.checkNoBinding(context, topicJNDIBinding);
+      ActiveMQTestBase.checkNoBinding(context, topicJNDIBinding);
       checkNoResource(ObjectNameBuilder.DEFAULT.getJMSTopicObjectName(topicName));
 
       Assert.assertNull(fakeJMSStorageManager.destinationMap.get(topicName));
@@ -841,7 +840,9 @@ public class JMSServerControlTest extends ManagementTestBase
       Assert.assertEquals(true, cf.isFailoverOnInitialConnection());
       Assert.assertEquals("tst", cf.getGroupID());
 
-      stopServer();
+      server.stop();
+
+      waitForServerToStop(server);
 
       startServer();
 
@@ -883,7 +884,9 @@ public class JMSServerControlTest extends ManagementTestBase
       ObjectNameBuilder nameBuilder = ObjectNameBuilder.create(ActiveMQDefaultConfiguration.getDefaultJmxDomain());
       Assert.assertFalse(mbeanServer.isRegistered(nameBuilder.getConnectionFactoryObjectName("test")));
 
-      stopServer();
+      server.stop();
+
+      waitForServerToStop(server);
 
       startServer();
 
@@ -1064,14 +1067,12 @@ public class JMSServerControlTest extends ManagementTestBase
     */
    protected void startServer() throws Exception
    {
-      Configuration conf = createBasicConfig()
-         .setPersistenceEnabled(true)
-         .addAcceptorConfiguration(new TransportConfiguration(ServiceTestBase.NETTY_ACCEPTOR_FACTORY))
-         .addAcceptorConfiguration(new TransportConfiguration(ServiceTestBase.INVM_ACCEPTOR_FACTORY))
-         .addConnectorConfiguration("netty", new TransportConfiguration(ServiceTestBase.NETTY_CONNECTOR_FACTORY))
-         .addConnectorConfiguration("invm", new TransportConfiguration(INVM_CONNECTOR_FACTORY));
+      Configuration config = createDefaultNettyConfig()
+              .setJMXManagementEnabled(true)
+              .addConnectorConfiguration("netty", new TransportConfiguration(ActiveMQTestBase.NETTY_CONNECTOR_FACTORY))
+              .addConnectorConfiguration("invm", new TransportConfiguration(INVM_CONNECTOR_FACTORY));
 
-      server = addServer(ActiveMQServers.newActiveMQServer(conf, mbeanServer, true));
+      server = addServer(ActiveMQServers.newActiveMQServer(config, mbeanServer, true));
 
       serverManager = new JMSServerManagerImpl(server);
       context = new InVMNamingContext();
@@ -1082,34 +1083,6 @@ public class JMSServerControlTest extends ManagementTestBase
       this.fakeJMSStorageManager = new FakeJMSStorageManager(serverManager.getJMSStorageManager());
 
       serverManager.replaceStorageManager(fakeJMSStorageManager);
-   }
-
-   @Override
-   @After
-   public void tearDown() throws Exception
-   {
-      try
-      {
-         stopServer();
-      }
-      finally
-      {
-         super.tearDown();
-      }
-   }
-
-   /**
-    * @throws Exception
-    */
-   protected void stopServer() throws Exception
-   {
-      serverManager.stop();
-
-      server.stop();
-
-      serverManager = null;
-
-      server = null;
    }
 
    protected JMSServerControl createManagementControl() throws Exception
@@ -1130,7 +1103,7 @@ public class JMSServerControlTest extends ManagementTestBase
 
       for (Object cfJNDIBinding : cfJNDIBindings)
       {
-         ServiceTestBase.checkNoBinding(context, cfJNDIBinding.toString());
+         ActiveMQTestBase.checkNoBinding(context, cfJNDIBinding.toString());
       }
       checkNoResource(ObjectNameBuilder.DEFAULT.getConnectionFactoryObjectName(cfName));
 
@@ -1139,7 +1112,7 @@ public class JMSServerControlTest extends ManagementTestBase
 
       for (Object cfJNDIBinding : cfJNDIBindings)
       {
-         Object o = ServiceTestBase.checkBinding(context, cfJNDIBinding.toString());
+         Object o = ActiveMQTestBase.checkBinding(context, cfJNDIBinding.toString());
          Assert.assertTrue(o instanceof ConnectionFactory);
          ConnectionFactory cf = (ConnectionFactory) o;
          Connection connection = cf.createConnection();

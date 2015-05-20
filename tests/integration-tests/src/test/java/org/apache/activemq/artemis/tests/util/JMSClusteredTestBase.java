@@ -16,34 +16,29 @@
  */
 package org.apache.activemq.artemis.tests.util;
 
-import javax.jms.ConnectionFactory;
-import javax.jms.Queue;
-import javax.jms.Topic;
-import javax.management.MBeanServer;
-import javax.management.MBeanServerFactory;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.api.jms.JMSFactoryType;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
-import org.apache.activemq.artemis.tests.unit.util.InVMNamingContext;
 import org.apache.activemq.artemis.core.config.ClusterConnectionConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.registry.JndiBindingRegistry;
 import org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
-import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.server.config.impl.JMSConfigurationImpl;
 import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
-import org.junit.After;
+import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
+import org.apache.activemq.artemis.tests.unit.util.InVMNamingContext;
 import org.junit.Before;
 
-public class JMSClusteredTestBase extends ServiceTestBase
+import javax.jms.ConnectionFactory;
+import javax.jms.Queue;
+import javax.jms.Topic;
+import javax.management.MBeanServer;
+import javax.management.MBeanServerFactory;
+import java.util.ArrayList;
+
+public class JMSClusteredTestBase extends ActiveMQTestBase
 {
 
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
@@ -122,20 +117,20 @@ public class JMSClusteredTestBase extends ServiceTestBase
 
       jmsServer1.start();
       jmsServer1.activated();
-      waitForServer(jmsServer1.getActiveMQServer());
+      waitForServerToStart(jmsServer1.getActiveMQServer());
 
       jmsServer2.start();
       jmsServer2.activated();
-      waitForServer(jmsServer2.getActiveMQServer());
+      waitForServerToStart(jmsServer2.getActiveMQServer());
 
       waitForTopology(jmsServer1.getActiveMQServer(), 2);
 
       waitForTopology(jmsServer2.getActiveMQServer(), 2);
 
       cf1 = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration(InVMConnectorFactory.class.getName(),
-                                                                                                             generateInVMParams(0)));
-      cf2 = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration(InVMConnectorFactory.class.getName(),
                                                                                                              generateInVMParams(1)));
+      cf2 = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration(InVMConnectorFactory.class.getName(),
+                                                                                                             generateInVMParams(2)));
    }
 
    /**
@@ -143,46 +138,15 @@ public class JMSClusteredTestBase extends ServiceTestBase
     */
    private void setupServer2() throws Exception
    {
-      Configuration conf2 = createConfigServer2();
+      Configuration configuration = createConfigServer(2, 1);
 
       JMSConfigurationImpl jmsconfig = new JMSConfigurationImpl();
 
       mBeanServer2 = MBeanServerFactory.createMBeanServer();
-      server2 = ActiveMQServers.newActiveMQServer(conf2, mBeanServer2, enablePersistence());
+      server2 = addServer(ActiveMQServers.newActiveMQServer(configuration, mBeanServer2, enablePersistence()));
       jmsServer2 = new JMSServerManagerImpl(server2, jmsconfig);
       context2 = new InVMNamingContext();
       jmsServer2.setRegistry(new JndiBindingRegistry(context2));
-   }
-
-   /**
-    * @return
-    */
-   protected Configuration createConfigServer2()
-   {
-      List<String> toOtherServerPair = new ArrayList<String>();
-      toOtherServerPair.add("toServer1");
-
-      Configuration conf2 = createDefaultConfig(1, generateInVMParams(1), INVM_ACCEPTOR_FACTORY);
-      conf2.setSecurityEnabled(false);
-      conf2.setPersistenceEnabled(false);
-
-      conf2.getConnectorConfigurations().put("toServer1",
-                                             new TransportConfiguration(InVMConnectorFactory.class.getName(),
-                                                                        generateInVMParams(0)));
-      conf2.getConnectorConfigurations().put("server2",
-                                             new TransportConfiguration(InVMConnectorFactory.class.getName(),
-                                                                        generateInVMParams(1)));
-
-      conf2.getClusterConfigurations().add(new ClusterConnectionConfiguration()
-         .setName("to-server1")
-         .setAddress("jms")
-         .setConnectorName("server2")
-         .setRetryInterval(1000)
-         .setMaxHops(MAX_HOPS)
-         .setConfirmationWindowSize(1024)
-         .setStaticConnectors(toOtherServerPair));
-
-      return conf2;
    }
 
    /**
@@ -190,12 +154,12 @@ public class JMSClusteredTestBase extends ServiceTestBase
     */
    private void setupServer1() throws Exception
    {
-      Configuration conf1 = createConfigServer1();
+      Configuration configuration = createConfigServer(1, 2);
 
       JMSConfigurationImpl jmsconfig = new JMSConfigurationImpl();
 
       mBeanServer1 = MBeanServerFactory.createMBeanServer();
-      server1 = ActiveMQServers.newActiveMQServer(conf1, mBeanServer1, enablePersistence());
+      server1 = addServer(ActiveMQServers.newActiveMQServer(configuration, mBeanServer1, enablePersistence()));
       jmsServer1 = new JMSServerManagerImpl(server1, jmsconfig);
       context1 = new InVMNamingContext();
       jmsServer1.setRegistry(new JndiBindingRegistry(context1));
@@ -209,99 +173,32 @@ public class JMSClusteredTestBase extends ServiceTestBase
    /**
     * @return
     */
-   protected Configuration createConfigServer1()
+   protected Configuration createConfigServer(final int source, final int destination) throws Exception
    {
-      List<String> toOtherServerPair = new ArrayList<String>();
-      toOtherServerPair.add("toServer2");
+      final String destinationLabel = "toServer" + destination;
+      final String sourceLabel = "server" + source;
 
-      Configuration conf1 = createDefaultConfig(0, generateInVMParams(0), INVM_ACCEPTOR_FACTORY);
+      Configuration configuration = createDefaultInVMConfig(source)
+              .setSecurityEnabled(false)
+              .setJMXManagementEnabled(true)
+              .setPersistenceEnabled(false)
+              .addConnectorConfiguration(destinationLabel, new TransportConfiguration(InVMConnectorFactory.class.getName(), generateInVMParams(destination)))
+              .addConnectorConfiguration(sourceLabel, new TransportConfiguration(InVMConnectorFactory.class.getName(), generateInVMParams(source)))
+              .addClusterConfiguration(new ClusterConnectionConfiguration()
+                                               .setName(destinationLabel)
+                                               .setAddress("jms")
+                                               .setConnectorName(sourceLabel)
+                                               .setRetryInterval(1000)
+                                               .setMaxHops(MAX_HOPS)
+                                               .setConfirmationWindowSize(1024)
+                                               .setStaticConnectors(new ArrayList<String>() { { add(destinationLabel); } } ));
 
-      conf1.setSecurityEnabled(false);
-      conf1.setPersistenceEnabled(false);
-
-      conf1.getConnectorConfigurations().put("toServer2",
-                                             new TransportConfiguration(InVMConnectorFactory.class.getName(),
-                                                                        generateInVMParams(1)));
-      conf1.getConnectorConfigurations().put("server1",
-                                             new TransportConfiguration(InVMConnectorFactory.class.getName(),
-                                                                        generateInVMParams(0)));
-
-      conf1.getClusterConfigurations().add(new ClusterConnectionConfiguration()
-         .setName("to-server2")
-         .setAddress("jms")
-         .setConnectorName("server1")
-         .setRetryInterval(1000)
-         .setMaxHops(MAX_HOPS)
-         .setConfirmationWindowSize(1024)
-         .setStaticConnectors(toOtherServerPair));
-
-      return conf1;
-   }
-
-   @Override
-   @After
-   public void tearDown() throws Exception
-   {
-
-      try
-      {
-         jmsServer2.stop();
-
-         server2.stop();
-
-         context2.close();
-      }
-      catch (Throwable e)
-      {
-         log.warn("Can't stop server2", e);
-      }
-
-      ((ActiveMQConnectionFactory) cf1).close();
-
-      ((ActiveMQConnectionFactory) cf2).close();
-
-      server2 = null;
-
-      jmsServer2 = null;
-
-      context2 = null;
-
-      cf1 = null;
-
-      try
-      {
-         jmsServer1.stop();
-
-         server1.stop();
-
-         context1.close();
-      }
-      catch (Throwable e)
-      {
-         log.warn("Can't stop server1", e);
-      }
-
-      server1 = null;
-
-      jmsServer1 = null;
-
-      context1 = null;
-
-      super.tearDown();
+      return configuration;
    }
 
    // Private -------------------------------------------------------
 
    // Inner classes -------------------------------------------------
-
-   protected Map<String, Object> generateInVMParams(final int node)
-   {
-      Map<String, Object> params = new HashMap<String, Object>();
-
-      params.put(org.apache.activemq.artemis.core.remoting.impl.invm.TransportConstants.SERVER_ID_PROP_NAME, node);
-
-      return params;
-   }
 
 
 }

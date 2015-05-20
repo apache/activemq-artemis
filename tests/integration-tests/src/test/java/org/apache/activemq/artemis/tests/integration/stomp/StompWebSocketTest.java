@@ -16,11 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.stomp;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.CoreQueueConfiguration;
 import org.apache.activemq.artemis.core.protocol.stomp.StompProtocolManagerFactory;
@@ -33,11 +29,14 @@ import org.apache.activemq.artemis.jms.server.JMSServerManager;
 import org.apache.activemq.artemis.jms.server.config.JMSConfiguration;
 import org.apache.activemq.artemis.jms.server.config.impl.JMSConfigurationImpl;
 import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
-import org.junit.After;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Before;
 import org.junit.Test;
 
-public class StompWebSocketTest extends ServiceTestBase
+import java.util.HashMap;
+import java.util.Map;
+
+public class StompWebSocketTest extends ActiveMQTestBase
 {
    private JMSServerManager server;
 
@@ -87,13 +86,6 @@ public class StompWebSocketTest extends ServiceTestBase
       server = new JMSServerManagerImpl(activeMQServer, jmsConfig);
       server.setRegistry(null);
       return server;
-   }
-
-   @Override
-   @After
-   public void tearDown() throws Exception
-   {
-      server.stop();
    }
 
    protected String getQueueName()

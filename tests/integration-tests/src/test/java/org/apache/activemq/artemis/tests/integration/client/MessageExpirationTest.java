@@ -33,9 +33,9 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 
-public class MessageExpirationTest extends ServiceTestBase
+public class MessageExpirationTest extends ActiveMQTestBase
 {
 
    private static final int EXPIRATION = 1000;
@@ -87,8 +87,7 @@ public class MessageExpirationTest extends ServiceTestBase
       ClientProducer producer = session.createProducer(address);
       ClientMessage message = session.createMessage(false);
 
-      AddressSettings addressSettings = new AddressSettings();
-      addressSettings.setExpiryDelay((long) MessageExpirationTest.EXPIRATION);
+      AddressSettings addressSettings = new AddressSettings().setExpiryDelay((long) MessageExpirationTest.EXPIRATION);
       server.getAddressSettingsRepository().addMatch(address.toString(), addressSettings);
 
       producer.send(message);

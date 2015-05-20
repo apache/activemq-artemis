@@ -27,11 +27,11 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.After;
 import org.junit.Test;
 
-public class PagingWithFailoverAndCountersTest extends ServiceTestBase
+public class PagingWithFailoverAndCountersTest extends ActiveMQTestBase
 {
 
    Process liveProcess;
@@ -288,15 +288,15 @@ public class PagingWithFailoverAndCountersTest extends ServiceTestBase
          ActiveMQServer server = inProcessBackup.getServer();
          try
          {
-            waitForServer(server);
+            waitForServerToStart(server);
 
             // The best to way to validate if the server is ready and operating is to send and consume at least one message
             // before we could do valid monitoring
             try
             {
-               ServerLocator locator = PagingWithFailoverServer.createLocator(PORT2);
-               locator.setInitialConnectAttempts(100);
-               locator.setRetryInterval(100);
+               ServerLocator locator = PagingWithFailoverServer.createLocator(PORT2)
+                       .setInitialConnectAttempts(100)
+                       .setRetryInterval(100);
                ClientSessionFactory factory = locator.createSessionFactory();
                ClientSession session = factory.createSession();
 
@@ -345,18 +345,17 @@ public class PagingWithFailoverAndCountersTest extends ServiceTestBase
    {
       startLive();
 
-      ServerLocator locator = PagingWithFailoverServer.createLocator(PORT1);
-      locator.setInitialConnectAttempts(100);
-      locator.setReconnectAttempts(-1);
-      locator.setRetryInterval(100);
-      ClientSessionFactory factory = locator.createSessionFactory();
+      ServerLocator locator = PagingWithFailoverServer.createLocator(PORT1)
+              .setInitialConnectAttempts(100)
+              .setReconnectAttempts(-1)
+              .setRetryInterval(100);
 
+      ClientSessionFactory factory = locator.createSessionFactory();
 
       ClientSession session = factory.createSession();
 
       session.createQueue("myAddress", "DeadConsumer", true);
       session.createQueue("myAddress", "cons2", true);
-
 
       startBackupInProcess();
 
@@ -365,11 +364,9 @@ public class PagingWithFailoverAndCountersTest extends ServiceTestBase
       ConsumerThread tConsumer = new ConsumerThread(factory, "cons2", 0, 10);
       tConsumer.start();
 
-
       MonitorThread monitor = new MonitorThread();
 
       ClientProducer prod = session.createProducer("myAddress");
-
 
       long i = 0;
 
@@ -410,7 +407,6 @@ public class PagingWithFailoverAndCountersTest extends ServiceTestBase
       factory.close();
 
       verifyServer();
-
    }
 
    public void verifyServer() throws Exception
@@ -423,7 +419,7 @@ public class PagingWithFailoverAndCountersTest extends ServiceTestBase
 
       server.start();
 
-      waitForServer(server);
+      waitForServerToStart(server);
       Queue queue = server.locateQueue(SimpleString.toSimpleString("cons2"));
 
 
@@ -431,10 +427,11 @@ public class PagingWithFailoverAndCountersTest extends ServiceTestBase
 
       assertTrue(messageCount >= 0);
 
-      locator = PagingWithFailoverServer.createLocator(PORT1);
-      locator.setInitialConnectAttempts(100);
-      locator.setReconnectAttempts(-1);
-      locator.setRetryInterval(100);
+      locator = PagingWithFailoverServer.createLocator(PORT1)
+              .setInitialConnectAttempts(100)
+              .setReconnectAttempts(-1)
+              .setRetryInterval(100);
+
       factory = locator.createSessionFactory();
 
 

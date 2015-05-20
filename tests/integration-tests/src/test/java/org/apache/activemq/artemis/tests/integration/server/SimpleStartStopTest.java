@@ -23,11 +23,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.jboss.logmanager.Level;
 import org.junit.Test;
 
-public class SimpleStartStopTest extends ServiceTestBase
+public class SimpleStartStopTest extends ActiveMQTestBase
 {
 
    /**

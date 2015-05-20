@@ -36,10 +36,9 @@ public class AlmostLargeAsynchronousFailoverTest extends AsynchronousFailoverTes
    @Override
    protected ServerLocatorInternal getServerLocator() throws Exception
    {
-      ServerLocatorInternal locator = super.getServerLocator();
-      locator.setMinLargeMessageSize(1024 * 1024);
-      locator.setProducerWindowSize(10 * 1024);
-      return locator;
+      return (ServerLocatorInternal) super.getServerLocator()
+              .setMinLargeMessageSize(1024 * 1024)
+              .setProducerWindowSize(10 * 1024);
    }
 
    @Override

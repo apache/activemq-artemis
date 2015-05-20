@@ -16,11 +16,14 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.divert;
 
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
+import org.apache.activemq.artemis.api.jms.JMSFactoryType;
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.config.DivertConfiguration;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
+import org.junit.Assert;
 import org.junit.Test;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.jms.Connection;
 import javax.jms.MessageConsumer;
@@ -28,14 +31,7 @@ import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
-
-import org.junit.Assert;
-
-import org.apache.activemq.artemis.api.core.TransportConfiguration;
-import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
-import org.apache.activemq.artemis.api.jms.JMSFactoryType;
-import org.apache.activemq.artemis.core.config.Configuration;
-import org.apache.activemq.artemis.core.config.DivertConfiguration;
+import java.util.List;
 
 /**
  * A DivertAndACKClientTest
@@ -102,8 +98,6 @@ public class DivertAndACKClientTest extends JMSTestBase
    @Override
    protected Configuration createDefaultConfig(final boolean netty) throws Exception
    {
-      Configuration config = super.createDefaultConfig(netty);
-
       DivertConfiguration divert = new DivertConfiguration()
          .setName("local-divert")
          .setRoutingName("some-name")
@@ -111,10 +105,8 @@ public class DivertAndACKClientTest extends JMSTestBase
          .setForwardingAddress("jms.queue.Dest")
          .setExclusive(true);
 
-      ArrayList<DivertConfiguration> divertList = new ArrayList<DivertConfiguration>();
-      divertList.add(divert);
-
-      config.setDivertConfigurations(divertList);
+      Configuration config = super.createDefaultConfig(netty)
+              .addDivertConfiguration(divert);
 
       return config;
    }

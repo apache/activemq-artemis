@@ -475,8 +475,7 @@ public class MessageRedistributionTest extends ClusterTestBase
    {
       setupCluster(false);
 
-      AddressSettings setting = new AddressSettings();
-      setting.setRedeliveryDelay(10000);
+      AddressSettings setting = new AddressSettings().setRedeliveryDelay(10000);
       servers[0].getAddressSettingsRepository().addMatch("queues.testaddress", setting);
       servers[0].getAddressSettingsRepository().addMatch("queue0", setting);
       servers[1].getAddressSettingsRepository().addMatch("queue0", setting);
@@ -1072,10 +1071,10 @@ public class MessageRedistributionTest extends ClusterTestBase
    {
       setupCluster(false);
 
-      AddressSettings as = new AddressSettings();
-      as.setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE);
-      as.setPageSizeBytes(10000);
-      as.setMaxSizeBytes(20000);
+      AddressSettings as = new AddressSettings()
+              .setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE)
+              .setPageSizeBytes(10000)
+              .setMaxSizeBytes(20000);
 
       getServer(0).getAddressSettingsRepository().addMatch("queues.*", as);
       getServer(1).getAddressSettingsRepository().addMatch("queues.*", as);
@@ -1148,8 +1147,7 @@ public class MessageRedistributionTest extends ClusterTestBase
 
    protected void setRedistributionDelay(final long delay)
    {
-      AddressSettings as = new AddressSettings();
-      as.setRedistributionDelay(delay);
+      AddressSettings as = new AddressSettings().setRedistributionDelay(delay);
 
       getServer(0).getAddressSettingsRepository().addMatch("queues.*", as);
       getServer(1).getAddressSettingsRepository().addMatch("queues.*", as);

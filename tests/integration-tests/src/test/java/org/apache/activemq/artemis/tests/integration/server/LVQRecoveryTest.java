@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.server;
 
-import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
@@ -29,8 +28,7 @@ import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
-import org.junit.After;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,7 +36,7 @@ import org.junit.Test;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 
-public class LVQRecoveryTest extends ServiceTestBase
+public class LVQRecoveryTest extends ActiveMQTestBase
 {
    private ActiveMQServer server;
 
@@ -166,72 +164,22 @@ public class LVQRecoveryTest extends ServiceTestBase
    }
 
    @Override
-   @After
-   public void tearDown() throws Exception
-   {
-      if (clientSession != null)
-      {
-         try
-         {
-            clientSession.close();
-         }
-         catch (ActiveMQException e1)
-         {
-            //
-         }
-      }
-      if (clientSessionXa != null)
-      {
-         try
-         {
-            clientSessionXa.close();
-         }
-         catch (ActiveMQException e1)
-         {
-            //
-         }
-      }
-      if (locator != null)
-      {
-         locator.close();
-      }
-      if (server != null && server.isStarted())
-      {
-         try
-         {
-            server.stop();
-         }
-         catch (Exception e1)
-         {
-            //
-         }
-      }
-      server = null;
-      clientSession = null;
-
-      super.tearDown();
-   }
-
-   @Override
    @Before
    public void setUp() throws Exception
    {
       super.setUp();
 
-      configuration = createDefaultConfig()
-         .setSecurityEnabled(false);
+      configuration = createDefaultInVMConfig();
       server = createServer(true, configuration);
-      // start the server
       server.start();
 
-      qs = new AddressSettings();
-      qs.setLastValueQueue(true);
+      qs = new AddressSettings()
+              .setLastValueQueue(true);
       server.getAddressSettingsRepository().addMatch(address.toString(), qs);
       // then we create a client as normal
-      locator = createInVMNonHALocator();
-
-      locator.setBlockOnAcknowledge(true);
-      locator.setAckBatchSize(0);
+      locator = createInVMNonHALocator()
+              .setBlockOnAcknowledge(true)
+              .setAckBatchSize(0);
       ClientSessionFactory sessionFactory = createSessionFactory(locator);
       clientSession = sessionFactory.createSession(false, true, true);
       clientSessionXa = sessionFactory.createSession(true, false, false);
@@ -247,15 +195,13 @@ public class LVQRecoveryTest extends ServiceTestBase
       // start the server
       server.start();
 
-      AddressSettings qs1 = new AddressSettings();
-      qs1.setLastValueQueue(true);
-      server.getAddressSettingsRepository().addMatch(address.toString(), qs1);
+      server.getAddressSettingsRepository().addMatch(address.toString(), new AddressSettings().setLastValueQueue(true));
       // then we create a client as normal
       locator.close();
-      locator = createInVMNonHALocator();
+      locator = createInVMNonHALocator()
+              .setBlockOnAcknowledge(true)
+              .setAckBatchSize(0);
 
-      locator.setBlockOnAcknowledge(true);
-      locator.setAckBatchSize(0);
       ClientSessionFactory sessionFactory = createSessionFactory(locator);
       clientSession = sessionFactory.createSession(false, true, true);
       clientSessionXa = sessionFactory.createSession(true, false, false);

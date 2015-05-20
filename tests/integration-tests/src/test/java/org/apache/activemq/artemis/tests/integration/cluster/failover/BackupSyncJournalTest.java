@@ -16,14 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
-import java.io.File;
-import java.io.RandomAccessFile;
-import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -45,9 +37,16 @@ import org.apache.activemq.artemis.tests.integration.cluster.util.BackupSyncDela
 import org.apache.activemq.artemis.tests.integration.cluster.util.TestableServer;
 import org.apache.activemq.artemis.tests.util.TransportConfigurationUtils;
 import org.apache.activemq.artemis.utils.UUID;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.io.File;
+import java.io.RandomAccessFile;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 public class BackupSyncJournalTest extends FailoverTestBase
 {
@@ -77,34 +76,13 @@ public class BackupSyncJournalTest extends FailoverTestBase
       startBackupServer = false;
       super.setUp();
       setNumberOfMessages(defaultNMsgs);
-      locator = getServerLocator();
-      locator.setBlockOnNonDurableSend(true);
-      locator.setBlockOnDurableSend(true);
-      locator.setReconnectAttempts(-1);
+      locator = (ServerLocatorInternal) getServerLocator()
+              .setBlockOnNonDurableSend(true)
+              .setBlockOnDurableSend(true)
+              .setReconnectAttempts(-1);
       sessionFactory = createSessionFactoryAndWaitForTopology(locator, 1);
       syncDelay = new BackupSyncDelay(backupServer, liveServer);
 
-   }
-
-   @Override
-   @After
-   public void tearDown() throws Exception
-   {
-      try
-      {
-         File dir = new File(backupServer.getServer()
-                                .getConfiguration()
-                                .getLargeMessagesDirectory());
-         deleteDirectory(dir);
-         dir = new File(liveServer.getServer()
-                           .getConfiguration()
-                           .getLargeMessagesDirectory());
-         deleteDirectory(dir);
-      }
-      finally
-      {
-         super.tearDown();
-      }
    }
 
    @Test
@@ -338,7 +316,7 @@ public class BackupSyncJournalTest extends FailoverTestBase
       assertFalse("must NOT be a backup", liveServer.getServer().getHAPolicy().isBackup());
       adaptLiveConfigForReplicatedFailBack(liveServer);
       liveServer.start();
-      waitForServer(liveServer.getServer());
+      waitForServerToStart(liveServer.getServer());
       assertTrue("must have become a backup", liveServer.getServer().getHAPolicy().isBackup());
 
       assertTrue("Fail-back must initialize live!", liveServer.getServer().waitForActivation(15, TimeUnit.SECONDS));

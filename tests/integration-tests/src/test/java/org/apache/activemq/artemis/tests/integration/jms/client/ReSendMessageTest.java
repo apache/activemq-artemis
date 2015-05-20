@@ -16,6 +16,16 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.client;
 
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
+import org.apache.activemq.artemis.api.jms.ActiveMQJMSConstants;
+import org.apache.activemq.artemis.api.jms.JMSFactoryType;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.tests.util.JMSTestBase;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+
 import javax.jms.BytesMessage;
 import javax.jms.MapMessage;
 import javax.jms.Message;
@@ -28,17 +38,6 @@ import javax.jms.TextMessage;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.apache.activemq.artemis.api.core.TransportConfiguration;
-import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
-import org.apache.activemq.artemis.api.jms.ActiveMQJMSConstants;
-import org.apache.activemq.artemis.api.jms.JMSFactoryType;
-import org.apache.activemq.artemis.tests.util.JMSTestBase;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
 
 /**
  * Receive Messages and resend them, like the bridge would do
@@ -71,7 +70,7 @@ public class ReSendMessageTest extends JMSTestBase
       {
          BytesMessage bm = sess.createBytesMessage();
          bm.setObjectProperty(ActiveMQJMSConstants.JMS_ACTIVEMQ_INPUT_STREAM,
-                              ServiceTestBase.createFakeLargeStream(2 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE));
+                              ActiveMQTestBase.createFakeLargeStream(2 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE));
          msgs.add(bm);
 
          MapMessage mm = sess.createMapMessage();
@@ -168,7 +167,7 @@ public class ReSendMessageTest extends JMSTestBase
 
             for (int i = 0; i < copiedBytes.getBodyLength(); i++)
             {
-               Assert.assertEquals(ServiceTestBase.getSamplebyte(i), copiedBytes.readByte());
+               Assert.assertEquals(ActiveMQTestBase.getSamplebyte(i), copiedBytes.readByte());
             }
          }
          else if (copiedMessage instanceof MapMessage)
@@ -313,14 +312,6 @@ public class ReSendMessageTest extends JMSTestBase
    {
       super.setUp();
       queue = createQueue("queue1");
-   }
-
-   @Override
-   @After
-   public void tearDown() throws Exception
-   {
-      queue = null;
-      super.tearDown();
    }
 
    // Private -------------------------------------------------------

@@ -19,10 +19,10 @@ package org.apache.activemq.artemis.tests.integration.server;
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
-import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.core.config.ScaleDownConfiguration;
 import org.apache.activemq.artemis.core.config.ha.LiveOnlyPolicyConfiguration;
 import org.apache.activemq.artemis.core.persistence.impl.journal.JournalStorageManager;
@@ -33,8 +33,7 @@ import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.integration.cluster.distribution.ClusterTestBase;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
-import org.junit.After;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -81,17 +80,6 @@ public class ScaleDown3NodeTest extends ClusterTestBase
       return true;
    }
 
-   @Override
-   @After
-   public void tearDown() throws Exception
-   {
-      closeAllConsumers();
-      closeAllSessionFactories();
-      closeAllServerLocatorsFactories();
-      stopServers(0, 1, 2);
-      super.tearDown();
-   }
-
    @Test
    public void testBasicScaleDownWithDefaultReconnectAttempts() throws Exception
    {
@@ -112,8 +100,7 @@ public class ScaleDown3NodeTest extends ClusterTestBase
 
    private void testBasicScaleDownInternal(int reconnectAttempts, boolean large) throws Exception
    {
-      AddressSettings addressSettings = new AddressSettings();
-      addressSettings.setRedistributionDelay(0);
+      AddressSettings addressSettings = new AddressSettings().setRedistributionDelay(0);
       servers[0].getAddressSettingsRepository().addMatch("#", addressSettings);
       servers[1].getAddressSettingsRepository().addMatch("#", addressSettings);
       servers[2].getAddressSettingsRepository().addMatch("#", addressSettings);
@@ -149,7 +136,7 @@ public class ScaleDown3NodeTest extends ClusterTestBase
 
          for (int i = 0; i < 2 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE; i++)
          {
-            fileMessage.addBytes(new byte[]{ServiceTestBase.getSamplebyte(i)});
+            fileMessage.addBytes(new byte[]{ActiveMQTestBase.getSamplebyte(i)});
          }
 
          fileMessage.putLongProperty(Message.HDR_LARGE_BODY_SIZE, 2 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE);
@@ -254,7 +241,7 @@ public class ScaleDown3NodeTest extends ClusterTestBase
 
             for (int j = 0; j < 2 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE; j++)
             {
-               Assert.assertEquals(ServiceTestBase.getSamplebyte(j), clientMessage.getBodyBuffer().readByte());
+               Assert.assertEquals(ActiveMQTestBase.getSamplebyte(j), clientMessage.getBodyBuffer().readByte());
             }
          }
          IntegrationTestLogger.LOGGER.info("Received: " + clientMessage);
@@ -270,8 +257,7 @@ public class ScaleDown3NodeTest extends ClusterTestBase
    @Test
    public void testScaleDownWithMultipleQueues() throws Exception
    {
-      AddressSettings addressSettings = new AddressSettings();
-      addressSettings.setRedistributionDelay(0);
+      AddressSettings addressSettings = new AddressSettings().setRedistributionDelay(0);
       servers[0].getAddressSettingsRepository().addMatch("#", addressSettings);
       servers[1].getAddressSettingsRepository().addMatch("#", addressSettings);
       servers[2].getAddressSettingsRepository().addMatch("#", addressSettings);

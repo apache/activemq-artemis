@@ -17,8 +17,6 @@
 package org.apache.activemq.artemis.tests.integration.cluster.distribution;
 
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 
 public class SimpleSymmetricClusterTest extends ClusterTestBase
@@ -35,22 +33,6 @@ public class SimpleSymmetricClusterTest extends ClusterTestBase
    // Constructors --------------------------------------------------
 
    // Public --------------------------------------------------------
-
-   @Override
-   @Before
-   public void setUp() throws Exception
-   {
-      super.setUp();
-   }
-
-   @Override
-   @After
-   public void tearDown() throws Exception
-   {
-      log.info("#test tearDown " + loopNumber);
-      stopServers(0, 1, 2, 3, 4);
-      super.tearDown();
-   }
 
    public boolean isNetty()
    {

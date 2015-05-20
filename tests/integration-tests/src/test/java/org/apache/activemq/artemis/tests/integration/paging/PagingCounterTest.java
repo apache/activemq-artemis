@@ -22,7 +22,7 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.core.paging.cursor.PageSubscription;
 import org.apache.activemq.artemis.core.paging.cursor.PageSubscriptionCounter;
 import org.apache.activemq.artemis.core.paging.cursor.impl.PageSubscriptionCounterImpl;
@@ -36,7 +36,7 @@ import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
 import org.junit.Before;
 import org.junit.Test;
 
-public class PagingCounterTest extends ServiceTestBase
+public class PagingCounterTest extends ActiveMQTestBase
 {
 
    // Constants -----------------------------------------------------
@@ -340,9 +340,9 @@ public class PagingCounterTest extends ServiceTestBase
 
       ActiveMQServer server = super.createServer(true, false);
 
-      AddressSettings defaultSetting = new AddressSettings();
-      defaultSetting.setPageSizeBytes(10 * 1024);
-      defaultSetting.setMaxSizeBytes(20 * 1024);
+      AddressSettings defaultSetting = new AddressSettings()
+              .setPageSizeBytes(10 * 1024)
+              .setMaxSizeBytes(20 * 1024);
 
       server.getAddressSettingsRepository().addMatch("#", defaultSetting);
 

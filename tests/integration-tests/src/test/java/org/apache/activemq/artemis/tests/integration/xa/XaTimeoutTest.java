@@ -16,6 +16,33 @@
  */
 package org.apache.activemq.artemis.tests.integration.xa;
 
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.Interceptor;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.client.ClientConsumer;
+import org.apache.activemq.artemis.api.core.client.ClientMessage;
+import org.apache.activemq.artemis.api.core.client.ClientProducer;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
+import org.apache.activemq.artemis.api.core.client.MessageHandler;
+import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
+import org.apache.activemq.artemis.core.protocol.core.Packet;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionXAStartMessage;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.ActiveMQServers;
+import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.core.transaction.Transaction;
+import org.apache.activemq.artemis.core.transaction.TransactionOperationAbstract;
+import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
+import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.utils.UUIDGenerator;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+
 import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
@@ -26,42 +53,12 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq.artemis.api.core.ActiveMQException;
-import org.apache.activemq.artemis.api.core.Interceptor;
-import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.api.core.TransportConfiguration;
-import org.apache.activemq.artemis.api.core.client.ClientConsumer;
-import org.apache.activemq.artemis.api.core.client.ClientMessage;
-import org.apache.activemq.artemis.api.core.client.ClientProducer;
-import org.apache.activemq.artemis.api.core.client.ClientSession;
-import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
-import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
-import org.apache.activemq.artemis.api.core.client.MessageHandler;
-import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
-import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
-import org.apache.activemq.artemis.core.protocol.core.Packet;
-import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionXAStartMessage;
-import org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory;
-import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.apache.activemq.artemis.core.server.ActiveMQServers;
-import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
-import org.apache.activemq.artemis.core.transaction.Transaction;
-import org.apache.activemq.artemis.core.transaction.TransactionOperationAbstract;
-import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
-import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
-import org.apache.activemq.artemis.utils.UUIDGenerator;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-
-public class XaTimeoutTest extends ServiceTestBase
+public class XaTimeoutTest extends ActiveMQTestBase
 {
 
    private final Map<String, AddressSettings> addressSettings = new HashMap<String, AddressSettings>();
 
-   private ActiveMQServer messagingService;
+   private ActiveMQServer server;
 
    private ClientSession clientSession;
 
@@ -86,53 +83,17 @@ public class XaTimeoutTest extends ServiceTestBase
       addressSettings.clear();
       configuration = createBasicConfig()
          .setTransactionTimeoutScanPeriod(500)
-         .addAcceptorConfiguration(new TransportConfiguration(ServiceTestBase.INVM_ACCEPTOR_FACTORY));
-      messagingService = addServer(ActiveMQServers.newActiveMQServer(configuration, false));
+         .addAcceptorConfiguration(new TransportConfiguration(ActiveMQTestBase.INVM_ACCEPTOR_FACTORY));
+      server = addServer(ActiveMQServers.newActiveMQServer(configuration, false));
       // start the server
-      messagingService.start();
+      server.start();
       // then we create a client as normal
-      locator =
-         addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(
-            InVMConnectorFactory.class.getName())));
+      locator = createInVMNonHALocator();
       sessionFactory = createSessionFactory(locator);
       clientSession = sessionFactory.createSession(true, false, false);
       clientSession.createQueue(atestq, atestq, null, true);
       clientProducer = clientSession.createProducer(atestq);
       clientConsumer = clientSession.createConsumer(atestq);
-   }
-
-   @Override
-   @After
-   public void tearDown() throws Exception
-   {
-      if (clientSession != null)
-      {
-         try
-         {
-            clientSession.close();
-         }
-         catch (ActiveMQException e1)
-         {
-            //
-         }
-      }
-      closeSessionFactory(sessionFactory);
-      closeServerLocator(locator);
-
-      stopComponent(messagingService);
-
-      messagingService = null;
-      clientSession = null;
-
-      clientProducer = null;
-
-      clientConsumer = null;
-
-      sessionFactory = null;
-
-      configuration = null;
-
-      super.tearDown();
    }
 
    @Test
@@ -152,7 +113,7 @@ public class XaTimeoutTest extends ServiceTestBase
       clientProducer.send(m4);
       clientSession.end(xid, XAResource.TMSUCCESS);
       CountDownLatch latch = new CountDownLatch(1);
-      messagingService.getResourceManager().getTransaction(xid).addOperation(new RollbackCompleteOperation(latch));
+      server.getResourceManager().getTransaction(xid).addOperation(new RollbackCompleteOperation(latch));
       Assert.assertTrue(latch.await(5, TimeUnit.SECONDS));
       try
       {
@@ -204,7 +165,7 @@ public class XaTimeoutTest extends ServiceTestBase
       Assert.assertEquals(m.getBodyBuffer().readString(), "m4");
       clientSession.end(xid, XAResource.TMSUCCESS);
       CountDownLatch latch = new CountDownLatch(1);
-      messagingService.getResourceManager().getTransaction(xid).addOperation(new RollbackCompleteOperation(latch));
+      server.getResourceManager().getTransaction(xid).addOperation(new RollbackCompleteOperation(latch));
       Assert.assertTrue(latch.await(5, TimeUnit.SECONDS));
       try
       {
@@ -283,7 +244,7 @@ public class XaTimeoutTest extends ServiceTestBase
       Assert.assertEquals(m.getBodyBuffer().readString(), "m4");
       clientSession.end(xid, XAResource.TMSUCCESS);
       CountDownLatch latch = new CountDownLatch(1);
-      messagingService.getResourceManager().getTransaction(xid).addOperation(new RollbackCompleteOperation(latch));
+      server.getResourceManager().getTransaction(xid).addOperation(new RollbackCompleteOperation(latch));
       Assert.assertTrue(latch.await(5, TimeUnit.SECONDS));
       try
       {
@@ -365,7 +326,7 @@ public class XaTimeoutTest extends ServiceTestBase
       clientSession.end(xid, XAResource.TMSUCCESS);
       clientSession.prepare(xid);
       CountDownLatch latch = new CountDownLatch(1);
-      messagingService.getResourceManager().getTransaction(xid).addOperation(new RollbackCompleteOperation(latch));
+      server.getResourceManager().getTransaction(xid).addOperation(new RollbackCompleteOperation(latch));
       Assert.assertFalse(latch.await(2600, TimeUnit.MILLISECONDS));
       clientSession.commit(xid, false);
 
@@ -594,7 +555,7 @@ public class XaTimeoutTest extends ServiceTestBase
       clientSession.setTransactionTimeout(1);
       clientSession.start(xid, XAResource.TMNOFLAGS);
       CountDownLatch latch = new CountDownLatch(1);
-      messagingService.getResourceManager().getTransaction(xid).addOperation(new RollbackCompleteOperation(latch));
+      server.getResourceManager().getTransaction(xid).addOperation(new RollbackCompleteOperation(latch));
       clientProducer.send(m1);
       clientProducer.send(m2);
       clientProducer.send(m3);
@@ -665,7 +626,7 @@ public class XaTimeoutTest extends ServiceTestBase
       for (int i1 = 0; i1 < latches.length; i1++)
       {
          latches[i1] = new CountDownLatch(1);
-         messagingService.getResourceManager()
+         server.getResourceManager()
             .getTransaction(xids[i1])
             .addOperation(new RollbackCompleteOperation(latches[i1]));
       }
@@ -732,10 +693,10 @@ public class XaTimeoutTest extends ServiceTestBase
          }
 
       }
-      messagingService.getRemotingService().addIncomingInterceptor(new SomeInterceptor());
+      server.getRemotingService().addIncomingInterceptor(new SomeInterceptor());
 
-      ServerLocator locatorTimeout = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(InVMConnectorFactory.class.getName()));
-      locatorTimeout.setCallTimeout(300);
+      ServerLocator locatorTimeout = createInVMNonHALocator()
+              .setCallTimeout(300);
       ClientSessionFactory factoryTimeout = locatorTimeout.createSessionFactory();
 
       final ClientSession sessionTimeout = factoryTimeout.createSession(true, false, false);

@@ -16,10 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.remoting;
 
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Test;
 
-public class DestroyConsumerTest extends ServiceTestBase
+public class DestroyConsumerTest extends ActiveMQTestBase
 {
 
    // Constants -----------------------------------------------------
@@ -39,7 +39,7 @@ public class DestroyConsumerTest extends ServiceTestBase
 
    // public void testDestroyConsumer() throws Exception
    // {
-   // ActiveMQServer server = createService(false, false, createDefaultConfig(), new HashMap<String, AddressSettings>());
+   // ActiveMQServer server = createService(false, false, createDefaultInVMConfig(), new HashMap<String, AddressSettings>());
    // server.start();
    //
    // SimpleString queue = new SimpleString("add1");

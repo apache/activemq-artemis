@@ -30,7 +30,6 @@ import org.apache.activemq.artemis.core.server.NodeManager;
 import org.apache.activemq.artemis.core.server.impl.InVMNodeManager;
 import org.apache.activemq.artemis.tests.integration.cluster.util.SameProcessActiveMQServer;
 import org.apache.activemq.artemis.tests.integration.cluster.util.TestableServer;
-import org.junit.After;
 import org.junit.Test;
 
 import java.util.HashMap;
@@ -45,21 +44,6 @@ public class MultipleLivesMultipleBackupsFailoverTest extends MultipleBackupsFai
    private ServerLocator locator;
    private final boolean sharedStore = true;
 
-   @Override
-   @After
-   public void tearDown() throws Exception
-   {
-      try
-      {
-         closeServerLocator(locator);
-         closeServerLocator(locator2);
-      }
-      finally
-      {
-         super.tearDown();
-      }
-   }
-
    @Test
    public void testMultipleFailovers2LiveServers() throws Exception
    {
@@ -73,29 +57,29 @@ public class MultipleLivesMultipleBackupsFailoverTest extends MultipleBackupsFai
       createBackupConfig(nodeManager2, 3, 5, true, new int[]{3, 4}, 0, 1, 2);
 
       servers.get(0).start();
-      waitForServer(servers.get(0).getServer());
+      waitForServerToStart(servers.get(0).getServer());
 
       servers.get(3).start();
-      waitForServer(servers.get(3).getServer());
+      waitForServerToStart(servers.get(3).getServer());
 
       servers.get(1).start();
-      waitForServer(servers.get(1).getServer());
+      waitForServerToStart(servers.get(1).getServer());
 
       servers.get(2).start();
 
       servers.get(4).start();
-      waitForServer(servers.get(4).getServer());
+      waitForServerToStart(servers.get(4).getServer());
 
       servers.get(5).start();
 
-      waitForServer(servers.get(4).getServer());
+      waitForServerToStart(servers.get(4).getServer());
 
-      locator = getServerLocator(0);
+      locator = getServerLocator(0)
+              .setBlockOnNonDurableSend(true)
+              .setBlockOnDurableSend(true)
+              .setBlockOnAcknowledge(true)
+              .setReconnectAttempts(-1);
 
-      locator.setBlockOnNonDurableSend(true);
-      locator.setBlockOnDurableSend(true);
-      locator.setBlockOnAcknowledge(true);
-      locator.setReconnectAttempts(-1);
       ClientSessionFactoryInternal sf = createSessionFactoryAndWaitForTopology(locator, 4, servers.get(0).getServer());
       ClientSession session = sendAndConsume(sf, true);
 
@@ -105,11 +89,12 @@ public class MultipleLivesMultipleBackupsFailoverTest extends MultipleBackupsFai
 
       int liveAfter0 = waitForNewLive(10000, true, servers, 1, 2);
 
-      locator2 = getServerLocator(3);
-      locator2.setBlockOnNonDurableSend(true);
-      locator2.setBlockOnDurableSend(true);
-      locator2.setBlockOnAcknowledge(true);
-      locator2.setReconnectAttempts(-1);
+      locator2 = getServerLocator(3)
+              .setBlockOnNonDurableSend(true)
+              .setBlockOnDurableSend(true)
+              .setBlockOnAcknowledge(true)
+              .setReconnectAttempts(-1);
+
       ClientSessionFactoryInternal sf2 = createSessionFactoryAndWaitForTopology(locator2, 4);
       ClientSession session2 = sendAndConsume(sf2, true);
 
@@ -156,10 +141,9 @@ public class MultipleLivesMultipleBackupsFailoverTest extends MultipleBackupsFai
                                      int[] otherBackupNodes,
                                      int... otherClusterNodes) throws Exception
    {
-      Configuration config1 = super.createDefaultConfig()
+      Configuration config1 = super.createDefaultInVMConfig()
          .clearAcceptorConfigurations()
          .addAcceptorConfiguration(createTransportConfiguration(isNetty(), true, generateParams(nodeid, isNetty())))
-         .setSecurityEnabled(false)
          .setHAPolicyConfiguration(sharedStore ? new SharedStoreSlavePolicyConfiguration() : new ReplicaPolicyConfiguration())
          .setBindingsDirectory(getBindingsDir() + "_" + liveNode)
          .setJournalDirectory(getJournalDir() + "_" + liveNode)
@@ -191,10 +175,9 @@ public class MultipleLivesMultipleBackupsFailoverTest extends MultipleBackupsFai
    {
       TransportConfiguration liveConnector = createTransportConfiguration(isNetty(), false,generateParams(liveNode, isNetty()));
 
-      Configuration config0 = super.createDefaultConfig()
+      Configuration config0 = super.createDefaultInVMConfig()
          .clearAcceptorConfigurations()
          .addAcceptorConfiguration(createTransportConfiguration(isNetty(), true, generateParams(liveNode, isNetty())))
-         .setSecurityEnabled(false)
          .setHAPolicyConfiguration(sharedStore ? new SharedStoreMasterPolicyConfiguration() : new ReplicatedPolicyConfiguration())
          .setBindingsDirectory(getBindingsDir() + "_" + liveNode)
          .setJournalDirectory(getJournalDir() + "_" + liveNode)

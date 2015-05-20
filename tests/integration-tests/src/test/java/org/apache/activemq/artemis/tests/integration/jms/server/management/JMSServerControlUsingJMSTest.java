@@ -15,15 +15,6 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.integration.jms.server.management;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.After;
-
-import org.junit.Test;
-
-import javax.jms.QueueConnection;
-import javax.jms.QueueSession;
-import javax.jms.Session;
 
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
@@ -35,6 +26,13 @@ import org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQQueue;
 import org.apache.activemq.artemis.jms.client.ActiveMQQueueConnectionFactory;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+
+import javax.jms.QueueConnection;
+import javax.jms.QueueSession;
+import javax.jms.Session;
 
 public class JMSServerControlUsingJMSTest extends JMSServerControlTest
 {
@@ -155,19 +153,6 @@ public class JMSServerControlUsingJMSTest extends JMSServerControlTest
       connection = cf.createQueueConnection();
       session = connection.createQueueSession(false, Session.AUTO_ACKNOWLEDGE);
       connection.start();
-   }
-
-   @Override
-   @After
-   public void tearDown() throws Exception
-   {
-      connection.close();
-
-      connection = null;
-
-      session = null;
-
-      super.tearDown();
    }
 
    @Override

@@ -34,7 +34,7 @@ public class MultipleThreadsOpeningTest extends JMSClusteredTestBase
    public void testMultipleOpen() throws Exception
    {
       cf1 = ActiveMQJMSClient.createConnectionFactoryWithHA(JMSFactoryType.CF, new TransportConfiguration(InVMConnectorFactory.class.getName(),
-                                                                                                          generateInVMParams(0)));
+                                                                                                          generateInVMParams(1)));
 
       final int numberOfOpens = 2000;
       int numberOfThreads = 20;

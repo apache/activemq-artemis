@@ -15,11 +15,24 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.integration.management;
-import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
-import org.apache.activemq.artemis.core.protocol.stomp.StompProtocolManagerFactory;
-import org.junit.Before;
-import org.junit.After;
 
+import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
+import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.api.core.management.ResourceNames;
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.protocol.stomp.Stomp;
+import org.apache.activemq.artemis.core.protocol.stomp.StompProtocolManagerFactory;
+import org.apache.activemq.artemis.core.remoting.impl.netty.NettyAcceptorFactory;
+import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.ActiveMQServers;
+import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
@@ -30,23 +43,6 @@ import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
-
-import org.junit.Assert;
-
-import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.api.core.TransportConfiguration;
-import org.apache.activemq.artemis.api.core.client.ClientSession;
-import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
-import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.apache.activemq.artemis.api.core.management.ResourceNames;
-import org.apache.activemq.artemis.core.config.Configuration;
-import org.apache.activemq.artemis.core.protocol.stomp.Stomp;
-import org.apache.activemq.artemis.core.remoting.impl.invm.InVMAcceptorFactory;
-import org.apache.activemq.artemis.core.remoting.impl.netty.NettyAcceptorFactory;
-import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
-import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.apache.activemq.artemis.core.server.ActiveMQServers;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
 
 public class ManagementWithStompTest extends ManagementTestBase
 {
@@ -174,40 +170,21 @@ public class ManagementWithStompTest extends ManagementTestBase
       params.put(TransportConstants.PORT_PROP_NAME, TransportConstants.DEFAULT_STOMP_PORT);
       TransportConfiguration stompTransport = new TransportConfiguration(NettyAcceptorFactory.class.getName(), params);
 
-      Configuration conf = createBasicConfig()
-         .addAcceptorConfiguration(stompTransport)
-         .addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName()));
+      Configuration config = createDefaultInVMConfig()
+              .addAcceptorConfiguration(stompTransport);
 
-      server = ActiveMQServers.newActiveMQServer(conf, mbeanServer, false, "brianm", "wombats");
+      server = addServer(ActiveMQServers.newActiveMQServer(config, mbeanServer, false, "brianm", "wombats"));
 
       server.start();
 
-      locator = createInVMNonHALocator();
-      locator.setBlockOnNonDurableSend(true);
-      locator.setBlockOnNonDurableSend(true);
+      locator = createInVMNonHALocator()
+              .setBlockOnNonDurableSend(true);
       ClientSessionFactory sf = createSessionFactory(locator);
       session = sf.createSession(false, true, false);
       session.start();
 
       stompSocket = new Socket("127.0.0.1", TransportConstants.DEFAULT_STOMP_PORT);
       inputBuffer = new ByteArrayOutputStream();
-   }
-
-   @Override
-   @After
-   public void tearDown() throws Exception
-   {
-      session.close();
-
-      server.stop();
-
-      locator.close();
-
-      session = null;
-
-      server = null;
-
-      super.tearDown();
    }
 
    // Private -------------------------------------------------------

@@ -15,18 +15,16 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.integration.journal;
-import org.apache.activemq.artemis.tests.unit.core.journal.impl.JournalImplTestBase;
-import org.apache.activemq.artemis.tests.unit.core.journal.impl.fakes.SimpleEncoding;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
-import org.junit.After;
-
-import org.junit.Test;
-
-import java.io.File;
 
 import org.apache.activemq.artemis.core.journal.EncodingSupport;
 import org.apache.activemq.artemis.core.journal.SequentialFileFactory;
 import org.apache.activemq.artemis.core.journal.impl.NIOSequentialFileFactory;
+import org.apache.activemq.artemis.tests.unit.core.journal.impl.JournalImplTestBase;
+import org.apache.activemq.artemis.tests.unit.core.journal.impl.fakes.SimpleEncoding;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.junit.Test;
+
+import java.io.File;
 
 public class NIOImportExportTest extends JournalImplTestBase
 {
@@ -39,7 +37,7 @@ public class NIOImportExportTest extends JournalImplTestBase
    {
       File file = new File(getTestDir());
 
-      ServiceTestBase.deleteDirectory(file);
+      ActiveMQTestBase.deleteDirectory(file);
 
       file.mkdir();
 
@@ -55,12 +53,6 @@ public class NIOImportExportTest extends JournalImplTestBase
    // Constructors --------------------------------------------------
 
    // Public --------------------------------------------------------
-
-   @After
-   public void tearDown() throws Exception
-   {
-      super.tearDown();
-   }
 
    @Test
    public void testExportImport() throws Exception

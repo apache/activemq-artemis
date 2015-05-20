@@ -17,7 +17,6 @@
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
-import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.client.impl.ServerLocatorInternal;
 import org.junit.Test;
 
@@ -54,9 +53,8 @@ public class LargeMessageFailoverTest extends FailoverTest
    @Override
    protected ServerLocatorInternal getServerLocator() throws Exception
    {
-      ServerLocator locator = super.getServerLocator();
-      locator.setMinLargeMessageSize(MIN_LARGE_MESSAGE);
-      return (ServerLocatorInternal)locator;
+      return (ServerLocatorInternal) super.getServerLocator()
+              .setMinLargeMessageSize(MIN_LARGE_MESSAGE);
    }
 
    /**

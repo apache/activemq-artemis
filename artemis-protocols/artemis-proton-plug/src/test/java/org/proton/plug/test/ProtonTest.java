@@ -84,7 +84,6 @@ public class ProtonTest extends AbstractJMSTest
       AbstractJMSTest.forceGC();
       server.start("127.0.0.1", Constants.PORT, true);
       connection = createConnection();
-
    }
 
    @After

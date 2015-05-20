@@ -26,7 +26,7 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.jboss.byteman.contrib.bmunit.BMRule;
 import org.jboss.byteman.contrib.bmunit.BMRules;
 import org.jboss.byteman.contrib.bmunit.BMUnitRunner;
@@ -36,7 +36,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(BMUnitRunner.class)
-public class OrphanedConsumerTest extends ServiceTestBase
+public class OrphanedConsumerTest extends ActiveMQTestBase
 {
 
    private static boolean conditionActive = true;
@@ -200,16 +200,16 @@ public class OrphanedConsumerTest extends ServiceTestBase
       server.start();
       staticServer = server;
 
-      locator.setBlockOnNonDurableSend(false);
-      locator.setBlockOnDurableSend(false);
-      locator.setBlockOnAcknowledge(true);
-      locator.setConnectionTTL(1000);
-      locator.setClientFailureCheckPeriod(100);
-      locator.setReconnectAttempts(0);
       // We are not interested on consumer-window-size on this test
       // We want that every message is delivered
       // as we asserting for number of consumers available and round-robin on delivery
-      locator.setConsumerWindowSize(-1);
+      locator.setConsumerWindowSize(-1)
+              .setBlockOnNonDurableSend(false)
+              .setBlockOnDurableSend(false)
+              .setBlockOnAcknowledge(true)
+              .setConnectionTTL(1000)
+              .setClientFailureCheckPeriod(100)
+              .setReconnectAttempts(0);
 
       ClientSessionFactoryImpl sf = (ClientSessionFactoryImpl)createSessionFactory(locator);
 
@@ -258,13 +258,12 @@ public class OrphanedConsumerTest extends ServiceTestBase
 
       setConditionActive(false);
 
-      locator = internalCreateNonHALocator(true);
-
-      locator.setBlockOnNonDurableSend(false);
-      locator.setBlockOnDurableSend(false);
-      locator.setBlockOnAcknowledge(true);
-      locator.setReconnectAttempts(0);
-      locator.setConsumerWindowSize(-1);
+      locator = internalCreateNonHALocator(true)
+              .setBlockOnNonDurableSend(false)
+              .setBlockOnDurableSend(false)
+              .setBlockOnAcknowledge(true)
+              .setReconnectAttempts(0)
+              .setConsumerWindowSize(-1);
 
       sf = (ClientSessionFactoryImpl)locator.createSessionFactory();
       session = sf.createSession(true, true, 0);

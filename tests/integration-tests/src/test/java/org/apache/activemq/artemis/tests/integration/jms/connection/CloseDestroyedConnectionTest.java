@@ -15,21 +15,10 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.integration.jms.connection;
+
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.ActiveMQInternalErrorException;
-import org.junit.Before;
-import org.junit.After;
-
-import org.junit.Test;
-
-import javax.jms.Connection;
-import javax.jms.JMSException;
-import javax.jms.Queue;
-import javax.jms.Session;
-
-import org.junit.Assert;
-
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
@@ -40,6 +29,14 @@ import org.apache.activemq.artemis.jms.client.ActiveMQSession;
 import org.apache.activemq.artemis.jms.client.ActiveMQTemporaryTopic;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+
+import javax.jms.Connection;
+import javax.jms.JMSException;
+import javax.jms.Queue;
+import javax.jms.Session;
 
 public class CloseDestroyedConnectionTest extends JMSTestBase
 {
@@ -59,23 +56,6 @@ public class CloseDestroyedConnectionTest extends JMSTestBase
                                                                   new TransportConfiguration(INVM_CONNECTOR_FACTORY));
       cf.setBlockOnDurableSend(true);
       cf.setPreAcknowledge(true);
-   }
-
-   @Override
-   @After
-   public void tearDown() throws Exception
-   {
-      if (session1 != null)
-         session1.close();
-      if (session2 != null)
-         session2.close();
-      if (conn != null)
-         conn.close();
-      if (conn2 != null)
-         conn2.close();
-      cf = null;
-
-      super.tearDown();
    }
 
    @Test

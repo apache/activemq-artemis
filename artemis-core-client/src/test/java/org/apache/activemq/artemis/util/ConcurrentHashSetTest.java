@@ -15,19 +15,15 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.util;
-import org.junit.Before;
-import org.junit.After;
-
-import org.junit.Test;
-
-import java.util.Iterator;
-
-import org.junit.Assert;
-
 
 import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.apache.activemq.artemis.utils.ConcurrentHashSet;
 import org.apache.activemq.artemis.utils.ConcurrentSet;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+
+import java.util.Iterator;
 
 public class ConcurrentHashSetTest extends Assert
 {
@@ -132,20 +128,10 @@ public class ConcurrentHashSetTest extends Assert
    @Before
    public void setUp() throws Exception
    {
-
-
       set = new ConcurrentHashSet<String>();
       element = RandomUtil.randomString();
    }
 
-   @After
-   public void tearDown() throws Exception
-   {
-      set = null;
-      element = null;
-
-
-   }
    // Package protected ---------------------------------------------
 
    // Protected -----------------------------------------------------

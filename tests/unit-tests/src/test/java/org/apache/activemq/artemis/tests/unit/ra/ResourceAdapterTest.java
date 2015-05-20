@@ -29,7 +29,7 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
@@ -43,7 +43,7 @@ import org.apache.activemq.artemis.ra.inflow.ActiveMQActivationSpec;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class ResourceAdapterTest extends ServiceTestBase
+public class ResourceAdapterTest extends ActiveMQTestBase
 {
 
    // Constants -----------------------------------------------------

@@ -16,22 +16,17 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.bridge;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.ActiveMQNotConnectedException;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
-import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.api.core.management.QueueControl;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
@@ -47,9 +42,13 @@ import org.apache.activemq.artemis.core.server.impl.InVMNodeManager;
 import org.apache.activemq.artemis.core.server.management.ManagementService;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class BridgeReconnectTest extends BridgeTestBase
 {
@@ -99,14 +98,6 @@ public class BridgeReconnectTest extends BridgeTestBase
       connectors.put(server1tc.getName(), server1tc);
       staticConnectors = new ArrayList<String>();
       staticConnectors.add(server1tc.getName());
-   }
-
-   @Override
-   @After
-   public void tearDown() throws Exception
-   {
-      locator = null;
-      super.tearDown();
    }
 
    protected boolean isNetty()
@@ -329,8 +320,8 @@ public class BridgeReconnectTest extends BridgeTestBase
       // Now we will simulate a failure of the bridge connection between server0 and server1
       server0.stop(true);
 
-      locator = addServerLocator(ActiveMQClient.createServerLocatorWithHA(server2tc));
-      locator.setReconnectAttempts(100);
+      locator = addServerLocator(ActiveMQClient.createServerLocatorWithHA(server2tc))
+              .setReconnectAttempts(100);
       ClientSessionFactory csf0 = addSessionFactory(locator.createSessionFactory(server2tc));
       session0 = csf0.createSession(false, true, true);
 

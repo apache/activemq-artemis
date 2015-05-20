@@ -15,24 +15,21 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.integration.persistence;
-import org.junit.Before;
-import org.junit.After;
-
-import org.junit.Test;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.persistence.config.PersistedAddressSetting;
 import org.apache.activemq.artemis.core.persistence.impl.journal.JournalStorageManager;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.junit.Before;
+import org.junit.Test;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class AddressSettingsConfigurationStorageTest extends StorageManagerTestBase
 {
-
    private Map<SimpleString, PersistedAddressSetting> mapExpectedAddresses;
 
    @Override
@@ -42,15 +39,6 @@ public class AddressSettingsConfigurationStorageTest extends StorageManagerTestB
       super.setUp();
 
       mapExpectedAddresses = new HashMap<SimpleString, PersistedAddressSetting>();
-   }
-
-   @Override
-   @After
-   public void tearDown() throws Exception
-   {
-      mapExpectedAddresses = null;
-
-      super.tearDown();
    }
 
    protected void addAddress(JournalStorageManager journal1, String address, AddressSettings setting) throws Exception
@@ -68,11 +56,9 @@ public class AddressSettingsConfigurationStorageTest extends StorageManagerTestB
 
       AddressSettings setting = new AddressSettings();
 
-      setting = new AddressSettings();
-
-      setting.setAddressFullMessagePolicy(AddressFullMessagePolicy.BLOCK);
-
-      setting.setDeadLetterAddress(new SimpleString("some-test"));
+      setting = new AddressSettings()
+              .setAddressFullMessagePolicy(AddressFullMessagePolicy.BLOCK)
+              .setDeadLetterAddress(new SimpleString("some-test"));
 
       addAddress(journal, "a2", setting);
 
@@ -82,9 +68,7 @@ public class AddressSettingsConfigurationStorageTest extends StorageManagerTestB
 
       checkAddresses(journal);
 
-      setting = new AddressSettings();
-
-      setting.setDeadLetterAddress(new SimpleString("new-adddress"));
+      setting = new AddressSettings().setDeadLetterAddress(new SimpleString("new-adddress"));
 
       // Replacing the first setting
       addAddress(journal, "a1", setting);

@@ -15,10 +15,9 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.integration.jms.client;
+
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
 import org.junit.Before;
-import org.junit.After;
-
 import org.junit.Test;
 
 import javax.jms.Connection;
@@ -45,16 +44,6 @@ public class ReceiveNoWaitTest extends JMSTestBase
 
       queue = createQueue("TestQueue");
    }
-
-   @Override
-   @After
-   public void tearDown() throws Exception
-   {
-      jmsServer.destroyQueue("TestQueue");
-
-      super.tearDown();
-   }
-
 
    /*
     * Test that after sending persistent messages to a queue (these will be sent blocking)

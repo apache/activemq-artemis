@@ -16,10 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.extras.byteman;
 
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.ha.SharedStoreMasterPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.SharedStoreSlavePolicyConfiguration;
@@ -28,19 +24,21 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
 import org.apache.activemq.artemis.tests.unit.util.InVMNamingContext;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.jboss.byteman.contrib.bmunit.BMRule;
 import org.jboss.byteman.contrib.bmunit.BMRules;
 import org.jboss.byteman.contrib.bmunit.BMUnitRunner;
-import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * This test validates a deadlock identified by https://bugzilla.redhat.com/show_bug.cgi?id=959616
  */
 @RunWith(BMUnitRunner.class)
-public class StartStopDeadlockTest extends ServiceTestBase
+public class StartStopDeadlockTest extends ActiveMQTestBase
 {
    /*
    * simple test to make sure connect still works with some network latency  built into netty
@@ -80,23 +78,17 @@ public class StartStopDeadlockTest extends ServiceTestBase
    {
 
       // A live server that will always be crashed
-      Configuration confLive = createDefaultConfig(true)
-         .setSecurityEnabled(false)
-         .setHAPolicyConfiguration(new SharedStoreMasterPolicyConfiguration())
-         .addConnectorConfiguration("invm", new TransportConfiguration(INVM_CONNECTOR_FACTORY));
-      final ActiveMQServer serverLive = ActiveMQServers.newActiveMQServer(confLive);
+      Configuration confLive = createDefaultNettyConfig()
+         .setHAPolicyConfiguration(new SharedStoreMasterPolicyConfiguration());
+      final ActiveMQServer serverLive = addServer(ActiveMQServers.newActiveMQServer(confLive));
       serverLive.start();
-      addServer(serverLive);
 
 
       // A backup that will be waiting to be activated
-      Configuration conf = createDefaultConfig(true)
-         .setSecurityEnabled(false)
-         .setHAPolicyConfiguration(new SharedStoreSlavePolicyConfiguration())
-         .addConnectorConfiguration("invm", new TransportConfiguration(INVM_CONNECTOR_FACTORY));
+      Configuration config = createDefaultNettyConfig()
+         .setHAPolicyConfiguration(new SharedStoreSlavePolicyConfiguration());
 
-      final ActiveMQServer server = ActiveMQServers.newActiveMQServer(conf, true);
-      addServer(server);
+      final ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(config, true));
 
       final JMSServerManagerImpl jmsServer = new JMSServerManagerImpl(server);
       final InVMNamingContext context = new InVMNamingContext();
@@ -157,12 +149,5 @@ public class StartStopDeadlockTest extends ServiceTestBase
       tStop.join();
 
       assertEquals(0, errors.get());
-   }
-
-   @Override
-   @After
-   public void tearDown() throws Exception
-   {
-      super.tearDown();
    }
 }

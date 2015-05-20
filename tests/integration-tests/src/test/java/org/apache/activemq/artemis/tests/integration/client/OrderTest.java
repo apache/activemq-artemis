@@ -25,7 +25,7 @@ import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.junit.Assert;
@@ -35,7 +35,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 @RunWith(Parameterized.class)
-public class OrderTest extends ServiceTestBase
+public class OrderTest extends ActiveMQTestBase
 {
 
    private boolean persistent;
@@ -79,9 +79,9 @@ public class OrderTest extends ServiceTestBase
       server = createServer(persistent, true);
       server.start();
 
-      locator.setBlockOnNonDurableSend(false);
-      locator.setBlockOnDurableSend(false);
-      locator.setBlockOnAcknowledge(true);
+      locator.setBlockOnNonDurableSend(false)
+              .setBlockOnDurableSend(false)
+              .setBlockOnAcknowledge(true);
 
       ClientSessionFactory sf = createSessionFactory(locator);
 
@@ -154,9 +154,9 @@ public class OrderTest extends ServiceTestBase
 
       server.start();
 
-      locator.setBlockOnNonDurableSend(false);
-      locator.setBlockOnDurableSend(false);
-      locator.setBlockOnAcknowledge(false);
+      locator.setBlockOnNonDurableSend(false)
+              .setBlockOnDurableSend(false)
+              .setBlockOnAcknowledge(false);
 
       ClientSessionFactory sf = createSessionFactory(locator);
       ClientSession session = sf.createSession(true, true, 0);
@@ -214,15 +214,14 @@ public class OrderTest extends ServiceTestBase
       server = createServer(persistent, true);
 
       server.getAddressSettingsRepository().clear();
-      AddressSettings setting = new AddressSettings();
-      setting.setRedeliveryDelay(500);
+      AddressSettings setting = new AddressSettings().setRedeliveryDelay(500);
       server.getAddressSettingsRepository().addMatch("#", setting);
 
       server.start();
 
-      locator.setBlockOnNonDurableSend(false);
-      locator.setBlockOnDurableSend(false);
-      locator.setBlockOnAcknowledge(false);
+      locator.setBlockOnNonDurableSend(false)
+              .setBlockOnDurableSend(false)
+              .setBlockOnAcknowledge(false);
 
       ClientSessionFactory sf = createSessionFactory(locator);
       ClientSession session = sf.createSession(true, true, 0);

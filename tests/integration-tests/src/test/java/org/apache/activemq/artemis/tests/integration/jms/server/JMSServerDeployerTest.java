@@ -16,28 +16,27 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.server;
 
-import javax.jms.Queue;
-import javax.jms.Topic;
-import javax.naming.Context;
-
 import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
-import org.apache.activemq.artemis.tests.unit.util.InVMNamingContext;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.registry.JndiBindingRegistry;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.jms.server.JMSServerManager;
 import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
-import org.junit.After;
+import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
+import org.apache.activemq.artemis.tests.unit.util.InVMNamingContext;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class JMSServerDeployerTest extends ServiceTestBase
+import javax.jms.Queue;
+import javax.jms.Topic;
+import javax.naming.Context;
+
+public class JMSServerDeployerTest extends ActiveMQTestBase
 {
    // Constants -----------------------------------------------------
 
@@ -136,18 +135,6 @@ public class JMSServerDeployerTest extends ServiceTestBase
       context = new InVMNamingContext();
       jmsServer.setRegistry(new JndiBindingRegistry(context));
       jmsServer.start();
-   }
-
-   @Override
-   @After
-   public void tearDown() throws Exception
-   {
-      jmsServer.stop();
-      jmsServer = null;
-      context = null;
-      config = null;
-
-      super.tearDown();
    }
 
    // Private -------------------------------------------------------

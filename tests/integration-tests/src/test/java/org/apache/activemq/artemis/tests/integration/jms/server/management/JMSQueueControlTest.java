@@ -16,21 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.server.management;
 
-import javax.jms.Connection;
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.MessageConsumer;
-import javax.jms.MessageProducer;
-import javax.jms.Session;
-import javax.management.Notification;
-import javax.naming.Context;
-
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
@@ -44,7 +29,6 @@ import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.api.jms.JMSFactoryType;
 import org.apache.activemq.artemis.api.jms.management.JMSQueueControl;
 import org.apache.activemq.artemis.api.jms.management.JMSServerControl;
-import org.apache.activemq.artemis.tests.unit.util.InVMNamingContext;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.registry.JndiBindingRegistry;
 import org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory;
@@ -59,13 +43,27 @@ import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
 import org.apache.activemq.artemis.jms.server.management.JMSNotificationType;
 import org.apache.activemq.artemis.tests.integration.management.ManagementControlHelper;
 import org.apache.activemq.artemis.tests.integration.management.ManagementTestBase;
+import org.apache.activemq.artemis.tests.unit.util.InVMNamingContext;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.apache.activemq.artemis.utils.json.JSONArray;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import javax.jms.Connection;
+import javax.jms.JMSException;
+import javax.jms.Message;
+import javax.jms.MessageConsumer;
+import javax.jms.MessageProducer;
+import javax.jms.Session;
+import javax.management.Notification;
+import javax.naming.Context;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * A QueueControlTest
@@ -486,8 +484,7 @@ public class JMSQueueControlTest extends ManagementTestBase
 
       Assert.assertNull(queueControl.getExpiryAddress());
 
-      AddressSettings addressSettings = new AddressSettings();
-      addressSettings.setExpiryAddress(new SimpleString(expiryAddress));
+      AddressSettings addressSettings = new AddressSettings().setExpiryAddress(new SimpleString(expiryAddress));
       server.getAddressSettingsRepository().addMatch(queue.getAddress(), addressSettings);
 
       Assert.assertEquals(expiryAddress, queueControl.getExpiryAddress());
@@ -520,8 +517,7 @@ public class JMSQueueControlTest extends ManagementTestBase
       ActiveMQQueue expiryQueue = (ActiveMQQueue) ActiveMQJMSClient.createQueue(expiryQueueName);
       serverManager.createQueue(false, expiryQueueName, null, true, expiryQueueName);
 
-      AddressSettings addressSettings = new AddressSettings();
-      addressSettings.setExpiryAddress(new SimpleString(expiryQueue.getAddress()));
+      AddressSettings addressSettings = new AddressSettings().setExpiryAddress(new SimpleString(expiryQueue.getAddress()));
       server.getAddressSettingsRepository().addMatch(queue.getAddress(), addressSettings);
 //      queueControl.setExpiryAddress(expiryQueue.getAddress());
 
@@ -649,8 +645,7 @@ public class JMSQueueControlTest extends ManagementTestBase
 
       Assert.assertNull(queueControl.getDeadLetterAddress());
 
-      AddressSettings addressSettings = new AddressSettings();
-      addressSettings.setDeadLetterAddress(new SimpleString(deadLetterAddress));
+      AddressSettings addressSettings = new AddressSettings().setDeadLetterAddress(new SimpleString(deadLetterAddress));
       server.getAddressSettingsRepository().addMatch(queue.getAddress(), addressSettings);
 
       Assert.assertEquals(deadLetterAddress, queueControl.getDeadLetterAddress());
@@ -663,8 +658,7 @@ public class JMSQueueControlTest extends ManagementTestBase
       serverManager.createQueue(false, deadLetterQueue, null, true, deadLetterQueue);
       ActiveMQQueue dlq = (ActiveMQQueue) ActiveMQJMSClient.createQueue(deadLetterQueue);
 
-      AddressSettings addressSettings = new AddressSettings();
-      addressSettings.setDeadLetterAddress(new SimpleString(dlq.getAddress()));
+      AddressSettings addressSettings = new AddressSettings().setDeadLetterAddress(new SimpleString(dlq.getAddress()));
       server.getAddressSettingsRepository().addMatch(queue.getAddress(), addressSettings);
 
       Connection conn = createConnection();
@@ -730,8 +724,7 @@ public class JMSQueueControlTest extends ManagementTestBase
       serverManager.createQueue(false, deadLetterQueue, null, true, deadLetterQueue);
       ActiveMQQueue dlq = (ActiveMQQueue) ActiveMQJMSClient.createQueue(deadLetterQueue);
 
-      AddressSettings addressSettings = new AddressSettings();
-      addressSettings.setDeadLetterAddress(new SimpleString(dlq.getAddress()));
+      AddressSettings addressSettings = new AddressSettings().setDeadLetterAddress(new SimpleString(dlq.getAddress()));
       server.getAddressSettingsRepository().addMatch(queue.getAddress(), addressSettings);
 
       Connection conn = createConnection();
@@ -1137,10 +1130,10 @@ public class JMSQueueControlTest extends ManagementTestBase
    @Test
    public void testDeleteWithPaging() throws Exception
    {
-      AddressSettings pagedSetting = new AddressSettings();
-      pagedSetting.setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE);
-      pagedSetting.setPageSizeBytes(10 * 1024);
-      pagedSetting.setMaxSizeBytes(100 * 1024);
+      AddressSettings pagedSetting = new AddressSettings()
+              .setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE)
+              .setPageSizeBytes(10 * 1024)
+              .setMaxSizeBytes(100 * 1024);
       server.getAddressSettingsRepository().addMatch("#", pagedSetting);
 
       serverManager.createQueue(true, "pagedTest", null, true, "/queue/pagedTest");
@@ -1186,10 +1179,10 @@ public class JMSQueueControlTest extends ManagementTestBase
    @Test
    public void testDeleteWithPagingAndFilter() throws Exception
    {
-      AddressSettings pagedSetting = new AddressSettings();
-      pagedSetting.setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE);
-      pagedSetting.setPageSizeBytes(10 * 1024);
-      pagedSetting.setMaxSizeBytes(100 * 1024);
+      AddressSettings pagedSetting = new AddressSettings()
+              .setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE)
+              .setPageSizeBytes(10 * 1024)
+              .setMaxSizeBytes(100 * 1024);
       server.getAddressSettingsRepository().addMatch("#", pagedSetting);
 
       serverManager.createQueue(true, "pagedTest", null, true, "/queue/pagedTest");
@@ -1386,9 +1379,9 @@ public class JMSQueueControlTest extends ManagementTestBase
    {
       super.setUp();
 
-      Configuration conf = createBasicConfig()
-         .addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY));
-      server = createServer(this.getName().contains("WithRealData"), conf);
+      Configuration config = createDefaultInVMConfig()
+              .setJMXManagementEnabled(true);
+      server = createServer(this.getName().contains("WithRealData"), config);
       server.setMBeanServer(mbeanServer);
 
       serverManager = new JMSServerManagerImpl(server);
@@ -1400,24 +1393,6 @@ public class JMSQueueControlTest extends ManagementTestBase
       queueName = RandomUtil.randomString();
       serverManager.createQueue(false, queueName, null, true, queueName);
       queue = (ActiveMQQueue) ActiveMQJMSClient.createQueue(queueName);
-   }
-
-   @Override
-   @After
-   public void tearDown() throws Exception
-   {
-      stopComponent(serverManager);
-      serverManager = null;
-
-      server = null;
-
-      queue = null;
-
-      context.close();
-
-      context = null;
-
-      super.tearDown();
    }
 
    protected JMSQueueControl createManagementControl() throws Exception

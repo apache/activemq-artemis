@@ -37,7 +37,7 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.artemis.core.protocol.core.Packet;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
@@ -52,7 +52,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 @RunWith(value = Parameterized.class)
-public class CoreClientOverTwoWaySSLTest extends ServiceTestBase
+public class CoreClientOverTwoWaySSLTest extends ActiveMQTestBase
 {
    @Parameterized.Parameters(name = "storeType={0}")
    public static Collection getParameters()
@@ -201,7 +201,7 @@ public class CoreClientOverTwoWaySSLTest extends ServiceTestBase
          .addAcceptorConfiguration(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, params));
       server = createServer(false, config);
       server.start();
-      waitForServer(server);
+      waitForServerToStart(server);
       tc = new TransportConfiguration(NETTY_CONNECTOR_FACTORY);
    }
 }

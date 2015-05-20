@@ -75,7 +75,7 @@ public class ReplicatedFailoverTest extends FailoverTest
 
          waitForRemoteBackupSynchronization(backupServer.getServer());
 
-         waitForServer(liveServer.getServer());
+         waitForServerToStart(liveServer.getServer());
 
          session = createSession(sf, true, true);
 
@@ -91,7 +91,7 @@ public class ReplicatedFailoverTest extends FailoverTest
 
          waitForRemoteBackupSynchronization(backupServer.getServer());
 
-         waitForServer(liveServer.getServer());
+         waitForServerToStart(liveServer.getServer());
 
          session = createSession(sf, true, true);
 
@@ -105,7 +105,7 @@ public class ReplicatedFailoverTest extends FailoverTest
 
          waitForRemoteBackupSynchronization(liveServer.getServer());
 
-         waitForServer(liveServer.getServer());
+         waitForServerToStart(liveServer.getServer());
 
          //this will give the backup time to stop fully
          waitForServerToStop(backupServer.getServer());

@@ -26,7 +26,7 @@ import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
@@ -40,7 +40,7 @@ import org.junit.Test;
  * the NPE happened during depaging what let the server to recover itself on the next depage.
  * To verify a fix on this test against the previous version of QueueImpl look for NPEs on System.err
  */
-public class ConcurrentCreateDeleteProduceTest extends ServiceTestBase
+public class ConcurrentCreateDeleteProduceTest extends ActiveMQTestBase
 {
 
    volatile boolean running = true;
@@ -62,19 +62,18 @@ public class ConcurrentCreateDeleteProduceTest extends ServiceTestBase
    {
       super.setUp();
 
-      Configuration config = createDefaultConfig()
+      Configuration config = createDefaultInVMConfig()
          .setJournalSyncNonTransactional(false)
          .setJournalSyncTransactional(false);
 
-      server =
-         createServer(true, config,
-                      PAGE_SIZE,
-                      PAGE_MAX,
-                      new HashMap<String, AddressSettings>());
+      server = createServer(true, config,
+                            PAGE_SIZE,
+                            PAGE_MAX,
+                            new HashMap<String, AddressSettings>());
       server.start();
-      locator = createNonHALocator(false);
-      locator.setBlockOnDurableSend(false);
-      locator.setBlockOnAcknowledge(true);
+      locator = createNonHALocator(false)
+              .setBlockOnDurableSend(false)
+              .setBlockOnAcknowledge(true);
    }
 
    @Test

@@ -38,7 +38,7 @@ import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.integration.largemessage.LargeMessageTestBase;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.paging.cursor.PageSubscription;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
@@ -102,8 +102,8 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase
 
       server.start();
 
-      locator.setBlockOnNonDurableSend(false);
-      locator.setBlockOnDurableSend(false);
+      locator.setBlockOnNonDurableSend(false)
+              .setBlockOnDurableSend(false);
 
       ClientSessionFactory sf = createSessionFactory(locator);
 
@@ -128,7 +128,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase
 
       server.stop(false);
 
-      ServiceTestBase.forceGC();
+      ActiveMQTestBase.forceGC();
 
       server.start();
 
@@ -146,9 +146,9 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase
 
       server.start();
 
-      locator.setBlockOnNonDurableSend(false);
-      locator.setBlockOnDurableSend(false);
-      locator.addIncomingInterceptor(new LargeMessageTestInterceptorIgnoreLastPacket());
+      locator.setBlockOnNonDurableSend(false)
+              .setBlockOnDurableSend(false)
+              .addIncomingInterceptor(new LargeMessageTestInterceptorIgnoreLastPacket());
 
       ClientSessionFactory sf = createSessionFactory(locator);
 
@@ -226,8 +226,8 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase
 
       server.start();
 
-      locator.setBlockOnNonDurableSend(true);
-      locator.setBlockOnDurableSend(true);
+      locator.setBlockOnNonDurableSend(true)
+              .setBlockOnDurableSend(true);
 
       ClientSessionFactory sf = createSessionFactory(locator);
 
@@ -261,7 +261,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase
             Assert.assertNotNull(clientMessage);
             for (int countByte = 0; countByte < LARGE_MESSAGE_SIZE; countByte++)
             {
-               Assert.assertEquals(ServiceTestBase.getSamplebyte(countByte), clientMessage.getBodyBuffer().readByte());
+               Assert.assertEquals(ActiveMQTestBase.getSamplebyte(countByte), clientMessage.getBodyBuffer().readByte());
             }
             clientMessage.acknowledge();
          }
@@ -293,8 +293,8 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase
 
       server.start();
 
-      locator.setBlockOnNonDurableSend(true);
-      locator.setBlockOnDurableSend(true);
+      locator.setBlockOnNonDurableSend(true)
+              .setBlockOnDurableSend(true);
 
       ClientSessionFactory sf = createSessionFactory(locator);
 
@@ -314,7 +314,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase
       }
       session.commit();
 
-      validateNoFilesOnLargeDir(10);
+      validateNoFilesOnLargeDir(server.getConfiguration().getLargeMessagesDirectory(), 10);
 
       for (int h = 0; h < 5; h++)
       {
@@ -340,7 +340,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase
             Assert.assertNotNull(clientMessage);
             for (int countByte = 0; countByte < LARGE_MESSAGE_SIZE; countByte++)
             {
-               Assert.assertEquals(ServiceTestBase.getSamplebyte(countByte), clientMessage.getBodyBuffer().readByte());
+               Assert.assertEquals(ActiveMQTestBase.getSamplebyte(countByte), clientMessage.getBodyBuffer().readByte());
             }
             clientMessage.acknowledge();
          }
@@ -367,8 +367,6 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase
    @Test
    public void testSendPreparedXA() throws Exception
    {
-
-
       ClientSession session = null;
 
       LargeMessageTestInterceptorIgnoreLastPacket.disableInterrupt();
@@ -382,8 +380,8 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase
 
       server.start();
 
-      locator.setBlockOnNonDurableSend(true);
-      locator.setBlockOnDurableSend(true);
+      locator.setBlockOnNonDurableSend(true)
+              .setBlockOnDurableSend(true);
 
       ClientSessionFactory sf = createSessionFactory(locator);
 
@@ -469,7 +467,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase
       }
       server.stop();
 
-      validateNoFilesOnLargeDir(10);
+      validateNoFilesOnLargeDir(server.getConfiguration().getLargeMessagesDirectory(), 10);
 
       server.start();
 
@@ -615,8 +613,8 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase
                                                                                  server.getAddressSettingsRepository(),
                                                                                  server.getExecutorFactory()));
 
-      locator.setBlockOnNonDurableSend(true);
-      locator.setBlockOnDurableSend(true);
+      locator.setBlockOnNonDurableSend(true)
+              .setBlockOnDurableSend(true);
 
       ClientSessionFactory sf = createSessionFactory(locator);
 
@@ -678,8 +676,8 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase
 
       QueueFactory original = server.getQueueFactory();
 
-      locator.setBlockOnNonDurableSend(true);
-      locator.setBlockOnDurableSend(true);
+      locator.setBlockOnNonDurableSend(true)
+              .setBlockOnDurableSend(true);
 
       ClientSessionFactory sf = createSessionFactory(locator);
 

@@ -34,13 +34,13 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class AddressFullLoggingTest extends ServiceTestBase
+public class AddressFullLoggingTest extends ActiveMQTestBase
 {
    @BeforeClass
    public static void prepareLogger()
@@ -62,17 +62,17 @@ public class AddressFullLoggingTest extends ServiceTestBase
 
       ActiveMQServer server = createServer(false);
 
-      AddressSettings defaultSetting = new AddressSettings();
-      defaultSetting.setPageSizeBytes(10 * 1024);
-      defaultSetting.setMaxSizeBytes(20 * 1024);
-      defaultSetting.setAddressFullMessagePolicy(AddressFullMessagePolicy.BLOCK);
+      AddressSettings defaultSetting = new AddressSettings()
+              .setPageSizeBytes(10 * 1024)
+              .setMaxSizeBytes(20 * 1024)
+              .setAddressFullMessagePolicy(AddressFullMessagePolicy.BLOCK);
       server.getAddressSettingsRepository().addMatch("#", defaultSetting);
       server.start();
 
-      ServerLocator locator = createInVMNonHALocator();
-      locator.setBlockOnNonDurableSend(true);
-      locator.setBlockOnDurableSend(true);
-      locator.setBlockOnAcknowledge(true);
+      ServerLocator locator = createInVMNonHALocator()
+              .setBlockOnNonDurableSend(true)
+              .setBlockOnDurableSend(true)
+              .setBlockOnAcknowledge(true);
 
       ClientSessionFactory factory = createSessionFactory(locator);
       ClientSession session = factory.createSession(false, true, true);

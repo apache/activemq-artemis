@@ -15,12 +15,25 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.integration.jms.cluster;
+
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQNotConnectedException;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
+import org.apache.activemq.artemis.api.jms.JMSFactoryType;
+import org.apache.activemq.artemis.core.client.impl.ClientSessionInternal;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.ActiveMQServers;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
+import org.apache.activemq.artemis.jms.client.ActiveMQSession;
+import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.junit.Assert;
 import org.junit.Before;
-import org.junit.After;
-
 import org.junit.Test;
 
 import javax.jms.BytesMessage;
@@ -36,28 +49,10 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.jms.Topic;
 
-import org.junit.Assert;
-
-import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.api.core.TransportConfiguration;
-import org.apache.activemq.artemis.api.core.client.ClientSession;
-import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
-import org.apache.activemq.artemis.api.jms.JMSFactoryType;
-import org.apache.activemq.artemis.core.client.impl.ClientSessionInternal;
-import org.apache.activemq.artemis.core.config.Configuration;
-import org.apache.activemq.artemis.core.remoting.impl.invm.InVMRegistry;
-import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.apache.activemq.artemis.core.server.ActiveMQServers;
-import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
-import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
-import org.apache.activemq.artemis.jms.client.ActiveMQSession;
-import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
-
-public class JMSReconnectTest extends ServiceTestBase
+public class JMSReconnectTest extends ActiveMQTestBase
 {
 
-   private ActiveMQServer liveService;
+   private ActiveMQServer server;
 
    //In this test we re-attach to the same node without restarting the server
    @Test
@@ -75,7 +70,7 @@ public class JMSReconnectTest extends ServiceTestBase
 
    private void testReconnectOrReattachSameNode(boolean reattach) throws Exception
    {
-      ActiveMQConnectionFactory jbcf = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration("org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory"));
+      ActiveMQConnectionFactory jbcf = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration(INVM_CONNECTOR_FACTORY));
 
       jbcf.setBlockOnDurableSend(true);
       jbcf.setBlockOnNonDurableSend(true);
@@ -179,7 +174,7 @@ public class JMSReconnectTest extends ServiceTestBase
    //Test that non durable JMS sub gets recreated in auto reconnect
    private void testReconnectSameNodeServerRestartedWithNonDurableSubOrTempQueue(final boolean nonDurableSub) throws Exception
    {
-      ActiveMQConnectionFactory jbcf = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration("org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory"));
+      ActiveMQConnectionFactory jbcf = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration(INVM_CONNECTOR_FACTORY));
 
       jbcf.setReconnectAttempts(-1);
 
@@ -211,9 +206,9 @@ public class JMSReconnectTest extends ServiceTestBase
       //Create a non durable subscriber
       MessageConsumer consumer = sess.createConsumer(dest);
 
-      this.liveService.stop();
+      this.server.stop();
 
-      this.liveService.start();
+      this.server.start();
 
       //Allow client some time to reconnect
       Thread.sleep(3000);
@@ -255,7 +250,7 @@ public class JMSReconnectTest extends ServiceTestBase
    @Test
    public void testNoReconnectCloseAfterFailToReconnectWithTopicConsumer() throws Exception
    {
-      ActiveMQConnectionFactory jbcf = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration("org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory"));
+      ActiveMQConnectionFactory jbcf = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration(INVM_CONNECTOR_FACTORY));
 
       jbcf.setReconnectAttempts(0);
 
@@ -274,9 +269,9 @@ public class JMSReconnectTest extends ServiceTestBase
 
       Thread.sleep(2000);
 
-      this.liveService.stop();
+      this.server.stop();
 
-      this.liveService.start();
+      this.server.start();
 
       sess.close();
 
@@ -287,7 +282,7 @@ public class JMSReconnectTest extends ServiceTestBase
    @Test
    public void testNoReconnectCloseAfterFailToReconnectWithTempQueue() throws Exception
    {
-      ActiveMQConnectionFactory jbcf = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration("org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory"));
+      ActiveMQConnectionFactory jbcf = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration(INVM_CONNECTOR_FACTORY));
 
       jbcf.setReconnectAttempts(0);
 
@@ -299,9 +294,9 @@ public class JMSReconnectTest extends ServiceTestBase
 
       Thread.sleep(2000);
 
-      this.liveService.stop();
+      this.server.stop();
 
-      this.liveService.start();
+      this.server.start();
 
       sess.close();
 
@@ -319,30 +314,8 @@ public class JMSReconnectTest extends ServiceTestBase
    {
       super.setUp();
 
-      Configuration liveConf = createBasicConfig()
-         .setJournalType(getDefaultJournalType())
-         .addAcceptorConfiguration(new TransportConfiguration("org.apache.activemq.artemis.core.remoting.impl.invm.InVMAcceptorFactory"))
-         .setBindingsDirectory(getBindingsDir())
-         .setJournalMinFiles(2)
-         .setJournalDirectory(getJournalDir())
-         .setPagingDirectory(getPageDir())
-         .setLargeMessagesDirectory(getLargeMessagesDir());
-
-      liveService = ActiveMQServers.newActiveMQServer(liveConf, true);
-      liveService.start();
-   }
-
-   @Override
-   @After
-   public void tearDown() throws Exception
-   {
-      liveService.stop();
-
-      Assert.assertEquals(0, InVMRegistry.instance.size());
-
-      liveService = null;
-
-      super.tearDown();
+      server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig(), true));
+      server.start();
    }
 
    // Private -------------------------------------------------------

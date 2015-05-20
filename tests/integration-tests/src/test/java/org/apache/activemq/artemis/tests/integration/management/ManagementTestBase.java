@@ -30,9 +30,9 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 
-public abstract class ManagementTestBase extends ServiceTestBase
+public abstract class ManagementTestBase extends ActiveMQTestBase
 {
 
    // Constants -----------------------------------------------------
@@ -91,9 +91,6 @@ public abstract class ManagementTestBase extends ServiceTestBase
    public void tearDown() throws Exception
    {
       MBeanServerFactory.releaseMBeanServer(mbeanServer);
-
-      mbeanServer = null;
-
       super.tearDown();
    }
 

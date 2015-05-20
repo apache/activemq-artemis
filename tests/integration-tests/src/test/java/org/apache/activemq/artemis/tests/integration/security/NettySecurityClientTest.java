@@ -23,13 +23,13 @@ import java.net.URL;
 import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.SpawnedVMSupport;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class NettySecurityClientTest extends ServiceTestBase
+public class NettySecurityClientTest extends ActiveMQTestBase
 {
 
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
@@ -58,7 +58,7 @@ public class NettySecurityClientTest extends ServiceTestBase
          .addAcceptorConfiguration(getNettyAcceptorTransportConfiguration(true));
       messagingService = createServer(false, config);
       messagingService.start();
-      waitForServer(messagingService);
+      waitForServerToStart(messagingService);
    }
 
    private void doTestProducerConsumerClient(final boolean withSecurityManager) throws Exception

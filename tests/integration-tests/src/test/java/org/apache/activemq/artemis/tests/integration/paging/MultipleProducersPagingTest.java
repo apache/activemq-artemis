@@ -36,7 +36,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyAcceptorFactory;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory;
@@ -52,7 +52,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class MultipleProducersPagingTest extends ServiceTestBase
+public class MultipleProducersPagingTest extends ActiveMQTestBase
 {
    private static final int CONSUMER_WAIT_TIME_MS = 250;
    private static final int PRODUCERS = 5;
@@ -76,10 +76,10 @@ public class MultipleProducersPagingTest extends ServiceTestBase
       super.setUp();
       executor = Executors.newCachedThreadPool();
 
-      AddressSettings addressSettings = new AddressSettings();
-      addressSettings.setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE);
-      addressSettings.setPageSizeBytes(50000);
-      addressSettings.setMaxSizeBytes(404850);
+      AddressSettings addressSettings = new AddressSettings()
+              .setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE)
+              .setPageSizeBytes(50000)
+              .setMaxSizeBytes(404850);
 
       Configuration config = createBasicConfig()
          .setPersistenceEnabled(false)

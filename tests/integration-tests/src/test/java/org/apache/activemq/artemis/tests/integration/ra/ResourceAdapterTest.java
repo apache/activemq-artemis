@@ -59,7 +59,7 @@ public class ResourceAdapterTest extends ActiveMQRATestBase
 
       ActiveMQResourceAdapter ra = new ActiveMQResourceAdapter();
 
-      ra.setConnectorClassName("org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory");
+      ra.setConnectorClassName(INVM_CONNECTOR_FACTORY);
       ra.setUserName("userGlobal");
       ra.setPassword("passwordGlobal");
       ra.start(new BootstrapContext());

@@ -45,12 +45,12 @@ public class FailoverOnFlowControlTest extends FailoverTestBase
    @Test
    public void testOverflowSend() throws Exception
    {
-      ServerLocator locator = getServerLocator();
-      locator.setBlockOnNonDurableSend(true);
-      locator.setBlockOnDurableSend(true);
-      locator.setReconnectAttempts(-1);
-      locator.setProducerWindowSize(1000);
-      locator.setRetryInterval(123);
+      ServerLocator locator = getServerLocator()
+              .setBlockOnNonDurableSend(true)
+              .setBlockOnDurableSend(true)
+              .setReconnectAttempts(-1)
+              .setProducerWindowSize(1000)
+              .setRetryInterval(123);
       final ArrayList<ClientSession> sessionList = new ArrayList<ClientSession>();
       Interceptor interceptorClient = new Interceptor()
       {
@@ -126,10 +126,9 @@ public class FailoverOnFlowControlTest extends FailoverTestBase
    @Override
    protected ServerLocatorInternal getServerLocator() throws Exception
    {
-      ServerLocatorInternal locator = super.getServerLocator();
-      locator.setMinLargeMessageSize(1024 * 1024);
-      locator.setProducerWindowSize(10 * 1024);
-      return locator;
+      return (ServerLocatorInternal) super.getServerLocator()
+              .setMinLargeMessageSize(1024 * 1024)
+              .setProducerWindowSize(10 * 1024);
    }
 
    @Override

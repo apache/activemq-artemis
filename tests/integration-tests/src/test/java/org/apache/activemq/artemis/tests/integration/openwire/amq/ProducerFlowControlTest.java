@@ -365,9 +365,9 @@ public class ProducerFlowControlTest extends BasicOpenWireTest
    {
       String match = "jms.queue.#";
       Map<String, AddressSettings> asMap = serverConfig.getAddressesSettings();
-      AddressSettings settings = asMap.get(match);
-      settings.setMaxSizeBytes(1);
-      settings.setAddressFullMessagePolicy(AddressFullMessagePolicy.BLOCK);
+      asMap.get(match)
+              .setMaxSizeBytes(1)
+              .setAddressFullMessagePolicy(AddressFullMessagePolicy.BLOCK);
    }
 
    @Override

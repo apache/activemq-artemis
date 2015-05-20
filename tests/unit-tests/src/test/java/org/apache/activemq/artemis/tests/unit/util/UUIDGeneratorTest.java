@@ -16,12 +16,12 @@
  */
 package org.apache.activemq.artemis.tests.unit.util;
 
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class UUIDGeneratorTest extends ServiceTestBase
+public class UUIDGeneratorTest extends ActiveMQTestBase
 {
    // Constants -----------------------------------------------------
 
@@ -58,15 +58,15 @@ public class UUIDGeneratorTest extends ServiceTestBase
 
       byte[] fiveBytes = new byte[]{1, 2, 3, 4, 5};
       byte[] zeroPaddedFiveBytes = UUIDGenerator.getZeroPaddedSixBytes(fiveBytes);
-      ServiceTestBase.assertEqualsByteArrays(new byte[]{1, 2, 3, 4, 5, 0}, zeroPaddedFiveBytes);
+      ActiveMQTestBase.assertEqualsByteArrays(new byte[]{1, 2, 3, 4, 5, 0}, zeroPaddedFiveBytes);
 
       byte[] fourBytes = new byte[]{1, 2, 3, 4};
       byte[] zeroPaddedFourBytes = UUIDGenerator.getZeroPaddedSixBytes(fourBytes);
-      ServiceTestBase.assertEqualsByteArrays(new byte[]{1, 2, 3, 4, 0, 0}, zeroPaddedFourBytes);
+      ActiveMQTestBase.assertEqualsByteArrays(new byte[]{1, 2, 3, 4, 0, 0}, zeroPaddedFourBytes);
 
       byte[] threeBytes = new byte[]{1, 2, 3};
       byte[] zeroPaddedThreeBytes = UUIDGenerator.getZeroPaddedSixBytes(threeBytes);
-      ServiceTestBase.assertEqualsByteArrays(new byte[]{1, 2, 3, 0, 0, 0}, zeroPaddedThreeBytes);
+      ActiveMQTestBase.assertEqualsByteArrays(new byte[]{1, 2, 3, 0, 0, 0}, zeroPaddedThreeBytes);
    }
 
    // Package protected ---------------------------------------------

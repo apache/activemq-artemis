@@ -26,7 +26,7 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.JournalType;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -35,7 +35,7 @@ import org.junit.Test;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class LargeJournalStressTest extends ServiceTestBase
+public class LargeJournalStressTest extends ActiveMQTestBase
 {
 
    // Constants -----------------------------------------------------
@@ -103,7 +103,7 @@ public class LargeJournalStressTest extends ServiceTestBase
             latchReady.countDown();
             try
             {
-               ServiceTestBase.waitForLatch(latchStart);
+               ActiveMQTestBase.waitForLatch(latchStart);
                session = sf.createSession(true, true);
                sessionSlow = sf.createSession(false, false);
                ClientProducer prod = session.createProducer(LargeJournalStressTest.AD2);
@@ -169,7 +169,7 @@ public class LargeJournalStressTest extends ServiceTestBase
             latchReady.countDown();
             try
             {
-               ServiceTestBase.waitForLatch(latchStart);
+               ActiveMQTestBase.waitForLatch(latchStart);
                session = sf.createSession(true, true);
                session.start();
                ClientConsumer cons = session.createConsumer(LargeJournalStressTest.Q2);
@@ -205,7 +205,7 @@ public class LargeJournalStressTest extends ServiceTestBase
       FastProducer p1 = new FastProducer();
       p1.start();
 
-      ServiceTestBase.waitForLatch(latchReady);
+      ActiveMQTestBase.waitForLatch(latchReady);
       latchStart.countDown();
 
       p1.join();
@@ -261,12 +261,10 @@ public class LargeJournalStressTest extends ServiceTestBase
 
       clearDataRecreateServerDirs();
 
-      locator = createInVMNonHALocator();
-
-      locator.setBlockOnAcknowledge(false);
-      locator.setBlockOnNonDurableSend(false);
-      locator.setBlockOnDurableSend(false);
-
+      locator = createInVMNonHALocator()
+              .setBlockOnAcknowledge(false)
+              .setBlockOnNonDurableSend(false)
+              .setBlockOnDurableSend(false);
    }
 
    /**
@@ -274,7 +272,7 @@ public class LargeJournalStressTest extends ServiceTestBase
     */
    private void setupServer(final JournalType journalType) throws Exception
    {
-      Configuration config = createDefaultConfig()
+      Configuration config = createDefaultInVMConfig()
          .setJournalSyncNonTransactional(false)
          .setJournalFileSize(ActiveMQDefaultConfiguration.getDefaultJournalFileSize())
          .setJournalType(journalType)

@@ -200,7 +200,7 @@ public class BridgeFailoverTest extends MultiServerTestBase
 
       locatorConsumer.close();
 
-      waitForServer(backupServers[4]);
+      waitForServerToStart(backupServers[4]);
 
       for (int i = 100; i < 200; i++)
       {
@@ -268,7 +268,7 @@ public class BridgeFailoverTest extends MultiServerTestBase
       waitForTopology(servers[4], getNumberOfServers() - 1, getNumberOfServers() - 1);
 
       crashAndWaitForFailure(servers[4], createLocator(false, 4));
-      waitForServer(backupServers[4]);
+      waitForServerToStart(backupServers[4]);
 
       startBackups(2);
       startServers(2);

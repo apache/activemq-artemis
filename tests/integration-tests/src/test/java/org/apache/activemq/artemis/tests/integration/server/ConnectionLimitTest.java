@@ -26,14 +26,14 @@ import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class ConnectionLimitTest extends ServiceTestBase
+public class ConnectionLimitTest extends ActiveMQTestBase
 {
    private ActiveMQServer server;
 
@@ -77,8 +77,8 @@ public class ConnectionLimitTest extends ServiceTestBase
    @Test
    public void testNettyConnectionLimit() throws Exception
    {
-      ServerLocator locator = addServerLocator(createNonHALocator(true));
-      locator.setCallTimeout(3000);
+      ServerLocator locator = createNonHALocator(true)
+              .setCallTimeout(3000);
       ClientSessionFactory clientSessionFactory = locator.createSessionFactory();
       ClientSession clientSession = addClientSession(clientSessionFactory.createSession());
       ClientSessionFactory extraClientSessionFactory = locator.createSessionFactory();

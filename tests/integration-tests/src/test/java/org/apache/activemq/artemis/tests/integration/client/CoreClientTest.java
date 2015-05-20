@@ -17,27 +17,22 @@
 package org.apache.activemq.artemis.tests.integration.client;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
-import org.junit.Test;
-
-import org.junit.Assert;
-
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
-import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
+import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class CoreClientTest extends ServiceTestBase
+public class CoreClientTest extends ActiveMQTestBase
 {
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
@@ -54,29 +49,23 @@ public class CoreClientTest extends ServiceTestBase
    @Test
    public void testCoreClientNetty() throws Exception
    {
-      testCoreClient(NETTY_ACCEPTOR_FACTORY, NETTY_CONNECTOR_FACTORY);
+      testCoreClient(true);
    }
 
    @Test
    public void testCoreClientInVM() throws Exception
    {
-      testCoreClient(INVM_ACCEPTOR_FACTORY, INVM_CONNECTOR_FACTORY);
+      testCoreClient(false);
    }
 
-   private void testCoreClient(final String acceptorFactoryClassName, final String connectorFactoryClassName) throws Exception
+   private void testCoreClient(final boolean netty) throws Exception
    {
       final SimpleString QUEUE = new SimpleString("CoreClientTestQueue");
 
-      Configuration conf = createDefaultConfig()
-         .setSecurityEnabled(false)
-         .addAcceptorConfiguration(new TransportConfiguration(acceptorFactoryClassName));
-
-      ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(conf, false));
+      ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(createDefaultConfig(netty), false));
 
       server.start();
-      ServerLocator locator =
-               addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(
-                  connectorFactoryClassName)));
+      ServerLocator locator = createNonHALocator(netty);
 
       ClientSessionFactory sf = createSessionFactory(locator);
 

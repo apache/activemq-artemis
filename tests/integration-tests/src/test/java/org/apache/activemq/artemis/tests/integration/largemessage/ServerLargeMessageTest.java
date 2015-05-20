@@ -27,11 +27,11 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.persistence.impl.journal.JournalStorageManager;
 import org.apache.activemq.artemis.core.persistence.impl.journal.LargeServerMessageImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class ServerLargeMessageTest extends ServiceTestBase
+public class ServerLargeMessageTest extends ActiveMQTestBase
 {
 
    // Constants -----------------------------------------------------
@@ -52,7 +52,7 @@ public class ServerLargeMessageTest extends ServiceTestBase
 
       server.start();
 
-      ServerLocator locator = createFactory(false);
+      ServerLocator locator = createInVMNonHALocator();
 
       ClientSessionFactory sf = createSessionFactory(locator);
 
@@ -66,7 +66,7 @@ public class ServerLargeMessageTest extends ServiceTestBase
 
          for (int i = 0; i < 2 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE; i++)
          {
-            fileMessage.addBytes(new byte[]{ServiceTestBase.getSamplebyte(i)});
+            fileMessage.addBytes(new byte[]{ActiveMQTestBase.getSamplebyte(i)});
          }
          // The server would be doing this
          fileMessage.putLongProperty(Message.HDR_LARGE_BODY_SIZE, 2 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE);
@@ -96,7 +96,7 @@ public class ServerLargeMessageTest extends ServiceTestBase
 
          for (int i = 0; i < 2 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE; i++)
          {
-            Assert.assertEquals(ServiceTestBase.getSamplebyte(i), msg.getBodyBuffer().readByte());
+            Assert.assertEquals(ActiveMQTestBase.getSamplebyte(i), msg.getBodyBuffer().readByte());
          }
 
          msg.acknowledge();
