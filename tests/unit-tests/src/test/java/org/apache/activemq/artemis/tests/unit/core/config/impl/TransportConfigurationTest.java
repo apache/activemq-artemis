@@ -16,14 +16,14 @@
  */
 package org.apache.activemq.artemis.tests.unit.core.config.impl;
 
-import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
 import org.junit.Test;
 
 import org.junit.Assert;
 
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 
-public class TransportConfigurationTest extends UnitTestCase
+public class TransportConfigurationTest extends ServiceTestBase
 {
 
    // Constants -----------------------------------------------------

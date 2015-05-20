@@ -15,17 +15,8 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.integration.cluster.reattach;
+
 import org.apache.activemq.artemis.api.core.ActiveMQNotConnectedException;
-import org.junit.Before;
-import org.junit.After;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
-
-import org.junit.Assert;
-
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
@@ -35,7 +26,14 @@ import org.apache.activemq.artemis.core.protocol.core.impl.RemotingConnectionImp
 import org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnector;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.ServiceTestBase;
-import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public abstract class MultiThreadReattachSupportTestBase extends ServiceTestBase
 {
@@ -122,7 +120,7 @@ public abstract class MultiThreadReattachSupportTestBase extends ServiceTestBase
 
                   // Case a failure happened here, it should print the Thread dump
                   // Sending it to System.out, as it would show on the Tests report
-                  System.out.println(UnitTestCase.threadDump(" - fired by MultiThreadRandomReattachTestBase::runTestMultipleThreads (" + t.getLocalizedMessage() +
+                  System.out.println(ServiceTestBase.threadDump(" - fired by MultiThreadRandomReattachTestBase::runTestMultipleThreads (" + t.getLocalizedMessage() +
                                                              ")"));
                }
             }

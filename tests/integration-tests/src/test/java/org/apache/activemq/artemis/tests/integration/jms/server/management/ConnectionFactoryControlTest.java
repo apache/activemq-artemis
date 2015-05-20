@@ -23,7 +23,7 @@ import javax.management.Notification;
 import org.apache.activemq.artemis.tests.integration.management.ManagementControlHelper;
 import org.apache.activemq.artemis.tests.integration.management.ManagementTestBase;
 import org.apache.activemq.artemis.tests.unit.util.InVMNamingContext;
-import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
 import org.apache.activemq.artemis.core.registry.JndiBindingRegistry;
 import org.junit.Assert;
 import org.junit.Before;
@@ -155,11 +155,11 @@ public class ConnectionFactoryControlTest extends ManagementTestBase
     */
    protected void startServer() throws Exception
    {
-      Configuration conf = createDefaultConfig(false)
-         .addConnectorConfiguration("invm", new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY))
+      Configuration conf = createDefaultConfig()
+         .addConnectorConfiguration("invm", new TransportConfiguration(INVM_CONNECTOR_FACTORY))
          .setSecurityEnabled(false)
          .setJMXManagementEnabled(true)
-         .addAcceptorConfiguration(new TransportConfiguration(UnitTestCase.INVM_ACCEPTOR_FACTORY));
+         .addAcceptorConfiguration(new TransportConfiguration(ServiceTestBase.INVM_ACCEPTOR_FACTORY));
       server = ActiveMQServers.newActiveMQServer(conf, mbeanServer, true);
       server.start();
 

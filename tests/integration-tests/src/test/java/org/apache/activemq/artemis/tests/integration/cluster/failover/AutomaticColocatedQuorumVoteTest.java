@@ -330,7 +330,11 @@ public class AutomaticColocatedQuorumVoteTest extends ServiceTestBase
          transportConfigurationList.add(otherLiveNode.getName());
          haPolicy.getExcludedConnectors().add(otherLiveNode.getName());
       }
-      configuration.addClusterConfiguration(basicClusterConnectionConfig(liveConnector.getName(), transportConfigurationList));
+
+      String[] input = new String[transportConfigurationList.size()];
+      transportConfigurationList.toArray(input);
+
+      configuration.addClusterConfiguration(basicClusterConnectionConfig(liveConnector.getName(), input));
       haPolicy.setBackupPortOffset(100);
       haPolicy.setBackupRequestRetries(-1);
       haPolicy.setBackupRequestRetryInterval(500);

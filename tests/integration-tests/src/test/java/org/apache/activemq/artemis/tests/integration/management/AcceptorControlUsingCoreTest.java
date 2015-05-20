@@ -16,18 +16,14 @@
  */
 package org.apache.activemq.artemis.tests.integration.management;
 
-import org.junit.Test;
-
-import java.util.Map;
-
-import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
-import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.api.core.management.AcceptorControl;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
-import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.junit.Test;
+
+import java.util.Map;
 
 public class AcceptorControlUsingCoreTest extends AcceptorControlTest
 {
@@ -47,7 +43,7 @@ public class AcceptorControlUsingCoreTest extends AcceptorControlTest
    @Override
    protected AcceptorControl createManagementControl(final String name) throws Exception
    {
-      ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
+      ServerLocator locator = createInVMNonHALocator();
       addServerLocator(locator);
       ClientSessionFactory sf = createSessionFactory(locator);
       session = sf.createSession(false, true, true);

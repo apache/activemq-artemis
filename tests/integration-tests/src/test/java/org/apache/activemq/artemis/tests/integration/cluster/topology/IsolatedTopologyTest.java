@@ -16,22 +16,21 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.topology;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
-import org.apache.activemq.artemis.tests.util.UnitTestCase;
 import org.apache.activemq.artemis.core.client.impl.Topology;
 import org.apache.activemq.artemis.core.client.impl.TopologyMemberImpl;
 import org.apache.activemq.artemis.core.config.ClusterConnectionConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class IsolatedTopologyTest extends ServiceTestBase
 {
@@ -109,7 +108,7 @@ public class IsolatedTopologyTest extends ServiceTestBase
       params.put(TransportConstants.CLUSTER_CONNECTION, "cc1");
       params.put(org.apache.activemq.artemis.core.remoting.impl.invm.TransportConstants.SERVER_ID_PROP_NAME, "1");
 
-      TransportConfiguration acceptor1VM1 = new TransportConfiguration(UnitTestCase.INVM_ACCEPTOR_FACTORY,
+      TransportConfiguration acceptor1VM1 = new TransportConfiguration(ServiceTestBase.INVM_ACCEPTOR_FACTORY,
                                                                        params,
                                                                        "acceptor-cc1");
 
@@ -117,7 +116,7 @@ public class IsolatedTopologyTest extends ServiceTestBase
       params.put(TransportConstants.CLUSTER_CONNECTION, "cc2");
       params.put(org.apache.activemq.artemis.core.remoting.impl.invm.TransportConstants.SERVER_ID_PROP_NAME, "2");
 
-      TransportConfiguration acceptor2VM1 = new TransportConfiguration(UnitTestCase.INVM_ACCEPTOR_FACTORY,
+      TransportConfiguration acceptor2VM1 = new TransportConfiguration(ServiceTestBase.INVM_ACCEPTOR_FACTORY,
                                                                        params,
                                                                        "acceptor-cc2");
 
@@ -166,7 +165,7 @@ public class IsolatedTopologyTest extends ServiceTestBase
       params.put(TransportConstants.CLUSTER_CONNECTION, "cc1");
       params.put(org.apache.activemq.artemis.core.remoting.impl.invm.TransportConstants.SERVER_ID_PROP_NAME, "3");
 
-      TransportConfiguration acceptor1VM1 = new TransportConfiguration(UnitTestCase.INVM_ACCEPTOR_FACTORY,
+      TransportConfiguration acceptor1VM1 = new TransportConfiguration(ServiceTestBase.INVM_ACCEPTOR_FACTORY,
                                                                        params,
                                                                        "acceptor-cc1");
 
@@ -174,7 +173,7 @@ public class IsolatedTopologyTest extends ServiceTestBase
       params.put(TransportConstants.CLUSTER_CONNECTION, "cc2");
       params.put(org.apache.activemq.artemis.core.remoting.impl.invm.TransportConstants.SERVER_ID_PROP_NAME, "4");
 
-      TransportConfiguration acceptor2VM1 = new TransportConfiguration(UnitTestCase.INVM_ACCEPTOR_FACTORY,
+      TransportConfiguration acceptor2VM1 = new TransportConfiguration(ServiceTestBase.INVM_ACCEPTOR_FACTORY,
                                                                        params,
                                                                        "acceptor-cc2");
 

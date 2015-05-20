@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.BindingType;
@@ -37,7 +37,7 @@ import org.junit.Test;
 /**
  * This test is replicating the behaviour from https://issues.jboss.org/browse/HORNETQ-988.
  */
-public class WildcardAddressManagerUnitTest extends UnitTestCase
+public class WildcardAddressManagerUnitTest extends ServiceTestBase
 {
 
 

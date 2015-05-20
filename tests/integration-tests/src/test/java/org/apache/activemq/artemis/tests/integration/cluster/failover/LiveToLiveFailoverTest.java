@@ -32,6 +32,7 @@ import org.apache.activemq.artemis.tests.util.TransportConfigurationUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -56,7 +57,7 @@ public class LiveToLiveFailoverTest extends FailoverTest
       TransportConfiguration liveConnector0 = getConnectorTransportConfiguration(true, 0);
       TransportConfiguration liveConnector1 = getConnectorTransportConfiguration(true, 1);
 
-      backupConfig = super.createDefaultConfig(1)
+      backupConfig = super.createDefaultConfig(1, new HashMap<String, Object>(), INVM_ACCEPTOR_FACTORY)
          .clearAcceptorConfigurations()
          .addAcceptorConfiguration(getAcceptorTransportConfiguration(true, 1))
          .setHAPolicyConfiguration(new ColocatedPolicyConfiguration()
@@ -72,7 +73,7 @@ public class LiveToLiveFailoverTest extends FailoverTest
 
       backupServer = createColocatedTestableServer(backupConfig, nodeManager1, nodeManager0, 1);
 
-      liveConfig = super.createDefaultConfig(0)
+      liveConfig = super.createDefaultConfig(0, new HashMap<String, Object>(), INVM_ACCEPTOR_FACTORY)
          .clearAcceptorConfigurations()
          .addAcceptorConfiguration(getAcceptorTransportConfiguration(true, 0))
          .setHAPolicyConfiguration(new ColocatedPolicyConfiguration()

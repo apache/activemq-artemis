@@ -29,6 +29,7 @@ import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.HAPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.SharedStoreMasterPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.SharedStoreSlavePolicyConfiguration;
+import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyAcceptorFactory;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
@@ -57,10 +58,21 @@ public class SpawnedServerSupport
       settings.setPageSizeBytes(10 * 1024);
       settings.setMaxSizeBytes(100 * 1024);
 
-      Configuration conf = ServiceTestBase.createBasicConfig(folder, 0)
-         .setPersistenceEnabled(true)
-         .addAddressesSetting("#", settings)
-         .addAcceptorConfiguration(new TransportConfiguration("org.apache.activemq.artemis.core.remoting.impl.netty.NettyAcceptorFactory"));
+      Configuration conf = new ConfigurationImpl()
+              .setSecurityEnabled(false)
+              .setJournalMinFiles(2)
+              .setJournalFileSize(100 * 1024)
+              .setJournalType(ServiceTestBase.getDefaultJournalType())
+              .setJournalCompactMinFiles(0)
+              .setJournalCompactPercentage(0)
+              .setClusterPassword(ServiceTestBase.CLUSTER_PASSWORD)
+              .setJournalDirectory(ServiceTestBase.getJournalDir(folder, 0, false))
+              .setBindingsDirectory(ServiceTestBase.getBindingsDir(folder, 0, false))
+              .setPagingDirectory(ServiceTestBase.getPageDir(folder, 0, false))
+              .setLargeMessagesDirectory(ServiceTestBase.getLargeMessagesDir(folder, 0, false))
+              .setPersistenceEnabled(true)
+              .addAddressesSetting("#", settings)
+              .addAcceptorConfiguration(new TransportConfiguration("org.apache.activemq.artemis.core.remoting.impl.netty.NettyAcceptorFactory"));
 
       return conf;
    }

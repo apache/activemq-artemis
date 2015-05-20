@@ -32,52 +32,52 @@ public final class TransportConfigurationUtils
 
    public static TransportConfiguration getInVMAcceptor(final boolean live)
    {
-      return transportConfiguration(UnitTestCase.INVM_ACCEPTOR_FACTORY, live);
+      return transportConfiguration(ServiceTestBase.INVM_ACCEPTOR_FACTORY, live);
    }
 
    public static TransportConfiguration getInVMConnector(final boolean live)
    {
-      return transportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY, live);
+      return transportConfiguration(ServiceTestBase.INVM_CONNECTOR_FACTORY, live);
    }
 
    public static TransportConfiguration getInVMAcceptor(final boolean live, int server)
    {
-      return transportConfiguration(UnitTestCase.INVM_ACCEPTOR_FACTORY, live, server);
+      return transportConfiguration(ServiceTestBase.INVM_ACCEPTOR_FACTORY, live, server);
    }
 
    public static TransportConfiguration getInVMConnector(final boolean live, int server)
    {
-      return transportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY, live, server);
+      return transportConfiguration(ServiceTestBase.INVM_CONNECTOR_FACTORY, live, server);
    }
 
    public static TransportConfiguration getNettyAcceptor(final boolean live, int server)
    {
-      return transportConfiguration(UnitTestCase.NETTY_ACCEPTOR_FACTORY, live, server);
+      return transportConfiguration(ServiceTestBase.NETTY_ACCEPTOR_FACTORY, live, server);
    }
 
    public static TransportConfiguration getNettyConnector(final boolean live, int server)
    {
-      return transportConfiguration(UnitTestCase.NETTY_CONNECTOR_FACTORY, live, server);
+      return transportConfiguration(ServiceTestBase.NETTY_CONNECTOR_FACTORY, live, server);
    }
 
    public static TransportConfiguration getInVMAcceptor(final boolean live, int server, String name)
    {
-      return transportConfiguration(UnitTestCase.INVM_ACCEPTOR_FACTORY, live, server, name);
+      return transportConfiguration(ServiceTestBase.INVM_ACCEPTOR_FACTORY, live, server, name);
    }
 
    public static TransportConfiguration getInVMConnector(final boolean live, int server, String name)
    {
-      return transportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY, live, server, name);
+      return transportConfiguration(ServiceTestBase.INVM_CONNECTOR_FACTORY, live, server, name);
    }
 
    public static TransportConfiguration getNettyAcceptor(final boolean live, int server, String name)
    {
-      return transportConfiguration(UnitTestCase.NETTY_ACCEPTOR_FACTORY, live, server, name);
+      return transportConfiguration(ServiceTestBase.NETTY_ACCEPTOR_FACTORY, live, server, name);
    }
 
    public static TransportConfiguration getNettyConnector(final boolean live, int server, String name)
    {
-      return transportConfiguration(UnitTestCase.NETTY_CONNECTOR_FACTORY, live, server, name);
+      return transportConfiguration(ServiceTestBase.NETTY_CONNECTOR_FACTORY, live, server, name);
    }
 
    /**

@@ -15,10 +15,17 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.core.config.impl;
-import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
-import org.apache.activemq.artemis.core.config.ha.LiveOnlyPolicyConfiguration;
-import org.junit.Before;
 
+import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.config.ha.LiveOnlyPolicyConfiguration;
+import org.apache.activemq.artemis.core.journal.impl.JournalConstants;
+import org.apache.activemq.artemis.core.server.JournalType;
+import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
@@ -26,16 +33,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-import org.junit.Assert;
-
-import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.core.config.Configuration;
-import org.apache.activemq.artemis.core.journal.impl.JournalConstants;
-import org.apache.activemq.artemis.core.server.JournalType;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
-import org.apache.activemq.artemis.tests.util.UnitTestCase;
-
-public class ConfigurationImplTest extends UnitTestCase
+public class ConfigurationImplTest extends ServiceTestBase
 {
    protected Configuration conf;
 

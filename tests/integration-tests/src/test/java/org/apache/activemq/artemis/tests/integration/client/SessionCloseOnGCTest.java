@@ -16,18 +16,17 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
-import java.lang.ref.WeakReference;
-
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
-import org.apache.activemq.artemis.tests.util.UnitTestCase;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.lang.ref.WeakReference;
 
 public class SessionCloseOnGCTest extends ServiceTestBase
 {
@@ -70,7 +69,7 @@ public class SessionCloseOnGCTest extends ServiceTestBase
       locator.close();
 
       locator = null;
-      UnitTestCase.checkWeakReferences(wrs1, wrs2);
+      ServiceTestBase.checkWeakReferences(wrs1, wrs2);
 
       WeakReference<ClientSessionFactory> fref = new WeakReference<ClientSessionFactory>(factory);
 
@@ -78,7 +77,7 @@ public class SessionCloseOnGCTest extends ServiceTestBase
 
       factory = null;
 
-      UnitTestCase.checkWeakReferences(fref, wrs1, wrs2);
+      ServiceTestBase.checkWeakReferences(fref, wrs1, wrs2);
    }
 
    @Test
@@ -103,7 +102,7 @@ public class SessionCloseOnGCTest extends ServiceTestBase
       locator.close();
 
       locator = null;
-      UnitTestCase.checkWeakReferences(wrs1, wrs2);
+      ServiceTestBase.checkWeakReferences(wrs1, wrs2);
 
       WeakReference<ClientSessionFactory> fref = new WeakReference<ClientSessionFactory>(factory);
 
@@ -111,7 +110,7 @@ public class SessionCloseOnGCTest extends ServiceTestBase
 
       factory = null;
 
-      UnitTestCase.checkWeakReferences(fref, wrs1, wrs2);
+      ServiceTestBase.checkWeakReferences(fref, wrs1, wrs2);
    }
 
    @Test
@@ -134,13 +133,13 @@ public class SessionCloseOnGCTest extends ServiceTestBase
       locator.close();
 
       locator = null;
-      UnitTestCase.checkWeakReferences(wrs1, wrs2);
+      ServiceTestBase.checkWeakReferences(wrs1, wrs2);
 
       WeakReference<ClientSessionFactory> fref = new WeakReference<ClientSessionFactory>(factory);
 
       factory = null;
 
-      UnitTestCase.checkWeakReferences(fref, wrs1, wrs2);
+      ServiceTestBase.checkWeakReferences(fref, wrs1, wrs2);
    }
 
    @Test
@@ -160,13 +159,13 @@ public class SessionCloseOnGCTest extends ServiceTestBase
       locator.close();
 
       locator = null;
-      UnitTestCase.checkWeakReferences(wrs1, wrs2);
+      ServiceTestBase.checkWeakReferences(wrs1, wrs2);
 
       WeakReference<ClientSessionFactory> fref = new WeakReference<ClientSessionFactory>(factory);
 
       factory = null;
 
-      UnitTestCase.checkWeakReferences(fref, wrs1, wrs2);
+      ServiceTestBase.checkWeakReferences(fref, wrs1, wrs2);
    }
 
    @Test
@@ -181,7 +180,7 @@ public class SessionCloseOnGCTest extends ServiceTestBase
       locator.close();
 
       locator = null;
-      UnitTestCase.checkWeakReferences(fref);
+      ServiceTestBase.checkWeakReferences(fref);
    }
 
    @Test
@@ -197,7 +196,7 @@ public class SessionCloseOnGCTest extends ServiceTestBase
 
       session = null;
 
-      UnitTestCase.checkWeakReferences(wses);
+      ServiceTestBase.checkWeakReferences(wses);
 
       Assert.assertEquals(0, sf.numSessions());
       Assert.assertEquals(1, sf.numConnections());
@@ -223,7 +222,7 @@ public class SessionCloseOnGCTest extends ServiceTestBase
       session2 = null;
       session3 = null;
 
-      UnitTestCase.checkWeakReferences(ref1, ref2, ref3);
+      ServiceTestBase.checkWeakReferences(ref1, ref2, ref3);
 
       int count = 0;
       final int TOTAL_SLEEP_TIME = 400;

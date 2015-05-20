@@ -45,13 +45,13 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
-import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
 
 /**
  *
  * A FloodServerTest
  */
-public class FloodServerTest extends UnitTestCase
+public class FloodServerTest extends ServiceTestBase
 {
    // Constants -----------------------------------------------------
 

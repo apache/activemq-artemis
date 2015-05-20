@@ -16,7 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.unit.jms.misc;
 
-import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
 import org.junit.Test;
 
 import java.io.File;
@@ -35,7 +35,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionMetaData;
 import org.apache.activemq.artemis.tests.unit.UnitTestLogger;
 
-public class ManifestTest extends UnitTestCase
+public class ManifestTest extends ServiceTestBase
 {
    // Constants -----------------------------------------------------
 

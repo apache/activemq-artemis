@@ -18,15 +18,15 @@ package org.apache.activemq.artemis.tests.integration.cluster.distribution;
 
 
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
-import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
 
 public class SymmetricClusterWithDiscoveryTest extends SymmetricClusterTest
 {
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
-   protected final String groupAddress = UnitTestCase.getUDPDiscoveryAddress();
+   protected final String groupAddress = ServiceTestBase.getUDPDiscoveryAddress();
 
-   protected final int groupPort = UnitTestCase.getUDPDiscoveryPort();
+   protected final int groupPort = ServiceTestBase.getUDPDiscoveryPort();
 
    protected boolean isNetty()
    {

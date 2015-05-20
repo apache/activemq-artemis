@@ -179,7 +179,8 @@ public class ClosingConnectionTest extends ServiceTestBase
 
    private ActiveMQServer newActiveMQServer() throws Exception
    {
-      ActiveMQServer server = createServer(true, createDefaultConfig(isNetty()), mBeanServer);
+      ActiveMQServer server = createServer(true, createDefaultConfig(isNetty()));
+      server.setMBeanServer(mBeanServer);
 
       AddressSettings defaultSetting = new AddressSettings();
       defaultSetting.setPageSizeBytes(10 * 1024);

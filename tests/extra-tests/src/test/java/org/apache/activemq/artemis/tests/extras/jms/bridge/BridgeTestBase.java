@@ -60,12 +60,12 @@ import org.apache.activemq.artemis.jms.server.JMSServerManager;
 import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.unit.util.InVMNamingContext;
-import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 
-public abstract class BridgeTestBase extends UnitTestCase
+public abstract class BridgeTestBase extends ServiceTestBase
 {
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
@@ -392,7 +392,7 @@ public abstract class BridgeTestBase extends UnitTestCase
             if (largeMessage)
             {
                BytesMessage msg = sess.createBytesMessage();
-               ((ActiveMQMessage) msg).setInputStream(UnitTestCase.createFakeLargeStream(1024L * 1024L));
+               ((ActiveMQMessage) msg).setInputStream(ServiceTestBase.createFakeLargeStream(1024L * 1024L));
                msg.setStringProperty("msg", "message" + i);
                prod.send(msg);
             }

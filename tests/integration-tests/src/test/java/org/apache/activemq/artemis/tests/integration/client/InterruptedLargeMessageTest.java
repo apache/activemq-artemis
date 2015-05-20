@@ -38,7 +38,7 @@ import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.integration.largemessage.LargeMessageTestBase;
-import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.paging.cursor.PageSubscription;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
@@ -128,7 +128,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase
 
       server.stop(false);
 
-      UnitTestCase.forceGC();
+      ServiceTestBase.forceGC();
 
       server.start();
 
@@ -261,7 +261,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase
             Assert.assertNotNull(clientMessage);
             for (int countByte = 0; countByte < LARGE_MESSAGE_SIZE; countByte++)
             {
-               Assert.assertEquals(UnitTestCase.getSamplebyte(countByte), clientMessage.getBodyBuffer().readByte());
+               Assert.assertEquals(ServiceTestBase.getSamplebyte(countByte), clientMessage.getBodyBuffer().readByte());
             }
             clientMessage.acknowledge();
          }
@@ -340,7 +340,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase
             Assert.assertNotNull(clientMessage);
             for (int countByte = 0; countByte < LARGE_MESSAGE_SIZE; countByte++)
             {
-               Assert.assertEquals(UnitTestCase.getSamplebyte(countByte), clientMessage.getBodyBuffer().readByte());
+               Assert.assertEquals(ServiceTestBase.getSamplebyte(countByte), clientMessage.getBodyBuffer().readByte());
             }
             clientMessage.acknowledge();
          }

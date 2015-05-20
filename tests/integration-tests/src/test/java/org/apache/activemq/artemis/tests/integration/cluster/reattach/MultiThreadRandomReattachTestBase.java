@@ -17,7 +17,7 @@
 package org.apache.activemq.artemis.tests.integration.cluster.reattach;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
-import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
 import org.junit.Before;
 import org.junit.After;
 
@@ -1277,7 +1277,7 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
    @After
    public void tearDown() throws Exception
    {
-      UnitTestCase.stopComponent(liveServer);
+      ServiceTestBase.stopComponent(liveServer);
 
       liveServer = null;
 
@@ -1317,7 +1317,7 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
    @Override
    protected void stop() throws Exception
    {
-      UnitTestCase.stopComponent(liveServer);
+      ServiceTestBase.stopComponent(liveServer);
 
       System.gc();
 

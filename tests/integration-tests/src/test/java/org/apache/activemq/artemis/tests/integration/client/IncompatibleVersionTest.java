@@ -261,7 +261,7 @@ public class IncompatibleVersionTest extends ServiceTestBase
       }
    }
 
-   private static class ClientStarter
+   private class ClientStarter
    {
       public void perform() throws Exception
       {
@@ -269,7 +269,7 @@ public class IncompatibleVersionTest extends ServiceTestBase
          ClientSessionFactory sf = null;
          try
          {
-            locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(NETTY_CONNECTOR_FACTORY));
+            locator = createNettyNonHALocator();
             sf = locator.createSessionFactory();
             ClientSession session = sf.createSession(false, true, true);
             log.info("### client: connected. server incrementingVersion = " + session.getVersion());
@@ -284,6 +284,12 @@ public class IncompatibleVersionTest extends ServiceTestBase
    }
 
    public static void main(String[] args) throws Exception
+   {
+      IncompatibleVersionTest incompatibleVersionTest = new IncompatibleVersionTest();
+      incompatibleVersionTest.execute(args);
+   }
+
+   private void execute(String[] args) throws Exception
    {
       if (args[0].equals("server"))
       {

@@ -15,8 +15,6 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.performance.paging;
-import java.util.HashMap;
-import java.util.concurrent.CountDownLatch;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -29,8 +27,10 @@ import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.ServiceTestBase;
-import org.apache.activemq.artemis.tests.util.UnitTestCase;
 import org.junit.Test;
+
+import java.util.HashMap;
+import java.util.concurrent.CountDownLatch;
 
 public class MeasurePagingMultiThreadTest extends ServiceTestBase
 {
@@ -98,7 +98,7 @@ public class MeasurePagingMultiThreadTest extends ServiceTestBase
                try
                {
                   latchAlign.countDown();
-                  UnitTestCase.waitForLatch(latchStart);
+                  ServiceTestBase.waitForLatch(latchStart);
 
                   long start = System.currentTimeMillis();
                   sendMessages(NUMBER_OF_MESSAGES, producer, msg);
@@ -125,7 +125,7 @@ public class MeasurePagingMultiThreadTest extends ServiceTestBase
             senders[i].start();
          }
 
-         UnitTestCase.waitForLatch(latchAlign);
+         ServiceTestBase.waitForLatch(latchAlign);
 
          long timeStart = System.currentTimeMillis();
 

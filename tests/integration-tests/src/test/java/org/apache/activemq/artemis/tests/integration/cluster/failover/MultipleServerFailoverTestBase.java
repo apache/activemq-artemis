@@ -129,7 +129,9 @@ public abstract class MultipleServerFailoverTestBase extends ServiceTestBase
             }
          }
 
-         configuration.addClusterConfiguration(basicClusterConnectionConfig(livetc.getName(), connectors));
+         String[] input = new String[connectors.size()];
+         connectors.toArray(input);
+         configuration.addClusterConfiguration(basicClusterConnectionConfig(livetc.getName(), input));
          liveConfigs.add(configuration);
          ActiveMQServer server = createServer(true, configuration);
          TestableServer activeMQServer = new SameProcessActiveMQServer(server);
@@ -190,7 +192,9 @@ public abstract class MultipleServerFailoverTestBase extends ServiceTestBase
                connectors.add(staticTc.getName());
             }
          }
-         configuration.addClusterConfiguration(basicClusterConnectionConfig(backuptc.getName(), connectors));
+         String[] input = new String[connectors.size()];
+         connectors.toArray(input);
+         configuration.addClusterConfiguration(basicClusterConnectionConfig(backuptc.getName(), input));
          backupConfigs.add(configuration);
          ActiveMQServer server = createServer(true, configuration);
          TestableServer testableServer = new SameProcessActiveMQServer(server);

@@ -19,7 +19,7 @@ package org.apache.activemq.artemis.tests.integration.spring;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
-import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.server.embedded.EmbeddedJMS;
 import org.junit.Assert;
@@ -29,7 +29,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
 
-public class SpringIntegrationTest extends UnitTestCase
+public class SpringIntegrationTest extends ServiceTestBase
 {
    IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 

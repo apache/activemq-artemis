@@ -17,7 +17,7 @@
 package org.apache.activemq.artemis.tests.integration.jms.cluster;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQNotConnectedException;
-import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
 import org.junit.Before;
 import org.junit.After;
 
@@ -54,7 +54,7 @@ import org.apache.activemq.artemis.jms.client.ActiveMQSession;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
 
-public class JMSReconnectTest extends UnitTestCase
+public class JMSReconnectTest extends ServiceTestBase
 {
 
    private ActiveMQServer liveService;

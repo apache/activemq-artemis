@@ -93,7 +93,7 @@ public class HangConsumerTest extends ServiceTestBase
    {
       super.setUp();
 
-      Configuration config = createDefaultConfig(false)
+      Configuration config = createDefaultConfig()
          .setMessageExpiryScanPeriod(10);
 
       ActiveMQSecurityManager securityManager = new ActiveMQSecurityManagerImpl();

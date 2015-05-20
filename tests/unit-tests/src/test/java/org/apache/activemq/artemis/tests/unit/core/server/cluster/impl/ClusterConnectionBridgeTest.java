@@ -17,11 +17,11 @@
 package org.apache.activemq.artemis.tests.unit.core.server.cluster.impl;
 
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
-import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
 import org.apache.activemq.artemis.core.server.cluster.impl.ClusterConnectionBridge;
 import org.junit.Test;
 
-public class ClusterConnectionBridgeTest extends UnitTestCase
+public class ClusterConnectionBridgeTest extends ServiceTestBase
 {
    @Test
    public void testCreateSelectorFromAddressForNormalMatches()

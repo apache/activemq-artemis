@@ -16,7 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.connection;
 import org.apache.activemq.artemis.api.core.ActiveMQInternalErrorException;
-import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
 import org.apache.activemq.artemis.core.registry.JndiBindingRegistry;
 import org.junit.Before;
 import org.junit.After;
@@ -50,7 +50,7 @@ import org.apache.activemq.artemis.tests.integration.jms.server.management.NullI
  *
  * A ExceptionListenerTest
  */
-public class ExceptionListenerTest extends UnitTestCase
+public class ExceptionListenerTest extends ServiceTestBase
 {
    private ActiveMQServer server;
 

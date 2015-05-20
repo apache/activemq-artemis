@@ -16,7 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.distribution;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
-import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
 import org.junit.Before;
 import org.junit.After;
 
@@ -153,7 +153,7 @@ public class SymmetricClusterTest extends ClusterTestBase
       }
       catch (Throwable e)
       {
-         System.out.println(UnitTestCase.threadDump("SymmetricClusterTest::testStopAllStartAll"));
+         System.out.println(ServiceTestBase.threadDump("SymmetricClusterTest::testStopAllStartAll"));
          throw e;
       }
 

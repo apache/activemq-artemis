@@ -16,15 +16,12 @@
  */
 package org.apache.activemq.artemis.tests.integration.management;
 
-import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
-import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.api.core.management.ActiveMQServerControl;
 import org.apache.activemq.artemis.api.core.management.Parameter;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
-import org.apache.activemq.artemis.tests.util.UnitTestCase;
 import org.junit.After;
 import org.junit.Before;
 
@@ -62,7 +59,7 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
    {
       super.setUp();
 
-      locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
+      locator = createInVMNonHALocator();
       ClientSessionFactory sf = createSessionFactory(locator);
       session = sf.createSession(false, true, true);
       session.start();
@@ -88,7 +85,7 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
 
       super.restartServer();
 
-      ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
+      ServerLocator locator = createInVMNonHALocator();
       ClientSessionFactory sf = createSessionFactory(locator);
       session = sf.createSession(false, true, true);
       session.start();

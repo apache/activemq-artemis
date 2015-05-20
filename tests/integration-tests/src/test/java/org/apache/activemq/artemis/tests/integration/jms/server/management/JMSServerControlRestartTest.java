@@ -32,7 +32,7 @@ import org.apache.activemq.artemis.api.jms.management.JMSServerControl;
 import org.apache.activemq.artemis.tests.integration.management.ManagementControlHelper;
 import org.apache.activemq.artemis.tests.integration.management.ManagementTestBase;
 import org.apache.activemq.artemis.tests.unit.util.InVMNamingContext;
-import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.registry.JndiBindingRegistry;
 import org.apache.activemq.artemis.core.remoting.impl.invm.InVMAcceptorFactory;
@@ -61,13 +61,13 @@ public class JMSServerControlRestartTest extends ManagementTestBase
       String queueName = RandomUtil.randomString();
       String binding = RandomUtil.randomString();
 
-      UnitTestCase.checkNoBinding(context, binding);
+      ServiceTestBase.checkNoBinding(context, binding);
       checkNoResource(ObjectNameBuilder.DEFAULT.getJMSQueueObjectName(queueName));
 
       JMSServerControl control = ManagementControlHelper.createJMSServerControl(mbeanServer);
       control.createQueue(queueName, binding);
 
-      Object o = UnitTestCase.checkBinding(context, binding);
+      Object o = ServiceTestBase.checkBinding(context, binding);
       Assert.assertTrue(o instanceof Queue);
       Queue queue = (Queue) o;
       Assert.assertEquals(queueName, queue.getQueueName());
@@ -75,13 +75,13 @@ public class JMSServerControlRestartTest extends ManagementTestBase
 
       serverManager.stop();
 
-      UnitTestCase.checkNoBinding(context, binding);
+      ServiceTestBase.checkNoBinding(context, binding);
       checkNoResource(ObjectNameBuilder.DEFAULT.getJMSQueueObjectName(queueName));
 
       serverManager = createJMSServer();
       serverManager.start();
 
-      o = UnitTestCase.checkBinding(context, binding);
+      o = ServiceTestBase.checkBinding(context, binding);
       Assert.assertTrue(o instanceof Queue);
       queue = (Queue) o;
       Assert.assertEquals(queueName, queue.getQueueName());
@@ -94,7 +94,7 @@ public class JMSServerControlRestartTest extends ManagementTestBase
       String queueName = RandomUtil.randomString();
       String binding = RandomUtil.randomString();
 
-      UnitTestCase.checkNoBinding(context, binding);
+      ServiceTestBase.checkNoBinding(context, binding);
       checkNoResource(ObjectNameBuilder.DEFAULT.getJMSQueueObjectName(queueName));
 
       TransportConfiguration config = new TransportConfiguration(InVMConnectorFactory.class.getName());
@@ -109,7 +109,7 @@ public class JMSServerControlRestartTest extends ManagementTestBase
       Assert.assertTrue(JMSManagementHelper.hasOperationSucceeded(reply));
       connection.close();
 
-      Object o = UnitTestCase.checkBinding(context, binding);
+      Object o = ServiceTestBase.checkBinding(context, binding);
       Assert.assertTrue(o instanceof Queue);
       Queue queue = (Queue) o;
       Assert.assertEquals(queueName, queue.getQueueName());
@@ -117,13 +117,13 @@ public class JMSServerControlRestartTest extends ManagementTestBase
 
       serverManager.stop();
 
-      UnitTestCase.checkNoBinding(context, binding);
+      ServiceTestBase.checkNoBinding(context, binding);
       checkNoResource(ObjectNameBuilder.DEFAULT.getJMSQueueObjectName(queueName));
 
       serverManager = createJMSServer();
       serverManager.start();
 
-      o = UnitTestCase.checkBinding(context, binding);
+      o = ServiceTestBase.checkBinding(context, binding);
       Assert.assertTrue(o instanceof Queue);
       queue = (Queue) o;
       Assert.assertEquals(queueName, queue.getQueueName());

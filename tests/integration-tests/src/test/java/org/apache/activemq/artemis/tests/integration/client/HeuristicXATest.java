@@ -15,21 +15,6 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.integration.client;
-import org.apache.activemq.artemis.tests.integration.management.ManagementControlHelper;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
-import org.junit.Before;
-import org.junit.After;
-
-import org.junit.Test;
-
-import java.util.HashMap;
-
-import javax.management.MBeanServer;
-import javax.management.MBeanServerFactory;
-import javax.transaction.xa.XAResource;
-import javax.transaction.xa.Xid;
-
-import org.junit.Assert;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
@@ -42,8 +27,18 @@ import org.apache.activemq.artemis.api.core.management.ActiveMQServerControl;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
-import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
+import org.apache.activemq.artemis.tests.integration.management.ManagementControlHelper;
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+
+import javax.management.MBeanServer;
+import javax.management.MBeanServerFactory;
+import javax.transaction.xa.XAResource;
+import javax.transaction.xa.Xid;
 
 public class HeuristicXATest extends ServiceTestBase
 {
@@ -70,7 +65,8 @@ public class HeuristicXATest extends ServiceTestBase
       Configuration configuration = createDefaultConfig()
          .setJMXManagementEnabled(true);
 
-      ActiveMQServer server = createServer(false, configuration, mbeanServer, new HashMap<String, AddressSettings>());
+      ActiveMQServer server = createServer(false, configuration);
+      server.setMBeanServer(mbeanServer);
       server.start();
 
       ActiveMQServerControl jmxServer = ManagementControlHelper.createActiveMQServerControl(mbeanServer);
@@ -95,7 +91,8 @@ public class HeuristicXATest extends ServiceTestBase
       Configuration configuration = createDefaultConfig()
          .setJMXManagementEnabled(true);
 
-      ActiveMQServer server = createServer(false, configuration, mbeanServer, new HashMap<String, AddressSettings>());
+      ActiveMQServer server = createServer(false, configuration);
+      server.setMBeanServer(mbeanServer);
       server.start();
       Xid xid = newXID();
 
@@ -190,7 +187,8 @@ public class HeuristicXATest extends ServiceTestBase
       Configuration configuration = createDefaultConfig()
          .setJMXManagementEnabled(true);
 
-      ActiveMQServer server = createServer(true, configuration, mbeanServer, new HashMap<String, AddressSettings>());
+      ActiveMQServer server = createServer(true, configuration);
+      server.setMBeanServer(mbeanServer);
       server.start();
       Xid xid = newXID();
 
@@ -290,7 +288,8 @@ public class HeuristicXATest extends ServiceTestBase
       Configuration configuration = createDefaultConfig()
          .setJMXManagementEnabled(true);
 
-      ActiveMQServer server = createServer(true, configuration, mbeanServer, new HashMap<String, AddressSettings>());
+      ActiveMQServer server = createServer(true, configuration);
+      server.setMBeanServer(mbeanServer);
       server.start();
       Xid xid = newXID();
 
@@ -399,7 +398,8 @@ public class HeuristicXATest extends ServiceTestBase
       Configuration configuration = createDefaultConfig()
          .setJMXManagementEnabled(true);
 
-      ActiveMQServer server = createServer(true, configuration, mbeanServer, new HashMap<String, AddressSettings>());
+      ActiveMQServer server = createServer(true, configuration);
+      server.setMBeanServer(mbeanServer);
       server.start();
       Xid xid = newXID();
 

@@ -33,9 +33,7 @@ import org.apache.activemq.artemis.tests.integration.cluster.util.TestableServer
 import org.junit.After;
 import org.junit.Test;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -146,13 +144,12 @@ public class SingleLiveMultipleBackupsFailoverTest extends MultipleBackupsFailov
          .setPagingDirectory(getPageDir() + "_" + liveNode)
          .setLargeMessagesDirectory(getLargeMessagesDir() + "_" + liveNode);
 
-      List<String> staticConnectors = new ArrayList<String>();
-
-      for (int node : nodes)
+      String[] staticConnectors = new String[nodes.length];
+      for (int i = 0; i < nodes.length; i++)
       {
-         TransportConfiguration liveConnector = createTransportConfiguration(isNetty(), false, generateParams(node, isNetty()));
+         TransportConfiguration liveConnector = createTransportConfiguration(isNetty(), false, generateParams(nodes[i], isNetty()));
          config1.addConnectorConfiguration(liveConnector.getName(), liveConnector);
-         staticConnectors.add(liveConnector.getName());
+         staticConnectors[i] = liveConnector.getName();
       }
       config1.addClusterConfiguration(basicClusterConnectionConfig(backupConnector.getName(), staticConnectors));
 

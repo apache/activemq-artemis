@@ -16,24 +16,19 @@
  */
 package org.apache.activemq.artemis.tests.integration.management;
 
-import javax.transaction.xa.XAResource;
-import javax.transaction.xa.Xid;
-import java.util.HashMap;
-import java.util.Map;
-
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
-import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.api.core.management.ActiveMQServerControl;
 import org.apache.activemq.artemis.api.core.management.AddressSettingsInfo;
 import org.apache.activemq.artemis.api.core.management.BridgeControl;
 import org.apache.activemq.artemis.api.core.management.DivertControl;
-import org.apache.activemq.artemis.api.core.management.ActiveMQServerControl;
 import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
 import org.apache.activemq.artemis.api.core.management.QueueControl;
 import org.apache.activemq.artemis.api.core.management.RoleInfo;
@@ -48,7 +43,6 @@ import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.core.settings.impl.SlowConsumerPolicy;
 import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
-import org.apache.activemq.artemis.tests.util.UnitTestCase;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.apache.activemq.artemis.utils.json.JSONArray;
 import org.apache.activemq.artemis.utils.json.JSONObject;
@@ -56,6 +50,11 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import javax.transaction.xa.XAResource;
+import javax.transaction.xa.Xid;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ActiveMQServerControlTest extends ManagementTestBase
 {
@@ -690,7 +689,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase
       assertEquals(name, divertNames[0]);
 
       // check that a message sent to the address is diverted exclusively
-      ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
+      ServerLocator locator = createInVMNonHALocator();
 
       ClientSessionFactory csf = createSessionFactory(locator);
       ClientSession session = csf.createSession();
@@ -756,7 +755,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase
       checkNoResource(ObjectNameBuilder.DEFAULT.getBridgeObjectName(name));
       assertEquals(0, serverControl.getBridgeNames().length);
 
-      ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
+      ServerLocator locator = createInVMNonHALocator();
       ClientSessionFactory csf = createSessionFactory(locator);
       ClientSession session = csf.createSession();
 
@@ -840,7 +839,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase
       SimpleString atestq = new SimpleString("BasicXaTestq");
       Xid xid = newXID();
 
-      ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
+      ServerLocator locator = createInVMNonHALocator();
       ClientSessionFactory csf = createSessionFactory(locator);
       ClientSession clientSession = csf.createSession(true, false, false);
       clientSession.createQueue(atestq, atestq, null, true);
@@ -886,7 +885,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase
       SimpleString atestq = new SimpleString("BasicXaTestq");
       Xid xid = newXID();
 
-      ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
+      ServerLocator locator = createInVMNonHALocator();
       ClientSessionFactory csf = createSessionFactory(locator);
       ClientSession clientSession = csf.createSession(true, false, false);
       clientSession.createQueue(atestq, atestq, null, true);
@@ -929,7 +928,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase
       byte[] globalTransactionId = UUIDGenerator.getInstance().generateStringUUID().getBytes();
       Xid xid = new XidImpl("xa1".getBytes(), 1, globalTransactionId);
       Xid xid2 = new XidImpl("xa2".getBytes(), 1, globalTransactionId);
-      ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
+      ServerLocator locator = createInVMNonHALocator();
       ClientSessionFactory csf = createSessionFactory(locator);
       ClientSession clientSession = csf.createSession(true, false, false);
       clientSession.createQueue(recQueue, recQueue, null, true);
@@ -941,13 +940,13 @@ public class ActiveMQServerControlTest extends ManagementTestBase
       locator.close();
 
 
-      ServerLocator receiveLocator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
+      ServerLocator receiveLocator = createInVMNonHALocator();
       ClientSessionFactory receiveCsf = createSessionFactory(receiveLocator);
       ClientSession receiveClientSession = receiveCsf.createSession(true, false, false);
       ClientConsumer consumer = receiveClientSession.createConsumer(recQueue);
 
 
-      ServerLocator sendLocator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
+      ServerLocator sendLocator = createInVMNonHALocator();
       ClientSessionFactory sendCsf = createSessionFactory(sendLocator);
       ClientSession sendClientSession = sendCsf.createSession(true, false, false);
       ClientProducer producer = sendClientSession.createProducer(sendQueue);
@@ -1009,7 +1008,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase
    protected void scaleDown(ScaleDownHandler handler) throws Exception
    {
       SimpleString address = new SimpleString("testQueue");
-      Configuration conf = createDefaultConfig(false, 2);
+      Configuration conf = createDefaultConfig(2, new HashMap<String, Object>(), INVM_ACCEPTOR_FACTORY);
       conf.setSecurityEnabled(false);
       conf.getAcceptorConfigurations().clear();
       HashMap<String, Object> params = new HashMap<String, Object>();
@@ -1017,13 +1016,13 @@ public class ActiveMQServerControlTest extends ManagementTestBase
       conf.getAcceptorConfigurations().add(new TransportConfiguration(InVMAcceptorFactory.class.getName(), params));
       ActiveMQServer server2 = ActiveMQServers.newActiveMQServer(conf, null, true);
       this.conf.getConnectorConfigurations().clear();
-      this.conf.getConnectorConfigurations().put("server2-connector", new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY, params));
+      this.conf.getConnectorConfigurations().put("server2-connector", new TransportConfiguration(INVM_CONNECTOR_FACTORY, params));
       try
       {
          server2.start();
          server.createQueue(address, address, null, true, false);
          server2.createQueue(address, address, null, true, false);
-         ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
+         ServerLocator locator = createInVMNonHALocator();
          ClientSessionFactory csf = createSessionFactory(locator);
          ClientSession session = csf.createSession();
          ClientProducer producer = session.createProducer(address);
@@ -1037,7 +1036,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase
          ActiveMQServerControl managementControl = createManagementControl();
          handler.scaleDown(managementControl);
          locator.close();
-         locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY, params));
+         locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(INVM_CONNECTOR_FACTORY, params));
          csf = createSessionFactory(locator);
          session = csf.createSession();
          session.start();
@@ -1072,7 +1071,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase
                                                    params,
                                                    RandomUtil.randomString());
 
-      conf = createDefaultConfig(false)
+      conf = createDefaultConfig()
          .setSecurityEnabled(false)
          .setJMXManagementEnabled(true)
          .clearAcceptorConfigurations()

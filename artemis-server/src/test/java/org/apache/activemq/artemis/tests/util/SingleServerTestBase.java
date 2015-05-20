@@ -59,7 +59,7 @@ public abstract class SingleServerTestBase extends ServiceTestBase
 
    protected ServerLocator createLocator()
    {
-      ServerLocator retlocator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY));
+      ServerLocator retlocator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(INVM_CONNECTOR_FACTORY));
       addServerLocator(retlocator);
       return retlocator;
    }

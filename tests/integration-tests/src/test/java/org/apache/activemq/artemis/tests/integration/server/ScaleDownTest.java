@@ -34,7 +34,7 @@ import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.impl.LocalQueueBinding;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.integration.cluster.distribution.ClusterTestBase;
-import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -414,7 +414,7 @@ public class ScaleDownTest extends ClusterTestBase
          for (int i = 0; i < 2 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE; i++)
          {
             byte byteRead = msg.getBodyBuffer().readByte();
-            Assert.assertEquals(msg + " Is different", UnitTestCase.getSamplebyte(i), byteRead);
+            Assert.assertEquals(msg + " Is different", ServiceTestBase.getSamplebyte(i), byteRead);
          }
 
          msg.acknowledge();

@@ -18,11 +18,11 @@ package org.apache.activemq.artemis.tests.unit.util;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
-import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
 import org.apache.activemq.artemis.utils.ActiveMQBufferInputStream;
 import org.junit.Test;
 
-public class ActiveMQBufferInputStreamTest extends UnitTestCase
+public class ActiveMQBufferInputStreamTest extends ServiceTestBase
 {
 
    @Test

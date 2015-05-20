@@ -16,7 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.connection;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
-import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
 import org.junit.Before;
 import org.junit.After;
 
@@ -93,7 +93,7 @@ public class CloseConnectionOnGCTest extends JMSTestBase
 
       conn = null;
 
-      UnitTestCase.checkWeakReferences(wr);
+      ServiceTestBase.checkWeakReferences(wr);
 
       latch.await(5000, TimeUnit.MILLISECONDS);
       Assert.assertEquals(0, server.getRemotingService().getConnections().size());
@@ -130,7 +130,7 @@ public class CloseConnectionOnGCTest extends JMSTestBase
       conn2 = null;
       conn3 = null;
 
-      UnitTestCase.checkWeakReferences(wr1, wr2, wr3);
+      ServiceTestBase.checkWeakReferences(wr1, wr2, wr3);
 
       latch.await(5000, TimeUnit.MILLISECONDS);
 
@@ -174,7 +174,7 @@ public class CloseConnectionOnGCTest extends JMSTestBase
       conn2 = null;
       conn3 = null;
 
-      UnitTestCase.checkWeakReferences(wr1, wr2, wr3);
+      ServiceTestBase.checkWeakReferences(wr1, wr2, wr3);
 
       latch.await(5000, TimeUnit.MILLISECONDS);
 

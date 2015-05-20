@@ -33,9 +33,7 @@ import org.apache.activemq.artemis.tests.integration.cluster.util.TestableServer
 import org.junit.After;
 import org.junit.Test;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -177,12 +175,12 @@ public class MultipleLivesMultipleBackupsFailoverTest extends MultipleBackupsFai
       TransportConfiguration backupConnector = createTransportConfiguration(isNetty(), false, generateParams(nodeid, isNetty()));
       config1.addConnectorConfiguration(backupConnector.getName(), backupConnector);
 
-      List<String> clusterNodes = new ArrayList<String>();
-      for (int node : otherClusterNodes)
+      String[] clusterNodes = new String[otherClusterNodes.length];
+      for (int i = 0; i < otherClusterNodes.length; i++)
       {
-         TransportConfiguration connector = createTransportConfiguration(isNetty(), false, generateParams(node, isNetty()));
+         TransportConfiguration connector = createTransportConfiguration(isNetty(), false, generateParams(otherClusterNodes[i], isNetty()));
          config1.addConnectorConfiguration(connector.getName(), connector);
-         clusterNodes.add(connector.getName());
+         clusterNodes[i] = connector.getName();
       }
       config1.addClusterConfiguration(basicClusterConnectionConfig(backupConnector.getName(), clusterNodes));
 
@@ -204,12 +202,12 @@ public class MultipleLivesMultipleBackupsFailoverTest extends MultipleBackupsFai
          .setLargeMessagesDirectory(getLargeMessagesDir() + "_" + liveNode)
          .addConnectorConfiguration(liveConnector.getName(), liveConnector);
 
-      List<String> pairs = new ArrayList<String>();
-      for (int node : otherLiveNodes)
+      String[] pairs = new String[otherLiveNodes.length];
+      for (int i = 0; i < otherLiveNodes.length; i++)
       {
-         TransportConfiguration otherLiveConnector = createTransportConfiguration(isNetty(), false, generateParams(node, isNetty()));
+         TransportConfiguration otherLiveConnector = createTransportConfiguration(isNetty(), false, generateParams(otherLiveNodes[i], isNetty()));
          config0.addConnectorConfiguration(otherLiveConnector.getName(), otherLiveConnector);
-         pairs.add(otherLiveConnector.getName());
+         pairs[i] = otherLiveConnector.getName();
       }
       config0.addClusterConfiguration(basicClusterConnectionConfig(liveConnector.getName(), pairs));
 

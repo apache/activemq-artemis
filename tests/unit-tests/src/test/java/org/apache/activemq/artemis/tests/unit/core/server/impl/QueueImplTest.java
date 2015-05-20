@@ -34,7 +34,7 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.tests.unit.core.server.impl.fakes.FakeConsumer;
 import org.apache.activemq.artemis.tests.unit.core.server.impl.fakes.FakeFilter;
 import org.apache.activemq.artemis.tests.unit.core.server.impl.fakes.FakePostOffice;
-import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.filter.impl.FilterImpl;
 import org.apache.activemq.artemis.core.postoffice.impl.LocalQueueBinding;
@@ -54,7 +54,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class QueueImplTest extends UnitTestCase
+public class QueueImplTest extends ServiceTestBase
 {
    // The tests ----------------------------------------------------------------
 
@@ -1327,7 +1327,7 @@ public class QueueImplTest extends UnitTestCase
       final String MY_ADDRESS = "myAddress";
       final String MY_QUEUE = "myQueue";
 
-      ActiveMQServer server = ActiveMQServers.newActiveMQServer(createDefaultConfig(false), true);
+      ActiveMQServer server = ActiveMQServers.newActiveMQServer(createDefaultConfig(), true);
 
       AddressSettings defaultSetting = new AddressSettings();
       defaultSetting.setPageSizeBytes(10 * 1024);

@@ -16,20 +16,20 @@
  */
 package org.apache.activemq.artemis.core.config.impl;
 
+import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.config.FileDeploymentManager;
+import org.apache.activemq.artemis.core.deployers.impl.FileConfigurationParser;
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.utils.DefaultSensitiveStringCodec;
+import org.junit.Test;
+
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
-import org.apache.activemq.artemis.core.config.Configuration;
-import org.apache.activemq.artemis.core.config.FileDeploymentManager;
-import org.apache.activemq.artemis.core.deployers.impl.FileConfigurationParser;
-import org.apache.activemq.artemis.tests.util.UnitTestCase;
-import org.apache.activemq.artemis.utils.DefaultSensitiveStringCodec;
-import org.junit.Test;
-
-public class FileConfigurationParserTest extends UnitTestCase
+public class FileConfigurationParserTest extends ServiceTestBase
 {
    /**
     * These "InvalidConfigurationTest*.xml" files are modified copies of {@value

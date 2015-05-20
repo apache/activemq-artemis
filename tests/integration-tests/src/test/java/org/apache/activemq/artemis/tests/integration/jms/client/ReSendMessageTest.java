@@ -34,7 +34,7 @@ import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSConstants;
 import org.apache.activemq.artemis.api.jms.JMSFactoryType;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
-import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -71,7 +71,7 @@ public class ReSendMessageTest extends JMSTestBase
       {
          BytesMessage bm = sess.createBytesMessage();
          bm.setObjectProperty(ActiveMQJMSConstants.JMS_ACTIVEMQ_INPUT_STREAM,
-                              UnitTestCase.createFakeLargeStream(2 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE));
+                              ServiceTestBase.createFakeLargeStream(2 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE));
          msgs.add(bm);
 
          MapMessage mm = sess.createMapMessage();
@@ -168,7 +168,7 @@ public class ReSendMessageTest extends JMSTestBase
 
             for (int i = 0; i < copiedBytes.getBodyLength(); i++)
             {
-               Assert.assertEquals(UnitTestCase.getSamplebyte(i), copiedBytes.readByte());
+               Assert.assertEquals(ServiceTestBase.getSamplebyte(i), copiedBytes.readByte());
             }
          }
          else if (copiedMessage instanceof MapMessage)

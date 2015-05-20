@@ -48,6 +48,8 @@ import org.apache.activemq.artemis.spi.core.protocol.SessionCallback;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 
+import javax.management.MBeanServer;
+
 /**
  * This interface defines the internal interface of the ActiveMQ Artemis Server exposed to other components
  * of the server.
@@ -278,4 +280,6 @@ public interface ActiveMQServer extends ActiveMQComponent
    HAPolicy getHAPolicy();
 
    void setHAPolicy(HAPolicy haPolicy);
+
+   void setMBeanServer(MBeanServer mBeanServer);
 }

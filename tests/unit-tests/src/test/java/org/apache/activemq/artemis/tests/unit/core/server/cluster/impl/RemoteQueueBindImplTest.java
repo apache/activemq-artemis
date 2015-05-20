@@ -17,7 +17,7 @@
 package org.apache.activemq.artemis.tests.unit.core.server.cluster.impl;
 
 import org.apache.activemq.artemis.tests.unit.core.postoffice.impl.FakeQueue;
-import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
 import org.junit.Test;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -25,7 +25,7 @@ import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.cluster.impl.RemoteQueueBindingImpl;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
 
-public class RemoteQueueBindImplTest extends UnitTestCase
+public class RemoteQueueBindImplTest extends ServiceTestBase
 {
 
    // Constants -----------------------------------------------------

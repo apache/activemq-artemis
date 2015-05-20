@@ -25,7 +25,7 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.junit.Assert;
@@ -350,7 +350,7 @@ public class LargeMessageAvoidLargeMessagesTest extends LargeMessageTest
 
       for (int i = 0; i < messageSize; i++)
       {
-         Assert.assertEquals(UnitTestCase.getSamplebyte(i), msg1
+         Assert.assertEquals(ServiceTestBase.getSamplebyte(i), msg1
             .getBodyBuffer().readByte());
       }
 
@@ -375,7 +375,7 @@ public class LargeMessageAvoidLargeMessagesTest extends LargeMessageTest
 
       for (int i = 0; i < messageSize; i++)
       {
-         Assert.assertEquals(UnitTestCase.getSamplebyte(i), msg1
+         Assert.assertEquals(ServiceTestBase.getSamplebyte(i), msg1
             .getBodyBuffer().readByte());
       }
 
@@ -394,7 +394,7 @@ public class LargeMessageAvoidLargeMessagesTest extends LargeMessageTest
 
       for (int i = 0; i < messageSize; i++)
       {
-         Assert.assertEquals(UnitTestCase.getSamplebyte(i), msg1
+         Assert.assertEquals(ServiceTestBase.getSamplebyte(i), msg1
             .getBodyBuffer().readByte());
       }
 

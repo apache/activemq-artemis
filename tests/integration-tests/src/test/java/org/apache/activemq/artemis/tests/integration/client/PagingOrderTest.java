@@ -800,7 +800,8 @@ public class PagingOrderTest extends ServiceTestBase
       Configuration config = createDefaultConfig()
          .setJournalSyncNonTransactional(false);
 
-      ActiveMQServer server = createServer(true, config, -1, -1, AddressFullMessagePolicy.BLOCK, new HashMap<String, AddressSettings>());
+      ActiveMQServer server = createServer(true, config, -1, -1, new HashMap<String, AddressSettings>());
+      server.getAddressSettingsRepository().getMatch("#").setAddressFullMessagePolicy(AddressFullMessagePolicy.BLOCK);
 
       JMSServerManagerImpl jmsServer = new JMSServerManagerImpl(server);
       InVMNamingContext context = new InVMNamingContext();
@@ -857,7 +858,8 @@ public class PagingOrderTest extends ServiceTestBase
 
       jmsServer.stop();
 
-      server = createServer(true, config, -1, -1, AddressFullMessagePolicy.BLOCK, new HashMap<String, AddressSettings>());
+      server = createServer(true, config, -1, -1, new HashMap<String, AddressSettings>());
+      server.getAddressSettingsRepository().getMatch("#").setAddressFullMessagePolicy(AddressFullMessagePolicy.BLOCK);
 
       jmsServer = new JMSServerManagerImpl(server);
       context = new InVMNamingContext();

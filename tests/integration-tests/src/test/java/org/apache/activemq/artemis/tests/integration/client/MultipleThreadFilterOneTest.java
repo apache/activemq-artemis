@@ -164,7 +164,7 @@ public class MultipleThreadFilterOneTest extends ServiceTestBase
 
             for (int i = 0; i < numberOfMessages; i++)
             {
-               ClientMessage msg = consumer.receive(5000);
+               ClientMessage msg = consumer.receive(15000);
                Assert.assertNotNull(msg);
                Assert.assertEquals(nr, msg.getIntProperty("prodNR").intValue());
                msg.acknowledge();

@@ -16,7 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.unit.jms;
 
-import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
 import org.junit.Test;
 
 import javax.jms.JMSRuntimeException;
@@ -28,7 +28,7 @@ import org.junit.Assert;
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
 
-public class ActiveMQDestinationTest extends UnitTestCase
+public class ActiveMQDestinationTest extends ServiceTestBase
 {
    // Constants -----------------------------------------------------
 

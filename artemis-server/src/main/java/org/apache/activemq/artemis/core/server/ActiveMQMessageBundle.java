@@ -359,4 +359,7 @@ public interface ActiveMQMessageBundle
 
    @Message(id = 119111, value = "Too many queues created by user ''{0}''. Queues allowed: {1}.", format = Message.Format.MESSAGE_FORMAT)
    ActiveMQSessionCreationException queueLimitReached(String username, int limit);
+
+   @Message(id = 119112, value = "Cannot set MBeanServer during startup or while started")
+   IllegalStateException cannotSetMBeanserver();
 }

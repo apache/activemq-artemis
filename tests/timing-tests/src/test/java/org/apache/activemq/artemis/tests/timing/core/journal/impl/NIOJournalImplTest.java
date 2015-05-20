@@ -18,7 +18,7 @@ package org.apache.activemq.artemis.tests.timing.core.journal.impl;
 
 import java.io.File;
 
-import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
 import org.apache.activemq.artemis.core.journal.SequentialFileFactory;
 import org.apache.activemq.artemis.core.journal.impl.NIOSequentialFileFactory;
 import org.apache.activemq.artemis.tests.unit.UnitTestLogger;
@@ -36,7 +36,7 @@ public class NIOJournalImplTest extends JournalImplTestUnit
 
       NIOJournalImplTest.log.debug("deleting directory " + journalDir);
 
-      UnitTestCase.deleteDirectory(file);
+      ServiceTestBase.deleteDirectory(file);
 
       file.mkdir();
 

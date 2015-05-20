@@ -45,7 +45,7 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.apache.activemq.artemis.tests.util.UnitTestCase;
+import org.apache.activemq.artemis.tests.util.ServiceTestBase;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyAcceptor;
 import org.apache.activemq.artemis.core.remoting.impl.netty.PartialPooledByteBufAllocator;
@@ -69,7 +69,7 @@ import static org.apache.activemq.artemis.tests.util.RandomUtil.randomString;
 /**
  * Test that Netty Connector can connect to a Web Server and upgrade from a HTTP request to its remoting protocol.
  */
-public class NettyConnectorWithHTTPUpgradeTest extends UnitTestCase
+public class NettyConnectorWithHTTPUpgradeTest extends ServiceTestBase
 {
 
    private static final SimpleString QUEUE = new SimpleString("NettyConnectorWithHTTPUpgradeTest");

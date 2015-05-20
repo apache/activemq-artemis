@@ -16,17 +16,14 @@
  */
 package org.apache.activemq.artemis.tests.integration.vertx;
 
-import java.util.HashMap;
-
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
-import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.apache.activemq.artemis.tests.util.UnitTestCase;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.ConnectorServiceConfiguration;
 import org.apache.activemq.artemis.core.config.CoreQueueConfiguration;
@@ -47,6 +44,8 @@ import org.vertx.java.core.json.JsonObject;
 import org.vertx.java.platform.PlatformLocator;
 import org.vertx.java.platform.PlatformManager;
 import org.vertx.java.spi.cluster.impl.hazelcast.HazelcastClusterManagerFactory;
+
+import java.util.HashMap;
 
 /**
  * This class tests the basics of ActiveMQ
@@ -156,7 +155,7 @@ public class ActiveMQVertxUnitTest extends ServiceTestBase
          .setParams(config5)
          .setName("test-vertx-outgoing-connector2");
 
-      Configuration configuration = createDefaultConfig(false)
+      Configuration configuration = createDefaultConfig()
          .addQueueConfiguration(qc1)
          .addQueueConfiguration(qc2)
          .addQueueConfiguration(qc3)
@@ -682,7 +681,7 @@ public class ActiveMQVertxUnitTest extends ServiceTestBase
 
       try
       {
-         TransportConfiguration tpconf = new TransportConfiguration(UnitTestCase.INVM_CONNECTOR_FACTORY);
+         TransportConfiguration tpconf = new TransportConfiguration(INVM_CONNECTOR_FACTORY);
          locator = ActiveMQClient.createServerLocatorWithoutHA(tpconf);
 
          sf = createSessionFactory(locator);
