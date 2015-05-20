@@ -43,7 +43,6 @@
             <exclude>data/</exclude>
 
             <!-- Exclude all docs except user manual -->
-            <exclude>docs/design-guide/</exclude>
             <exclude>docs/diagrams/</exclude>
 
             <!-- Exclude Release and Dev files -->
