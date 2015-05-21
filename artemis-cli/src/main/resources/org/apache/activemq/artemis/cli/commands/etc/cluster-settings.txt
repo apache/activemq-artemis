@@ -19,7 +19,9 @@
       <cluster-connections>
          <cluster-connection name="my-cluster">
             <address>jms</address>
-            <connector-ref>activemq</connector-ref>
+            <connector-ref>artemis</connector-ref>
+            <max-hops>${max-hops}</max-hops>
             <discovery-group-ref discovery-group-name="dg-group1"/>
          </cluster-connection>
       </cluster-connections>
+

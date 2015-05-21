@@ -16,85 +16,14 @@
  */
 package org.apache.activemq.artemis.cli.commands;
 
-import java.util.Scanner;
-
 public abstract class ActionAbstract implements Action
 {
 
    protected ActionContext context;
 
-   private Scanner scanner;
-
-   private boolean noInput = false;
-
-   protected void disableInputs()
-   {
-      noInput = true;
-
-   }
-
-   protected String input(String propertyName, String prompt, String silentDefault)
-   {
-      if (noInput)
-      {
-         return silentDefault;
-      }
-      String inputStr;
-      boolean valid = false;
-      System.out.println();
-      do
-      {
-         context.out.println(propertyName + ": is mandatory with this configuration:");
-         context.out.println(prompt);
-         inputStr = scanner.nextLine();
-         if (inputStr.trim().equals(""))
-         {
-            System.out.println("Invalid Entry!");
-         }
-         else
-         {
-            valid = true;
-         }
-      }
-      while (!valid);
-
-      return inputStr.trim();
-   }
-
-   protected String inputPassword(String propertyName, String prompt, String silentDefault)
-   {
-      if (noInput)
-      {
-         return silentDefault;
-      }
-      String inputStr;
-      boolean valid = false;
-      System.out.println();
-      do
-      {
-         context.out.println(propertyName + ": is mandatory with this configuration:");
-         context.out.println(prompt);
-         inputStr = new String(System.console().readPassword());
-
-         if (inputStr.trim().equals(""))
-         {
-            System.out.println("Invalid Entry!");
-         }
-         else
-         {
-            valid = true;
-         }
-      }
-      while (!valid);
-
-      return inputStr.trim();
-   }
-
    public Object execute(ActionContext context) throws Exception
    {
       this.context = context;
-
-      scanner = new Scanner(context.in);
 
       return null;
    }

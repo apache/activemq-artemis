@@ -51,7 +51,7 @@ import static java.nio.file.attribute.PosixFilePermission.OWNER_WRITE;
  * CLI action that creates a broker instance directory.
  */
 @Command(name = "create", description = "creates a new broker instance")
-public class Create extends ActionAbstract
+public class Create extends InputAbstract
 {
    private static final Integer DEFAULT_PORT = 61616;
 
@@ -80,6 +80,7 @@ public class Create extends ActionAbstract
    public static final String ETC_CLUSTER_SECURITY_SETTINGS_TXT = "etc/cluster-security-settings.txt";
    public static final String ETC_CLUSTER_SETTINGS_TXT = "etc/cluster-settings.txt";
    public static final String ETC_CONNECTOR_SETTINGS_TXT = "etc/connector-settings.txt";
+   public static final String ETC_BOOTSTRAP_WEB_SETTINGS_TXT = "etc/bootstrap-web-settings.txt";
 
    @Arguments(description = "The instance directory to hold the broker's configuration and data", required = true)
    File directory;
@@ -101,6 +102,9 @@ public class Create extends ActionAbstract
 
    @Option(name = "--clustered", description = "Enable clustering")
    boolean clustered = false;
+
+   @Option(name = "--max-hops", description = "Number of hops on the cluster configuration")
+   int maxHops = 0;
 
    @Option(name = "--replicated", description = "Enable broker replication")
    boolean replicated = false;
@@ -132,12 +136,32 @@ public class Create extends ActionAbstract
    @Option(name = "--role", description = "The name for the role created (Default: amq)")
    String role;
 
-   @Option(name = "--silent-input", description = "It will disable all the inputs, and it would make a best guess for any required input")
-   boolean silentInput;
+   @Option(name = "--no-web", description = "This will remove the web server definition from bootstrap.xml")
+   boolean noWeb;
 
    boolean IS_WINDOWS;
 
    boolean IS_CYGWIN;
+
+   public int getMaxHops()
+   {
+      return maxHops;
+   }
+
+   public void setMaxHops(int maxHops)
+   {
+      this.maxHops = maxHops;
+   }
+
+   public boolean isNoWeb()
+   {
+      return noWeb;
+   }
+
+   public void setNoWeb(boolean noWeb)
+   {
+      this.noWeb = noWeb;
+   }
 
    public int getPortOffset()
    {
@@ -359,11 +383,6 @@ public class Create extends ActionAbstract
    {
       super.execute(context);
 
-      if (silentInput)
-      {
-         this.disableInputs();
-      }
-
       try
       {
          return run(context);
@@ -428,7 +447,7 @@ public class Create extends ActionAbstract
       filters.put("${hq.port}", String.valueOf(HQ_PORT + portOffset));
       filters.put("${http.port}", String.valueOf(HTTP_PORT + portOffset));
       filters.put("${data.dir}", data);
-
+      filters.put("${max-hops}", String.valueOf(maxHops));
       filters.put("${user}", getUser());
       filters.put("${password}", getPassword());
       filters.put("${role}", getRole());
@@ -442,7 +461,7 @@ public class Create extends ActionAbstract
 
          filters.put("${connector-config.settings}", connectorSettings);
          filters.put("${cluster-security.settings}", readTextFile(ETC_CLUSTER_SECURITY_SETTINGS_TXT));
-         filters.put("${cluster.settings}", readTextFile(ETC_CLUSTER_SETTINGS_TXT));
+         filters.put("${cluster.settings}", applyFilters(readTextFile(ETC_CLUSTER_SETTINGS_TXT), filters));
          filters.put("${cluster-user}", getClusterUser());
          filters.put("${cluster-password}", getClusterPassword());
       }
@@ -507,6 +526,18 @@ public class Create extends ActionAbstract
       {
          filters.put("${bootstrap.guest}", "");
       }
+
+
+      if (noWeb)
+      {
+         filters.put("${bootstrap-web-settings}", "");
+      }
+      else
+      {
+         filters.put("${bootstrap-web-settings}", applyFilters(readTextFile(ETC_BOOTSTRAP_WEB_SETTINGS_TXT), filters));
+      }
+
+
 
       write(ETC_BOOTSTRAP_XML, filters, false);
       write(ETC_BROKER_XML, filters, false);
