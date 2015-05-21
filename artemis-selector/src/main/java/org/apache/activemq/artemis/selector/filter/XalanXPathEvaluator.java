@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.selector.filter;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.StringReader;
 
 import org.apache.xpath.CachedXPathAPI;
@@ -56,9 +57,7 @@ public class XalanXPathEvaluator implements XPathExpression.XPathEvaluator
    {
       try
       {
-         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-         factory.setNamespaceAware(true);
-         DocumentBuilder dbuilder = factory.newDocumentBuilder();
+         DocumentBuilder dbuilder = createDocumentBuilder();
          Document doc = dbuilder.parse(inputSource);
 
          //An XPath expression could return a true or false value instead of a node.
@@ -75,11 +74,22 @@ public class XalanXPathEvaluator implements XPathExpression.XPathEvaluator
             NodeIterator iterator = cachedXPathAPI.selectNodeIterator(doc, xpath);
             return (iterator.nextNode() != null);
          }
-
       }
       catch (Throwable e)
       {
          return false;
       }
+   }
+
+   private DocumentBuilder createDocumentBuilder() throws ParserConfigurationException
+   {
+      DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+      factory.setNamespaceAware(true);
+
+      factory.setFeature("http://xml.org/sax/features/external-general-entities", false);
+      factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+      factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+
+      return factory.newDocumentBuilder();
    }
 }
