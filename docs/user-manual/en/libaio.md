@@ -1,6 +1,6 @@
 # Libaio Native Libraries
 
-Apache ActiveMQ Artemis distributes a native library, used as a bridge between Apache ActiveMQ Artemis
+Apache ActiveMQ Artemis distributes a native library, used as a bridge for its fast journal, between Apache ActiveMQ Artemis
 and Linux libaio.
 
 `libaio` is a library, developed as part of the Linux kernel project.
@@ -18,7 +18,23 @@ These are the native libraries distributed by Apache ActiveMQ Artemis:
 -   libActiveMQAIO64.so - x86 64 bits
 
 When using libaio, Apache ActiveMQ Artemis will always try loading these files as long
-as they are on the [library path](#using-server.library.path).
+as they are on the [library path](using-server.html#library-path)
+
+
+## Runtime dependencies
+
+If you just want to use the provided native binaries you need to install the required libaio dependency.
+
+You can install libaio using the following steps as the root user:
+
+Using yum, (e.g. on Fedora or Red Hat Enterprise Linux):
+
+    yum install libaio
+
+Using aptitude, (e.g. on Ubuntu or Debian system):
+
+    apt-get install libaio
+
 
 ## Compiling the native libraries
 
@@ -27,11 +43,11 @@ x86\_64 (for example Itanium 64 bits or IBM Power) you may need to
 compile the native library, since we do not distribute binaries for
 those platforms with the release.
 
-## Install requirements
+## Compilation dependencies
 
 > **Note**
 >
-> At the moment the native layer is only available on Linux. If you are
+> The native layer is only available on Linux. If you are
 > in a platform other than Linux the native compilation will not work
 
 These are the required linux packages to be installed for the compilation to work:
@@ -51,11 +67,11 @@ These are the required linux packages to be installed for the compilation to wor
 
 To perform this installation on RHEL or Fedora, you can simply type this at a command line:
 
-    sudo yum install libtool gcc-c++ gcc libaio libaio-devel make
+    sudo yum install libtool gcc-c++ gcc libaio libaio-devel
 
 Or on Debian systems:
 
-    sudo apt-get install libtool gcc-g++ gcc libaio libaio-dev make
+    sudo apt-get install libtool gcc-g++ gcc libaio libaio-dev
 
 > **Note**
 >
