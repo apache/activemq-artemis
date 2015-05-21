@@ -103,6 +103,9 @@ public class Create extends InputAbstract
    @Option(name = "--clustered", description = "Enable clustering")
    boolean clustered = false;
 
+   @Option(name = "--max-hops", description = "Number of hops on the cluster configuration")
+   int maxHops = 0;
+
    @Option(name = "--replicated", description = "Enable broker replication")
    boolean replicated = false;
 
@@ -139,6 +142,16 @@ public class Create extends InputAbstract
    boolean IS_WINDOWS;
 
    boolean IS_CYGWIN;
+
+   public int getMaxHops()
+   {
+      return maxHops;
+   }
+
+   public void setMaxHops(int maxHops)
+   {
+      this.maxHops = maxHops;
+   }
 
    public boolean isNoWeb()
    {
@@ -434,7 +447,7 @@ public class Create extends InputAbstract
       filters.put("${hq.port}", String.valueOf(HQ_PORT + portOffset));
       filters.put("${http.port}", String.valueOf(HTTP_PORT + portOffset));
       filters.put("${data.dir}", data);
-
+      filters.put("${max-hops}", String.valueOf(maxHops));
       filters.put("${user}", getUser());
       filters.put("${password}", getPassword());
       filters.put("${role}", getRole());
@@ -448,7 +461,7 @@ public class Create extends InputAbstract
 
          filters.put("${connector-config.settings}", connectorSettings);
          filters.put("${cluster-security.settings}", readTextFile(ETC_CLUSTER_SECURITY_SETTINGS_TXT));
-         filters.put("${cluster.settings}", readTextFile(ETC_CLUSTER_SETTINGS_TXT));
+         filters.put("${cluster.settings}", applyFilters(readTextFile(ETC_CLUSTER_SETTINGS_TXT), filters));
          filters.put("${cluster-user}", getClusterUser());
          filters.put("${cluster-password}", getClusterPassword());
       }
