@@ -252,7 +252,6 @@ public class ActiveMQAdmin implements Admin
       while ((line = br.readLine()) != null)
       {
          System.out.println("SERVER: " + line);
-         line.replace('|', '\n');
          if ("OK".equals(line.trim()))
          {
             new Thread()

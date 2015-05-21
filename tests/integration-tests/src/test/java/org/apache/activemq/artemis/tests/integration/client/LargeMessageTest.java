@@ -235,8 +235,9 @@ public class LargeMessageTest extends LargeMessageTestBase
          msg1.getBodyBuffer().readByte();
          Assert.fail("Exception was expected");
       }
-      catch (Throwable ignored)
+      catch (final Exception ignored)
       {
+         // empty on purpose
       }
 
       session.close();

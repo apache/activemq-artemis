@@ -2465,6 +2465,7 @@ public class QueueImpl implements Queue
       acknowledge(tx, ref);
    }
 
+   @SuppressWarnings({"ArrayToString", "ArrayToStringConcatentation"})
    private void moveBetweenSnFQueues(final SimpleString queueSuffix,
                                      final Transaction tx,
                                      final MessageReference ref) throws Exception
@@ -2481,7 +2482,8 @@ public class QueueImpl implements Queue
          if (propName.startsWith(MessageImpl.HDR_ROUTE_TO_IDS))
          {
             oldRouteToIDs = (byte[]) copyMessage.removeProperty(propName);
-            ActiveMQServerLogger.LOGGER.debug("Removed property from message: " + propName + " = " + oldRouteToIDs + " (" + ByteBuffer.wrap(oldRouteToIDs).getLong() + ")");
+            final String hashcodeToString = oldRouteToIDs.toString(); // don't use Arrays.toString(..) here
+            ActiveMQServerLogger.LOGGER.debug("Removed property from message: " + propName + " = " + hashcodeToString + " (" + ByteBuffer.wrap(oldRouteToIDs).getLong() + ")");
 
             // there should only be one of these properties so potentially save some loop iterations
             break;

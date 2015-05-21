@@ -276,7 +276,7 @@ public abstract class ClusterTestBase extends ServiceTestBase
    {
       ActiveMQServer server = servers[bNode];
 
-      log.debug("waiting for " + nodes + " on the topology for server = " + server);
+      log.debug("waiting for " + Arrays.toString(nodes) + " on the topology for server = " + server);
 
       long start = System.currentTimeMillis();
 
@@ -322,7 +322,7 @@ public abstract class ClusterTestBase extends ServiceTestBase
          while (System.currentTimeMillis() - start < WAIT_TIMEOUT);
          if (!exists)
          {
-            String msg = "Timed out waiting for cluster topology of " + nodes +
+            String msg = "Timed out waiting for cluster topology of " + Arrays.toString(nodes) +
                " (received " +
                topology.getMembers().size() +
                ") topology = " +
