@@ -38,7 +38,7 @@ public class JMXDomainTest extends ManagementTestBase
    @Test
    public void test2ActiveMQServersManagedFrom1MBeanServer() throws Exception
    {
-      Configuration config_0 = createDefaultConfig()
+      Configuration config_0 = createDefaultInVMConfig()
          .setJMXManagementEnabled(true);
 
       String jmxDomain_1 = ActiveMQDefaultConfiguration.getDefaultJmxDomain() + ".1";

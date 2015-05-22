@@ -16,7 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.unit.core.journal.impl;
 import org.apache.activemq.artemis.tests.unit.core.journal.impl.fakes.FakeSequentialFileFactory;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Before;
 import org.junit.After;
 
@@ -44,7 +44,7 @@ import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
 import org.apache.activemq.artemis.tests.unit.UnitTestLogger;
 import org.apache.activemq.artemis.tests.unit.core.journal.impl.fakes.SimpleEncoding;
 
-public class AlignedJournalImplTest extends ServiceTestBase
+public class AlignedJournalImplTest extends ActiveMQTestBase
 {
 
    // Constants -----------------------------------------------------
@@ -1223,7 +1223,7 @@ public class AlignedJournalImplTest extends ServiceTestBase
             try
             {
                latchReady.countDown();
-               ServiceTestBase.waitForLatch(latchStart);
+               ActiveMQTestBase.waitForLatch(latchStart);
                for (int i = 0; i < NUMBER_OF_ELEMENTS; i++)
                {
                   journalImpl.appendAddRecordTransactional(i, i, (byte)1, new SimpleEncoding(50, (byte)1));
@@ -1247,7 +1247,7 @@ public class AlignedJournalImplTest extends ServiceTestBase
             try
             {
                latchReady.countDown();
-               ServiceTestBase.waitForLatch(latchStart);
+               ActiveMQTestBase.waitForLatch(latchStart);
                for (int i = 0; i < NUMBER_OF_ELEMENTS; i++)
                {
                   Integer toDelete = queueDelete.poll(10, TimeUnit.SECONDS);
@@ -1269,7 +1269,7 @@ public class AlignedJournalImplTest extends ServiceTestBase
       t1.start();
       t2.start();
 
-      ServiceTestBase.waitForLatch(latchReady);
+      ActiveMQTestBase.waitForLatch(latchReady);
       latchStart.countDown();
 
       t1.join();

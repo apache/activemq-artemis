@@ -38,7 +38,7 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.MessageHandler;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.artemis.core.protocol.core.Packet;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionXAStartMessage;
@@ -56,7 +56,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class XaTimeoutTest extends ServiceTestBase
+public class XaTimeoutTest extends ActiveMQTestBase
 {
 
    private final Map<String, AddressSettings> addressSettings = new HashMap<String, AddressSettings>();
@@ -86,7 +86,7 @@ public class XaTimeoutTest extends ServiceTestBase
       addressSettings.clear();
       configuration = createBasicConfig()
          .setTransactionTimeoutScanPeriod(500)
-         .addAcceptorConfiguration(new TransportConfiguration(ServiceTestBase.INVM_ACCEPTOR_FACTORY));
+         .addAcceptorConfiguration(new TransportConfiguration(ActiveMQTestBase.INVM_ACCEPTOR_FACTORY));
       messagingService = addServer(ActiveMQServers.newActiveMQServer(configuration, false));
       // start the server
       messagingService.start();

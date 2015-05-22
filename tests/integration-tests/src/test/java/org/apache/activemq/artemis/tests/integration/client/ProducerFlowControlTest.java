@@ -35,7 +35,7 @@ import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -47,7 +47,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class ProducerFlowControlTest extends ServiceTestBase
+public class ProducerFlowControlTest extends ActiveMQTestBase
 {
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
@@ -273,7 +273,7 @@ public class ProducerFlowControlTest extends ServiceTestBase
 
                message.getBodyBuffer().readBytes(bytesRead);
 
-               ServiceTestBase.assertEqualsByteArrays(bytes, bytesRead);
+               ActiveMQTestBase.assertEqualsByteArrays(bytes, bytesRead);
 
                message.acknowledge();
 

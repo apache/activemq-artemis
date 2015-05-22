@@ -33,7 +33,7 @@ import org.apache.activemq.artemis.jms.client.ActiveMQBytesMessage;
 import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.integration.management.ManagementControlHelper;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.junit.After;
 import org.junit.Assert;
@@ -48,7 +48,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-public class BasicXaRecoveryTest extends ServiceTestBase
+public class BasicXaRecoveryTest extends ActiveMQTestBase
 {
    private static IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
@@ -79,10 +79,7 @@ public class BasicXaRecoveryTest extends ServiceTestBase
       super.setUp();
 
       addressSettings.clear();
-      configuration = createDefaultConfig()
-         .setSecurityEnabled(false)
-         .setJournalMinFiles(2)
-         .setPagingDirectory(getPageDir())
+      configuration = createDefaultInVMConfig()
          .setJMXManagementEnabled(true);
 
       mbeanServer = MBeanServerFactory.createMBeanServer();
@@ -334,8 +331,8 @@ public class BasicXaRecoveryTest extends ServiceTestBase
       Xid[] xids = clientSession.recover(XAResource.TMSTARTRSCAN);
       Assert.assertEquals(xids.length, 1);
       Assert.assertEquals(xids[0].getFormatId(), xid.getFormatId());
-      ServiceTestBase.assertEqualsByteArrays(xids[0].getBranchQualifier(), xid.getBranchQualifier());
-      ServiceTestBase.assertEqualsByteArrays(xids[0].getGlobalTransactionId(), xid.getGlobalTransactionId());
+      ActiveMQTestBase.assertEqualsByteArrays(xids[0].getBranchQualifier(), xid.getBranchQualifier());
+      ActiveMQTestBase.assertEqualsByteArrays(xids[0].getGlobalTransactionId(), xid.getGlobalTransactionId());
 
       clientSession.commit(xid, false);
 
@@ -413,8 +410,8 @@ public class BasicXaRecoveryTest extends ServiceTestBase
       Xid[] xids = clientSession.recover(XAResource.TMSTARTRSCAN);
       Assert.assertEquals(1, xids.length);
       Assert.assertEquals(xids[0].getFormatId(), xid.getFormatId());
-      ServiceTestBase.assertEqualsByteArrays(xids[0].getBranchQualifier(), xid.getBranchQualifier());
-      ServiceTestBase.assertEqualsByteArrays(xids[0].getGlobalTransactionId(), xid.getGlobalTransactionId());
+      ActiveMQTestBase.assertEqualsByteArrays(xids[0].getBranchQualifier(), xid.getBranchQualifier());
+      ActiveMQTestBase.assertEqualsByteArrays(xids[0].getGlobalTransactionId(), xid.getGlobalTransactionId());
 
       clientSession.rollback(xid);
 
@@ -458,8 +455,8 @@ public class BasicXaRecoveryTest extends ServiceTestBase
 
       Assert.assertEquals(xids.length, 1);
       Assert.assertEquals(xids[0].getFormatId(), xid.getFormatId());
-      ServiceTestBase.assertEqualsByteArrays(xids[0].getBranchQualifier(), xid.getBranchQualifier());
-      ServiceTestBase.assertEqualsByteArrays(xids[0].getGlobalTransactionId(), xid.getGlobalTransactionId());
+      ActiveMQTestBase.assertEqualsByteArrays(xids[0].getBranchQualifier(), xid.getBranchQualifier());
+      ActiveMQTestBase.assertEqualsByteArrays(xids[0].getGlobalTransactionId(), xid.getGlobalTransactionId());
       xids = clientSession.recover(XAResource.TMENDRSCAN);
       Assert.assertEquals(xids.length, 0);
       if (commit)
@@ -537,8 +534,8 @@ public class BasicXaRecoveryTest extends ServiceTestBase
       Xid[] xids = clientSession.recover(XAResource.TMSTARTRSCAN);
       Assert.assertEquals(xids.length, 1);
       Assert.assertEquals(xids[0].getFormatId(), xid.getFormatId());
-      ServiceTestBase.assertEqualsByteArrays(xids[0].getBranchQualifier(), xid.getBranchQualifier());
-      ServiceTestBase.assertEqualsByteArrays(xids[0].getGlobalTransactionId(), xid.getGlobalTransactionId());
+      ActiveMQTestBase.assertEqualsByteArrays(xids[0].getBranchQualifier(), xid.getBranchQualifier());
+      ActiveMQTestBase.assertEqualsByteArrays(xids[0].getGlobalTransactionId(), xid.getGlobalTransactionId());
 
       xids = clientSession.recover(XAResource.TMENDRSCAN);
       Assert.assertEquals(xids.length, 0);
@@ -593,8 +590,8 @@ public class BasicXaRecoveryTest extends ServiceTestBase
 
       Assert.assertEquals(xids.length, 1);
       Assert.assertEquals(xids[0].getFormatId(), xid.getFormatId());
-      ServiceTestBase.assertEqualsByteArrays(xids[0].getBranchQualifier(), xid.getBranchQualifier());
-      ServiceTestBase.assertEqualsByteArrays(xids[0].getGlobalTransactionId(), xid.getGlobalTransactionId());
+      ActiveMQTestBase.assertEqualsByteArrays(xids[0].getBranchQualifier(), xid.getBranchQualifier());
+      ActiveMQTestBase.assertEqualsByteArrays(xids[0].getGlobalTransactionId(), xid.getGlobalTransactionId());
       xids = clientSession.recover(XAResource.TMENDRSCAN);
       Assert.assertEquals(xids.length, 0);
       clientSession.rollback(xid);
@@ -642,8 +639,8 @@ public class BasicXaRecoveryTest extends ServiceTestBase
 
       Assert.assertEquals(xids.length, 1);
       Assert.assertEquals(xids[0].getFormatId(), xid.getFormatId());
-      ServiceTestBase.assertEqualsByteArrays(xids[0].getBranchQualifier(), xid.getBranchQualifier());
-      ServiceTestBase.assertEqualsByteArrays(xids[0].getGlobalTransactionId(), xid.getGlobalTransactionId());
+      ActiveMQTestBase.assertEqualsByteArrays(xids[0].getBranchQualifier(), xid.getBranchQualifier());
+      ActiveMQTestBase.assertEqualsByteArrays(xids[0].getGlobalTransactionId(), xid.getGlobalTransactionId());
       xids = clientSession.recover(XAResource.TMENDRSCAN);
       Assert.assertEquals(xids.length, 0);
       clientSession.commit(xid, false);
@@ -893,8 +890,8 @@ public class BasicXaRecoveryTest extends ServiceTestBase
 
       Assert.assertEquals(xids.length, 1);
       Assert.assertEquals(xids[0].getFormatId(), xid.getFormatId());
-      ServiceTestBase.assertEqualsByteArrays(xids[0].getBranchQualifier(), xid.getBranchQualifier());
-      ServiceTestBase.assertEqualsByteArrays(xids[0].getGlobalTransactionId(), xid.getGlobalTransactionId());
+      ActiveMQTestBase.assertEqualsByteArrays(xids[0].getBranchQualifier(), xid.getBranchQualifier());
+      ActiveMQTestBase.assertEqualsByteArrays(xids[0].getGlobalTransactionId(), xid.getGlobalTransactionId());
       xids = clientSession.recover(XAResource.TMENDRSCAN);
       Assert.assertEquals(xids.length, 0);
       clientSession.commit(xid, false);
@@ -973,8 +970,8 @@ public class BasicXaRecoveryTest extends ServiceTestBase
 
       Assert.assertEquals(xids.length, 1);
       Assert.assertEquals(xids[0].getFormatId(), xid.getFormatId());
-      ServiceTestBase.assertEqualsByteArrays(xids[0].getBranchQualifier(), xid.getBranchQualifier());
-      ServiceTestBase.assertEqualsByteArrays(xids[0].getGlobalTransactionId(), xid.getGlobalTransactionId());
+      ActiveMQTestBase.assertEqualsByteArrays(xids[0].getBranchQualifier(), xid.getBranchQualifier());
+      ActiveMQTestBase.assertEqualsByteArrays(xids[0].getGlobalTransactionId(), xid.getGlobalTransactionId());
       xids = clientSession.recover(XAResource.TMENDRSCAN);
       Assert.assertEquals(xids.length, 0);
       clientSession.commit(xid, false);
@@ -1047,8 +1044,8 @@ public class BasicXaRecoveryTest extends ServiceTestBase
 
       Assert.assertEquals(1, xids.length);
       Assert.assertEquals(xids[0].getFormatId(), xid.getFormatId());
-      ServiceTestBase.assertEqualsByteArrays(xids[0].getBranchQualifier(), xid.getBranchQualifier());
-      ServiceTestBase.assertEqualsByteArrays(xids[0].getGlobalTransactionId(), xid.getGlobalTransactionId());
+      ActiveMQTestBase.assertEqualsByteArrays(xids[0].getBranchQualifier(), xid.getBranchQualifier());
+      ActiveMQTestBase.assertEqualsByteArrays(xids[0].getGlobalTransactionId(), xid.getGlobalTransactionId());
       xids = clientSession.recover(XAResource.TMENDRSCAN);
       Assert.assertEquals(xids.length, 0);
       clientSession.rollback(xid);
@@ -1347,8 +1344,8 @@ public class BasicXaRecoveryTest extends ServiceTestBase
             if (found)
             {
                Assert.assertEquals(xid.getFormatId(), origXid.getFormatId());
-               ServiceTestBase.assertEqualsByteArrays(xid.getBranchQualifier(), origXid.getBranchQualifier());
-               ServiceTestBase.assertEqualsByteArrays(xid.getGlobalTransactionId(), origXid.getGlobalTransactionId());
+               ActiveMQTestBase.assertEqualsByteArrays(xid.getBranchQualifier(), origXid.getBranchQualifier());
+               ActiveMQTestBase.assertEqualsByteArrays(xid.getGlobalTransactionId(), origXid.getGlobalTransactionId());
                break;
             }
          }

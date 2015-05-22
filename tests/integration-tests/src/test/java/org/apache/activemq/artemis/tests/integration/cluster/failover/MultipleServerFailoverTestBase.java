@@ -26,7 +26,7 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.tests.integration.cluster.util.TestableServer;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.core.client.impl.ServerLocatorInternal;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.HAPolicyConfiguration;
@@ -43,7 +43,7 @@ import org.apache.activemq.artemis.tests.util.TransportConfigurationUtils;
 import org.junit.After;
 import org.junit.Before;
 
-public abstract class MultipleServerFailoverTestBase extends ServiceTestBase
+public abstract class MultipleServerFailoverTestBase extends ActiveMQTestBase
 {
    // Constants -----------------------------------------------------
 
@@ -65,7 +65,7 @@ public abstract class MultipleServerFailoverTestBase extends ServiceTestBase
 
    public abstract int getBackupServerCount();
 
-   public abstract boolean useNetty();
+   public abstract boolean isNetty();
 
    public abstract boolean isSharedStore();
 
@@ -99,7 +99,7 @@ public abstract class MultipleServerFailoverTestBase extends ServiceTestBase
             }
          }
 
-         Configuration configuration = createDefaultConfig(useNetty())
+         Configuration configuration = createDefaultConfig(isNetty())
             .clearAcceptorConfigurations()
             .addAcceptorConfiguration(getAcceptorTransportConfiguration(true, i))
             .setHAPolicyConfiguration(haPolicyConfiguration);
@@ -157,7 +157,7 @@ public abstract class MultipleServerFailoverTestBase extends ServiceTestBase
             }
          }
 
-         Configuration configuration = createDefaultConfig(useNetty())
+         Configuration configuration = createDefaultConfig(isNetty())
             .clearAcceptorConfigurations()
             .addAcceptorConfiguration(getAcceptorTransportConfiguration(false, i))
             .setHAPolicyConfiguration(haPolicyConfiguration);
@@ -243,7 +243,7 @@ public abstract class MultipleServerFailoverTestBase extends ServiceTestBase
    protected TransportConfiguration getAcceptorTransportConfiguration(final boolean live, int node)
    {
       TransportConfiguration transportConfiguration;
-      if (useNetty())
+      if (isNetty())
       {
          transportConfiguration = TransportConfigurationUtils.getNettyAcceptor(live, node, (live ? "live-" : "backup-") + node);
       }
@@ -257,7 +257,7 @@ public abstract class MultipleServerFailoverTestBase extends ServiceTestBase
    protected TransportConfiguration getConnectorTransportConfiguration(final boolean live, int node)
    {
       TransportConfiguration transportConfiguration;
-      if (useNetty())
+      if (isNetty())
       {
          transportConfiguration = TransportConfigurationUtils.getNettyConnector(live, node, (live ? "live-" : "backup-") + node);
       }

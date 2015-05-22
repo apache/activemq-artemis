@@ -133,10 +133,9 @@ public class SingleLiveMultipleBackupsFailoverTest extends MultipleBackupsFailov
    {
       TransportConfiguration backupConnector = createTransportConfiguration(isNetty(), false, generateParams(nodeid, isNetty()));
 
-      Configuration config1 = super.createDefaultConfig()
+      Configuration config1 = super.createDefaultInVMConfig()
          .clearAcceptorConfigurations()
          .addAcceptorConfiguration(createTransportConfiguration(isNetty(), true, generateParams(nodeid, isNetty())))
-         .setSecurityEnabled(false)
          .setHAPolicyConfiguration(sharedStore ? new SharedStoreSlavePolicyConfiguration() : new ReplicatedPolicyConfiguration())
          .addConnectorConfiguration(backupConnector.getName(), backupConnector)
          .setBindingsDirectory(getBindingsDir() + "_" + liveNode)
@@ -160,10 +159,9 @@ public class SingleLiveMultipleBackupsFailoverTest extends MultipleBackupsFailov
    {
       TransportConfiguration liveConnector = createTransportConfiguration(isNetty(), false, generateParams(liveNode, isNetty()));
 
-      Configuration config0 = super.createDefaultConfig()
+      Configuration config0 = super.createDefaultInVMConfig()
          .clearAcceptorConfigurations()
          .addAcceptorConfiguration(createTransportConfiguration(isNetty(), true, generateParams(liveNode, isNetty())))
-         .setSecurityEnabled(false)
          .setHAPolicyConfiguration(sharedStore ? new SharedStoreMasterPolicyConfiguration() : new ReplicatedPolicyConfiguration())
          .addClusterConfiguration(basicClusterConnectionConfig(liveConnector.getName()))
          .addConnectorConfiguration(liveConnector.getName(), liveConnector)

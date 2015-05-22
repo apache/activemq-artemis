@@ -43,10 +43,8 @@ public class ExpiryMessageTest extends JMSTestBase
    @Override
    protected Configuration createDefaultConfig(boolean netty) throws Exception
    {
-      Configuration conf = super.createDefaultConfig(netty)
-         .setMessageExpiryScanPeriod(1000);
-
-      return conf;
+      return super.createDefaultConfig(netty)
+              .setMessageExpiryScanPeriod(1000);
    }
 
    @Test

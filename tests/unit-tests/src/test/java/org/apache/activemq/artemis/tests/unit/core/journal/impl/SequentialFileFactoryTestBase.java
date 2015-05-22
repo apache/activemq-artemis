@@ -17,7 +17,7 @@
 package org.apache.activemq.artemis.tests.unit.core.journal.impl;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Before;
 import org.junit.After;
 
@@ -35,7 +35,7 @@ import org.apache.activemq.artemis.core.asyncio.impl.AsynchronousFileImpl;
 import org.apache.activemq.artemis.core.journal.SequentialFile;
 import org.apache.activemq.artemis.core.journal.SequentialFileFactory;
 
-public abstract class SequentialFileFactoryTestBase extends ServiceTestBase
+public abstract class SequentialFileFactoryTestBase extends ActiveMQTestBase
 {
    @Override
    @Before
@@ -58,7 +58,7 @@ public abstract class SequentialFileFactoryTestBase extends ServiceTestBase
 
       factory = null;
 
-      ServiceTestBase.forceGC();
+      ActiveMQTestBase.forceGC();
 
       super.tearDown();
    }
@@ -337,14 +337,14 @@ public abstract class SequentialFileFactoryTestBase extends ServiceTestBase
          Assert.assertEquals(rb3.limit(), bytesRead);
          rb3.rewind();
          rb3.get(rbytes3);
-         ServiceTestBase.assertEqualsByteArrays(bytes3, rbytes3);
+         ActiveMQTestBase.assertEqualsByteArrays(bytes3, rbytes3);
 
          sf.position(rb1.limit());
 
          bytesRead = sf.read(rb2);
          Assert.assertEquals(rb2.limit(), bytesRead);
          rb2.get(rbytes2);
-         ServiceTestBase.assertEqualsByteArrays(bytes2, rbytes2);
+         ActiveMQTestBase.assertEqualsByteArrays(bytes2, rbytes2);
 
          sf.position(0);
 
@@ -352,7 +352,7 @@ public abstract class SequentialFileFactoryTestBase extends ServiceTestBase
          Assert.assertEquals(rb1.limit(), bytesRead);
          rb1.get(rbytes1);
 
-         ServiceTestBase.assertEqualsByteArrays(bytes1, rbytes1);
+         ActiveMQTestBase.assertEqualsByteArrays(bytes1, rbytes1);
 
       }
       finally

@@ -62,7 +62,7 @@ import org.apache.activemq.artemis.core.server.group.GroupingHandler;
 import org.apache.activemq.artemis.core.server.group.impl.GroupingHandlerConfiguration;
 import org.apache.activemq.artemis.core.server.impl.InVMNodeManager;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -82,7 +82,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public abstract class ClusterTestBase extends ServiceTestBase
+public abstract class ClusterTestBase extends ActiveMQTestBase
 {
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
@@ -137,7 +137,7 @@ public abstract class ClusterTestBase extends ServiceTestBase
 
       forceGC();
 
-      ServiceTestBase.checkFreePort(ClusterTestBase.PORTS);
+      ActiveMQTestBase.checkFreePort(ClusterTestBase.PORTS);
 
       consumers = new ConsumerHolder[ClusterTestBase.MAX_CONSUMERS];
 
@@ -186,7 +186,7 @@ public abstract class ClusterTestBase extends ServiceTestBase
 
       super.tearDown();
 
-      ServiceTestBase.checkFreePort(ClusterTestBase.PORTS);
+      ActiveMQTestBase.checkFreePort(ClusterTestBase.PORTS);
 
    }
 
@@ -434,7 +434,7 @@ public abstract class ClusterTestBase extends ServiceTestBase
 
          Thread.sleep(10);
       }
-      while (System.currentTimeMillis() - start < ServiceTestBase.WAIT_TIMEOUT);
+      while (System.currentTimeMillis() - start < ActiveMQTestBase.WAIT_TIMEOUT);
 
       throw new IllegalStateException("Timed out waiting for messages (messageCount = " + messageCount +
                                          ", expecting = " +
@@ -443,7 +443,7 @@ public abstract class ClusterTestBase extends ServiceTestBase
 
    protected void waitForServerRestart(final int node) throws Exception
    {
-      long waitTimeout = ServiceTestBase.WAIT_TIMEOUT;
+      long waitTimeout = ActiveMQTestBase.WAIT_TIMEOUT;
       if (!isSharedStore())
       {
          //it should be greater than
@@ -483,7 +483,7 @@ public abstract class ClusterTestBase extends ServiceTestBase
          throw new IllegalArgumentException("No server at " + node);
       }
 
-      long timeout = ServiceTestBase.WAIT_TIMEOUT;
+      long timeout = ActiveMQTestBase.WAIT_TIMEOUT;
 
 
       if (waitForBindings(server, address, local, expectedBindingCount, expectedConsumerCount, timeout))
@@ -662,7 +662,7 @@ public abstract class ClusterTestBase extends ServiceTestBase
       {
          // Proxy the failure and print a dump into System.out, so it is captured by Jenkins reports
          e.printStackTrace();
-         System.out.println(ServiceTestBase.threadDump(" - fired by ClusterTestBase::addConsumer"));
+         System.out.println(ActiveMQTestBase.threadDump(" - fired by ClusterTestBase::addConsumer"));
 
          throw e;
       }
@@ -1540,7 +1540,7 @@ public abstract class ClusterTestBase extends ServiceTestBase
 
       if (netty)
       {
-         serverTotc = new TransportConfiguration(ServiceTestBase.NETTY_CONNECTOR_FACTORY, params);
+         serverTotc = new TransportConfiguration(ActiveMQTestBase.NETTY_CONNECTOR_FACTORY, params);
       }
       else
       {
@@ -1581,7 +1581,7 @@ public abstract class ClusterTestBase extends ServiceTestBase
 
       if (netty)
       {
-         serverTotc = new TransportConfiguration(ServiceTestBase.NETTY_CONNECTOR_FACTORY, params);
+         serverTotc = new TransportConfiguration(ActiveMQTestBase.NETTY_CONNECTOR_FACTORY, params);
       }
       else
       {
@@ -2024,14 +2024,14 @@ public abstract class ClusterTestBase extends ServiceTestBase
          serverFrom.getConfiguration().getConnectorConfigurations().put(serverTotc.getName(), serverTotc);
          pairs.add(serverTotc.getName());
       }
-      Configuration conf = serverFrom.getConfiguration();
+      Configuration config = serverFrom.getConfiguration();
       ClusterConnectionConfiguration clusterConf =
          createClusterConfig(name, address, forwardWhenNoConsumers,
                              maxHops,
                              connectorFrom,
                              pairs);
 
-      conf.getClusterConfigurations().add(clusterConf);
+      config.getClusterConfigurations().add(clusterConf);
    }
 
    protected void setupClusterConnection(final String name,
@@ -2061,7 +2061,7 @@ public abstract class ClusterTestBase extends ServiceTestBase
          serverFrom.getConfiguration().getConnectorConfigurations().put(serverTotc.getName(), serverTotc);
          pairs.add(serverTotc.getName());
       }
-      Configuration conf = serverFrom.getConfiguration();
+      Configuration config = serverFrom.getConfiguration();
 
       ClusterConnectionConfiguration clusterConf = new ClusterConnectionConfiguration()
          .setName(name)
@@ -2076,7 +2076,7 @@ public abstract class ClusterTestBase extends ServiceTestBase
          .setConfirmationWindowSize(1024)
          .setStaticConnectors(pairs);
 
-      conf.getClusterConfigurations().add(clusterConf);
+      config.getClusterConfigurations().add(clusterConf);
    }
 
    private ClusterConnectionConfiguration createClusterConfig(final String name, final String address,
@@ -2151,7 +2151,7 @@ public abstract class ClusterTestBase extends ServiceTestBase
 
       TransportConfiguration connectorConfig = createTransportConfiguration(netty, false, generateParams(node, netty));
       server.getConfiguration().getConnectorConfigurations().put(name, connectorConfig);
-      Configuration conf = server.getConfiguration();
+      Configuration config = server.getConfiguration();
       ClusterConnectionConfiguration clusterConf = new ClusterConnectionConfiguration()
          .setName(name)
          .setAddress(address)
@@ -2162,7 +2162,7 @@ public abstract class ClusterTestBase extends ServiceTestBase
          .setMaxHops(maxHops)
          .setConfirmationWindowSize(1024)
          .setDiscoveryGroupName(discoveryGroupName);
-      List<ClusterConnectionConfiguration> clusterConfs = conf.getClusterConfigurations();
+      List<ClusterConnectionConfiguration> clusterConfs = config.getClusterConfigurations();
 
       clusterConfs.add(clusterConf);
    }

@@ -49,14 +49,14 @@ import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.server.JMSServerManager;
 import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
 import org.apache.activemq.artemis.tests.unit.util.InVMContext;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.junit.Test;
 
 /**
  * A test of the XML export/import functionality
  */
-public class XmlImportExportTest extends ServiceTestBase
+public class XmlImportExportTest extends ActiveMQTestBase
 {
    public static final int CONSUMER_TIMEOUT = 5000;
    private static final String QUEUE_NAME = "A1";

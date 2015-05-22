@@ -19,18 +19,16 @@ package org.apache.activemq.artemis.tests.integration.client;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.config.Configuration;
-import org.apache.activemq.artemis.core.remoting.impl.invm.InVMAcceptorFactory;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -39,7 +37,7 @@ import org.junit.Test;
 import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
 
-public class SessionCloseTest extends ServiceTestBase
+public class SessionCloseTest extends ActiveMQTestBase
 {
 
    // Constants -----------------------------------------------------
@@ -66,7 +64,7 @@ public class SessionCloseTest extends ServiceTestBase
 
       Assert.assertTrue(session.isClosed());
 
-      ServiceTestBase.expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, new ActiveMQAction()
+      ActiveMQTestBase.expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, new ActiveMQAction()
       {
          public void run() throws ActiveMQException
          {
@@ -74,7 +72,7 @@ public class SessionCloseTest extends ServiceTestBase
          }
       });
 
-      ServiceTestBase.expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, new ActiveMQAction()
+      ActiveMQTestBase.expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, new ActiveMQAction()
       {
          public void run() throws ActiveMQException
          {
@@ -82,7 +80,7 @@ public class SessionCloseTest extends ServiceTestBase
          }
       });
 
-      ServiceTestBase.expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, new ActiveMQAction()
+      ActiveMQTestBase.expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, new ActiveMQAction()
       {
          public void run() throws ActiveMQException
          {
@@ -92,7 +90,7 @@ public class SessionCloseTest extends ServiceTestBase
          }
       });
 
-      ServiceTestBase.expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, new ActiveMQAction()
+      ActiveMQTestBase.expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, new ActiveMQAction()
       {
          public void run() throws ActiveMQException
          {
@@ -100,7 +98,7 @@ public class SessionCloseTest extends ServiceTestBase
          }
       });
 
-      ServiceTestBase.expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, new ActiveMQAction()
+      ActiveMQTestBase.expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, new ActiveMQAction()
       {
          public void run() throws ActiveMQException
          {
@@ -108,7 +106,7 @@ public class SessionCloseTest extends ServiceTestBase
          }
       });
 
-      ServiceTestBase.expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, new ActiveMQAction()
+      ActiveMQTestBase.expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, new ActiveMQAction()
       {
          public void run() throws ActiveMQException
          {
@@ -116,7 +114,7 @@ public class SessionCloseTest extends ServiceTestBase
          }
       });
 
-      ServiceTestBase.expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, new ActiveMQAction()
+      ActiveMQTestBase.expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, new ActiveMQAction()
       {
          public void run() throws ActiveMQException
          {
@@ -124,7 +122,7 @@ public class SessionCloseTest extends ServiceTestBase
          }
       });
 
-      ServiceTestBase.expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, new ActiveMQAction()
+      ActiveMQTestBase.expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, new ActiveMQAction()
       {
          public void run() throws ActiveMQException
          {
@@ -132,7 +130,7 @@ public class SessionCloseTest extends ServiceTestBase
          }
       });
 
-      ServiceTestBase.expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, new ActiveMQAction()
+      ActiveMQTestBase.expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, new ActiveMQAction()
       {
          public void run() throws ActiveMQException
          {
@@ -140,7 +138,7 @@ public class SessionCloseTest extends ServiceTestBase
          }
       });
 
-      ServiceTestBase.expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, new ActiveMQAction()
+      ActiveMQTestBase.expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, new ActiveMQAction()
       {
          public void run() throws ActiveMQException
          {
@@ -161,7 +159,7 @@ public class SessionCloseTest extends ServiceTestBase
       Assert.assertTrue(session.isXA());
       Assert.assertTrue(session.isClosed());
 
-      ServiceTestBase.expectXAException(XAException.XA_RETRY, new ActiveMQAction()
+      ActiveMQTestBase.expectXAException(XAException.XA_RETRY, new ActiveMQAction()
       {
          public void run() throws XAException
          {
@@ -169,7 +167,7 @@ public class SessionCloseTest extends ServiceTestBase
          }
       });
 
-      ServiceTestBase.expectXAException(XAException.XAER_RMERR, new ActiveMQAction()
+      ActiveMQTestBase.expectXAException(XAException.XAER_RMERR, new ActiveMQAction()
       {
          public void run() throws XAException
          {
@@ -177,7 +175,7 @@ public class SessionCloseTest extends ServiceTestBase
          }
       });
 
-      ServiceTestBase.expectXAException(XAException.XAER_RMERR, new ActiveMQAction()
+      ActiveMQTestBase.expectXAException(XAException.XAER_RMERR, new ActiveMQAction()
       {
          public void run() throws XAException
          {
@@ -185,7 +183,7 @@ public class SessionCloseTest extends ServiceTestBase
          }
       });
 
-      ServiceTestBase.expectXAException(XAException.XAER_RMERR, new ActiveMQAction()
+      ActiveMQTestBase.expectXAException(XAException.XAER_RMERR, new ActiveMQAction()
       {
          public void run() throws XAException
          {
@@ -193,7 +191,7 @@ public class SessionCloseTest extends ServiceTestBase
          }
       });
 
-      ServiceTestBase.expectXAException(XAException.XAER_RMERR, new ActiveMQAction()
+      ActiveMQTestBase.expectXAException(XAException.XAER_RMERR, new ActiveMQAction()
       {
          public void run() throws XAException
          {
@@ -201,7 +199,7 @@ public class SessionCloseTest extends ServiceTestBase
          }
       });
 
-      ServiceTestBase.expectXAException(XAException.XAER_RMERR, new ActiveMQAction()
+      ActiveMQTestBase.expectXAException(XAException.XAER_RMERR, new ActiveMQAction()
       {
          public void run() throws XAException
          {
@@ -209,7 +207,7 @@ public class SessionCloseTest extends ServiceTestBase
          }
       });
 
-      ServiceTestBase.expectXAException(XAException.XAER_RMERR, new ActiveMQAction()
+      ActiveMQTestBase.expectXAException(XAException.XAER_RMERR, new ActiveMQAction()
       {
          public void run() throws XAException
          {
@@ -249,17 +247,11 @@ public class SessionCloseTest extends ServiceTestBase
    public void setUp() throws Exception
    {
       super.setUp();
-
-      Configuration config = createDefaultConfig()
-         .addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getCanonicalName()))
-         .setSecurityEnabled(false);
+      Configuration config = createDefaultInVMConfig();
       server = ActiveMQServers.newActiveMQServer(config, false);
-
       server.start();
-
       ServerLocator locator = createInVMNonHALocator();
       sf = createSessionFactory(locator);
-
    }
 
    @Override

@@ -16,30 +16,27 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import org.apache.activemq.artemis.api.core.BroadcastGroupConfiguration;
 import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
-import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.ha.SharedStoreMasterPolicyConfiguration;
-import org.apache.activemq.artemis.core.remoting.impl.invm.InVMAcceptorFactory;
 import org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class SessionFactoryTest extends ServiceTestBase
+import java.util.Arrays;
+
+public class SessionFactoryTest extends ActiveMQTestBase
 {
    private final DiscoveryGroupConfiguration groupConfiguration = new DiscoveryGroupConfiguration()
       .setBroadcastEndpointFactory(new UDPBroadcastEndpointFactory()
@@ -534,7 +531,7 @@ public class SessionFactoryTest extends ServiceTestBase
 
       final int localBindPort = 5432;
 
-      BroadcastGroupConfiguration bcConfig1 = new BroadcastGroupConfiguration()
+      BroadcastGroupConfiguration broadcastGroupConfiguration = new BroadcastGroupConfiguration()
          .setName(bcGroupName)
          .setBroadcastPeriod(broadcastPeriod)
          .setConnectorInfos(Arrays.asList(liveTC.getName()))
@@ -543,15 +540,10 @@ public class SessionFactoryTest extends ServiceTestBase
                                    .setGroupPort(getUDPDiscoveryPort())
                                    .setLocalBindPort(localBindPort));
 
-      List<BroadcastGroupConfiguration> bcConfigs1 = new ArrayList<BroadcastGroupConfiguration>();
-      bcConfigs1.add(bcConfig1);
-
-      Configuration liveConf = createDefaultConfig()
-         .setSecurityEnabled(false)
-         .addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName()))
+      Configuration liveConf = createDefaultInVMConfig()
          .addConnectorConfiguration(liveTC.getName(), liveTC)
          .setHAPolicyConfiguration(new SharedStoreMasterPolicyConfiguration())
-         .setBroadcastGroupConfigurations(bcConfigs1);
+         .addBroadcastGroupConfiguration(broadcastGroupConfiguration);
 
       liveService = createServer(false, liveConf);
       liveService.start();

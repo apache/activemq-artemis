@@ -17,7 +17,7 @@
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
 
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.core.server.cluster.qourum.BooleanVote;
 import org.apache.activemq.artemis.core.server.cluster.qourum.QuorumVoteServerConnect;
 import org.apache.activemq.artemis.tests.integration.server.FakeStorageManager;
@@ -29,7 +29,7 @@ import java.util.Arrays;
 import java.util.Collection;
 
 @RunWith(Parameterized.class)
-public class QuorumVoteServerConnectTest extends ServiceTestBase
+public class QuorumVoteServerConnectTest extends ActiveMQTestBase
 {
 
    private final int size;

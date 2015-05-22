@@ -27,23 +27,22 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Test;
 
-public class GracefulShutdownTest extends ServiceTestBase
+public class GracefulShutdownTest extends ActiveMQTestBase
 {
    @Test
    public void testGracefulShutdown() throws Exception
    {
-      Configuration conf = createDefaultConfig();
-
-      conf.setGracefulShutdownEnabled(true);
+      Configuration conf = createDefaultInVMConfig()
+              .setGracefulShutdownEnabled(true);
 
       final ActiveMQServer server = ActiveMQServers.newActiveMQServer(conf, false);
 
       server.start();
 
-      ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(ServiceTestBase.INVM_CONNECTOR_FACTORY));
+      ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(ActiveMQTestBase.INVM_CONNECTOR_FACTORY));
 
       ClientSessionFactory sf = createSessionFactory(locator);
 
@@ -117,20 +116,17 @@ public class GracefulShutdownTest extends ServiceTestBase
    {
       long timeout = 10000;
 
-      Configuration conf = createDefaultConfig();
-
-      conf.setGracefulShutdownEnabled(true);
-      conf.setGracefulShutdownTimeout(timeout);
+      Configuration conf = createDefaultInVMConfig()
+              .setGracefulShutdownEnabled(true)
+              .setGracefulShutdownTimeout(timeout);
 
       final ActiveMQServer server = ActiveMQServers.newActiveMQServer(conf, false);
 
       server.start();
 
-      ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(ServiceTestBase.INVM_CONNECTOR_FACTORY));
+      ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(ActiveMQTestBase.INVM_CONNECTOR_FACTORY));
 
       ClientSessionFactory sf = createSessionFactory(locator);
-
-      ClientSession session = sf.createSession();
 
       Thread t = new Thread(new Runnable()
       {

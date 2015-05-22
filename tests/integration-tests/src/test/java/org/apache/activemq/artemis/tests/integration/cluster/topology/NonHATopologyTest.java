@@ -30,7 +30,7 @@ import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 
 /**
  * I have added this test to help validate if the connectors from Recovery will be
@@ -38,7 +38,7 @@ import org.apache.activemq.artemis.tests.util.ServiceTestBase;
  *
  * Created to verify HORNETQ-913 / AS7-4548
  */
-public class NonHATopologyTest extends ServiceTestBase
+public class NonHATopologyTest extends ActiveMQTestBase
 {
 
    @Test

@@ -20,9 +20,9 @@ import org.apache.activemq.artemis.ra.inflow.ActiveMQActivationSpec;
 import org.junit.Test;
 
 import org.apache.activemq.artemis.ra.ActiveMQResourceAdapter;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 
-public class ActiveMQActivationTest extends ServiceTestBase
+public class ActiveMQActivationTest extends ActiveMQTestBase
 {
 
    // Constants -----------------------------------------------------

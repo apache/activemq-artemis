@@ -39,13 +39,13 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
 import org.apache.activemq.artemis.ra.ActiveMQRAXAResource;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class BasicXaTest extends ServiceTestBase
+public class BasicXaTest extends ActiveMQTestBase
 {
    private static IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
@@ -70,10 +70,7 @@ public class BasicXaTest extends ServiceTestBase
       super.setUp();
 
       addressSettings.clear();
-      configuration = createDefaultConfig(true)
-         .setSecurityEnabled(false)
-         .setJournalMinFiles(2)
-         .setPagingDirectory(getPageDir());
+      configuration = createDefaultNettyConfig();
 
       messagingService = createServer(false, configuration, -1, -1, addressSettings);
 

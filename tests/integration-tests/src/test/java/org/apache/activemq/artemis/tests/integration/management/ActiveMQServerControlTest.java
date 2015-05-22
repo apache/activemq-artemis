@@ -36,7 +36,6 @@ import org.apache.activemq.artemis.core.asyncio.impl.AsynchronousFileImpl;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.messagecounter.impl.MessageCounterManagerImpl;
 import org.apache.activemq.artemis.core.remoting.impl.invm.InVMAcceptorFactory;
-import org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory;
 import org.apache.activemq.artemis.core.remoting.impl.invm.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
@@ -54,7 +53,6 @@ import org.junit.Test;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 import java.util.HashMap;
-import java.util.Map;
 
 public class ActiveMQServerControlTest extends ManagementTestBase
 {
@@ -1008,48 +1006,43 @@ public class ActiveMQServerControlTest extends ManagementTestBase
    protected void scaleDown(ScaleDownHandler handler) throws Exception
    {
       SimpleString address = new SimpleString("testQueue");
-      Configuration conf = createDefaultConfig(2, new HashMap<String, Object>(), INVM_ACCEPTOR_FACTORY);
-      conf.setSecurityEnabled(false);
-      conf.getAcceptorConfigurations().clear();
-      HashMap<String, Object> params = new HashMap<String, Object>();
+      HashMap<String, Object> params = new HashMap<>();
       params.put(TransportConstants.SERVER_ID_PROP_NAME, "2");
-      conf.getAcceptorConfigurations().add(new TransportConfiguration(InVMAcceptorFactory.class.getName(), params));
-      ActiveMQServer server2 = ActiveMQServers.newActiveMQServer(conf, null, true);
-      this.conf.getConnectorConfigurations().clear();
-      this.conf.getConnectorConfigurations().put("server2-connector", new TransportConfiguration(INVM_CONNECTOR_FACTORY, params));
-      try
-      {
-         server2.start();
-         server.createQueue(address, address, null, true, false);
-         server2.createQueue(address, address, null, true, false);
-         ServerLocator locator = createInVMNonHALocator();
-         ClientSessionFactory csf = createSessionFactory(locator);
-         ClientSession session = csf.createSession();
-         ClientProducer producer = session.createProducer(address);
-         for (int i = 0; i < 100; i++)
-         {
-            ClientMessage message = session.createMessage(true);
-            message.getBodyBuffer().writeString("m" + i);
-            producer.send(message);
-         }
+      Configuration config = createDefaultInVMConfig(2)
+              .clearAcceptorConfigurations()
+              .addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName(), params));
+      ActiveMQServer server2 = addServer(ActiveMQServers.newActiveMQServer(config, null, true));
 
-         ActiveMQServerControl managementControl = createManagementControl();
-         handler.scaleDown(managementControl);
-         locator.close();
-         locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(INVM_CONNECTOR_FACTORY, params));
-         csf = createSessionFactory(locator);
-         session = csf.createSession();
-         session.start();
-         ClientConsumer consumer = session.createConsumer(address);
-         for (int i = 0; i < 100; i++)
-         {
-            ClientMessage m = consumer.receive(5000);
-            assertNotNull(m);
-         }
-      }
-      finally
+      this.conf
+              .clearConnectorConfigurations()
+              .addConnectorConfiguration("server2-connector", new TransportConfiguration(INVM_CONNECTOR_FACTORY, params));
+
+      server2.start();
+      server.createQueue(address, address, null, true, false);
+      server2.createQueue(address, address, null, true, false);
+      ServerLocator locator = createInVMNonHALocator();
+      ClientSessionFactory csf = createSessionFactory(locator);
+      ClientSession session = csf.createSession();
+      ClientProducer producer = session.createProducer(address);
+      for (int i = 0; i < 100; i++)
       {
-         server2.stop();
+         ClientMessage message = session.createMessage(true);
+         message.getBodyBuffer().writeString("m" + i);
+         producer.send(message);
+      }
+
+      ActiveMQServerControl managementControl = createManagementControl();
+      handler.scaleDown(managementControl);
+      locator.close();
+      locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(INVM_CONNECTOR_FACTORY, params)));
+      csf = createSessionFactory(locator);
+      session = csf.createSession();
+      session.start();
+      ClientConsumer consumer = session.createConsumer(address);
+      for (int i = 0; i < 100; i++)
+      {
+         ClientMessage m = consumer.receive(5000);
+         assertNotNull(m);
       }
    }
    // Package protected ---------------------------------------------
@@ -1065,17 +1058,10 @@ public class ActiveMQServerControlTest extends ManagementTestBase
    {
       super.setUp();
 
-      Map<String, Object> params = new HashMap<String, Object>();
-      //params.put(RandomUtil.randomString(), RandomUtil.randomBoolean());
-      connectorConfig = new TransportConfiguration(InVMConnectorFactory.class.getName(),
-                                                   params,
-                                                   RandomUtil.randomString());
+      connectorConfig = new TransportConfiguration(INVM_CONNECTOR_FACTORY);
 
-      conf = createDefaultConfig()
-         .setSecurityEnabled(false)
+      conf = createDefaultInVMConfig()
          .setJMXManagementEnabled(true)
-         .clearAcceptorConfigurations()
-         .addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName()))
          .addConnectorConfiguration(connectorConfig.getName(), connectorConfig);
       server = ActiveMQServers.newActiveMQServer(conf, mbeanServer, true);
       server.start();

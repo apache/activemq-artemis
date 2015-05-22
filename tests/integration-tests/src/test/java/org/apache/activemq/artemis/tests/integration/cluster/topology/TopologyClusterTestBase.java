@@ -35,7 +35,7 @@ import org.apache.activemq.artemis.core.server.cluster.ClusterManager;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.integration.cluster.distribution.ClusterTestBase;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -224,7 +224,7 @@ public abstract class TopologyClusterTestBase extends ClusterTestBase
 
          Thread.sleep(10);
       }
-      while (System.currentTimeMillis() - start < ServiceTestBase.WAIT_TIMEOUT);
+      while (System.currentTimeMillis() - start < ActiveMQTestBase.WAIT_TIMEOUT);
 
       log.error(clusterDescription(servers[node]));
       Assert.assertEquals("Timed out waiting for cluster connections for server " + node, expected, nodesCount);
@@ -395,7 +395,7 @@ public abstract class TopologyClusterTestBase extends ClusterTestBase
             s.getConfiguration().setSecurityEnabled(true);
          }
       }
-      Assert.assertEquals(ServiceTestBase.CLUSTER_PASSWORD, config.getClusterPassword());
+      Assert.assertEquals(ActiveMQTestBase.CLUSTER_PASSWORD, config.getClusterPassword());
       config.setClusterPassword(config.getClusterPassword() + "-1-2-3-");
       startServers(0, 1, 2, 4, 3);
       int n = 0;
@@ -411,7 +411,7 @@ public abstract class TopologyClusterTestBase extends ClusterTestBase
       final String address = "foo1235";
       ServerLocator locator = createNonHALocator(isNetty());
       ClientSessionFactory sf = createSessionFactory(locator);
-      ClientSession session = sf.createSession(config.getClusterUser(), ServiceTestBase.CLUSTER_PASSWORD, false, true, true, false, 1);
+      ClientSession session = sf.createSession(config.getClusterUser(), ActiveMQTestBase.CLUSTER_PASSWORD, false, true, true, false, 1);
       session.createQueue(address, address, true);
       ClientProducer producer = session.createProducer(address);
       sendMessages(session, producer, 100);

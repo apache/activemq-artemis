@@ -15,17 +15,6 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.stress.paging;
-import org.junit.Before;
-import org.junit.After;
-
-import org.junit.Test;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Random;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import org.junit.Assert;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
@@ -34,14 +23,22 @@ import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.impl.QueueImpl;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.unit.UnitTestLogger;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
-public class MultipleConsumersPageStressTest extends ServiceTestBase
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Random;
+import java.util.concurrent.atomic.AtomicInteger;
+
+public class MultipleConsumersPageStressTest extends ActiveMQTestBase
 {
 
    private final UnitTestLogger log = UnitTestLogger.LOGGER;
@@ -103,11 +100,10 @@ public class MultipleConsumersPageStressTest extends ServiceTestBase
    public void setUp() throws Exception
    {
       super.setUp();
-      Configuration config = createDefaultConfig();
 
       HashMap<String, AddressSettings> settings = new HashMap<String, AddressSettings>();
 
-      messagingService = createServer(true, config, 10024, 200024, settings);
+      messagingService = createServer(true, createDefaultInVMConfig(), 10024, 200024, settings);
       messagingService.start();
 
       pagedServerQueue = (QueueImpl)messagingService.createQueue(ADDRESS, ADDRESS, null, true, false);

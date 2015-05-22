@@ -34,12 +34,12 @@ import org.apache.activemq.artemis.core.server.impl.SharedNothingBackupActivatio
 import org.apache.activemq.artemis.core.server.impl.SharedNothingLiveActivation;
 import org.apache.activemq.artemis.core.server.impl.SharedStoreBackupActivation;
 import org.apache.activemq.artemis.core.server.impl.SharedStoreLiveActivation;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Test;
 
 import java.util.List;
 
-public class HAPolicyConfigurationTest extends ServiceTestBase
+public class HAPolicyConfigurationTest extends ActiveMQTestBase
 {
    @Test
    public void liveOnlyTest() throws Exception

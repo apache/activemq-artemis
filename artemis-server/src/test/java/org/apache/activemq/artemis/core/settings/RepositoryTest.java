@@ -18,7 +18,7 @@ package org.apache.activemq.artemis.core.settings;
 
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.settings.impl.HierarchicalObjectRepository;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class RepositoryTest extends ServiceTestBase
+public class RepositoryTest extends ActiveMQTestBase
 {
    HierarchicalRepository<HashSet<Role>> securityRepository;
 

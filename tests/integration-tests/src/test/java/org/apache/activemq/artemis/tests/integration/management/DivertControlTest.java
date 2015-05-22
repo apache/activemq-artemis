@@ -15,12 +15,6 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.integration.management;
-import org.junit.Before;
-import org.junit.After;
-
-import org.junit.Test;
-
-import org.junit.Assert;
 
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.management.DivertControl;
@@ -28,11 +22,12 @@ import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.CoreQueueConfiguration;
 import org.apache.activemq.artemis.core.config.DivertConfiguration;
-import org.apache.activemq.artemis.core.remoting.impl.invm.InVMAcceptorFactory;
-import org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 public class DivertControlTest extends ManagementTestBase
 {
@@ -41,7 +36,7 @@ public class DivertControlTest extends ManagementTestBase
 
    // Attributes ----------------------------------------------------
 
-   private ActiveMQServer service;
+   private ActiveMQServer server;
 
    private DivertConfiguration divertConfig;
 
@@ -81,8 +76,6 @@ public class DivertControlTest extends ManagementTestBase
    {
       super.setUp();
 
-      TransportConfiguration connectorConfig = new TransportConfiguration(InVMConnectorFactory.class.getName());
-
       CoreQueueConfiguration queueConfig = new CoreQueueConfiguration()
          .setAddress(RandomUtil.randomString())
          .setName(RandomUtil.randomString())
@@ -99,30 +92,17 @@ public class DivertControlTest extends ManagementTestBase
          .setForwardingAddress(forwardQueueConfig.getAddress())
          .setExclusive(RandomUtil.randomBoolean());
 
-      Configuration conf = createBasicConfig()
-         .addQueueConfiguration(queueConfig)
-         .addQueueConfiguration(forwardQueueConfig)
-         .addDivertConfiguration(divertConfig)
-         .addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName()))
-         .addConnectorConfiguration(connectorConfig.getName(), connectorConfig);
+      TransportConfiguration connectorConfig = new TransportConfiguration(INVM_CONNECTOR_FACTORY);
 
-      service = ActiveMQServers.newActiveMQServer(conf, mbeanServer, false);
-      service.start();
-   }
+      Configuration config = createDefaultInVMConfig()
+              .setJMXManagementEnabled(true)
+              .addQueueConfiguration(queueConfig)
+              .addQueueConfiguration(forwardQueueConfig)
+              .addDivertConfiguration(divertConfig)
+              .addConnectorConfiguration(connectorConfig.getName(), connectorConfig);
 
-   @Override
-   @After
-   public void tearDown() throws Exception
-   {
-      service.stop();
-
-      checkNoResource(ObjectNameBuilder.DEFAULT.getDivertObjectName(divertConfig.getName()));
-
-      service = null;
-
-      divertConfig = null;
-
-      super.tearDown();
+      server = addServer(ActiveMQServers.newActiveMQServer(config, mbeanServer, false));
+      server.start();
    }
 
    protected DivertControl createManagementControl(final String name) throws Exception

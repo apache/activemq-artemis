@@ -16,24 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.server.config;
 
-import org.apache.activemq.artemis.tests.unit.util.InVMNamingContext;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
-import org.apache.activemq.artemis.core.registry.JndiBindingRegistry;
-import org.junit.Test;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.jms.Connection;
-import javax.jms.ConnectionFactory;
-import javax.jms.Queue;
-import javax.jms.Topic;
-import javax.naming.Context;
-
-import org.junit.Assert;
-
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
-import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.registry.JndiBindingRegistry;
 import org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
@@ -46,18 +30,28 @@ import org.apache.activemq.artemis.jms.server.config.impl.JMSConfigurationImpl;
 import org.apache.activemq.artemis.jms.server.config.impl.JMSQueueConfigurationImpl;
 import org.apache.activemq.artemis.jms.server.config.impl.TopicConfigurationImpl;
 import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
+import org.apache.activemq.artemis.tests.unit.util.InVMNamingContext;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class JMSConfigurationTest extends ServiceTestBase
+import javax.jms.Connection;
+import javax.jms.ConnectionFactory;
+import javax.jms.Queue;
+import javax.jms.Topic;
+import javax.naming.Context;
+import java.util.ArrayList;
+import java.util.List;
+
+public class JMSConfigurationTest extends ActiveMQTestBase
 {
-
    @Test
    public void testSetupJMSConfiguration() throws Exception
    {
       Context context = new InVMNamingContext();
 
-      Configuration coreConfiguration = createDefaultConfig();
-      ActiveMQServer coreServer = new ActiveMQServerImpl(coreConfiguration);
+      ActiveMQServer coreServer = new ActiveMQServerImpl(createDefaultInVMConfig());
 
       JMSConfiguration jmsConfiguration = new JMSConfigurationImpl();
       TransportConfiguration connectorConfig = new TransportConfiguration(InVMConnectorFactory.class.getName());

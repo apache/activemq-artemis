@@ -52,7 +52,7 @@ import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.LinkedListIterator;
 import org.apache.activemq.artemis.utils.ReusableLatch;
 import org.junit.Assert;
@@ -74,7 +74,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @RunWith(value = Parameterized.class)
-public class BridgeTest extends ServiceTestBase
+public class BridgeTest extends ActiveMQTestBase
 {
 
    private ActiveMQServer server0;
@@ -233,7 +233,7 @@ public class BridgeTest extends ServiceTestBase
 
          if (largeMessage)
          {
-            message.setBodyInputStream(ServiceTestBase.createFakeLargeStream(1024 * 1024));
+            message.setBodyInputStream(ActiveMQTestBase.createFakeLargeStream(1024 * 1024));
          }
 
          message.putIntProperty(propKey, i);
@@ -410,7 +410,7 @@ public class BridgeTest extends ServiceTestBase
 
          if (largeMessage)
          {
-            message.setBodyInputStream(ServiceTestBase.createFakeLargeStream(1024 * 1024));
+            message.setBodyInputStream(ActiveMQTestBase.createFakeLargeStream(1024 * 1024));
          }
 
          message.putIntProperty(propKey, i);
@@ -595,7 +595,7 @@ public class BridgeTest extends ServiceTestBase
 
          if (largeMessage)
          {
-            message.setBodyInputStream(ServiceTestBase.createFakeLargeStream(1024 * 1024));
+            message.setBodyInputStream(ActiveMQTestBase.createFakeLargeStream(1024 * 1024));
          }
 
          producer0.send(message);
@@ -613,7 +613,7 @@ public class BridgeTest extends ServiceTestBase
 
          if (largeMessage)
          {
-            message.setBodyInputStream(ServiceTestBase.createFakeLargeStream(1024 * 1024));
+            message.setBodyInputStream(ActiveMQTestBase.createFakeLargeStream(1024 * 1024));
          }
 
          producer0.send(message);

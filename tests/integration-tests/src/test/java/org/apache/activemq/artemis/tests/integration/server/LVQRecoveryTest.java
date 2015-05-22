@@ -29,7 +29,7 @@ import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -38,7 +38,7 @@ import org.junit.Test;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 
-public class LVQRecoveryTest extends ServiceTestBase
+public class LVQRecoveryTest extends ActiveMQTestBase
 {
    private ActiveMQServer server;
 
@@ -218,20 +218,17 @@ public class LVQRecoveryTest extends ServiceTestBase
    {
       super.setUp();
 
-      configuration = createDefaultConfig()
-         .setSecurityEnabled(false);
+      configuration = createDefaultInVMConfig();
       server = createServer(true, configuration);
-      // start the server
       server.start();
 
       qs = new AddressSettings();
       qs.setLastValueQueue(true);
       server.getAddressSettingsRepository().addMatch(address.toString(), qs);
       // then we create a client as normal
-      locator = createInVMNonHALocator();
-
-      locator.setBlockOnAcknowledge(true);
-      locator.setAckBatchSize(0);
+      locator = createInVMNonHALocator()
+              .setBlockOnAcknowledge(true)
+              .setAckBatchSize(0);
       ClientSessionFactory sessionFactory = createSessionFactory(locator);
       clientSession = sessionFactory.createSession(false, true, true);
       clientSessionXa = sessionFactory.createSession(true, false, false);

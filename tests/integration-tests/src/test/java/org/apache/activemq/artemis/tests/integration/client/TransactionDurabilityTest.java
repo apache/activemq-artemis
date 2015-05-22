@@ -16,24 +16,19 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
-import org.junit.Test;
-
-import org.junit.Assert;
-
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
-import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class TransactionDurabilityTest extends ServiceTestBase
+public class TransactionDurabilityTest extends ActiveMQTestBase
 {
 
    /*
@@ -54,27 +49,23 @@ public class TransactionDurabilityTest extends ServiceTestBase
    @Test
    public void testRolledBackAcknowledgeWithSameMessageAckedByOtherSession() throws Exception
    {
-      Configuration conf = createDefaultConfig();
-
       final SimpleString testAddress = new SimpleString("testAddress");
 
       final SimpleString queue1 = new SimpleString("queue1");
 
       final SimpleString queue2 = new SimpleString("queue2");
 
-      ActiveMQServer server = createServer(true, conf);
+      ActiveMQServer server = createServer(true, createDefaultInVMConfig());
 
       server.start();
 
-      ServerLocator locator =
-               addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(
-                  ServiceTestBase.INVM_CONNECTOR_FACTORY)));
+      ServerLocator locator = createInVMNonHALocator();
 
       ClientSessionFactory sf = createSessionFactory(locator);
 
-      ClientSession session1 = sf.createSession(false, true, true);
+      ClientSession session1 = addClientSession(sf.createSession(false, true, true));
 
-      ClientSession session2 = sf.createSession(false, false, false);
+      ClientSession session2 = addClientSession(sf.createSession(false, false, false));
 
       session1.createQueue(testAddress, queue1, null, true);
 
@@ -120,9 +111,9 @@ public class TransactionDurabilityTest extends ServiceTestBase
 
       sf = createSessionFactory(locator);
 
-      session1 = sf.createSession(false, true, true);
+      session1 = addClientSession(sf.createSession(false, true, true));
 
-      session2 = sf.createSession(false, true, true);
+      session2 = addClientSession(sf.createSession(false, true, true));
 
       session1.start();
 
@@ -152,9 +143,9 @@ public class TransactionDurabilityTest extends ServiceTestBase
 
       sf = createSessionFactory(locator);
 
-      session1 = sf.createSession(false, true, true);
+      session1 = addClientSession(sf.createSession(false, true, true));
 
-      session2 = sf.createSession(false, true, true);
+      session2 = addClientSession(sf.createSession(false, true, true));
 
       session1.start();
 
@@ -179,7 +170,5 @@ public class TransactionDurabilityTest extends ServiceTestBase
       locator.close();
 
       server.stop();
-
    }
-
 }

@@ -31,13 +31,13 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class LVQTest extends ServiceTestBase
+public class LVQTest extends ActiveMQTestBase
 {
    private ActiveMQServer server;
 
@@ -672,7 +672,7 @@ public class LVQTest extends ServiceTestBase
       super.setUp();
 
       ConfigurationImpl configuration = createBasicConfig()
-         .addAcceptorConfiguration(new TransportConfiguration(ServiceTestBase.INVM_ACCEPTOR_FACTORY));
+         .addAcceptorConfiguration(new TransportConfiguration(ActiveMQTestBase.INVM_ACCEPTOR_FACTORY));
       server = ActiveMQServers.newActiveMQServer(configuration, false);
       // start the server
       server.start();

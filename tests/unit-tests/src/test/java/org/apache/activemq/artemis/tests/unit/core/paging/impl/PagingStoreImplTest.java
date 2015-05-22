@@ -55,14 +55,14 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.unit.core.journal.impl.fakes.FakeSequentialFileFactory;
 import org.apache.activemq.artemis.tests.unit.util.FakePagingManager;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class PagingStoreImplTest extends ServiceTestBase
+public class PagingStoreImplTest extends ActiveMQTestBase
 {
 
    private static final SimpleString destinationTestName = new SimpleString("test");
@@ -130,7 +130,7 @@ public class PagingStoreImplTest extends ServiceTestBase
    @Test
    public void testPageWithNIO() throws Exception
    {
-      ServiceTestBase.recreateDirectory(getTestDir());
+      ActiveMQTestBase.recreateDirectory(getTestDir());
       testConcurrentPaging(new NIOSequentialFileFactory(getTestDir()), 1);
    }
 
@@ -327,7 +327,7 @@ public class PagingStoreImplTest extends ServiceTestBase
          for (int i = 0; i < 5; i++)
          {
             Assert.assertEquals(sequence++, msg.get(i).getMessage().getMessageID());
-            ServiceTestBase.assertEqualsBuffers(18, buffers.get(pageNr * 5 + i), msg.get(i).getMessage().getBodyBuffer());
+            ActiveMQTestBase.assertEqualsBuffers(18, buffers.get(pageNr * 5 + i), msg.get(i).getMessage().getBodyBuffer());
          }
       }
 
@@ -378,7 +378,7 @@ public class PagingStoreImplTest extends ServiceTestBase
 
       Assert.assertEquals(1L, msgs.get(0).getMessage().getMessageID());
 
-      ServiceTestBase.assertEqualsBuffers(18, buffers.get(0), msgs.get(0).getMessage().getBodyBuffer());
+      ActiveMQTestBase.assertEqualsBuffers(18, buffers.get(0), msgs.get(0).getMessage().getBodyBuffer());
 
       Assert.assertEquals(1, store.getNumberOfPages());
 
@@ -496,7 +496,7 @@ public class PagingStoreImplTest extends ServiceTestBase
             try
             {
                // Wait every producer to produce at least one message
-               ServiceTestBase.waitForLatch(latchStart);
+               ActiveMQTestBase.waitForLatch(latchStart);
 
                while (aliveProducers.get() > 0)
                {
@@ -559,7 +559,7 @@ public class PagingStoreImplTest extends ServiceTestBase
             buffers2.put(id, msg.getMessage());
             Assert.assertNotNull(msgWritten);
             Assert.assertEquals(msg.getMessage().getAddress(), msgWritten.getAddress());
-            ServiceTestBase.assertEqualsBuffers(10, msgWritten.getBodyBuffer(), msg.getMessage().getBodyBuffer());
+            ActiveMQTestBase.assertEqualsBuffers(10, msgWritten.getBodyBuffer(), msg.getMessage().getBodyBuffer());
          }
       }
 
@@ -627,10 +627,10 @@ public class PagingStoreImplTest extends ServiceTestBase
             ServerMessage msgWritten = buffers2.remove(id);
             Assert.assertNotNull(msgWritten);
             Assert.assertEquals(msg.getMessage().getAddress(), msgWritten.getAddress());
-            ServiceTestBase.assertEqualsByteArrays(msgWritten.getBodyBuffer().writerIndex(), msgWritten.getBodyBuffer()
-               .toByteBuffer()
-               .array(),
-                                                msg.getMessage().getBodyBuffer().toByteBuffer().array());
+            ActiveMQTestBase.assertEqualsByteArrays(msgWritten.getBodyBuffer().writerIndex(), msgWritten.getBodyBuffer()
+                                                            .toByteBuffer()
+                                                            .array(),
+                                                    msg.getMessage().getBodyBuffer().toByteBuffer().array());
          }
       }
 

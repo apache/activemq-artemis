@@ -17,7 +17,7 @@
 package org.apache.activemq.artemis.tests.integration.journal;
 import org.apache.activemq.artemis.tests.unit.core.journal.impl.JournalImplTestBase;
 import org.apache.activemq.artemis.tests.unit.core.journal.impl.fakes.SimpleEncoding;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.After;
 
 import org.junit.Test;
@@ -39,7 +39,7 @@ public class NIOImportExportTest extends JournalImplTestBase
    {
       File file = new File(getTestDir());
 
-      ServiceTestBase.deleteDirectory(file);
+      ActiveMQTestBase.deleteDirectory(file);
 
       file.mkdir();
 

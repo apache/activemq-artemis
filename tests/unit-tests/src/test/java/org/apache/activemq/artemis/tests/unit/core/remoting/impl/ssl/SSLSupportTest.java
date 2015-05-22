@@ -21,7 +21,7 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.Collection;
 
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.core.remoting.impl.ssl.SSLSupport;
 import org.junit.Assert;
 import org.junit.Before;
@@ -30,7 +30,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 @RunWith(value = Parameterized.class)
-public class SSLSupportTest extends ServiceTestBase
+public class SSLSupportTest extends ActiveMQTestBase
 {
    @Parameterized.Parameters(name = "storeType={0}")
    public static Collection getParameters()

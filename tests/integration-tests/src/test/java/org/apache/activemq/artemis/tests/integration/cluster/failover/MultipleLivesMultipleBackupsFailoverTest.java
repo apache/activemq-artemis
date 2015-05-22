@@ -156,10 +156,9 @@ public class MultipleLivesMultipleBackupsFailoverTest extends MultipleBackupsFai
                                      int[] otherBackupNodes,
                                      int... otherClusterNodes) throws Exception
    {
-      Configuration config1 = super.createDefaultConfig()
+      Configuration config1 = super.createDefaultInVMConfig()
          .clearAcceptorConfigurations()
          .addAcceptorConfiguration(createTransportConfiguration(isNetty(), true, generateParams(nodeid, isNetty())))
-         .setSecurityEnabled(false)
          .setHAPolicyConfiguration(sharedStore ? new SharedStoreSlavePolicyConfiguration() : new ReplicaPolicyConfiguration())
          .setBindingsDirectory(getBindingsDir() + "_" + liveNode)
          .setJournalDirectory(getJournalDir() + "_" + liveNode)
@@ -191,10 +190,9 @@ public class MultipleLivesMultipleBackupsFailoverTest extends MultipleBackupsFai
    {
       TransportConfiguration liveConnector = createTransportConfiguration(isNetty(), false,generateParams(liveNode, isNetty()));
 
-      Configuration config0 = super.createDefaultConfig()
+      Configuration config0 = super.createDefaultInVMConfig()
          .clearAcceptorConfigurations()
          .addAcceptorConfiguration(createTransportConfiguration(isNetty(), true, generateParams(liveNode, isNetty())))
-         .setSecurityEnabled(false)
          .setHAPolicyConfiguration(sharedStore ? new SharedStoreMasterPolicyConfiguration() : new ReplicatedPolicyConfiguration())
          .setBindingsDirectory(getBindingsDir() + "_" + liveNode)
          .setJournalDirectory(getJournalDir() + "_" + liveNode)

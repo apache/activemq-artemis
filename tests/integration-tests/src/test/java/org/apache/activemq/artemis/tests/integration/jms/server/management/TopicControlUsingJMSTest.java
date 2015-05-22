@@ -15,30 +15,13 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.integration.jms.server.management;
-import org.apache.activemq.artemis.tests.unit.util.InVMNamingContext;
-import org.apache.activemq.artemis.core.registry.JndiBindingRegistry;
-import org.junit.Before;
-import org.junit.After;
-
-import org.junit.Test;
-
-import static org.apache.activemq.artemis.tests.util.RandomUtil.randomString;
-
-import javax.jms.Connection;
-import javax.jms.Message;
-import javax.jms.MessageConsumer;
-import javax.jms.QueueConnection;
-import javax.jms.QueueSession;
-import javax.jms.Session;
-import javax.jms.TopicSubscriber;
-
-import org.junit.Assert;
 
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.api.jms.JMSFactoryType;
 import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.registry.JndiBindingRegistry;
 import org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
@@ -48,7 +31,21 @@ import org.apache.activemq.artemis.jms.client.ActiveMQQueue;
 import org.apache.activemq.artemis.jms.client.ActiveMQTopic;
 import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
 import org.apache.activemq.artemis.tests.integration.management.ManagementTestBase;
+import org.apache.activemq.artemis.tests.unit.util.InVMNamingContext;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+
+import javax.jms.Connection;
+import javax.jms.Message;
+import javax.jms.MessageConsumer;
+import javax.jms.QueueConnection;
+import javax.jms.QueueSession;
+import javax.jms.Session;
+import javax.jms.TopicSubscriber;
+
+import static org.apache.activemq.artemis.tests.util.RandomUtil.randomString;
 
 public class TopicControlUsingJMSTest extends ManagementTestBase
 {
@@ -443,9 +440,9 @@ public class TopicControlUsingJMSTest extends ManagementTestBase
    {
       super.setUp();
 
-      Configuration conf = createBasicConfig()
-         .addAcceptorConfiguration(new TransportConfiguration("org.apache.activemq.artemis.core.remoting.impl.invm.InVMAcceptorFactory"));
-      server = ActiveMQServers.newActiveMQServer(conf, mbeanServer, false);
+      Configuration config = createDefaultInVMConfig()
+              .setJMXManagementEnabled(true);
+      server = addServer(ActiveMQServers.newActiveMQServer(config, mbeanServer, false));
       server.start();
 
       serverManager = new JMSServerManagerImpl(server);
@@ -469,32 +466,6 @@ public class TopicControlUsingJMSTest extends ManagementTestBase
 
       ActiveMQQueue managementQueue = (ActiveMQQueue) ActiveMQJMSClient.createQueue("activemq.management");
       proxy = new JMSMessagingProxy(session, managementQueue, ResourceNames.JMS_TOPIC + topic.getTopicName());
-   }
-
-   @Override
-   @After
-   public void tearDown() throws Exception
-   {
-
-      session.close();
-
-      connection.close();
-
-      serverManager.stop();
-
-      server.stop();
-
-      serverManager = null;
-
-      server = null;
-
-      session = null;
-
-      connection = null;
-
-      proxy = null;
-
-      super.tearDown();
    }
 
    // Private -------------------------------------------------------

@@ -33,13 +33,13 @@ import org.apache.activemq.artemis.core.journal.RecordInfo;
 import org.apache.activemq.artemis.core.journal.SequentialFileFactory;
 import org.apache.activemq.artemis.core.journal.TestableJournal;
 import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.ReusableLatch;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 
-public abstract class JournalImplTestBase extends ServiceTestBase
+public abstract class JournalImplTestBase extends ActiveMQTestBase
 {
    protected List<RecordInfo> records = new LinkedList<RecordInfo>();
 
@@ -568,7 +568,7 @@ public abstract class JournalImplTestBase extends ServiceTestBase
 
          Assert.assertEquals("type not same", rexpected.isUpdate, ractual.isUpdate);
 
-         ServiceTestBase.assertEqualsByteArrays(rexpected.data, ractual.data);
+         ActiveMQTestBase.assertEqualsByteArrays(rexpected.data, ractual.data);
       }
    }
 
@@ -602,7 +602,7 @@ public abstract class JournalImplTestBase extends ServiceTestBase
       for (int i = 0; i < length; i++)
       {
          // record[i] = RandomUtil.randomByte();
-         record[i] = ServiceTestBase.getSamplebyte(i);
+         record[i] = ActiveMQTestBase.getSamplebyte(i);
       }
       return record;
    }

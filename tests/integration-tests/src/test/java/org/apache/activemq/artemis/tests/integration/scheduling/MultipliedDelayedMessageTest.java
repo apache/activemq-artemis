@@ -22,21 +22,18 @@ import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class MultipliedDelayedMessageTest extends ServiceTestBase
+public class MultipliedDelayedMessageTest extends ActiveMQTestBase
 {
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
-
-   private Configuration configuration;
 
    private ActiveMQServer server;
 
@@ -63,18 +60,15 @@ public class MultipliedDelayedMessageTest extends ServiceTestBase
     */
    protected void initServer() throws Exception
    {
-      configuration = createDefaultConfig()
-         .setSecurityEnabled(false)
-         .setJournalMinFiles(2);
-      server = createServer(true, configuration);
+      server = createServer(true, createDefaultInVMConfig());
       server.start();
 
       // Create settings to enable multiplied redelivery delay
       AddressSettings addressSettings = server.getAddressSettingsRepository().getMatch("*");
-      AddressSettings newAddressSettings = new AddressSettings();
-      newAddressSettings.setRedeliveryDelay(DELAY);
-      newAddressSettings.setRedeliveryMultiplier(MULTIPLIER);
-      newAddressSettings.setMaxRedeliveryDelay(MAX_DELAY);
+      AddressSettings newAddressSettings = new AddressSettings()
+              .setRedeliveryDelay(DELAY)
+              .setRedeliveryMultiplier(MULTIPLIER)
+              .setMaxRedeliveryDelay(MAX_DELAY);
       newAddressSettings.merge(addressSettings);
       server.getAddressSettingsRepository().addMatch(queueName, newAddressSettings);
       locator = createInVMNonHALocator();
@@ -93,7 +87,7 @@ public class MultipliedDelayedMessageTest extends ServiceTestBase
       // Session for sending the message
       session = sessionFactory.createSession(false, true, true);
       ClientProducer producer = session.createProducer(queueName);
-      ServiceTestBase.forceGC();
+      ActiveMQTestBase.forceGC();
       ClientMessage tm = createDurableMessage(session, "message");
       producer.send(tm);
       session.close();

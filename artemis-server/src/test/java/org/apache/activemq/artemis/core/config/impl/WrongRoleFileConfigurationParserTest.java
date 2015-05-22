@@ -18,7 +18,7 @@ package org.apache.activemq.artemis.core.config.impl;
 
 import org.apache.activemq.artemis.core.deployers.impl.FileConfigurationParser;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -30,7 +30,7 @@ import java.nio.charset.StandardCharsets;
  * When running this test from an IDE add this to the test command line so that the AssertionLoggerHandler works properly:
  * -Djava.util.logging.manager=org.jboss.logmanager.LogManager  -Dlogging.configuration=file:<path_to_source>/tests/config/logging.properties
  */
-public class WrongRoleFileConfigurationParserTest extends ServiceTestBase
+public class WrongRoleFileConfigurationParserTest extends ActiveMQTestBase
 {
    @BeforeClass
    public static void prepareLogger()

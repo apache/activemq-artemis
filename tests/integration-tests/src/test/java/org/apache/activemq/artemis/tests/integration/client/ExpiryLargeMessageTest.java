@@ -27,7 +27,7 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
@@ -37,7 +37,7 @@ import org.junit.Test;
 /**
  * This test will send large messages in page-mode, DLQ then, expiry then, and they should be received fine
  */
-public class ExpiryLargeMessageTest extends ServiceTestBase
+public class ExpiryLargeMessageTest extends ActiveMQTestBase
 {
 
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;

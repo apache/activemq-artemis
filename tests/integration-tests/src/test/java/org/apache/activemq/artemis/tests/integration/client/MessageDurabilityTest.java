@@ -27,12 +27,12 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class MessageDurabilityTest extends ServiceTestBase
+public class MessageDurabilityTest extends ActiveMQTestBase
 {
 
    // Constants -----------------------------------------------------
@@ -149,7 +149,7 @@ public class MessageDurabilityTest extends ServiceTestBase
 
       session.start();
 
-      ServiceTestBase.expectActiveMQException(ActiveMQExceptionType.QUEUE_DOES_NOT_EXIST, new ActiveMQAction()
+      ActiveMQTestBase.expectActiveMQException(ActiveMQExceptionType.QUEUE_DOES_NOT_EXIST, new ActiveMQAction()
       {
          public void run() throws ActiveMQException
          {
@@ -177,7 +177,7 @@ public class MessageDurabilityTest extends ServiceTestBase
       restart();
 
       session.start();
-      ServiceTestBase.expectActiveMQException(ActiveMQExceptionType.QUEUE_DOES_NOT_EXIST, new ActiveMQAction()
+      ActiveMQTestBase.expectActiveMQException(ActiveMQExceptionType.QUEUE_DOES_NOT_EXIST, new ActiveMQAction()
       {
          public void run() throws ActiveMQException
          {

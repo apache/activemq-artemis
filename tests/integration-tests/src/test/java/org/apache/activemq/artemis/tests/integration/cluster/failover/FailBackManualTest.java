@@ -112,10 +112,9 @@ public class FailBackManualTest extends FailoverTestBase
       TransportConfiguration liveConnector = getConnectorTransportConfiguration(true);
       TransportConfiguration backupConnector = getConnectorTransportConfiguration(false);
 
-      backupConfig = super.createDefaultConfig()
+      backupConfig = super.createDefaultInVMConfig()
          .clearAcceptorConfigurations()
          .addAcceptorConfiguration(getAcceptorTransportConfiguration(false))
-         .setSecurityEnabled(false)
          .setHAPolicyConfiguration(new SharedStoreSlavePolicyConfiguration()
                                       .setAllowFailBack(false))
          .addConnectorConfiguration(liveConnector.getName(), liveConnector)
@@ -124,10 +123,9 @@ public class FailBackManualTest extends FailoverTestBase
 
       backupServer = createTestableServer(backupConfig);
 
-      liveConfig = super.createDefaultConfig()
+      liveConfig = super.createDefaultInVMConfig()
          .clearAcceptorConfigurations()
          .addAcceptorConfiguration(getAcceptorTransportConfiguration(true))
-         .setSecurityEnabled(false)
          .setHAPolicyConfiguration(new SharedStoreMasterPolicyConfiguration())
          .addConnectorConfiguration(liveConnector.getName(), liveConnector)
          .addConnectorConfiguration(backupConnector.getName(), backupConnector)

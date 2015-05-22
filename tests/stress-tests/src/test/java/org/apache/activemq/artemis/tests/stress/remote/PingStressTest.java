@@ -15,30 +15,28 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.stress.remote;
+
 import org.apache.activemq.artemis.api.core.ActiveMQException;
-import org.junit.Before;
-
-import org.junit.Test;
-
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-
 import org.apache.activemq.artemis.api.core.Interceptor;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
-import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.protocol.core.Packet;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.tests.unit.UnitTestLogger;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.junit.Before;
+import org.junit.Test;
 
-public class PingStressTest extends ServiceTestBase
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
+public class PingStressTest extends ActiveMQTestBase
 {
    private static final UnitTestLogger log = UnitTestLogger.LOGGER;
 
@@ -51,8 +49,7 @@ public class PingStressTest extends ServiceTestBase
    public void setUp() throws Exception
    {
       super.setUp();
-      Configuration config = createDefaultConfig(true);
-      server = createServer(false, config);
+      server = createServer(false, createDefaultNettyConfig());
       server.start();
    }
 

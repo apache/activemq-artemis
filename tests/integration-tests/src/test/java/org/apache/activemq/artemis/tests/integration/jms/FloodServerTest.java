@@ -15,15 +15,22 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.integration.jms;
-import org.apache.activemq.artemis.tests.unit.util.InVMNamingContext;
+
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
+import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
+import org.apache.activemq.artemis.api.jms.JMSFactoryType;
+import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.registry.JndiBindingRegistry;
+import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.ActiveMQServers;
+import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
+import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
+import org.apache.activemq.artemis.tests.unit.util.InVMNamingContext;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Before;
-import org.junit.After;
-
 import org.junit.Test;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.jms.BytesMessage;
 import javax.jms.Connection;
@@ -33,25 +40,14 @@ import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
-
-import org.apache.activemq.artemis.api.core.TransportConfiguration;
-import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
-import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
-import org.apache.activemq.artemis.api.jms.JMSFactoryType;
-import org.apache.activemq.artemis.core.config.Configuration;
-import org.apache.activemq.artemis.core.remoting.impl.netty.NettyAcceptorFactory;
-import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory;
-import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.apache.activemq.artemis.core.server.ActiveMQServers;
-import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
  * A FloodServerTest
  */
-public class FloodServerTest extends ServiceTestBase
+public class FloodServerTest extends ActiveMQTestBase
 {
    // Constants -----------------------------------------------------
 
@@ -85,9 +81,8 @@ public class FloodServerTest extends ServiceTestBase
    {
       super.setUp();
 
-      Configuration conf = createBasicConfig()
-         .addAcceptorConfiguration(new TransportConfiguration(NettyAcceptorFactory.class.getName()));
-      server = ActiveMQServers.newActiveMQServer(conf, false);
+      Configuration config = createDefaultNettyConfig();
+      server = addServer(ActiveMQServers.newActiveMQServer(config, false));
       server.start();
 
       serverManager = new JMSServerManagerImpl(server);
@@ -98,22 +93,6 @@ public class FloodServerTest extends ServiceTestBase
 
       serverManager.createTopic(false, topicName, topicName);
       registerConnectionFactory();
-   }
-
-   @Override
-   @After
-   public void tearDown() throws Exception
-   {
-
-      serverManager.stop();
-
-      server.stop();
-
-      server = null;
-
-      serverManager = null;
-
-      super.tearDown();
    }
 
    // Private -------------------------------------------------------

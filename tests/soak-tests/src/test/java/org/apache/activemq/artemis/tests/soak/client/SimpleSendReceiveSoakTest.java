@@ -31,9 +31,9 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 
-public class SimpleSendReceiveSoakTest extends ServiceTestBase
+public class SimpleSendReceiveSoakTest extends ActiveMQTestBase
 {
 
    // Constants -----------------------------------------------------
@@ -42,11 +42,14 @@ public class SimpleSendReceiveSoakTest extends ServiceTestBase
 
    private static final SimpleString ADDRESS = new SimpleString("ADD");
 
-   private static final boolean IS_NETTY = false;
-
    private static final boolean IS_JOURNAL = false;
 
    public static final int MIN_MESSAGES_ON_QUEUE = 1000;
+
+   protected boolean isNetty()
+   {
+      return false;
+   }
 
    // Static --------------------------------------------------------
 
@@ -64,14 +67,14 @@ public class SimpleSendReceiveSoakTest extends ServiceTestBase
 
       clearDataRecreateServerDirs();
 
-      Configuration config = createDefaultConfig(SimpleSendReceiveSoakTest.IS_NETTY)
+      Configuration config = createDefaultConfig(isNetty())
          .setJournalFileSize(10 * 1024 * 1024);
 
       server = createServer(IS_JOURNAL, config, -1, -1, new HashMap<String, AddressSettings>());
 
       server.start();
 
-      ServerLocator locator = createFactory(IS_NETTY);
+      ServerLocator locator = createFactory(isNetty());
 
       ClientSessionFactory sf = createSessionFactory(locator);
 
@@ -85,7 +88,7 @@ public class SimpleSendReceiveSoakTest extends ServiceTestBase
    @Test
    public void testSoakClientTransactions() throws Exception
    {
-      final ServerLocator locator = createFactory(IS_NETTY);
+      final ServerLocator locator = createFactory(isNetty());
 
       final ClientSessionFactory sf = createSessionFactory(locator);
 

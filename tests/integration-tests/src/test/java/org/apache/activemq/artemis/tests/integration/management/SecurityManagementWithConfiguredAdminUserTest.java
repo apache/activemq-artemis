@@ -17,17 +17,15 @@
 package org.apache.activemq.artemis.tests.integration.management;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
-import org.junit.Test;
-
-import java.util.Set;
-import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
-import org.apache.activemq.artemis.core.remoting.impl.invm.InVMAcceptorFactory;
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManagerImpl;
+import org.junit.Test;
+
+import java.util.Set;
 
 public class SecurityManagementWithConfiguredAdminUserTest extends SecurityManagementTestBase
 {
@@ -85,10 +83,9 @@ public class SecurityManagementWithConfiguredAdminUserTest extends SecurityManag
    @Override
    protected ActiveMQServer setupAndStartActiveMQServer() throws Exception
    {
-      Configuration conf = createBasicConfig()
-         .setSecurityEnabled(true)
-         .addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName()));
-      ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(conf, false));
+      Configuration config = createDefaultInVMConfig()
+         .setSecurityEnabled(true);
+      ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(config, false));
       server.start();
       HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
       ActiveMQSecurityManagerImpl securityManager = (ActiveMQSecurityManagerImpl)server.getSecurityManager();

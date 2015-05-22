@@ -28,14 +28,11 @@ import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.DivertConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.List;
-
-public class PersistentDivertTest extends ServiceTestBase
+public class PersistentDivertTest extends ActiveMQTestBase
 {
    final int minLargeMessageSize = ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE * 2;
 
@@ -53,8 +50,6 @@ public class PersistentDivertTest extends ServiceTestBase
 
    public void doTestPersistentDivert(final boolean largeMessage) throws Exception
    {
-      Configuration conf = createDefaultConfig();
-
       final String testAddress = "testAddress";
 
       final String forwardAddress1 = "forwardAddress1";
@@ -81,23 +76,19 @@ public class PersistentDivertTest extends ServiceTestBase
          .setAddress(testAddress)
          .setForwardingAddress(forwardAddress3);
 
-      List<DivertConfiguration> divertConfs = new ArrayList<DivertConfiguration>();
+      Configuration config = createDefaultInVMConfig()
+              .addDivertConfiguration(divertConf1)
+              .addDivertConfiguration(divertConf2)
+              .addDivertConfiguration(divertConf3);
 
-      divertConfs.add(divertConf1);
-      divertConfs.add(divertConf2);
-      divertConfs.add(divertConf3);
+      ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(config));
 
-      conf.setDivertConfigurations(divertConfs);
+      server.start();
 
-      ActiveMQServer messagingService = addServer(ActiveMQServers.newActiveMQServer(conf));
-
-      messagingService.start();
-
-      ServerLocator locator = createInVMNonHALocator();
-
-      locator.setBlockOnAcknowledge(true);
-      locator.setBlockOnNonDurableSend(true);
-      locator.setBlockOnDurableSend(true);
+      ServerLocator locator = createInVMNonHALocator()
+              .setBlockOnAcknowledge(true)
+              .setBlockOnNonDurableSend(true)
+              .setBlockOnDurableSend(true);
 
       ClientSessionFactory sf = createSessionFactory(locator);
 
@@ -141,7 +132,7 @@ public class PersistentDivertTest extends ServiceTestBase
 
          if (largeMessage)
          {
-            message.setBodyInputStream(ServiceTestBase.createFakeLargeStream(minLargeMessageSize));
+            message.setBodyInputStream(ActiveMQTestBase.createFakeLargeStream(minLargeMessageSize));
          }
 
          message.putIntProperty(propKey, i);
@@ -220,9 +211,6 @@ public class PersistentDivertTest extends ServiceTestBase
       }
 
       Assert.assertNull(consumer4.receiveImmediate());
-      session.close();
-
-      sf.close();
    }
 
    /**
@@ -232,7 +220,7 @@ public class PersistentDivertTest extends ServiceTestBase
    {
       for (int j = 0; j < minLargeMessageSize; j++)
       {
-         Assert.assertEquals(ServiceTestBase.getSamplebyte(j), message.getBodyBuffer().readByte());
+         Assert.assertEquals(ActiveMQTestBase.getSamplebyte(j), message.getBodyBuffer().readByte());
       }
    }
 
@@ -250,8 +238,6 @@ public class PersistentDivertTest extends ServiceTestBase
 
    public void doTestPersistentDivertRestartBeforeConsume(final boolean largeMessage) throws Exception
    {
-      Configuration conf = createDefaultConfig();
-
       final String testAddress = "testAddress";
 
       final String forwardAddress1 = "forwardAddress1";
@@ -278,22 +264,19 @@ public class PersistentDivertTest extends ServiceTestBase
          .setAddress(testAddress)
          .setForwardingAddress(forwardAddress3);
 
-      List<DivertConfiguration> divertConfs = new ArrayList<DivertConfiguration>();
+      Configuration config = createDefaultInVMConfig()
+              .addDivertConfiguration(divertConf1)
+              .addDivertConfiguration(divertConf2)
+              .addDivertConfiguration(divertConf3);
 
-      divertConfs.add(divertConf1);
-      divertConfs.add(divertConf2);
-      divertConfs.add(divertConf3);
+      ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(config));
 
-      conf.setDivertConfigurations(divertConfs);
+      server.start();
 
-      ActiveMQServer messagingService = addServer(ActiveMQServers.newActiveMQServer(conf));
-
-      messagingService.start();
-
-      ServerLocator locator = createInVMNonHALocator();
-      locator.setBlockOnAcknowledge(true);
-      locator.setBlockOnNonDurableSend(true);
-      locator.setBlockOnDurableSend(true);
+      ServerLocator locator = createInVMNonHALocator()
+              .setBlockOnAcknowledge(true)
+              .setBlockOnNonDurableSend(true)
+              .setBlockOnDurableSend(true);
 
       ClientSessionFactory sf = createSessionFactory(locator);
 
@@ -329,7 +312,7 @@ public class PersistentDivertTest extends ServiceTestBase
 
          if (largeMessage)
          {
-            message.setBodyInputStream(ServiceTestBase.createFakeLargeStream(minLargeMessageSize));
+            message.setBodyInputStream(ActiveMQTestBase.createFakeLargeStream(minLargeMessageSize));
          }
 
          producer.send(message);
@@ -339,12 +322,14 @@ public class PersistentDivertTest extends ServiceTestBase
 
       sf.close();
 
-      messagingService.stop();
+      server.stop();
 
-      messagingService.start();
+      waitForServerToStop(server);
 
-      ServerLocator locator2 = createInVMNonHALocator();
-      locator2.setBlockOnDurableSend(true);
+      server.start();
+
+      ServerLocator locator2 = createInVMNonHALocator()
+              .setBlockOnDurableSend(true);
 
       sf = createSessionFactory(locator2);
       session = sf.createSession(false, true, true);
@@ -435,12 +420,14 @@ public class PersistentDivertTest extends ServiceTestBase
 
       sf.close();
 
-      messagingService.stop();
+      server.stop();
 
-      messagingService.start();
+      waitForServerToStop(server);
 
-      ServerLocator locator3 = createInVMNonHALocator();
-      locator3.setBlockOnDurableSend(true);
+      server.start();
+
+      ServerLocator locator3 = createInVMNonHALocator()
+              .setBlockOnDurableSend(true);
 
       sf = createSessionFactory(locator3);
 
@@ -461,10 +448,6 @@ public class PersistentDivertTest extends ServiceTestBase
       Assert.assertNull(consumer3.receiveImmediate());
 
       Assert.assertNull(consumer4.receiveImmediate());
-
-      session.close();
-
-      sf.close();
    }
 
 }

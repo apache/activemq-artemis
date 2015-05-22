@@ -30,7 +30,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -41,7 +41,7 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-public class ExpiryRunnerTest extends ServiceTestBase
+public class ExpiryRunnerTest extends ActiveMQTestBase
 {
    private ActiveMQServer server;
 
@@ -262,7 +262,7 @@ public class ExpiryRunnerTest extends ServiceTestBase
 
       ConfigurationImpl configuration = createBasicConfig()
          .setMessageExpiryScanPeriod(1000)
-         .addAcceptorConfiguration(new TransportConfiguration(ServiceTestBase.INVM_ACCEPTOR_FACTORY));
+         .addAcceptorConfiguration(new TransportConfiguration(ActiveMQTestBase.INVM_ACCEPTOR_FACTORY));
       server = ActiveMQServers.newActiveMQServer(configuration, false);
       // start the server
       server.start();

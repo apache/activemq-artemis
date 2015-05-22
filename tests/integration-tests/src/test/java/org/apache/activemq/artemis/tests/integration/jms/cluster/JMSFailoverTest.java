@@ -41,7 +41,7 @@ import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.api.jms.JMSFactoryType;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.unit.util.InVMNamingContext;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionInternal;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.ha.ReplicaPolicyConfiguration;
@@ -76,7 +76,7 @@ import org.junit.Test;
  * A simple test to test failover when using the JMS API.
  * Most of the failover tests are done on the Core API.
  */
-public class JMSFailoverTest extends ServiceTestBase
+public class JMSFailoverTest extends ActiveMQTestBase
 {
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
@@ -520,7 +520,7 @@ public class JMSFailoverTest extends ServiceTestBase
 
       backupParams.put(TransportConstants.SERVER_ID_PROP_NAME, 1);
 
-      backupConf = createBasicConfig(0)
+      backupConf = createBasicConfig()
          .addAcceptorConfiguration(backupAcceptortc)
          .addConnectorConfiguration(livetc.getName(), livetc)
          .addConnectorConfiguration(backuptc.getName(), backuptc)
@@ -546,7 +546,7 @@ public class JMSFailoverTest extends ServiceTestBase
       log.info("Starting backup");
       backupJMSService.start();
 
-      liveConf = createBasicConfig(0)
+      liveConf = createBasicConfig()
          .setJournalDirectory(getJournalDir())
          .setBindingsDirectory(getBindingsDir())
          .setSecurityEnabled(false)
