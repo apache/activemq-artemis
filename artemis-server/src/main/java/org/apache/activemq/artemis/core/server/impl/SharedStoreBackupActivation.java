@@ -60,7 +60,9 @@ public final class SharedStoreBackupActivation extends Activation
       {
          activeMQServer.getNodeManager().startBackup();
 
-         boolean scalingDown = sharedStoreSlavePolicy.getScaleDownPolicy() != null;
+         ScaleDownPolicy scaleDownPolicy = sharedStoreSlavePolicy.getScaleDownPolicy();
+
+         boolean scalingDown = scaleDownPolicy != null && scaleDownPolicy.isEnabled();
 
          if (!activeMQServer.initialisePart1(scalingDown))
             return;
