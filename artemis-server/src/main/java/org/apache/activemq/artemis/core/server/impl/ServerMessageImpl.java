@@ -319,8 +319,21 @@ public class ServerMessageImpl extends MessageImpl implements ServerMessage
    public String toString()
    {
       return "ServerMessage[messageID=" + messageID + ",durable=" + isDurable() + ",userID=" + getUserID() + ",priority=" + this.getPriority() + ", bodySize=" + this.getBodyBufferCopy().capacity() +
-         ",expiration=" + (this.getExpiration() != 0 ? new java.util.Date(this.getExpiration()) : 0) +
+         ", timestamp=" + toDate(getTimestamp()) + ",expiration=" + toDate(getExpiration()) +
          ", durable=" + durable + ", address=" + getAddress() + ",properties=" + properties.toString() + "]@" + System.identityHashCode(this);
+   }
+
+   private static String toDate(long timestamp)
+   {
+      if (timestamp == 0)
+      {
+         return "0";
+      }
+      else
+      {
+         return new java.util.Date(timestamp).toString();
+      }
+
    }
 
    public InputStream getBodyInputStream()
