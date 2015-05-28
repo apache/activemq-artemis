@@ -49,14 +49,14 @@ public final class ReplicatedBackupUtils
 
       backupConfig.addConnectorConfiguration(BACKUP_NODE_NAME, backupConnector)
          .addConnectorConfiguration(LIVE_NODE_NAME, liveConnector)
-         .addClusterConfiguration(ServiceTestBase.basicClusterConnectionConfig(BACKUP_NODE_NAME, LIVE_NODE_NAME))
+         .addClusterConfiguration(ActiveMQTestBase.basicClusterConnectionConfig(BACKUP_NODE_NAME, LIVE_NODE_NAME))
          .setHAPolicyConfiguration(new ReplicaPolicyConfiguration());
 
       liveConfig.setName(LIVE_NODE_NAME)
          .addConnectorConfiguration(LIVE_NODE_NAME, liveConnector)
          .addConnectorConfiguration(BACKUP_NODE_NAME, backupConnector)
          .setSecurityEnabled(false)
-         .addClusterConfiguration(ServiceTestBase.basicClusterConnectionConfig(LIVE_NODE_NAME, BACKUP_NODE_NAME))
+         .addClusterConfiguration(ActiveMQTestBase.basicClusterConnectionConfig(LIVE_NODE_NAME, BACKUP_NODE_NAME))
          .setHAPolicyConfiguration(new ReplicatedPolicyConfiguration());
    }
 }

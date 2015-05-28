@@ -21,7 +21,6 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.api.core.management.DivertControl;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
-import org.junit.After;
 import org.junit.Before;
 
 public class DivertControlUsingCoreTest extends DivertControlTest
@@ -103,23 +102,6 @@ public class DivertControlUsingCoreTest extends DivertControlTest
       super.setUp();
 
       locator = createInVMNonHALocator();
-   }
-
-   @Override
-   @After
-   public void tearDown() throws Exception
-   {
-      if (session != null)
-      {
-         session.close();
-      }
-
-      if (locator != null)
-      {
-         locator.close();
-      }
-
-      super.tearDown();
    }
 
    // Private -------------------------------------------------------

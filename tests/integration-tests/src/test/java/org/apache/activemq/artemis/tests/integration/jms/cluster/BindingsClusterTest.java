@@ -139,7 +139,7 @@ public class BindingsClusterTest extends JMSClusteredTestBase
          prod1.send(session1.createTextMessage("m3"));
 
          cf2 = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration(InVMConnectorFactory.class.getName(),
-                                                                                                                generateInVMParams(1)));
+                                                                                                                generateInVMParams(2)));
 
          conn2 = cf2.createConnection();
 
@@ -250,7 +250,7 @@ public class BindingsClusterTest extends JMSClusteredTestBase
          prod1.send(session1.createTextMessage("m6"));
 
          cf2 = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration(InVMConnectorFactory.class.getName(),
-                                                                                                                generateInVMParams(1)));
+                                                                                                                generateInVMParams(2)));
 
          conn2 = cf2.createConnection();
 

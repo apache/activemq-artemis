@@ -17,13 +17,10 @@
 package org.apache.activemq.artemis.tests.integration.management;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
-import org.junit.Test;
-
-import org.apache.activemq.artemis.api.core.TransportConfiguration;
-import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
-import org.apache.activemq.artemis.core.remoting.impl.invm.InVMAcceptorFactory;
+import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
+import org.junit.Test;
 
 public class SecurityManagementWithModifiedConfigurationTest extends SecurityManagementTestBase
 {
@@ -73,11 +70,10 @@ public class SecurityManagementWithModifiedConfigurationTest extends SecurityMan
    @Override
    protected ActiveMQServer setupAndStartActiveMQServer() throws Exception
    {
-      ConfigurationImpl conf = createBasicConfig()
+      Configuration conf = createDefaultInVMConfig()
          .setSecurityEnabled(true)
-         .setClusterPassword(configuredClusterPassword)
-         .addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName()));
-      ActiveMQServer server = ActiveMQServers.newActiveMQServer(conf, false);
+         .setClusterPassword(configuredClusterPassword);
+      ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(conf, false));
       server.start();
 
       return server;

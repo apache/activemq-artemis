@@ -15,9 +15,8 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.integration.jms.cluster;
-import org.junit.Before;
-import org.junit.After;
 
+import org.apache.activemq.artemis.tests.util.JMSClusteredTestBase;
 import org.junit.Test;
 
 import javax.jms.Connection;
@@ -26,8 +25,6 @@ import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
-
-import org.apache.activemq.artemis.tests.util.JMSClusteredTestBase;
 
 public class TemporaryQueueClusterTest extends JMSClusteredTestBase
 {
@@ -41,20 +38,6 @@ public class TemporaryQueueClusterTest extends JMSClusteredTestBase
    // Constructors --------------------------------------------------
 
    // Public --------------------------------------------------------
-
-   @After
-   public void tearDown() throws Exception
-   {
-      super.tearDown();
-   }
-
-   @Before
-   public void setUp() throws Exception
-   {
-      super.setUp();
-   }
-
-
 
    @Test
    public void testClusteredQueue() throws Exception

@@ -16,14 +16,14 @@
  */
 package org.apache.activemq.artemis.tests.timing.util;
 
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Test;
 
 import org.junit.Assert;
 
 import org.apache.activemq.artemis.utils.ReusableLatch;
 
-public class ReusableLatchTest extends ServiceTestBase
+public class ReusableLatchTest extends ActiveMQTestBase
 {
    @Test
    public void testTimeout() throws Exception

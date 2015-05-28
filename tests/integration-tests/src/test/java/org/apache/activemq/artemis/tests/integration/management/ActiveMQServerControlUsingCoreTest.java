@@ -22,7 +22,6 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.api.core.management.ActiveMQServerControl;
 import org.apache.activemq.artemis.api.core.management.Parameter;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
-import org.junit.After;
 import org.junit.Before;
 
 public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTest
@@ -63,20 +62,6 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
       ClientSessionFactory sf = createSessionFactory(locator);
       session = sf.createSession(false, true, true);
       session.start();
-
-   }
-
-   @Override
-   @After
-   public void tearDown() throws Exception
-   {
-      session.close();
-
-      session = null;
-
-      locator.close();
-
-      super.tearDown();
    }
 
    protected void restartServer() throws Exception

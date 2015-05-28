@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.integration.management;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Before;
 import org.junit.After;
 
@@ -76,7 +76,7 @@ public class ClusterConnectionControl2Test extends ManagementTestBase
       Assert.assertEquals(0, nodes.size());
 
       server1.start();
-      waitForServer(server1);
+      waitForServerToStart(server1);
       long start = System.currentTimeMillis();
 
       while (true)
@@ -108,12 +108,12 @@ public class ClusterConnectionControl2Test extends ManagementTestBase
 
       Map<String, Object> acceptorParams_1 = new HashMap<String, Object>();
       acceptorParams_1.put(TransportConstants.PORT_PROP_NAME, port_1);
-      TransportConfiguration acceptorConfig_0 = new TransportConfiguration(ServiceTestBase.NETTY_ACCEPTOR_FACTORY);
+      TransportConfiguration acceptorConfig_0 = new TransportConfiguration(ActiveMQTestBase.NETTY_ACCEPTOR_FACTORY);
 
-      TransportConfiguration acceptorConfig_1 = new TransportConfiguration(ServiceTestBase.NETTY_ACCEPTOR_FACTORY, acceptorParams_1);
+      TransportConfiguration acceptorConfig_1 = new TransportConfiguration(ActiveMQTestBase.NETTY_ACCEPTOR_FACTORY, acceptorParams_1);
 
-      TransportConfiguration connectorConfig_1 = new TransportConfiguration(ServiceTestBase.NETTY_CONNECTOR_FACTORY, acceptorParams_1);
-      TransportConfiguration connectorConfig_0 = new TransportConfiguration(ServiceTestBase.NETTY_CONNECTOR_FACTORY);
+      TransportConfiguration connectorConfig_1 = new TransportConfiguration(ActiveMQTestBase.NETTY_CONNECTOR_FACTORY, acceptorParams_1);
+      TransportConfiguration connectorConfig_0 = new TransportConfiguration(ActiveMQTestBase.NETTY_CONNECTOR_FACTORY);
 
       CoreQueueConfiguration queueConfig = new CoreQueueConfiguration()
          .setAddress(RandomUtil.randomString())
@@ -169,19 +169,14 @@ public class ClusterConnectionControl2Test extends ManagementTestBase
 
       server0 = addServer(ActiveMQServers.newActiveMQServer(conf_0, mbeanServer, false));
       server0.start();
-      waitForServer(server0);
+      waitForServerToStart(server0);
    }
 
    @Override
    @After
    public void tearDown() throws Exception
    {
-      server0 = null;
-      server1 = null;
-
       MBeanServerFactory.releaseMBeanServer(mbeanServer_1);
-      mbeanServer_1 = null;
-
       super.tearDown();
    }
 

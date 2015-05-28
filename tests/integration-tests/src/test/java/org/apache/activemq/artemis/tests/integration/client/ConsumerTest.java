@@ -39,7 +39,7 @@ import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.ConcurrentHashSet;
 import org.junit.Assert;
 import org.junit.Before;
@@ -48,7 +48,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 @RunWith(value = Parameterized.class)
-public class ConsumerTest extends ServiceTestBase
+public class ConsumerTest extends ActiveMQTestBase
 {
    @Parameterized.Parameters(name = "isNetty={0}")
    public static Collection getParameters()
@@ -95,8 +95,8 @@ public class ConsumerTest extends ServiceTestBase
 
       for (int i = 0; i < 10; i++)
       {
-         ServerLocator locatorSendx = createFactory(isNetty());
-         locatorSendx.setReconnectAttempts(-1);
+         ServerLocator locatorSendx = createFactory(isNetty())
+                 .setReconnectAttempts(-1);
          ClientSessionFactory factoryx = locatorSendx.createSessionFactory();
          factoryx.close();
          locatorSendx.close();
@@ -287,9 +287,9 @@ public class ConsumerTest extends ServiceTestBase
             return true;
          }
       });
-      ServerLocator locator = createInVMNonHALocator();
-      locator.setConfirmationWindowSize(100);
-      locator.setAckBatchSize(-1);
+      ServerLocator locator = createInVMNonHALocator()
+              .setConfirmationWindowSize(100)
+              .setAckBatchSize(-1);
       ClientSessionFactory sfReceive = createSessionFactory(locator);
       ClientSession sessionRec = sfReceive.createSession(false, true, true);
       ClientConsumer consumer = sessionRec.createConsumer(QUEUE);
@@ -456,8 +456,8 @@ public class ConsumerTest extends ServiceTestBase
                {
                   try
                   {
-                     ServerLocator locatorSendx = createFactory(isNetty());
-                     locatorSendx.setReconnectAttempts(-1);
+                     ServerLocator locatorSendx = createFactory(isNetty())
+                             .setReconnectAttempts(-1);
                      ClientSessionFactory factoryx = locatorSendx.createSessionFactory();
                      ClientSession sessionSend = factoryx.createSession(true, true);
 
@@ -624,9 +624,8 @@ public class ConsumerTest extends ServiceTestBase
    @Test
    public void testConsumerCreditsOnRollbackLargeMessages() throws Exception
    {
-
-      locator.setConsumerWindowSize(10000);
-      locator.setMinLargeMessageSize(1000);
+      locator.setConsumerWindowSize(10000)
+              .setMinLargeMessageSize(1000);
 
       ClientSessionFactory sf = createSessionFactory(locator);
 

@@ -16,21 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.stomp;
 
-import javax.jms.Message;
-import javax.jms.MessageConsumer;
-import javax.jms.QueueBrowser;
-import javax.jms.TextMessage;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.activemq.artemis.api.core.Interceptor;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
-import org.apache.activemq.artemis.tests.integration.largemessage.LargeMessageTestBase;
-import org.apache.activemq.artemis.tests.unit.util.InVMNamingContext;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.protocol.core.Packet;
 import org.apache.activemq.artemis.core.protocol.stomp.Stomp;
@@ -50,13 +38,24 @@ import org.apache.activemq.artemis.jms.server.config.impl.JMSQueueConfigurationI
 import org.apache.activemq.artemis.jms.server.config.impl.TopicConfigurationImpl;
 import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.artemis.tests.integration.largemessage.LargeMessageTestBase;
 import org.apache.activemq.artemis.tests.integration.stomp.util.ClientStompFrame;
 import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnection;
 import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnectionFactory;
-import org.junit.After;
+import org.apache.activemq.artemis.tests.unit.util.InVMNamingContext;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import javax.jms.Message;
+import javax.jms.MessageConsumer;
+import javax.jms.QueueBrowser;
+import javax.jms.TextMessage;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class ExtraStompTest extends StompTestBase
 {
@@ -67,14 +66,6 @@ public class ExtraStompTest extends StompTestBase
       autoCreateServer = false;
       super.setUp();
    }
-
-   @Override
-   @After
-   public void tearDown() throws Exception
-   {
-      super.tearDown();
-   }
-
 
    @Test
    public void testConnectionTTL() throws Exception
@@ -700,7 +691,7 @@ public class ExtraStompTest extends StompTestBase
          .addAcceptorConfiguration(stompTransport)
          .addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName()));
 
-      ActiveMQServer activeMQServer = ActiveMQServers.newActiveMQServer(config, defUser, defPass);
+      ActiveMQServer activeMQServer = addServer(ActiveMQServers.newActiveMQServer(config, defUser, defPass));
 
       JMSConfiguration jmsConfig = new JMSConfigurationImpl();
       jmsConfig.getQueueConfigurations().add(new JMSQueueConfigurationImpl()

@@ -31,7 +31,7 @@ import org.apache.activemq.artemis.core.message.impl.MessageImpl;
 import org.apache.activemq.artemis.core.postoffice.impl.PostOfficeImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.junit.Assert;
 import org.junit.Before;
@@ -41,11 +41,11 @@ import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 
-public class DuplicateDetectionTest extends ServiceTestBase
+public class DuplicateDetectionTest extends ActiveMQTestBase
 {
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
-   private ActiveMQServer messagingService;
+   private ActiveMQServer server;
 
    private final SimpleString propKey = new SimpleString("propkey");
 
@@ -54,10 +54,6 @@ public class DuplicateDetectionTest extends ServiceTestBase
    @Test
    public void testSimpleDuplicateDetecion() throws Exception
    {
-      ServerLocator locator = createInVMNonHALocator();
-
-      ClientSessionFactory sf = createSessionFactory(locator);
-
       ClientSession session = sf.createSession(false, true, true);
 
       session.start();
@@ -114,12 +110,6 @@ public class DuplicateDetectionTest extends ServiceTestBase
       producer.send(message);
       message2 = consumer.receiveImmediate();
       Assert.assertNull(message2);
-
-      session.close();
-
-      sf.close();
-
-      locator.close();
    }
 
    @Test
@@ -139,11 +129,13 @@ public class DuplicateDetectionTest extends ServiceTestBase
    {
       testDuplicateIDCacheMemoryRetention(false);
 
-      messagingService.stop();
+      server.stop();
 
-      messagingService.start();
+      waitForServerToStop(server);
 
-      Assert.assertEquals(0, ((PostOfficeImpl) messagingService.getPostOffice()).getDuplicateIDCaches().size());
+      server.start();
+
+      Assert.assertEquals(0, ((PostOfficeImpl) server.getPostOffice()).getDuplicateIDCaches().size());
    }
 
    @Test
@@ -151,28 +143,29 @@ public class DuplicateDetectionTest extends ServiceTestBase
    {
       testDuplicateIDCacheMemoryRetention(true);
 
-      messagingService.stop();
+      server.stop();
 
-      messagingService.start();
+      waitForServerToStop(server);
 
-      Assert.assertEquals(0, ((PostOfficeImpl) messagingService.getPostOffice()).getDuplicateIDCaches().size());
+      server.start();
+
+      Assert.assertEquals(0, ((PostOfficeImpl) server.getPostOffice()).getDuplicateIDCaches().size());
    }
 
    public void testDuplicateIDCacheMemoryRetention(boolean temporary) throws Exception
    {
       final int TEST_SIZE = 100;
 
-      ServerLocator locator = createInVMNonHALocator();
+      locator = createInVMNonHALocator()
+              .setBlockOnNonDurableSend(true);
 
-      locator.setBlockOnNonDurableSend(true);
-
-      ClientSessionFactory sf = createSessionFactory(locator);
+      sf = createSessionFactory(locator);
 
       ClientSession session = sf.createSession(false, true, true);
 
       session.start();
 
-      Assert.assertEquals(0, ((PostOfficeImpl)messagingService.getPostOffice()).getDuplicateIDCaches().size());
+      Assert.assertEquals(0, ((PostOfficeImpl) server.getPostOffice()).getDuplicateIDCaches().size());
 
       final SimpleString addressName = new SimpleString("DuplicateDetectionTestAddress");
 
@@ -222,27 +215,17 @@ public class DuplicateDetectionTest extends ServiceTestBase
          consumer.close();
 
          // there will be 2 ID caches, one for messages using "_AMQ_DUPL_ID" and one for "_AMQ_BRIDGE_DUP"
-         Assert.assertEquals(2, ((PostOfficeImpl)messagingService.getPostOffice()).getDuplicateIDCaches().size());
+         Assert.assertEquals(2, ((PostOfficeImpl) server.getPostOffice()).getDuplicateIDCaches().size());
          session.deleteQueue(queueName);
-         Assert.assertEquals(0, ((PostOfficeImpl)messagingService.getPostOffice()).getDuplicateIDCaches().size());
+         Assert.assertEquals(0, ((PostOfficeImpl) server.getPostOffice()).getDuplicateIDCaches().size());
       }
 
-      session.close();
-
-      sf.close();
-
-      locator.close();
-
-      Assert.assertEquals(0, ((PostOfficeImpl)messagingService.getPostOffice()).getDuplicateIDCaches().size());
+      Assert.assertEquals(0, ((PostOfficeImpl) server.getPostOffice()).getDuplicateIDCaches().size());
    }
 
    @Test
    public void testSimpleDuplicateDetectionWithString() throws Exception
    {
-      ServerLocator locator = createInVMNonHALocator();
-
-      ClientSessionFactory sf = createSessionFactory(locator);
-
       ClientSession session = sf.createSession(false, true, true);
 
       session.start();
@@ -299,21 +282,11 @@ public class DuplicateDetectionTest extends ServiceTestBase
       producer.send(message);
       message2 = consumer.receiveImmediate();
       Assert.assertNull(message2);
-
-      session.close();
-
-      sf.close();
-
-      locator.close();
    }
 
    @Test
    public void testCacheSize() throws Exception
    {
-      ServerLocator locator = createInVMNonHALocator();
-
-      ClientSessionFactory sf = createSessionFactory(locator);
-
       ClientSession session = sf.createSession(false, true, true);
 
       session.start();
@@ -459,21 +432,11 @@ public class DuplicateDetectionTest extends ServiceTestBase
          Assert.assertNotNull(message);
          Assert.assertEquals(i, message.getObjectProperty(propKey));
       }
-
-      session.close();
-
-      sf.close();
-
-      locator.close();
    }
 
    @Test
    public void testTransactedDuplicateDetection1() throws Exception
    {
-      ServerLocator locator = createInVMNonHALocator();
-
-      ClientSessionFactory sf = createSessionFactory(locator);
-
       ClientSession session = sf.createSession(false, false, false);
 
       session.start();
@@ -512,21 +475,11 @@ public class DuplicateDetectionTest extends ServiceTestBase
 
       message = consumer.receiveImmediate();
       Assert.assertNull(message);
-
-      session.close();
-
-      sf.close();
-
-      locator.close();
    }
 
    @Test
    public void testTransactedDuplicateDetection2() throws Exception
    {
-      ServerLocator locator = createInVMNonHALocator();
-
-      ClientSessionFactory sf = createSessionFactory(locator);
-
       ClientSession session = sf.createSession(false, false, false);
 
       session.start();
@@ -559,21 +512,11 @@ public class DuplicateDetectionTest extends ServiceTestBase
 
       message = consumer.receiveImmediate();
       Assert.assertNull(message);
-
-      session.close();
-
-      sf.close();
-
-      locator.close();
    }
 
    @Test
    public void testTransactedDuplicateDetection3() throws Exception
    {
-      ServerLocator locator = createInVMNonHALocator();
-
-      ClientSessionFactory sf = createSessionFactory(locator);
-
       ClientSession session = sf.createSession(false, false, false);
 
       session.start();
@@ -625,21 +568,11 @@ public class DuplicateDetectionTest extends ServiceTestBase
 
       message = consumer.receiveImmediate();
       Assert.assertNull(message);
-
-      session.close();
-
-      sf.close();
-
-      locator.close();
    }
 
    @Test
    public void testRollbackThenSend() throws Exception
    {
-      ServerLocator locator = createInVMNonHALocator();
-
-      ClientSessionFactory sf = createSessionFactory(locator);
-
       ClientSession session = sf.createSession(false, false, false);
 
       session.start();
@@ -667,15 +600,9 @@ public class DuplicateDetectionTest extends ServiceTestBase
 
       session.commit();
 
-
       message = consumer.receive(5000);
       assertNotNull(message);
       assertTrue(message.getStringProperty("key").equals(dupID1.toString()));
-      session.close();
-
-      sf.close();
-
-      locator.close();
    }
 
    /*
@@ -685,10 +612,6 @@ public class DuplicateDetectionTest extends ServiceTestBase
    @Test
    public void testEntireTransactionRejected() throws Exception
    {
-      ServerLocator locator = createInVMNonHALocator();
-
-      ClientSessionFactory sf = createSessionFactory(locator);
-
       ClientSession session = sf.createSession(false, false, false);
 
       session.start();
@@ -770,21 +693,11 @@ public class DuplicateDetectionTest extends ServiceTestBase
       message.acknowledge();
 
       session.commit();
-
-      session.close();
-
-      sf.close();
-
-      locator.close();
    }
 
    @Test
    public void testXADuplicateDetection1() throws Exception
    {
-      ServerLocator locator = createInVMNonHALocator();
-
-      ClientSessionFactory sf = createSessionFactory(locator);
-
       ClientSession session = sf.createSession(true, false, false);
 
       Xid xid = new XidImpl("xa1".getBytes(), 1, UUIDGenerator.getInstance().generateStringUUID().getBytes());
@@ -850,21 +763,11 @@ public class DuplicateDetectionTest extends ServiceTestBase
 
       DuplicateDetectionTest.log.info("committing session");
       session.commit(xid3, false);
-
-      session.close();
-
-      sf.close();
-
-      locator.close();
    }
 
    @Test
    public void testXADuplicateDetection2() throws Exception
    {
-      ServerLocator locator = createInVMNonHALocator();
-
-      ClientSessionFactory sf = createSessionFactory(locator);
-
       ClientSession session = sf.createSession(true, false, false);
 
       Xid xid = new XidImpl("xa1".getBytes(), 1, UUIDGenerator.getInstance().generateStringUUID().getBytes());
@@ -932,21 +835,11 @@ public class DuplicateDetectionTest extends ServiceTestBase
 
       DuplicateDetectionTest.log.info("committing session");
       session.commit(xid3, false);
-
-      session.close();
-
-      sf.close();
-
-      locator.close();
    }
 
    @Test
    public void testXADuplicateDetection3() throws Exception
    {
-      ServerLocator locator = createInVMNonHALocator();
-
-      ClientSessionFactory sf = createSessionFactory(locator);
-
       ClientSession session = sf.createSession(true, false, false);
 
       Xid xid = new XidImpl("xa1".getBytes(), 1, UUIDGenerator.getInstance().generateStringUUID().getBytes());
@@ -1000,7 +893,7 @@ public class DuplicateDetectionTest extends ServiceTestBase
 
       session.start(xid3, XAResource.TMNOFLAGS);
 
-      message = consumer.receive(250);
+      consumer.receive(250);
 
       message = consumer.receiveImmediate();
       Assert.assertNull(message);
@@ -1013,21 +906,11 @@ public class DuplicateDetectionTest extends ServiceTestBase
 
       DuplicateDetectionTest.log.info("committing session");
       session.commit(xid3, false);
-
-      session.close();
-
-      sf.close();
-
-      locator.close();
    }
 
    @Test
    public void testXADuplicateDetectionPrepareAndRollback() throws Exception
    {
-      ServerLocator locator = createInVMNonHALocator();
-
-      ClientSessionFactory sf = createSessionFactory(locator);
-
       ClientSession session = sf.createSession(true, false, false);
 
       Xid xid = new XidImpl("xa1".getBytes(), 1, UUIDGenerator.getInstance().generateStringUUID().getBytes());
@@ -1086,21 +969,11 @@ public class DuplicateDetectionTest extends ServiceTestBase
       msgRec.acknowledge();
 
       session.commit();
-
-      session.close();
-
-      sf.close();
-
-      locator.close();
    }
 
    @Test
    public void testXADuplicateDetectionPrepareAndRollbackStopServer() throws Exception
    {
-      ServerLocator locator = createInVMNonHALocator();
-
-      ClientSessionFactory sf = createSessionFactory(locator);
-
       ClientSession session = sf.createSession(true, false, false);
 
       Xid xid = new XidImpl("xa1".getBytes(), 1, UUIDGenerator.getInstance().generateStringUUID().getBytes());
@@ -1126,9 +999,11 @@ public class DuplicateDetectionTest extends ServiceTestBase
 
       session.close();
 
-      messagingService.stop();
+      server.stop();
 
-      messagingService.start();
+      waitForServerToStop(server);
+
+      server.start();
 
       sf = createSessionFactory(locator);
 
@@ -1173,21 +1048,11 @@ public class DuplicateDetectionTest extends ServiceTestBase
       msgRec.acknowledge();
 
       session.commit();
-
-      session.close();
-
-      sf.close();
-
-      locator.close();
    }
 
    @Test
    public void testXADuplicateDetection4() throws Exception
    {
-      ServerLocator locator = createInVMNonHALocator();
-
-      ClientSessionFactory sf = createSessionFactory(locator);
-
       ClientSession session = sf.createSession(true, false, false);
 
       Xid xid = new XidImpl("xa1".getBytes(), 1, UUIDGenerator.getInstance().generateStringUUID().getBytes());
@@ -1251,7 +1116,7 @@ public class DuplicateDetectionTest extends ServiceTestBase
 
       session.start(xid3, XAResource.TMNOFLAGS);
 
-      message = consumer.receive(250);
+      consumer.receive(250);
 
       message = consumer.receiveImmediate();
       Assert.assertNull(message);
@@ -1264,12 +1129,6 @@ public class DuplicateDetectionTest extends ServiceTestBase
 
       DuplicateDetectionTest.log.info("committing session");
       session.commit(xid3, false);
-
-      session.close();
-
-      sf.close();
-
-      locator.close();
    }
 
    private ClientMessage createMessage(final ClientSession session, final int i)
@@ -1284,18 +1143,16 @@ public class DuplicateDetectionTest extends ServiceTestBase
    @Test
    public void testDuplicateCachePersisted() throws Exception
    {
-      messagingService.stop();
+      server.stop();
 
-      Configuration conf = createDefaultConfig()
+      config = createDefaultInVMConfig()
          .setIDCacheSize(cacheSize);
 
-      ActiveMQServer messagingService2 = createServer(conf);
+      server = createServer(config);
 
-      messagingService2.start();
+      server.start();
 
-      ServerLocator locator = createInVMNonHALocator();
-
-      ClientSessionFactory sf = createSessionFactory(locator);
+      sf = createSessionFactory(locator);
 
       ClientSession session = sf.createSession(false, true, true);
 
@@ -1327,11 +1184,11 @@ public class DuplicateDetectionTest extends ServiceTestBase
 
       sf.close();
 
-      messagingService2.stop();
+      server.stop();
 
-      messagingService2 = createServer(conf);
+      waitForServerToStop(server);
 
-      messagingService2.start();
+      server.start();
 
       sf = createSessionFactory(locator);
 
@@ -1356,33 +1213,23 @@ public class DuplicateDetectionTest extends ServiceTestBase
       producer.send(message);
       message2 = consumer.receiveImmediate();
       Assert.assertNull(message2);
-
-      session.close();
-
-      sf.close();
-
-      locator.close();
-
-      messagingService2.stop();
    }
 
    @Test
    public void testDuplicateCachePersisted2() throws Exception
    {
-      messagingService.stop();
+      server.stop();
 
       final int theCacheSize = 5;
 
-      Configuration conf = createDefaultConfig()
-         .setIDCacheSize(theCacheSize);
+      config = createDefaultInVMConfig()
+              .setIDCacheSize(theCacheSize);
 
-      ActiveMQServer messagingService2 = createServer(conf);
+      server = createServer(config);
 
-      messagingService2.start();
+      server.start();
 
-      ServerLocator locator = createInVMNonHALocator();
-
-      ClientSessionFactory sf = createSessionFactory(locator);
+      sf = createSessionFactory(locator);
 
       ClientSession session = sf.createSession(false, true, true);
 
@@ -1410,11 +1257,11 @@ public class DuplicateDetectionTest extends ServiceTestBase
 
       sf.close();
 
-      messagingService2.stop();
+      server.stop();
 
-      messagingService2 = createServer(conf);
+      waitForServerToStop(server);
 
-      messagingService2.start();
+      server.start();
 
       sf = createSessionFactory(locator);
 
@@ -1437,34 +1284,24 @@ public class DuplicateDetectionTest extends ServiceTestBase
          ClientMessage message2 = consumer.receiveImmediate();
          Assert.assertNull(message2);
       }
-
-      session.close();
-
-      sf.close();
-
-      locator.close();
-
-      messagingService2.stop();
    }
 
    @Test
    public void testDuplicateCachePersistedRestartWithSmallerCache() throws Exception
    {
-      messagingService.stop();
+      server.stop();
 
       final int initialCacheSize = 10;
       final int subsequentCacheSize = 5;
 
-      Configuration conf = createDefaultConfig()
-         .setIDCacheSize(initialCacheSize);
+      config = createDefaultInVMConfig()
+              .setIDCacheSize(initialCacheSize);
 
-      ActiveMQServer messagingService2 = createServer(conf);
+      server = createServer(config);
 
-      messagingService2.start();
+      server.start();
 
-      ServerLocator locator = createInVMNonHALocator();
-
-      ClientSessionFactory sf = createSessionFactory(locator);
+      sf = createSessionFactory(locator);
 
       ClientSession session = sf.createSession(false, true, true);
 
@@ -1492,13 +1329,15 @@ public class DuplicateDetectionTest extends ServiceTestBase
 
       sf.close();
 
-      messagingService2.stop();
+      server.stop();
 
-      conf.setIDCacheSize(subsequentCacheSize);
+      waitForServerToStop(server);
 
-      messagingService2 = createServer(conf);
+      config.setIDCacheSize(subsequentCacheSize);
 
-      messagingService2.start();
+      server = createServer(config);
+
+      server.start();
 
       sf = createSessionFactory(locator);
 
@@ -1530,34 +1369,24 @@ public class DuplicateDetectionTest extends ServiceTestBase
             Assert.assertNull(message2);
          }
       }
-
-      session.close();
-
-      sf.close();
-
-      locator.close();
-
-      messagingService2.stop();
    }
 
    @Test
    public void testDuplicateCachePersistedRestartWithSmallerCacheEnsureDeleted() throws Exception
    {
-      messagingService.stop();
+      server.stop();
 
       final int initialCacheSize = 10;
       final int subsequentCacheSize = 5;
 
-      Configuration conf = createDefaultConfig()
-         .setIDCacheSize(initialCacheSize);
+      config = createDefaultInVMConfig()
+              .setIDCacheSize(initialCacheSize);
 
-      ActiveMQServer messagingService2 = createServer(conf);
+      server = createServer(config);
 
-      messagingService2.start();
+      server.start();
 
-      ServerLocator locator = createInVMNonHALocator();
-
-      ClientSessionFactory sf = createSessionFactory(locator);
+      sf = createSessionFactory(locator);
 
       ClientSession session = sf.createSession(false, true, true);
 
@@ -1585,23 +1414,27 @@ public class DuplicateDetectionTest extends ServiceTestBase
 
       sf.close();
 
-      messagingService2.stop();
+      server.stop();
 
-      conf.setIDCacheSize(subsequentCacheSize);
+      waitForServerToStop(server);
 
-      messagingService2 = createServer(conf);
+      config.setIDCacheSize(subsequentCacheSize);
 
-      messagingService2.start();
+      server = createServer(config);
+
+      server.start();
 
       // Now stop and set back to original cache size and restart
 
-      messagingService2.stop();
+      server.stop();
 
-      conf.setIDCacheSize(initialCacheSize);
+      waitForServerToStop(server);
 
-      messagingService2 = createServer(conf);
+      config.setIDCacheSize(initialCacheSize);
 
-      messagingService2.start();
+      server = createServer(config);
+
+      server.start();
 
       sf = createSessionFactory(locator);
 
@@ -1633,32 +1466,22 @@ public class DuplicateDetectionTest extends ServiceTestBase
             Assert.assertNull(message2);
          }
       }
-
-      session.close();
-
-      sf.close();
-
-      locator.close();
-
-      messagingService2.stop();
    }
 
    @Test
    public void testNoPersist() throws Exception
    {
-      messagingService.stop();
+      server.stop();
 
-      Configuration conf = createDefaultConfig()
-         .setIDCacheSize(cacheSize)
-         .setPersistIDCache(false);
+      config = createDefaultInVMConfig()
+              .setIDCacheSize(cacheSize)
+              .setPersistIDCache(false);
 
-      ActiveMQServer messagingService2 = createServer(conf);
+      server = createServer(config);
 
-      messagingService2.start();
+      server.start();
 
-      ServerLocator locator = createInVMNonHALocator();
-
-      ClientSessionFactory sf = createSessionFactory(locator);
+      sf = createSessionFactory(locator);
 
       ClientSession session = sf.createSession(false, true, true);
 
@@ -1690,11 +1513,11 @@ public class DuplicateDetectionTest extends ServiceTestBase
 
       sf.close();
 
-      messagingService2.stop();
+      server.stop();
 
-      messagingService2 = createServer(conf);
+      waitForServerToStop(server);
 
-      messagingService2.start();
+      server.start();
 
       sf = createSessionFactory(locator);
 
@@ -1719,32 +1542,22 @@ public class DuplicateDetectionTest extends ServiceTestBase
       producer.send(message);
       message2 = consumer.receive(200);
       Assert.assertEquals(2, message2.getObjectProperty(propKey));
-
-      session.close();
-
-      sf.close();
-
-      locator.close();
-
-      messagingService2.stop();
    }
 
    @Test
    public void testNoPersistTransactional() throws Exception
    {
-      messagingService.stop();
+      server.stop();
 
-      Configuration conf = createDefaultConfig()
-         .setIDCacheSize(cacheSize)
-         .setPersistIDCache(false);
+      config = createDefaultInVMConfig()
+              .setIDCacheSize(cacheSize)
+              .setPersistIDCache(false);
 
-      ActiveMQServer messagingService2 = createServer(conf);
+      server = createServer(config);
 
-      messagingService2.start();
+      server.start();
 
-      ServerLocator locator = createInVMNonHALocator();
-
-      ClientSessionFactory sf = createSessionFactory(locator);
+      sf = createSessionFactory(locator);
 
       ClientSession session = sf.createSession(false, false, false);
 
@@ -1778,11 +1591,11 @@ public class DuplicateDetectionTest extends ServiceTestBase
 
       sf.close();
 
-      messagingService2.stop();
+      server.stop();
 
-      messagingService2 = createServer(conf);
+      waitForServerToStop(server);
 
-      messagingService2.start();
+      server.start();
 
       sf = createSessionFactory(locator);
 
@@ -1809,32 +1622,11 @@ public class DuplicateDetectionTest extends ServiceTestBase
       session.commit();
       message2 = consumer.receive(200);
       Assert.assertEquals(2, message2.getObjectProperty(propKey));
-
-      session.close();
-
-      sf.close();
-
-      locator.close();
-
-      messagingService2.stop();
    }
 
    @Test
    public void testPersistTransactional() throws Exception
    {
-      messagingService.stop();
-
-      Configuration conf = createDefaultConfig()
-         .setIDCacheSize(cacheSize);
-
-      ActiveMQServer messagingService2 = createServer(conf);
-
-      messagingService2.start();
-
-      ServerLocator locator = createInVMNonHALocator();
-
-      ClientSessionFactory sf = createSessionFactory(locator);
-
       ClientSession session = sf.createSession(false, false, false);
 
       session.start();
@@ -1871,11 +1663,11 @@ public class DuplicateDetectionTest extends ServiceTestBase
 
       sf.close();
 
-      messagingService2.stop();
+      server.stop();
 
-      messagingService2 = createServer(conf);
+      waitForServerToStop(server);
 
-      messagingService2.start();
+      server.start();
 
       sf = createSessionFactory(locator);
 
@@ -1928,32 +1720,22 @@ public class DuplicateDetectionTest extends ServiceTestBase
 
       message2 = consumer.receiveImmediate();
       Assert.assertNull(message2);
-
-      session.close();
-
-      sf.close();
-
-      locator.close();
-
-      messagingService2.stop();
    }
 
    @Test
    public void testNoPersistXA1() throws Exception
    {
-      messagingService.stop();
+      server.stop();
 
-      Configuration conf = createDefaultConfig()
-         .setIDCacheSize(cacheSize)
-         .setPersistIDCache(false);
+      config = createDefaultInVMConfig()
+              .setIDCacheSize(cacheSize)
+              .setPersistIDCache(false);
 
-      ActiveMQServer messagingService2 = createServer(conf);
+      server = createServer(config);
 
-      messagingService2.start();
+      server.start();
 
-      ServerLocator locator = createInVMNonHALocator();
-
-      ClientSessionFactory sf = createSessionFactory(locator);
+      sf = createSessionFactory(locator);
 
       ClientSession session = sf.createSession(true, false, false);
 
@@ -1989,11 +1771,11 @@ public class DuplicateDetectionTest extends ServiceTestBase
 
       sf.close();
 
-      messagingService2.stop();
+      server.stop();
 
-      messagingService2 = createServer(conf);
+      waitForServerToStop(server);
 
-      messagingService2.start();
+      server.start();
 
       sf = createSessionFactory(locator);
 
@@ -2032,32 +1814,11 @@ public class DuplicateDetectionTest extends ServiceTestBase
 
       message2 = consumer.receive(200);
       Assert.assertEquals(2, message2.getObjectProperty(propKey));
-
-      session.close();
-
-      sf.close();
-
-      locator.close();
-
-      messagingService2.stop();
    }
 
    @Test
    public void testNoPersistXA2() throws Exception
    {
-      messagingService.stop();
-
-      Configuration conf = createDefaultConfig()
-         .setIDCacheSize(cacheSize);
-
-      ActiveMQServer messagingService2 = createServer(conf);
-
-      messagingService2.start();
-
-      ServerLocator locator = createInVMNonHALocator();
-
-      ClientSessionFactory sf = createSessionFactory(locator);
-
       ClientSession session = sf.createSession(true, false, false);
 
       Xid xid = new XidImpl("xa1".getBytes(), 1, UUIDGenerator.getInstance().generateStringUUID().getBytes());
@@ -2071,8 +1832,6 @@ public class DuplicateDetectionTest extends ServiceTestBase
       session.createQueue(queueName, queueName, null, false);
 
       ClientProducer producer = session.createProducer(queueName);
-
-      ClientConsumer consumer = session.createConsumer(queueName);
 
       ClientMessage message = createMessage(session, 1);
       SimpleString dupID = new SimpleString("abcdefg");
@@ -2090,15 +1849,15 @@ public class DuplicateDetectionTest extends ServiceTestBase
 
       sf.close();
 
-      messagingService2.stop();
+      server.stop();
 
-      messagingService2 = createServer(conf);
+      waitForServerToStop(server);
 
-      messagingService2.start();
+      server.start();
 
       sf = createSessionFactory(locator);
 
-      session = sf.createSession(true, false, false);
+      session = addClientSession(sf.createSession(true, false, false));
 
       Xid xid2 = new XidImpl("xa1".getBytes(), 1, UUIDGenerator.getInstance().generateStringUUID().getBytes());
 
@@ -2110,7 +1869,7 @@ public class DuplicateDetectionTest extends ServiceTestBase
 
       producer = session.createProducer(queueName);
 
-      consumer = session.createConsumer(queueName);
+      ClientConsumer consumer = session.createConsumer(queueName);
 
       message = createMessage(session, 1);
       message.putBytesProperty(Message.HDR_DUPLICATE_DETECTION_ID, dupID.getData());
@@ -2133,33 +1892,12 @@ public class DuplicateDetectionTest extends ServiceTestBase
 
       message2 = consumer.receive(200);
       Assert.assertEquals(2, message2.getObjectProperty(propKey));
-
-      session.close();
-
-      sf.close();
-
-      locator.close();
-
-      messagingService2.stop();
    }
 
    @Test
    public void testPersistXA1() throws Exception
    {
-      messagingService.stop();
-
-      Configuration conf = createDefaultConfig()
-         .setIDCacheSize(cacheSize);
-
-      ActiveMQServer messagingService2 = createServer(conf);
-
-      messagingService2.start();
-
-      ServerLocator locator = createInVMNonHALocator();
-
-      ClientSessionFactory sf = createSessionFactory(locator);
-
-      ClientSession session = sf.createSession(true, false, false);
+      ClientSession session = addClientSession(sf.createSession(true, false, false));
 
       Xid xid = new XidImpl("xa1".getBytes(), 1, UUIDGenerator.getInstance().generateStringUUID().getBytes());
 
@@ -2193,15 +1931,15 @@ public class DuplicateDetectionTest extends ServiceTestBase
 
       sf.close();
 
-      messagingService2.stop();
+      server.stop();
 
-      messagingService2 = createServer(conf);
+      waitForServerToStop(server);
 
-      messagingService2.start();
+      server.start();
 
       sf = createSessionFactory(locator);
 
-      session = sf.createSession(true, false, false);
+      session = addClientSession(sf.createSession(true, false, false));
 
       Xid xid2 = new XidImpl("xa1".getBytes(), 1, UUIDGenerator.getInstance().generateStringUUID().getBytes());
 
@@ -2245,15 +1983,11 @@ public class DuplicateDetectionTest extends ServiceTestBase
 
       message2 = consumer.receiveImmediate();
       Assert.assertNull(message2);
-
-      session.close();
-
-      sf.close();
-
-      locator.close();
-
-      messagingService2.stop();
    }
+
+   private Configuration config;
+   ServerLocator locator;
+   ClientSessionFactory sf;
 
    @Override
    @Before
@@ -2261,11 +1995,15 @@ public class DuplicateDetectionTest extends ServiceTestBase
    {
       super.setUp();
 
-      Configuration conf = createDefaultConfig()
-         .setIDCacheSize(cacheSize);
+      config = createDefaultInVMConfig()
+              .setIDCacheSize(cacheSize);
 
-      messagingService = createServer(true, conf);
+      server = createServer(true, config);
 
-      messagingService.start();
+      server.start();
+
+      locator = createInVMNonHALocator();
+
+      sf = createSessionFactory(locator);
    }
 }

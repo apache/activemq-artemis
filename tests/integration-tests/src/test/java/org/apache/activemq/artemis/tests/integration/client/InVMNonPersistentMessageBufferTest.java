@@ -15,13 +15,6 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.integration.client;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
-import org.junit.Before;
-import org.junit.After;
-
-import org.junit.Test;
-
-import org.junit.Assert;
 
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -31,10 +24,14 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.apache.activemq.artemis.utils.DataConstants;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
-public class InVMNonPersistentMessageBufferTest extends ServiceTestBase
+public class InVMNonPersistentMessageBufferTest extends ActiveMQTestBase
 {
    public static final String address = "testaddress";
 
@@ -260,22 +257,6 @@ public class InVMNonPersistentMessageBufferTest extends ServiceTestBase
       consumer = session.createConsumer(InVMNonPersistentMessageBufferTest.queueName);
 
       session.start();
-   }
-
-   @Override
-   @After
-   public void tearDown() throws Exception
-   {
-      if (session != null)
-      {
-         consumer.close();
-
-         session.deleteQueue(InVMNonPersistentMessageBufferTest.queueName);
-
-         session.close();
-      }
-
-      super.tearDown();
    }
 
    private ClientMessage sendAndReceive(final ClientMessage message) throws Exception

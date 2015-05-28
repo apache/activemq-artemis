@@ -18,7 +18,13 @@ package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.api.core.client.ClientConsumer;
+import org.apache.activemq.artemis.api.core.client.ClientMessage;
+import org.apache.activemq.artemis.api.core.client.ClientProducer;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.core.client.impl.ServerLocatorInternal;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.File;
@@ -28,15 +34,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import org.junit.Assert;
-
-import org.apache.activemq.artemis.api.core.client.ClientConsumer;
-import org.apache.activemq.artemis.api.core.client.ClientMessage;
-import org.apache.activemq.artemis.api.core.client.ClientProducer;
-import org.apache.activemq.artemis.api.core.client.ClientSession;
-import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.apache.activemq.artemis.core.client.impl.ServerLocatorInternal;
 
 public class BackupSyncLargeMessageTest extends BackupSyncJournalTest
 {
@@ -50,9 +47,8 @@ public class BackupSyncLargeMessageTest extends BackupSyncJournalTest
    @Override
    protected ServerLocatorInternal getServerLocator() throws Exception
    {
-      ServerLocator locator = super.getServerLocator();
-      locator.setMinLargeMessageSize(MIN_LARGE_MESSAGE);
-      return (ServerLocatorInternal)locator;
+      return (ServerLocatorInternal) super.getServerLocator()
+              .setMinLargeMessageSize(MIN_LARGE_MESSAGE);
    }
 
    @Override
@@ -130,7 +126,7 @@ public class BackupSyncLargeMessageTest extends BackupSyncJournalTest
       final ClientProducer producer = session.createProducer(FailoverTestBase.ADDRESS);
       final ClientMessage message = session.createMessage(true);
       final int largeMessageSize = 1000 * MIN_LARGE_MESSAGE;
-      message.setBodyInputStream(ServiceTestBase.createFakeLargeStream(largeMessageSize));
+      message.setBodyInputStream(ActiveMQTestBase.createFakeLargeStream(largeMessageSize));
 
       final AtomicBoolean caughtException = new AtomicBoolean(false);
       final CountDownLatch latch = new CountDownLatch(1);
@@ -162,7 +158,7 @@ public class BackupSyncLargeMessageTest extends BackupSyncJournalTest
       Executors.defaultThreadFactory().newThread(r).start();
       waitForLatch(latch);
       startBackupFinishSyncing();
-      ServiceTestBase.waitForLatch(latch2);
+      ActiveMQTestBase.waitForLatch(latch2);
       crash(session);
       assertFalse("no exceptions while sending message", caughtException.get());
 
@@ -174,7 +170,7 @@ public class BackupSyncLargeMessageTest extends BackupSyncJournalTest
       for (int j = 0; j < largeMessageSize; j++)
       {
          Assert.assertTrue("large msg , expecting " + largeMessageSize + " bytes, got " + j, buffer.readable());
-         Assert.assertEquals("equal at " + j, ServiceTestBase.getSamplebyte(j), buffer.readByte());
+         Assert.assertEquals("equal at " + j, ActiveMQTestBase.getSamplebyte(j), buffer.readByte());
       }
       receiveMessages(consumer, 0, 20, true);
       assertNull("there should be no more messages!", consumer.receiveImmediate());

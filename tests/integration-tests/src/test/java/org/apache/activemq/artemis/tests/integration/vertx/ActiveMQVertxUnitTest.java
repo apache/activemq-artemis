@@ -17,8 +17,6 @@
 package org.apache.activemq.artemis.tests.integration.vertx;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
-import org.apache.activemq.artemis.api.core.TransportConfiguration;
-import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
@@ -31,7 +29,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.integration.vertx.VertxConstants;
 import org.apache.activemq.artemis.integration.vertx.VertxIncomingConnectorServiceFactory;
 import org.apache.activemq.artemis.integration.vertx.VertxOutgoingConnectorServiceFactory;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -51,7 +49,7 @@ import java.util.HashMap;
  * This class tests the basics of ActiveMQ
  * vertx integration
  */
-public class ActiveMQVertxUnitTest extends ServiceTestBase
+public class ActiveMQVertxUnitTest extends ActiveMQTestBase
 {
    protected PlatformManager vertxManager;
    protected ActiveMQServer server;
@@ -155,7 +153,7 @@ public class ActiveMQVertxUnitTest extends ServiceTestBase
          .setParams(config5)
          .setName("test-vertx-outgoing-connector2");
 
-      Configuration configuration = createDefaultConfig()
+      Configuration configuration = createDefaultInVMConfig()
          .addQueueConfiguration(qc1)
          .addQueueConfiguration(qc2)
          .addQueueConfiguration(qc3)
@@ -681,8 +679,7 @@ public class ActiveMQVertxUnitTest extends ServiceTestBase
 
       try
       {
-         TransportConfiguration tpconf = new TransportConfiguration(INVM_CONNECTOR_FACTORY);
-         locator = ActiveMQClient.createServerLocatorWithoutHA(tpconf);
+         locator = createInVMNonHALocator();
 
          sf = createSessionFactory(locator);
 

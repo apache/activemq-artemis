@@ -19,7 +19,6 @@ package org.apache.activemq.artemis.tests.integration.client;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Interceptor;
 import org.apache.activemq.artemis.api.core.Message;
-import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
@@ -29,12 +28,11 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.protocol.core.Packet;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
-import org.apache.activemq.artemis.core.remoting.impl.invm.InVMAcceptorFactory;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -44,7 +42,7 @@ import org.junit.Test;
  * From https://jira.jboss.org/jira/browse/HORNETQ-144
  *
  */
-public class ActiveMQCrashTest extends ServiceTestBase
+public class ActiveMQCrashTest extends ActiveMQTestBase
 {
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
@@ -56,19 +54,14 @@ public class ActiveMQCrashTest extends ServiceTestBase
    @Test
    public void testHang() throws Exception
    {
-      Configuration configuration = createDefaultConfig()
-         .setPersistenceEnabled(false)
-         .setSecurityEnabled(false)
-         .addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName()));
+      Configuration configuration = createDefaultInVMConfig()
+         .setPersistenceEnabled(false);
 
       server = addServer(ActiveMQServers.newActiveMQServer(configuration));
 
       server.start();
 
       server.getRemotingService().addIncomingInterceptor(new AckInterceptor(server));
-
-
-
 
       // Force an ack at once - this means the send call will block
       locator.setConfirmationWindowSize(1);

@@ -16,17 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
-import javax.jms.BytesMessage;
-import javax.jms.Connection;
-import javax.jms.DeliveryMode;
-import javax.jms.MessageProducer;
-import javax.jms.Session;
-import javax.jms.TextMessage;
-import javax.jms.Topic;
-import java.nio.ByteBuffer;
-import java.util.HashMap;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
@@ -38,7 +27,6 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.api.jms.JMSFactoryType;
-import org.apache.activemq.artemis.tests.unit.util.InVMNamingContext;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.postoffice.Binding;
@@ -52,15 +40,26 @@ import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.client.ActiveMQJMSConnectionFactory;
 import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
-import org.junit.After;
+import org.apache.activemq.artemis.tests.unit.util.InVMNamingContext;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Test;
+
+import javax.jms.BytesMessage;
+import javax.jms.Connection;
+import javax.jms.DeliveryMode;
+import javax.jms.MessageProducer;
+import javax.jms.Session;
+import javax.jms.TextMessage;
+import javax.jms.Topic;
+import java.nio.ByteBuffer;
+import java.util.HashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * A PagingOrderTest. PagingTest has a lot of tests already. I decided to create a newer one more
  * specialized on Ordering and counters
  */
-public class PagingOrderTest extends ServiceTestBase
+public class PagingOrderTest extends ActiveMQTestBase
 {
 
    private static final int PAGE_MAX = 100 * 1024;
@@ -75,27 +74,12 @@ public class PagingOrderTest extends ServiceTestBase
 
    private Connection conn;
 
-   @Override
-   @After
-   public void tearDown() throws Exception
-   {
-      try
-      {
-         if (conn != null)
-            conn.close();
-      }
-      finally
-      {
-         super.tearDown();
-      }
-   }
-
    @Test
    public void testOrder1() throws Throwable
    {
       boolean persistentMessages = true;
 
-      Configuration config = createDefaultConfig()
+      Configuration config = createDefaultInVMConfig()
          .setJournalSyncNonTransactional(false);
 
       ActiveMQServer server = createServer(true, config, PAGE_SIZE, PAGE_MAX, new HashMap<String, AddressSettings>());
@@ -105,16 +89,15 @@ public class PagingOrderTest extends ServiceTestBase
       final int messageSize = 1024;
 
       final int numberOfMessages = 500;
-      ServerLocator locator = createInVMNonHALocator();
 
-      locator.setClientFailureCheckPeriod(1000);
-      locator.setConnectionTTL(2000);
-      locator.setReconnectAttempts(0);
-
-      locator.setBlockOnNonDurableSend(true);
-      locator.setBlockOnDurableSend(true);
-      locator.setBlockOnAcknowledge(true);
-      locator.setConsumerWindowSize(1024 * 1024);
+      ServerLocator locator = createInVMNonHALocator()
+              .setClientFailureCheckPeriod(1000)
+              .setConnectionTTL(2000)
+              .setReconnectAttempts(0)
+              .setBlockOnNonDurableSend(true)
+              .setBlockOnDurableSend(true)
+              .setBlockOnAcknowledge(true)
+              .setConsumerWindowSize(1024 * 1024);
 
       ClientSessionFactory sf = createSessionFactory(locator);
 
@@ -175,12 +158,8 @@ public class PagingOrderTest extends ServiceTestBase
 
       session.close();
 
-      session = null;
-
       sf.close();
       sf = createSessionFactory(locator);
-
-      locator = createInVMNonHALocator();
 
       session = sf.createSession(true, true, 0);
 
@@ -204,7 +183,7 @@ public class PagingOrderTest extends ServiceTestBase
    {
       boolean persistentMessages = true;
 
-      Configuration config = createDefaultConfig()
+      Configuration config = createDefaultInVMConfig()
          .setJournalSyncNonTransactional(false);
 
       ActiveMQServer server = createServer(true, config, PAGE_SIZE, PAGE_MAX, new HashMap<String, AddressSettings>());
@@ -215,16 +194,14 @@ public class PagingOrderTest extends ServiceTestBase
 
       final int numberOfMessages = 500;
 
-      ServerLocator locator = createInVMNonHALocator();
-
-      locator.setClientFailureCheckPeriod(1000);
-      locator.setConnectionTTL(2000);
-      locator.setReconnectAttempts(0);
-
-      locator.setBlockOnNonDurableSend(true);
-      locator.setBlockOnDurableSend(true);
-      locator.setBlockOnAcknowledge(true);
-      locator.setConsumerWindowSize(1024 * 1024);
+      ServerLocator locator = createInVMNonHALocator()
+              .setClientFailureCheckPeriod(1000)
+              .setConnectionTTL(2000)
+              .setReconnectAttempts(0)
+              .setBlockOnNonDurableSend(true)
+              .setBlockOnDurableSend(true)
+              .setBlockOnAcknowledge(true)
+              .setConsumerWindowSize(1024 * 1024);
 
       ClientSessionFactory sf = createSessionFactory(locator);
 
@@ -357,7 +334,7 @@ public class PagingOrderTest extends ServiceTestBase
    {
       boolean persistentMessages = true;
 
-      Configuration config = createDefaultConfig()
+      Configuration config = createDefaultInVMConfig()
          .setJournalSyncNonTransactional(false);
 
       ActiveMQServer server = createServer(true, config, PAGE_SIZE, PAGE_MAX, new HashMap<String, AddressSettings>());
@@ -368,16 +345,14 @@ public class PagingOrderTest extends ServiceTestBase
 
       final int numberOfMessages = 500;
 
-      ServerLocator locator = createInVMNonHALocator();
-
-      locator.setClientFailureCheckPeriod(1000);
-      locator.setConnectionTTL(2000);
-      locator.setReconnectAttempts(0);
-
-      locator.setBlockOnNonDurableSend(true);
-      locator.setBlockOnDurableSend(true);
-      locator.setBlockOnAcknowledge(true);
-      locator.setConsumerWindowSize(1024 * 1024);
+      ServerLocator locator = createInVMNonHALocator()
+              .setClientFailureCheckPeriod(1000)
+              .setConnectionTTL(2000)
+              .setReconnectAttempts(0)
+              .setBlockOnNonDurableSend(true)
+              .setBlockOnDurableSend(true)
+              .setBlockOnAcknowledge(true)
+              .setConsumerWindowSize(1024 * 1024);
 
       ClientSessionFactory sf = createSessionFactory(locator);
 
@@ -471,7 +446,7 @@ public class PagingOrderTest extends ServiceTestBase
    {
       boolean persistentMessages = true;
 
-      Configuration config = createDefaultConfig()
+      Configuration config = createDefaultInVMConfig()
          .setJournalSyncNonTransactional(false);
 
       ActiveMQServer server = createServer(true, config, PAGE_SIZE, PAGE_MAX, new HashMap<String, AddressSettings>());
@@ -482,16 +457,14 @@ public class PagingOrderTest extends ServiceTestBase
 
       final int numberOfMessages = 3000;
 
-      ServerLocator locator = createInVMNonHALocator();
-
-      locator.setClientFailureCheckPeriod(1000);
-      locator.setConnectionTTL(2000);
-      locator.setReconnectAttempts(0);
-
-      locator.setBlockOnNonDurableSend(true);
-      locator.setBlockOnDurableSend(true);
-      locator.setBlockOnAcknowledge(true);
-      locator.setConsumerWindowSize(1024 * 1024);
+      ServerLocator locator = createInVMNonHALocator()
+              .setClientFailureCheckPeriod(1000)
+              .setConnectionTTL(2000)
+              .setReconnectAttempts(0)
+              .setBlockOnNonDurableSend(true)
+              .setBlockOnDurableSend(true)
+              .setBlockOnAcknowledge(true)
+              .setConsumerWindowSize(1024 * 1024);
 
       ClientSessionFactory sf = createSessionFactory(locator);
 
@@ -571,7 +544,7 @@ public class PagingOrderTest extends ServiceTestBase
    {
       boolean persistentMessages = true;
 
-      Configuration config = createDefaultConfig()
+      Configuration config = createDefaultInVMConfig()
          .setJournalSyncNonTransactional(false);
 
       ActiveMQServer server = createServer(true, config, PAGE_SIZE, PAGE_MAX, new HashMap<String, AddressSettings>());
@@ -582,16 +555,14 @@ public class PagingOrderTest extends ServiceTestBase
 
       final int numberOfMessages = 200;
 
-      ServerLocator locator = createInVMNonHALocator();
-
-      locator.setClientFailureCheckPeriod(1000);
-      locator.setConnectionTTL(2000);
-      locator.setReconnectAttempts(0);
-
-      locator.setBlockOnNonDurableSend(true);
-      locator.setBlockOnDurableSend(true);
-      locator.setBlockOnAcknowledge(true);
-      locator.setConsumerWindowSize(0);
+      ServerLocator locator = createInVMNonHALocator()
+              .setClientFailureCheckPeriod(1000)
+              .setConnectionTTL(2000)
+              .setReconnectAttempts(0)
+              .setBlockOnNonDurableSend(true)
+              .setBlockOnDurableSend(true)
+              .setBlockOnAcknowledge(true)
+              .setConsumerWindowSize(0);
 
       ClientSessionFactory sf = createSessionFactory(locator);
 
@@ -682,16 +653,14 @@ public class PagingOrderTest extends ServiceTestBase
 
       server.start();
 
-      locator = createInVMNonHALocator();
-
-      locator.setClientFailureCheckPeriod(1000);
-      locator.setConnectionTTL(2000);
-      locator.setReconnectAttempts(0);
-
-      locator.setBlockOnNonDurableSend(true);
-      locator.setBlockOnDurableSend(true);
-      locator.setBlockOnAcknowledge(true);
-      locator.setConsumerWindowSize(0);
+      locator = createInVMNonHALocator()
+              .setClientFailureCheckPeriod(1000)
+              .setConnectionTTL(2000)
+              .setReconnectAttempts(0)
+              .setBlockOnNonDurableSend(true)
+              .setBlockOnDurableSend(true)
+              .setBlockOnAcknowledge(true)
+              .setConsumerWindowSize(0);
 
       sf = createSessionFactory(locator);
 
@@ -718,7 +687,7 @@ public class PagingOrderTest extends ServiceTestBase
    public void testPagingOverCreatedDestinationTopics() throws Exception
    {
 
-      Configuration config = createDefaultConfig()
+      Configuration config = createDefaultInVMConfig()
          .setJournalSyncNonTransactional(false);
 
       ActiveMQServer server = createServer(true, config, PAGE_SIZE, -1, new HashMap<String, AddressSettings>());
@@ -797,7 +766,7 @@ public class PagingOrderTest extends ServiceTestBase
    public void testPagingOverCreatedDestinationQueues() throws Exception
    {
 
-      Configuration config = createDefaultConfig()
+      Configuration config = createDefaultInVMConfig()
          .setJournalSyncNonTransactional(false);
 
       ActiveMQServer server = createServer(true, config, -1, -1, new HashMap<String, AddressSettings>());

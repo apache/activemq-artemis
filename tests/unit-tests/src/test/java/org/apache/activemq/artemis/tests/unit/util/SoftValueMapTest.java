@@ -16,11 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.unit.util;
 
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.SoftValueHashMap;
 import org.junit.Test;
 
-public class SoftValueMapTest extends ServiceTestBase
+public class SoftValueMapTest extends ActiveMQTestBase
 {
 
    // Constants -----------------------------------------------------

@@ -18,8 +18,6 @@ package org.apache.activemq.artemis.tests.integration.aerogear;
 
 
 import org.apache.activemq.artemis.api.core.Message;
-import org.apache.activemq.artemis.api.core.TransportConfiguration;
-import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
@@ -33,7 +31,7 @@ import org.apache.activemq.artemis.core.config.CoreQueueConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.integration.aerogear.AeroGearConnectorServiceFactory;
 import org.apache.activemq.artemis.integration.aerogear.AeroGearConstants;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.json.JSONArray;
 import org.apache.activemq.artemis.utils.json.JSONException;
 import org.apache.activemq.artemis.utils.json.JSONObject;
@@ -53,7 +51,7 @@ import java.util.HashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-public class AeroGearBasicServerTest extends ServiceTestBase
+public class AeroGearBasicServerTest extends ActiveMQTestBase
 {
 
    private ActiveMQServer server;
@@ -88,7 +86,8 @@ public class AeroGearBasicServerTest extends ServiceTestBase
       params.put(AeroGearConstants.DEVICE_TYPE_NAME, "android,ipad");
       params.put(AeroGearConstants.SOUND_NAME, "sound1");
       params.put(AeroGearConstants.VARIANTS_NAME, "variant1,variant2");
-      Configuration configuration = createDefaultConfig()
+
+      Configuration configuration = createDefaultInVMConfig()
          .addConnectorServiceConfiguration(
             new ConnectorServiceConfiguration()
                .setFactoryClassName(AeroGearConnectorServiceFactory.class.getName())
@@ -97,7 +96,8 @@ public class AeroGearBasicServerTest extends ServiceTestBase
          .addQueueConfiguration(new CoreQueueConfiguration()
                                    .setAddress("testQueue")
                                    .setName("testQueue"));
-      server = createServer(configuration);
+
+      server = addServer(createServer(configuration));
       server.start();
 
    }
@@ -110,14 +110,6 @@ public class AeroGearBasicServerTest extends ServiceTestBase
       {
          jetty.stop();
       }
-      if (locator != null)
-      {
-         locator.close();
-      }
-      if (server != null)
-      {
-         server.stop();
-      }
       super.tearDown();
    }
 
@@ -127,8 +119,7 @@ public class AeroGearBasicServerTest extends ServiceTestBase
       CountDownLatch latch = new CountDownLatch(1);
       AeroGearHandler aeroGearHandler = new AeroGearHandler(latch);
       jetty.addHandler(aeroGearHandler);
-      TransportConfiguration tpconf = new TransportConfiguration(INVM_CONNECTOR_FACTORY);
-      locator = ActiveMQClient.createServerLocatorWithoutHA(tpconf);
+      locator = createInVMNonHALocator();
       ClientSessionFactory sf = createSessionFactory(locator);
       ClientSession session = sf.createSession(false, true, true);
       ClientProducer producer = session.createProducer("testQueue");
@@ -276,8 +267,7 @@ public class AeroGearBasicServerTest extends ServiceTestBase
          }
 
       });
-      TransportConfiguration tpconf = new TransportConfiguration(INVM_CONNECTOR_FACTORY);
-      locator = ActiveMQClient.createServerLocatorWithoutHA(tpconf);
+      locator = createInVMNonHALocator();
       ClientSessionFactory sf = createSessionFactory(locator);
       ClientSession session = sf.createSession(false, true, true);
       ClientProducer producer = session.createProducer("testQueue");
@@ -330,8 +320,7 @@ public class AeroGearBasicServerTest extends ServiceTestBase
          }
 
       });
-      TransportConfiguration tpconf = new TransportConfiguration(INVM_CONNECTOR_FACTORY);
-      locator = ActiveMQClient.createServerLocatorWithoutHA(tpconf);
+      locator = createInVMNonHALocator();
       ClientSessionFactory sf = createSessionFactory(locator);
       ClientSession session = sf.createSession(false, true, true);
       ClientProducer producer = session.createProducer("testQueue");
@@ -368,8 +357,7 @@ public class AeroGearBasicServerTest extends ServiceTestBase
          }
 
       });
-      TransportConfiguration tpconf = new TransportConfiguration(INVM_CONNECTOR_FACTORY);
-      locator = ActiveMQClient.createServerLocatorWithoutHA(tpconf);
+      locator = createInVMNonHALocator();
       ClientSessionFactory sf = createSessionFactory(locator);
       ClientSession session = sf.createSession(false, true, true);
       ClientProducer producer = session.createProducer("testQueue");

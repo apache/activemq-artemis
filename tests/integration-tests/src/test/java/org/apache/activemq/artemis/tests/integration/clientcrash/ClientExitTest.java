@@ -15,22 +15,18 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.integration.clientcrash;
-import org.junit.Before;
-
-import org.junit.Test;
 
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
-import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.apache.activemq.artemis.tests.util.SpawnedVMSupport;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * A test that makes sure that a ActiveMQ Artemis client gracefully exists after the last session is
@@ -106,7 +102,7 @@ public class ClientExitTest extends ClientTestBase
    {
       super.setUp();
 
-      ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(NettyConnectorFactory.class.getName()));
+      ServerLocator locator = createNettyNonHALocator();
       addServerLocator(locator);
       ClientSessionFactory sf = createSessionFactory(locator);
       session = sf.createSession(false, true, true);

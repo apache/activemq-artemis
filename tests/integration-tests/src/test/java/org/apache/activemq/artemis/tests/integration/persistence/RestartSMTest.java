@@ -15,6 +15,20 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.integration.persistence;
+
+import org.apache.activemq.artemis.core.persistence.GroupingInfo;
+import org.apache.activemq.artemis.core.persistence.QueueBindingInfo;
+import org.apache.activemq.artemis.core.persistence.impl.journal.JournalStorageManager;
+import org.apache.activemq.artemis.core.postoffice.PostOffice;
+import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
+import org.apache.activemq.artemis.tests.unit.core.server.impl.fakes.FakeJournalLoader;
+import org.apache.activemq.artemis.tests.unit.core.server.impl.fakes.FakePostOffice;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.utils.ExecutorFactory;
+import org.junit.Before;
+import org.junit.Test;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,21 +36,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
-import org.apache.activemq.artemis.tests.unit.core.server.impl.fakes.FakePostOffice;
-import org.apache.activemq.artemis.core.config.Configuration;
-import org.apache.activemq.artemis.core.persistence.GroupingInfo;
-import org.apache.activemq.artemis.core.persistence.QueueBindingInfo;
-import org.apache.activemq.artemis.core.persistence.impl.journal.JournalStorageManager;
-import org.apache.activemq.artemis.core.postoffice.PostOffice;
-import org.apache.activemq.artemis.core.server.Queue;
-import org.apache.activemq.artemis.tests.unit.core.server.impl.fakes.FakeJournalLoader;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
-import org.apache.activemq.artemis.utils.ExecutorFactory;
-import org.junit.Before;
-import org.junit.Test;
-
-public class RestartSMTest extends ServiceTestBase
+public class RestartSMTest extends ActiveMQTestBase
 {
 
    // Constants -----------------------------------------------------
@@ -69,11 +69,9 @@ public class RestartSMTest extends ServiceTestBase
       File testdir = new File(getTestDir());
       deleteDirectory(testdir);
 
-      Configuration configuration = createDefaultConfig();
-
       PostOffice postOffice = new FakePostOffice();
 
-      final JournalStorageManager journal = new JournalStorageManager(configuration, execFactory, null);
+      final JournalStorageManager journal = new JournalStorageManager(createDefaultInVMConfig(), execFactory, null);
 
       try
       {

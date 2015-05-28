@@ -29,11 +29,12 @@ import org.apache.activemq.artemis.api.core.client.MessageHandler;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
-public class AutogroupIdTest extends ServiceTestBase
+public class AutogroupIdTest extends ActiveMQTestBase
 {
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
@@ -47,7 +48,26 @@ public class AutogroupIdTest extends ServiceTestBase
 
    private final SimpleString groupTestQ = new SimpleString("testGroupQueue");
 
+   private ActiveMQServer server;
+
+   private ServerLocator locator;
+
    /* auto group id tests*/
+
+   @Override
+   @Before
+   public void setUp() throws Exception
+   {
+      super.setUp();
+
+      server = createServer(false);
+
+      server.start();
+
+      waitForServerToStart(server);
+
+      locator = createInVMNonHALocator();
+   }
 
    /*
    * tests when the autogroupid is set only 1 consumer (out of 2) gets all the messages from a single producer
@@ -56,11 +76,6 @@ public class AutogroupIdTest extends ServiceTestBase
    @Test
    public void testGroupIdAutomaticallySet() throws Exception
    {
-      ActiveMQServer server = createServer(false);
-
-      server.start();
-
-      ServerLocator locator = createInVMNonHALocator();
       locator.setAutoGroup(true);
       ClientSessionFactory sf = createSessionFactory(locator);
       ClientSession session = sf.createSession(false, true, true);
@@ -106,12 +121,6 @@ public class AutogroupIdTest extends ServiceTestBase
    @Test
    public void testGroupIdAutomaticallySetMultipleProducers() throws Exception
    {
-      ActiveMQServer server = createServer(false);
-
-      server.start();
-
-
-      ServerLocator locator = createInVMNonHALocator();
       locator.setAutoGroup(true);
       ClientSessionFactory sf = createSessionFactory(locator);
       ClientSession session = sf.createSession(false, true, true);
@@ -161,12 +170,6 @@ public class AutogroupIdTest extends ServiceTestBase
    @Test
    public void testGroupIdAutomaticallyNotSet() throws Exception
    {
-      ActiveMQServer server = createServer(false);
-
-      server.start();
-
-
-      ServerLocator locator = createInVMNonHALocator();
       ClientSessionFactory sf = createSessionFactory(locator);
 
       ClientSession session = sf.createSession(false, true, true);

@@ -19,12 +19,12 @@ package org.apache.activemq.artemis.tests.unit.util;
 import java.util.concurrent.CountDownLatch;
 
 import org.apache.activemq.artemis.tests.unit.UnitTestLogger;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.ReusableLatch;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class ReusableLatchTest extends ServiceTestBase
+public class ReusableLatchTest extends ActiveMQTestBase
 {
    @Test
    public void testLatchWithParameterizedDown() throws Exception

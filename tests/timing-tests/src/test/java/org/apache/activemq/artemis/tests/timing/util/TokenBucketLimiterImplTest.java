@@ -21,12 +21,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.tests.unit.UnitTestLogger;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.TokenBucketLimiterImpl;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class TokenBucketLimiterImplTest extends ServiceTestBase
+public class TokenBucketLimiterImplTest extends ActiveMQTestBase
 {
    private static final UnitTestLogger log = UnitTestLogger.LOGGER;
 

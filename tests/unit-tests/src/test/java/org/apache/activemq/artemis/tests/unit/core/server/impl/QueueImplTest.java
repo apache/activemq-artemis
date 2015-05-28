@@ -34,7 +34,7 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.tests.unit.core.server.impl.fakes.FakeConsumer;
 import org.apache.activemq.artemis.tests.unit.core.server.impl.fakes.FakeFilter;
 import org.apache.activemq.artemis.tests.unit.core.server.impl.fakes.FakePostOffice;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.filter.impl.FilterImpl;
 import org.apache.activemq.artemis.core.postoffice.impl.LocalQueueBinding;
@@ -54,7 +54,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class QueueImplTest extends ServiceTestBase
+public class QueueImplTest extends ActiveMQTestBase
 {
    // The tests ----------------------------------------------------------------
 
@@ -1327,18 +1327,18 @@ public class QueueImplTest extends ServiceTestBase
       final String MY_ADDRESS = "myAddress";
       final String MY_QUEUE = "myQueue";
 
-      ActiveMQServer server = ActiveMQServers.newActiveMQServer(createDefaultConfig(), true);
+      ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig(), true));
 
-      AddressSettings defaultSetting = new AddressSettings();
-      defaultSetting.setPageSizeBytes(10 * 1024);
-      defaultSetting.setMaxSizeBytes(20 * 1024);
+      AddressSettings defaultSetting = new AddressSettings()
+              .setPageSizeBytes(10 * 1024)
+              .setMaxSizeBytes(20 * 1024);
       server.getAddressSettingsRepository().addMatch("#", defaultSetting);
       server.start();
 
-      ServerLocator locator = createInVMNonHALocator();
-      locator.setBlockOnNonDurableSend(true);
-      locator.setBlockOnDurableSend(true);
-      locator.setBlockOnAcknowledge(true);
+      ServerLocator locator = createInVMNonHALocator()
+              .setBlockOnNonDurableSend(true)
+              .setBlockOnDurableSend(true)
+              .setBlockOnAcknowledge(true);
 
       ClientSessionFactory factory = createSessionFactory(locator);
       ClientSession session = addClientSession(factory.createSession(false, true, true));

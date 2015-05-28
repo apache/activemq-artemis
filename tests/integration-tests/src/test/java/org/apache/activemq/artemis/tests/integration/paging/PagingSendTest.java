@@ -34,7 +34,7 @@ import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
@@ -46,7 +46,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class PagingSendTest extends ServiceTestBase
+public class PagingSendTest extends ActiveMQTestBase
 {
    public static final SimpleString ADDRESS = new SimpleString("SimpleAddress");
 
@@ -68,7 +68,7 @@ public class PagingSendTest extends ServiceTestBase
       server = newActiveMQServer();
 
       server.start();
-      waitForServer(server);
+      waitForServerToStart(server);
       locator = createFactory(isNetty());
    }
 
@@ -76,9 +76,9 @@ public class PagingSendTest extends ServiceTestBase
    {
       ActiveMQServer server = createServer(true, isNetty());
 
-      AddressSettings defaultSetting = new AddressSettings();
-      defaultSetting.setPageSizeBytes(10 * 1024);
-      defaultSetting.setMaxSizeBytes(20 * 1024);
+      AddressSettings defaultSetting = new AddressSettings()
+              .setPageSizeBytes(10 * 1024)
+              .setMaxSizeBytes(20 * 1024);
 
       server.getAddressSettingsRepository().addMatch("#", defaultSetting);
 
@@ -103,9 +103,9 @@ public class PagingSendTest extends ServiceTestBase
       // page-store becomes in
       // page mode
       // and we could only guarantee that by setting it to synchronous
-      locator.setBlockOnNonDurableSend(blocking);
-      locator.setBlockOnDurableSend(blocking);
-      locator.setBlockOnAcknowledge(blocking);
+      locator.setBlockOnNonDurableSend(blocking)
+              .setBlockOnDurableSend(blocking)
+              .setBlockOnAcknowledge(blocking);
 
       ClientSessionFactory sf = createSessionFactory(locator);
       ClientSession session = sf.createSession(null, null, false, true, true, false, 0);
@@ -247,11 +247,11 @@ public class PagingSendTest extends ServiceTestBase
       session.createQueue(queueAddr, queueAddr, null, true);
 
       // Set up paging on the queue address
-      AddressSettings addressSettings = new AddressSettings();
-      addressSettings.setPageSizeBytes(10 * 1024);
-      /** This actually causes the address to start paging messages after 10 x messages with 1024 payload is sent.
-       Presumably due to additional meta-data, message headers etc... **/
-      addressSettings.setMaxSizeBytes(16 * 1024);
+      AddressSettings addressSettings = new AddressSettings()
+              .setPageSizeBytes(10 * 1024)
+              /** This actually causes the address to start paging messages after 10 x messages with 1024 payload is sent.
+               Presumably due to additional meta-data, message headers etc... **/
+              .setMaxSizeBytes(16 * 1024);
       server.getAddressSettingsRepository().addMatch("#", addressSettings);
 
       sendMessageBatch(batchSize, session, queueAddr);
@@ -282,11 +282,11 @@ public class PagingSendTest extends ServiceTestBase
       session.createQueue(queueAddr, queueAddr, null, true);
 
       // Set up paging on the queue address
-      AddressSettings addressSettings = new AddressSettings();
-      addressSettings.setPageSizeBytes(10 * 1024);
-      /** This actually causes the address to start paging messages after 10 x messages with 1024 payload is sent.
-       Presumably due to additional meta-data, message headers etc... **/
-      addressSettings.setMaxSizeBytes(16 * 1024);
+      AddressSettings addressSettings = new AddressSettings()
+              .setPageSizeBytes(10 * 1024)
+              /** This actually causes the address to start paging messages after 10 x messages with 1024 payload is sent.
+               Presumably due to additional meta-data, message headers etc... **/
+              .setMaxSizeBytes(16 * 1024);
       server.getAddressSettingsRepository().addMatch("#", addressSettings);
 
       int numberOfMessages = 0;

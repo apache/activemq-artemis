@@ -57,7 +57,7 @@ import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -79,7 +79,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class PagingTest extends ServiceTestBase
+public class PagingTest extends ActiveMQTestBase
 {
    private ServerLocator locator;
    private ActiveMQServer server;
@@ -107,7 +107,7 @@ public class PagingTest extends ServiceTestBase
    @Test
    public void testPageOnLargeMessageMultipleQueues() throws Exception
    {
-      Configuration config = createDefaultConfig();
+      Configuration config = createDefaultInVMConfig();
 
       final int PAGE_MAX = 20 * 1024;
 
@@ -122,9 +122,9 @@ public class PagingTest extends ServiceTestBase
 
       final int numberOfBytes = 1024;
 
-      locator.setBlockOnNonDurableSend(true);
-      locator.setBlockOnDurableSend(true);
-      locator.setBlockOnAcknowledge(true);
+      locator.setBlockOnNonDurableSend(true)
+              .setBlockOnDurableSend(true)
+              .setBlockOnAcknowledge(true);
 
       ClientSessionFactory sf = addSessionFactory(createSessionFactory(locator));
 
@@ -223,7 +223,7 @@ public class PagingTest extends ServiceTestBase
    {
       clearDataRecreateServerDirs();
 
-      Configuration config = createDefaultConfig()
+      Configuration config = createDefaultInVMConfig()
          .setJournalSyncNonTransactional(false);
 
       server =
@@ -236,11 +236,10 @@ public class PagingTest extends ServiceTestBase
 
       final int numberOfMessages = 5000;
 
-      locator = createInVMNonHALocator();
-
-      locator.setBlockOnNonDurableSend(true);
-      locator.setBlockOnDurableSend(true);
-      locator.setBlockOnAcknowledge(true);
+      locator = createInVMNonHALocator()
+              .setBlockOnNonDurableSend(true)
+              .setBlockOnDurableSend(true)
+              .setBlockOnAcknowledge(true);
 
       sf = createSessionFactory(locator);
 
@@ -362,7 +361,7 @@ public class PagingTest extends ServiceTestBase
    {
       clearDataRecreateServerDirs();
 
-      Configuration config = createDefaultConfig()
+      Configuration config = createDefaultInVMConfig()
          .setJournalSyncNonTransactional(false);
 
       server =
@@ -375,11 +374,10 @@ public class PagingTest extends ServiceTestBase
 
       final int numberOfMessages = 20;
 
-      locator = createInVMNonHALocator();
-
-      locator.setBlockOnNonDurableSend(true);
-      locator.setBlockOnDurableSend(true);
-      locator.setBlockOnAcknowledge(true);
+      locator = createInVMNonHALocator()
+              .setBlockOnNonDurableSend(true)
+              .setBlockOnDurableSend(true)
+              .setBlockOnAcknowledge(true);
 
       sf = createSessionFactory(locator);
 
@@ -482,7 +480,7 @@ public class PagingTest extends ServiceTestBase
    {
       clearDataRecreateServerDirs();
 
-      Configuration config = createDefaultConfig()
+      Configuration config = createDefaultInVMConfig()
          .setJournalSyncNonTransactional(false);
 
       server = createServer(true,
@@ -495,12 +493,11 @@ public class PagingTest extends ServiceTestBase
 
       final int numberOfMessages = 50;
 
-      locator = createInVMNonHALocator();
-
-      locator.setBlockOnNonDurableSend(true);
-      locator.setBlockOnDurableSend(true);
-      locator.setBlockOnAcknowledge(true);
-      locator.setAckBatchSize(0);
+      locator = createInVMNonHALocator()
+              .setBlockOnNonDurableSend(true)
+              .setBlockOnDurableSend(true)
+              .setBlockOnAcknowledge(true)
+              .setAckBatchSize(0);
 
       sf = createSessionFactory(locator);
 
@@ -699,7 +696,7 @@ public class PagingTest extends ServiceTestBase
    {
       clearDataRecreateServerDirs();
 
-      Configuration config = createDefaultConfig()
+      Configuration config = createDefaultInVMConfig()
          .setJournalDirectory(getJournalDir())
          .setJournalSyncNonTransactional(false)
          .setJournalCompactMinFiles(0) // disable compact
@@ -711,12 +708,11 @@ public class PagingTest extends ServiceTestBase
                             PagingTest.PAGE_MAX,
                             new HashMap<String, AddressSettings>());
 
-      AddressSettings defaultSetting = new AddressSettings();
-      defaultSetting.setPageSizeBytes(PAGE_SIZE);
-      defaultSetting.setMaxSizeBytes(PAGE_MAX);
-      // defaultSetting.setRedeliveryDelay(500);
-      defaultSetting.setExpiryAddress(new SimpleString("EXP"));
-      defaultSetting.setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE);
+      AddressSettings defaultSetting = new AddressSettings()
+              .setPageSizeBytes(PAGE_SIZE)
+              .setMaxSizeBytes(PAGE_MAX)
+              .setExpiryAddress(new SimpleString("EXP"))
+              .setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE);
 
       server.getAddressSettingsRepository().clear();
 
@@ -726,13 +722,11 @@ public class PagingTest extends ServiceTestBase
 
       final int numberOfMessages = 5000;
 
-      locator = createInVMNonHALocator();
-
-      locator.setConsumerWindowSize(10 * 1024 * 1024);
-
-      locator.setBlockOnNonDurableSend(true);
-      locator.setBlockOnDurableSend(true);
-      locator.setBlockOnAcknowledge(true);
+      locator = createInVMNonHALocator()
+              .setConsumerWindowSize(10 * 1024 * 1024)
+              .setBlockOnNonDurableSend(true)
+              .setBlockOnDurableSend(true)
+              .setBlockOnAcknowledge(true);
 
       ClientSessionFactory sf = locator.createSessionFactory();
 
@@ -841,7 +835,7 @@ public class PagingTest extends ServiceTestBase
    {
       clearDataRecreateServerDirs();
 
-      Configuration config = createDefaultConfig()
+      Configuration config = createDefaultInVMConfig()
          .setJournalDirectory(getJournalDir())
          .setJournalSyncNonTransactional(false)
          .setJournalCompactMinFiles(0); // disable compact
@@ -856,13 +850,11 @@ public class PagingTest extends ServiceTestBase
 
       final int numberOfMessages = 5000;
 
-      locator = createInVMNonHALocator();
-
-      locator.setConsumerWindowSize(10 * 1024 * 1024);
-
-      locator.setBlockOnNonDurableSend(true);
-      locator.setBlockOnDurableSend(true);
-      locator.setBlockOnAcknowledge(true);
+      locator = createInVMNonHALocator()
+              .setConsumerWindowSize(10 * 1024 * 1024)
+              .setBlockOnNonDurableSend(true)
+              .setBlockOnDurableSend(true)
+              .setBlockOnAcknowledge(true);
 
       SimpleString QUEUE2 = ADDRESS.concat("-2");
 
@@ -1025,7 +1017,7 @@ public class PagingTest extends ServiceTestBase
    {
       clearDataRecreateServerDirs();
 
-      Configuration config = createDefaultConfig()
+      Configuration config = createDefaultInVMConfig()
          .setJournalSyncNonTransactional(false);
 
       server = createServer(true,
@@ -1044,9 +1036,9 @@ public class PagingTest extends ServiceTestBase
 
       locator = createInVMNonHALocator();
 
-      locator.setBlockOnNonDurableSend(true);
-      locator.setBlockOnDurableSend(true);
-      locator.setBlockOnAcknowledge(true);
+      locator.setBlockOnNonDurableSend(true)
+              .setBlockOnDurableSend(true)
+              .setBlockOnAcknowledge(true);
 
       sf = createSessionFactory(locator);
 
@@ -1155,7 +1147,7 @@ public class PagingTest extends ServiceTestBase
                             new HashMap<String, AddressSettings>());
       server.start();
 
-      waitForServer(server);
+      waitForServerToStart(server);
 
       queue = server.locateQueue(ADDRESS);
 
@@ -1232,7 +1224,7 @@ public class PagingTest extends ServiceTestBase
    {
       clearDataRecreateServerDirs();
 
-      Configuration config = createDefaultConfig()
+      Configuration config = createDefaultInVMConfig()
          .setJournalSyncNonTransactional(false);
 
       server = createServer(true, config, PagingTest.PAGE_SIZE, PagingTest.PAGE_MAX, new HashMap<String, AddressSettings>());
@@ -1244,13 +1236,12 @@ public class PagingTest extends ServiceTestBase
 
       final int numberOfMessages = 500;
 
-      locator = createInVMNonHALocator();
-
-      locator.setBlockOnNonDurableSend(true);
-      locator.setBlockOnDurableSend(true);
-      locator.setBlockOnAcknowledge(true);
-      locator.setProducerWindowSize(-1);
-      locator.setMinLargeMessageSize(1024 * 1024);
+      locator = createInVMNonHALocator()
+              .setBlockOnNonDurableSend(true)
+              .setBlockOnDurableSend(true)
+              .setBlockOnAcknowledge(true)
+              .setProducerWindowSize(-1)
+              .setMinLargeMessageSize(1024 * 1024);
 
       sf = createSessionFactory(locator);
 
@@ -1315,7 +1306,7 @@ public class PagingTest extends ServiceTestBase
    {
       clearDataRecreateServerDirs();
 
-      Configuration config = createDefaultConfig()
+      Configuration config = createDefaultInVMConfig()
          .setJournalSyncNonTransactional(false);
 
       server = createServer(true,
@@ -1328,11 +1319,10 @@ public class PagingTest extends ServiceTestBase
 
       final int numberOfMessages = 1000;
 
-      locator = createInVMNonHALocator();
-
-      locator.setBlockOnNonDurableSend(true);
-      locator.setBlockOnDurableSend(true);
-      locator.setBlockOnAcknowledge(true);
+      locator = createInVMNonHALocator()
+              .setBlockOnNonDurableSend(true)
+              .setBlockOnDurableSend(true)
+              .setBlockOnAcknowledge(true);
 
       sf = createSessionFactory(locator);
 
@@ -1444,7 +1434,7 @@ public class PagingTest extends ServiceTestBase
    {
       clearDataRecreateServerDirs();
 
-      Configuration config = createDefaultConfig()
+      Configuration config = createDefaultInVMConfig()
          .setPersistDeliveryCountBeforeDelivery(true);
 
       config.setJournalSyncNonTransactional(false);
@@ -1459,11 +1449,10 @@ public class PagingTest extends ServiceTestBase
 
       final int numberOfMessages = 1000;
 
-      locator = createInVMNonHALocator();
-
-      locator.setBlockOnNonDurableSend(true);
-      locator.setBlockOnDurableSend(true);
-      locator.setBlockOnAcknowledge(true);
+      locator = createInVMNonHALocator()
+              .setBlockOnNonDurableSend(true)
+              .setBlockOnDurableSend(true)
+              .setBlockOnAcknowledge(true);
 
       sf = createSessionFactory(locator);
 
@@ -1578,10 +1567,10 @@ public class PagingTest extends ServiceTestBase
                             new HashMap<String, AddressSettings>());
       server.start();
 
-      locator = createInVMNonHALocator();
-      locator.setBlockOnNonDurableSend(true);
-      locator.setBlockOnDurableSend(true);
-      locator.setBlockOnAcknowledge(true);
+      locator = createInVMNonHALocator()
+              .setBlockOnNonDurableSend(true)
+              .setBlockOnDurableSend(true)
+              .setBlockOnAcknowledge(true);
 
       sf = createSessionFactory(locator);
 
@@ -1662,7 +1651,7 @@ public class PagingTest extends ServiceTestBase
    {
       clearDataRecreateServerDirs();
 
-      Configuration config = createDefaultConfig()
+      Configuration config = createDefaultInVMConfig()
          .setJournalSyncNonTransactional(false);
 
       server = createServer(true,
@@ -1681,11 +1670,10 @@ public class PagingTest extends ServiceTestBase
 
       try
       {
-         locator = createInVMNonHALocator();
-
-         locator.setBlockOnNonDurableSend(true);
-         locator.setBlockOnDurableSend(true);
-         locator.setBlockOnAcknowledge(true);
+         locator = createInVMNonHALocator()
+                 .setBlockOnNonDurableSend(true)
+                 .setBlockOnDurableSend(true)
+                 .setBlockOnAcknowledge(true);
 
          sf = createSessionFactory(locator);
 
@@ -1746,7 +1734,7 @@ public class PagingTest extends ServiceTestBase
                                         2,
                                         0,
                                         0,
-                                        new NIOSequentialFileFactory(getJournalDir()),
+                                        new NIOSequentialFileFactory(server.getConfiguration().getJournalDirectory()),
                                         "activemq-data",
                                         "amq",
                                         1);
@@ -1798,11 +1786,10 @@ public class PagingTest extends ServiceTestBase
 
       server.stop();
 
-      locator = createInVMNonHALocator();
-
-      locator.setBlockOnNonDurableSend(true);
-      locator.setBlockOnDurableSend(true);
-      locator.setBlockOnAcknowledge(true);
+      locator = createInVMNonHALocator()
+              .setBlockOnNonDurableSend(true)
+              .setBlockOnDurableSend(true)
+              .setBlockOnAcknowledge(true);
 
       server = createServer(true,
                             config,
@@ -1847,7 +1834,7 @@ public class PagingTest extends ServiceTestBase
    {
       clearDataRecreateServerDirs();
 
-      Configuration config = createDefaultConfig()
+      Configuration config = createDefaultInVMConfig()
          .setJournalSyncNonTransactional(false);
 
       server = createServer(true,
@@ -1866,11 +1853,10 @@ public class PagingTest extends ServiceTestBase
 
       try
       {
-         locator = createInVMNonHALocator();
-
-         locator.setBlockOnNonDurableSend(true);
-         locator.setBlockOnDurableSend(true);
-         locator.setBlockOnAcknowledge(true);
+         locator = createInVMNonHALocator()
+                 .setBlockOnNonDurableSend(true)
+                 .setBlockOnDurableSend(true)
+                 .setBlockOnAcknowledge(true);
 
          sf = createSessionFactory(locator);
 
@@ -1959,9 +1945,9 @@ public class PagingTest extends ServiceTestBase
 
       locator = createInVMNonHALocator();
 
-      locator.setBlockOnNonDurableSend(true);
-      locator.setBlockOnDurableSend(true);
-      locator.setBlockOnAcknowledge(true);
+      locator.setBlockOnNonDurableSend(true)
+              .setBlockOnDurableSend(true)
+              .setBlockOnAcknowledge(true);
 
       ClientSessionFactory csf = createSessionFactory(locator);
 
@@ -2006,7 +1992,7 @@ public class PagingTest extends ServiceTestBase
 
       clearDataRecreateServerDirs();
 
-      Configuration config = createDefaultConfig()
+      Configuration config = createDefaultInVMConfig()
          .setJournalSyncNonTransactional(false);
 
       server = createServer(true,
@@ -2019,11 +2005,10 @@ public class PagingTest extends ServiceTestBase
 
       final int numberOfMessages = 1000;
 
-      locator = createInVMNonHALocator();
-
-      locator.setBlockOnNonDurableSend(true);
-      locator.setBlockOnDurableSend(true);
-      locator.setBlockOnAcknowledge(true);
+      locator = createInVMNonHALocator()
+              .setBlockOnNonDurableSend(true)
+              .setBlockOnDurableSend(true)
+              .setBlockOnAcknowledge(true);
 
       sf = createSessionFactory(locator);
 
@@ -2124,7 +2109,7 @@ public class PagingTest extends ServiceTestBase
    {
       clearDataRecreateServerDirs();
 
-      Configuration config = createDefaultConfig()
+      Configuration config = createDefaultInVMConfig()
          .setJournalSyncNonTransactional(false);
 
       server = createServer(true,
@@ -2142,6 +2127,8 @@ public class PagingTest extends ServiceTestBase
             .setForwardingAddress(PagingTest.ADDRESS.toString() + "-1")
             .setExclusive(true);
 
+         config.addDivertConfiguration(divert1);
+
          DivertConfiguration divert2 = new DivertConfiguration()
             .setName("dv2")
             .setRoutingName("nm2")
@@ -2149,11 +2136,7 @@ public class PagingTest extends ServiceTestBase
             .setForwardingAddress(PagingTest.ADDRESS.toString() + "-2")
             .setExclusive(true);
 
-         ArrayList<DivertConfiguration> divertList = new ArrayList<DivertConfiguration>();
-         divertList.add(divert1);
-         divertList.add(divert2);
-
-         config.setDivertConfigurations(divertList);
+         config.addDivertConfiguration(divert2);
       }
 
       server.start();
@@ -2206,11 +2189,10 @@ public class PagingTest extends ServiceTestBase
       try
       {
          {
-            locator = createInVMNonHALocator();
-
-            locator.setBlockOnNonDurableSend(true);
-            locator.setBlockOnDurableSend(true);
-            locator.setBlockOnAcknowledge(true);
+            locator = createInVMNonHALocator()
+                    .setBlockOnNonDurableSend(true)
+                    .setBlockOnDurableSend(true)
+                    .setBlockOnAcknowledge(true);
 
             sf = createSessionFactory(locator);
 
@@ -2337,10 +2319,10 @@ public class PagingTest extends ServiceTestBase
                         }
                         catch (AssertionError e)
                         {
-                           PagingTest.log.info("Expected buffer:" + ServiceTestBase.dumbBytesHex(body, 40));
-                           PagingTest.log.info("Arriving buffer:" + ServiceTestBase.dumbBytesHex(message2.getBodyBuffer()
-                                                                                                 .toByteBuffer()
-                                                                                                 .array(), 40));
+                           PagingTest.log.info("Expected buffer:" + ActiveMQTestBase.dumpBytesHex(body, 40));
+                           PagingTest.log.info("Arriving buffer:" + ActiveMQTestBase.dumpBytesHex(message2.getBodyBuffer()
+                                                                                                          .toByteBuffer()
+                                                                                                          .array(), 40));
                            throw e;
                         }
                      }
@@ -2420,7 +2402,7 @@ public class PagingTest extends ServiceTestBase
    {
       clearDataRecreateServerDirs();
 
-      Configuration config = createDefaultConfig()
+      Configuration config = createDefaultInVMConfig()
          .setJournalSyncNonTransactional(false);
 
       server = createServer(true,
@@ -2445,9 +2427,9 @@ public class PagingTest extends ServiceTestBase
       {
          locator = createInVMNonHALocator();
 
-         locator.setBlockOnNonDurableSend(true);
-         locator.setBlockOnDurableSend(true);
-         locator.setBlockOnAcknowledge(true);
+         locator.setBlockOnNonDurableSend(true)
+                 .setBlockOnDurableSend(true)
+                 .setBlockOnAcknowledge(true);
 
          sf = createSessionFactory(locator);
 
@@ -2536,10 +2518,10 @@ public class PagingTest extends ServiceTestBase
                   }
                   catch (AssertionError e)
                   {
-                     PagingTest.log.info("Expected buffer:" + ServiceTestBase.dumbBytesHex(body, 40));
-                     PagingTest.log.info("Arriving buffer:" + ServiceTestBase.dumbBytesHex(message2.getBodyBuffer()
-                                                                                           .toByteBuffer()
-                                                                                           .array(), 40));
+                     PagingTest.log.info("Expected buffer:" + ActiveMQTestBase.dumpBytesHex(body, 40));
+                     PagingTest.log.info("Arriving buffer:" + ActiveMQTestBase.dumpBytesHex(message2.getBodyBuffer()
+                                                                                                    .toByteBuffer()
+                                                                                                    .array(), 40));
                      throw e;
                   }
                }
@@ -2587,7 +2569,7 @@ public class PagingTest extends ServiceTestBase
 
       clearDataRecreateServerDirs();
 
-      Configuration config = createDefaultConfig()
+      Configuration config = createDefaultInVMConfig()
          .setJournalSyncNonTransactional(false);
 
       server = createServer(true,
@@ -2601,11 +2583,10 @@ public class PagingTest extends ServiceTestBase
       final int numberOfIntegers = 256;
 
       final int numberOfMessages = 1000;
-      locator = createInVMNonHALocator();
-
-      locator.setBlockOnNonDurableSend(true);
-      locator.setBlockOnDurableSend(true);
-      locator.setBlockOnAcknowledge(true);
+      locator = createInVMNonHALocator()
+              .setBlockOnNonDurableSend(true)
+              .setBlockOnDurableSend(true)
+              .setBlockOnAcknowledge(true);
 
       sf = createSessionFactory(locator);
 
@@ -2689,10 +2670,10 @@ public class PagingTest extends ServiceTestBase
          }
          catch (AssertionError e)
          {
-            PagingTest.log.info("Expected buffer:" + ServiceTestBase.dumbBytesHex(body, 40));
-            PagingTest.log.info("Arriving buffer:" + ServiceTestBase.dumbBytesHex(message2.getBodyBuffer()
-                                                                                  .toByteBuffer()
-                                                                                  .array(), 40));
+            PagingTest.log.info("Expected buffer:" + ActiveMQTestBase.dumpBytesHex(body, 40));
+            PagingTest.log.info("Arriving buffer:" + ActiveMQTestBase.dumpBytesHex(message2.getBodyBuffer()
+                                                                                           .toByteBuffer()
+                                                                                           .array(), 40));
             throw e;
          }
       }
@@ -2708,7 +2689,7 @@ public class PagingTest extends ServiceTestBase
 
       buffer.readBytes(other);
 
-      ServiceTestBase.assertEqualsByteArrays(body, other);
+      ActiveMQTestBase.assertEqualsByteArrays(body, other);
    }
 
    /**
@@ -2723,7 +2704,7 @@ public class PagingTest extends ServiceTestBase
    {
       clearDataRecreateServerDirs();
 
-      Configuration config = createDefaultConfig();
+      Configuration config = createDefaultInVMConfig();
 
       server = createServer(true,
                             config,
@@ -2733,10 +2714,10 @@ public class PagingTest extends ServiceTestBase
 
       server.start();
 
-      locator = createInVMNonHALocator();
-      locator.setBlockOnNonDurableSend(true);
-      locator.setBlockOnDurableSend(true);
-      locator.setBlockOnAcknowledge(true);
+      locator = createInVMNonHALocator()
+              .setBlockOnNonDurableSend(true)
+              .setBlockOnDurableSend(true)
+              .setBlockOnAcknowledge(true);
 
       sf = createSessionFactory(locator);
 
@@ -2847,7 +2828,7 @@ public class PagingTest extends ServiceTestBase
       boolean IS_DURABLE_MESSAGE = true;
       clearDataRecreateServerDirs();
 
-      Configuration config = createDefaultConfig();
+      Configuration config = createDefaultInVMConfig();
 
       server = createServer(true,
                             config,
@@ -2857,10 +2838,10 @@ public class PagingTest extends ServiceTestBase
 
       server.start();
 
-      locator = createInVMNonHALocator();
-      locator.setBlockOnNonDurableSend(true);
-      locator.setBlockOnDurableSend(true);
-      locator.setBlockOnAcknowledge(true);
+      locator = createInVMNonHALocator()
+              .setBlockOnNonDurableSend(true)
+              .setBlockOnDurableSend(true)
+              .setBlockOnAcknowledge(true);
 
       sf = createSessionFactory(locator);
 
@@ -2972,7 +2953,7 @@ public class PagingTest extends ServiceTestBase
    {
       clearDataRecreateServerDirs();
 
-      Configuration config = createDefaultConfig();
+      Configuration config = createDefaultInVMConfig();
 
       server = createServer(true,
                             config,
@@ -2982,10 +2963,10 @@ public class PagingTest extends ServiceTestBase
 
       server.start();
 
-      locator = createInVMNonHALocator();
-      locator.setBlockOnNonDurableSend(true);
-      locator.setBlockOnDurableSend(true);
-      locator.setBlockOnAcknowledge(true);
+      locator = createInVMNonHALocator()
+              .setBlockOnNonDurableSend(true)
+              .setBlockOnDurableSend(true)
+              .setBlockOnAcknowledge(true);
 
       sf = createSessionFactory(locator);
 
@@ -3080,7 +3061,9 @@ public class PagingTest extends ServiceTestBase
    {
       clearDataRecreateServerDirs();
 
-      Configuration config = createDefaultConfig();
+      Configuration config = createDefaultInVMConfig()
+              .setJournalSyncNonTransactional(false)
+              .setJournalSyncTransactional(false);
 
       server = createServer(true,
                             config,
@@ -3088,20 +3071,17 @@ public class PagingTest extends ServiceTestBase
                             PagingTest.PAGE_MAX,
                             new HashMap<String, AddressSettings>());
 
-      server.getConfiguration().setJournalSyncNonTransactional(false);
-      server.getConfiguration().setJournalSyncTransactional(false);
-
       server.start();
 
       final AtomicInteger errors = new AtomicInteger(0);
 
       final int numberOfMessages = 10000;
 
-      locator = createInVMNonHALocator();
+      locator = createInVMNonHALocator()
+              .setBlockOnNonDurableSend(true)
+              .setBlockOnDurableSend(true)
+              .setBlockOnAcknowledge(false);
 
-      locator.setBlockOnNonDurableSend(true);
-      locator.setBlockOnDurableSend(true);
-      locator.setBlockOnAcknowledge(false);
       sf = createSessionFactory(locator);
 
       final byte[] body = new byte[MESSAGE_SIZE];
@@ -3194,7 +3174,9 @@ public class PagingTest extends ServiceTestBase
    {
       clearDataRecreateServerDirs();
 
-      Configuration config = createDefaultConfig();
+      Configuration config = createDefaultInVMConfig()
+              .setJournalSyncNonTransactional(false)
+              .setJournalSyncTransactional(false);
 
       server = createServer(true,
                             config,
@@ -3202,8 +3184,8 @@ public class PagingTest extends ServiceTestBase
                             PagingTest.PAGE_SIZE * 2,
                             new HashMap<String, AddressSettings>());
 
-      server.getConfiguration().setJournalSyncNonTransactional(false);
-      server.getConfiguration().setJournalSyncTransactional(false);
+      server.getConfiguration();
+      server.getConfiguration();
 
       server.start();
 
@@ -3211,9 +3193,10 @@ public class PagingTest extends ServiceTestBase
 
       final int numberOfMessages = 2000;
 
-      locator.setBlockOnNonDurableSend(true);
-      locator.setBlockOnDurableSend(true);
-      locator.setBlockOnAcknowledge(true);
+      locator.setBlockOnNonDurableSend(true)
+              .setBlockOnDurableSend(true)
+              .setBlockOnAcknowledge(true);
+
       sf = createSessionFactory(locator);
 
       final CountDownLatch ready = new CountDownLatch(1);
@@ -3323,7 +3306,7 @@ public class PagingTest extends ServiceTestBase
    {
       clearDataRecreateServerDirs();
 
-      Configuration config = createDefaultConfig()
+      Configuration config = createDefaultInVMConfig()
          .setJournalSyncNonTransactional(false);
 
       server = createServer(true,
@@ -3338,9 +3321,9 @@ public class PagingTest extends ServiceTestBase
 
       final int numberOfBytes = 1024;
 
-      locator.setBlockOnNonDurableSend(true);
-      locator.setBlockOnDurableSend(true);
-      locator.setBlockOnAcknowledge(true);
+      locator.setBlockOnNonDurableSend(true)
+              .setBlockOnDurableSend(true)
+              .setBlockOnAcknowledge(true);
 
       sf = createSessionFactory(locator);
       ClientSession session = sf.createSession(null, null, false, true, true, false, 0);
@@ -3355,7 +3338,7 @@ public class PagingTest extends ServiceTestBase
 
       for (int j = 0; j < numberOfBytes; j++)
       {
-         body[j] = ServiceTestBase.getSamplebyte(j);
+         body[j] = ActiveMQTestBase.getSamplebyte(j);
       }
 
       long scheduledTime = System.currentTimeMillis() + 5000;
@@ -3424,10 +3407,10 @@ public class PagingTest extends ServiceTestBase
          }
          catch (AssertionError e)
          {
-            PagingTest.log.info("Expected buffer:" + ServiceTestBase.dumbBytesHex(body, 40));
-            PagingTest.log.info("Arriving buffer:" + ServiceTestBase.dumbBytesHex(message2.getBodyBuffer()
-                                                                                  .toByteBuffer()
-                                                                                  .array(), 40));
+            PagingTest.log.info("Expected buffer:" + ActiveMQTestBase.dumpBytesHex(body, 40));
+            PagingTest.log.info("Arriving buffer:" + ActiveMQTestBase.dumpBytesHex(message2.getBodyBuffer()
+                                                                                           .toByteBuffer()
+                                                                                           .array(), 40));
             throw e;
          }
       }
@@ -3442,7 +3425,7 @@ public class PagingTest extends ServiceTestBase
    {
       clearDataRecreateServerDirs();
 
-      Configuration config = createDefaultConfig();
+      Configuration config = createDefaultInVMConfig();
 
       server = createServer(true,
                             config,
@@ -3456,9 +3439,9 @@ public class PagingTest extends ServiceTestBase
 
       final int numberOfMessages = 10;
 
-      locator.setBlockOnNonDurableSend(true);
-      locator.setBlockOnDurableSend(true);
-      locator.setBlockOnAcknowledge(true);
+      locator.setBlockOnNonDurableSend(true)
+              .setBlockOnDurableSend(true)
+              .setBlockOnAcknowledge(true);
 
       sf = createSessionFactory(locator);
       ClientSession session = sf.createSession(null, null, false, false, true, false, 0);
@@ -3501,7 +3484,7 @@ public class PagingTest extends ServiceTestBase
    {
       clearDataRecreateServerDirs();
 
-      Configuration config = createDefaultConfig();
+      Configuration config = createDefaultInVMConfig();
 
       server = createServer(true,
                             config,
@@ -3515,9 +3498,9 @@ public class PagingTest extends ServiceTestBase
 
       final int numberOfMessages = 500;
 
-      locator.setBlockOnNonDurableSend(true);
-      locator.setBlockOnDurableSend(true);
-      locator.setBlockOnAcknowledge(true);
+      locator.setBlockOnNonDurableSend(true)
+              .setBlockOnDurableSend(true)
+              .setBlockOnAcknowledge(true);
 
       sf = createSessionFactory(locator);
       ClientSession session = sf.createSession(null, null, false, false, false, false, 0);
@@ -3589,7 +3572,7 @@ public class PagingTest extends ServiceTestBase
    {
       clearDataRecreateServerDirs();
 
-      Configuration config = createDefaultConfig();
+      Configuration config = createDefaultInVMConfig();
 
       server = createServer(true,
                             config,
@@ -3601,9 +3584,9 @@ public class PagingTest extends ServiceTestBase
 
       final int numberOfMessages = 1000;
 
-      locator.setBlockOnNonDurableSend(true);
-      locator.setBlockOnDurableSend(true);
-      locator.setBlockOnAcknowledge(true);
+      locator.setBlockOnNonDurableSend(true)
+              .setBlockOnDurableSend(true)
+              .setBlockOnAcknowledge(true);
 
       sf = createSessionFactory(locator);
       ClientSession session = sf.createSession(null, null, false, false, false, false, 0);
@@ -3714,8 +3697,6 @@ public class PagingTest extends ServiceTestBase
    {
       clearDataRecreateServerDirs();
 
-      Configuration config = createDefaultConfig();
-
       HashMap<String, AddressSettings> settings = new HashMap<String, AddressSettings>();
 
       AddressSettings set = new AddressSettings();
@@ -3723,15 +3704,15 @@ public class PagingTest extends ServiceTestBase
 
       settings.put(PagingTest.ADDRESS.toString(), set);
 
-      server = createServer(true, config, 1024, 10 * 1024, settings);
+      server = createServer(true, createDefaultInVMConfig(), 1024, 10 * 1024, settings);
 
       server.start();
 
       final int numberOfMessages = 1000;
 
-      locator.setBlockOnNonDurableSend(true);
-      locator.setBlockOnDurableSend(true);
-      locator.setBlockOnAcknowledge(true);
+      locator.setBlockOnNonDurableSend(true)
+              .setBlockOnDurableSend(true)
+              .setBlockOnAcknowledge(true);
 
       sf = createSessionFactory(locator);
       ClientSession session = sf.createSession(null, null, false, true, true, false, 0);
@@ -3837,8 +3818,6 @@ public class PagingTest extends ServiceTestBase
    {
       clearDataRecreateServerDirs();
 
-      Configuration config = createDefaultConfig();
-
       HashMap<String, AddressSettings> settings = new HashMap<String, AddressSettings>();
 
       AddressSettings set = new AddressSettings();
@@ -3846,7 +3825,7 @@ public class PagingTest extends ServiceTestBase
 
       settings.put(PagingTest.ADDRESS.toString(), set);
 
-      server = createServer(true, config, 1024, 1024 * 1024, settings);
+      server = createServer(true, createDefaultInVMConfig(), 1024, 1024 * 1024, settings);
 
       server.start();
 
@@ -3922,7 +3901,7 @@ public class PagingTest extends ServiceTestBase
 
    private void internalTestPageMultipleDestinations(final boolean transacted) throws Exception
    {
-      Configuration config = createDefaultConfig();
+      Configuration config = createDefaultInVMConfig();
 
       final int NUMBER_OF_BINDINGS = 100;
 
@@ -3935,9 +3914,10 @@ public class PagingTest extends ServiceTestBase
                             new HashMap<String, AddressSettings>());
 
       server.start();
-      locator.setBlockOnNonDurableSend(true);
-      locator.setBlockOnDurableSend(true);
-      locator.setBlockOnAcknowledge(true);
+
+      locator.setBlockOnNonDurableSend(true)
+              .setBlockOnDurableSend(true)
+              .setBlockOnAcknowledge(true);
 
       ClientSessionFactory sf = createSessionFactory(locator);
       ClientSession session = sf.createSession(null, null, false, !transacted, true, false, 0);
@@ -4017,7 +3997,7 @@ public class PagingTest extends ServiceTestBase
    @Test
    public void testSyncPage() throws Exception
    {
-      Configuration config = createDefaultConfig();
+      Configuration config = createDefaultInVMConfig();
 
       server = createServer(true,
                             config,
@@ -4069,7 +4049,7 @@ public class PagingTest extends ServiceTestBase
    @Test
    public void testSyncPageTX() throws Exception
    {
-      Configuration config = createDefaultConfig();
+      Configuration config = createDefaultInVMConfig();
 
       server = createServer(true,
                             config,
@@ -4104,15 +4084,15 @@ public class PagingTest extends ServiceTestBase
       SimpleString PAGED_ADDRESS = new SimpleString("paged");
       SimpleString NON_PAGED_ADDRESS = new SimpleString("non-paged");
 
-      Configuration configuration = createDefaultConfig();
+      Configuration configuration = createDefaultInVMConfig();
 
       Map<String, AddressSettings> addresses = new HashMap<String, AddressSettings>();
 
       addresses.put("#", new AddressSettings());
 
-      AddressSettings pagedDestination = new AddressSettings();
-      pagedDestination.setPageSizeBytes(1024);
-      pagedDestination.setMaxSizeBytes(10 * 1024);
+      AddressSettings pagedDestination = new AddressSettings()
+              .setPageSizeBytes(1024)
+              .setMaxSizeBytes(10 * 1024);
 
       addresses.put(PAGED_ADDRESS.toString(), pagedDestination);
 
@@ -4195,23 +4175,23 @@ public class PagingTest extends ServiceTestBase
       SimpleString PAGED_ADDRESS_A = new SimpleString("paged-a");
       SimpleString PAGED_ADDRESS_B = new SimpleString("paged-b");
 
-      Configuration configuration = createDefaultConfig();
+      Configuration configuration = createDefaultInVMConfig();
 
       Map<String, AddressSettings> addresses = new HashMap<String, AddressSettings>();
 
       addresses.put("#", new AddressSettings());
 
-      AddressSettings pagedDestinationA = new AddressSettings();
-      pagedDestinationA.setPageSizeBytes(1024);
-      pagedDestinationA.setMaxSizeBytes(10 * 1024);
+      AddressSettings pagedDestinationA = new AddressSettings()
+              .setPageSizeBytes(1024)
+              .setMaxSizeBytes(10 * 1024);
 
       int NUMBER_MESSAGES_BEFORE_PAGING = 11;
 
       addresses.put(PAGED_ADDRESS_A.toString(), pagedDestinationA);
 
-      AddressSettings pagedDestinationB = new AddressSettings();
-      pagedDestinationB.setPageSizeBytes(2024);
-      pagedDestinationB.setMaxSizeBytes(25 * 1024);
+      AddressSettings pagedDestinationB = new AddressSettings()
+              .setPageSizeBytes(2024)
+              .setMaxSizeBytes(25 * 1024);
 
       addresses.put(PAGED_ADDRESS_B.toString(), pagedDestinationB);
 
@@ -4316,7 +4296,7 @@ public class PagingTest extends ServiceTestBase
 
       clearDataRecreateServerDirs();
 
-      Configuration config = createDefaultConfig()
+      Configuration config = createDefaultInVMConfig()
          .setJournalSyncNonTransactional(false)
          .setJournalFileSize(10 * 1024 * 1024);
 
@@ -4328,11 +4308,10 @@ public class PagingTest extends ServiceTestBase
 
       final int numberOfMessages = 200;
 
-      locator = createInVMNonHALocator();
-
-      locator.setBlockOnNonDurableSend(true);
-      locator.setBlockOnDurableSend(true);
-      locator.setBlockOnAcknowledge(true);
+      locator = createInVMNonHALocator()
+              .setBlockOnNonDurableSend(true)
+              .setBlockOnDurableSend(true)
+              .setBlockOnAcknowledge(true);
 
       sf = createSessionFactory(locator);
 
@@ -4438,7 +4417,7 @@ public class PagingTest extends ServiceTestBase
 
       clearDataRecreateServerDirs();
 
-      Configuration config = createDefaultConfig()
+      Configuration config = createDefaultInVMConfig()
          .setJournalSyncNonTransactional(false);
 
       server = createServer(true,
@@ -4450,15 +4429,13 @@ public class PagingTest extends ServiceTestBase
       server.start();
 
       final int numberOfMessages = 200;
-      locator = createInVMNonHALocator();
-
-      locator.setClientFailureCheckPeriod(120000);
-      locator.setConnectionTTL(5000000);
-      locator.setCallTimeout(120000);
-
-      locator.setBlockOnNonDurableSend(true);
-      locator.setBlockOnDurableSend(true);
-      locator.setBlockOnAcknowledge(true);
+      locator = createInVMNonHALocator()
+              .setClientFailureCheckPeriod(120000)
+              .setConnectionTTL(5000000)
+              .setCallTimeout(120000)
+              .setBlockOnNonDurableSend(true)
+              .setBlockOnDurableSend(true)
+              .setBlockOnAcknowledge(true);
 
       sf = createSessionFactory(locator);
 
@@ -4543,7 +4520,7 @@ public class PagingTest extends ServiceTestBase
 
       clearDataRecreateServerDirs();
 
-      Configuration config = createDefaultConfig()
+      Configuration config = createDefaultInVMConfig()
          .setJournalSyncNonTransactional(false);
 
       server = createServer(true,
@@ -4560,15 +4537,13 @@ public class PagingTest extends ServiceTestBase
 
       try
       {
-         ServerLocator locator = createInVMNonHALocator();
-
-         locator.setClientFailureCheckPeriod(120000);
-         locator.setConnectionTTL(5000000);
-         locator.setCallTimeout(120000);
-
-         locator.setBlockOnNonDurableSend(true);
-         locator.setBlockOnDurableSend(true);
-         locator.setBlockOnAcknowledge(true);
+         ServerLocator locator = createInVMNonHALocator()
+                 .setClientFailureCheckPeriod(120000)
+                 .setConnectionTTL(5000000)
+                 .setCallTimeout(120000)
+                 .setBlockOnNonDurableSend(true)
+                 .setBlockOnDurableSend(true)
+                 .setBlockOnAcknowledge(true);
 
          ClientSessionFactory sf = locator.createSessionFactory();
 
@@ -4662,7 +4637,7 @@ public class PagingTest extends ServiceTestBase
 
       clearDataRecreateServerDirs();
 
-      Configuration config = createDefaultConfig()
+      Configuration config = createDefaultInVMConfig()
          .setJournalSyncNonTransactional(false);
 
       server = createServer(true,
@@ -4675,15 +4650,13 @@ public class PagingTest extends ServiceTestBase
 
       try
       {
-         ServerLocator locator = createInVMNonHALocator();
-
-         locator.setClientFailureCheckPeriod(120000);
-         locator.setConnectionTTL(5000000);
-         locator.setCallTimeout(120000);
-
-         locator.setBlockOnNonDurableSend(true);
-         locator.setBlockOnDurableSend(true);
-         locator.setBlockOnAcknowledge(true);
+         ServerLocator locator = createInVMNonHALocator()
+                 .setClientFailureCheckPeriod(120000)
+                 .setConnectionTTL(5000000)
+                 .setCallTimeout(120000)
+                 .setBlockOnNonDurableSend(true)
+                 .setBlockOnDurableSend(true)
+                 .setBlockOnAcknowledge(true);
 
          ClientSessionFactory sf = locator.createSessionFactory();
 
@@ -4761,7 +4734,7 @@ public class PagingTest extends ServiceTestBase
 
       clearDataRecreateServerDirs();
 
-      Configuration config = createDefaultConfig()
+      Configuration config = createDefaultInVMConfig()
          .setJournalSyncNonTransactional(false);
 
       server = createServer(true,
@@ -4778,15 +4751,13 @@ public class PagingTest extends ServiceTestBase
 
       try
       {
-         ServerLocator locator = createInVMNonHALocator();
-
-         locator.setClientFailureCheckPeriod(120000);
-         locator.setConnectionTTL(5000000);
-         locator.setCallTimeout(120000);
-
-         locator.setBlockOnNonDurableSend(true);
-         locator.setBlockOnDurableSend(true);
-         locator.setBlockOnAcknowledge(true);
+         ServerLocator locator = createInVMNonHALocator()
+                 .setClientFailureCheckPeriod(120000)
+                 .setConnectionTTL(5000000)
+                 .setCallTimeout(120000)
+                 .setBlockOnNonDurableSend(true)
+                 .setBlockOnDurableSend(true)
+                 .setBlockOnAcknowledge(true);
 
          ClientSessionFactory sf = locator.createSessionFactory();
 
@@ -4885,14 +4856,14 @@ public class PagingTest extends ServiceTestBase
    {
       clearDataRecreateServerDirs();
 
-      Configuration config = createDefaultConfig()
+      Configuration config = createDefaultInVMConfig()
          .setThreadPoolMaxSize(5)
          .setJournalSyncNonTransactional(false);
 
       Map<String, AddressSettings> settings = new HashMap<String, AddressSettings>();
-      AddressSettings dla = new AddressSettings();
-      dla.setMaxDeliveryAttempts(5);
-      dla.setDeadLetterAddress(new SimpleString("DLA"));
+      AddressSettings dla = new AddressSettings()
+              .setMaxDeliveryAttempts(5)
+              .setDeadLetterAddress(new SimpleString("DLA"));
       settings.put(ADDRESS.toString(), dla);
 
       server = createServer(true, config, PagingTest.PAGE_SIZE, PagingTest.PAGE_MAX, settings);
@@ -5129,15 +5100,15 @@ public class PagingTest extends ServiceTestBase
    {
       clearDataRecreateServerDirs();
 
-      Configuration config = createDefaultConfig()
+      Configuration config = createDefaultInVMConfig()
          .setMessageExpiryScanPeriod(500)
          .setJournalSyncNonTransactional(false);
 
       Map<String, AddressSettings> settings = new HashMap<String, AddressSettings>();
-      AddressSettings dla = new AddressSettings();
-      dla.setMaxDeliveryAttempts(5);
-      dla.setDeadLetterAddress(new SimpleString("DLA"));
-      dla.setExpiryAddress(new SimpleString("DLA"));
+      AddressSettings dla = new AddressSettings()
+              .setMaxDeliveryAttempts(5)
+              .setDeadLetterAddress(new SimpleString("DLA"))
+              .setExpiryAddress(new SimpleString("DLA"));
       settings.put(ADDRESS.toString(), dla);
 
       server = createServer(true, config, PagingTest.PAGE_SIZE, PagingTest.PAGE_MAX, settings);
@@ -5148,11 +5119,10 @@ public class PagingTest extends ServiceTestBase
 
       try
       {
-         ServerLocator locator = createInVMNonHALocator();
-
-         locator.setBlockOnNonDurableSend(true);
-         locator.setBlockOnDurableSend(true);
-         locator.setBlockOnAcknowledge(true);
+         ServerLocator locator = createInVMNonHALocator()
+                 .setBlockOnNonDurableSend(true)
+                 .setBlockOnDurableSend(true)
+                 .setBlockOnAcknowledge(true);
 
          ClientSessionFactory sf = locator.createSessionFactory();
 
@@ -5297,7 +5267,7 @@ public class PagingTest extends ServiceTestBase
       {
          clearDataRecreateServerDirs();
 
-         Configuration config = createDefaultConfig();
+         Configuration config = createDefaultInVMConfig();
 
          HashMap<String, AddressSettings> settings = new HashMap<String, AddressSettings>();
 
@@ -5310,9 +5280,9 @@ public class PagingTest extends ServiceTestBase
 
          server.start();
 
-         locator.setBlockOnNonDurableSend(false);
-         locator.setBlockOnDurableSend(false);
-         locator.setBlockOnAcknowledge(true);
+         locator.setBlockOnNonDurableSend(false)
+                 .setBlockOnDurableSend(false)
+                 .setBlockOnAcknowledge(true);
 
          sf = createSessionFactory(locator);
          ClientSession session = sf.createSession(true, true, 0);
@@ -5389,7 +5359,7 @@ public class PagingTest extends ServiceTestBase
    {
       clearDataRecreateServerDirs();
 
-      Configuration config = createDefaultConfig();
+      Configuration config = createDefaultInVMConfig();
 
       HashMap<String, AddressSettings> settings = new HashMap<String, AddressSettings>();
 
@@ -5402,9 +5372,9 @@ public class PagingTest extends ServiceTestBase
 
       server.start();
 
-      locator.setBlockOnNonDurableSend(true);
-      locator.setBlockOnDurableSend(true);
-      locator.setBlockOnAcknowledge(true);
+      locator.setBlockOnNonDurableSend(true)
+              .setBlockOnDurableSend(true)
+              .setBlockOnAcknowledge(true);
 
       sf = createSessionFactory(locator);
       ClientSession session = sf.createSession(true, true, 0);
@@ -5473,7 +5443,7 @@ public class PagingTest extends ServiceTestBase
    {
       clearDataRecreateServerDirs();
 
-      Configuration config = createDefaultConfig();
+      Configuration config = createDefaultInVMConfig();
 
       HashMap<String, AddressSettings> settings = new HashMap<String, AddressSettings>();
 
@@ -5486,9 +5456,9 @@ public class PagingTest extends ServiceTestBase
 
       server.start();
 
-      locator.setBlockOnNonDurableSend(true);
-      locator.setBlockOnDurableSend(true);
-      locator.setBlockOnAcknowledge(true);
+      locator.setBlockOnNonDurableSend(true)
+              .setBlockOnDurableSend(true)
+              .setBlockOnAcknowledge(true);
 
       sf = createSessionFactory(locator);
       ClientSession session = addClientSession(sf.createSession(true, true, 0));
@@ -5592,7 +5562,7 @@ public class PagingTest extends ServiceTestBase
    public void testRouteOnTopWithMultipleQueues() throws Exception
    {
 
-      Configuration config = createDefaultConfig()
+      Configuration config = createDefaultInVMConfig()
          .setJournalSyncNonTransactional(false);
 
       server = createServer(true,
@@ -5603,11 +5573,10 @@ public class PagingTest extends ServiceTestBase
 
       server.start();
 
-      ServerLocator locator = createInVMNonHALocator();
-      locator.setBlockOnDurableSend(false);
+      ServerLocator locator = createInVMNonHALocator()
+              .setBlockOnDurableSend(false);
       ClientSessionFactory sf = createSessionFactory(locator);
       ClientSession session = sf.createSession(false, true, 0);
-
 
       session.createQueue("Q", "Q1", "dest=1", true);
       session.createQueue("Q", "Q2", "dest=2", true);
@@ -5666,7 +5635,7 @@ public class PagingTest extends ServiceTestBase
 
       clearDataRecreateServerDirs();
 
-      Configuration config = createDefaultConfig()
+      Configuration config = createDefaultInVMConfig()
          .setJournalSyncNonTransactional(false);
 
       server = createServer(true,
@@ -5868,7 +5837,7 @@ public class PagingTest extends ServiceTestBase
    {
       clearDataRecreateServerDirs();
 
-      Configuration config = createDefaultConfig()
+      Configuration config = createDefaultInVMConfig()
          .setJournalSyncNonTransactional(false);
 
       server = createServer(true,
@@ -5881,8 +5850,8 @@ public class PagingTest extends ServiceTestBase
 
       try
       {
-         ServerLocator locator = createInVMNonHALocator();
-         locator.setBlockOnDurableSend(true);
+         ServerLocator locator = createInVMNonHALocator()
+                 .setBlockOnDurableSend(true);
          ClientSessionFactory sf = locator.createSessionFactory();
          ClientSession session = sf.createSession(true, true, 0);
 
@@ -5979,7 +5948,7 @@ public class PagingTest extends ServiceTestBase
    {
       clearDataRecreateServerDirs();
 
-      Configuration config = createDefaultConfig()
+      Configuration config = createDefaultInVMConfig()
          .setJournalSyncNonTransactional(false);
 
       server = createServer(true,
@@ -5992,8 +5961,8 @@ public class PagingTest extends ServiceTestBase
 
       try
       {
-         ServerLocator locator = createInVMNonHALocator();
-         locator.setBlockOnDurableSend(true);
+         ServerLocator locator = createInVMNonHALocator()
+                 .setBlockOnDurableSend(true);
          ClientSessionFactory sf = locator.createSessionFactory();
          ClientSession session = sf.createSession(true, true, 0);
 
@@ -6082,7 +6051,7 @@ public class PagingTest extends ServiceTestBase
    {
       clearDataRecreateServerDirs();
 
-      Configuration config = createDefaultConfig()
+      Configuration config = createDefaultInVMConfig()
          .setJournalSyncNonTransactional(false);
 
       server = createServer(true,
@@ -6183,7 +6152,7 @@ public class PagingTest extends ServiceTestBase
    {
       clearDataRecreateServerDirs();
 
-      Configuration config = createDefaultConfig()
+      Configuration config = createDefaultInVMConfig()
          .setJournalSyncNonTransactional(false);
 
       server = createServer(true,
@@ -6267,7 +6236,7 @@ public class PagingTest extends ServiceTestBase
    @Test
    public void testNoCursors() throws Exception
    {
-      Configuration config = createDefaultConfig()
+      Configuration config = createDefaultInVMConfig()
          .setJournalSyncNonTransactional(false);
 
       server = createServer(true,
@@ -6312,7 +6281,7 @@ public class PagingTest extends ServiceTestBase
    {
       clearDataRecreateServerDirs();
 
-      Configuration config = createDefaultConfig()
+      Configuration config = createDefaultInVMConfig()
          .setJournalSyncNonTransactional(false);
 
       server = createServer(true,
@@ -6426,9 +6395,9 @@ public class PagingTest extends ServiceTestBase
 
 
    @Override
-   protected Configuration createDefaultConfig() throws Exception
+   protected Configuration createDefaultInVMConfig() throws Exception
    {
-      return super.createDefaultConfig()
+      return super.createDefaultInVMConfig()
          .setJournalSyncNonTransactional(false);
    }
 

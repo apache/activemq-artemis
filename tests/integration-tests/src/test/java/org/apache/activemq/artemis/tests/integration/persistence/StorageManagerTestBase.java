@@ -15,29 +15,26 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.integration.persistence;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.ExecutorService;
 
-import org.apache.activemq.artemis.tests.unit.core.server.impl.fakes.FakePostOffice;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.persistence.GroupingInfo;
 import org.apache.activemq.artemis.core.persistence.QueueBindingInfo;
 import org.apache.activemq.artemis.core.persistence.impl.journal.JournalStorageManager;
-import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.jms.persistence.JMSStorageManager;
 import org.apache.activemq.artemis.jms.persistence.impl.journal.JMSJournalStorageManagerImpl;
 import org.apache.activemq.artemis.tests.unit.core.server.impl.fakes.FakeJournalLoader;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.unit.core.server.impl.fakes.FakePostOffice;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.TimeAndCounterIDGenerator;
 import org.junit.After;
 import org.junit.Before;
 
-public abstract class StorageManagerTestBase extends ServiceTestBase
-{
+import java.util.ArrayList;
+import java.util.concurrent.ExecutorService;
 
+public abstract class StorageManagerTestBase extends ActiveMQTestBase
+{
    protected ExecutorService executor;
 
    protected ExecutorFactory execFactory;
@@ -100,15 +97,11 @@ public abstract class StorageManagerTestBase extends ServiceTestBase
     */
    protected void createStorage() throws Exception
    {
-      Configuration configuration = createDefaultConfig();
-
-      journal = createJournalStorageManager(configuration);
+      journal = createJournalStorageManager(createDefaultInVMConfig());
 
       journal.start();
 
       journal.loadBindingJournal(new ArrayList<QueueBindingInfo>(), new ArrayList<GroupingInfo>());
-
-      Map<Long, Queue> queues = new HashMap<Long, Queue>();
 
       journal.loadMessageJournal(new FakePostOffice(), null, null, null, null, null, null, new FakeJournalLoader());
    }
@@ -128,12 +121,9 @@ public abstract class StorageManagerTestBase extends ServiceTestBase
     */
    protected void createJMSStorage() throws Exception
    {
-      Configuration configuration = createDefaultConfig();
-
-      jmsJournal = new JMSJournalStorageManagerImpl(new TimeAndCounterIDGenerator(), configuration, null);
-
+      jmsJournal = new JMSJournalStorageManagerImpl(new TimeAndCounterIDGenerator(), createDefaultInVMConfig(), null);
+      addActiveMQComponent(jmsJournal);
       jmsJournal.start();
-
       jmsJournal.load();
    }
 }

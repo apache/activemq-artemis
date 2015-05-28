@@ -21,16 +21,14 @@ import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryImpl;
-import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnector;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
-import org.junit.After;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Before;
 import org.junit.Test;
 
-public class NettyConnectorTest extends ServiceTestBase
+public class NettyConnectorTest extends ActiveMQTestBase
 {
    private ActiveMQServer server;
 
@@ -40,8 +38,7 @@ public class NettyConnectorTest extends ServiceTestBase
    {
       super.setUp();
 
-      Configuration config = this.createDefaultConfig(true);
-      server = this.createServer(false, config);
+      server = createServer(false, createDefaultNettyConfig());
       server.start();
    }
 
@@ -64,13 +61,5 @@ public class NettyConnectorTest extends ServiceTestBase
 
       factory.close();
       locator.close();
-   }
-
-   @Override
-   @After
-   public void tearDown() throws Exception
-   {
-      super.tearDown();
-      server.stop();
    }
 }

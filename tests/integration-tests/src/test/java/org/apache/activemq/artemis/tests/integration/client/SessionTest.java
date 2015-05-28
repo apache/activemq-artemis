@@ -31,7 +31,7 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.api.core.client.SessionFailureListener;
 import org.apache.activemq.artemis.tests.util.CountDownSessionFailureListener;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionInternal;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
@@ -44,7 +44,7 @@ import org.junit.Test;
 /**
  * This test covers the API for ClientSession although XA tests are tested separately.
  */
-public class SessionTest extends ServiceTestBase
+public class SessionTest extends ActiveMQTestBase
 {
    private final String queueName = "ClientSessionTestQ";
 
@@ -61,7 +61,7 @@ public class SessionTest extends ServiceTestBase
       locator = createInVMNonHALocator();
       server = createServer(false);
       server.start();
-      waitForServer(server);
+      waitForServerToStart(server);
    }
 
    @Test
@@ -398,8 +398,8 @@ public class SessionTest extends ServiceTestBase
    @Test
    public void testCommitWithReceive() throws Exception
    {
-      locator.setBlockOnNonDurableSend(true);
-      locator.setBlockOnDurableSend(true);
+      locator.setBlockOnNonDurableSend(true)
+              .setBlockOnDurableSend(true);
       cf = createSessionFactory(locator);
       ClientSession sendSession = cf.createSession(false, true, true);
       ClientProducer cp = sendSession.createProducer(queueName);
@@ -458,8 +458,8 @@ public class SessionTest extends ServiceTestBase
    @Test
    public void testRollbackWithReceive() throws Exception
    {
-      locator.setBlockOnNonDurableSend(true);
-      locator.setBlockOnDurableSend(true);
+      locator.setBlockOnNonDurableSend(true)
+              .setBlockOnDurableSend(true);
       cf = createSessionFactory(locator);
       ClientSession sendSession = cf.createSession(false, true, true);
       ClientProducer cp = sendSession.createProducer(queueName);

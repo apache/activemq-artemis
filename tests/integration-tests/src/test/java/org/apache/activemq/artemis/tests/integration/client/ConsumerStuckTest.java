@@ -27,11 +27,11 @@ import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryImpl;
 import org.apache.activemq.artemis.core.protocol.core.impl.RemotingConnectionImpl;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnection;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Before;
 import org.junit.Test;
 
-public class ConsumerStuckTest extends ServiceTestBase
+public class ConsumerStuckTest extends ActiveMQTestBase
 {
    private ActiveMQServer server;
 
@@ -57,10 +57,10 @@ public class ConsumerStuckTest extends ServiceTestBase
    public void testClientStuckTest() throws Exception
    {
 
-      ServerLocator locator = createNettyNonHALocator();
-      locator.setConnectionTTL(1000);
-      locator.setClientFailureCheckPeriod(100);
-      locator.setConsumerWindowSize(10 * 1024 * 1024);
+      ServerLocator locator = createNettyNonHALocator()
+              .setConnectionTTL(1000)
+              .setClientFailureCheckPeriod(100)
+              .setConsumerWindowSize(10 * 1024 * 1024);
       ClientSessionFactory sf = locator.createSessionFactory();
       ((ClientSessionFactoryImpl) sf).stopPingingAfterOne();
 
@@ -168,10 +168,10 @@ public class ConsumerStuckTest extends ServiceTestBase
    public void testClientStuckTestWithDirectDelivery() throws Exception
    {
 
-      ServerLocator locator = createNettyNonHALocator();
-      locator.setConnectionTTL(1000);
-      locator.setClientFailureCheckPeriod(100);
-      locator.setConsumerWindowSize(10 * 1024 * 1024);
+      ServerLocator locator = createNettyNonHALocator()
+              .setConnectionTTL(1000)
+              .setClientFailureCheckPeriod(100)
+              .setConsumerWindowSize(10 * 1024 * 1024);
       ClientSessionFactory sf = locator.createSessionFactory();
       ((ClientSessionFactoryImpl) sf).stopPingingAfterOne();
 

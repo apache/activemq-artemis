@@ -22,21 +22,18 @@ import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class DelayedMessageTest extends ServiceTestBase
+public class DelayedMessageTest extends ActiveMQTestBase
 {
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
-
-   private Configuration configuration;
 
    private ActiveMQServer server;
 
@@ -59,15 +56,11 @@ public class DelayedMessageTest extends ServiceTestBase
     */
    protected void initServer() throws Exception
    {
-      configuration = createDefaultConfig()
-         .setSecurityEnabled(false)
-         .setJournalMinFiles(2);
-      server = createServer(true, configuration);
+      server = createServer(true, createDefaultInVMConfig());
       server.start();
 
       AddressSettings qs = server.getAddressSettingsRepository().getMatch("*");
-      AddressSettings newSets = new AddressSettings();
-      newSets.setRedeliveryDelay(DelayedMessageTest.DELAY);
+      AddressSettings newSets = new AddressSettings().setRedeliveryDelay(DelayedMessageTest.DELAY);
       newSets.merge(qs);
       server.getAddressSettingsRepository().addMatch(qName, newSets);
       locator = createInVMNonHALocator();
@@ -87,7 +80,7 @@ public class DelayedMessageTest extends ServiceTestBase
 
       final int NUM_MESSAGES = 5;
 
-      ServiceTestBase.forceGC();
+      ActiveMQTestBase.forceGC();
 
       for (int i = 0; i < NUM_MESSAGES; i++)
       {

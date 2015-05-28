@@ -19,7 +19,6 @@ package org.apache.activemq.artemis.tests.integration.management;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
@@ -43,7 +42,6 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.integration.jms.server.management.JMSUtil;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.apache.activemq.artemis.utils.json.JSONArray;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -135,8 +133,7 @@ public class QueueControlTest extends ManagementTestBase
 
       QueueControl queueControl = createManagementControl(address, queue);
 
-      AddressSettings addressSettings = new AddressSettings();
-      addressSettings.setDeadLetterAddress(new SimpleString(deadLetterAddress));
+      AddressSettings addressSettings = new AddressSettings().setDeadLetterAddress(new SimpleString(deadLetterAddress));
       server.getAddressSettingsRepository().addMatch(address.toString(), addressSettings);
 
       Assert.assertEquals(deadLetterAddress, queueControl.getDeadLetterAddress());
@@ -183,8 +180,7 @@ public class QueueControlTest extends ManagementTestBase
 
       QueueControl queueControl = createManagementControl(address, queue);
 
-      AddressSettings addressSettings = new AddressSettings();
-      addressSettings.setExpiryAddress(new SimpleString(expiryAddress));
+      AddressSettings addressSettings = new AddressSettings().setExpiryAddress(new SimpleString(expiryAddress));
       server.getAddressSettingsRepository().addMatch(address.toString(), addressSettings);
 
       Assert.assertEquals(expiryAddress, queueControl.getExpiryAddress());
@@ -389,10 +385,10 @@ public class QueueControlTest extends ManagementTestBase
    @Test
    public void testListDeliveringMessagesWithRASession() throws Exception
    {
-      ServerLocator locator1 = createInVMNonHALocator();
-      locator1.setBlockOnNonDurableSend(true);
-      locator1.setConsumerWindowSize(10240);
-      locator1.setAckBatchSize(0);
+      ServerLocator locator1 = createInVMNonHALocator()
+              .setBlockOnNonDurableSend(true)
+              .setConsumerWindowSize(10240)
+              .setAckBatchSize(0);
       ClientSessionFactory sf = locator1.createSessionFactory();
       final ClientSession transSession = sf.createSession(false, true, false);
       ClientConsumer consumer = null;
@@ -1443,8 +1439,7 @@ public class QueueControlTest extends ManagementTestBase
       Assert.assertEquals(1, messages.length);
       long messageID = (Long) messages[0].get("messageID");
 
-      AddressSettings addressSettings = new AddressSettings();
-      addressSettings.setExpiryAddress(expiryAddress);
+      AddressSettings addressSettings = new AddressSettings().setExpiryAddress(expiryAddress);
       server.getAddressSettingsRepository().addMatch(address.toString(), addressSettings);
 
       boolean expired = queueControl.expireMessage(messageID);
@@ -1485,8 +1480,7 @@ public class QueueControlTest extends ManagementTestBase
       Assert.assertEquals(2, messages.length);
       long messageID = (Long) messages[0].get("messageID");
 
-      AddressSettings addressSettings = new AddressSettings();
-      addressSettings.setDeadLetterAddress(deadLetterAddress);
+      AddressSettings addressSettings = new AddressSettings().setDeadLetterAddress(deadLetterAddress);
       server.getAddressSettingsRepository().addMatch(address.toString(), addressSettings);
 
       Assert.assertEquals(0, getMessageCount(deadLetterQueueControl));
@@ -2027,30 +2021,18 @@ public class QueueControlTest extends ManagementTestBase
    public void setUp() throws Exception
    {
       super.setUp();
-
-      Configuration conf = createBasicConfig()
-         .addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY));
+      Configuration conf = createDefaultInVMConfig()
+              .setJMXManagementEnabled(true);
       server = addServer(ActiveMQServers.newActiveMQServer(conf, mbeanServer, false));
+
       server.start();
 
-      locator = createInVMNonHALocator();
-      locator.setBlockOnNonDurableSend(true);
-      locator.setBlockOnNonDurableSend(true);
-      locator.setConsumerWindowSize(0);
+      locator = createInVMNonHALocator()
+              .setBlockOnNonDurableSend(true)
+              .setConsumerWindowSize(0);
       ClientSessionFactory sf = createSessionFactory(locator);
       session = sf.createSession(false, true, false);
       session.start();
-   }
-
-   @Override
-   @After
-   public void tearDown() throws Exception
-   {
-      session = null;
-      locator = null;
-      server = null;
-
-      super.tearDown();
    }
 
    protected QueueControl createManagementControl(final SimpleString address, final SimpleString queue) throws Exception

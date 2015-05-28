@@ -5,9 +5,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p/>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p/>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,6 +15,28 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.unit.core.client.impl;
+
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.client.ClientMessage;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.api.core.client.MessageHandler;
+import org.apache.activemq.artemis.core.client.impl.ClientConsumerInternal;
+import org.apache.activemq.artemis.core.client.impl.ClientLargeMessageInternal;
+import org.apache.activemq.artemis.core.client.impl.ClientMessageInternal;
+import org.apache.activemq.artemis.core.client.impl.ClientSessionInternal;
+import org.apache.activemq.artemis.core.client.impl.LargeMessageControllerImpl;
+import org.apache.activemq.artemis.core.protocol.core.impl.ActiveMQConsumerContext;
+import org.apache.activemq.artemis.spi.core.remoting.ConsumerContext;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.ActiveMQBufferInputStream;
+import org.apache.activemq.artemis.utils.FutureLatch;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -29,30 +51,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
-import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
-import org.apache.activemq.artemis.api.core.ActiveMQException;
-import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.api.core.client.ClientMessage;
-import org.apache.activemq.artemis.api.core.client.ClientSession;
-import org.apache.activemq.artemis.api.core.client.MessageHandler;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
-import org.apache.activemq.artemis.core.client.impl.ClientConsumerInternal;
-import org.apache.activemq.artemis.core.client.impl.ClientLargeMessageInternal;
-import org.apache.activemq.artemis.core.client.impl.ClientMessageInternal;
-import org.apache.activemq.artemis.core.client.impl.ClientSessionInternal;
-import org.apache.activemq.artemis.core.client.impl.LargeMessageControllerImpl;
-import org.apache.activemq.artemis.core.protocol.core.impl.ActiveMQConsumerContext;
-import org.apache.activemq.artemis.spi.core.remoting.ConsumerContext;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
-import org.apache.activemq.artemis.utils.FutureLatch;
-import org.apache.activemq.artemis.utils.ActiveMQBufferInputStream;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-
-public class LargeMessageBufferTest extends ServiceTestBase
+public class LargeMessageBufferTest extends ActiveMQTestBase
 {
 
    // Constants -----------------------------------------------------
@@ -77,13 +76,6 @@ public class LargeMessageBufferTest extends ServiceTestBase
 
       File tmp = new File(getTestDir());
       tmp.mkdirs();
-   }
-
-   @Override
-   @After
-   public void tearDown() throws Exception
-   {
-      super.tearDown();
    }
 
    // Test Simple getBytes
@@ -340,7 +332,7 @@ public class LargeMessageBufferTest extends ServiceTestBase
 
       t.start();
 
-      ServiceTestBase.waitForLatch(latchGo);
+      ActiveMQTestBase.waitForLatch(latchGo);
 
       buffer.cancel();
 
@@ -632,7 +624,7 @@ public class LargeMessageBufferTest extends ServiceTestBase
          }
       });
 
-      ServiceTestBase.waitForLatch(latchBytesWritten1);
+      ActiveMQTestBase.waitForLatch(latchBytesWritten1);
 
       try
       {

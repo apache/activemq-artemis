@@ -27,7 +27,7 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Test;
 
 /**
@@ -35,7 +35,7 @@ import org.junit.Test;
  * and having multiple restarts,
  * To make sure the journal would survive at multiple restarts of the server
  */
-public class JournalRestartStressTest extends ServiceTestBase
+public class JournalRestartStressTest extends ActiveMQTestBase
 {
 
    // Constants -----------------------------------------------------
@@ -62,9 +62,9 @@ public class JournalRestartStressTest extends ServiceTestBase
       {
          server2.start();
 
-         ServerLocator locator = createFactory(false);
-         locator.setMinLargeMessageSize(1024 * 1024);
-         locator.setBlockOnDurableSend(false);
+         ServerLocator locator = createInVMNonHALocator()
+                 .setMinLargeMessageSize(1024 * 1024)
+                 .setBlockOnDurableSend(false);
 
          ClientSessionFactory sf = createSessionFactory(locator);
 

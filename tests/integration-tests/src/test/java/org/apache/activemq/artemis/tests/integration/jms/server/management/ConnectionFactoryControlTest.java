@@ -23,11 +23,9 @@ import javax.management.Notification;
 import org.apache.activemq.artemis.tests.integration.management.ManagementControlHelper;
 import org.apache.activemq.artemis.tests.integration.management.ManagementTestBase;
 import org.apache.activemq.artemis.tests.unit.util.InVMNamingContext;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
 import org.apache.activemq.artemis.core.registry.JndiBindingRegistry;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.After;
 import org.junit.Test;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
@@ -53,7 +51,7 @@ public class ConnectionFactoryControlTest extends ManagementTestBase
 
    private ActiveMQServer server;
 
-   private JMSServerManagerImpl serverManager;
+   private JMSServerManagerImpl jmsServerManager;
 
    private InVMNamingContext ctx;
 
@@ -80,9 +78,9 @@ public class ConnectionFactoryControlTest extends ManagementTestBase
       cf = (ActiveMQConnectionFactory)ctx.lookup("test");
       Assert.assertTrue(cf.isCompressLargeMessage());
 
-      stopServer();
+      server.stop();
 
-      Thread.sleep(500);
+      waitForServerToStop(server);
 
       startServer();
 
@@ -102,18 +100,18 @@ public class ConnectionFactoryControlTest extends ManagementTestBase
       List<String> connectors = new ArrayList<String>();
       connectors.add("invm");
 
-      this.serverManager.createConnectionFactory("NewCF",
-                                                  false,
-                                                  JMSFactoryType.CF,
-                                                  connectors,
-                                                  "/NewConnectionFactory");
+      this.jmsServerManager.createConnectionFactory("NewCF",
+                                                 false,
+                                                 JMSFactoryType.CF,
+                                                 connectors,
+                                                 "/NewConnectionFactory");
 
       Notification notif = listener.getNotification();
 
       Assert.assertEquals(JMSNotificationType.CONNECTION_FACTORY_CREATED.toString(), notif.getType());
       Assert.assertEquals("NewCF", notif.getMessage());
 
-      this.serverManager.destroyConnectionFactory("NewCF");
+      this.jmsServerManager.destroyConnectionFactory("NewCF");
 
       notif = listener.getNotification();
       Assert.assertEquals(JMSNotificationType.CONNECTION_FACTORY_DESTROYED.toString(), notif.getType());
@@ -155,44 +153,19 @@ public class ConnectionFactoryControlTest extends ManagementTestBase
     */
    protected void startServer() throws Exception
    {
-      Configuration conf = createDefaultConfig()
+      Configuration config = createDefaultInVMConfig()
          .addConnectorConfiguration("invm", new TransportConfiguration(INVM_CONNECTOR_FACTORY))
-         .setSecurityEnabled(false)
-         .setJMXManagementEnabled(true)
-         .addAcceptorConfiguration(new TransportConfiguration(ServiceTestBase.INVM_ACCEPTOR_FACTORY));
-      server = ActiveMQServers.newActiveMQServer(conf, mbeanServer, true);
+         .setJMXManagementEnabled(true);
+      server = addServer(ActiveMQServers.newActiveMQServer(config, mbeanServer, true));
       server.start();
 
-      serverManager = new JMSServerManagerImpl(server);
-      serverManager.start();
+      jmsServerManager = new JMSServerManagerImpl(server);
+      jmsServerManager.start();
 
       ctx = new InVMNamingContext();
 
-      serverManager.setRegistry(new JndiBindingRegistry(ctx));
-      serverManager.activated();
-   }
-
-   @Override
-   @After
-   public void tearDown() throws Exception
-   {
-      stopServer();
-
-      super.tearDown();
-   }
-
-   /**
-    * @throws Exception
-    */
-   protected void stopServer() throws Exception
-   {
-      serverManager.stop();
-
-      server.stop();
-
-      serverManager = null;
-
-      server = null;
+      jmsServerManager.setRegistry(new JndiBindingRegistry(ctx));
+      jmsServerManager.activated();
    }
 
    protected ConnectionFactoryControl createCFControl(String name) throws Exception

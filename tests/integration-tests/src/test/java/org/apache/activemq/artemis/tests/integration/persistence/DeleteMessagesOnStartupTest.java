@@ -35,7 +35,6 @@ import org.junit.Test;
 
 public class DeleteMessagesOnStartupTest extends StorageManagerTestBase
 {
-
    volatile boolean deleteMessages = false;
 
    ArrayList<Long> deletedMessage = new ArrayList<Long>();
@@ -89,7 +88,6 @@ public class DeleteMessagesOnStartupTest extends StorageManagerTestBase
             deletedMessage.add(messageID);
             super.deleteMessage(messageID);
          }
-
       };
    }
 }

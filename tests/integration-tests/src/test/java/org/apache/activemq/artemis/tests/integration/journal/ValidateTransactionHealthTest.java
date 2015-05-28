@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.activemq.artemis.tests.util.SpawnedVMSupport;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.core.asyncio.impl.AsynchronousFileImpl;
 import org.apache.activemq.artemis.core.journal.LoaderCallback;
 import org.apache.activemq.artemis.core.journal.PreparedTransactionInfo;
@@ -37,7 +37,7 @@ import org.junit.Test;
 /**
  * This test spawns a remote VM, as we want to "crash" the VM right after the journal is filled with data
  */
-public class ValidateTransactionHealthTest extends ServiceTestBase
+public class ValidateTransactionHealthTest extends ActiveMQTestBase
 {
 
    private static final int OK = 10;

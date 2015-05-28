@@ -16,31 +16,30 @@
  */
 package org.apache.activemq.artemis.tests.integration.server;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Map;
-
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
-import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.core.config.ScaleDownConfiguration;
 import org.apache.activemq.artemis.core.config.ha.LiveOnlyPolicyConfiguration;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.impl.LocalQueueBinding;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.integration.cluster.distribution.ClusterTestBase;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
-import org.junit.After;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Map;
 
 @RunWith(value = Parameterized.class)
 public class ScaleDownTest extends ClusterTestBase
@@ -91,21 +90,6 @@ public class ScaleDownTest extends ClusterTestBase
    protected boolean isNetty()
    {
       return true;
-   }
-
-   @Override
-   @After
-   public void tearDown() throws Exception
-   {
-      closeAllConsumers();
-      closeAllSessionFactories();
-      closeAllServerLocatorsFactories();
-      LiveOnlyPolicyConfiguration haPolicyConfiguration0 = (LiveOnlyPolicyConfiguration) servers[0].getConfiguration().getHAPolicyConfiguration();
-      LiveOnlyPolicyConfiguration haPolicyConfiguration1 = (LiveOnlyPolicyConfiguration) servers[1].getConfiguration().getHAPolicyConfiguration();
-      haPolicyConfiguration0.setScaleDownConfiguration(null);
-      haPolicyConfiguration1.setScaleDownConfiguration(null);
-      stopServers(0, 1);
-      super.tearDown();
    }
 
    @Test
@@ -414,7 +398,7 @@ public class ScaleDownTest extends ClusterTestBase
          for (int i = 0; i < 2 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE; i++)
          {
             byte byteRead = msg.getBodyBuffer().readByte();
-            Assert.assertEquals(msg + " Is different", ServiceTestBase.getSamplebyte(i), byteRead);
+            Assert.assertEquals(msg + " Is different", ActiveMQTestBase.getSamplebyte(i), byteRead);
          }
 
          msg.acknowledge();
@@ -437,9 +421,9 @@ public class ScaleDownTest extends ClusterTestBase
       ClientSession session = addClientSession(sf.createSession(false, false));
       ClientProducer producer = addClientProducer(session.createProducer(addressName));
 
-      AddressSettings defaultSetting = new AddressSettings();
-      defaultSetting.setPageSizeBytes(10 * 1024);
-      defaultSetting.setMaxSizeBytes(20 * 1024);
+      AddressSettings defaultSetting = new AddressSettings()
+              .setPageSizeBytes(10 * 1024)
+              .setMaxSizeBytes(20 * 1024);
       servers[0].getAddressSettingsRepository().addMatch("#", defaultSetting);
 
       while (!servers[0].getPagingManager().getPageStore(new SimpleString(addressName)).isPaging())
@@ -481,9 +465,9 @@ public class ScaleDownTest extends ClusterTestBase
       ClientSession session = addClientSession(sf.createSession(false, false));
       ClientProducer producer = addClientProducer(session.createProducer(addressName));
 
-      AddressSettings defaultSetting = new AddressSettings();
-      defaultSetting.setPageSizeBytes(10 * 1024);
-      defaultSetting.setMaxSizeBytes(20 * 1024);
+      AddressSettings defaultSetting = new AddressSettings()
+              .setPageSizeBytes(10 * 1024)
+              .setMaxSizeBytes(20 * 1024);
       servers[0].getAddressSettingsRepository().addMatch("#", defaultSetting);
 
       while (!servers[0].getPagingManager().getPageStore(new SimpleString(addressName)).isPaging())

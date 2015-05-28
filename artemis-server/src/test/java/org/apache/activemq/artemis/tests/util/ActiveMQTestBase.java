@@ -133,7 +133,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * Base class with basic utilities on starting up a basic server
  */
-public abstract class ServiceTestBase extends Assert
+public abstract class ActiveMQTestBase extends Assert
 {
    public static final String TARGET_TMP = "./target/tmp";
    public static final String INVM_ACCEPTOR_FACTORY = InVMAcceptorFactory.class.getCanonicalName();
@@ -151,7 +151,7 @@ public abstract class ServiceTestBase extends Assert
    private static final int DEFAULT_UDP_PORT;
    private static final ActiveMQServerLogger log = ActiveMQServerLogger.LOGGER;
 
-   protected static final long WAIT_TIMEOUT = 20000;
+   protected static final long WAIT_TIMEOUT = 30000;
 
    // There is a verification about thread leakages. We only fail a single thread when this happens
    private static Set<Thread> alreadyFailedThread = new HashSet<Thread>();
@@ -203,7 +203,7 @@ public abstract class ServiceTestBase extends Assert
       DEFAULT_UDP_PORT = 6000 + random.nextInt(1000);
    }
 
-   public ServiceTestBase()
+   public ActiveMQTestBase()
    {
       File parent = new File(TARGET_TMP);
       parent.mkdirs();
@@ -388,6 +388,12 @@ public abstract class ServiceTestBase extends Assert
       }
    }
 
+   /**
+    *
+    * @param str
+    * @param sub
+    * @return
+    */
    public static int countOccurrencesOf(String str, String sub)
    {
       if (str == null || sub == null || str.length() == 0 || sub.length() == 0)
@@ -420,17 +426,31 @@ public abstract class ServiceTestBase extends Assert
       return (OS_TYPE.indexOf("win") >= 0);
    }
 
-   protected Configuration createDefaultConfig() throws Exception
+   protected Configuration createDefaultInVMConfig() throws Exception
    {
-      return createDefaultConfig(false);
+      return createDefaultConfig(0, false);
+   }
+
+   protected Configuration createDefaultInVMConfig(final int serverID) throws Exception
+   {
+      return createDefaultConfig(serverID, false);
+   }
+
+   protected Configuration createDefaultNettyConfig() throws Exception
+   {
+      return createDefaultConfig(0, true);
    }
 
    protected Configuration createDefaultConfig(final boolean netty) throws Exception
    {
-      ConfigurationImpl configuration = createBasicConfig(-1)
+      return createDefaultConfig(0, netty);
+   }
+
+   protected Configuration createDefaultConfig(final int serverID, final boolean netty) throws Exception
+   {
+      ConfigurationImpl configuration = createBasicConfig(serverID)
               .setJMXManagementEnabled(false)
-              .clearAcceptorConfigurations()
-              .addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY));
+              .addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY, generateInVMParams(serverID)));
 
       if (netty)
       {
@@ -440,11 +460,11 @@ public abstract class ServiceTestBase extends Assert
       return configuration;
    }
 
-   protected Configuration createDefaultConfig(final int index,
+   private Configuration createDefaultConfig(final int index,
                                                final Map<String, Object> params,
                                                final String... acceptors)
    {
-      Configuration configuration = createBasicConfig(index).clearAcceptorConfigurations();
+      Configuration configuration = createBasicConfig(index);
 
       for (String acceptor : acceptors)
       {
@@ -453,6 +473,43 @@ public abstract class ServiceTestBase extends Assert
       }
 
       return configuration;
+   }
+
+   protected ConfigurationImpl createBasicConfig() throws Exception
+   {
+      return createBasicConfig(-1);
+   }
+
+   /**
+    * @param serverID
+    * @return
+    * @throws Exception
+    */
+   protected ConfigurationImpl createBasicConfig(final int serverID)
+   {
+      ConfigurationImpl configuration = new ConfigurationImpl()
+              .setSecurityEnabled(false)
+              .setJournalMinFiles(2)
+              .setJournalFileSize(100 * 1024)
+              .setJournalType(getDefaultJournalType())
+              .setJournalDirectory(getJournalDir(serverID, false))
+              .setBindingsDirectory(getBindingsDir(serverID, false))
+              .setPagingDirectory(getPageDir(serverID, false))
+              .setLargeMessagesDirectory(getLargeMessagesDir(serverID, false))
+              .setJournalCompactMinFiles(0)
+              .setJournalCompactPercentage(0)
+              .setClusterPassword(CLUSTER_PASSWORD);
+
+      return configuration;
+   }
+
+   protected Map<String, Object> generateInVMParams(final int node)
+   {
+      Map<String, Object> params = new HashMap<String, Object>();
+
+      params.put(org.apache.activemq.artemis.core.remoting.impl.invm.TransportConstants.SERVER_ID_PROP_NAME, node);
+
+      return params;
    }
 
    protected static final ClusterConnectionConfiguration basicClusterConnectionConfig(String connectorName, String... connectors)
@@ -481,47 +538,6 @@ public abstract class ServiceTestBase extends Assert
       final ExecutorService executor = Executors.newCachedThreadPool();
       executorSet.add(executor);
       return new OrderedExecutorFactory(executor);
-   }
-
-   protected ConfigurationImpl createBasicConfig() throws Exception
-   {
-      return createBasicConfig(0);
-   }
-
-   /**
-    * @param serverID
-    * @return
-    * @throws Exception
-    */
-   protected ConfigurationImpl createBasicConfig(final int serverID)
-   {
-      ConfigurationImpl configuration = new ConfigurationImpl()
-              .setSecurityEnabled(false)
-              .setJournalMinFiles(2)
-              .setJournalFileSize(100 * 1024)
-              .setJournalType(getDefaultJournalType())
-              .setJournalDirectory(getJournalDir(serverID, false))
-              .setBindingsDirectory(getBindingsDir(serverID, false))
-              .setPagingDirectory(getPageDir(serverID, false))
-              .setLargeMessagesDirectory(getLargeMessagesDir(serverID, false))
-              .setJournalCompactMinFiles(0)
-              .setJournalCompactPercentage(0)
-              .setClusterPassword(CLUSTER_PASSWORD);
-
-      return configuration;
-   }
-
-   public static final ConfigurationImpl createBasicConfigNoDataFolder()
-   {
-      ConfigurationImpl configuration = new ConfigurationImpl()
-              .setSecurityEnabled(false)
-              .setJournalType(getDefaultJournalType())
-              .setPersistenceEnabled(false)
-              .setJournalCompactMinFiles(0)
-              .setJournalCompactPercentage(0)
-              .setClusterPassword(CLUSTER_PASSWORD);
-
-      return configuration;
    }
 
    protected static String getUDPDiscoveryAddress()
@@ -689,7 +705,10 @@ public abstract class ServiceTestBase extends Assert
       ActiveMQServerLogger log0 = ActiveMQServerLogger.LOGGER;
       log0.info(message, e);
       System.out.println(message);
-      e.printStackTrace(System.out);
+      if (e != null)
+      {
+         e.printStackTrace(System.out);
+      }
    }
 
    /**
@@ -697,9 +716,7 @@ public abstract class ServiceTestBase extends Assert
     */
    public void logAndSystemOut(String message)
    {
-      ActiveMQServerLogger log0 = ActiveMQServerLogger.LOGGER;
-      log0.info(message);
-      System.out.println(this.getClass().getName() + "::" + message);
+      logAndSystemOut(message, null);
    }
 
    public static String dumpBytes(final byte[] bytes)
@@ -723,7 +740,7 @@ public abstract class ServiceTestBase extends Assert
       return buff.toString();
    }
 
-   public static String dumbBytesHex(final byte[] buffer, final int bytesPerLine)
+   public static String dumpBytesHex(final byte[] buffer, final int bytesPerLine)
    {
 
       StringBuffer buff = new StringBuffer();
@@ -1400,7 +1417,7 @@ public abstract class ServiceTestBase extends Assert
    }
 
 
-   protected void waitForServer(ActiveMQServer server) throws InterruptedException
+   protected void waitForServerToStart(ActiveMQServer server) throws InterruptedException
    {
       if (server == null)
          return;
@@ -1546,8 +1563,8 @@ public abstract class ServiceTestBase extends Assert
                                               final long maxAddressSize,
                                               final Map<String, AddressSettings> settings)
    {
-
       ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(configuration, realFiles));
+
       if (settings != null)
       {
          for (Map.Entry<String, AddressSettings> setting : settings.entrySet())
@@ -1556,10 +1573,10 @@ public abstract class ServiceTestBase extends Assert
          }
       }
 
-      AddressSettings defaultSetting = new AddressSettings();
-      defaultSetting.setPageSizeBytes(pageSize);
-      defaultSetting.setMaxSizeBytes(maxAddressSize);
-      defaultSetting.setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE);
+      AddressSettings defaultSetting = new AddressSettings()
+              .setPageSizeBytes(pageSize)
+              .setMaxSizeBytes(maxAddressSize)
+              .setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE);
 
       server.getAddressSettingsRepository().addMatch("#", defaultSetting);
 
@@ -1611,10 +1628,10 @@ public abstract class ServiceTestBase extends Assert
       ActiveMQServer server;
       ActiveMQSecurityManager securityManager = new ActiveMQSecurityManagerImpl();
       configuration.setPersistenceEnabled(realFiles);
-      server = new InVMNodeManagerServer(configuration,
+      server = addServer(new InVMNodeManagerServer(configuration,
                                          ManagementFactory.getPlatformMBeanServer(),
                                          securityManager,
-                                         nodeManager);
+                                         nodeManager));
 
       try
       {
@@ -1959,7 +1976,7 @@ public abstract class ServiceTestBase extends Assert
 
       if (messageJournal)
       {
-         ff = new NIOSequentialFileFactory(getJournalDir(), null);
+         ff = new NIOSequentialFileFactory(config.getJournalDirectory(), null);
          journal = new JournalImpl(config.getJournalFileSize(),
                                    config.getJournalMinFiles(),
                                    0,
@@ -1971,7 +1988,7 @@ public abstract class ServiceTestBase extends Assert
       }
       else
       {
-         ff = new NIOSequentialFileFactory(getBindingsDir(), null);
+         ff = new NIOSequentialFileFactory(config.getBindingsDirectory(), null);
          journal = new JournalImpl(1024 * 1024,
                                    2,
                                    config.getJournalCompactMinFiles(),
@@ -2154,9 +2171,9 @@ public abstract class ServiceTestBase extends Assert
     * Deleting a file on LargeDir is an asynchronous process. We need to keep looking for a while if
     * the file hasn't been deleted yet.
     */
-   protected void validateNoFilesOnLargeDir(final int expect) throws Exception
+   protected void validateNoFilesOnLargeDir(final String directory, final int expect) throws Exception
    {
-      File largeMessagesFileDir = new File(getLargeMessagesDir());
+      File largeMessagesFileDir = new File(directory);
 
       // Deleting the file is async... we keep looking for a period of the time until the file is really gone
       long timeout = System.currentTimeMillis() + 5000;
@@ -2183,7 +2200,7 @@ public abstract class ServiceTestBase extends Assert
     */
    protected void validateNoFilesOnLargeDir() throws Exception
    {
-      validateNoFilesOnLargeDir(0);
+      validateNoFilesOnLargeDir(getLargeMessagesDir(), 0);
    }
 
    public void printBindings(ActiveMQServer server, String address) throws Exception

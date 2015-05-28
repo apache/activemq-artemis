@@ -15,23 +15,8 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.integration.cluster.reattach;
+
 import org.apache.activemq.artemis.api.core.ActiveMQException;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
-import org.junit.Before;
-import org.junit.After;
-
-import org.junit.Test;
-
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-
-import org.junit.Assert;
-
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -44,7 +29,18 @@ import org.apache.activemq.artemis.core.remoting.impl.invm.InVMRegistry;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.jms.client.ActiveMQBytesMessage;
 import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
+import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.junit.Assert;
+import org.junit.Test;
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReattachSupportTestBase
 {
@@ -61,7 +57,7 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
    // Attributes ----------------------------------------------------
    protected static final SimpleString ADDRESS = new SimpleString("FailoverTestAddress");
 
-   protected ActiveMQServer liveServer;
+   protected ActiveMQServer server;
 
    // Static --------------------------------------------------------
 
@@ -1264,26 +1260,6 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
       return 10;
    }
 
-   @Override
-   @Before
-   public void setUp() throws Exception
-   {
-      super.setUp();
-
-      log.info("************ Starting test " + getName());
-   }
-
-   @Override
-   @After
-   public void tearDown() throws Exception
-   {
-      ServiceTestBase.stopComponent(liveServer);
-
-      liveServer = null;
-
-      super.tearDown();
-   }
-
    // Private -------------------------------------------------------
 
    private void runTestMultipleThreads(final RunnableT runnable,
@@ -1308,16 +1284,16 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
    @Override
    protected ServerLocator createLocator() throws Exception
    {
-      ServerLocator locator = createInVMNonHALocator();
-      locator.setReconnectAttempts(-1);
-      locator.setConfirmationWindowSize(1024 * 1024);
+      ServerLocator locator = createInVMNonHALocator()
+              .setReconnectAttempts(-1)
+              .setConfirmationWindowSize(1024 * 1024);
       return locator;
    }
 
    @Override
    protected void stop() throws Exception
    {
-      ServiceTestBase.stopComponent(liveServer);
+      ActiveMQTestBase.stopComponent(server);
 
       System.gc();
 

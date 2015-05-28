@@ -16,22 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.server.management;
 
-import javax.jms.Connection;
-import javax.jms.ConnectionFactory;
-import javax.jms.ExceptionListener;
-import javax.jms.JMSException;
-import javax.jms.MessageConsumer;
-import javax.jms.MessageProducer;
-import javax.jms.Queue;
-import javax.jms.QueueBrowser;
-import javax.jms.Session;
-import javax.jms.TemporaryTopic;
-import javax.jms.TextMessage;
-import javax.jms.Topic;
-import java.util.Arrays;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.management.QueueControl;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
@@ -39,9 +23,6 @@ import org.apache.activemq.artemis.api.jms.management.JMSConnectionInfo;
 import org.apache.activemq.artemis.api.jms.management.JMSConsumerInfo;
 import org.apache.activemq.artemis.api.jms.management.JMSServerControl;
 import org.apache.activemq.artemis.api.jms.management.JMSSessionInfo;
-import org.apache.activemq.artemis.tests.unit.ra.BootstrapContext;
-import org.apache.activemq.artemis.tests.unit.ra.MessageEndpointFactory;
-import org.apache.activemq.artemis.tests.unit.util.InVMNamingContext;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.registry.JndiBindingRegistry;
 import org.apache.activemq.artemis.core.remoting.impl.invm.InVMAcceptorFactory;
@@ -57,10 +38,28 @@ import org.apache.activemq.artemis.ra.inflow.ActiveMQActivation;
 import org.apache.activemq.artemis.ra.inflow.ActiveMQActivationSpec;
 import org.apache.activemq.artemis.tests.integration.management.ManagementControlHelper;
 import org.apache.activemq.artemis.tests.integration.management.ManagementTestBase;
+import org.apache.activemq.artemis.tests.unit.ra.BootstrapContext;
+import org.apache.activemq.artemis.tests.unit.ra.MessageEndpointFactory;
+import org.apache.activemq.artemis.tests.unit.util.InVMNamingContext;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
+
+import javax.jms.Connection;
+import javax.jms.ConnectionFactory;
+import javax.jms.ExceptionListener;
+import javax.jms.JMSException;
+import javax.jms.MessageConsumer;
+import javax.jms.MessageProducer;
+import javax.jms.Queue;
+import javax.jms.QueueBrowser;
+import javax.jms.Session;
+import javax.jms.TemporaryTopic;
+import javax.jms.TextMessage;
+import javax.jms.Topic;
+import java.util.Arrays;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 public class JMSServerControl2Test extends ManagementTestBase
 {
@@ -78,9 +77,9 @@ public class JMSServerControl2Test extends ManagementTestBase
 
    private void startActiveMQServer(final String acceptorFactory) throws Exception
    {
-      Configuration conf = createBasicConfig()
+      Configuration config = createBasicConfig()
          .addAcceptorConfiguration(new TransportConfiguration(acceptorFactory));
-      server = addServer(ActiveMQServers.newActiveMQServer(conf, mbeanServer, true));
+      server = addServer(ActiveMQServers.newActiveMQServer(config, mbeanServer, true));
       server.start();
 
       context = new InVMNamingContext();
@@ -522,7 +521,7 @@ public class JMSServerControl2Test extends ManagementTestBase
 
          ra = new ActiveMQResourceAdapter();
 
-         ra.setConnectorClassName("org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory");
+         ra.setConnectorClassName(INVM_CONNECTOR_FACTORY);
          ra.setUserName("userGlobal");
          ra.setPassword("passwordGlobal");
          ra.start(new BootstrapContext());
@@ -688,17 +687,6 @@ public class JMSServerControl2Test extends ManagementTestBase
    protected JMSServerControl createManagementControl() throws Exception
    {
       return ManagementControlHelper.createJMSServerControl(mbeanServer);
-   }
-
-   @Override
-   @After
-   public void tearDown() throws Exception
-   {
-      serverManager = null;
-
-      server = null;
-
-      super.tearDown();
    }
 
    // Private -------------------------------------------------------

@@ -23,7 +23,7 @@ import javax.jms.Message;
 
 import org.apache.activemq.artemis.jms.client.ActiveMQMessage;
 import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -141,7 +141,7 @@ public class JMSExpirationHeaderTest extends MessageHeaderTestBase
       }, "receiver thread");
       receiverThread.start();
 
-      ServiceTestBase.waitForLatch(latch);
+      ActiveMQTestBase.waitForLatch(latch);
       ProxyAssertSupport.assertNull(expectedMessage);
    }
 
@@ -213,8 +213,8 @@ public class JMSExpirationHeaderTest extends MessageHeaderTestBase
       }, "sender thread");
       senderThread.start();
 
-      ServiceTestBase.waitForLatch(senderLatch);
-      ServiceTestBase.waitForLatch(receiverLatch);
+      ActiveMQTestBase.waitForLatch(senderLatch);
+      ActiveMQTestBase.waitForLatch(receiverLatch);
 
       if (testFailed)
       {
@@ -298,7 +298,7 @@ public class JMSExpirationHeaderTest extends MessageHeaderTestBase
       queueConsumer.close();
 
       // wait for the reading thread to conclude
-      ServiceTestBase.waitForLatch(latch);
+      ActiveMQTestBase.waitForLatch(latch);
 
       log.trace("Expected message:" + expectedMessage);
 

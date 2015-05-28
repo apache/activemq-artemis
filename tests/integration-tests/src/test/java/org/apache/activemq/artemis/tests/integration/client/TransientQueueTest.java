@@ -140,7 +140,6 @@ public class TransientQueueTest extends SingleServerTestBase
 
    }
 
-
    @Test
    public void testQueueDifferentConfigs() throws Exception
    {
@@ -225,19 +224,14 @@ public class TransientQueueTest extends SingleServerTestBase
       }
 
       assertTrue(exHappened);
-
-
    }
-
 
    protected ServerLocator createLocator()
    {
-      ServerLocator retlocator = super.createLocator();
-      retlocator.setConsumerWindowSize(0);
-      retlocator.setBlockOnAcknowledge(true);
-      retlocator.setBlockOnDurableSend(false);
-      retlocator.setBlockOnNonDurableSend(false);
-      return retlocator;
+      return super.createLocator()
+              .setConsumerWindowSize(0)
+              .setBlockOnAcknowledge(true)
+              .setBlockOnDurableSend(false)
+              .setBlockOnNonDurableSend(false);
    }
-
 }

@@ -16,17 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
-import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
-import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.apache.activemq.artemis.tests.integration.cluster.util.TestableServer;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
 import org.apache.activemq.artemis.core.client.impl.ServerLocatorInternal;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.HAPolicyConfiguration;
@@ -39,11 +33,15 @@ import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.NodeManager;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.tests.integration.cluster.util.SameProcessActiveMQServer;
+import org.apache.activemq.artemis.tests.integration.cluster.util.TestableServer;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.TransportConfigurationUtils;
-import org.junit.After;
 import org.junit.Before;
 
-public abstract class MultipleServerFailoverTestBase extends ServiceTestBase
+import java.util.ArrayList;
+import java.util.List;
+
+public abstract class MultipleServerFailoverTestBase extends ActiveMQTestBase
 {
    // Constants -----------------------------------------------------
 
@@ -65,7 +63,7 @@ public abstract class MultipleServerFailoverTestBase extends ServiceTestBase
 
    public abstract int getBackupServerCount();
 
-   public abstract boolean useNetty();
+   public abstract boolean isNetty();
 
    public abstract boolean isSharedStore();
 
@@ -99,7 +97,7 @@ public abstract class MultipleServerFailoverTestBase extends ServiceTestBase
             }
          }
 
-         Configuration configuration = createDefaultConfig(useNetty())
+         Configuration configuration = createDefaultConfig(isNetty())
             .clearAcceptorConfigurations()
             .addAcceptorConfiguration(getAcceptorTransportConfiguration(true, i))
             .setHAPolicyConfiguration(haPolicyConfiguration);
@@ -157,7 +155,7 @@ public abstract class MultipleServerFailoverTestBase extends ServiceTestBase
             }
          }
 
-         Configuration configuration = createDefaultConfig(useNetty())
+         Configuration configuration = createDefaultConfig(isNetty())
             .clearAcceptorConfigurations()
             .addAcceptorConfiguration(getAcceptorTransportConfiguration(false, i))
             .setHAPolicyConfiguration(haPolicyConfiguration);
@@ -203,47 +201,10 @@ public abstract class MultipleServerFailoverTestBase extends ServiceTestBase
       }
    }
 
-   @Override
-   @After
-   public void tearDown() throws Exception
-   {
-      for (TestableServer backupServer : backupServers)
-      {
-         try
-         {
-            backupServer.stop();
-         }
-         catch (Exception e)
-         {
-            logAndSystemOut("unable to stop server", e);
-         }
-      }
-      backupServers.clear();
-      backupServers = null;
-      backupConfigs.clear();
-      backupConfigs = null;
-      for (TestableServer liveServer : liveServers)
-      {
-         try
-         {
-            liveServer.stop();
-         }
-         catch (Exception e)
-         {
-            logAndSystemOut("unable to stop server", e);
-         }
-      }
-      liveServers.clear();
-      liveServers = null;
-      liveConfigs.clear();
-      liveConfigs = null;
-      super.tearDown();
-   }
-
    protected TransportConfiguration getAcceptorTransportConfiguration(final boolean live, int node)
    {
       TransportConfiguration transportConfiguration;
-      if (useNetty())
+      if (isNetty())
       {
          transportConfiguration = TransportConfigurationUtils.getNettyAcceptor(live, node, (live ? "live-" : "backup-") + node);
       }
@@ -257,7 +218,7 @@ public abstract class MultipleServerFailoverTestBase extends ServiceTestBase
    protected TransportConfiguration getConnectorTransportConfiguration(final boolean live, int node)
    {
       TransportConfiguration transportConfiguration;
-      if (useNetty())
+      if (isNetty())
       {
          transportConfiguration = TransportConfigurationUtils.getNettyConnector(live, node, (live ? "live-" : "backup-") + node);
       }
@@ -270,22 +231,18 @@ public abstract class MultipleServerFailoverTestBase extends ServiceTestBase
 
    protected ServerLocatorInternal getServerLocator(int node) throws Exception
    {
-      ServerLocator locator = ActiveMQClient.createServerLocatorWithHA(getConnectorTransportConfiguration(true, node));
-      locator.setRetryInterval(50);
-      locator.setReconnectAttempts(-1);
-      locator.setInitialConnectAttempts(-1);
-      addServerLocator(locator);
-      return (ServerLocatorInternal) locator;
+      return (ServerLocatorInternal) addServerLocator(ActiveMQClient.createServerLocatorWithHA(getConnectorTransportConfiguration(true, node)))
+              .setRetryInterval(50)
+              .setReconnectAttempts(-1)
+              .setInitialConnectAttempts(-1);
    }
 
    protected ServerLocatorInternal getBackupServerLocator(int node) throws Exception
    {
-      ServerLocator locator = ActiveMQClient.createServerLocatorWithHA(getConnectorTransportConfiguration(false, node));
-      locator.setRetryInterval(50);
-      locator.setReconnectAttempts(-1);
-      locator.setInitialConnectAttempts(-1);
-      addServerLocator(locator);
-      return (ServerLocatorInternal) locator;
+      return (ServerLocatorInternal) addServerLocator(ActiveMQClient.createServerLocatorWithHA(getConnectorTransportConfiguration(false, node)))
+              .setRetryInterval(50)
+              .setReconnectAttempts(-1)
+              .setInitialConnectAttempts(-1);
    }
 
    protected ClientSession createSession(ClientSessionFactory sf,

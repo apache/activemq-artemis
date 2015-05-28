@@ -19,7 +19,6 @@ package org.apache.activemq.artemis.tests.integration.management;
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
@@ -27,15 +26,13 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
 import org.apache.activemq.artemis.core.config.Configuration;
-import org.apache.activemq.artemis.core.remoting.impl.invm.InVMAcceptorFactory;
 import org.apache.activemq.artemis.core.security.CheckType;
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManagerImpl;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -46,7 +43,7 @@ import java.util.Set;
 import static org.apache.activemq.artemis.api.core.management.CoreNotificationType.SECURITY_AUTHENTICATION_VIOLATION;
 import static org.apache.activemq.artemis.api.core.management.CoreNotificationType.SECURITY_PERMISSION_VIOLATION;
 
-public class SecurityNotificationTest extends ServiceTestBase
+public class SecurityNotificationTest extends ActiveMQTestBase
 {
 
    // Constants -----------------------------------------------------
@@ -143,12 +140,9 @@ public class SecurityNotificationTest extends ServiceTestBase
    {
       super.setUp();
 
-      Configuration conf = createBasicConfig()
-         .setSecurityEnabled(true)
-         // the notifications are independent of JMX
-         .setJMXManagementEnabled(false)
-         .addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName()));
-      server = ActiveMQServers.newActiveMQServer(conf, false);
+      Configuration config = createDefaultInVMConfig()
+         .setSecurityEnabled(true);
+      server = addServer(ActiveMQServers.newActiveMQServer(config, false));
       server.start();
 
       notifQueue = RandomUtil.randomSimpleString();
@@ -174,20 +168,6 @@ public class SecurityNotificationTest extends ServiceTestBase
       adminSession.createTemporaryQueue(ActiveMQDefaultConfiguration.getDefaultManagementNotificationAddress(), notifQueue);
 
       notifConsumer = adminSession.createConsumer(notifQueue);
-   }
-
-   @Override
-   @After
-   public void tearDown() throws Exception
-   {
-      notifConsumer.close();
-
-      adminSession.deleteQueue(notifQueue);
-      adminSession.close();
-
-      server.stop();
-
-      super.tearDown();
    }
 
    // Private -------------------------------------------------------

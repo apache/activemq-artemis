@@ -16,24 +16,23 @@
  */
 package org.apache.activemq.artemis.tests.integration.management;
 
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.core.registry.JndiBindingRegistry;
+import org.apache.activemq.artemis.jms.server.config.ConnectionFactoryConfiguration;
+import org.apache.activemq.artemis.jms.server.config.impl.ConnectionFactoryConfigurationImpl;
+import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
+import org.apache.activemq.artemis.tests.integration.cluster.failover.FailoverTestBase;
+import org.apache.activemq.artemis.tests.unit.util.InVMNamingContext;
+import org.apache.activemq.artemis.tests.util.TransportConfigurationUtils;
+import org.junit.Before;
+import org.junit.Test;
+
 import javax.jms.ConnectionFactory;
 import javax.jms.Queue;
 import javax.jms.Topic;
 import javax.naming.NameNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.apache.activemq.artemis.api.core.TransportConfiguration;
-import org.apache.activemq.artemis.tests.unit.util.InVMNamingContext;
-import org.apache.activemq.artemis.core.registry.JndiBindingRegistry;
-import org.apache.activemq.artemis.jms.server.config.ConnectionFactoryConfiguration;
-import org.apache.activemq.artemis.jms.server.config.impl.ConnectionFactoryConfigurationImpl;
-import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
-import org.apache.activemq.artemis.tests.integration.cluster.failover.FailoverTestBase;
-import org.apache.activemq.artemis.tests.util.TransportConfigurationUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
 
 /**
  * Validates if a JMS management operations will wait until the server is activated.  If the server is not active
@@ -69,14 +68,6 @@ public class ManagementActivationTest extends FailoverTestBase
       context = new InVMNamingContext();
       backupJmsServer.setRegistry(new JndiBindingRegistry(context));
       backupJmsServer.start();
-   }
-
-   @Override
-   @After
-   public void tearDown() throws Exception
-   {
-      backupJmsServer.stop();
-      super.tearDown();
    }
 
    @Test

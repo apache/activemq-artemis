@@ -31,7 +31,7 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.tests.util.CreateMessage;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
@@ -42,7 +42,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class SecurityTest extends ServiceTestBase
+public class SecurityTest extends ActiveMQTestBase
 {
    /*
     * create session tests
@@ -92,7 +92,7 @@ public class SecurityTest extends ServiceTestBase
     */
    private ActiveMQServer createServer() throws Exception
    {
-      configuration = createDefaultConfig()
+      configuration = createDefaultInVMConfig()
          .setSecurityEnabled(true);
       ActiveMQServer server = createServer(false, configuration);
       return server;
@@ -569,7 +569,7 @@ public class SecurityTest extends ServiceTestBase
    @Test
    public void testSendMessageUpdateRoleCached() throws Exception
    {
-      Configuration configuration = createDefaultConfig()
+      Configuration configuration = createDefaultInVMConfig()
          .setSecurityEnabled(true)
          .setSecurityInvalidationInterval(10000);
       ActiveMQServer server = createServer(false, configuration);
@@ -625,7 +625,7 @@ public class SecurityTest extends ServiceTestBase
    @Test
    public void testSendMessageUpdateRoleCached2() throws Exception
    {
-      Configuration configuration = createDefaultConfig()
+      Configuration configuration = createDefaultInVMConfig()
          .setSecurityEnabled(true)
          .setSecurityInvalidationInterval(0);
       ActiveMQServer server = createServer(false, configuration);
@@ -695,7 +695,7 @@ public class SecurityTest extends ServiceTestBase
    @Test
    public void testSendMessageUpdateSender() throws Exception
    {
-      Configuration configuration = createDefaultConfig()
+      Configuration configuration = createDefaultInVMConfig()
          .setSecurityEnabled(true)
          .setSecurityInvalidationInterval(-1);
       ActiveMQServer server = createServer(false, configuration);
@@ -919,8 +919,8 @@ public class SecurityTest extends ServiceTestBase
       ClientSession andrewConnection = null;
       ClientSession frankConnection = null;
       ClientSession samConnection = null;
-      locator.setBlockOnNonDurableSend(true);
-      locator.setBlockOnDurableSend(true);
+      locator.setBlockOnNonDurableSend(true)
+              .setBlockOnDurableSend(true);
       ClientSessionFactory factory = createSessionFactory(locator);
 
       ClientSession adminSession = factory.createSession("all", "all", false, true, true, false, -1);
@@ -1059,8 +1059,8 @@ public class SecurityTest extends ServiceTestBase
       ClientSession frankConnection = null;
       ClientSession samConnection = null;
       ClientSessionFactory factory = createSessionFactory(locator);
-      factory.getServerLocator().setBlockOnNonDurableSend(true);
-      factory.getServerLocator().setBlockOnDurableSend(true);
+      factory.getServerLocator().setBlockOnNonDurableSend(true)
+              .setBlockOnDurableSend(true);
 
       ClientSession adminSession = factory.createSession("all", "all", false, true, true, false, -1);
       String genericQueueName = "genericQueue";

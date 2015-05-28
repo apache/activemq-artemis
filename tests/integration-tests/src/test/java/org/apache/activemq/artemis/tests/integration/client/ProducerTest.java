@@ -34,12 +34,12 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class ProducerTest extends ServiceTestBase
+public class ProducerTest extends ActiveMQTestBase
 {
    private ActiveMQServer server;
 
@@ -71,8 +71,8 @@ public class ProducerTest extends ServiceTestBase
             return true;
          }
       });
-      ServerLocator locator = createInVMNonHALocator();
-      locator.setConfirmationWindowSize(100);
+      ServerLocator locator = createInVMNonHALocator()
+              .setConfirmationWindowSize(100);
       ClientSessionFactory cf = locator.createSessionFactory();
       ClientSession session = cf.createSession(false, true, true);
       ClientProducer producer = session.createProducer(QUEUE);
@@ -90,9 +90,9 @@ public class ProducerTest extends ServiceTestBase
    public void testProducerMultiThread() throws Exception
    {
       final ServerLocator locator = createInVMNonHALocator();
-      AddressSettings setting = new AddressSettings();
-      setting.setAddressFullMessagePolicy(AddressFullMessagePolicy.BLOCK);
-      setting.setMaxSizeBytes(10 * 1024);
+      AddressSettings setting = new AddressSettings()
+              .setAddressFullMessagePolicy(AddressFullMessagePolicy.BLOCK)
+              .setMaxSizeBytes(10 * 1024);
       server.stop();
       server.getConfiguration().getAddressesSettings().clear();
       server.getConfiguration().getAddressesSettings().put(QUEUE.toString(), setting);

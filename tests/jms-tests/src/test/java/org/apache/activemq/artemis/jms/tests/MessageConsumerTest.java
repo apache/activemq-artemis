@@ -45,7 +45,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -4336,7 +4336,7 @@ public class MessageConsumerTest extends JMSTestCase
 
       public void waitForMessages() throws InterruptedException
       {
-         ServiceTestBase.waitForLatch(latch);
+         ActiveMQTestBase.waitForLatch(latch);
       }
 
       public ExceptionRedelMessageListenerImpl(final Session sess)
@@ -4459,7 +4459,7 @@ public class MessageConsumerTest extends JMSTestCase
        */
       public void waitForMessages() throws InterruptedException
       {
-         ServiceTestBase.waitForLatch(latch);
+         ActiveMQTestBase.waitForLatch(latch);
       }
 
       public void onMessage(final Message m)
@@ -4557,7 +4557,7 @@ public class MessageConsumerTest extends JMSTestCase
        */
       public void waitForMessages() throws InterruptedException
       {
-         ServiceTestBase.waitForLatch(latch);
+         ActiveMQTestBase.waitForLatch(latch);
       }
 
       public void onMessage(final Message m)

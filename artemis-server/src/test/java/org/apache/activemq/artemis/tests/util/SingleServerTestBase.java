@@ -16,12 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.util;
 
-import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
-import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.junit.Before;
 
@@ -29,9 +26,8 @@ import org.junit.Before;
  * Any test based on a single server can extend this class.
  * This is useful for quick writing tests with starting a server, locator, factory... etc
  */
-public abstract class SingleServerTestBase extends ServiceTestBase
+public abstract class SingleServerTestBase extends ActiveMQTestBase
 {
-
    protected ActiveMQServer server;
 
    protected ClientSession session;
@@ -47,9 +43,7 @@ public abstract class SingleServerTestBase extends ServiceTestBase
    {
       super.setUp();
 
-      Configuration configuration = createDefaultConfig()
-         .setSecurityEnabled(false);
-      server = createServer(false, configuration);
+      server = createServer(false, createDefaultInVMConfig());
       server.start();
 
       locator = createLocator();
@@ -59,9 +53,6 @@ public abstract class SingleServerTestBase extends ServiceTestBase
 
    protected ServerLocator createLocator()
    {
-      ServerLocator retlocator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(INVM_CONNECTOR_FACTORY));
-      addServerLocator(retlocator);
-      return retlocator;
+      return createInVMNonHALocator();
    }
-
 }

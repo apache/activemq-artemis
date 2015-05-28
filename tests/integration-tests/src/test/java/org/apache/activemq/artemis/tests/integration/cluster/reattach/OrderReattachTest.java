@@ -40,9 +40,9 @@ import org.apache.activemq.artemis.core.protocol.core.impl.RemotingConnectionImp
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 
-public class OrderReattachTest extends ServiceTestBase
+public class OrderReattachTest extends ActiveMQTestBase
 {
    // Constants -----------------------------------------------------
 
@@ -70,11 +70,12 @@ public class OrderReattachTest extends ServiceTestBase
       server = createServer(false, isNetty);
 
       server.start();
-      ServerLocator locator = createFactory(isNetty);
-      locator.setReconnectAttempts(-1);
-      locator.setConfirmationWindowSize(1024 * 1024);
-      locator.setBlockOnNonDurableSend(false);
-      locator.setBlockOnAcknowledge(false);
+      ServerLocator locator = createFactory(isNetty)
+              .setReconnectAttempts(-1)
+              .setConfirmationWindowSize(1024 * 1024)
+              .setBlockOnNonDurableSend(false)
+              .setBlockOnAcknowledge(false);
+
       ClientSessionFactory sf = createSessionFactory(locator);
 
       final ClientSession session = sf.createSession(false, true, true);

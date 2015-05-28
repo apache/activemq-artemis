@@ -53,7 +53,7 @@ public class CloseConnectionFactoryOnGCest extends JMSTestBase
          for (int i = 0; i < 100; i++)
          {
             ActiveMQConnectionFactory cf = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF,
-                                                                                              new TransportConfiguration("org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory"));
+                                                                                              new TransportConfiguration(INVM_CONNECTOR_FACTORY));
             Connection conn = cf.createConnection();
             cf = null;
             conn.close();

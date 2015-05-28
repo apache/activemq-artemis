@@ -16,11 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
-import java.util.Arrays;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import org.apache.activemq.artemis.api.core.ActiveMQDisconnectedException;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
@@ -36,8 +31,6 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.MessageHandler;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.apache.activemq.artemis.tests.util.SingleServerTestBase;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
 import org.apache.activemq.artemis.core.client.impl.ClientProducerImpl;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionInternal;
 import org.apache.activemq.artemis.core.protocol.core.Packet;
@@ -51,9 +44,15 @@ import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
-import org.junit.After;
+import org.apache.activemq.artemis.tests.util.SingleServerTestBase;
 import org.junit.Test;
+
+import java.util.Arrays;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class TemporaryQueueTest extends SingleServerTestBase
 {
@@ -171,14 +170,6 @@ public class TemporaryQueueTest extends SingleServerTestBase
 
       session2.close();
       session.close();
-   }
-
-   @Override
-   @After
-   public void tearDown() throws Exception
-   {
-
-      super.tearDown();
    }
 
    @Test
@@ -348,10 +339,12 @@ public class TemporaryQueueTest extends SingleServerTestBase
    @Test
    public void testRecreateConsumerOverServerFailure() throws Exception
    {
-      ServerLocator serverWithReattach = createLocator();
-      serverWithReattach.setReconnectAttempts(-1);
-      serverWithReattach.setRetryInterval(1000);
-      serverWithReattach.setConfirmationWindowSize(-1);
+      ServerLocator serverWithReattach = createInVMNonHALocator()
+              .setReconnectAttempts(-1)
+              .setRetryInterval(1000)
+              .setConfirmationWindowSize(-1)
+              .setConnectionTTL(TemporaryQueueTest.CONNECTION_TTL)
+              .setClientFailureCheckPeriod(TemporaryQueueTest.CONNECTION_TTL / 3);
       ClientSessionFactory reattachSF = createSessionFactory(serverWithReattach);
 
       ClientSession session = reattachSF.createSession(false, false);
@@ -574,8 +567,8 @@ public class TemporaryQueueTest extends SingleServerTestBase
          }
       };
 
-      ServiceTestBase.expectActiveMQException("temp queue must not exist after the server detected the client crash",
-              ActiveMQExceptionType.QUEUE_DOES_NOT_EXIST, activeMQAction);
+      ActiveMQTestBase.expectActiveMQException("temp queue must not exist after the server detected the client crash",
+                                               ActiveMQExceptionType.QUEUE_DOES_NOT_EXIST, activeMQAction);
 
       session.close();
 
@@ -586,9 +579,9 @@ public class TemporaryQueueTest extends SingleServerTestBase
    public void testBlockingWithTemporaryQueue() throws Exception
    {
 
-      AddressSettings setting = new AddressSettings();
-      setting.setAddressFullMessagePolicy(AddressFullMessagePolicy.BLOCK);
-      setting.setMaxSizeBytes(1024 * 1024);
+      AddressSettings setting = new AddressSettings()
+              .setAddressFullMessagePolicy(AddressFullMessagePolicy.BLOCK)
+              .setMaxSizeBytes(1024 * 1024);
 
       server.getAddressSettingsRepository().addMatch("TestAD", setting);
 
@@ -685,14 +678,4 @@ public class TemporaryQueueTest extends SingleServerTestBase
    // Package protected ---------------------------------------------
 
    // Protected -----------------------------------------------------
-
-   @Override
-   protected ServerLocator createLocator()
-   {
-      ServerLocator retlocator = super.createLocator();
-      retlocator.setConnectionTTL(TemporaryQueueTest.CONNECTION_TTL);
-      retlocator.setClientFailureCheckPeriod(TemporaryQueueTest.CONNECTION_TTL / 3);
-      return retlocator;
-   }
-
 }

@@ -162,11 +162,11 @@ public class AsynchronousFailoverTest extends FailoverTestBase
          for (int i = 0; i < numIts; i++)
          {
             AsynchronousFailoverTest.log.info("Iteration " + i);
-            ServerLocator locator = getServerLocator();
-            locator.setBlockOnNonDurableSend(true);
-            locator.setBlockOnDurableSend(true);
-            locator.setReconnectAttempts(-1);
-            locator.setConfirmationWindowSize(10 * 1024 * 1024);
+            ServerLocator locator = getServerLocator()
+                    .setBlockOnNonDurableSend(true)
+                    .setBlockOnDurableSend(true)
+                    .setReconnectAttempts(-1)
+                    .setConfirmationWindowSize(10 * 1024 * 1024);
             sf = createSessionFactoryAndWaitForTopology(locator, 2);
             try
             {

@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.cluster;
 
+import org.apache.activemq.artemis.tests.util.JMSClusteredTestBase;
+import org.junit.Test;
+
 import javax.jms.Connection;
 import javax.jms.DeliveryMode;
 import javax.jms.MessageConsumer;
@@ -23,11 +26,6 @@ import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.jms.Topic;
-
-import org.apache.activemq.artemis.tests.util.JMSClusteredTestBase;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
 
 public class TopicClusterTest extends JMSClusteredTestBase
 {
@@ -41,20 +39,6 @@ public class TopicClusterTest extends JMSClusteredTestBase
    // Constructors --------------------------------------------------
 
    // Public --------------------------------------------------------
-
-
-   @After
-   public void tearDown() throws Exception
-   {
-      super.tearDown();
-   }
-
-
-   @Before
-   public void setUp() throws Exception
-   {
-      super.setUp();
-   }
 
    @Test
    public void testDeleteTopicAfterClusteredSend() throws Exception

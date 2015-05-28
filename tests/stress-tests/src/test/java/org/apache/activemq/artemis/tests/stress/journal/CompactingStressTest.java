@@ -28,14 +28,14 @@ import org.apache.activemq.artemis.core.asyncio.impl.AsynchronousFileImpl;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.JournalType;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class CompactingStressTest extends ServiceTestBase
+public class CompactingStressTest extends ActiveMQTestBase
 {
 
    // Constants -----------------------------------------------------
@@ -233,7 +233,7 @@ public class CompactingStressTest extends ServiceTestBase
             latchReady.countDown();
             try
             {
-               ServiceTestBase.waitForLatch(latchStart);
+               ActiveMQTestBase.waitForLatch(latchStart);
                session = sf.createSession(true, true);
                sessionSlow = sf.createSession(false, false);
                ClientProducer prod = session.createProducer(CompactingStressTest.AD2);
@@ -296,7 +296,7 @@ public class CompactingStressTest extends ServiceTestBase
             latchReady.countDown();
             try
             {
-               ServiceTestBase.waitForLatch(latchStart);
+               ActiveMQTestBase.waitForLatch(latchStart);
                session = sf.createSession(true, true);
                session.start();
                ClientConsumer cons = session.createConsumer(CompactingStressTest.Q2);
@@ -332,7 +332,7 @@ public class CompactingStressTest extends ServiceTestBase
       FastProducer p1 = new FastProducer();
       p1.start();
 
-      ServiceTestBase.waitForLatch(latchReady);
+      ActiveMQTestBase.waitForLatch(latchReady);
       latchStart.countDown();
 
       p1.join();
@@ -409,7 +409,7 @@ public class CompactingStressTest extends ServiceTestBase
 
    private void setupServer(final JournalType journalType) throws Exception
    {
-      Configuration config = createDefaultConfig()
+      Configuration config = createDefaultInVMConfig()
          .setJournalSyncNonTransactional(false)
          .setJournalFileSize(ActiveMQDefaultConfiguration.getDefaultJournalFileSize())
          .setJournalType(journalType)
@@ -421,9 +421,9 @@ public class CompactingStressTest extends ServiceTestBase
       server.start();
 
 
-      ServerLocator locator = createInVMNonHALocator();
-      locator.setBlockOnDurableSend(false);
-      locator.setBlockOnAcknowledge(false);
+      ServerLocator locator = createInVMNonHALocator()
+              .setBlockOnDurableSend(false)
+              .setBlockOnAcknowledge(false);
 
       sf = createSessionFactory(locator);
       ClientSession sess = addClientSession(sf.createSession());

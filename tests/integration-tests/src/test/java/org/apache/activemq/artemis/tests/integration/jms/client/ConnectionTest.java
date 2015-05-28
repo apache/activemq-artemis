@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.client;
 
+import org.apache.activemq.artemis.tests.util.JMSTestBase;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Test;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.InvalidClientIDException;
@@ -30,11 +35,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-
-import org.apache.activemq.artemis.tests.util.JMSTestBase;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Test;
 
 public class ConnectionTest extends JMSTestBase
 {

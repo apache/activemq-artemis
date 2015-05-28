@@ -125,8 +125,7 @@ public class ClientCrashTest extends ClientTestBase
    public void testCrashClient2() throws Exception
    {
       // set the redelivery delay to avoid an attempt to redeliver the message to the dead client
-      AddressSettings addressSettings = new AddressSettings();
-      addressSettings.setRedeliveryDelay(ClientCrashTest.CONNECTION_TTL + ClientCrashTest.PING_PERIOD);
+      AddressSettings addressSettings = new AddressSettings().setRedeliveryDelay(ClientCrashTest.CONNECTION_TTL + ClientCrashTest.PING_PERIOD);
       server.getAddressSettingsRepository().addMatch(ClientCrashTest.QUEUE2.toString(), addressSettings);
 
       assertActiveConnections(1);

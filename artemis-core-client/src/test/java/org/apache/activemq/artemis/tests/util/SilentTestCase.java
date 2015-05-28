@@ -40,7 +40,6 @@ public abstract class SilentTestCase extends Assert
    @Before
    public void setUp() throws Exception
    {
-
       origSysOut = System.out;
       origSysErr = System.err;
       sysOut = new PrintStream(new ByteArrayOutputStream());
@@ -54,6 +53,5 @@ public abstract class SilentTestCase extends Assert
    {
       System.setOut(origSysOut);
       System.setErr(origSysErr);
-
    }
 }

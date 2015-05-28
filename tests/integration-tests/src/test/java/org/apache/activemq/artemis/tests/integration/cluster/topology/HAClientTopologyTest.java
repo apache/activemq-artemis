@@ -19,7 +19,7 @@ package org.apache.activemq.artemis.tests.integration.cluster.topology;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 
 public class HAClientTopologyTest extends TopologyClusterTestBase
 {
@@ -57,10 +57,10 @@ public class HAClientTopologyTest extends TopologyClusterTestBase
    @Override
    protected ServerLocator createHAServerLocator()
    {
-      TransportConfiguration tc = ServiceTestBase.createTransportConfiguration(isNetty(), false, ServiceTestBase.generateParams(0, isNetty()));
+      TransportConfiguration tc = ActiveMQTestBase.createTransportConfiguration(isNetty(), false, ActiveMQTestBase.generateParams(0, isNetty()));
       ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithHA(tc));
-      locator.setBlockOnNonDurableSend(true);
-      locator.setBlockOnDurableSend(true);
+      locator.setBlockOnNonDurableSend(true)
+              .setBlockOnDurableSend(true);
       return locator;
    }
 }

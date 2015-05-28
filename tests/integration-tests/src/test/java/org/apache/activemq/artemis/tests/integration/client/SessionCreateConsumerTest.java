@@ -24,12 +24,12 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionInternal;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class SessionCreateConsumerTest extends ServiceTestBase
+public class SessionCreateConsumerTest extends ActiveMQTestBase
 {
    private final String queueName = "ClientSessionCreateConsumerTestQ";
 
@@ -47,9 +47,9 @@ public class SessionCreateConsumerTest extends ServiceTestBase
 
       service = createServer(false);
       service.start();
-      locator.setProducerMaxRate(99);
-      locator.setBlockOnNonDurableSend(true);
-      locator.setBlockOnNonDurableSend(true);
+      locator.setProducerMaxRate(99)
+              .setBlockOnNonDurableSend(true)
+              .setBlockOnNonDurableSend(true);
       cf = createSessionFactory(locator);
       clientSession = (ClientSessionInternal) addClientSession(cf.createSession(false, true, true));
    }

@@ -15,13 +15,6 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.integration.remoting;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
-import org.junit.Before;
-
-import org.junit.Test;
-
-import java.util.HashMap;
-import java.util.Map;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
@@ -30,18 +23,22 @@ import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
-import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyAcceptorFactory;
-import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.impl.QueueImpl;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.junit.Before;
+import org.junit.Test;
 
-public class DirectDeliverTest extends ServiceTestBase
+import java.util.HashMap;
+import java.util.Map;
+
+public class DirectDeliverTest extends ActiveMQTestBase
 {
 
    private ActiveMQServer server;
@@ -64,7 +61,7 @@ public class DirectDeliverTest extends ServiceTestBase
       server = createServer(false, config);
       server.start();
 
-      locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(NettyConnectorFactory.class.getName()));
+      locator = createNettyNonHALocator();
       addServerLocator(locator);
    }
 

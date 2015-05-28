@@ -15,29 +15,11 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.integration.stomp.v11;
-import org.apache.activemq.artemis.tests.unit.util.InVMNamingContext;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
-import org.apache.activemq.artemis.core.registry.JndiBindingRegistry;
-import org.junit.Before;
-import org.junit.After;
 
-import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.jms.BytesMessage;
-import javax.jms.Connection;
-import javax.jms.ConnectionFactory;
-import javax.jms.Destination;
-import javax.jms.MessageProducer;
-import javax.jms.Queue;
-import javax.jms.Session;
-import javax.jms.TextMessage;
-import javax.jms.Topic;
-
-import org.apache.activemq.artemis.core.protocol.stomp.StompProtocolManagerFactory;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.protocol.stomp.StompProtocolManagerFactory;
+import org.apache.activemq.artemis.core.registry.JndiBindingRegistry;
 import org.apache.activemq.artemis.core.remoting.impl.invm.InVMAcceptorFactory;
 import org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyAcceptorFactory;
@@ -51,8 +33,24 @@ import org.apache.activemq.artemis.jms.server.config.impl.JMSConfigurationImpl;
 import org.apache.activemq.artemis.jms.server.config.impl.JMSQueueConfigurationImpl;
 import org.apache.activemq.artemis.jms.server.config.impl.TopicConfigurationImpl;
 import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
+import org.apache.activemq.artemis.tests.unit.util.InVMNamingContext;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.junit.Before;
 
-public abstract class StompV11TestBase extends ServiceTestBase
+import javax.jms.BytesMessage;
+import javax.jms.Connection;
+import javax.jms.ConnectionFactory;
+import javax.jms.Destination;
+import javax.jms.MessageProducer;
+import javax.jms.Queue;
+import javax.jms.Session;
+import javax.jms.TextMessage;
+import javax.jms.Topic;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
+
+public abstract class StompV11TestBase extends ActiveMQTestBase
 {
    protected String hostname = "127.0.0.1";
 
@@ -124,23 +122,6 @@ public abstract class StompV11TestBase extends ServiceTestBase
       server = new JMSServerManagerImpl(activeMQServer, jmsConfig);
       server.setRegistry(new JndiBindingRegistry(new InVMNamingContext()));
       return server;
-   }
-
-   @Override
-   @After
-   public void tearDown() throws Exception
-   {
-      try
-      {
-         if (connection != null)
-            connection.close();
-         if (server != null)
-            server.stop();
-      }
-      finally
-      {
-         super.tearDown();
-      }
    }
 
    protected ConnectionFactory createConnectionFactory()

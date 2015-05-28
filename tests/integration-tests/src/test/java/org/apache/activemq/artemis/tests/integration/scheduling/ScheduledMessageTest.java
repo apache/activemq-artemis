@@ -30,7 +30,7 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
 import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.junit.Assert;
 import org.junit.Before;
@@ -41,7 +41,7 @@ import javax.transaction.xa.Xid;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class ScheduledMessageTest extends ServiceTestBase
+public class ScheduledMessageTest extends ActiveMQTestBase
 {
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
@@ -68,9 +68,7 @@ public class ScheduledMessageTest extends ServiceTestBase
     */
    protected void startServer() throws Exception
    {
-      configuration = createDefaultConfig()
-         .setSecurityEnabled(false)
-         .setJournalMinFiles(2);
+      configuration = createDefaultInVMConfig();
       server = createServer(true, configuration);
       server.start();
       locator = createInVMNonHALocator();
@@ -173,8 +171,7 @@ public class ScheduledMessageTest extends ServiceTestBase
    @Test
    public void testPagedMessageDeliveredMultipleConsumersCorrectly() throws Exception
    {
-      AddressSettings qs = new AddressSettings();
-      qs.setRedeliveryDelay(5000L);
+      AddressSettings qs = new AddressSettings().setRedeliveryDelay(5000L);
       server.getAddressSettingsRepository().addMatch(atestq.toString(), qs);
       // then we create a client as normal
       ClientSessionFactory sessionFactory = createSessionFactory(locator);
@@ -227,8 +224,7 @@ public class ScheduledMessageTest extends ServiceTestBase
    public void testPagedMessageDeliveredMultipleConsumersAfterRecoverCorrectly() throws Exception
    {
 
-      AddressSettings qs = new AddressSettings();
-      qs.setRedeliveryDelay(5000L);
+      AddressSettings qs = new AddressSettings().setRedeliveryDelay(5000L);
       server.getAddressSettingsRepository().addMatch(atestq.toString(), qs);
       // then we create a client as normal
       ClientSessionFactory sessionFactory = createSessionFactory(locator);
@@ -751,8 +747,7 @@ public class ScheduledMessageTest extends ServiceTestBase
    @Test
    public void testRedeliveryAfterPrepare() throws Exception
    {
-      AddressSettings qs = new AddressSettings();
-      qs.setRedeliveryDelay(5000L);
+      AddressSettings qs = new AddressSettings().setRedeliveryDelay(5000L);
       server.getAddressSettingsRepository().addMatch(atestq.toString(), qs);
 
       ClientSessionFactory sessionFactory = createSessionFactory(locator);
@@ -797,9 +792,7 @@ public class ScheduledMessageTest extends ServiceTestBase
 
       server.stop();
 
-      configuration = createDefaultConfig()
-         .setSecurityEnabled(false)
-         .setJournalMinFiles(2)
+      configuration = createDefaultInVMConfig()
          .addAddressesSetting(atestq.toString(), qs);
 
       server = createServer(true, configuration);
@@ -863,7 +856,7 @@ public class ScheduledMessageTest extends ServiceTestBase
 
    private void scheduledDelivery(final boolean tx) throws Exception
    {
-      ServiceTestBase.forceGC();
+      ActiveMQTestBase.forceGC();
 
       Xid xid = new XidImpl("xa1".getBytes(), 1, UUIDGenerator.getInstance().generateStringUUID().getBytes());
 

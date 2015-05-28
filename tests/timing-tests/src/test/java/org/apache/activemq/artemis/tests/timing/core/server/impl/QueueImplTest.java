@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.timing.core.server.impl;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Before;
 import org.junit.After;
 
@@ -38,7 +38,7 @@ import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.impl.QueueImpl;
 import org.apache.activemq.artemis.tests.unit.core.server.impl.fakes.FakeConsumer;
 
-public class QueueImplTest extends ServiceTestBase
+public class QueueImplTest extends ActiveMQTestBase
 {
    private static final SimpleString queue1 = new SimpleString("queue1");
 

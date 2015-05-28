@@ -150,10 +150,10 @@ public class FailoverListenerTest extends FailoverTestBase
    @Test
    public void testFailoverFailed() throws Exception
    {
-      locator.setBlockOnNonDurableSend(true);
-      locator.setBlockOnDurableSend(true);
-      locator.setFailoverOnInitialConnection(true); // unnecessary?
-      locator.setReconnectAttempts(1);
+      locator.setBlockOnNonDurableSend(true)
+              .setBlockOnDurableSend(true)
+              .setFailoverOnInitialConnection(true) // unnecessary?
+              .setReconnectAttempts(1);
       sf = createSessionFactoryAndWaitForTopology(locator, 2);
 
       //make sure no backup server is running
@@ -179,10 +179,10 @@ public class FailoverListenerTest extends FailoverTestBase
 
    private void createSessionFactory(int members) throws Exception
    {
-      locator.setBlockOnNonDurableSend(true);
-      locator.setBlockOnDurableSend(true);
-      locator.setFailoverOnInitialConnection(true); // unnecessary?
-      locator.setReconnectAttempts(-1);
+      locator.setBlockOnNonDurableSend(true)
+              .setBlockOnDurableSend(true)
+              .setFailoverOnInitialConnection(true) // unnecessary?
+              .setReconnectAttempts(-1);
       sf = createSessionFactoryAndWaitForTopology(locator, members);
    }
 
@@ -200,10 +200,9 @@ public class FailoverListenerTest extends FailoverTestBase
       TransportConfiguration liveConnector = getConnectorTransportConfiguration(true);
       TransportConfiguration backupConnector = getConnectorTransportConfiguration(false);
 
-      backupConfig = super.createDefaultConfig()
+      backupConfig = super.createDefaultInVMConfig()
          .clearAcceptorConfigurations()
          .addAcceptorConfiguration(getAcceptorTransportConfiguration(false))
-         .setSecurityEnabled(false)
          .setHAPolicyConfiguration(new SharedStoreSlavePolicyConfiguration()
                                       .setFailbackDelay(1000))
          .addConnectorConfiguration(liveConnector.getName(), liveConnector)
@@ -212,10 +211,9 @@ public class FailoverListenerTest extends FailoverTestBase
 
       backupServer = createTestableServer(backupConfig);
 
-      liveConfig = super.createDefaultConfig()
+      liveConfig = super.createDefaultInVMConfig()
          .clearAcceptorConfigurations()
          .addAcceptorConfiguration(getAcceptorTransportConfiguration(true))
-         .setSecurityEnabled(false)
          .setHAPolicyConfiguration(new SharedStoreMasterPolicyConfiguration()
                                       .setFailbackDelay(1000))
          .addClusterConfiguration(basicClusterConnectionConfig(liveConnector.getName(), backupConnector.getName()))

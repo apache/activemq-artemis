@@ -16,10 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.extras.byteman;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
@@ -27,22 +23,24 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.api.core.management.CoreNotificationType;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.protocol.stomp.StompProtocolManagerFactory;
-import org.apache.activemq.artemis.core.remoting.impl.invm.InVMAcceptorFactory;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyAcceptorFactory;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.management.Notification;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.jboss.byteman.contrib.bmunit.BMRule;
 import org.jboss.byteman.contrib.bmunit.BMRules;
 import org.jboss.byteman.contrib.bmunit.BMUnitRunner;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
 @RunWith(BMUnitRunner.class)
-public class StompInternalStateTest extends ServiceTestBase
+public class StompInternalStateTest extends ActiveMQTestBase
 {
    private static final String STOMP_QUEUE_NAME = "jms.queue.StompTestQueue";
 
@@ -92,17 +90,15 @@ public class StompInternalStateTest extends ServiceTestBase
    @Override
    protected Configuration createDefaultConfig(final boolean netty) throws Exception
    {
-      Configuration config = super.createDefaultConfig(netty)
-         .setSecurityEnabled(false)
-         .setPersistenceEnabled(false);
-
-      Map<String, Object> params = new HashMap<String, Object>();
+      Map<String, Object> params = new HashMap<>();
       params.put(TransportConstants.PROTOCOLS_PROP_NAME, StompProtocolManagerFactory.STOMP_PROTOCOL_NAME);
       params.put(TransportConstants.PORT_PROP_NAME, TransportConstants.DEFAULT_STOMP_PORT);
       params.put(TransportConstants.STOMP_CONSUMERS_CREDIT, "-1");
       TransportConfiguration stompTransport = new TransportConfiguration(NettyAcceptorFactory.class.getName(), params);
-      config.getAcceptorConfigurations().add(stompTransport);
-      config.getAcceptorConfigurations().add(new TransportConfiguration(InVMAcceptorFactory.class.getName()));
+
+      Configuration config = super.createDefaultConfig(netty)
+              .setPersistenceEnabled(false)
+              .addAcceptorConfiguration(stompTransport);
 
       return config;
    }
@@ -132,15 +128,7 @@ public class StompInternalStateTest extends ServiceTestBase
    public void setUp() throws Exception
    {
       super.setUp();
-      server = createServer(createDefaultConfig(true));
+      server = createServer(createDefaultNettyConfig());
       server.start();
-   }
-
-   @Override
-   @After
-   public void tearDown() throws Exception
-   {
-      server.stop();
-      super.tearDown();
    }
 }

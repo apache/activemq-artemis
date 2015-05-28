@@ -19,23 +19,17 @@ package org.apache.activemq.artemis.tests.integration.management;
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
-import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionInternal;
-import org.apache.activemq.artemis.core.config.Configuration;
-import org.apache.activemq.artemis.core.remoting.impl.invm.InVMAcceptorFactory;
-import org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -45,14 +39,14 @@ import static org.apache.activemq.artemis.api.core.management.CoreNotificationTy
 import static org.apache.activemq.artemis.api.core.management.CoreNotificationType.CONSUMER_CLOSED;
 import static org.apache.activemq.artemis.api.core.management.CoreNotificationType.CONSUMER_CREATED;
 
-public class NotificationTest extends ServiceTestBase
+public class NotificationTest extends ActiveMQTestBase
 {
 
    // Constants -----------------------------------------------------
 
    // Attributes ----------------------------------------------------
 
-   private ActiveMQServer service;
+   private ActiveMQServer server;
 
    private ClientSession session;
 
@@ -251,13 +245,10 @@ public class NotificationTest extends ServiceTestBase
    {
       super.setUp();
 
-      Configuration conf = createBasicConfig()
-         // the notifications are independent of JMX
-         .addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName()));
-      service = ActiveMQServers.newActiveMQServer(conf, false);
-      service.start();
+      server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig(), false));
+      server.start();
 
-      locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(InVMConnectorFactory.class.getName()));
+      locator = createInVMNonHALocator();
       ClientSessionFactory sf = createSessionFactory(locator);
       session = sf.createSession(false, true, true);
       session.start();
@@ -267,25 +258,6 @@ public class NotificationTest extends ServiceTestBase
       session.createQueue(ActiveMQDefaultConfiguration.getDefaultManagementNotificationAddress(), notifQueue, null, false);
 
       notifConsumer = session.createConsumer(notifQueue);
-   }
-
-   @Override
-   @After
-   public void tearDown() throws Exception
-   {
-      notifConsumer.close();
-
-      session.deleteQueue(notifQueue);
-      session.close();
-
-      if (locator != null)
-      {
-         locator.close();
-      }
-
-      service.stop();
-
-      super.tearDown();
    }
 
    // Private -------------------------------------------------------

@@ -17,8 +17,6 @@
 package org.apache.activemq.artemis.tests.integration.client;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.api.core.TransportConfiguration;
-import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
@@ -26,17 +24,16 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.config.Configuration;
-import org.apache.activemq.artemis.core.remoting.impl.invm.InVMAcceptorFactory;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class MessagePriorityTest extends ServiceTestBase
+public class MessagePriorityTest extends ActiveMQTestBase
 {
 
    // Constants -----------------------------------------------------
@@ -334,17 +331,12 @@ public class MessagePriorityTest extends ServiceTestBase
    public void setUp() throws Exception
    {
       super.setUp();
-
-      Configuration config = createDefaultConfig()
-         .addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getCanonicalName()))
-         .setSecurityEnabled(false);
+      Configuration config = createDefaultInVMConfig();
       server = addServer(ActiveMQServers.newActiveMQServer(config, false));
       server.start();
-      locator =
-         addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(
-            ServiceTestBase.INVM_CONNECTOR_FACTORY)));
-      locator.setBlockOnNonDurableSend(true);
-      locator.setBlockOnDurableSend(true);
+      locator = createInVMNonHALocator()
+              .setBlockOnNonDurableSend(true)
+              .setBlockOnDurableSend(true);
       sf = createSessionFactory(locator);
       session = addClientSession(sf.createSession(false, true, true));
    }

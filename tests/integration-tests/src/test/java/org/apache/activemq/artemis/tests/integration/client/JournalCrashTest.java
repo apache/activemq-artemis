@@ -34,11 +34,11 @@ import org.apache.activemq.artemis.core.journal.RecordInfo;
 import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
 import org.apache.activemq.artemis.core.journal.impl.NIOSequentialFileFactory;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class JournalCrashTest extends ServiceTestBase
+public class JournalCrashTest extends ActiveMQTestBase
 {
    private static final int FIRST_RUN = 4;
 
@@ -58,7 +58,7 @@ public class JournalCrashTest extends ServiceTestBase
 
    protected void startServer() throws Exception
    {
-      Configuration config = createDefaultConfig()
+      Configuration config = createDefaultInVMConfig()
          .setJournalFileSize(ActiveMQDefaultConfiguration.getDefaultJournalFileSize())
          .setJournalCompactMinFiles(ActiveMQDefaultConfiguration.getDefaultJournalCompactMinFiles())
          .setJournalCompactPercentage(ActiveMQDefaultConfiguration.getDefaultJournalCompactPercentage())

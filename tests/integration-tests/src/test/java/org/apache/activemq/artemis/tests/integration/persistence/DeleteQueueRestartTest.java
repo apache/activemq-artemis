@@ -27,11 +27,11 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.jms.client.ActiveMQBytesMessage;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class DeleteQueueRestartTest extends ServiceTestBase
+public class DeleteQueueRestartTest extends ActiveMQTestBase
 {
 
    // Constants -----------------------------------------------------
@@ -65,11 +65,10 @@ public class DeleteQueueRestartTest extends ServiceTestBase
 
       server.start();
 
-      ServerLocator locator = createInVMNonHALocator();
-
-      locator.setBlockOnDurableSend(true);
-      locator.setBlockOnNonDurableSend(true);
-      locator.setMinLargeMessageSize(1024 * 1024);
+      ServerLocator locator = createInVMNonHALocator()
+              .setBlockOnDurableSend(true)
+              .setBlockOnNonDurableSend(true)
+              .setMinLargeMessageSize(1024 * 1024);
 
       ClientSessionFactory factory = createSessionFactory(locator);
 

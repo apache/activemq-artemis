@@ -25,7 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.activemq.artemis.ra.ActiveMQResourceAdapter;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -39,7 +39,7 @@ import org.xml.sax.InputSource;
  * this test should fail, if it does paste the new commented out configs into the ra.xml file and in here. don't forget to
  * add a description for each new property added and try and put it in the config some where appropriate.
  */
-public class ActiveMQResourceAdapterConfigTest extends ServiceTestBase
+public class ActiveMQResourceAdapterConfigTest extends ActiveMQTestBase
 {
    private static String config = "" +
       "<config-property>\n" +

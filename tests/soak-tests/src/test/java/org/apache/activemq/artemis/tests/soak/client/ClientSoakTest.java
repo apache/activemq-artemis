@@ -16,26 +16,25 @@
  */
 package org.apache.activemq.artemis.tests.soak.client;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.concurrent.TimeUnit;
-
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.DivertConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
-import org.junit.After;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Before;
 import org.junit.Test;
 
-public class ClientSoakTest extends ServiceTestBase
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.concurrent.TimeUnit;
+
+public class ClientSoakTest extends ActiveMQTestBase
 {
 
    // Constants -----------------------------------------------------
@@ -48,11 +47,14 @@ public class ClientSoakTest extends ServiceTestBase
 
    private static final SimpleString DIVERTED_AD2 = ClientSoakTest.ADDRESS.concat("-2");
 
-   private static final boolean IS_NETTY = true;
-
    private static final boolean IS_JOURNAL = true;
 
    public static final int MIN_MESSAGES_ON_QUEUE = 5000;
+
+   protected boolean isNetty()
+   {
+      return true;
+   }
 
    // Static --------------------------------------------------------
 
@@ -66,9 +68,10 @@ public class ClientSoakTest extends ServiceTestBase
    @Before
    public void setUp() throws Exception
    {
+      super.setUp();
       clearDataRecreateServerDirs();
 
-      Configuration config = createDefaultConfig(ClientSoakTest.IS_NETTY)
+      Configuration config = createDefaultConfig(isNetty())
          .setJournalFileSize(10 * 1024 * 1024);
 
       server = createServer(IS_JOURNAL, config, -1, -1, new HashMap<String, AddressSettings>());
@@ -95,7 +98,7 @@ public class ClientSoakTest extends ServiceTestBase
 
       server.start();
 
-      ServerLocator locator = createFactory(IS_NETTY);
+      ServerLocator locator = createFactory(isNetty());
 
       ClientSessionFactory sf = createSessionFactory(locator);
 
@@ -115,18 +118,10 @@ public class ClientSoakTest extends ServiceTestBase
 
    }
 
-   @Override
-   @After
-   public void tearDown() throws Exception
-   {
-      server.stop();
-      server = null;
-   }
-
    @Test
    public void testSoakClient() throws Exception
    {
-      final ServerLocator locator = createFactory(IS_NETTY);
+      final ServerLocator locator = createFactory(isNetty());
       final ClientSessionFactory sf = createSessionFactory(locator);
 
       ClientSession session = sf.createSession(false, false);

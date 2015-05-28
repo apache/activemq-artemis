@@ -17,9 +17,6 @@
 
 package org.apache.activemq.artemis.tests.integration.server;
 
-import java.util.Arrays;
-import java.util.Collection;
-
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
@@ -32,12 +29,14 @@ import org.apache.activemq.artemis.core.postoffice.impl.LocalQueueBinding;
 import org.apache.activemq.artemis.core.server.impl.ScaleDownHandler;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.integration.cluster.distribution.ClusterTestBase;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+
+import java.util.Arrays;
+import java.util.Collection;
 
 /**
  * On this test we will run ScaleDown directly as an unit-test in several cases,
@@ -46,8 +45,6 @@ import org.junit.runners.Parameterized;
 @RunWith(value = Parameterized.class)
 public class ScaleDownDirectTest extends ClusterTestBase
 {
-
-
    @Parameterized.Parameters(name = "isNetty={0}")
    public static Collection getParameters()
    {
@@ -75,13 +72,6 @@ public class ScaleDownDirectTest extends ClusterTestBase
       setupSessionFactory(0, isNetty);
       setupSessionFactory(1, isNetty);
 
-   }
-
-   @Override
-   @After
-   public void tearDown() throws Exception
-   {
-      super.tearDown();
    }
 
    @Test
@@ -193,9 +183,9 @@ public class ScaleDownDirectTest extends ClusterTestBase
       ClientSession session = addClientSession(sf.createSession(false, false));
       ClientProducer producer = addClientProducer(session.createProducer(addressName));
 
-      AddressSettings defaultSetting = new AddressSettings();
-      defaultSetting.setPageSizeBytes(10 * 1024);
-      defaultSetting.setMaxSizeBytes(20 * 1024);
+      AddressSettings defaultSetting = new AddressSettings()
+              .setPageSizeBytes(10 * 1024)
+              .setMaxSizeBytes(20 * 1024);
       servers[0].getAddressSettingsRepository().addMatch("#", defaultSetting);
 
       while (!servers[0].getPagingManager().getPageStore(new SimpleString(addressName)).isPaging())

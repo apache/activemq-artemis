@@ -16,6 +16,33 @@
  */
 package org.apache.activemq.artemis.tests.timing.jms.bridge.impl;
 
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
+import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
+import org.apache.activemq.artemis.api.jms.JMSFactoryType;
+import org.apache.activemq.artemis.api.jms.management.JMSQueueControl;
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.registry.JndiBindingRegistry;
+import org.apache.activemq.artemis.core.remoting.impl.invm.InVMAcceptorFactory;
+import org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory;
+import org.apache.activemq.artemis.core.server.ActiveMQServers;
+import org.apache.activemq.artemis.jms.bridge.ConnectionFactoryFactory;
+import org.apache.activemq.artemis.jms.bridge.DestinationFactory;
+import org.apache.activemq.artemis.jms.bridge.QualityOfServiceMode;
+import org.apache.activemq.artemis.jms.bridge.impl.JMSBridgeImpl;
+import org.apache.activemq.artemis.jms.client.ActiveMQJMSConnectionFactory;
+import org.apache.activemq.artemis.jms.server.JMSServerManager;
+import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
+import org.apache.activemq.artemis.tests.unit.UnitTestLogger;
+import org.apache.activemq.artemis.tests.unit.util.InVMNamingContext;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
@@ -43,35 +70,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.apache.activemq.artemis.api.core.TransportConfiguration;
-import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
-import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
-import org.apache.activemq.artemis.api.jms.JMSFactoryType;
-import org.apache.activemq.artemis.api.jms.management.JMSQueueControl;
-import org.apache.activemq.artemis.tests.unit.UnitTestLogger;
-import org.apache.activemq.artemis.tests.unit.util.InVMNamingContext;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
-import org.apache.activemq.artemis.core.config.Configuration;
-import org.apache.activemq.artemis.core.registry.JndiBindingRegistry;
-import org.apache.activemq.artemis.core.remoting.impl.invm.InVMAcceptorFactory;
-import org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory;
-import org.apache.activemq.artemis.core.server.ActiveMQServers;
-import org.apache.activemq.artemis.jms.bridge.ConnectionFactoryFactory;
-import org.apache.activemq.artemis.jms.bridge.DestinationFactory;
-import org.apache.activemq.artemis.jms.bridge.QualityOfServiceMode;
-import org.apache.activemq.artemis.jms.bridge.impl.JMSBridgeImpl;
-import org.apache.activemq.artemis.jms.client.ActiveMQJMSConnectionFactory;
-import org.apache.activemq.artemis.jms.server.JMSServerManager;
-import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-
-public class JMSBridgeImplTest extends ServiceTestBase
+public class JMSBridgeImplTest extends ActiveMQTestBase
 {
    // Constants -----------------------------------------------------
 
@@ -618,22 +617,13 @@ public class JMSBridgeImplTest extends ServiceTestBase
       Configuration config = createBasicConfig()
          .addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName()));
       InVMNamingContext context = new InVMNamingContext();
-      jmsServer = new JMSServerManagerImpl(ActiveMQServers.newActiveMQServer(config, false));
+      jmsServer = new JMSServerManagerImpl(addServer(ActiveMQServers.newActiveMQServer(config, false)));
       jmsServer.setRegistry(new JndiBindingRegistry(context));
       jmsServer.start();
 
       jmsServer.createQueue(false, JMSBridgeImplTest.SOURCE, null, true, "/queue/" + JMSBridgeImplTest.SOURCE);
       jmsServer.createQueue(false, JMSBridgeImplTest.TARGET, null, true, "/queue/" + JMSBridgeImplTest.TARGET);
 
-   }
-
-   @Override
-   @After
-   public void tearDown() throws Exception
-   {
-      jmsServer.stop();
-
-      super.tearDown();
    }
 
    @Test

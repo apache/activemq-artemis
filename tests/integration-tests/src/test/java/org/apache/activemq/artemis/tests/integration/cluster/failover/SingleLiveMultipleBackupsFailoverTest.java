@@ -30,7 +30,6 @@ import org.apache.activemq.artemis.core.server.impl.InVMNodeManager;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.integration.cluster.util.SameProcessActiveMQServer;
 import org.apache.activemq.artemis.tests.integration.cluster.util.TestableServer;
-import org.junit.After;
 import org.junit.Test;
 
 import java.util.HashMap;
@@ -70,9 +69,9 @@ public class SingleLiveMultipleBackupsFailoverTest extends MultipleBackupsFailov
       createBackupConfig(0, 5, 0, 1, 2, 3, 4);
 
       servers.get(0).start();
-      waitForServer(servers.get(0).getServer());
+      waitForServerToStart(servers.get(0).getServer());
       servers.get(1).start();
-      waitForServer(servers.get(1).getServer());
+      waitForServerToStart(servers.get(1).getServer());
       servers.get(2).start();
       servers.get(3).start();
       servers.get(4).start();
@@ -85,10 +84,11 @@ public class SingleLiveMultipleBackupsFailoverTest extends MultipleBackupsFailov
       // for logging and debugging
       topology.setOwner("testMultipleFailovers");
 
-      locator.setBlockOnNonDurableSend(true);
-      locator.setBlockOnDurableSend(true);
-      locator.setBlockOnAcknowledge(true);
-      locator.setReconnectAttempts(-1);
+      locator.setBlockOnNonDurableSend(true)
+              .setBlockOnDurableSend(true)
+              .setBlockOnAcknowledge(true)
+              .setReconnectAttempts(-1);
+
       ClientSessionFactoryInternal sf = createSessionFactoryAndWaitForTopology(locator, 2);
       int backupNode;
       ClientSession session = sendAndConsume(sf, true);
@@ -133,10 +133,9 @@ public class SingleLiveMultipleBackupsFailoverTest extends MultipleBackupsFailov
    {
       TransportConfiguration backupConnector = createTransportConfiguration(isNetty(), false, generateParams(nodeid, isNetty()));
 
-      Configuration config1 = super.createDefaultConfig()
+      Configuration config1 = super.createDefaultInVMConfig()
          .clearAcceptorConfigurations()
          .addAcceptorConfiguration(createTransportConfiguration(isNetty(), true, generateParams(nodeid, isNetty())))
-         .setSecurityEnabled(false)
          .setHAPolicyConfiguration(sharedStore ? new SharedStoreSlavePolicyConfiguration() : new ReplicatedPolicyConfiguration())
          .addConnectorConfiguration(backupConnector.getName(), backupConnector)
          .setBindingsDirectory(getBindingsDir() + "_" + liveNode)
@@ -160,10 +159,9 @@ public class SingleLiveMultipleBackupsFailoverTest extends MultipleBackupsFailov
    {
       TransportConfiguration liveConnector = createTransportConfiguration(isNetty(), false, generateParams(liveNode, isNetty()));
 
-      Configuration config0 = super.createDefaultConfig()
+      Configuration config0 = super.createDefaultInVMConfig()
          .clearAcceptorConfigurations()
          .addAcceptorConfiguration(createTransportConfiguration(isNetty(), true, generateParams(liveNode, isNetty())))
-         .setSecurityEnabled(false)
          .setHAPolicyConfiguration(sharedStore ? new SharedStoreMasterPolicyConfiguration() : new ReplicatedPolicyConfiguration())
          .addClusterConfiguration(basicClusterConnectionConfig(liveConnector.getName()))
          .addConnectorConfiguration(liveConnector.getName(), liveConnector)
@@ -172,7 +170,9 @@ public class SingleLiveMultipleBackupsFailoverTest extends MultipleBackupsFailov
          .setPagingDirectory(getPageDir() + "_" + liveNode)
          .setLargeMessagesDirectory(getLargeMessagesDir() + "_" + liveNode);
 
-      servers.put(liveNode, new SameProcessActiveMQServer(createInVMFailoverServer(true, config0, nodeManager, liveNode)));
+      SameProcessActiveMQServer server = new SameProcessActiveMQServer(createInVMFailoverServer(true, config0, nodeManager, liveNode));
+      addActiveMQComponent(server);
+      servers.put(liveNode, server);
    }
 
    @Override
@@ -180,25 +180,4 @@ public class SingleLiveMultipleBackupsFailoverTest extends MultipleBackupsFailov
    {
       return false;
    }
-
-   @Override
-   @After
-   public void tearDown() throws Exception
-   {
-      closeServerLocator(locator);
-      for (TestableServer server : servers.values())
-      {
-         try
-         {
-            stopComponent(server);
-         }
-         catch (Exception e)
-         {
-            // ignore
-         }
-      }
-      servers.clear();
-      super.tearDown();
-   }
-
 }

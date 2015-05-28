@@ -19,8 +19,6 @@ package org.apache.activemq.artemis.tests.integration.cluster.reattach;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQNotConnectedException;
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.api.core.TransportConfiguration;
-import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
@@ -30,13 +28,12 @@ import org.apache.activemq.artemis.api.core.client.MessageHandler;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryImpl;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionInternal;
-import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.remoting.impl.invm.InVMRegistry;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -50,7 +47,7 @@ import java.util.TimerTask;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-public class RandomReattachTest extends ServiceTestBase
+public class RandomReattachTest extends ActiveMQTestBase
 {
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
@@ -62,7 +59,7 @@ public class RandomReattachTest extends ServiceTestBase
 
    private static final SimpleString ADDRESS = new SimpleString("FailoverTestAddress");
 
-   private ActiveMQServer liveService;
+   private ActiveMQServer server;
 
    private Timer timer;
 
@@ -249,12 +246,11 @@ public class RandomReattachTest extends ServiceTestBase
       {
          RandomReattachTest.log.info("####" + getName() + " iteration #" + its);
          start();
-         ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(ServiceTestBase.INVM_CONNECTOR_FACTORY));
+         ServerLocator locator = createInVMNonHALocator()
+                 .setReconnectAttempts(-1)
+                 .setConfirmationWindowSize(1024 * 1024);
 
-         locator.setReconnectAttempts(-1);
-         locator.setConfirmationWindowSize(1024 * 1024);
-
-         ClientSessionFactoryImpl sf = (ClientSessionFactoryImpl)createSessionFactory(locator);
+         ClientSessionFactory sf = createSessionFactory(locator);
 
 
          ClientSession session = sf.createSession(false, false, false);
@@ -266,16 +262,6 @@ public class RandomReattachTest extends ServiceTestBase
             runnable.run(sf);
          }
          while (!failer.isExecuted());
-
-         session.close();
-
-         locator.close();
-
-         Assert.assertEquals(0, sf.numSessions());
-
-         Assert.assertEquals(0, sf.numConnections());
-
-         stop();
       }
    }
 
@@ -1475,8 +1461,6 @@ public class RandomReattachTest extends ServiceTestBase
    {
       timer.cancel();
 
-      InVMRegistry.instance.clear();
-
       super.tearDown();
    }
 
@@ -1493,20 +1477,17 @@ public class RandomReattachTest extends ServiceTestBase
 
    private void start() throws Exception
    {
-      Configuration liveConf = createDefaultConfig()
-         .setSecurityEnabled(false)
-         .addAcceptorConfiguration(new TransportConfiguration("org.apache.activemq.artemis.core.remoting.impl.invm.InVMAcceptorFactory"));
-      liveService = ActiveMQServers.newActiveMQServer(liveConf, false);
-      liveService.start();
+      server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig(), false));
+      server.start();
    }
 
    private void stop() throws Exception
    {
-      liveService.stop();
+      server.stop();
 
       Assert.assertEquals(0, InVMRegistry.instance.size());
 
-      liveService = null;
+      server = null;
    }
 
    // Inner classes -------------------------------------------------
@@ -1579,8 +1560,5 @@ public class RandomReattachTest extends ServiceTestBase
       }
 
       public abstract void onMessageAssert(ClientMessage message);
-
    }
-
-
 }

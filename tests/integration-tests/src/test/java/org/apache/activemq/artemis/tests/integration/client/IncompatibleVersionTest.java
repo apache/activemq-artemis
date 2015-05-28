@@ -41,7 +41,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.core.version.impl.VersionImpl;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.VersionLoader;
 import org.junit.After;
 import org.junit.Before;
@@ -49,7 +49,7 @@ import org.junit.Test;
 
 import static org.apache.activemq.artemis.tests.util.RandomUtil.randomString;
 
-public class IncompatibleVersionTest extends ServiceTestBase
+public class IncompatibleVersionTest extends ActiveMQTestBase
 {
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
    // Constants -----------------------------------------------------
@@ -251,10 +251,10 @@ public class IncompatibleVersionTest extends ServiceTestBase
    {
       public void perform(String startedString) throws Exception
       {
-         Configuration conf = new ConfigurationImpl()
+         Configuration config = new ConfigurationImpl()
             .setSecurityEnabled(false)
-            .addAcceptorConfiguration(new TransportConfiguration("org.apache.activemq.artemis.core.remoting.impl.netty.NettyAcceptorFactory"));
-         ActiveMQServer server = ActiveMQServers.newActiveMQServer(conf, false);
+            .addAcceptorConfiguration(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY));
+         ActiveMQServer server = ActiveMQServers.newActiveMQServer(config, false);
          server.start();
 
          log.info("### server: " + startedString);

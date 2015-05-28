@@ -23,7 +23,6 @@ import org.apache.activemq.artemis.jms.client.ActiveMQMessage;
 import org.apache.activemq.artemis.ra.ActiveMQResourceAdapter;
 import org.apache.activemq.artemis.ra.inflow.ActiveMQActivation;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
-import org.junit.After;
 import org.junit.Before;
 
 import javax.jms.Message;
@@ -68,19 +67,10 @@ public abstract class ActiveMQRATestBase extends JMSTestBase
 
    protected void setupDLQ(int maxDeliveries)
    {
-      AddressSettings settings = new AddressSettings();
-      settings.setDeadLetterAddress(SimpleString.toSimpleString("jms.queue." + DLQ));
-      settings.setMaxDeliveryAttempts(maxDeliveries);
+      AddressSettings settings = new AddressSettings()
+              .setDeadLetterAddress(SimpleString.toSimpleString("jms.queue." + DLQ))
+              .setMaxDeliveryAttempts(maxDeliveries);
       server.getAddressSettingsRepository().addMatch("#", settings);
-   }
-
-   @Override
-   @After
-   public void tearDown() throws Exception
-   {
-      locator.close();
-
-      super.tearDown();
    }
 
    protected ActiveMQActivation lookupActivation(ActiveMQResourceAdapter qResourceAdapter)

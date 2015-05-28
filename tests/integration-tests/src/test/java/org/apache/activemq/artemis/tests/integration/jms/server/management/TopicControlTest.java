@@ -16,29 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.server.management;
 
-import javax.jms.Connection;
-import javax.jms.Message;
-import javax.jms.MessageConsumer;
-import javax.jms.MessageProducer;
-import javax.jms.Session;
-import javax.jms.TextMessage;
-import javax.jms.TopicSubscriber;
-import javax.management.Notification;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.api.jms.management.JMSServerControl;
 import org.apache.activemq.artemis.api.jms.management.SubscriptionInfo;
 import org.apache.activemq.artemis.api.jms.management.TopicControl;
-import org.apache.activemq.artemis.tests.integration.management.ManagementControlHelper;
-import org.apache.activemq.artemis.tests.integration.management.ManagementTestBase;
-import org.apache.activemq.artemis.tests.unit.util.InVMNamingContext;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.impl.LocalQueueBinding;
@@ -50,12 +32,27 @@ import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 import org.apache.activemq.artemis.jms.client.ActiveMQTopic;
 import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
 import org.apache.activemq.artemis.jms.server.management.JMSNotificationType;
+import org.apache.activemq.artemis.tests.integration.management.ManagementControlHelper;
+import org.apache.activemq.artemis.tests.integration.management.ManagementTestBase;
+import org.apache.activemq.artemis.tests.unit.util.InVMNamingContext;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.apache.activemq.artemis.utils.json.JSONArray;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import javax.jms.Connection;
+import javax.jms.Message;
+import javax.jms.MessageConsumer;
+import javax.jms.MessageProducer;
+import javax.jms.Session;
+import javax.jms.TextMessage;
+import javax.jms.TopicSubscriber;
+import javax.management.Notification;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 public class TopicControlTest extends ManagementTestBase
 {
@@ -599,9 +596,9 @@ public class TopicControlTest extends ManagementTestBase
    {
       super.setUp();
 
-      Configuration conf = createBasicConfig()
-         .addAcceptorConfiguration(new TransportConfiguration("org.apache.activemq.artemis.core.remoting.impl.invm.InVMAcceptorFactory"));
-      server = ActiveMQServers.newActiveMQServer(conf, mbeanServer, false);
+      Configuration config = createDefaultInVMConfig()
+              .setJMXManagementEnabled(true);
+      server = addServer(ActiveMQServers.newActiveMQServer(config, mbeanServer, false));
       server.start();
 
       serverManager = new JMSServerManagerImpl(server);
@@ -615,23 +612,6 @@ public class TopicControlTest extends ManagementTestBase
       String topicName = RandomUtil.randomString();
       serverManager.createTopic(false, topicName, topicBinding);
       topic = (ActiveMQTopic) ActiveMQJMSClient.createTopic(topicName);
-   }
-
-   @Override
-   @After
-   public void tearDown() throws Exception
-   {
-      serverManager.stop();
-
-      server.stop();
-
-      serverManager = null;
-
-      server = null;
-
-      topic = null;
-
-      super.tearDown();
    }
 
    protected TopicControl createManagementControl() throws Exception

@@ -16,24 +16,23 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-
 import org.apache.activemq.artemis.api.core.ActiveMQNotConnectedException;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
-import org.apache.activemq.artemis.tests.integration.cluster.distribution.ClusterTestBase;
-import org.apache.activemq.artemis.tests.util.CountDownSessionFailureListener;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionInternal;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
-import org.junit.After;
+import org.apache.activemq.artemis.tests.integration.cluster.distribution.ClusterTestBase;
+import org.apache.activemq.artemis.tests.util.CountDownSessionFailureListener;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 public class ReplicatedDistributionTest extends ClusterTestBase
 {
@@ -199,8 +198,7 @@ public class ReplicatedDistributionTest extends ClusterTestBase
       setupClusterConnectionWithBackups("test", address, false, 1, true, 3, new int[]{2, 1});
       setupClusterConnectionWithBackups("test", address, false, 1, true, 2, new int[]{3});
 
-      AddressSettings as = new AddressSettings();
-      as.setRedistributionDelay(0);
+      AddressSettings as = new AddressSettings().setRedistributionDelay(0);
 
       for (int i : new int[]{1, 2, 3})
       {
@@ -220,27 +218,6 @@ public class ReplicatedDistributionTest extends ClusterTestBase
       consThree = sessionThree.createConsumer(ReplicatedDistributionTest.ADDRESS);
 
       sessionThree.start();
-   }
-
-   @Override
-   @After
-   public void tearDown() throws Exception
-   {
-      try
-      {
-         if (consThree != null)
-            consThree.close();
-         if (producer != null)
-            producer.close();
-         if (sessionOne != null)
-            sessionOne.close();
-         if (sessionThree != null)
-            sessionThree.close();
-      }
-      finally
-      {
-         super.tearDown();
-      }
    }
 
    @Override

@@ -25,7 +25,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyAcceptor;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
@@ -37,7 +37,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class NettyAcceptorTest extends ServiceTestBase
+public class NettyAcceptorTest extends ActiveMQTestBase
 {
    private ScheduledExecutorService pool2;
 
@@ -47,7 +47,7 @@ public class NettyAcceptorTest extends ServiceTestBase
    {
       super.setUp();
 
-      ServiceTestBase.checkFreePort(TransportConstants.DEFAULT_PORT);
+      ActiveMQTestBase.checkFreePort(TransportConstants.DEFAULT_PORT);
    }
 
    @Override
@@ -56,7 +56,7 @@ public class NettyAcceptorTest extends ServiceTestBase
    {
       try
       {
-         ServiceTestBase.checkFreePort(TransportConstants.DEFAULT_PORT);
+         ActiveMQTestBase.checkFreePort(TransportConstants.DEFAULT_PORT);
       }
       finally
       {
@@ -111,13 +111,13 @@ public class NettyAcceptorTest extends ServiceTestBase
       Assert.assertTrue(acceptor.isStarted());
       acceptor.stop();
       Assert.assertFalse(acceptor.isStarted());
-      ServiceTestBase.checkFreePort(TransportConstants.DEFAULT_PORT);
+      ActiveMQTestBase.checkFreePort(TransportConstants.DEFAULT_PORT);
 
       acceptor.start();
       Assert.assertTrue(acceptor.isStarted());
       acceptor.stop();
       Assert.assertFalse(acceptor.isStarted());
-      ServiceTestBase.checkFreePort(TransportConstants.DEFAULT_PORT);
+      ActiveMQTestBase.checkFreePort(TransportConstants.DEFAULT_PORT);
 
       pool2.shutdown();
 

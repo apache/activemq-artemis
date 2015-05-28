@@ -16,7 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.unit.core.postoffice.impl;
 
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Test;
 
 import org.junit.Assert;
@@ -25,7 +25,7 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.postoffice.Address;
 import org.apache.activemq.artemis.core.postoffice.impl.AddressImpl;
 
-public class AddressImplTest extends ServiceTestBase
+public class AddressImplTest extends ActiveMQTestBase
 {
    @Test
    public void testNoDots()

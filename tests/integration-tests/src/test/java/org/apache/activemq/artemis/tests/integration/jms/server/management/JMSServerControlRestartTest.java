@@ -16,37 +16,35 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.server.management;
 
-import javax.jms.Connection;
-import javax.jms.Message;
-import javax.jms.Queue;
-import javax.jms.QueueRequestor;
-import javax.jms.QueueSession;
-import javax.jms.Session;
-
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.api.jms.JMSFactoryType;
 import org.apache.activemq.artemis.api.jms.management.JMSManagementHelper;
 import org.apache.activemq.artemis.api.jms.management.JMSServerControl;
-import org.apache.activemq.artemis.tests.integration.management.ManagementControlHelper;
-import org.apache.activemq.artemis.tests.integration.management.ManagementTestBase;
-import org.apache.activemq.artemis.tests.unit.util.InVMNamingContext;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.registry.JndiBindingRegistry;
-import org.apache.activemq.artemis.core.remoting.impl.invm.InVMAcceptorFactory;
 import org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.jms.server.JMSServerManager;
 import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
+import org.apache.activemq.artemis.tests.integration.management.ManagementControlHelper;
+import org.apache.activemq.artemis.tests.integration.management.ManagementTestBase;
+import org.apache.activemq.artemis.tests.unit.util.InVMNamingContext;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import javax.jms.Connection;
+import javax.jms.Message;
+import javax.jms.Queue;
+import javax.jms.QueueRequestor;
+import javax.jms.QueueSession;
+import javax.jms.Session;
 
 public class JMSServerControlRestartTest extends ManagementTestBase
 {
@@ -61,13 +59,13 @@ public class JMSServerControlRestartTest extends ManagementTestBase
       String queueName = RandomUtil.randomString();
       String binding = RandomUtil.randomString();
 
-      ServiceTestBase.checkNoBinding(context, binding);
+      ActiveMQTestBase.checkNoBinding(context, binding);
       checkNoResource(ObjectNameBuilder.DEFAULT.getJMSQueueObjectName(queueName));
 
       JMSServerControl control = ManagementControlHelper.createJMSServerControl(mbeanServer);
       control.createQueue(queueName, binding);
 
-      Object o = ServiceTestBase.checkBinding(context, binding);
+      Object o = ActiveMQTestBase.checkBinding(context, binding);
       Assert.assertTrue(o instanceof Queue);
       Queue queue = (Queue) o;
       Assert.assertEquals(queueName, queue.getQueueName());
@@ -75,13 +73,13 @@ public class JMSServerControlRestartTest extends ManagementTestBase
 
       serverManager.stop();
 
-      ServiceTestBase.checkNoBinding(context, binding);
+      ActiveMQTestBase.checkNoBinding(context, binding);
       checkNoResource(ObjectNameBuilder.DEFAULT.getJMSQueueObjectName(queueName));
 
       serverManager = createJMSServer();
       serverManager.start();
 
-      o = ServiceTestBase.checkBinding(context, binding);
+      o = ActiveMQTestBase.checkBinding(context, binding);
       Assert.assertTrue(o instanceof Queue);
       queue = (Queue) o;
       Assert.assertEquals(queueName, queue.getQueueName());
@@ -94,7 +92,7 @@ public class JMSServerControlRestartTest extends ManagementTestBase
       String queueName = RandomUtil.randomString();
       String binding = RandomUtil.randomString();
 
-      ServiceTestBase.checkNoBinding(context, binding);
+      ActiveMQTestBase.checkNoBinding(context, binding);
       checkNoResource(ObjectNameBuilder.DEFAULT.getJMSQueueObjectName(queueName));
 
       TransportConfiguration config = new TransportConfiguration(InVMConnectorFactory.class.getName());
@@ -109,7 +107,7 @@ public class JMSServerControlRestartTest extends ManagementTestBase
       Assert.assertTrue(JMSManagementHelper.hasOperationSucceeded(reply));
       connection.close();
 
-      Object o = ServiceTestBase.checkBinding(context, binding);
+      Object o = ActiveMQTestBase.checkBinding(context, binding);
       Assert.assertTrue(o instanceof Queue);
       Queue queue = (Queue) o;
       Assert.assertEquals(queueName, queue.getQueueName());
@@ -117,13 +115,13 @@ public class JMSServerControlRestartTest extends ManagementTestBase
 
       serverManager.stop();
 
-      ServiceTestBase.checkNoBinding(context, binding);
+      ActiveMQTestBase.checkNoBinding(context, binding);
       checkNoResource(ObjectNameBuilder.DEFAULT.getJMSQueueObjectName(queueName));
 
       serverManager = createJMSServer();
       serverManager.start();
 
-      o = ServiceTestBase.checkBinding(context, binding);
+      o = ActiveMQTestBase.checkBinding(context, binding);
       Assert.assertTrue(o instanceof Queue);
       queue = (Queue) o;
       Assert.assertEquals(queueName, queue.getQueueName());
@@ -146,28 +144,17 @@ public class JMSServerControlRestartTest extends ManagementTestBase
 
    private JMSServerManager createJMSServer() throws Exception
    {
-      Configuration conf = createDefaultConfig()
-         .setSecurityEnabled(false)
+      Configuration config = createDefaultInVMConfig()
          .setJMXManagementEnabled(true)
-         .setPersistenceEnabled(true)
-         .setJournalType(JournalType.NIO)
-         .addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName()));
-      ActiveMQServer server = ActiveMQServers.newActiveMQServer(conf, mbeanServer);
+         .setJournalType(JournalType.NIO);
+
+      ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(config, mbeanServer));
 
       context = new InVMNamingContext();
 
       serverManager = new JMSServerManagerImpl(server);
       serverManager.setRegistry(new JndiBindingRegistry(context));
       return serverManager;
-   }
-
-   @Override
-   @After
-   public void tearDown() throws Exception
-   {
-      serverManager.stop();
-      serverManager = null;
-      super.tearDown();
    }
 
    // Private -------------------------------------------------------

@@ -38,12 +38,12 @@ import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.settings.impl.HierarchicalObjectRepository;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class PagingManagerImplTest extends ServiceTestBase
+public class PagingManagerImplTest extends ActiveMQTestBase
 {
    private final ReadLock lock = new ReentrantReadWriteLock().readLock();
 
@@ -52,9 +52,7 @@ public class PagingManagerImplTest extends ServiceTestBase
    {
 
       HierarchicalRepository<AddressSettings> addressSettings = new HierarchicalObjectRepository<AddressSettings>();
-      AddressSettings settings = new AddressSettings();
-      settings.setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE);
-      addressSettings.setDefault(settings);
+      addressSettings.setDefault(new AddressSettings().setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE));
 
       final StorageManager storageManager = new NullStorageManager();
 
@@ -86,11 +84,11 @@ public class PagingManagerImplTest extends ServiceTestBase
 
       Assert.assertEquals(1, msgs.size());
 
-      ServiceTestBase.assertEqualsByteArrays(msg.getBodyBuffer().writerIndex(), msg.getBodyBuffer().toByteBuffer().array(), msgs.get(0)
-         .getMessage()
-         .getBodyBuffer()
-         .toByteBuffer()
-         .array());
+      ActiveMQTestBase.assertEqualsByteArrays(msg.getBodyBuffer().writerIndex(), msg.getBodyBuffer().toByteBuffer().array(), msgs.get(0)
+              .getMessage()
+              .getBodyBuffer()
+              .toByteBuffer()
+              .array());
 
       Assert.assertTrue(store.isPaging());
 

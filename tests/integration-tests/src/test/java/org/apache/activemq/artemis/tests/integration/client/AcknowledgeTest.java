@@ -34,7 +34,7 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.MessageHandler;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionInternal;
 import org.apache.activemq.artemis.core.protocol.core.impl.ActiveMQConsumerContext;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
@@ -44,7 +44,7 @@ import org.apache.activemq.artemis.utils.UUID;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class AcknowledgeTest extends ServiceTestBase
+public class AcknowledgeTest extends ActiveMQTestBase
 {
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
@@ -61,9 +61,9 @@ public class AcknowledgeTest extends ServiceTestBase
    {
       ActiveMQServer server = createServer(false);
       server.start();
-      ServerLocator locator = createInVMNonHALocator();
-      locator.setAckBatchSize(0);
-      locator.setBlockOnAcknowledge(true);
+      ServerLocator locator = createInVMNonHALocator()
+              .setAckBatchSize(0)
+              .setBlockOnAcknowledge(true);
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession sendSession = cf.createSession(false, true, true);
       ClientSession session = cf.createSession(false, true, true);
@@ -136,9 +136,9 @@ public class AcknowledgeTest extends ServiceTestBase
    {
       ActiveMQServer server = createServer(false);
       server.start();
-      ServerLocator locator = createInVMNonHALocator();
-      locator.setBlockOnAcknowledge(true);
-      locator.setAckBatchSize(0);
+      ServerLocator locator = createInVMNonHALocator()
+              .setBlockOnAcknowledge(true)
+              .setAckBatchSize(0);
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession sendSession = cf.createSession(false, true, true);
       final ClientSession session = cf.createSession(false, true, true);
@@ -193,11 +193,9 @@ public class AcknowledgeTest extends ServiceTestBase
       ActiveMQServer server = createServer(false);
       server.start();
 
-      ServerLocator locator = createInVMNonHALocator();
-
-      locator.setAckBatchSize(0);
-
-      locator.setBlockOnAcknowledge(true);
+      ServerLocator locator = createInVMNonHALocator()
+              .setAckBatchSize(0)
+              .setBlockOnAcknowledge(true);
 
       ClientSessionFactory cf = createSessionFactory(locator);
 
@@ -277,9 +275,9 @@ public class AcknowledgeTest extends ServiceTestBase
    {
       ActiveMQServer server = createServer(false);
       server.start();
-      ServerLocator locator = createInVMNonHALocator();
-      locator.setBlockOnAcknowledge(true);
-      locator.setAckBatchSize(0);
+      ServerLocator locator = createInVMNonHALocator()
+              .setBlockOnAcknowledge(true)
+              .setAckBatchSize(0);
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession sendSession = cf.createSession(false, true, true);
       final ClientSession session = cf.createSession(false, true, true);

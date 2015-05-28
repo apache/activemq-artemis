@@ -16,9 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.server;
 
-import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
@@ -30,8 +28,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
-import org.junit.After;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -41,7 +38,7 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-public class ExpiryRunnerTest extends ServiceTestBase
+public class ExpiryRunnerTest extends ActiveMQTestBase
 {
    private ActiveMQServer server;
 
@@ -78,8 +75,7 @@ public class ExpiryRunnerTest extends ServiceTestBase
    {
       ClientProducer producer = clientSession.createProducer(qName);
       clientSession.createQueue(qName2, qName2, null, false);
-      AddressSettings addressSettings = new AddressSettings();
-      addressSettings.setExpiryAddress(expiryAddress);
+      AddressSettings addressSettings = new AddressSettings().setExpiryAddress(expiryAddress);
       server.getAddressSettingsRepository().addMatch(qName2.toString(), addressSettings);
       ClientProducer producer2 = clientSession.createProducer(qName2);
       int numMessages = 100;
@@ -149,8 +145,7 @@ public class ExpiryRunnerTest extends ServiceTestBase
    @Test
    public void testExpireToExpiryQueue() throws Exception
    {
-      AddressSettings addressSettings = new AddressSettings();
-      addressSettings.setExpiryAddress(expiryAddress);
+      AddressSettings addressSettings = new AddressSettings().setExpiryAddress(expiryAddress);
       server.getAddressSettingsRepository().addMatch(qName2.toString(), addressSettings);
       clientSession.deleteQueue(qName);
       clientSession.createQueue(qName, qName, null, false);
@@ -260,59 +255,25 @@ public class ExpiryRunnerTest extends ServiceTestBase
    {
       super.setUp();
 
-      ConfigurationImpl configuration = createBasicConfig()
-         .setMessageExpiryScanPeriod(1000)
-         .addAcceptorConfiguration(new TransportConfiguration(ServiceTestBase.INVM_ACCEPTOR_FACTORY));
-      server = ActiveMQServers.newActiveMQServer(configuration, false);
+      ConfigurationImpl configuration = (ConfigurationImpl) createDefaultInVMConfig()
+         .setMessageExpiryScanPeriod(1000);
+      server = addServer(ActiveMQServers.newActiveMQServer(configuration, false));
       // start the server
       server.start();
       // then we create a client as normal
-      locator = createInVMNonHALocator();
-      locator.setBlockOnAcknowledge(true);
+      locator = createInVMNonHALocator()
+              .setBlockOnAcknowledge(true);
+
       ClientSessionFactory sessionFactory = createSessionFactory(locator);
 
       clientSession = sessionFactory.createSession(false, true, true);
       clientSession.createQueue(qName, qName, null, false);
       expiryAddress = new SimpleString("EA");
       expiryQueue = new SimpleString("expiryQ");
-      AddressSettings addressSettings = new AddressSettings();
-      addressSettings.setExpiryAddress(expiryAddress);
+      AddressSettings addressSettings = new AddressSettings().setExpiryAddress(expiryAddress);
       server.getAddressSettingsRepository().addMatch(qName.toString(), addressSettings);
       server.getAddressSettingsRepository().addMatch(qName2.toString(), addressSettings);
       clientSession.createQueue(expiryAddress, expiryQueue, null, false);
-   }
-
-   @Override
-   @After
-   public void tearDown() throws Exception
-   {
-      if (clientSession != null)
-      {
-         try
-         {
-            clientSession.close();
-         }
-         catch (ActiveMQException e1)
-         {
-            //
-         }
-      }
-      locator.close();
-      if (server != null && server.isStarted())
-      {
-         try
-         {
-            server.stop();
-         }
-         catch (Exception e1)
-         {
-            //
-         }
-      }
-      server = null;
-      clientSession = null;
-
-      super.tearDown();
    }
 
    private static class DummyMessageHandler implements Runnable

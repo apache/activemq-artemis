@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.integration.remoting;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Before;
 
@@ -36,7 +36,7 @@ import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 
-public class BatchDelayTest extends ServiceTestBase
+public class BatchDelayTest extends ActiveMQTestBase
 {
 
    private static final int N = 1000;

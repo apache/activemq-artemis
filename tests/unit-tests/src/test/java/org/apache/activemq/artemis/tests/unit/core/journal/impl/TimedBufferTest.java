@@ -18,7 +18,7 @@ package org.apache.activemq.artemis.tests.unit.core.journal.impl;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Test;
 
 import java.nio.ByteBuffer;
@@ -34,7 +34,7 @@ import org.apache.activemq.artemis.core.journal.IOAsyncTask;
 import org.apache.activemq.artemis.core.journal.impl.TimedBuffer;
 import org.apache.activemq.artemis.core.journal.impl.TimedBufferObserver;
 
-public class TimedBufferTest extends ServiceTestBase
+public class TimedBufferTest extends ActiveMQTestBase
 {
 
    // Constants -----------------------------------------------------
@@ -104,7 +104,7 @@ public class TimedBufferTest extends ServiceTestBase
             byte[] bytes = new byte[10];
             for (int j = 0; j < 10; j++)
             {
-               bytes[j] = ServiceTestBase.getSamplebyte(x++);
+               bytes[j] = ActiveMQTestBase.getSamplebyte(x++);
             }
 
             ActiveMQBuffer buff = ActiveMQBuffers.wrappedBuffer(bytes);
@@ -127,7 +127,7 @@ public class TimedBufferTest extends ServiceTestBase
 
          for (int i = 0; i < 100; i++)
          {
-            Assert.assertEquals(ServiceTestBase.getSamplebyte(i), flushedBuffer.get());
+            Assert.assertEquals(ActiveMQTestBase.getSamplebyte(i), flushedBuffer.get());
          }
       }
       finally
@@ -178,7 +178,7 @@ public class TimedBufferTest extends ServiceTestBase
          byte[] bytes = new byte[10];
          for (int j = 0; j < 10; j++)
          {
-            bytes[j] = ServiceTestBase.getSamplebyte(x++);
+            bytes[j] = ActiveMQTestBase.getSamplebyte(x++);
          }
 
          ActiveMQBuffer buff = ActiveMQBuffers.wrappedBuffer(bytes);
@@ -193,7 +193,7 @@ public class TimedBufferTest extends ServiceTestBase
          bytes = new byte[10];
          for (int j = 0; j < 10; j++)
          {
-            bytes[j] = ServiceTestBase.getSamplebyte(x++);
+            bytes[j] = ActiveMQTestBase.getSamplebyte(x++);
          }
 
          buff = ActiveMQBuffers.wrappedBuffer(bytes);
@@ -215,7 +215,7 @@ public class TimedBufferTest extends ServiceTestBase
 
          for (int i = 0; i < 20; i++)
          {
-            Assert.assertEquals(ServiceTestBase.getSamplebyte(i), flushedBuffer.get());
+            Assert.assertEquals(ActiveMQTestBase.getSamplebyte(i), flushedBuffer.get());
          }
       }
       finally
@@ -291,7 +291,7 @@ public class TimedBufferTest extends ServiceTestBase
          byte[] bytes = new byte[10];
          for (int j = 0; j < 10; j++)
          {
-            bytes[j] = ServiceTestBase.getSamplebyte(x++);
+            bytes[j] = ActiveMQTestBase.getSamplebyte(x++);
          }
 
          ActiveMQBuffer buff = ActiveMQBuffers.wrappedBuffer(bytes);
@@ -378,7 +378,7 @@ public class TimedBufferTest extends ServiceTestBase
          byte[] bytes = new byte[10];
          for (int j = 0; j < 10; j++)
          {
-            bytes[j] = ServiceTestBase.getSamplebyte(x++);
+            bytes[j] = ActiveMQTestBase.getSamplebyte(x++);
          }
 
          ActiveMQBuffer buff = ActiveMQBuffers.wrappedBuffer(bytes);

@@ -26,7 +26,7 @@ import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
@@ -37,7 +37,7 @@ import org.junit.Test;
  * <p/>
  * PagingTest has a lot of tests already. I decided to create a newer one more specialized on Ordering and counters
  */
-public class PagingSyncTest extends ServiceTestBase
+public class PagingSyncTest extends ActiveMQTestBase
 {
 
    private static final int PAGE_MAX = 100 * 1024;
@@ -55,7 +55,7 @@ public class PagingSyncTest extends ServiceTestBase
    {
       boolean persistentMessages = true;
 
-      Configuration config = createDefaultConfig()
+      Configuration config = createDefaultInVMConfig()
          .setJournalSyncNonTransactional(false);
 
       ActiveMQServer server = createServer(true, config, PAGE_SIZE, PAGE_MAX, new HashMap<String, AddressSettings>());
@@ -66,16 +66,14 @@ public class PagingSyncTest extends ServiceTestBase
 
       final int numberOfMessages = 500;
 
-      ServerLocator locator = createInVMNonHALocator();
-
-      locator.setClientFailureCheckPeriod(1000);
-      locator.setConnectionTTL(2000);
-      locator.setReconnectAttempts(0);
-
-      locator.setBlockOnNonDurableSend(false);
-      locator.setBlockOnDurableSend(false);
-      locator.setBlockOnAcknowledge(false);
-      locator.setConsumerWindowSize(1024 * 1024);
+      ServerLocator locator = createInVMNonHALocator()
+              .setClientFailureCheckPeriod(1000)
+              .setConnectionTTL(2000)
+              .setReconnectAttempts(0)
+              .setBlockOnNonDurableSend(false)
+              .setBlockOnDurableSend(false)
+              .setBlockOnAcknowledge(false)
+              .setConsumerWindowSize(1024 * 1024);
 
       ClientSessionFactory sf = createSessionFactory(locator);
 

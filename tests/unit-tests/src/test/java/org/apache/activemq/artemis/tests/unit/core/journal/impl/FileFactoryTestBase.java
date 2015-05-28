@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.unit.core.journal.impl;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Before;
 
 import java.nio.ByteBuffer;
@@ -25,7 +25,7 @@ import org.junit.Assert;
 import org.apache.activemq.artemis.core.journal.SequentialFile;
 import org.apache.activemq.artemis.core.journal.SequentialFileFactory;
 
-public abstract class FileFactoryTestBase extends ServiceTestBase
+public abstract class FileFactoryTestBase extends ActiveMQTestBase
 {
    protected abstract SequentialFileFactory createFactory();
 

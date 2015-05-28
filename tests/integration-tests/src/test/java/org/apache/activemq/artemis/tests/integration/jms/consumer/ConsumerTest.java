@@ -16,6 +16,21 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.consumer;
 
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
+import org.apache.activemq.artemis.api.jms.ActiveMQJMSConstants;
+import org.apache.activemq.artemis.api.jms.JMSFactoryType;
+import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
+import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
+import org.apache.activemq.artemis.tests.util.JMSTestBase;
+import org.apache.activemq.artemis.utils.ReusableLatch;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+
 import javax.jms.Connection;
 import javax.jms.JMSConsumer;
 import javax.jms.JMSContext;
@@ -28,25 +43,8 @@ import javax.jms.MessageProducer;
 import javax.jms.QueueBrowser;
 import javax.jms.Session;
 import javax.jms.TextMessage;
-
 import java.util.Enumeration;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.api.core.TransportConfiguration;
-import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
-import org.apache.activemq.artemis.api.jms.ActiveMQJMSConstants;
-import org.apache.activemq.artemis.api.jms.JMSFactoryType;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
-import org.apache.activemq.artemis.tests.util.JMSTestBase;
-import org.apache.activemq.artemis.core.server.Queue;
-import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
-import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
-import org.apache.activemq.artemis.utils.ReusableLatch;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
 
 public class ConsumerTest extends JMSTestBase
 {
@@ -68,24 +66,13 @@ public class ConsumerTest extends JMSTestBase
    {
       super.setUp();
 
-
       topic = ActiveMQJMSClient.createTopic(T_NAME);
       topic2 = ActiveMQJMSClient.createTopic(T2_NAME);
-
 
       jmsServer.createQueue(false, ConsumerTest.Q_NAME, null, true, ConsumerTest.Q_NAME);
       jmsServer.createTopic(true, T_NAME, "/topic/" + T_NAME);
       jmsServer.createTopic(true, T2_NAME, "/topic/" + T2_NAME);
-      cf = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration("org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory"));
-   }
-
-   @Override
-   @After
-   public void tearDown() throws Exception
-   {
-      cf = null;
-
-      super.tearDown();
+      cf = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration(INVM_CONNECTOR_FACTORY));
    }
 
    @Test

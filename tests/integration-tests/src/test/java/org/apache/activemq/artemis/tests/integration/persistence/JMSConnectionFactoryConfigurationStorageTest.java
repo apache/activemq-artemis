@@ -16,11 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.persistence;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.Pair;
@@ -29,9 +24,13 @@ import org.apache.activemq.artemis.jms.persistence.config.PersistedConnectionFac
 import org.apache.activemq.artemis.jms.server.config.ConnectionFactoryConfiguration;
 import org.apache.activemq.artemis.jms.server.config.impl.ConnectionFactoryConfigurationImpl;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class JMSConnectionFactoryConfigurationStorageTest extends StorageManagerTestBase
 {
@@ -45,15 +44,6 @@ public class JMSConnectionFactoryConfigurationStorageTest extends StorageManager
       super.setUp();
 
       mapExpectedCFs = new HashMap<String, PersistedConnectionFactory>();
-   }
-
-   @Override
-   @After
-   public void tearDown() throws Exception
-   {
-      mapExpectedCFs = null;
-
-      super.tearDown();
    }
 
    protected void addSetting(PersistedConnectionFactory setting) throws Exception

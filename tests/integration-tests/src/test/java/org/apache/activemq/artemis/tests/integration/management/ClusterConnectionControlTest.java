@@ -277,16 +277,7 @@ public class ClusterConnectionControlTest extends ManagementTestBase
    @After
    public void tearDown() throws Exception
    {
-      server_0.stop();
-      server_1.stop();
-
-      server_0 = null;
-
-      server_1 = null;
-
       MBeanServerFactory.releaseMBeanServer(mbeanServer_1);
-      mbeanServer_1 = null;
-
       super.tearDown();
    }
 

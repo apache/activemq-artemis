@@ -23,7 +23,7 @@ import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
@@ -31,7 +31,7 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.junit.Before;
 import org.junit.Test;
 
-public class PagingReceiveTest extends ServiceTestBase
+public class PagingReceiveTest extends ActiveMQTestBase
 {
 
    private static final SimpleString ADDRESS = new SimpleString("jms.queue.catalog-service.price.change.bm");
@@ -101,7 +101,7 @@ public class PagingReceiveTest extends ServiceTestBase
 
       server.start();
 
-      waitForServer(server);
+      waitForServerToStart(server);
 
       locator = createFactory(isNetty());
       return server;
@@ -135,12 +135,12 @@ public class PagingReceiveTest extends ServiceTestBase
    {
       final ActiveMQServer server = createServer(true, isNetty());
 
-      final AddressSettings settings = new AddressSettings();
-      settings.setMaxSizeBytes(67108864);
-      settings.setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE);
-      settings.setMaxRedeliveryDelay(3600000);
-      settings.setRedeliveryMultiplier(2.0);
-      settings.setRedeliveryDelay(500);
+      final AddressSettings settings = new AddressSettings()
+              .setMaxSizeBytes(67108864)
+              .setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE)
+              .setMaxRedeliveryDelay(3600000)
+              .setRedeliveryMultiplier(2.0)
+              .setRedeliveryDelay(500);
 
       server.getAddressSettingsRepository().addMatch("#", settings);
 

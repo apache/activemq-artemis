@@ -15,23 +15,10 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.integration.management;
-import org.junit.Before;
-
-import org.junit.Test;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.management.MBeanServerFactory;
-
-import org.junit.Assert;
 
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
-import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
@@ -44,6 +31,15 @@ import org.apache.activemq.artemis.core.remoting.impl.invm.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+
+import javax.management.MBeanServerFactory;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class BridgeControlUsingCoreTest extends ManagementTestBase
 {
@@ -166,9 +162,7 @@ public class BridgeControlUsingCoreTest extends ManagementTestBase
 
       server_0 = addServer(ActiveMQServers.newActiveMQServer(conf_0, mbeanServer, false));
       server_0.start();
-      ServerLocator locator =
-               addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(
-                  INVM_CONNECTOR_FACTORY)));
+      ServerLocator locator = createInVMNonHALocator();
       ClientSessionFactory sf = createSessionFactory(locator);
       session = addClientSession(sf.createSession(false, true, true));
       session.start();

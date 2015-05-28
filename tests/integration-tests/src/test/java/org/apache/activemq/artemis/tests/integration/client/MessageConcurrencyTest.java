@@ -16,11 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
-
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -29,15 +24,19 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.MessageHandler;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public class MessageConcurrencyTest extends ServiceTestBase
+import java.util.HashSet;
+import java.util.Set;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+
+public class MessageConcurrencyTest extends ActiveMQTestBase
 {
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
@@ -60,19 +59,6 @@ public class MessageConcurrencyTest extends ServiceTestBase
       server.start();
 
       locator = createInVMNonHALocator();
-   }
-
-   @Override
-   @After
-   public void tearDown() throws Exception
-   {
-      locator.close();
-
-      server.stop();
-
-      server = null;
-
-      super.tearDown();
    }
 
    // Test that a created message can be sent via multiple producers on different sessions concurrently

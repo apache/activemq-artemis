@@ -31,7 +31,7 @@ public class AutoCloseCoreTest extends SingleServerTestBase
       ServerLocator locatorx;
       ClientSession sessionx;
       ClientSessionFactory factoryx;
-      try (ServerLocator locator = createLocator();
+      try (ServerLocator locator = createInVMNonHALocator();
            ClientSessionFactory factory = locator.createSessionFactory();
            ClientSession session = factory.createSession(false, false))
       {

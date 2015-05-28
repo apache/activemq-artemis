@@ -62,7 +62,7 @@ import org.apache.activemq.artemis.core.server.group.GroupingHandler;
 import org.apache.activemq.artemis.core.server.group.impl.GroupingHandlerConfiguration;
 import org.apache.activemq.artemis.core.server.impl.InVMNodeManager;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -82,7 +82,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public abstract class ClusterTestBase extends ServiceTestBase
+public abstract class ClusterTestBase extends ActiveMQTestBase
 {
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
@@ -137,7 +137,7 @@ public abstract class ClusterTestBase extends ServiceTestBase
 
       forceGC();
 
-      ServiceTestBase.checkFreePort(ClusterTestBase.PORTS);
+      ActiveMQTestBase.checkFreePort(ClusterTestBase.PORTS);
 
       consumers = new ConsumerHolder[ClusterTestBase.MAX_CONSUMERS];
 
@@ -170,7 +170,6 @@ public abstract class ClusterTestBase extends ServiceTestBase
    @After
    public void tearDown() throws Exception
    {
-      log.info("#test tearDown");
       logTopologyDiagram();
       for (int i = 0; i < MAX_SERVERS; i++)
       {
@@ -186,7 +185,7 @@ public abstract class ClusterTestBase extends ServiceTestBase
 
       super.tearDown();
 
-      ServiceTestBase.checkFreePort(ClusterTestBase.PORTS);
+      ActiveMQTestBase.checkFreePort(ClusterTestBase.PORTS);
 
    }
 
@@ -434,7 +433,7 @@ public abstract class ClusterTestBase extends ServiceTestBase
 
          Thread.sleep(10);
       }
-      while (System.currentTimeMillis() - start < ServiceTestBase.WAIT_TIMEOUT);
+      while (System.currentTimeMillis() - start < ActiveMQTestBase.WAIT_TIMEOUT);
 
       throw new IllegalStateException("Timed out waiting for messages (messageCount = " + messageCount +
                                          ", expecting = " +
@@ -443,7 +442,7 @@ public abstract class ClusterTestBase extends ServiceTestBase
 
    protected void waitForServerRestart(final int node) throws Exception
    {
-      long waitTimeout = ServiceTestBase.WAIT_TIMEOUT;
+      long waitTimeout = ActiveMQTestBase.WAIT_TIMEOUT;
       if (!isSharedStore())
       {
          //it should be greater than
@@ -483,7 +482,7 @@ public abstract class ClusterTestBase extends ServiceTestBase
          throw new IllegalArgumentException("No server at " + node);
       }
 
-      long timeout = ServiceTestBase.WAIT_TIMEOUT;
+      long timeout = ActiveMQTestBase.WAIT_TIMEOUT;
 
 
       if (waitForBindings(server, address, local, expectedBindingCount, expectedConsumerCount, timeout))
@@ -662,7 +661,7 @@ public abstract class ClusterTestBase extends ServiceTestBase
       {
          // Proxy the failure and print a dump into System.out, so it is captured by Jenkins reports
          e.printStackTrace();
-         System.out.println(ServiceTestBase.threadDump(" - fired by ClusterTestBase::addConsumer"));
+         System.out.println(ActiveMQTestBase.threadDump(" - fired by ClusterTestBase::addConsumer"));
 
          throw e;
       }
@@ -1540,7 +1539,7 @@ public abstract class ClusterTestBase extends ServiceTestBase
 
       if (netty)
       {
-         serverTotc = new TransportConfiguration(ServiceTestBase.NETTY_CONNECTOR_FACTORY, params);
+         serverTotc = new TransportConfiguration(ActiveMQTestBase.NETTY_CONNECTOR_FACTORY, params);
       }
       else
       {
@@ -1558,8 +1557,8 @@ public abstract class ClusterTestBase extends ServiceTestBase
 
       locators[node].setProtocolManagerFactory(ActiveMQServerSideProtocolManagerFactory.getInstance());
 
-      locators[node].setBlockOnNonDurableSend(true);
-      locators[node].setBlockOnDurableSend(true);
+      locators[node].setBlockOnNonDurableSend(true)
+              .setBlockOnDurableSend(true);
       addServerLocator(locators[node]);
       ClientSessionFactory sf = createSessionFactory(locators[node]);
 
@@ -1581,17 +1580,18 @@ public abstract class ClusterTestBase extends ServiceTestBase
 
       if (netty)
       {
-         serverTotc = new TransportConfiguration(ServiceTestBase.NETTY_CONNECTOR_FACTORY, params);
+         serverTotc = new TransportConfiguration(ActiveMQTestBase.NETTY_CONNECTOR_FACTORY, params);
       }
       else
       {
          serverTotc = new TransportConfiguration(INVM_CONNECTOR_FACTORY, params);
       }
 
-      locators[node] = ActiveMQClient.createServerLocatorWithoutHA(serverTotc);
-      locators[node].setBlockOnNonDurableSend(true);
-      locators[node].setBlockOnDurableSend(true);
-      locators[node].setReconnectAttempts(reconnectAttempts);
+      locators[node] = ActiveMQClient.createServerLocatorWithoutHA(serverTotc)
+              .setBlockOnNonDurableSend(true)
+              .setBlockOnDurableSend(true)
+              .setReconnectAttempts(reconnectAttempts);
+
       addServerLocator(locators[node]);
       ClientSessionFactory sf = createSessionFactory(locators[node]);
 
@@ -1609,12 +1609,13 @@ public abstract class ClusterTestBase extends ServiceTestBase
 
       TransportConfiguration serverToTC = createTransportConfiguration(netty, false, params);
 
-      locators[node] = addServerLocator(ActiveMQClient.createServerLocatorWithHA(serverToTC));
-      locators[node].setRetryInterval(100);
-      locators[node].setRetryIntervalMultiplier(1d);
-      locators[node].setReconnectAttempts(-1);
-      locators[node].setBlockOnNonDurableSend(blocking);
-      locators[node].setBlockOnDurableSend(blocking);
+      locators[node] = addServerLocator(ActiveMQClient.createServerLocatorWithHA(serverToTC))
+              .setRetryInterval(100)
+              .setRetryIntervalMultiplier(1d)
+              .setReconnectAttempts(-1)
+              .setBlockOnNonDurableSend(blocking)
+              .setBlockOnDurableSend(blocking);
+
       final String identity = "TestClientConnector,live=" + node + ",backup=" + backupNode;
       ((ServerLocatorInternal) locators[node]).setIdentity(identity);
 
@@ -1707,7 +1708,7 @@ public abstract class ClusterTestBase extends ServiceTestBase
       server.addProtocolManagerFactory(new CoreProtocolManagerFactory());
 
       server.setIdentity(this.getClass().getSimpleName() + "/Live(" + node + ")");
-      servers[node] = server;
+      servers[node] = addServer(server);
    }
 
    /**
@@ -1759,7 +1760,7 @@ public abstract class ClusterTestBase extends ServiceTestBase
          server = addServer(ActiveMQServers.newActiveMQServer(configuration, enablePersistency));
       }
       server.setIdentity(this.getClass().getSimpleName() + "/Backup(" + node + " of live " + liveNode + ")");
-      servers[node] = server;
+      servers[node] = addServer(server);
    }
 
    protected void setupLiveServerWithDiscovery(final int node,
@@ -2024,14 +2025,14 @@ public abstract class ClusterTestBase extends ServiceTestBase
          serverFrom.getConfiguration().getConnectorConfigurations().put(serverTotc.getName(), serverTotc);
          pairs.add(serverTotc.getName());
       }
-      Configuration conf = serverFrom.getConfiguration();
+      Configuration config = serverFrom.getConfiguration();
       ClusterConnectionConfiguration clusterConf =
          createClusterConfig(name, address, forwardWhenNoConsumers,
                              maxHops,
                              connectorFrom,
                              pairs);
 
-      conf.getClusterConfigurations().add(clusterConf);
+      config.getClusterConfigurations().add(clusterConf);
    }
 
    protected void setupClusterConnection(final String name,
@@ -2061,7 +2062,7 @@ public abstract class ClusterTestBase extends ServiceTestBase
          serverFrom.getConfiguration().getConnectorConfigurations().put(serverTotc.getName(), serverTotc);
          pairs.add(serverTotc.getName());
       }
-      Configuration conf = serverFrom.getConfiguration();
+      Configuration config = serverFrom.getConfiguration();
 
       ClusterConnectionConfiguration clusterConf = new ClusterConnectionConfiguration()
          .setName(name)
@@ -2076,7 +2077,7 @@ public abstract class ClusterTestBase extends ServiceTestBase
          .setConfirmationWindowSize(1024)
          .setStaticConnectors(pairs);
 
-      conf.getClusterConfigurations().add(clusterConf);
+      config.getClusterConfigurations().add(clusterConf);
    }
 
    private ClusterConnectionConfiguration createClusterConfig(final String name, final String address,
@@ -2151,7 +2152,7 @@ public abstract class ClusterTestBase extends ServiceTestBase
 
       TransportConfiguration connectorConfig = createTransportConfiguration(netty, false, generateParams(node, netty));
       server.getConfiguration().getConnectorConfigurations().put(name, connectorConfig);
-      Configuration conf = server.getConfiguration();
+      Configuration config = server.getConfiguration();
       ClusterConnectionConfiguration clusterConf = new ClusterConnectionConfiguration()
          .setName(name)
          .setAddress(address)
@@ -2162,7 +2163,7 @@ public abstract class ClusterTestBase extends ServiceTestBase
          .setMaxHops(maxHops)
          .setConfirmationWindowSize(1024)
          .setDiscoveryGroupName(discoveryGroupName);
-      List<ClusterConnectionConfiguration> clusterConfs = conf.getClusterConfigurations();
+      List<ClusterConnectionConfiguration> clusterConfs = config.getClusterConfigurations();
 
       clusterConfs.add(clusterConf);
    }
@@ -2189,7 +2190,7 @@ public abstract class ClusterTestBase extends ServiceTestBase
          servers[node].start();
 
          log.info("started server " + servers[node]);
-         waitForServer(servers[node]);
+         waitForServerToStart(servers[node]);
       }
    }
 

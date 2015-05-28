@@ -59,9 +59,8 @@ public class LargeMessageCompressTest extends LargeMessageTest
    @Override
    protected ServerLocator createFactory(final boolean isNetty) throws Exception
    {
-      ServerLocator locator1 = super.createFactory(isNetty);
-      locator1.setCompressLargeMessage(true);
-      return locator1;
+      return super.createFactory(isNetty)
+              .setCompressLargeMessage(true);
    }
 
    @Test

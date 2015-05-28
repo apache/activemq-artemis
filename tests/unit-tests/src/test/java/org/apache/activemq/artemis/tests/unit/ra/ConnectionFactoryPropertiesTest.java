@@ -21,14 +21,14 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.ra.ActiveMQResourceAdapter;
 import org.junit.Test;
 
 import static java.beans.Introspector.getBeanInfo;
 
-public class ConnectionFactoryPropertiesTest extends ServiceTestBase
+public class ConnectionFactoryPropertiesTest extends ActiveMQTestBase
 {
 
    private static final SortedSet<String> UNSUPPORTED_CF_PROPERTIES;

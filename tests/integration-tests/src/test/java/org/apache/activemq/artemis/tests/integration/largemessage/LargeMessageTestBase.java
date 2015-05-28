@@ -31,7 +31,7 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.DataConstants;
 import org.apache.activemq.artemis.utils.DeflaterReader;
 import org.junit.Assert;
@@ -47,7 +47,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
-public abstract class LargeMessageTestBase extends ServiceTestBase
+public abstract class LargeMessageTestBase extends ActiveMQTestBase
 {
 
    // Constants -----------------------------------------------------
@@ -125,9 +125,9 @@ public abstract class LargeMessageTestBase extends ServiceTestBase
 
          if (sendingBlocking)
          {
-            locator.setBlockOnNonDurableSend(true);
-            locator.setBlockOnDurableSend(true);
-            locator.setBlockOnAcknowledge(true);
+            locator.setBlockOnNonDurableSend(true)
+                    .setBlockOnDurableSend(true)
+                    .setBlockOnAcknowledge(true);
          }
 
          if (producerWindow > 0)
@@ -299,7 +299,7 @@ public abstract class LargeMessageTestBase extends ServiceTestBase
                               @Override
                               public void write(final byte[] b) throws IOException
                               {
-                                 if (b[0] == ServiceTestBase.getSamplebyte(bytesRead.get()))
+                                 if (b[0] == ActiveMQTestBase.getSamplebyte(bytesRead.get()))
                                  {
                                     bytesRead.addAndGet(b.length);
                                     LargeMessageTestBase.log.debug("Read position " + bytesRead.get() + " on consumer");
@@ -313,7 +313,7 @@ public abstract class LargeMessageTestBase extends ServiceTestBase
                               @Override
                               public void write(final int b) throws IOException
                               {
-                                 if (b == ServiceTestBase.getSamplebyte(bytesRead.get()))
+                                 if (b == ActiveMQTestBase.getSamplebyte(bytesRead.get()))
                                  {
                                     bytesRead.incrementAndGet();
                                  }
@@ -338,7 +338,7 @@ public abstract class LargeMessageTestBase extends ServiceTestBase
                                  LargeMessageTestBase.log.debug("Read " + b + " bytes");
                               }
 
-                              Assert.assertEquals(ServiceTestBase.getSamplebyte(b), buffer.readByte());
+                              Assert.assertEquals(ActiveMQTestBase.getSamplebyte(b), buffer.readByte());
                            }
 
                            try
@@ -418,7 +418,7 @@ public abstract class LargeMessageTestBase extends ServiceTestBase
                         @Override
                         public void write(final byte[] b) throws IOException
                         {
-                           if (b[0] == ServiceTestBase.getSamplebyte(bytesRead.get()))
+                           if (b[0] == ActiveMQTestBase.getSamplebyte(bytesRead.get()))
                            {
                               bytesRead.addAndGet(b.length);
                            }
@@ -460,7 +460,7 @@ public abstract class LargeMessageTestBase extends ServiceTestBase
                         {
                            LargeMessageTestBase.log.debug("Read " + b + " bytes");
                         }
-                        Assert.assertEquals(ServiceTestBase.getSamplebyte(b), buffer.readByte());
+                        Assert.assertEquals(ActiveMQTestBase.getSamplebyte(b), buffer.readByte());
                      }
                   }
 
@@ -546,7 +546,7 @@ public abstract class LargeMessageTestBase extends ServiceTestBase
          if (numberOfBytes > 1024 * 1024 || i % 2 == 0)
          {
             LargeMessageTestBase.log.debug("Sending message (stream)" + i);
-            message.setBodyInputStream(ServiceTestBase.createFakeLargeStream(numberOfBytes));
+            message.setBodyInputStream(ActiveMQTestBase.createFakeLargeStream(numberOfBytes));
          }
          else
          {
@@ -554,7 +554,7 @@ public abstract class LargeMessageTestBase extends ServiceTestBase
             byte[] bytes = new byte[(int) numberOfBytes];
             for (int j = 0; j < bytes.length; j++)
             {
-               bytes[j] = ServiceTestBase.getSamplebyte(j);
+               bytes[j] = ActiveMQTestBase.getSamplebyte(j);
             }
             message.getBodyBuffer().writeBytes(bytes);
          }
@@ -606,7 +606,7 @@ public abstract class LargeMessageTestBase extends ServiceTestBase
 
       ClientMessage clientMessage = session.createMessage(persistent);
 
-      clientMessage.setBodyInputStream(ServiceTestBase.createFakeLargeStream(numberOfBytes));
+      clientMessage.setBodyInputStream(ActiveMQTestBase.createFakeLargeStream(numberOfBytes));
 
       return clientMessage;
    }

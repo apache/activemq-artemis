@@ -28,14 +28,14 @@ import org.apache.activemq.artemis.core.config.CoreQueueConfiguration;
 import org.apache.activemq.artemis.core.remoting.impl.invm.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.cluster.impl.BridgeImpl;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.jboss.byteman.contrib.bmunit.BMRule;
 import org.jboss.byteman.contrib.bmunit.BMUnitRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(BMUnitRunner.class)
-public class BridgeServerLocatorConfigurationTest extends ServiceTestBase
+public class BridgeServerLocatorConfigurationTest extends ActiveMQTestBase
 {
 
    private static final long BRIDGE_TTL = 1234L;
@@ -130,10 +130,10 @@ public class BridgeServerLocatorConfigurationTest extends ServiceTestBase
          server1.getConfiguration().setQueueConfigurations(queueConfigs1);
 
          server1.start();
-         waitForServer(server1);
+         waitForServerToStart(server1);
 
          serverWithBridge.start();
-         waitForServer(serverWithBridge);
+         waitForServerToStart(serverWithBridge);
 
          long bridgeTTL = getBridgeTTL(serverWithBridge, BRIDGE_NAME);
 

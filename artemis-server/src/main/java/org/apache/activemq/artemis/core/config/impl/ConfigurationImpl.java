@@ -377,6 +377,12 @@ public class ConfigurationImpl implements Configuration, Serializable
       return this;
    }
 
+   public ConfigurationImpl clearConnectorConfigurations()
+   {
+      connectorConfigs.clear();
+      return this;
+   }
+
    public GroupingHandlerConfiguration getGroupingHandlerConfiguration()
    {
       return groupingHandlerConfiguration;
@@ -1023,6 +1029,13 @@ public class ConfigurationImpl implements Configuration, Serializable
    public ConfigurationImpl addAddressesSetting(String key, AddressSettings addressesSetting)
    {
       this.addressesSettings.put(key, addressesSetting);
+      return this;
+   }
+
+   @Override
+   public ConfigurationImpl clearAddressesSettings()
+   {
+      this.addressesSettings.clear();
       return this;
    }
 

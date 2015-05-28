@@ -16,8 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
-import java.util.HashMap;
-
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
@@ -25,18 +23,19 @@ import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.apache.activemq.artemis.tests.integration.cluster.util.SameProcessActiveMQServer;
-import org.apache.activemq.artemis.tests.integration.cluster.util.TestableServer;
-import org.apache.activemq.artemis.tests.util.TransportConfigurationUtils;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
-import org.junit.After;
+import org.apache.activemq.artemis.tests.integration.cluster.util.SameProcessActiveMQServer;
+import org.apache.activemq.artemis.tests.integration.cluster.util.TestableServer;
+import org.apache.activemq.artemis.tests.util.TransportConfigurationUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.HashMap;
 
 /**
  * A PagingFailoverTest
@@ -69,20 +68,11 @@ public class PagingFailoverTest extends FailoverTestBase
       locator = getServerLocator();
    }
 
-   @Override
-   @After
-   public void tearDown() throws Exception
-   {
-      addClientSession(session);
-      super.tearDown();
-   }
-
    @Test
    public void testPageFailBeforeConsume() throws Exception
    {
       internalTestPage(false, true);
    }
-
 
    @Test
    public void testPage() throws Exception
@@ -104,12 +94,12 @@ public class PagingFailoverTest extends FailoverTestBase
 
    public void internalTestPage(final boolean transacted, final boolean failBeforeConsume) throws Exception
    {
-      locator.setBlockOnNonDurableSend(true);
-      locator.setBlockOnDurableSend(true);
-      locator.setReconnectAttempts(-1);
+      locator.setBlockOnNonDurableSend(true)
+              .setBlockOnDurableSend(true)
+              .setReconnectAttempts(-1);
 
       sf = createSessionFactoryAndWaitForTopology(locator, 2);
-      session = sf.createSession(!transacted, !transacted, 0);
+      session = addClientSession(sf.createSession(!transacted, !transacted, 0));
 
       session.createQueue(PagingFailoverTest.ADDRESS, PagingFailoverTest.ADDRESS, true);
 
@@ -192,9 +182,9 @@ public class PagingFailoverTest extends FailoverTestBase
    @Test
    public void testExpireMessage() throws Exception
    {
-      locator.setBlockOnNonDurableSend(true);
-      locator.setBlockOnDurableSend(true);
-      locator.setReconnectAttempts(-1);
+      locator.setBlockOnNonDurableSend(true)
+              .setBlockOnDurableSend(true)
+              .setReconnectAttempts(-1);
 
       ClientSessionFactoryInternal sf = createSessionFactoryAndWaitForTopology(locator, 2);
       session = sf.createSession(true, true, 0);

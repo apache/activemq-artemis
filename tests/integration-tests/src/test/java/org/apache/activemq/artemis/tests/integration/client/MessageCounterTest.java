@@ -29,9 +29,9 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 
-public class MessageCounterTest extends ServiceTestBase
+public class MessageCounterTest extends ActiveMQTestBase
 {
    private ActiveMQServer server;
 
@@ -54,9 +54,8 @@ public class MessageCounterTest extends ServiceTestBase
    @Test
    public void testMessageCounter() throws Exception
    {
-
-      locator.setBlockOnNonDurableSend(true);
-      locator.setBlockOnDurableSend(true);
+      locator.setBlockOnNonDurableSend(true)
+              .setBlockOnDurableSend(true);
 
       ClientSessionFactory sf = createSessionFactory(locator);
       ClientSession session = sf.createSession(null, null, false, false, false, false, 0);

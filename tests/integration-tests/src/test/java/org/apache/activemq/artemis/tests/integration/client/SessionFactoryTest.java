@@ -16,30 +16,26 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import org.apache.activemq.artemis.api.core.BroadcastGroupConfiguration;
 import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
-import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.ha.SharedStoreMasterPolicyConfiguration;
-import org.apache.activemq.artemis.core.remoting.impl.invm.InVMAcceptorFactory;
-import org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class SessionFactoryTest extends ServiceTestBase
+import java.util.Arrays;
+
+public class SessionFactoryTest extends ActiveMQTestBase
 {
    private final DiscoveryGroupConfiguration groupConfiguration = new DiscoveryGroupConfiguration()
       .setBroadcastEndpointFactory(new UDPBroadcastEndpointFactory()
@@ -152,10 +148,6 @@ public class SessionFactoryTest extends ServiceTestBase
    @Test
    public void testGettersAndSetters() throws Exception
    {
-
-      TransportConfiguration[] tc = new TransportConfiguration[]{liveTC};
-      ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(tc);
-
       long clientFailureCheckPeriod = RandomUtil.randomPositiveLong();
       long connectionTTL = RandomUtil.randomPositiveLong();
       long callTimeout = RandomUtil.randomPositiveLong();
@@ -177,28 +169,30 @@ public class SessionFactoryTest extends ServiceTestBase
       long retryInterval = RandomUtil.randomPositiveLong();
       double retryIntervalMultiplier = RandomUtil.randomDouble();
       int reconnectAttempts = RandomUtil.randomPositiveInt();
+      TransportConfiguration[] tc = new TransportConfiguration[]{liveTC};
 
-      locator.setClientFailureCheckPeriod(clientFailureCheckPeriod);
-      locator.setConnectionTTL(connectionTTL);
-      locator.setCallTimeout(callTimeout);
-      locator.setMinLargeMessageSize(minLargeMessageSize);
-      locator.setConsumerWindowSize(consumerWindowSize);
-      locator.setConsumerMaxRate(consumerMaxRate);
-      locator.setConfirmationWindowSize(confirmationWindowSize);
-      locator.setProducerMaxRate(producerMaxRate);
-      locator.setBlockOnAcknowledge(blockOnAcknowledge);
-      locator.setBlockOnDurableSend(blockOnDurableSend);
-      locator.setBlockOnNonDurableSend(blockOnNonDurableSend);
-      locator.setAutoGroup(autoGroup);
-      locator.setPreAcknowledge(preAcknowledge);
-      locator.setConnectionLoadBalancingPolicyClassName(loadBalancingPolicyClassName);
-      locator.setAckBatchSize(ackBatchSize);
-      locator.setUseGlobalPools(useGlobalPools);
-      locator.setScheduledThreadPoolMaxSize(scheduledThreadPoolMaxSize);
-      locator.setThreadPoolMaxSize(threadPoolMaxSize);
-      locator.setRetryInterval(retryInterval);
-      locator.setRetryIntervalMultiplier(retryIntervalMultiplier);
-      locator.setReconnectAttempts(reconnectAttempts);
+      ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(tc)
+              .setClientFailureCheckPeriod(clientFailureCheckPeriod)
+              .setConnectionTTL(connectionTTL)
+              .setCallTimeout(callTimeout)
+              .setMinLargeMessageSize(minLargeMessageSize)
+              .setConsumerWindowSize(consumerWindowSize)
+              .setConsumerMaxRate(consumerMaxRate)
+              .setConfirmationWindowSize(confirmationWindowSize)
+              .setProducerMaxRate(producerMaxRate)
+              .setBlockOnAcknowledge(blockOnAcknowledge)
+              .setBlockOnDurableSend(blockOnDurableSend)
+              .setBlockOnNonDurableSend(blockOnNonDurableSend)
+              .setAutoGroup(autoGroup)
+              .setPreAcknowledge(preAcknowledge)
+              .setConnectionLoadBalancingPolicyClassName(loadBalancingPolicyClassName)
+              .setAckBatchSize(ackBatchSize)
+              .setUseGlobalPools(useGlobalPools)
+              .setScheduledThreadPoolMaxSize(scheduledThreadPoolMaxSize)
+              .setThreadPoolMaxSize(threadPoolMaxSize)
+              .setRetryInterval(retryInterval)
+              .setRetryIntervalMultiplier(retryIntervalMultiplier)
+              .setReconnectAttempts(reconnectAttempts);
 
       assertEqualsTransportConfigurations(tc, locator.getStaticTransportConfigurations());
       Assert.assertEquals(clientFailureCheckPeriod, locator.getClientFailureCheckPeriod());
@@ -214,8 +208,7 @@ public class SessionFactoryTest extends ServiceTestBase
       Assert.assertEquals(blockOnNonDurableSend, locator.isBlockOnNonDurableSend());
       Assert.assertEquals(autoGroup, locator.isAutoGroup());
       Assert.assertEquals(preAcknowledge, locator.isPreAcknowledge());
-      Assert.assertEquals(loadBalancingPolicyClassName, locator
-         .getConnectionLoadBalancingPolicyClassName());
+      Assert.assertEquals(loadBalancingPolicyClassName, locator.getConnectionLoadBalancingPolicyClassName());
       Assert.assertEquals(ackBatchSize, locator.getAckBatchSize());
       Assert.assertEquals(useGlobalPools, locator.isUseGlobalPools());
       Assert.assertEquals(scheduledThreadPoolMaxSize, locator.getScheduledThreadPoolMaxSize());
@@ -223,7 +216,6 @@ public class SessionFactoryTest extends ServiceTestBase
       Assert.assertEquals(retryInterval, locator.getRetryInterval());
       Assert.assertEquals(retryIntervalMultiplier, locator.getRetryIntervalMultiplier(), 0.000001);
       Assert.assertEquals(reconnectAttempts, locator.getReconnectAttempts());
-
    }
 
    private void testSettersThrowException(final ClientSessionFactory cf)
@@ -526,7 +518,7 @@ public class SessionFactoryTest extends ServiceTestBase
 
    private void startServer() throws Exception
    {
-      liveTC = new TransportConfiguration(InVMConnectorFactory.class.getName());
+      liveTC = new TransportConfiguration(INVM_CONNECTOR_FACTORY);
 
       final long broadcastPeriod = 250;
 
@@ -534,7 +526,7 @@ public class SessionFactoryTest extends ServiceTestBase
 
       final int localBindPort = 5432;
 
-      BroadcastGroupConfiguration bcConfig1 = new BroadcastGroupConfiguration()
+      BroadcastGroupConfiguration broadcastGroupConfiguration = new BroadcastGroupConfiguration()
          .setName(bcGroupName)
          .setBroadcastPeriod(broadcastPeriod)
          .setConnectorInfos(Arrays.asList(liveTC.getName()))
@@ -543,15 +535,10 @@ public class SessionFactoryTest extends ServiceTestBase
                                    .setGroupPort(getUDPDiscoveryPort())
                                    .setLocalBindPort(localBindPort));
 
-      List<BroadcastGroupConfiguration> bcConfigs1 = new ArrayList<BroadcastGroupConfiguration>();
-      bcConfigs1.add(bcConfig1);
-
-      Configuration liveConf = createDefaultConfig()
-         .setSecurityEnabled(false)
-         .addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName()))
+      Configuration liveConf = createDefaultInVMConfig()
          .addConnectorConfiguration(liveTC.getName(), liveTC)
          .setHAPolicyConfiguration(new SharedStoreMasterPolicyConfiguration())
-         .setBroadcastGroupConfigurations(bcConfigs1);
+         .addBroadcastGroupConfiguration(broadcastGroupConfiguration);
 
       liveService = createServer(false, liveConf);
       liveService.start();

@@ -37,7 +37,7 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.remoting.impl.ssl.SSLSupport;
@@ -50,7 +50,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 @RunWith(value = Parameterized.class)
-public class CoreClientOverOneWaySSLTest extends ServiceTestBase
+public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase
 {
    @Parameterized.Parameters(name = "storeType={0}")
    public static Collection getParameters()
@@ -545,8 +545,8 @@ public class CoreClientOverOneWaySSLTest extends ServiceTestBase
       createCustomSslServer();
       tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, false);
 
-      ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(tc));
-      locator.setCallTimeout(2000);
+      ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(tc))
+              .setCallTimeout(2000);
       try
       {
          createSessionFactory(locator);
@@ -602,7 +602,7 @@ public class CoreClientOverOneWaySSLTest extends ServiceTestBase
          .addAcceptorConfiguration(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, params));
       server = createServer(false, config);
       server.start();
-      waitForServer(server);
+      waitForServerToStart(server);
       tc = new TransportConfiguration(NETTY_CONNECTOR_FACTORY);
    }
 }

@@ -51,9 +51,9 @@ public class AcceptorControlTest extends ManagementTestBase
                                                                          new HashMap<String, Object>(),
                                                                          RandomUtil.randomString());
 
-      Configuration conf = createBasicConfig()
+      Configuration config = createBasicConfig()
          .addAcceptorConfiguration(acceptorConfig);
-      ActiveMQServer service = createServer(false, conf);
+      ActiveMQServer service = createServer(false, config);
       service.setMBeanServer(mbeanServer);
       service.start();
 
@@ -69,9 +69,9 @@ public class AcceptorControlTest extends ManagementTestBase
       TransportConfiguration acceptorConfig = new TransportConfiguration(InVMAcceptorFactory.class.getName(),
                                                                          new HashMap<String, Object>(),
                                                                          RandomUtil.randomString());
-      Configuration conf = createBasicConfig()
+      Configuration config = createBasicConfig()
          .addAcceptorConfiguration(acceptorConfig);
-      ActiveMQServer service = createServer(false, conf);
+      ActiveMQServer service = createServer(false, config);
       service.setMBeanServer(mbeanServer);
       service.start();
 
@@ -129,9 +129,9 @@ public class AcceptorControlTest extends ManagementTestBase
       TransportConfiguration acceptorConfig = new TransportConfiguration(InVMAcceptorFactory.class.getName(),
                                                                          new HashMap<String, Object>(),
                                                                          RandomUtil.randomString());
-      Configuration conf = createBasicConfig()
+      Configuration config = createBasicConfig()
          .addAcceptorConfiguration(acceptorConfig);
-      ActiveMQServer service = createServer(false, conf);
+      ActiveMQServer service = createServer(false, config);
       service.setMBeanServer(mbeanServer);
       service.start();
 

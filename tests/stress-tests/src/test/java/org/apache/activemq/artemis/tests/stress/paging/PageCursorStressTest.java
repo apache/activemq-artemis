@@ -16,18 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.stress.paging;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
-
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.tests.unit.core.postoffice.impl.FakeQueue;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.paging.cursor.PageCache;
@@ -47,14 +37,23 @@ import org.apache.activemq.artemis.core.server.impl.ServerMessageImpl;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
+import org.apache.activemq.artemis.tests.unit.core.postoffice.impl.FakeQueue;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.apache.activemq.artemis.utils.LinkedListIterator;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class PageCursorStressTest extends ServiceTestBase
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
+
+public class PageCursorStressTest extends ActiveMQTestBase
 {
 
    // Constants -----------------------------------------------------
@@ -857,15 +856,6 @@ public class PageCursorStressTest extends ServiceTestBase
    // Protected -----------------------------------------------------
 
    @Override
-   @After
-   public void tearDown() throws Exception
-   {
-      queue = null;
-      queueList = null;
-      super.tearDown();
-   }
-
-   @Override
    @Before
    public void setUp() throws Exception
    {
@@ -884,7 +874,7 @@ public class PageCursorStressTest extends ServiceTestBase
    {
       OperationContextImpl.clearContext();
 
-      Configuration config = createDefaultConfig()
+      Configuration config = createDefaultInVMConfig()
          .setJournalSyncNonTransactional(true);
 
       server = createServer(true, config, PAGE_SIZE, PAGE_MAX, new HashMap<String, AddressSettings>());

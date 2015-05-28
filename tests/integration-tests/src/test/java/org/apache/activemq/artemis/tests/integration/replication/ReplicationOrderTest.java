@@ -55,8 +55,8 @@ public class ReplicationOrderTest extends FailoverTestBase
       String queue = RandomUtil.randomString();
       ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(getConnectorTransportConfiguration(true));
       addServerLocator(locator);
-      locator.setBlockOnNonDurableSend(false);
-      locator.setBlockOnDurableSend(false);
+      locator.setBlockOnNonDurableSend(false)
+              .setBlockOnDurableSend(false);
       ClientSessionFactory csf = createSessionFactory(locator);
       ClientSession session = null;
       if (transactional)

@@ -28,22 +28,21 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.MessageHandler;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public class MessageConsumerRollbackTest extends ServiceTestBase
+public class MessageConsumerRollbackTest extends ActiveMQTestBase
 {
 
    ActiveMQServer server;
 
    ServerLocator locator;
 
-   ClientSessionFactory factory;
+   ClientSessionFactory sf;
 
    private static final String inQueue = "inqueue";
 
@@ -56,40 +55,22 @@ public class MessageConsumerRollbackTest extends ServiceTestBase
 
       server = createServer(true, true);
 
-      AddressSettings settings = new AddressSettings();
-      settings.setRedeliveryDelay(100);
+      AddressSettings settings = new AddressSettings().setRedeliveryDelay(100);
       server.getConfiguration().getAddressesSettings().put("#", settings);
 
       server.start();
 
       locator = createNettyNonHALocator();
 
-      factory = createSessionFactory(locator);
+      sf = createSessionFactory(locator);
 
-      ClientSession session = factory.createTransactedSession();
+      ClientSession session = sf.createTransactedSession();
 
       session.createQueue(inQueue, inQueue, true);
 
       session.createQueue(outQueue, outQueue, true);
 
       session.close();
-   }
-
-   @After
-   public void tearDown() throws Exception
-   {
-      try
-      {
-         factory.close();
-         locator.close();
-      }
-      catch (Exception ignored)
-      {
-      }
-
-      server.stop();
-
-      super.tearDown();
    }
 
    // Constants -----------------------------------------------------
@@ -109,7 +90,7 @@ public class MessageConsumerRollbackTest extends ServiceTestBase
       int numberOfMessages = 3000;
       int numberOfConsumers = 10;
 
-      ClientSession session = factory.createTransactedSession();
+      ClientSession session = sf.createTransactedSession();
 
       sendMessages(numberOfMessages, session);
 

@@ -28,7 +28,7 @@ import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -62,7 +62,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * counting strategy is used to verify that the count has reached the expected
  * value.
  */
-public class JmsNettyNioStressTest extends ServiceTestBase
+public class JmsNettyNioStressTest extends ActiveMQTestBase
 {
 
    // Constants -----------------------------------------------------
@@ -92,8 +92,8 @@ public class JmsNettyNioStressTest extends ServiceTestBase
       // minimize threads to maximize possibility for deadlock
       params.put(TransportConstants.NIO_REMOTING_THREADS_PROPNAME, 1);
       params.put(TransportConstants.BATCH_DELAY, 50);
-      TransportConfiguration transportConfig = new TransportConfiguration(ServiceTestBase.NETTY_ACCEPTOR_FACTORY, params);
-      Configuration config = createBasicConfig(-1)
+      TransportConfiguration transportConfig = new TransportConfiguration(ActiveMQTestBase.NETTY_ACCEPTOR_FACTORY, params);
+      Configuration config = createBasicConfig()
               .setJMXManagementEnabled(false)
               .clearAcceptorConfigurations()
               .addAcceptorConfiguration(transportConfig);

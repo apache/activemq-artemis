@@ -52,10 +52,11 @@ public class FailBackManualTest extends FailoverTestBase
    @Test
    public void testNoAutoFailback() throws Exception
    {
-      locator.setBlockOnNonDurableSend(true);
-      locator.setBlockOnDurableSend(true);
-      locator.setFailoverOnInitialConnection(true);
-      locator.setReconnectAttempts(-1);
+      locator.setBlockOnNonDurableSend(true)
+              .setBlockOnDurableSend(true)
+              .setFailoverOnInitialConnection(true)
+              .setReconnectAttempts(-1);
+
       ClientSessionFactoryInternal sf = createSessionFactoryAndWaitForTopology(locator, 2);
 
       ClientSession session = sendAndConsume(sf, true);
@@ -93,7 +94,7 @@ public class FailBackManualTest extends FailoverTestBase
 
       backupServer.crash();
 
-      waitForServer(liveServer.getServer());
+      waitForServerToStart(liveServer.getServer());
 
       assertTrue(liveServer.isStarted());
 
@@ -112,10 +113,9 @@ public class FailBackManualTest extends FailoverTestBase
       TransportConfiguration liveConnector = getConnectorTransportConfiguration(true);
       TransportConfiguration backupConnector = getConnectorTransportConfiguration(false);
 
-      backupConfig = super.createDefaultConfig()
+      backupConfig = super.createDefaultInVMConfig()
          .clearAcceptorConfigurations()
          .addAcceptorConfiguration(getAcceptorTransportConfiguration(false))
-         .setSecurityEnabled(false)
          .setHAPolicyConfiguration(new SharedStoreSlavePolicyConfiguration()
                                       .setAllowFailBack(false))
          .addConnectorConfiguration(liveConnector.getName(), liveConnector)
@@ -124,10 +124,9 @@ public class FailBackManualTest extends FailoverTestBase
 
       backupServer = createTestableServer(backupConfig);
 
-      liveConfig = super.createDefaultConfig()
+      liveConfig = super.createDefaultInVMConfig()
          .clearAcceptorConfigurations()
          .addAcceptorConfiguration(getAcceptorTransportConfiguration(true))
-         .setSecurityEnabled(false)
          .setHAPolicyConfiguration(new SharedStoreMasterPolicyConfiguration())
          .addConnectorConfiguration(liveConnector.getName(), liveConnector)
          .addConnectorConfiguration(backupConnector.getName(), backupConnector)

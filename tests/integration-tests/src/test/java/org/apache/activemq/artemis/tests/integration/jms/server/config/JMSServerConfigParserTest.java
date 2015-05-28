@@ -24,9 +24,9 @@ import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.jms.server.config.JMSQueueConfiguration;
 import org.apache.activemq.artemis.jms.server.config.TopicConfiguration;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 
-public class JMSServerConfigParserTest extends ServiceTestBase
+public class JMSServerConfigParserTest extends ActiveMQTestBase
 {
 
    // Constants -----------------------------------------------------
@@ -43,7 +43,7 @@ public class JMSServerConfigParserTest extends ServiceTestBase
    @Test
    public void testParsing() throws Exception
    {
-      Configuration config = createDefaultConfig()
+      Configuration config = createDefaultInVMConfig()
          // anything so the parsing will work
          .addConnectorConfiguration("netty", new TransportConfiguration());
 

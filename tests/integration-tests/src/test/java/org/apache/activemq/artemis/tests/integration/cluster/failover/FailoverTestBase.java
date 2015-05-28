@@ -41,7 +41,7 @@ import org.apache.activemq.artemis.core.server.impl.InVMNodeManager;
 import org.apache.activemq.artemis.tests.integration.cluster.util.SameProcessActiveMQServer;
 import org.apache.activemq.artemis.tests.integration.cluster.util.TestableServer;
 import org.apache.activemq.artemis.tests.util.ReplicatedBackupUtils;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -53,7 +53,7 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-public abstract class FailoverTestBase extends ServiceTestBase
+public abstract class FailoverTestBase extends ActiveMQTestBase
 {
    // Constants -----------------------------------------------------
 
@@ -91,7 +91,7 @@ public abstract class FailoverTestBase extends ServiceTestBase
 
       setLiveIdentity();
       liveServer.start();
-      waitForServer(liveServer.getServer());
+      waitForServerToStart(liveServer.getServer());
 
       if (backupServer != null)
       {
@@ -142,7 +142,7 @@ public abstract class FailoverTestBase extends ServiceTestBase
    {
       try
       {
-         message.setBodyInputStream(ServiceTestBase.createFakeLargeStream(LARGE_MESSAGE_SIZE));
+         message.setBodyInputStream(ActiveMQTestBase.createFakeLargeStream(LARGE_MESSAGE_SIZE));
       }
       catch (Exception e)
       {
@@ -163,7 +163,7 @@ public abstract class FailoverTestBase extends ServiceTestBase
       for (int j = 0; j < LARGE_MESSAGE_SIZE; j++)
       {
          Assert.assertTrue("msg " + i + ", expecting " + LARGE_MESSAGE_SIZE + " bytes, got " + j, buffer.readable());
-         Assert.assertEquals("equal at " + j, ServiceTestBase.getSamplebyte(j), buffer.readByte());
+         Assert.assertEquals("equal at " + j, ActiveMQTestBase.getSamplebyte(j), buffer.readByte());
       }
    }
 
@@ -173,7 +173,7 @@ public abstract class FailoverTestBase extends ServiceTestBase
       TransportConfiguration liveConnector = getConnectorTransportConfiguration(true);
       TransportConfiguration backupConnector = getConnectorTransportConfiguration(false);
 
-      backupConfig = super.createDefaultConfig()
+      backupConfig = super.createDefaultInVMConfig()
          .clearAcceptorConfigurations()
          .addAcceptorConfiguration(getAcceptorTransportConfiguration(false))
          .setHAPolicyConfiguration(new SharedStoreSlavePolicyConfiguration()
@@ -184,7 +184,7 @@ public abstract class FailoverTestBase extends ServiceTestBase
 
       backupServer = createTestableServer(backupConfig);
 
-      liveConfig = super.createDefaultConfig()
+      liveConfig = super.createDefaultInVMConfig()
          .clearAcceptorConfigurations()
          .addAcceptorConfiguration(getAcceptorTransportConfiguration(true))
          .setHAPolicyConfiguration(new SharedStoreMasterPolicyConfiguration()
@@ -201,8 +201,8 @@ public abstract class FailoverTestBase extends ServiceTestBase
       final TransportConfiguration backupConnector = getConnectorTransportConfiguration(false);
       final TransportConfiguration backupAcceptor = getAcceptorTransportConfiguration(false);
 
-      backupConfig = createDefaultConfig();
-      liveConfig = createDefaultConfig();
+      backupConfig = createDefaultInVMConfig();
+      liveConfig = createDefaultInVMConfig();
 
       ReplicatedBackupUtils.configureReplicationPair(backupConfig, backupConnector, backupAcceptor, liveConfig, liveConnector, null);
 
@@ -312,7 +312,7 @@ public abstract class FailoverTestBase extends ServiceTestBase
       final ActiveMQServerImpl actualServer = (ActiveMQServerImpl) backupServer.getServer();
       if (actualServer.getHAPolicy().isSharedStore())
       {
-         waitForServer(actualServer);
+         waitForServerToStart(actualServer);
       }
       else
       {
@@ -326,10 +326,8 @@ public abstract class FailoverTestBase extends ServiceTestBase
 
    protected ServerLocatorInternal getServerLocator() throws Exception
    {
-      ServerLocator locator = ActiveMQClient.createServerLocatorWithHA(getConnectorTransportConfiguration(true), getConnectorTransportConfiguration(false));
-      locator.setRetryInterval(50);
-      addServerLocator(locator);
-      return (ServerLocatorInternal) locator;
+      return (ServerLocatorInternal) addServerLocator(ActiveMQClient.createServerLocatorWithHA(getConnectorTransportConfiguration(true), getConnectorTransportConfiguration(false)))
+              .setRetryInterval(50);
    }
 
 

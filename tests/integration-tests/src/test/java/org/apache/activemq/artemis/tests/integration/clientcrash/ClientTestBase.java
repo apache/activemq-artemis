@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.integration.clientcrash;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Before;
 
 import org.junit.Assert;
@@ -23,7 +23,7 @@ import org.junit.Assert;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 
-public abstract class ClientTestBase extends ServiceTestBase
+public abstract class ClientTestBase extends ActiveMQTestBase
 {
 
    protected ActiveMQServer server;
@@ -34,8 +34,7 @@ public abstract class ClientTestBase extends ServiceTestBase
    {
       super.setUp();
 
-      Configuration config = createDefaultConfig(true)
-         .setSecurityEnabled(false);
+      Configuration config = createDefaultNettyConfig();
       server = createServer(false, config);
       server.start();
    }

@@ -15,16 +15,12 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.core.list;
-import org.junit.Before;
-import org.junit.After;
-
-import org.junit.Test;
-
-import org.junit.Assert;
-
 
 import org.apache.activemq.artemis.utils.LinkedListIterator;
 import org.apache.activemq.artemis.utils.PriorityLinkedListImpl;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 public final class PriorityLinkedListTest extends Assert
 {
@@ -120,13 +116,6 @@ public final class PriorityLinkedListTest extends Assert
       x = new Wibble("x");
       y = new Wibble("y");
       z = new Wibble("z");
-   }
-
-   @After
-   public void tearDown() throws Exception
-   {
-      list = null;
-
    }
 
    @Test

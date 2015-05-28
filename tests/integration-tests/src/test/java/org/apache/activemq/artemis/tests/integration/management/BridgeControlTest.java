@@ -171,11 +171,11 @@ public class BridgeControlTest extends ManagementTestBase
          .addQueueConfiguration(sourceQueueConfig)
          .addBridgeConfiguration(bridgeConfig);
 
-      server_1 = ActiveMQServers.newActiveMQServer(conf_1, MBeanServerFactory.createMBeanServer(), false);
+      server_1 = addServer(ActiveMQServers.newActiveMQServer(conf_1, MBeanServerFactory.createMBeanServer(), false));
       addServer(server_1);
       server_1.start();
 
-      server_0 = ActiveMQServers.newActiveMQServer(conf_0, mbeanServer, false);
+      server_0 = addServer(ActiveMQServers.newActiveMQServer(conf_0, mbeanServer, false));
       addServer(server_0);
       server_0.start();
    }

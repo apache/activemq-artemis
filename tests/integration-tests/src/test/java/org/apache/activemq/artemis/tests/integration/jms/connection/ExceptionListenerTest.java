@@ -15,29 +15,13 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.integration.jms.connection;
+
 import org.apache.activemq.artemis.api.core.ActiveMQInternalErrorException;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
-import org.apache.activemq.artemis.core.registry.JndiBindingRegistry;
-import org.junit.Before;
-import org.junit.After;
-
-import org.junit.Test;
-
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-
-import javax.jms.Connection;
-import javax.jms.ExceptionListener;
-import javax.jms.JMSException;
-import javax.jms.Session;
-
-import org.junit.Assert;
-
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.api.jms.JMSFactoryType;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionInternal;
-import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.registry.JndiBindingRegistry;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnection;
@@ -45,12 +29,23 @@ import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQSession;
 import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
 import org.apache.activemq.artemis.tests.integration.jms.server.management.NullInitialContext;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+
+import javax.jms.Connection;
+import javax.jms.ExceptionListener;
+import javax.jms.JMSException;
+import javax.jms.Session;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 /**
  *
  * A ExceptionListenerTest
  */
-public class ExceptionListenerTest extends ServiceTestBase
+public class ExceptionListenerTest extends ActiveMQTestBase
 {
    private ActiveMQServer server;
 
@@ -66,30 +61,14 @@ public class ExceptionListenerTest extends ServiceTestBase
    {
       super.setUp();
 
-      Configuration conf = createBasicConfig()
-         .addAcceptorConfiguration(new TransportConfiguration("org.apache.activemq.artemis.core.remoting.impl.invm.InVMAcceptorFactory"));
-      server = addServer(ActiveMQServers.newActiveMQServer(conf, false));
+      server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig(), false));
       jmsServer = new JMSServerManagerImpl(server);
       jmsServer.setRegistry(new JndiBindingRegistry(new NullInitialContext()));
       jmsServer.start();
       jmsServer.createQueue(false, ExceptionListenerTest.Q_NAME, null, true, ExceptionListenerTest.Q_NAME);
-      cf = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration("org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory"));
+      cf = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration(INVM_CONNECTOR_FACTORY));
       cf.setBlockOnDurableSend(true);
       cf.setPreAcknowledge(true);
-   }
-
-   @Override
-   @After
-   public void tearDown() throws Exception
-   {
-      jmsServer.stop();
-      cf = null;
-
-      server = null;
-      jmsServer = null;
-      cf = null;
-
-      super.tearDown();
    }
 
    private class MyExceptionListener implements ExceptionListener

@@ -30,10 +30,10 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.cli.commands.tools.XmlDataExporter;
 import org.apache.activemq.artemis.cli.commands.tools.XmlDataImporter;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Test;
 
-public class XmlImportExportStressTest extends ServiceTestBase
+public class XmlImportExportStressTest extends ActiveMQTestBase
 {
    public static final int CONSUMER_TIMEOUT = 5000;
 

@@ -33,7 +33,7 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.core.config.BridgeConfiguration;
 import org.apache.activemq.artemis.core.config.CoreQueueConfiguration;
 import org.apache.activemq.artemis.core.remoting.impl.invm.TransportConstants;
@@ -45,7 +45,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 @RunWith(value = Parameterized.class)
-public class BridgeStartTest extends ServiceTestBase
+public class BridgeStartTest extends ActiveMQTestBase
 {
 
    @Parameterized.Parameters(name = "isNetty={0}")
@@ -145,10 +145,10 @@ public class BridgeStartTest extends ServiceTestBase
          server1.getConfiguration().setQueueConfigurations(queueConfigs1);
 
          server1.start();
-         waitForServer(server1);
+         waitForServerToStart(server1);
 
          server0.start();
-         waitForServer(server0);
+         waitForServerToStart(server0);
 
          locator = ActiveMQClient.createServerLocatorWithoutHA(server0tc, server1tc);
          ClientSessionFactory sf0 = locator.createSessionFactory(server0tc);
@@ -316,7 +316,7 @@ public class BridgeStartTest extends ServiceTestBase
          // Don't start server 1 yet
 
          server0.start();
-         waitForServer(server0);
+         waitForServerToStart(server0);
 
          locator = ActiveMQClient.createServerLocatorWithoutHA(server0tc, server1tc);
          ClientSessionFactory sf0 = locator.createSessionFactory(server0tc);
@@ -343,7 +343,7 @@ public class BridgeStartTest extends ServiceTestBase
          Thread.sleep(1000);
 
          server1.start();
-         waitForServer(server1);
+         waitForServerToStart(server1);
 
          ClientSessionFactory sf1 = locator.createSessionFactory(server1tc);
 
@@ -410,7 +410,7 @@ public class BridgeStartTest extends ServiceTestBase
          BridgeStartTest.log.info("sent some more messages");
 
          server1.start();
-         waitForServer(server1);
+         waitForServerToStart(server1);
 
          BridgeStartTest.log.info("started server1");
 
@@ -528,7 +528,7 @@ public class BridgeStartTest extends ServiceTestBase
          // Don't start server 1 yet
 
          server0.start();
-         waitForServer(server0);
+         waitForServerToStart(server0);
 
          locator = ActiveMQClient.createServerLocatorWithoutHA(server0tc, server1tc);
          ClientSessionFactory sf0 = locator.createSessionFactory(server0tc);
@@ -557,7 +557,7 @@ public class BridgeStartTest extends ServiceTestBase
          // JMSBridge should be stopped since retries = 0
 
          server1.start();
-         waitForServer(server1);
+         waitForServerToStart(server1);
 
          ClientSessionFactory sf1 = locator.createSessionFactory(server1tc);
 
@@ -679,10 +679,10 @@ public class BridgeStartTest extends ServiceTestBase
          server1.getConfiguration().setQueueConfigurations(queueConfigs1);
 
          server1.start();
-         waitForServer(server1);
+         waitForServerToStart(server1);
 
          server0.start();
-         waitForServer(server0);
+         waitForServerToStart(server0);
 
          locator = ActiveMQClient.createServerLocatorWithoutHA(server0tc, server1tc);
          ClientSessionFactory sf0 = locator.createSessionFactory(server0tc);

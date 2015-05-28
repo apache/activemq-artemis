@@ -15,32 +15,28 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.integration.management;
+
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
-import org.junit.Before;
-import org.junit.After;
-
-import org.junit.Assert;
-
-import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientRequestor;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
-import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.junit.Assert;
+import org.junit.Before;
 
-public abstract class SecurityManagementTestBase extends ServiceTestBase
+public abstract class SecurityManagementTestBase extends ActiveMQTestBase
 {
 
    // Constants -----------------------------------------------------
 
    // Attributes ----------------------------------------------------
 
-   private ActiveMQServer service;
+   private ActiveMQServer server;
 
    // Static --------------------------------------------------------
 
@@ -58,27 +54,14 @@ public abstract class SecurityManagementTestBase extends ServiceTestBase
    {
       super.setUp();
 
-      service = setupAndStartActiveMQServer();
-   }
-
-   @Override
-   @After
-   public void tearDown() throws Exception
-   {
-      service.stop();
-
-      service = null;
-
-      super.tearDown();
+      server = setupAndStartActiveMQServer();
    }
 
    protected abstract ActiveMQServer setupAndStartActiveMQServer() throws Exception;
 
    protected void doSendManagementMessage(final String user, final String password, final boolean expectSuccess) throws Exception
    {
-      ServerLocator locator =
-               addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(
-                  INVM_CONNECTOR_FACTORY)));
+      ServerLocator locator = createInVMNonHALocator();
       ClientSessionFactory sf = locator.createSessionFactory();
       try
       {

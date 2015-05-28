@@ -23,13 +23,13 @@ import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class AckBatchSizeTest extends ServiceTestBase
+public class AckBatchSizeTest extends ActiveMQTestBase
 {
    public final SimpleString addressA = new SimpleString("addressA");
 
@@ -64,10 +64,10 @@ public class AckBatchSizeTest extends ServiceTestBase
    {
       ActiveMQServer server = createServer(false);
       server.start();
-      ServerLocator locator = createInVMNonHALocator();
       int numMessages = 100;
-      locator.setAckBatchSize(numMessages * getMessageEncodeSize(addressA));
-      locator.setBlockOnAcknowledge(true);
+      ServerLocator locator = createInVMNonHALocator()
+              .setAckBatchSize(numMessages * getMessageEncodeSize(addressA))
+              .setBlockOnAcknowledge(true);
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession sendSession = cf.createSession(false, true, true);
 
@@ -106,9 +106,9 @@ public class AckBatchSizeTest extends ServiceTestBase
       ActiveMQServer server = createServer(false);
 
       server.start();
-      ServerLocator locator = createInVMNonHALocator();
-      locator.setAckBatchSize(0);
-      locator.setBlockOnAcknowledge(true);
+      ServerLocator locator = createInVMNonHALocator()
+              .setAckBatchSize(0)
+              .setBlockOnAcknowledge(true);
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession sendSession = cf.createSession(false, true, true);
       int numMessages = 100;

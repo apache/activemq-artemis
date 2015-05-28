@@ -16,20 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.server;
 
-import javax.jms.Connection;
-import javax.jms.MessageConsumer;
-import javax.jms.MessageProducer;
-import javax.jms.Queue;
-import javax.jms.Session;
-import javax.jms.TextMessage;
-import java.util.HashSet;
-import java.util.Set;
-
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.api.jms.JMSFactoryType;
-import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
 import org.apache.activemq.artemis.core.config.FileDeploymentManager;
 import org.apache.activemq.artemis.core.config.impl.FileConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
@@ -40,20 +29,50 @@ import org.apache.activemq.artemis.jms.server.config.impl.FileJMSConfiguration;
 import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManagerImpl;
-import org.junit.After;
+import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
-public class JMSServerStartStopTest extends ServiceTestBase
+import javax.jms.Connection;
+import javax.jms.MessageConsumer;
+import javax.jms.MessageProducer;
+import javax.jms.Queue;
+import javax.jms.Session;
+import javax.jms.TextMessage;
+import java.util.HashSet;
+import java.util.Set;
+
+public class JMSServerStartStopTest extends ActiveMQTestBase
 {
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
-   private JMSServerManager liveJMSServer;
+   private JMSServerManager jmsServer;
 
    private Connection conn;
 
    private ActiveMQConnectionFactory jbcf;
    private final Set<ActiveMQConnectionFactory> connectionFactories = new HashSet<ActiveMQConnectionFactory>();
+
+   @Override
+   @Before
+   public void setUp() throws Exception
+   {
+      FileConfiguration fc = new FileConfiguration();
+      FileJMSConfiguration fileConfiguration = new FileJMSConfiguration();
+      FileDeploymentManager deploymentManager = new FileDeploymentManager("server-start-stop-config1.xml");
+      deploymentManager.addDeployable(fc);
+      deploymentManager.addDeployable(fileConfiguration);
+      deploymentManager.readConfiguration();
+
+      ActiveMQSecurityManager sm = new ActiveMQSecurityManagerImpl();
+
+      ActiveMQServer server = addServer(new ActiveMQServerImpl(fc, sm));
+
+      jmsServer = new JMSServerManagerImpl(server, fileConfiguration);
+      jmsServer.setRegistry(null);
+   }
 
    @Test
    public void testStopStart1() throws Exception
@@ -64,7 +83,7 @@ public class JMSServerStartStopTest extends ServiceTestBase
       {
          JMSServerStartStopTest.log.info("Iteration " + j);
 
-         start();
+         jmsServer.start();
 
          ActiveMQConnectionFactory jbcf = createConnectionFactory();
 
@@ -90,11 +109,11 @@ public class JMSServerStartStopTest extends ServiceTestBase
 
             jbcf.close();
 
-            stop();
+            jmsServer.stop();
          }
       }
 
-      start();
+      jmsServer.start();
 
       jbcf = createConnectionFactory();
 
@@ -123,15 +142,13 @@ public class JMSServerStartStopTest extends ServiceTestBase
       conn.close();
 
       jbcf.close();
-
-      stop();
    }
 
    // https://jira.jboss.org/jira/browse/HORNETQ-315
    @Test
    public void testCloseConnectionAfterServerIsShutdown() throws Exception
    {
-      start();
+      jmsServer.start();
 
       jbcf = createConnectionFactory();
 
@@ -141,7 +158,7 @@ public class JMSServerStartStopTest extends ServiceTestBase
 
       conn = jbcf.createConnection();
 
-      stop();
+      jmsServer.stop();
       conn.close();
    }
 
@@ -157,60 +174,4 @@ public class JMSServerStartStopTest extends ServiceTestBase
       connectionFactories.add(cf);
       return cf;
    }
-
-   @Override
-   @After
-   public void tearDown() throws Exception
-   {
-      if (conn != null)
-         conn.close();
-      if (jbcf != null)
-         jbcf.close();
-      for (ActiveMQConnectionFactory cf : connectionFactories)
-      {
-         try
-         {
-            cf.close();
-         }
-         catch (Exception ignored)
-         {
-            // no-op
-         }
-      }
-      connectionFactories.clear();
-      if (liveJMSServer != null)
-         liveJMSServer.stop();
-      liveJMSServer = null;
-      super.tearDown();
-   }
-
-   // Private -------------------------------------------------------
-
-   private void stop() throws Exception
-   {
-      liveJMSServer.stop();
-   }
-
-   private void start() throws Exception
-   {
-      FileConfiguration fc = new FileConfiguration();
-      FileJMSConfiguration fileConfiguration = new FileJMSConfiguration();
-      FileDeploymentManager deploymentManager = new FileDeploymentManager("server-start-stop-config1.xml");
-      deploymentManager.addDeployable(fc);
-      deploymentManager.addDeployable(fileConfiguration);
-      deploymentManager.readConfiguration();
-
-      ActiveMQSecurityManager sm = new ActiveMQSecurityManagerImpl();
-
-      ActiveMQServer liveServer = addServer(new ActiveMQServerImpl(fc, sm));
-
-      liveJMSServer = new JMSServerManagerImpl(liveServer, fileConfiguration);
-      addActiveMQComponent(liveJMSServer);
-      liveJMSServer.setRegistry(null);
-
-      liveJMSServer.start();
-   }
-
-   // Inner classes -------------------------------------------------
-
 }

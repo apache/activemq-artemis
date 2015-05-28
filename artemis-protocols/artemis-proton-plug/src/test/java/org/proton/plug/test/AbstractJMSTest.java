@@ -24,8 +24,6 @@ import javax.jms.Queue;
 
 import java.lang.ref.WeakReference;
 
-//import io.hawtjms.jms.JmsConnectionFactory;
-//import io.hawtjms.jms.JmsQueue;
 import org.apache.qpid.amqp_1_0.jms.impl.ConnectionFactoryImpl;
 import org.apache.qpid.amqp_1_0.jms.impl.QueueImpl;
 import org.proton.plug.test.minimalserver.DumbServer;

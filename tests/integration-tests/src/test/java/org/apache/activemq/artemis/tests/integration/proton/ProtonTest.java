@@ -41,7 +41,7 @@ import java.util.HashMap;
 import java.util.Random;
 
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.apache.qpid.amqp_1_0.client.Receiver;
 import org.apache.qpid.amqp_1_0.client.Sender;
@@ -64,7 +64,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 @RunWith(Parameterized.class)
-public class ProtonTest extends ServiceTestBase
+public class ProtonTest extends ActiveMQTestBase
 {
 
    // this will ensure that all tests in this class are run twice,

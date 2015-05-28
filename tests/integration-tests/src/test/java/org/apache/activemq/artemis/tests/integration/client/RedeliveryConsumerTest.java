@@ -36,11 +36,11 @@ import org.apache.activemq.artemis.core.journal.impl.NIOSequentialFileFactory;
 import org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class RedeliveryConsumerTest extends ServiceTestBase
+public class RedeliveryConsumerTest extends ActiveMQTestBase
 {
 
    // Constants -----------------------------------------------------
@@ -351,7 +351,7 @@ public class RedeliveryConsumerTest extends ServiceTestBase
     */
    private void setUp(final boolean persistDeliveryCountBeforeDelivery) throws Exception
    {
-      Configuration config = createDefaultConfig()
+      Configuration config = createDefaultInVMConfig()
          .setPersistDeliveryCountBeforeDelivery(persistDeliveryCountBeforeDelivery);
 
       server = createServer(true, config);
@@ -360,7 +360,7 @@ public class RedeliveryConsumerTest extends ServiceTestBase
       locator = createInVMNonHALocator();
       factory = createSessionFactory(locator);
 
-      ClientSession session = factory.createSession(false, false, false);
+      ClientSession session = addClientSession(factory.createSession(false, false, false));
       try
       {
          session.createQueue(ADDRESS, ADDRESS, true);

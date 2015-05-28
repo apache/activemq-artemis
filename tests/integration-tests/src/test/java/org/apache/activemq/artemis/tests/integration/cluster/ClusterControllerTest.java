@@ -23,7 +23,6 @@ import org.apache.activemq.artemis.core.server.cluster.ActiveMQServerSideProtoco
 import org.apache.activemq.artemis.core.server.cluster.ClusterControl;
 import org.apache.activemq.artemis.core.server.cluster.ClusterController;
 import org.apache.activemq.artemis.tests.integration.cluster.distribution.ClusterTestBase;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -54,15 +53,6 @@ public class ClusterControllerTest extends ClusterTestBase
 
       startServers(0);
       startServers(1);
-   }
-
-   @Override
-   @After
-   public void tearDown() throws Exception
-   {
-      stopServers();
-
-      super.tearDown();
    }
 
    @Test

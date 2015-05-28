@@ -16,6 +16,13 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.client;
 
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
+import org.apache.activemq.artemis.api.jms.JMSFactoryType;
+import org.apache.activemq.artemis.tests.util.JMSTestBase;
+import org.junit.Before;
+import org.junit.Test;
+
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Queue;
@@ -23,14 +30,6 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.apache.activemq.artemis.api.core.TransportConfiguration;
-import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
-import org.apache.activemq.artemis.api.jms.JMSFactoryType;
-import org.apache.activemq.artemis.tests.util.JMSTestBase;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
 
 public class PreACKJMSTest extends JMSTestBase
 {
@@ -151,14 +150,6 @@ public class PreACKJMSTest extends JMSTestBase
    {
       super.setUp();
       queue = createQueue("queue1");
-   }
-
-   @Override
-   @After
-   public void tearDown() throws Exception
-   {
-      queue = null;
-      super.tearDown();
    }
 
    @Override

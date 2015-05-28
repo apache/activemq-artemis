@@ -18,13 +18,13 @@ package org.apache.activemq.artemis.tests.unit.jms.client;
 import javax.jms.MessageFormatException;
 
 import org.apache.activemq.artemis.tests.util.RandomUtil;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.jms.client.ActiveMQMapMessage;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class ActiveMQMapMessageTest extends ServiceTestBase
+public class ActiveMQMapMessageTest extends ActiveMQTestBase
 {
    // Constants -----------------------------------------------------
 
@@ -693,7 +693,7 @@ public class ActiveMQMapMessageTest extends ServiceTestBase
       ActiveMQMapMessage message = new ActiveMQMapMessage();
       message.setBytes(itemName, value);
 
-      ServiceTestBase.assertEqualsByteArrays(value, message.getBytes(itemName));
+      ActiveMQTestBase.assertEqualsByteArrays(value, message.getBytes(itemName));
    }
 
    @Test

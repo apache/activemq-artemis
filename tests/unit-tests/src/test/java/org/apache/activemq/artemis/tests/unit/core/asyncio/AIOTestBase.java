@@ -22,7 +22,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.core.asyncio.AIOCallback;
 import org.apache.activemq.artemis.core.asyncio.impl.AsynchronousFileImpl;
 import org.junit.After;
@@ -32,7 +32,7 @@ import org.junit.Before;
 /**
  * The base class for AIO Tests
  */
-public abstract class AIOTestBase extends ServiceTestBase
+public abstract class AIOTestBase extends ActiveMQTestBase
 {
    // The AIO Test must use a local filesystem. Sometimes $HOME is on a NFS on
    // most enterprise systems

@@ -27,7 +27,7 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.JournalType;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -40,7 +40,7 @@ import java.util.concurrent.CountDownLatch;
  * <p/>
  * This test validates consuming / sending messages while compacting is working
  */
-public class MultiThreadConsumerStressTest extends ServiceTestBase
+public class MultiThreadConsumerStressTest extends ActiveMQTestBase
 {
 
    // Constants -----------------------------------------------------
@@ -112,7 +112,7 @@ public class MultiThreadConsumerStressTest extends ServiceTestBase
          threads.add(cons[i]);
       }
 
-      ServiceTestBase.waitForLatch(latchReady);
+      ActiveMQTestBase.waitForLatch(latchReady);
       latchStart.countDown();
 
       for (BaseThread t : threads)
@@ -154,7 +154,7 @@ public class MultiThreadConsumerStressTest extends ServiceTestBase
 
    private void setupServer(final JournalType journalType) throws Exception
    {
-      Configuration config = createDefaultConfig(true)
+      Configuration config = createDefaultNettyConfig()
          .setJournalType(journalType)
          .setJournalFileSize(ActiveMQDefaultConfiguration.getDefaultJournalFileSize())
          .setJournalMinFiles(ActiveMQDefaultConfiguration.getDefaultJournalMinFiles())
@@ -165,13 +165,10 @@ public class MultiThreadConsumerStressTest extends ServiceTestBase
 
       server.start();
 
-      ServerLocator locator = createNettyNonHALocator();
-
-      locator.setBlockOnDurableSend(false);
-
-      locator.setBlockOnNonDurableSend(false);
-
-      locator.setBlockOnAcknowledge(false);
+      ServerLocator locator = createNettyNonHALocator()
+              .setBlockOnDurableSend(false)
+              .setBlockOnNonDurableSend(false)
+              .setBlockOnAcknowledge(false);
 
       sf = createSessionFactory(locator);
 
@@ -242,7 +239,7 @@ public class MultiThreadConsumerStressTest extends ServiceTestBase
          latchReady.countDown();
          try
          {
-            ServiceTestBase.waitForLatch(latchStart);
+            ActiveMQTestBase.waitForLatch(latchStart);
             session = sf.createSession(false, false);
             ClientProducer prod = session.createProducer(ADDRESS);
             for (int i = 0; i < numberOfMessages; i++)
@@ -303,7 +300,7 @@ public class MultiThreadConsumerStressTest extends ServiceTestBase
          latchReady.countDown();
          try
          {
-            ServiceTestBase.waitForLatch(latchStart);
+            ActiveMQTestBase.waitForLatch(latchStart);
             session = sf.createSession(false, false);
             session.start();
             ClientConsumer cons = session.createConsumer(QUEUE);

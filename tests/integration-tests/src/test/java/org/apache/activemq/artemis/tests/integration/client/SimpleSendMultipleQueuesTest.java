@@ -15,12 +15,6 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.integration.client;
-import org.junit.Before;
-import org.junit.After;
-
-import org.junit.Test;
-
-import org.junit.Assert;
 
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -29,10 +23,13 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
-public class SimpleSendMultipleQueuesTest extends ServiceTestBase
+public class SimpleSendMultipleQueuesTest extends ActiveMQTestBase
 {
    public static final String address = "testaddress";
 
@@ -111,27 +108,4 @@ public class SimpleSendMultipleQueuesTest extends ServiceTestBase
 
       session.start();
    }
-
-   @Override
-   @After
-   public void tearDown() throws Exception
-   {
-      if (session != null)
-      {
-         consumer1.close();
-
-         consumer2.close();
-
-         consumer3.close();
-
-         session.deleteQueue("queue1");
-         session.deleteQueue("queue2");
-         session.deleteQueue("queue3");
-
-         session.close();
-      }
-
-      super.tearDown();
-   }
-
 }

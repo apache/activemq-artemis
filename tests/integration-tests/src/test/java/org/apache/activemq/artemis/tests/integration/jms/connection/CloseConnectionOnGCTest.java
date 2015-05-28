@@ -15,22 +15,6 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.integration.jms.connection;
-import org.apache.activemq.artemis.tests.util.JMSTestBase;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
-import org.junit.Before;
-import org.junit.After;
-
-import org.junit.Test;
-
-import java.lang.ref.WeakReference;
-import java.util.Iterator;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-
-import javax.jms.Connection;
-import javax.jms.Session;
-
-import org.junit.Assert;
 
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
@@ -38,6 +22,18 @@ import org.apache.activemq.artemis.api.jms.JMSFactoryType;
 import org.apache.activemq.artemis.core.remoting.CloseListener;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.tests.util.JMSTestBase;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+
+import javax.jms.Connection;
+import javax.jms.Session;
+import java.lang.ref.WeakReference;
+import java.util.Iterator;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 /**
  *
@@ -53,19 +49,9 @@ public class CloseConnectionOnGCTest extends JMSTestBase
    {
       super.setUp();
 
-      cf = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration("org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory"));
+      cf = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration(INVM_CONNECTOR_FACTORY));
       cf.setBlockOnDurableSend(true);
       cf.setPreAcknowledge(true);
-   }
-
-   @Override
-   @After
-   public void tearDown() throws Exception
-   {
-      if (cf != null)
-         cf.close();
-
-      super.tearDown();
    }
 
    @Test
@@ -93,7 +79,7 @@ public class CloseConnectionOnGCTest extends JMSTestBase
 
       conn = null;
 
-      ServiceTestBase.checkWeakReferences(wr);
+      ActiveMQTestBase.checkWeakReferences(wr);
 
       latch.await(5000, TimeUnit.MILLISECONDS);
       Assert.assertEquals(0, server.getRemotingService().getConnections().size());
@@ -130,7 +116,7 @@ public class CloseConnectionOnGCTest extends JMSTestBase
       conn2 = null;
       conn3 = null;
 
-      ServiceTestBase.checkWeakReferences(wr1, wr2, wr3);
+      ActiveMQTestBase.checkWeakReferences(wr1, wr2, wr3);
 
       latch.await(5000, TimeUnit.MILLISECONDS);
 
@@ -174,7 +160,7 @@ public class CloseConnectionOnGCTest extends JMSTestBase
       conn2 = null;
       conn3 = null;
 
-      ServiceTestBase.checkWeakReferences(wr1, wr2, wr3);
+      ActiveMQTestBase.checkWeakReferences(wr1, wr2, wr3);
 
       latch.await(5000, TimeUnit.MILLISECONDS);
 

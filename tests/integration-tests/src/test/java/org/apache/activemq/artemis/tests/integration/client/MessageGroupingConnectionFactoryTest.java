@@ -18,8 +18,6 @@ package org.apache.activemq.artemis.tests.integration.client;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.api.core.TransportConfiguration;
-import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
@@ -27,10 +25,9 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.MessageHandler;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,7 +36,7 @@ import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-public class MessageGroupingConnectionFactoryTest extends ServiceTestBase
+public class MessageGroupingConnectionFactoryTest extends ActiveMQTestBase
 {
    private ActiveMQServer server;
 
@@ -118,22 +115,10 @@ public class MessageGroupingConnectionFactoryTest extends ServiceTestBase
    public void setUp() throws Exception
    {
       super.setUp();
-      TransportConfiguration transportConfig = new TransportConfiguration(ServiceTestBase.INVM_ACCEPTOR_FACTORY);
-
-      Configuration configuration = createDefaultConfig()
-         .setSecurityEnabled(false)
-         .addAcceptorConfiguration(transportConfig);
-      server = addServer(ActiveMQServers.newActiveMQServer(configuration, false));
-      // start the server
+      server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig(), false));
       server.start();
-
-      // then we create a client as normal
-
-      ServerLocator locator =
-               addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(
-                  ServiceTestBase.INVM_CONNECTOR_FACTORY)));
-
-      locator.setGroupID("grp1");
+      ServerLocator locator = createInVMNonHALocator()
+              .setGroupID("grp1");
       ClientSessionFactory sessionFactory = createSessionFactory(locator);
       clientSession = addClientSession(sessionFactory.createSession(false, true, true));
       clientSession.createQueue(qName, qName, null, false);

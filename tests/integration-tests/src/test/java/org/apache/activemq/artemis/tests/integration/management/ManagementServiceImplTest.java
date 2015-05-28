@@ -17,7 +17,7 @@
 package org.apache.activemq.artemis.tests.integration.management;
 
 import org.apache.activemq.artemis.tests.unit.core.postoffice.impl.FakeQueue;
-import org.apache.activemq.artemis.tests.util.ServiceTestBase;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Test;
 
 import org.junit.Assert;
@@ -38,7 +38,7 @@ import org.apache.activemq.artemis.core.server.management.impl.ManagementService
 import org.apache.activemq.artemis.tests.integration.server.FakeStorageManager;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
 
-public class ManagementServiceImplTest extends ServiceTestBase
+public class ManagementServiceImplTest extends ActiveMQTestBase
 {
    @Test
    public void testHandleManagementMessageWithOperation() throws Exception
@@ -46,10 +46,10 @@ public class ManagementServiceImplTest extends ServiceTestBase
       String queue = RandomUtil.randomString();
       String address = RandomUtil.randomString();
 
-      Configuration conf = createBasicConfig()
+      Configuration config = createBasicConfig()
          .setJMXManagementEnabled(false);
 
-      ActiveMQServer server = ActiveMQServers.newActiveMQServer(conf, false);
+      ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(config, false));
       server.start();
 
       // invoke attribute and operation on the server
@@ -59,17 +59,15 @@ public class ManagementServiceImplTest extends ServiceTestBase
       ServerMessage reply = server.getManagementService().handleMessage(message);
 
       Assert.assertTrue(ManagementHelper.hasOperationSucceeded(reply));
-
-      server.stop();
    }
 
    @Test
    public void testHandleManagementMessageWithOperationWhichFails() throws Exception
    {
-      Configuration conf = createBasicConfig()
+      Configuration config = createBasicConfig()
          .setJMXManagementEnabled(false);
 
-      ActiveMQServer server = ActiveMQServers.newActiveMQServer(conf, false);
+      ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(config, false));
       server.start();
 
       // invoke attribute and operation on the server
@@ -80,16 +78,15 @@ public class ManagementServiceImplTest extends ServiceTestBase
 
       Assert.assertFalse(ManagementHelper.hasOperationSucceeded(reply));
       Assert.assertNotNull(ManagementHelper.getResult(reply));
-      server.stop();
    }
 
    @Test
    public void testHandleManagementMessageWithUnknowResource() throws Exception
    {
-      Configuration conf = createBasicConfig()
+      Configuration config = createBasicConfig()
          .setJMXManagementEnabled(false);
 
-      ActiveMQServer server = ActiveMQServers.newActiveMQServer(conf, false);
+      ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(config, false));
       server.start();
 
       // invoke attribute and operation on the server
@@ -100,16 +97,15 @@ public class ManagementServiceImplTest extends ServiceTestBase
 
       Assert.assertFalse(ManagementHelper.hasOperationSucceeded(reply));
       Assert.assertNotNull(ManagementHelper.getResult(reply));
-      server.stop();
    }
 
    @Test
    public void testHandleManagementMessageWithUnknownAttribute() throws Exception
    {
-      Configuration conf = createBasicConfig()
+      Configuration config = createBasicConfig()
          .setJMXManagementEnabled(false);
 
-      ActiveMQServer server = ActiveMQServers.newActiveMQServer(conf, false);
+      ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(config, false));
       server.start();
 
       // invoke attribute and operation on the server
@@ -120,17 +116,16 @@ public class ManagementServiceImplTest extends ServiceTestBase
       ServerMessage reply = server.getManagementService().handleMessage(message);
 
       Assert.assertTrue(ManagementHelper.hasOperationSucceeded(reply));
-      Assert.assertTrue((Boolean)ManagementHelper.getResult(reply));
-      server.stop();
+      Assert.assertTrue((Boolean) ManagementHelper.getResult(reply));
    }
 
    @Test
    public void testHandleManagementMessageWithKnownAttribute() throws Exception
    {
-      Configuration conf = createBasicConfig()
+      Configuration config = createBasicConfig()
          .setJMXManagementEnabled(false);
 
-      ActiveMQServer server = ActiveMQServers.newActiveMQServer(conf, false);
+      ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(config, false));
       server.start();
 
       // invoke attribute and operation on the server
@@ -142,15 +137,14 @@ public class ManagementServiceImplTest extends ServiceTestBase
 
       Assert.assertFalse(ManagementHelper.hasOperationSucceeded(reply));
       Assert.assertNotNull(ManagementHelper.getResult(reply));
-      server.stop();
    }
 
    @Test
    public void testGetResources() throws Exception
    {
-      Configuration conf = createBasicConfig()
+      Configuration config = createBasicConfig()
          .setJMXManagementEnabled(false);
-      ManagementServiceImpl managementService = new ManagementServiceImpl(null, conf);
+      ManagementServiceImpl managementService = new ManagementServiceImpl(null, config);
       managementService.setStorageManager(new NullStorageManager());
 
       SimpleString address = RandomUtil.randomSimpleString();
