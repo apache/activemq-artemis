@@ -22,7 +22,7 @@ The broker is comprised of POJOs so it's simple to configure and run a broker in
 Even complex test-cases involving multiple clustered brokers are relatively easy to write. Almost every test in the 
 test-suite follows this pattern - configure broker, start broker, test functionality, stop broker.
 
-The test-suite uses JUnit to manage test execution and life-cycle.  Most tests extend [org.apache.activemq.artemis.tests.util.ActiveMQTestBase](../../../artemis-server/src/test/java/org/apache/activemq/artemis/tests/util/ActiveMQTestBase.java)
+The test-suite uses JUnit to manage test execution and life-cycle.  Most tests extend [`org.apache.activemq.artemis.tests.util.ActiveMQTestBase`](../../../artemis-server/src/test/java/org/apache/activemq/artemis/tests/util/ActiveMQTestBase.java)
 which contains JUnit setup and tear-down methods as well as a wealth of utility functions to configure, start, manage,
 and stop brokers as well as perform other common tasks.
 
@@ -64,6 +64,15 @@ to add the factory to the test-suite's internal resource ledger.
 
 There are numerous methods in `org.apache.activemq.artemis.tests.util.ActiveMQTestBase` to create a configuration. These
 methods are named like create&#42;Config(..). Each one creates a slightly different configuration but there is a lot of 
-overlap between them. 
+overlap between them.
+
+In any case, `org.apache.activemq.artemis.core.config.Configuration` is a [_fluent_](http://en.wikipedia.org/wiki/Fluent_interface)
+interface so it's easy to customize however you need.
+
+### Look at other test-cases
+
+If you need ideas on how to configure something or test something try looking through the test-suite at other test-cases
+which may be similar. This is one of the best ways to learn how the test-suite works and how you can leverage the
+testing infrastructure to test your particular case.
 
     
