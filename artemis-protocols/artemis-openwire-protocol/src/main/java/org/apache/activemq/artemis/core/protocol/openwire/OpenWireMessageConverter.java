@@ -647,9 +647,10 @@ public class OpenWireMessageConverter implements MessageConverter
          amqMsg.setDestination(dest);
       }
 
-      String groupId = (String) coreMessage.getObjectProperty(AMQ_MSG_GROUP_ID);
-      if (groupId != null)
+      Object value = coreMessage.getObjectProperty(AMQ_MSG_GROUP_ID);
+      if (value != null)
       {
+         String groupId = value.toString();
          amqMsg.setGroupID(groupId);
       }
 
