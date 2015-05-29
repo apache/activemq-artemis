@@ -48,7 +48,7 @@ public class SSLSupportTest extends ActiveMQTestBase
       trustStorePath = "server-side-truststore." + storeType.toLowerCase();
    }
 
-   private static String storeType;
+   private String storeType;
 
    private String keyStorePath;
 

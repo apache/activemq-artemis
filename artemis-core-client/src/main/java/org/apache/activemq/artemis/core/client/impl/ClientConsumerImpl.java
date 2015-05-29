@@ -110,13 +110,13 @@ public final class ClientConsumerImpl implements ClientConsumerInternal
 
    private volatile boolean closed;
 
-   private volatile int creditsToSend;
+   private int creditsToSend;
 
    private volatile boolean failedOver;
 
    private volatile Exception lastException;
 
-   private volatile int ackBytes;
+   private int ackBytes;
 
    private volatile ClientMessageInternal lastAckedMessage;
 

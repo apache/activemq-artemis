@@ -82,10 +82,10 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase
     * keytool -export -keystore server-side-keystore.jceks -file activemq-jceks.cer -storetype jceks -storepass secureexample
     * keytool -import -keystore client-side-truststore.jceks -storetype JCEKS -file activemq-jceks.cer -storepass secureexample -keypass secureexample -noprompt
     */
-   private static String storeType;
-   private static String SERVER_SIDE_KEYSTORE;
-   private static String CLIENT_SIDE_TRUSTSTORE;
-   private static final String PASSWORD = "secureexample";
+   private String storeType;
+   private String SERVER_SIDE_KEYSTORE;
+   private String CLIENT_SIDE_TRUSTSTORE;
+   private final String PASSWORD = "secureexample";
 
    private ActiveMQServer server;
 
@@ -427,7 +427,7 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase
       Assert.assertEquals(text, m.getBodyBuffer().readString());
    }
 
-   public static String getSuitableCipherSuite() throws Exception
+   public String getSuitableCipherSuite() throws Exception
    {
       String result = "";
 
@@ -460,7 +460,7 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase
       return result;
    }
 
-   public static String[] getEnabledCipherSuites() throws Exception
+   public String[] getEnabledCipherSuites() throws Exception
    {
       SSLContext context = SSLSupport.createContext(storeType, SERVER_SIDE_KEYSTORE, PASSWORD, storeType, CLIENT_SIDE_TRUSTSTORE, PASSWORD);
       SSLEngine engine = context.createSSLEngine();

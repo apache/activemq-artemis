@@ -42,6 +42,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
@@ -2200,14 +2201,17 @@ public class MessageConsumerTest extends JMSTestCase
    private class ThreadCloser extends Thread
    {
 
-      Object waitMonitor;
+      final Object waitMonitor;
 
       long timeToSleep;
 
       MessageConsumer topicConsumer;
 
-      public ThreadCloser(final Object waitMonitor, final long timeToSleep, final MessageConsumer topicConsumer)
+      final AtomicBoolean running;
+
+      public ThreadCloser(final AtomicBoolean running, final Object waitMonitor, final long timeToSleep, final MessageConsumer topicConsumer)
       {
+         this.running = running;
          this.waitMonitor = waitMonitor;
          this.timeToSleep = timeToSleep;
          this.topicConsumer = topicConsumer;
@@ -2220,7 +2224,10 @@ public class MessageConsumerTest extends JMSTestCase
          {
             synchronized (waitMonitor)
             {
-               waitMonitor.wait();
+               while (running.get())
+               {
+                  waitMonitor.wait();
+               }
             }
 
             Thread.sleep(timeToSleep);
@@ -2242,7 +2249,7 @@ public class MessageConsumerTest extends JMSTestCase
 
       long timeToWait;
 
-      Object waitMonitor;
+      final Object waitMonitor;
 
       long t1;
 
@@ -2252,8 +2259,11 @@ public class MessageConsumerTest extends JMSTestCase
 
       MessageConsumer topicConsumer;
 
-      public ThreadReceiver(final Object waitMonitor, final long timeToWait, final MessageConsumer topicConsumer)
+      final AtomicBoolean running;
+
+      public ThreadReceiver(final AtomicBoolean running, final Object waitMonitor, final long timeToWait, final MessageConsumer topicConsumer)
       {
+         this.running = running;
          this.waitMonitor = waitMonitor;
          this.timeToWait = timeToWait;
          this.topicConsumer = topicConsumer;
@@ -2266,7 +2276,10 @@ public class MessageConsumerTest extends JMSTestCase
          {
             synchronized (waitMonitor)
             {
-               waitMonitor.wait();
+               while (running.get())
+               {
+                  waitMonitor.wait();
+               }
             }
             t1 = System.currentTimeMillis();
             receivedObject = topicConsumer.receive(timeToWait);
@@ -2306,13 +2319,16 @@ public class MessageConsumerTest extends JMSTestCase
          ThreadCloser closer = null;
          ThreadReceiver receiver = null;
 
-         closer = new ThreadCloser(monitor, 1000, topicConsumer);
-         receiver = new ThreadReceiver(monitor, 2000, topicConsumer);
+         AtomicBoolean running = new AtomicBoolean(true);
+
+         closer = new ThreadCloser(running, monitor, 1000, topicConsumer);
+         receiver = new ThreadReceiver(running, monitor, 2000, topicConsumer);
          closer.start();
          receiver.start();
          Thread.sleep(2000);
          synchronized (monitor)
          {
+            running.set(false);
             monitor.notifyAll();
          }
          closer.join();

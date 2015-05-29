@@ -50,7 +50,7 @@ public abstract class ClientAbstract extends Thread
 
    protected volatile boolean running = true;
 
-   protected volatile int errors = 0;
+   protected int errors = 0;
 
    /**
     * A commit was called

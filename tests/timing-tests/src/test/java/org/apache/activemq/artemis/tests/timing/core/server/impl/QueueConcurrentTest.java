@@ -15,13 +15,6 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.timing.core.server.impl;
-import org.apache.activemq.artemis.tests.unit.core.server.impl.fakes.FakeQueueFactory;
-import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Before;
-import org.junit.After;
-
-import org.junit.Test;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,6 +26,11 @@ import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.server.impl.QueueImpl;
 import org.apache.activemq.artemis.tests.unit.UnitTestLogger;
 import org.apache.activemq.artemis.tests.unit.core.server.impl.fakes.FakeConsumer;
+import org.apache.activemq.artemis.tests.unit.core.server.impl.fakes.FakeQueueFactory;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  *
@@ -128,7 +126,7 @@ public class QueueConcurrentTest extends ActiveMQTestBase
 
       private final long testTime;
 
-      private volatile int i;
+      private int i;
 
       public Exception getException()
       {
@@ -181,7 +179,7 @@ public class QueueConcurrentTest extends ActiveMQTestBase
 
       private boolean toggle;
 
-      private volatile int numToggles;
+      private int numToggles;
 
       public int getNumToggles()
       {

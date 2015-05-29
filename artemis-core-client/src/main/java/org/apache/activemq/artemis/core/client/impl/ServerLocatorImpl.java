@@ -16,8 +16,6 @@
  */
 package org.apache.activemq.artemis.core.client.impl;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
 import java.lang.reflect.Array;
@@ -47,9 +45,9 @@ import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
 import org.apache.activemq.artemis.api.core.Interceptor;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ClusterTopologyListener;
-import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.TopologyMember;
 import org.apache.activemq.artemis.api.core.client.loadbalance.ConnectionLoadBalancingPolicy;
 import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
@@ -62,8 +60,8 @@ import org.apache.activemq.artemis.core.remoting.FailureListener;
 import org.apache.activemq.artemis.spi.core.remoting.ClientProtocolManager;
 import org.apache.activemq.artemis.spi.core.remoting.ClientProtocolManagerFactory;
 import org.apache.activemq.artemis.spi.core.remoting.Connector;
-import org.apache.activemq.artemis.utils.ClassloadingUtil;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
+import org.apache.activemq.artemis.utils.ClassloadingUtil;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 
 /**
@@ -103,8 +101,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
 
    private final Topology topology;
 
-   //needs to be serializable and not final for retrocompatibility
-   private String topologyArrayGuard = new String();
+   private final Object topologyArrayGuard = new Object();
 
    private volatile Pair<TransportConfiguration, TransportConfiguration>[] topologyArray;
 
@@ -181,8 +178,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
 
    private int initialMessagePacketSize;
 
-   //needs to be serializable and not final for retrocompatibility
-   private String stateGuard = new String();
+   private final Object stateGuard = new Object();
    private transient STATE state;
    private transient CountDownLatch latch;
 
@@ -1821,19 +1817,6 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       synchronized (factories)
       {
          factories.add(factory);
-      }
-   }
-
-   private void readObject(ObjectInputStream is) throws ClassNotFoundException, IOException
-   {
-      is.defaultReadObject();
-      if (stateGuard == null)
-      {
-         stateGuard = new String();
-      }
-      if (topologyArrayGuard == null)
-      {
-         topologyArrayGuard = new String();
       }
    }
 

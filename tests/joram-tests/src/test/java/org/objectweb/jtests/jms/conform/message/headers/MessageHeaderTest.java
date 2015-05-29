@@ -154,7 +154,7 @@ public class MessageHeaderTest extends PTPTestCase
          message.setJMSMessageID("ID:foo");
          sender.send(message);
          Assert.assertTrue("sec. 3.4.3 When a message is sent this value is ignored.\n",
-                           message.getJMSMessageID() != "ID:foo");
+                           !message.getJMSMessageID().equals("ID:foo"));
          receiver.receive(TestConfig.TIMEOUT);
       }
       catch (JMSException e)

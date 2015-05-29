@@ -92,7 +92,7 @@ public class JournalPerfTuneTest extends ActiveMQTestBase
       final int bufferTimeout = (int)(1000000000d / 2000);
       final boolean logRates = true;
 
-      super.recreateDirectory(journalDir);
+      recreateDirectory(journalDir);
 
       SequentialFileFactory fileFactory = new AIOSequentialFileFactory(journalDir, bufferSize, bufferTimeout, logRates);
 

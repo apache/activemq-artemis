@@ -214,7 +214,7 @@ public class ConnectionTest extends PTPTestCase
          {
             try
             {
-               wait(1000);
+               Thread.sleep(1000);
             }
             catch (Exception e)
             {

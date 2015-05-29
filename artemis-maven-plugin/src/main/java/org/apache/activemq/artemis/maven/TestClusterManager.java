@@ -22,7 +22,7 @@ import java.util.List;
 
 public class TestClusterManager implements TestClusterManagerMBean
 {
-   private List<TestNode> testNodes = new ArrayList<TestNode>();
+   private final List<TestNode> testNodes = new ArrayList<TestNode>();
 
    @Override
    public int getNumNodes()

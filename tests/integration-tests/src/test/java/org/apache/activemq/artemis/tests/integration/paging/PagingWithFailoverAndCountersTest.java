@@ -123,7 +123,7 @@ public class PagingWithFailoverAndCountersTest extends ActiveMQTestBase
       }
 
       boolean running = true;
-      Object waitNotify = new Object();
+      final Object waitNotify = new Object();
       private boolean failed = false;
 
       public void failed(String message)
@@ -171,7 +171,11 @@ public class PagingWithFailoverAndCountersTest extends ActiveMQTestBase
             {
                if (timeWait > 0)
                {
-                  waitNotify.wait(timeWait);
+                  long timeout = System.currentTimeMillis() + timeWait;
+                  while (running && timeout > System.currentTimeMillis())
+                  {
+                     waitNotify.wait(timeWait);
+                  }
                }
             }
             catch (InterruptedException e)
