@@ -46,7 +46,7 @@ under the License.
      <p>Using UDP discovery makes configuration simpler since we don't have to know what nodes are
      available at any one time.</p>
      <p>Here's the relevant snippet from the server configuration, which tells the server to form a cluster
-     with the other nodes:</p>     
+     with the other nodes:</p>
      <pre class="prettyprint">
      <code>
    &lt;cluster-connection name="my-cluster"&gt;
@@ -54,19 +54,19 @@ under the License.
       &lt;connector-ref>netty-connector&lt;/connector-ref>
 	   &lt;retry-interval&gt;500&lt;/retry-interval&gt;
 	   &lt;use-duplicate-detection&gt;true&lt;/use-duplicate-detection&gt;
-	   &lt;forward-when-no-consumers&gt;true&lt;/forward-when-no-consumers&gt;
+	   &lt;message-load-balancing&gt;STRICT&lt;/message-load-balancing&gt;
 	   &lt;max-hops&gt;1&lt;/max-hops&gt;
 	   &lt;discovery-group-ref discovery-group-name="my-discovery-group"/&gt;
    &lt;/cluster-connection&gt;
    </code>
-     </pre>    
+     </pre>
      <p>In this example we create a symmetric cluster of six live nodes, and we also pair each live node
      with it's own backup node. (A backup node is not strictly necessary for a symmetric cluster).</p>
     <p>In this example will we will demonstrate this by deploying a JMS topic and Queue on all nodes of the cluster
      , sending messages to the queue and topic from different nodes, and verifying messages are received correctly
      by consumers on different nodes.</p>
     <p>For more information on configuring ActiveMQ Artemis clustering in general, please see the clustering
-     section of the user manual.</p>      
+     section of the user manual.</p>
      <h2>Example step-by-step</h2>
      <p><i>To run the example, simply type <code>mvn verify -Pexample</code> from this directory</i></p>
 
@@ -77,12 +77,12 @@ under the License.
          specific server to do that, and that server might not be available at the time. By creating the
          connection factory directly we avoid having to worry about a JNDI look-up.
          In an app server environment you could use HA-JNDI to lookup from the clustered JNDI servers without
-         having to know about a specific one.        
+         having to know about a specific one.
         </li>
-        
+
         <pre class="prettyprint">
            <code>
-   ConnectionFactory cf = ActiveMQJMSClient.createConnectionFactoryWithHA("231.7.7.7", 9876); 
+   ConnectionFactory cf = ActiveMQJMSClient.createConnectionFactoryWithHA("231.7.7.7", 9876);
    </code>
         </pre>
 
@@ -90,8 +90,8 @@ under the License.
         <pre class="prettyprint">
            <code>
    Queue queue = new ActiveMQQueue("exampleQueue");
-         
-   Topic topic = ActiveMQJMSClient.createActiveMQTopic("exampleTopic");           
+
+   Topic topic = ActiveMQJMSClient.createActiveMQTopic("exampleTopic");
            </code>
         </pre>
 
@@ -165,7 +165,7 @@ under the License.
    MessageConsumer consumer0 = session0.createConsumer(queue);
           </code>
         </pre>
-        
+
         <li>We create an anonymous message producer on server 2.</li>
         <pre class="prettyprint">
           <code>
@@ -177,15 +177,15 @@ under the License.
         <pre class="prettyprint">
            <code>
    final int numMessages = 500;
-                  
+
    for (int i = 0; i < numMessages; i++)
    {
       TextMessage message1 = session2.createTextMessage("Topic message 1");
-   
+
       producer2.send(topic, message1);
-      
+
       TextMessage message2 = session2.createTextMessage("Queue message 1");
-      
+
       producer2.send(queue, message2);
    }
            </code>
@@ -262,7 +262,7 @@ under the License.
       {
          connection1.close();
       }
-      
+
       if (connection2 != null)
       {
          connection2.close();

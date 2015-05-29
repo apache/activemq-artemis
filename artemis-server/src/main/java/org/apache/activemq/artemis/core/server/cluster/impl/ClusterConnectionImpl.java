@@ -109,7 +109,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
 
    private final boolean useDuplicateDetection;
 
-   private final boolean routeWhenNoConsumers;
+   private final MessageLoadBalancingType messageLoadBalancingType;
 
    private final int confirmationWindowSize;
 
@@ -177,7 +177,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
                                 final long callTimeout,
                                 final long callFailoverTimeout,
                                 final boolean useDuplicateDetection,
-                                final boolean routeWhenNoConsumers,
+                                final MessageLoadBalancingType messageLoadBalancingType,
                                 final int confirmationWindowSize,
                                 final ExecutorFactory executorFactory,
                                 final ActiveMQServer server,
@@ -216,7 +216,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
 
       this.useDuplicateDetection = useDuplicateDetection;
 
-      this.routeWhenNoConsumers = routeWhenNoConsumers;
+      this.messageLoadBalancingType = messageLoadBalancingType;
 
       this.confirmationWindowSize = confirmationWindowSize;
 
@@ -284,7 +284,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
                                 final long callTimeout,
                                 final long callFailoverTimeout,
                                 final boolean useDuplicateDetection,
-                                final boolean routeWhenNoConsumers,
+                                final MessageLoadBalancingType messageLoadBalancingType,
                                 final int confirmationWindowSize,
                                 final ExecutorFactory executorFactory,
                                 final ActiveMQServer server,
@@ -329,7 +329,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
 
       this.useDuplicateDetection = useDuplicateDetection;
 
-      this.routeWhenNoConsumers = routeWhenNoConsumers;
+      this.messageLoadBalancingType = messageLoadBalancingType;
 
       this.confirmationWindowSize = confirmationWindowSize;
 
@@ -1388,7 +1388,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
 
          Bindings theBindings = postOffice.getBindingsForAddress(queueAddress);
 
-         theBindings.setRouteWhenNoConsumers(routeWhenNoConsumers);
+         theBindings.setMessageLoadBalancingType(messageLoadBalancingType);
 
       }
 

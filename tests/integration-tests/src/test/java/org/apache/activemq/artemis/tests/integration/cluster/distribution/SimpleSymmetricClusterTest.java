@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.distribution;
 
+import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.junit.Test;
 
@@ -52,17 +53,17 @@ public class SimpleSymmetricClusterTest extends ClusterTestBase
       setupLiveServer(4, isFileStorage(), true, isNetty(), false);
       setupLiveServer(5, isFileStorage(), true, isNetty(), false);
 
-      setupClusterConnection("cluster0", "queues", false, 1, isNetty(), 3, 4, 5);
+      setupClusterConnection("cluster0", "queues", MessageLoadBalancingType.ON_DEMAND, 1, isNetty(), 3, 4, 5);
 
-      setupClusterConnection("cluster1", "queues", false, 1, isNetty(), 4, 3, 5);
+      setupClusterConnection("cluster1", "queues", MessageLoadBalancingType.ON_DEMAND, 1, isNetty(), 4, 3, 5);
 
-      setupClusterConnection("cluster2", "queues", false, 1, isNetty(), 5, 3, 4);
+      setupClusterConnection("cluster2", "queues", MessageLoadBalancingType.ON_DEMAND, 1, isNetty(), 5, 3, 4);
 
-      setupClusterConnection("cluster0", "queues", false, 1, isNetty(), 0, 4, 5);
+      setupClusterConnection("cluster0", "queues", MessageLoadBalancingType.ON_DEMAND, 1, isNetty(), 0, 4, 5);
 
-      setupClusterConnection("cluster1", "queues", false, 1, isNetty(), 1, 3, 5);
+      setupClusterConnection("cluster1", "queues", MessageLoadBalancingType.ON_DEMAND, 1, isNetty(), 1, 3, 5);
 
-      setupClusterConnection("cluster2", "queues", false, 1, isNetty(), 2, 3, 4);
+      setupClusterConnection("cluster2", "queues", MessageLoadBalancingType.ON_DEMAND, 1, isNetty(), 2, 3, 4);
 
 
       startServers(0, 1, 2, 3, 4, 5);
@@ -96,9 +97,9 @@ public class SimpleSymmetricClusterTest extends ClusterTestBase
       setupServer(1, true, isNetty());
       setupServer(2, true, isNetty());
 
-      setupClusterConnection("cluster0", "queues", false, 1, isNetty(), 0, 1, 2);
-      setupClusterConnection("cluster1", "queues", false, 1, isNetty(), 1, 2, 0);
-      setupClusterConnection("cluster2", "queues", false, 1, isNetty(), 2, 0, 1);
+      setupClusterConnection("cluster0", "queues", MessageLoadBalancingType.ON_DEMAND, 1, isNetty(), 0, 1, 2);
+      setupClusterConnection("cluster1", "queues", MessageLoadBalancingType.ON_DEMAND, 1, isNetty(), 1, 2, 0);
+      setupClusterConnection("cluster2", "queues", MessageLoadBalancingType.ON_DEMAND, 1, isNetty(), 2, 0, 1);
 
       startServers(0, 1, 2);
 
@@ -134,8 +135,8 @@ public class SimpleSymmetricClusterTest extends ClusterTestBase
       setupServer(0, false, isNetty());
       setupServer(1, false, isNetty());
 
-      setupClusterConnection("cluster0", "queues", false, 1, isNetty(), 0, 1);
-      setupClusterConnection("cluster1", "queues", false, 1, isNetty(), 1, 0);
+      setupClusterConnection("cluster0", "queues", MessageLoadBalancingType.ON_DEMAND, 1, isNetty(), 0, 1);
+      setupClusterConnection("cluster1", "queues", MessageLoadBalancingType.ON_DEMAND, 1, isNetty(), 1, 0);
 
       startServers(0, 1);
 
@@ -182,15 +183,15 @@ public class SimpleSymmetricClusterTest extends ClusterTestBase
       setupServer(3, true, isNetty());
       setupServer(4, true, isNetty());
 
-      setupClusterConnection("cluster0", "queues", false, 1, isNetty(), 0, 1, 2, 3, 4);
+      setupClusterConnection("cluster0", "queues", MessageLoadBalancingType.ON_DEMAND, 1, isNetty(), 0, 1, 2, 3, 4);
 
-      setupClusterConnection("cluster1", "queues", false, 1, isNetty(), 1, 0, 2, 3, 4);
+      setupClusterConnection("cluster1", "queues", MessageLoadBalancingType.ON_DEMAND, 1, isNetty(), 1, 0, 2, 3, 4);
 
-      setupClusterConnection("cluster2", "queues", false, 1, isNetty(), 2, 0, 1, 3, 4);
+      setupClusterConnection("cluster2", "queues", MessageLoadBalancingType.ON_DEMAND, 1, isNetty(), 2, 0, 1, 3, 4);
 
-      setupClusterConnection("cluster3", "queues", false, 1, isNetty(), 3, 0, 1, 2, 4);
+      setupClusterConnection("cluster3", "queues", MessageLoadBalancingType.ON_DEMAND, 1, isNetty(), 3, 0, 1, 2, 4);
 
-      setupClusterConnection("cluster4", "queues", false, 1, isNetty(), 4, 0, 1, 2, 3);
+      setupClusterConnection("cluster4", "queues", MessageLoadBalancingType.ON_DEMAND, 1, isNetty(), 4, 0, 1, 2, 3);
 
       startServers(0, 1, 2, 3, 4);
 
@@ -235,9 +236,9 @@ public class SimpleSymmetricClusterTest extends ClusterTestBase
       setupServer(1, true, isNetty());
       setupServer(2, true, isNetty());
 
-      setupClusterConnection("cluster0", "queues", false, 1, 10, 100, isNetty(), 0, 1, 2);
-      setupClusterConnection("cluster1", "queues", false, 1, 10, 100, isNetty(), 1, 2, 0);
-      setupClusterConnection("cluster1", "queues", false, 1, 10, 100, isNetty(), 2, 0, 1);
+      setupClusterConnection("cluster0", "queues", MessageLoadBalancingType.ON_DEMAND, 1, 10, 100, isNetty(), 0, 1, 2);
+      setupClusterConnection("cluster1", "queues", MessageLoadBalancingType.ON_DEMAND, 1, 10, 100, isNetty(), 1, 2, 0);
+      setupClusterConnection("cluster1", "queues", MessageLoadBalancingType.ON_DEMAND, 1, 10, 100, isNetty(), 2, 0, 1);
 
       startServers(0, 1, 2);
 
@@ -311,9 +312,9 @@ public class SimpleSymmetricClusterTest extends ClusterTestBase
       setupServer(1, true, isNetty());
       setupServer(2, true, isNetty());
 
-      setupClusterConnection("cluster0", "queues", false, 1, -1, 1000, isNetty(), 0, 1, 2);
-      setupClusterConnection("cluster1", "queues", false, 1, -1, 1000, isNetty(), 1, 2, 0);
-      setupClusterConnection("cluster1", "queues", false, 1, -1, 1000, isNetty(), 2, 0, 1);
+      setupClusterConnection("cluster0", "queues", MessageLoadBalancingType.ON_DEMAND, 1, -1, 1000, isNetty(), 0, 1, 2);
+      setupClusterConnection("cluster1", "queues", MessageLoadBalancingType.ON_DEMAND, 1, -1, 1000, isNetty(), 1, 2, 0);
+      setupClusterConnection("cluster1", "queues", MessageLoadBalancingType.ON_DEMAND, 1, -1, 1000, isNetty(), 2, 0, 1);
 
       startServers(0, 1, 2);
 

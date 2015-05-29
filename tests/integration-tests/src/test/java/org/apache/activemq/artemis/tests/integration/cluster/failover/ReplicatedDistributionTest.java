@@ -23,6 +23,7 @@ import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionInternal;
+import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.tests.integration.cluster.distribution.ClusterTestBase;
@@ -194,9 +195,9 @@ public class ReplicatedDistributionTest extends ClusterTestBase
 
       final String address = ReplicatedDistributionTest.ADDRESS.toString();
       // notice the abuse of the method call, '3' is not a backup for '1'
-      setupClusterConnectionWithBackups("test", address, false, 1, true, 1, new int[]{3});
-      setupClusterConnectionWithBackups("test", address, false, 1, true, 3, new int[]{2, 1});
-      setupClusterConnectionWithBackups("test", address, false, 1, true, 2, new int[]{3});
+      setupClusterConnectionWithBackups("test", address, MessageLoadBalancingType.ON_DEMAND, 1, true, 1, new int[]{3});
+      setupClusterConnectionWithBackups("test", address, MessageLoadBalancingType.ON_DEMAND, 1, true, 3, new int[]{2, 1});
+      setupClusterConnectionWithBackups("test", address, MessageLoadBalancingType.ON_DEMAND, 1, true, 2, new int[]{3});
 
       AddressSettings as = new AddressSettings().setRedistributionDelay(0);
 

@@ -57,6 +57,7 @@ import org.apache.activemq.artemis.core.server.cluster.ClusterConnection;
 import org.apache.activemq.artemis.core.server.cluster.ClusterManager;
 import org.apache.activemq.artemis.core.server.cluster.RemoteQueueBinding;
 import org.apache.activemq.artemis.core.server.cluster.impl.ClusterConnectionImpl;
+import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.server.cluster.qourum.SharedNothingBackupQuorum;
 import org.apache.activemq.artemis.core.server.group.GroupingHandler;
 import org.apache.activemq.artemis.core.server.group.impl.GroupingHandlerConfiguration;
@@ -1913,7 +1914,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase
                                          final int nodeFrom,
                                          final int nodeTo,
                                          final String address,
-                                         final boolean forwardWhenNoConsumers,
+                                         final MessageLoadBalancingType messageLoadBalancingType,
                                          final int maxHops,
                                          final boolean netty,
                                          final boolean allowDirectConnectionsOnly)
@@ -1944,7 +1945,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase
          .setAddress(address)
          .setConnectorName(name)
          .setRetryInterval(100)
-         .setForwardWhenNoConsumers(forwardWhenNoConsumers)
+         .setMessageLoadBalancingType(messageLoadBalancingType)
          .setMaxHops(maxHops)
          .setConfirmationWindowSize(1024)
          .setStaticConnectors(pairs)
@@ -1957,7 +1958,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase
                                          final int nodeFrom,
                                          final int nodeTo,
                                          final String address,
-                                         final boolean forwardWhenNoConsumers,
+                                         final MessageLoadBalancingType messageLoadBalancingType,
                                          final int maxHops,
                                          final int reconnectAttempts,
                                          final long retryInterval,
@@ -1991,7 +1992,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase
          .setConnectorName(name)
          .setReconnectAttempts(reconnectAttempts)
          .setRetryInterval(retryInterval)
-         .setForwardWhenNoConsumers(forwardWhenNoConsumers)
+         .setMessageLoadBalancingType(messageLoadBalancingType)
          .setMaxHops(maxHops)
          .setConfirmationWindowSize(1024)
          .setStaticConnectors(pairs)
@@ -2002,7 +2003,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase
 
    protected void setupClusterConnection(final String name,
                                          final String address,
-                                         final boolean forwardWhenNoConsumers,
+                                         final MessageLoadBalancingType messageLoadBalancingType,
                                          final int maxHops,
                                          final boolean netty,
                                          final int nodeFrom,
@@ -2027,7 +2028,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase
       }
       Configuration config = serverFrom.getConfiguration();
       ClusterConnectionConfiguration clusterConf =
-         createClusterConfig(name, address, forwardWhenNoConsumers,
+         createClusterConfig(name, address, messageLoadBalancingType,
                              maxHops,
                              connectorFrom,
                              pairs);
@@ -2037,7 +2038,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase
 
    protected void setupClusterConnection(final String name,
                                          final String address,
-                                         final boolean forwardWhenNoConsumers,
+                                         final MessageLoadBalancingType messageLoadBalancingType,
                                          final int maxHops,
                                          final int reconnectAttempts,
                                          final long retryInterval,
@@ -2072,7 +2073,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase
          .setReconnectAttempts(reconnectAttempts)
          .setCallTimeout(100)
          .setCallFailoverTimeout(100)
-         .setForwardWhenNoConsumers(forwardWhenNoConsumers)
+         .setMessageLoadBalancingType(messageLoadBalancingType)
          .setMaxHops(maxHops)
          .setConfirmationWindowSize(1024)
          .setStaticConnectors(pairs);
@@ -2081,7 +2082,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase
    }
 
    private ClusterConnectionConfiguration createClusterConfig(final String name, final String address,
-                                                              final boolean forwardWhenNoConsumers, final int maxHops,
+                                                              final MessageLoadBalancingType messageLoadBalancingType, final int maxHops,
                                                               TransportConfiguration connectorFrom, List<String> pairs)
    {
       return new ClusterConnectionConfiguration()
@@ -2089,7 +2090,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase
          .setAddress(address)
          .setConnectorName(connectorFrom.getName())
          .setRetryInterval(250)
-         .setForwardWhenNoConsumers(forwardWhenNoConsumers)
+         .setMessageLoadBalancingType(messageLoadBalancingType)
          .setMaxHops(maxHops)
          .setConfirmationWindowSize(1024)
          .setStaticConnectors(pairs);
@@ -2097,7 +2098,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase
 
    protected void setupClusterConnectionWithBackups(final String name,
                                                     final String address,
-                                                    final boolean forwardWhenNoConsumers,
+                                                    final MessageLoadBalancingType messageLoadBalancingType,
                                                     final int maxHops,
                                                     final boolean netty,
                                                     final int nodeFrom,
@@ -2127,7 +2128,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase
          .setAddress(address)
          .setConnectorName(name)
          .setRetryInterval(250)
-         .setForwardWhenNoConsumers(forwardWhenNoConsumers)
+         .setMessageLoadBalancingType(messageLoadBalancingType)
          .setMaxHops(maxHops)
          .setConfirmationWindowSize(1024)
          .setStaticConnectors(pairs);
@@ -2139,7 +2140,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase
                                                   final int node,
                                                   final String discoveryGroupName,
                                                   final String address,
-                                                  final boolean forwardWhenNoConsumers,
+                                                  final MessageLoadBalancingType messageLoadBalancingType,
                                                   final int maxHops,
                                                   final boolean netty)
    {
@@ -2159,7 +2160,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase
          .setConnectorName(name)
          .setRetryInterval(100)
          .setDuplicateDetection(true)
-         .setForwardWhenNoConsumers(forwardWhenNoConsumers)
+         .setMessageLoadBalancingType(messageLoadBalancingType)
          .setMaxHops(maxHops)
          .setConfirmationWindowSize(1024)
          .setDiscoveryGroupName(discoveryGroupName);

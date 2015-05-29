@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.integration.cluster.util;
+import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.core.config.ha.ReplicaPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicatedPolicyConfiguration;
@@ -221,6 +222,7 @@ public class MultiServerTestBase extends ActiveMQTestBase
          .setConnectorName("thisConnector")
          .setRetryInterval(100)
          .setConfirmationWindowSize(1024)
+         .setMessageLoadBalancingType(MessageLoadBalancingType.ON_DEMAND)
          .setStaticConnectors(targetServersOnConnection);
 
       configuration.getClusterConfigurations().add(clusterConf);
@@ -278,6 +280,7 @@ public class MultiServerTestBase extends ActiveMQTestBase
          .setConnectorName("thisConnector")
          .setRetryInterval(100)
          .setConfirmationWindowSize(1024)
+         .setMessageLoadBalancingType(MessageLoadBalancingType.ON_DEMAND)
          .setStaticConnectors(targetServersOnConnection);
 
       configuration.getClusterConfigurations().add(clusterConf);

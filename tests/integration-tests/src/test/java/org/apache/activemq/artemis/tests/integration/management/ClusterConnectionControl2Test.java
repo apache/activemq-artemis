@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.integration.management;
+import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Before;
 import org.junit.After;
@@ -144,7 +145,7 @@ public class ClusterConnectionControl2Test extends ManagementTestBase
          .setConnectorName("netty")
          .setRetryInterval(1000)
          .setDuplicateDetection(false)
-         .setForwardWhenNoConsumers(false)
+         .setMessageLoadBalancingType(MessageLoadBalancingType.ON_DEMAND)
          .setMaxHops(1)
          .setConfirmationWindowSize(1024)
          .setDiscoveryGroupName(discoveryName);

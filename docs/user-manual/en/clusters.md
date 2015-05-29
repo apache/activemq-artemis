@@ -568,7 +568,7 @@ server.
           <initial-connect-attempts>-1</initial-connect-attempts>
           <reconnect-attempts>-1</reconnect-attempts>
           <use-duplicate-detection>true</use-duplicate-detection>
-          <forward-when-no-consumers>false</forward-when-no-consumers>
+          <message-load-balancing>ON_DEMAND</message-load-balancing>
           <max-hops>1</max-hops>
           <confirmation-window-size>32000</confirmation-window-size>
           <call-failover-timeout>30000</call-failover-timeout>
@@ -695,26 +695,32 @@ specified. The following shows all the available configuration options
     a bridge. For more information on duplicate detection, please see [Duplicate Detection](duplicate-detection.md).
     Default is true.
 
--   `forward-when-no-consumers`. This parameter determines whether
-    messages will be distributed round robin between other nodes of the
-    cluster *regardless* of whether or not there are matching or indeed
-    any consumers on other nodes.
+-   `message-load-balancing`. This parameter determines if/how
+    messages will be distributed between other nodes of the cluster.
+    It can be one of three values - `OFF`, `STRICT`, or `ON_DEMAND` 
+    (default). This parameter replaces the deprecated
+    `forward-when-no-consumers` parameter.
+    
+    If this is set to `OFF` then messages will never be forwarded to
+    another node in the cluster
 
-    If this is set to `true` then each incoming message will be round
+    If this is set to `STRICT` then each incoming message will be round
     robin'd even though the same queues on the other nodes of the
     cluster may have no consumers at all, or they may have consumers
     that have non matching message filters (selectors). Note that
-    Apache ActiveMQ Artemis will *not* forward messages to other nodes if there are no
-    *queues* of the same name on the other nodes, even if this parameter
-    is set to `true`.
+    Apache ActiveMQ Artemis will *not* forward messages to other nodes
+    if there are no *queues* of the same name on the other nodes, even
+    if this parameter is set to `STRICT`. Using `STRICT` is like setting
+    the legacy `foward-when-no-consumers` parameter to `true`.
 
-    If this is set to `false` then Apache ActiveMQ Artemis will only forward messages
-    to other nodes of the cluster if the address to which they are being
-    forwarded has queues which have consumers, and if those consumers
-    have message filters (selectors) at least one of those selectors
-    must match the message.
+    If this is set to `ON_DEMAND` then Apache ActiveMQ Artemis will only
+    forward messages to other nodes of the cluster if the address to which
+    they are being forwarded has queues which have consumers, and if those
+    consumers have message filters (selectors) at least one of those
+    selectors must match the message. Using `ON_DEMAND` is like setting
+    the legacy `foward-when-no-consumers` parameter to `false`.
 
-    Default is false.
+    Default is `ON_DEMAND`.
 
 -   `max-hops`. When a cluster connection decides the set of nodes to
     which it might load balance a message, those nodes do not have to be
@@ -886,7 +892,7 @@ and is configured as follows:
        <connector-ref>netty-connector</connector-ref>
        <retry-interval>500</retry-interval>
        <use-duplicate-detection>true</use-duplicate-detection>
-       <forward-when-no-consumers>true</forward-when-no-consumers>
+       <message-load-balancing>STRICT</message-load-balancing>
        <max-hops>1</max-hops>
        <static-connectors allow-direct-connections-only="true">
           <connector-ref>server1-connector</connector-ref>
@@ -902,10 +908,10 @@ This means you can explicitly create any cluster topology you want.
 
 Another important part of clustering is message redistribution. Earlier
 we learned how server side message load balancing round robins messages
-across the cluster. If `forward-when-no-consumers` is false, then
-messages won't be forwarded to nodes which don't have matching
-consumers, this is great and ensures that messages don't arrive on a
-queue which has no consumers to consume them, however there is a
+across the cluster. If `message-load-balancing` is `OFF` or `ON_DEMAND`
+then messages won't be forwarded to nodes which don't have matching
+consumers. This is great and ensures that messages aren't moved to a
+queue which has no consumers to consume them. However, there is a
 situation it doesn't solve: What happens if the consumers on a queue
 close after the messages have been sent to the node? If there are no
 consumers on the queue the message won't get consumed and we have a
@@ -914,7 +920,8 @@ consumers on the queue the message won't get consumed and we have a
 This is where message redistribution comes in. With message
 redistribution Apache ActiveMQ Artemis can be configured to automatically
 *redistribute* messages from queues which have no consumers back to
-other nodes in the cluster which do have matching consumers.
+other nodes in the cluster which do have matching consumers. To enable
+this functionality `message-load-balancing` must be `ON_DEMAND`.
 
 Message redistribution can be configured to kick in immediately after
 the last consumer on a queue is closed, or to wait a configurable delay

@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.integration.cluster.distribution;
+import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Before;
@@ -53,22 +54,22 @@ public class MessageRedistributionWithDiscoveryTest extends ClusterTestBase
 
    protected void setupCluster() throws Exception
    {
-      setupCluster(false);
+      setupCluster(MessageLoadBalancingType.ON_DEMAND);
    }
 
-   protected void setupCluster(final boolean forwardWhenNoConsumers) throws Exception
+   protected void setupCluster(final MessageLoadBalancingType messageLoadBalancingType) throws Exception
    {
       for (int i = 0; i < 5; i++)
       {
-         setServer(forwardWhenNoConsumers, i);
+         setServer(messageLoadBalancingType, i);
       }
    }
 
    /**
-    * @param forwardWhenNoConsumers
+    * @param messageLoadBalancingType
     * @throws Exception
     */
-   protected void setServer(final boolean forwardWhenNoConsumers, int server) throws Exception
+   protected void setServer(final MessageLoadBalancingType messageLoadBalancingType, int server) throws Exception
    {
       setupLiveServerWithDiscovery(server,
                                    groupAddress,
@@ -83,7 +84,7 @@ public class MessageRedistributionWithDiscoveryTest extends ClusterTestBase
 
       servers[server].getAddressSettingsRepository().addMatch("#", setting);
 
-      setupDiscoveryClusterConnection("cluster" + server, server, "dg1", "queues", forwardWhenNoConsumers, 1, isNetty());
+      setupDiscoveryClusterConnection("cluster" + server, server, "dg1", "queues", messageLoadBalancingType, 1, isNetty());
    }
 
    @Test
@@ -145,7 +146,7 @@ public class MessageRedistributionWithDiscoveryTest extends ClusterTestBase
       servers[0].stop();
       servers[0] = null;
 
-      setServer(false, 0);
+      setServer(MessageLoadBalancingType.ON_DEMAND, 0);
 
       startServers(1, 2);
 

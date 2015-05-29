@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.tests.integration.cluster.distribution;
 
 import org.apache.activemq.artemis.core.config.ha.SharedStoreSlavePolicyConfiguration;
+import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Test;
@@ -441,12 +442,12 @@ public class SymmetricClusterWithBackupTest extends SymmetricClusterTest
    }
 
    @Override
-   protected void setupCluster(final boolean forwardWhenNoConsumers) throws Exception
+   protected void setupCluster(final MessageLoadBalancingType messageLoadBalancingType) throws Exception
    {
       // The lives
       setupClusterConnectionWithBackups("cluster0",
                                         "queues",
-                                        forwardWhenNoConsumers,
+                                        messageLoadBalancingType,
                                         1,
                                         isNetty(),
                                         0,
@@ -454,7 +455,7 @@ public class SymmetricClusterWithBackupTest extends SymmetricClusterTest
 
       setupClusterConnectionWithBackups("cluster1",
                                         "queues",
-                                        forwardWhenNoConsumers,
+                                        messageLoadBalancingType,
                                         1,
                                         isNetty(),
                                         1,
@@ -462,7 +463,7 @@ public class SymmetricClusterWithBackupTest extends SymmetricClusterTest
 
       setupClusterConnectionWithBackups("cluster2",
                                         "queues",
-                                        forwardWhenNoConsumers,
+                                        messageLoadBalancingType,
                                         1,
                                         isNetty(),
                                         2,
@@ -470,7 +471,7 @@ public class SymmetricClusterWithBackupTest extends SymmetricClusterTest
 
       setupClusterConnectionWithBackups("cluster3",
                                         "queues",
-                                        forwardWhenNoConsumers,
+                                        messageLoadBalancingType,
                                         1,
                                         isNetty(),
                                         3,
@@ -478,7 +479,7 @@ public class SymmetricClusterWithBackupTest extends SymmetricClusterTest
 
       setupClusterConnectionWithBackups("cluster4",
                                         "queues",
-                                        forwardWhenNoConsumers,
+                                        messageLoadBalancingType,
                                         1,
                                         isNetty(),
                                         4,
@@ -488,7 +489,7 @@ public class SymmetricClusterWithBackupTest extends SymmetricClusterTest
 
       setupClusterConnectionWithBackups("cluster0",
                                         "queues",
-                                        forwardWhenNoConsumers,
+                                        messageLoadBalancingType,
                                         1,
                                         isNetty(),
                                         5,
@@ -496,7 +497,7 @@ public class SymmetricClusterWithBackupTest extends SymmetricClusterTest
 
       setupClusterConnectionWithBackups("cluster1",
                                         "queues",
-                                        forwardWhenNoConsumers,
+                                        messageLoadBalancingType,
                                         1,
                                         isNetty(),
                                         6,
@@ -504,7 +505,7 @@ public class SymmetricClusterWithBackupTest extends SymmetricClusterTest
 
       setupClusterConnectionWithBackups("cluster2",
                                         "queues",
-                                        forwardWhenNoConsumers,
+                                        messageLoadBalancingType,
                                         1,
                                         isNetty(),
                                         7,
@@ -512,7 +513,7 @@ public class SymmetricClusterWithBackupTest extends SymmetricClusterTest
 
       setupClusterConnectionWithBackups("cluster3",
                                         "queues",
-                                        forwardWhenNoConsumers,
+                                        messageLoadBalancingType,
                                         1,
                                         isNetty(),
                                         8,
@@ -520,7 +521,7 @@ public class SymmetricClusterWithBackupTest extends SymmetricClusterTest
 
       setupClusterConnectionWithBackups("cluster4",
                                         "queues",
-                                        forwardWhenNoConsumers,
+                                        messageLoadBalancingType,
                                         1,
                                         isNetty(),
                                         9,

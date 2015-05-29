@@ -1223,9 +1223,25 @@
          <xsd:element name="forward-when-no-consumers" type="xsd:boolean" default="false" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
-                  should messages be load balanced if there are no matching consumers on target?
+                  DEPRECATED: use message-load-balancing-type instead. Select STRICT to mimic foward-when-no-consumers=true
+                  and ON_DEMAND to mimic forward-when-no-consumers=false.
                </xsd:documentation>
             </xsd:annotation>
+         </xsd:element>
+
+         <xsd:element name="message-load-balancing" default="ON_DEMAND" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  how should messages be load balanced between servers in a cluster?
+               </xsd:documentation>
+            </xsd:annotation>
+            <xsd:simpleType>
+               <xsd:restriction base="xsd:string">
+                  <xsd:enumeration value="OFF"/>
+                  <xsd:enumeration value="STRICT"/>
+                  <xsd:enumeration value="ON_DEMAND"/>
+               </xsd:restriction>
+            </xsd:simpleType>
          </xsd:element>
 
          <xsd:element name="max-hops" type="xsd:int" default="1" maxOccurs="1" minOccurs="0">

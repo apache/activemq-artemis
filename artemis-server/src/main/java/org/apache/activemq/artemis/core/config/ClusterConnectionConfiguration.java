@@ -16,12 +16,13 @@
  */
 package org.apache.activemq.artemis.core.config;
 
+import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
+import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
+
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
-
-import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
-import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 
 public final class ClusterConnectionConfiguration implements Serializable
 {
@@ -53,7 +54,7 @@ public final class ClusterConnectionConfiguration implements Serializable
 
    private boolean duplicateDetection = ActiveMQDefaultConfiguration.isDefaultClusterDuplicateDetection();
 
-   private boolean forwardWhenNoConsumers = ActiveMQDefaultConfiguration.isDefaultClusterForwardWhenNoConsumers();
+   private MessageLoadBalancingType messageLoadBalancingType = Enum.valueOf(MessageLoadBalancingType.class, ActiveMQDefaultConfiguration.getDefaultClusterMessageLoadBalancingType());
 
    private List<String> staticConnectors = Collections.emptyList();
 
@@ -171,9 +172,9 @@ public final class ClusterConnectionConfiguration implements Serializable
       return duplicateDetection;
    }
 
-   public boolean isForwardWhenNoConsumers()
+   public MessageLoadBalancingType getMessageLoadBalancingType()
    {
-      return forwardWhenNoConsumers;
+      return messageLoadBalancingType;
    }
 
    public int getMaxHops()
@@ -345,11 +346,12 @@ public final class ClusterConnectionConfiguration implements Serializable
    }
 
    /**
-    * @param forwardWhenNoConsumers the forwardWhenNoConsumers to set
+    * @param messageLoadBalancingType
+    * @return
     */
-   public ClusterConnectionConfiguration setForwardWhenNoConsumers(boolean forwardWhenNoConsumers)
+   public ClusterConnectionConfiguration setMessageLoadBalancingType(MessageLoadBalancingType messageLoadBalancingType)
    {
-      this.forwardWhenNoConsumers = forwardWhenNoConsumers;
+      this.messageLoadBalancingType = messageLoadBalancingType;
       return this;
    }
 
@@ -395,7 +397,7 @@ public final class ClusterConnectionConfiguration implements Serializable
       result = prime * result + ((connectorName == null) ? 0 : connectorName.hashCode());
       result = prime * result + ((discoveryGroupName == null) ? 0 : discoveryGroupName.hashCode());
       result = prime * result + (duplicateDetection ? 1231 : 1237);
-      result = prime * result + (forwardWhenNoConsumers ? 1231 : 1237);
+      result = prime * result + (messageLoadBalancingType == null ? 0 : messageLoadBalancingType.hashCode());
       result = prime * result + maxHops;
       result = prime * result + (int)(maxRetryInterval ^ (maxRetryInterval >>> 32));
       result = prime * result + minLargeMessageSize;
@@ -459,7 +461,7 @@ public final class ClusterConnectionConfiguration implements Serializable
          return false;
       if (duplicateDetection != other.duplicateDetection)
          return false;
-      if (forwardWhenNoConsumers != other.forwardWhenNoConsumers)
+      if (messageLoadBalancingType != other.messageLoadBalancingType)
          return false;
       if (maxHops != other.maxHops)
          return false;

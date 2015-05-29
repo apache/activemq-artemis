@@ -22,6 +22,7 @@ import org.apache.activemq.artemis.core.client.impl.ServerLocatorImpl;
 import org.apache.activemq.artemis.core.server.cluster.ActiveMQServerSideProtocolManagerFactory;
 import org.apache.activemq.artemis.core.server.cluster.ClusterControl;
 import org.apache.activemq.artemis.core.server.cluster.ClusterController;
+import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.tests.integration.cluster.distribution.ClusterTestBase;
 import org.junit.Before;
 import org.junit.Test;
@@ -48,8 +49,8 @@ public class ClusterControllerTest extends ClusterTestBase
 
       getServer(1).getConfiguration().setClusterPassword("something different");
 
-      setupClusterConnection("cluster0", "queues", false, 1, true, 0);
-      setupClusterConnection("cluster0", "queues", false, 1, true, 1);
+      setupClusterConnection("cluster0", "queues", MessageLoadBalancingType.ON_DEMAND, 1, true, 0);
+      setupClusterConnection("cluster0", "queues", MessageLoadBalancingType.ON_DEMAND, 1, true, 1);
 
       startServers(0);
       startServers(1);

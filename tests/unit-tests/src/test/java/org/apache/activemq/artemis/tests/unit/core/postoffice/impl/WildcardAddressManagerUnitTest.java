@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.postoffice.Binding;
@@ -230,7 +231,7 @@ public class WildcardAddressManagerUnitTest extends ActiveMQTestBase
       }
 
       @Override
-      public void setRouteWhenNoConsumers(boolean takePriorityIntoAccount)
+      public void setMessageLoadBalancingType(MessageLoadBalancingType messageLoadBalancingType)
       {
 
       }

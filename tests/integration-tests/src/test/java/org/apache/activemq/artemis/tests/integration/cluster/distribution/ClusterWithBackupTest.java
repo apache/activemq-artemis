@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.integration.cluster.distribution;
+import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.junit.Before;
 
@@ -83,22 +84,22 @@ public class ClusterWithBackupTest extends ClusterTestBase
 
    protected void setupCluster() throws Exception
    {
-      setupCluster(false);
+      setupCluster(MessageLoadBalancingType.ON_DEMAND);
    }
 
-   protected void setupCluster(final boolean forwardWhenNoConsumers) throws Exception
+   protected void setupCluster(final MessageLoadBalancingType messageLoadBalancingType) throws Exception
    {
-      setupClusterConnection("cluster0", "queues", forwardWhenNoConsumers, 1, isNetty(), 3, 4, 5);
+      setupClusterConnection("cluster0", "queues", messageLoadBalancingType, 1, isNetty(), 3, 4, 5);
 
-      setupClusterConnection("cluster1", "queues", forwardWhenNoConsumers, 1, isNetty(), 4, 3, 5);
+      setupClusterConnection("cluster1", "queues", messageLoadBalancingType, 1, isNetty(), 4, 3, 5);
 
-      setupClusterConnection("cluster2", "queues", forwardWhenNoConsumers, 1, isNetty(), 5, 3, 4);
+      setupClusterConnection("cluster2", "queues", messageLoadBalancingType, 1, isNetty(), 5, 3, 4);
 
-      setupClusterConnection("cluster0", "queues", forwardWhenNoConsumers, 1, isNetty(), 0, 4, 5);
+      setupClusterConnection("cluster0", "queues", messageLoadBalancingType, 1, isNetty(), 0, 4, 5);
 
-      setupClusterConnection("cluster1", "queues", forwardWhenNoConsumers, 1, isNetty(), 1, 3, 5);
+      setupClusterConnection("cluster1", "queues", messageLoadBalancingType, 1, isNetty(), 1, 3, 5);
 
-      setupClusterConnection("cluster2", "queues", forwardWhenNoConsumers, 1, isNetty(), 2, 3, 4);
+      setupClusterConnection("cluster2", "queues", messageLoadBalancingType, 1, isNetty(), 2, 3, 4);
    }
 
    protected void setupServers() throws Exception

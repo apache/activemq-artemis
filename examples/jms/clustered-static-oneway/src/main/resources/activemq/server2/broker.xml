@@ -52,7 +52,7 @@
             <connector-ref>netty-connector</connector-ref>
             <retry-interval>500</retry-interval>
             <use-duplicate-detection>true</use-duplicate-detection>
-            <forward-when-no-consumers>true</forward-when-no-consumers>
+            <message-load-balancing>STRICT</message-load-balancing>
             <max-hops>2</max-hops>
          </cluster-connection>
       </cluster-connections>

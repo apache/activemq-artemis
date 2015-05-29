@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.distribution;
 
+import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Before;
@@ -1021,7 +1022,7 @@ public class SymmetricClusterTest extends ClusterTestBase
    @Test
    public void testRouteWhenNoConsumersTrueLoadBalancedQueues() throws Exception
    {
-      setupCluster(true);
+      setupCluster(MessageLoadBalancingType.STRICT);
 
       startServers();
 
@@ -1075,7 +1076,7 @@ public class SymmetricClusterTest extends ClusterTestBase
    @Test
    public void testRouteWhenNoConsumersFalseLocalConsumerLoadBalancedQueues() throws Exception
    {
-      setupCluster(false);
+      setupCluster(MessageLoadBalancingType.ON_DEMAND);
 
       startServers();
 
@@ -1130,7 +1131,7 @@ public class SymmetricClusterTest extends ClusterTestBase
    @Test
    public void testRouteWhenNoConsumersFalseNonLoadBalancedQueues2() throws Exception
    {
-      setupCluster(false);
+      setupCluster(MessageLoadBalancingType.ON_DEMAND);
 
       startServers();
 
@@ -1184,7 +1185,7 @@ public class SymmetricClusterTest extends ClusterTestBase
    @Test
    public void testRouteWhenNoConsumersFalseNonLoadBalancedQueues() throws Exception
    {
-      setupCluster(false);
+      setupCluster(MessageLoadBalancingType.ON_DEMAND);
 
       startServers();
 
@@ -1238,7 +1239,7 @@ public class SymmetricClusterTest extends ClusterTestBase
    @Test
    public void testRouteWhenNoConsumersTrueNonLoadBalancedQueues() throws Exception
    {
-      setupCluster(true);
+      setupCluster(MessageLoadBalancingType.STRICT);
 
       startServers();
 
@@ -1292,7 +1293,7 @@ public class SymmetricClusterTest extends ClusterTestBase
    @Test
    public void testNoLocalQueueNonLoadBalancedQueues() throws Exception
    {
-      setupCluster(true);
+      setupCluster(MessageLoadBalancingType.STRICT);
 
       startServers();
 
@@ -1331,7 +1332,7 @@ public class SymmetricClusterTest extends ClusterTestBase
    @Test
    public void testNoLocalQueueLoadBalancedQueues() throws Exception
    {
-      setupCluster(true);
+      setupCluster(MessageLoadBalancingType.STRICT);
 
       startServers();
 
@@ -1926,32 +1927,32 @@ public class SymmetricClusterTest extends ClusterTestBase
 
    protected void setupCluster(String addr1, String addr2, String addr3, String addr4, String addr5) throws Exception
    {
-      setupClusterConnection("cluster0", addr1, true, 1, isNetty(), 0, 1, 2, 3, 4);
+      setupClusterConnection("cluster0", addr1, MessageLoadBalancingType.STRICT, 1, isNetty(), 0, 1, 2, 3, 4);
 
-      setupClusterConnection("cluster1", addr2, true, 1, isNetty(), 1, 0, 2, 3, 4);
+      setupClusterConnection("cluster1", addr2, MessageLoadBalancingType.STRICT, 1, isNetty(), 1, 0, 2, 3, 4);
 
-      setupClusterConnection("cluster2", addr3, true, 1, isNetty(), 2, 0, 1, 3, 4);
+      setupClusterConnection("cluster2", addr3, MessageLoadBalancingType.STRICT, 1, isNetty(), 2, 0, 1, 3, 4);
 
-      setupClusterConnection("cluster3", addr4, true, 1, isNetty(), 3, 0, 1, 2, 4);
-      setupClusterConnection("cluster4", addr5, true, 1, isNetty(), 4, 0, 1, 2, 3);
+      setupClusterConnection("cluster3", addr4, MessageLoadBalancingType.STRICT, 1, isNetty(), 3, 0, 1, 2, 4);
+      setupClusterConnection("cluster4", addr5, MessageLoadBalancingType.STRICT, 1, isNetty(), 4, 0, 1, 2, 3);
    }
 
    protected void setupCluster() throws Exception
    {
-      setupCluster(false);
+      setupCluster(MessageLoadBalancingType.ON_DEMAND);
    }
 
-   protected void setupCluster(final boolean forwardWhenNoConsumers) throws Exception
+   protected void setupCluster(final MessageLoadBalancingType messageLoadBalancingType) throws Exception
    {
-      setupClusterConnection("cluster0", "queues", forwardWhenNoConsumers, 1, isNetty(), 0, 1, 2, 3, 4);
+      setupClusterConnection("cluster0", "queues", messageLoadBalancingType, 1, isNetty(), 0, 1, 2, 3, 4);
 
-      setupClusterConnection("cluster1", "queues", forwardWhenNoConsumers, 1, isNetty(), 1, 0, 2, 3, 4);
+      setupClusterConnection("cluster1", "queues", messageLoadBalancingType, 1, isNetty(), 1, 0, 2, 3, 4);
 
-      setupClusterConnection("cluster2", "queues", forwardWhenNoConsumers, 1, isNetty(), 2, 0, 1, 3, 4);
+      setupClusterConnection("cluster2", "queues", messageLoadBalancingType, 1, isNetty(), 2, 0, 1, 3, 4);
 
-      setupClusterConnection("cluster3", "queues", forwardWhenNoConsumers, 1, isNetty(), 3, 0, 1, 2, 4);
+      setupClusterConnection("cluster3", "queues", messageLoadBalancingType, 1, isNetty(), 3, 0, 1, 2, 4);
 
-      setupClusterConnection("cluster4", "queues", forwardWhenNoConsumers, 1, isNetty(), 4, 0, 1, 2, 3);
+      setupClusterConnection("cluster4", "queues", messageLoadBalancingType, 1, isNetty(), 4, 0, 1, 2, 3);
    }
 
    protected void setupServers() throws Exception

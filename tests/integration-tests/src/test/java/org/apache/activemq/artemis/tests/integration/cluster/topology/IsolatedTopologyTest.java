@@ -23,6 +23,7 @@ import org.apache.activemq.artemis.core.config.ClusterConnectionConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Test;
@@ -129,6 +130,7 @@ public class IsolatedTopologyTest extends ActiveMQTestBase
          .setConnectorName("local-cc1")
          .setRetryInterval(250)
          .setConfirmationWindowSize(1024)
+         .setMessageLoadBalancingType(MessageLoadBalancingType.ON_DEMAND)
          .setStaticConnectors(connectTo);
 
       ArrayList<String> connectTo2 = new ArrayList<String>();
@@ -140,6 +142,7 @@ public class IsolatedTopologyTest extends ActiveMQTestBase
          .setConnectorName("local-cc2")
          .setRetryInterval(250)
          .setConfirmationWindowSize(1024)
+         .setMessageLoadBalancingType(MessageLoadBalancingType.ON_DEMAND)
          .setStaticConnectors(connectTo2);
 
       // Server1 with two acceptors, each acceptor on a different cluster connection
@@ -186,6 +189,7 @@ public class IsolatedTopologyTest extends ActiveMQTestBase
          .setConnectorName("local-cc1")
          .setRetryInterval(250)
          .setConfirmationWindowSize(1024)
+         .setMessageLoadBalancingType(MessageLoadBalancingType.ON_DEMAND)
          .setStaticConnectors(connectTo);
 
       List<String> connectTo2 = new ArrayList<String>();
@@ -197,6 +201,7 @@ public class IsolatedTopologyTest extends ActiveMQTestBase
          .setConnectorName("local-cc2")
          .setRetryInterval(250)
          .setConfirmationWindowSize(1024)
+         .setMessageLoadBalancingType(MessageLoadBalancingType.ON_DEMAND)
          .setStaticConnectors(connectTo2);
 
       // Server2 with two acceptors, each acceptor on a different cluster connection

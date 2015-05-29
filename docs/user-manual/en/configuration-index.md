@@ -163,7 +163,7 @@ Name | Description
 [max-retry-interval](clusters.md "Clusters")                                                     |   Maximum value for retry-interval. Default=2000
 [reconnect-attempts](clusters.md "Clusters")                                                     |   How many attempts should be made to reconnect after failure. Default=-1
 [use-duplicate-detection](clusters.md "Clusters")                                                |   should duplicate detection headers be inserted in forwarded messages?. Default=true
-[forward-when-no-consumers](clusters.md "Clusters")                                              |   should messages be load balanced if there are no matching consumers on target? Default=false
+[message-load-balancing](clusters.md "Clusters")                                                 |   how should messages be load balanced? Default=OFF
 [max-hops](clusters.md "Clusters")                                                               |   maximum number of hops cluster topology is propagated. Default=1
 [confirmation-window-size](client-reconnection.md "Client Reconnection and Session Reattachment")|   The size (in bytes) of the window used for confirming data from the server connected to. Default 1048576
 [producer-window-size](clusters.md "Clusters")                                                   |   Flow Control for the Cluster connection bridge. Default -1 (disabled)

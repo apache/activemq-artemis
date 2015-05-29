@@ -16,16 +16,6 @@
  */
 package org.apache.activemq.artemis.core.deployers.impl;
 
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.BroadcastEndpointFactory;
 import org.apache.activemq.artemis.api.core.BroadcastGroupConfiguration;
@@ -56,6 +46,7 @@ import org.apache.activemq.artemis.core.journal.impl.JournalConstants;
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.JournalType;
+import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.server.group.impl.GroupingHandlerConfiguration;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
@@ -72,6 +63,16 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Parses an XML document according to the {@literal artemis-configuration.xsd} schema.
@@ -1159,7 +1160,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil
       configuration.setClusterName(getString(policyNode, "cluster-name", configuration.getClusterName(), Validators.NO_CHECK));
 
       configuration.setMaxSavedReplicatedJournalsSize(getInteger(policyNode, "max-saved-replicated-journals-size",
-            configuration.getMaxSavedReplicatedJournalsSize(), Validators.MINUS_ONE_OR_GE_ZERO));
+                                                                 configuration.getMaxSavedReplicatedJournalsSize(), Validators.MINUS_ONE_OR_GE_ZERO));
 
       configuration.setScaleDownConfiguration(parseScaleDownConfig(policyNode));
 
@@ -1430,9 +1431,29 @@ public final class FileConfigurationParser extends XMLConfigurationUtil
       boolean duplicateDetection =
          getBoolean(e, "use-duplicate-detection", ActiveMQDefaultConfiguration.isDefaultClusterDuplicateDetection());
 
-      boolean forwardWhenNoConsumers =
-         getBoolean(e, "forward-when-no-consumers",
-                    ActiveMQDefaultConfiguration.isDefaultClusterForwardWhenNoConsumers());
+      MessageLoadBalancingType messageLoadBalancingType;
+
+      if (parameterExists(e, "forward-when-no-consumers"))
+      {
+         boolean forwardWhenNoConsumers = getBoolean(e, "forward-when-no-consumers",
+                                                     ActiveMQDefaultConfiguration.isDefaultClusterForwardWhenNoConsumers());
+         if (forwardWhenNoConsumers)
+         {
+            messageLoadBalancingType = MessageLoadBalancingType.STRICT;
+         }
+         else
+         {
+            messageLoadBalancingType = MessageLoadBalancingType.ON_DEMAND;
+         }
+      }
+      else
+      {
+
+         messageLoadBalancingType = Enum.valueOf(MessageLoadBalancingType.class,
+                                                 getString(e, "message-load-balancing",
+                                                           ActiveMQDefaultConfiguration.getDefaultClusterMessageLoadBalancingType(),
+                                                           Validators.MESSAGE_LOAD_BALANCING_TYPE));
+      }
 
       int maxHops = getInteger(e, "max-hops",
                                ActiveMQDefaultConfiguration.getDefaultClusterMaxHops(),
@@ -1519,7 +1540,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil
          .setCallTimeout(callTimeout)
          .setCallFailoverTimeout(callFailoverTimeout)
          .setDuplicateDetection(duplicateDetection)
-         .setForwardWhenNoConsumers(forwardWhenNoConsumers)
+         .setMessageLoadBalancingType(messageLoadBalancingType)
          .setMaxHops(maxHops)
          .setConfirmationWindowSize(confirmationWindowSize)
          .setAllowDirectConnectionsOnly(allowDirectConnectionsOnly)

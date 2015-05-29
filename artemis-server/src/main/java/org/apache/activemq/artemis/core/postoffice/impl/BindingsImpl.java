@@ -39,6 +39,7 @@ import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.RoutingContext;
 import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.server.cluster.RemoteQueueBinding;
+import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.server.group.GroupingHandler;
 import org.apache.activemq.artemis.core.server.group.impl.Proposal;
 import org.apache.activemq.artemis.core.server.group.impl.Response;
@@ -58,7 +59,7 @@ public final class BindingsImpl implements Bindings
 
    private final List<Binding> exclusiveBindings = new CopyOnWriteArrayList<Binding>();
 
-   private volatile boolean routeWhenNoConsumers;
+   private volatile MessageLoadBalancingType messageLoadBalancingType = MessageLoadBalancingType.OFF;
 
    private final GroupingHandler groupingHandler;
 
@@ -73,9 +74,9 @@ public final class BindingsImpl implements Bindings
       this.name = name;
    }
 
-   public void setRouteWhenNoConsumers(final boolean routeWhenNoConsumers)
+   public void setMessageLoadBalancingType(final MessageLoadBalancingType messageLoadBalancingType)
    {
-      this.routeWhenNoConsumers = routeWhenNoConsumers;
+      this.messageLoadBalancingType = messageLoadBalancingType;
    }
 
    public Collection<Binding> getBindings()
@@ -164,7 +165,7 @@ public final class BindingsImpl implements Bindings
 
    public boolean redistribute(final ServerMessage message, final Queue originatingQueue, final RoutingContext context) throws Exception
    {
-      if (routeWhenNoConsumers)
+      if (messageLoadBalancingType.equals(MessageLoadBalancingType.STRICT) || messageLoadBalancingType.equals(MessageLoadBalancingType.OFF))
       {
          return false;
       }
@@ -409,7 +410,7 @@ public final class BindingsImpl implements Bindings
          {
             // bindings.length == 1 ==> only a local queue so we don't check for matching consumers (it's an
             // unnecessary overhead)
-            if (length == 1 || (binding.isConnected() && (routeWhenNoConsumers || binding.isHighAcceptPriority(message))))
+            if (length == 1 || (binding.isConnected() && (messageLoadBalancingType.equals(MessageLoadBalancingType.STRICT) || binding.isHighAcceptPriority(message))))
             {
                theBinding = binding;
 
@@ -421,7 +422,7 @@ public final class BindingsImpl implements Bindings
             {
                //https://issues.jboss.org/browse/HORNETQ-1254 When !routeWhenNoConsumers,
                // the localQueue should always have the priority over the secondary bindings
-               if (lastLowPriorityBinding == -1 || !routeWhenNoConsumers && binding instanceof LocalQueueBinding)
+               if (lastLowPriorityBinding == -1 || messageLoadBalancingType.equals(MessageLoadBalancingType.ON_DEMAND) && binding instanceof LocalQueueBinding)
                {
                   lastLowPriorityBinding = pos;
                }
@@ -465,6 +466,11 @@ public final class BindingsImpl implements Bindings
       if (pos != startPos)
       {
          routingNamePositions.put(routingName, pos);
+      }
+
+      if (messageLoadBalancingType.equals(MessageLoadBalancingType.OFF) && theBinding instanceof RemoteQueueBinding)
+      {
+         theBinding = getNextBinding(message, routingName, bindings);
       }
       return theBinding;
    }

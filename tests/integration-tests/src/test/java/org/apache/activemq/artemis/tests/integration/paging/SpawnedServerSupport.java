@@ -34,6 +34,7 @@ import org.apache.activemq.artemis.core.remoting.impl.netty.NettyAcceptorFactory
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
+import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
@@ -117,7 +118,7 @@ public class SpawnedServerSupport
          .setConnectorName(connectorName)
          .setRetryInterval(10)
          .setDuplicateDetection(false)
-         .setForwardWhenNoConsumers(true)
+         .setMessageLoadBalancingType(MessageLoadBalancingType.STRICT)
          .setConfirmationWindowSize(1)
          .setStaticConnectors(connectorList);
 
