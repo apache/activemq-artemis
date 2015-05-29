@@ -104,7 +104,7 @@ public abstract class AIOTestBase extends ActiveMQTestBase
 
       volatile boolean doneCalled = false;
 
-      volatile int errorCalled = 0;
+      int errorCalled = 0;
 
       final AtomicInteger timesDoneCalled = new AtomicInteger(0);
 

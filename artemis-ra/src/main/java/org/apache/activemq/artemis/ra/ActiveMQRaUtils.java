@@ -47,6 +47,7 @@ public final class ActiveMQRaUtils
     * @param you Second value
     * @return True if object equals else false.
     */
+   @SuppressWarnings("StringEquality")
    public static boolean compare(final String me, final String you)
    {
       // If both null or intern equals

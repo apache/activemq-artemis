@@ -28,7 +28,6 @@ import org.junit.Test;
 /**
  * @version $Revision: 1.7 $
  */
-@SuppressWarnings("unchecked")
 public class SelectorTest
 {
 
@@ -129,9 +128,9 @@ public class SelectorTest
          return properties.get(name);
       }
 
-      public <T> T getDestination()
+      public Object getDestination()
       {
-         return (T) destination;
+         return destination;
       }
 
       public Object getLocalConnectionId()

@@ -62,7 +62,7 @@ public abstract class AbstractStompClientConnection implements StompClientConnec
    protected BlockingQueue<ClientStompFrame> frameQueue = new LinkedBlockingQueue<ClientStompFrame>();
 
    protected boolean connected = false;
-   private volatile int serverPingCounter;
+   private int serverPingCounter;
 
    public AbstractStompClientConnection(String version, String host, int port) throws IOException
    {

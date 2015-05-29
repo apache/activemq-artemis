@@ -16,9 +16,6 @@
  */
 package org.apache.activemq.artemis.jms.tests;
 
-import java.util.ArrayList;
-import java.util.Random;
-
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Message;
@@ -38,6 +35,8 @@ import javax.jms.XAQueueConnection;
 import javax.jms.XAQueueConnectionFactory;
 import javax.jms.XATopicConnection;
 import javax.jms.XATopicConnectionFactory;
+import java.util.ArrayList;
+import java.util.Random;
 
 import org.apache.activemq.artemis.api.jms.JMSFactoryType;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
@@ -224,7 +223,7 @@ public class ConnectionFactoryTest extends JMSTestCase
 
          class FastListener implements MessageListener
          {
-            volatile int processed;
+            int processed;
 
             public void onMessage(final Message msg)
             {
@@ -244,7 +243,7 @@ public class ConnectionFactoryTest extends JMSTestCase
 
          class SlowListener implements MessageListener
          {
-            volatile int processed;
+            int processed;
 
             public void onMessage(final Message msg)
             {

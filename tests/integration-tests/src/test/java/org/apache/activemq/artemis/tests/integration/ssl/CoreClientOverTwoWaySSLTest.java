@@ -87,12 +87,12 @@ public class CoreClientOverTwoWaySSLTest extends ActiveMQTestBase
     * keytool -import -keystore server-side-truststore.jceks -storetype JCEKS -file activemq-jceks.cer -storepass secureexample -keypass secureexample -noprompt
     */
 
-   private static String storeType;
-   private static String SERVER_SIDE_KEYSTORE;
-   private static String SERVER_SIDE_TRUSTSTORE;
-   private static String CLIENT_SIDE_TRUSTSTORE;
-   private static String CLIENT_SIDE_KEYSTORE;
-   private static final String PASSWORD = "secureexample";
+   private String storeType;
+   private String SERVER_SIDE_KEYSTORE;
+   private String SERVER_SIDE_TRUSTSTORE;
+   private String CLIENT_SIDE_TRUSTSTORE;
+   private String CLIENT_SIDE_KEYSTORE;
+   private final String PASSWORD = "secureexample";
 
    private ActiveMQServer server;
 

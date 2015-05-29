@@ -705,8 +705,11 @@
                  <compilerId>javac-with-errorprone</compilerId>
                  <forceJavacCompilerUse>true</forceJavacCompilerUse>
                  <compilerArgs>
-                   <!-- DepAnn fail for generated sources. Changing to WARN instead -->
-                   <arg>-Xep:DepAnn:WARN</arg>
+                    <arg>-Xep:NonAtomicVolatileUpdate:ERROR</arg>
+                    <arg>-Xep:SynchronizeOnNonFinalField:ERROR</arg>
+                    <arg>-Xep:StaticAccessedFromInstance:ERROR</arg>
+                    <arg>-Xep:SynchronizeOnNonFinalField:ERROR</arg>
+                    <arg>-Xep:WaitNotInLoop:ERROR</arg>
                  </compilerArgs>
                </configuration>
                <dependencies>
@@ -881,6 +884,8 @@
             </configuration>
          </plugin>
          <plugin>
+            <!-- those were some common errors we used to have on the codebase,
+                 this should eliminate that -->
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-javadoc-plugin</artifactId>
             <configuration>

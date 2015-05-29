@@ -44,7 +44,7 @@ public class MultipleThreadsOpeningTest extends JMSClusteredTestBase
 
       class ThreadOpen extends Thread
       {
-         volatile int errors = 0;
+         int errors = 0;
 
          public void run()
          {

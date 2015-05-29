@@ -91,7 +91,7 @@ public abstract class JGroupsBroadcastEndpoint implements BroadcastEndpoint
       }
       internalOpen();
       receiver = new JGroupsReceiver();
-      channel.setReceiver(receiver);
+      channel.addReceiver(receiver);
       clientOpened = true;
    }
 
@@ -164,7 +164,7 @@ public abstract class JGroupsBroadcastEndpoint implements BroadcastEndpoint
       int refCount = 1;
       JChannel channel;
       String channelName;
-      List<JGroupsReceiver> receivers = new ArrayList<JGroupsReceiver>();
+      final List<JGroupsReceiver> receivers = new ArrayList<JGroupsReceiver>();
 
       public JChannelWrapper(String channelName, JChannel channel) throws Exception
       {
@@ -211,7 +211,7 @@ public abstract class JGroupsBroadcastEndpoint implements BroadcastEndpoint
          channel.connect(channelName);
       }
 
-      public void setReceiver(JGroupsReceiver jGroupsReceiver)
+      public void addReceiver(JGroupsReceiver jGroupsReceiver)
       {
          synchronized (receivers)
          {

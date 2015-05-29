@@ -84,7 +84,7 @@ public class FlowControlOnIgnoreLargeMessageBodyTest extends JMSTestBase
 
       private volatile boolean stopped = false;
 
-      private volatile int sentMessages = 0;
+      private int sentMessages = 0;
 
       LoadProducer(final String name, final Topic topic, final ConnectionFactory cf, final int messagesCount) throws Exception
       {

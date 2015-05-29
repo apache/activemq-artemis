@@ -15,10 +15,9 @@
  * limitations under the License.
  */
 package org.objectweb.jtests.jms.framework;
+import javax.jms.JMSException;
 import java.io.IOException;
 import java.util.Properties;
-
-import javax.jms.JMSException;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -59,11 +58,11 @@ public abstract class JMSTestCase extends Assert
          {
             message += " [linked exception: " + linkedException + "]";
          }
-         super.fail(message);
+         Assert.fail(message);
       }
       else
       {
-         super.fail(e.getMessage());
+         Assert.fail(e.getMessage());
       }
    }
 

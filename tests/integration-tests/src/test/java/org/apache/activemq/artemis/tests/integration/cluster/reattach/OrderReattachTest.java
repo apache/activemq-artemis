@@ -231,7 +231,7 @@ public class OrderReattachTest extends ActiveMQTestBase
       {
          final CountDownLatch latch = new CountDownLatch(1);
 
-         volatile int count;
+         int count;
 
          Exception failure;
 

@@ -207,7 +207,7 @@ public class AutogroupIdTest extends ActiveMQTestBase
 
    private static class MyMessageHandler implements MessageHandler
    {
-      volatile int messagesReceived = 0;
+      int messagesReceived = 0;
 
       private final CountDownLatch latch;
 

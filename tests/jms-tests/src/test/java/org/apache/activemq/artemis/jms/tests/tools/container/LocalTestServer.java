@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.jms.tests.tools.container;
 
+import javax.management.MBeanServerInvocationHandler;
+import javax.management.ObjectName;
+import javax.naming.InitialContext;
 import java.io.File;
 import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
@@ -24,10 +27,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
-
-import javax.management.MBeanServerInvocationHandler;
-import javax.management.ObjectName;
-import javax.naming.InitialContext;
 
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
@@ -393,20 +392,6 @@ public class LocalTestServer implements Server, Runnable
     //  bootstrap.run();
 
       started = true;
-
-      synchronized (this)
-      {
-         notify();
-         try
-         {
-            wait();
-         }
-         catch (InterruptedException e)
-         {
-            // e.printStackTrace();
-         }
-      }
-
    }
 
    @Override

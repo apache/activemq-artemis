@@ -16,6 +16,14 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.reattach;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQNotConnectedException;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -38,14 +46,6 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 public class RandomReattachTest extends ActiveMQTestBase
 {
@@ -318,7 +318,7 @@ public class RandomReattachTest extends ActiveMQTestBase
       {
          final CountDownLatch latch = new CountDownLatch(1);
 
-         volatile int count;
+         int count;
 
          @Override
          public void onMessageAssert(final ClientMessage message)
@@ -440,7 +440,7 @@ public class RandomReattachTest extends ActiveMQTestBase
       {
          final CountDownLatch latch = new CountDownLatch(1);
 
-         volatile int count;
+         int count;
 
          @Override
          public void onMessageAssert(final ClientMessage message)
@@ -567,7 +567,7 @@ public class RandomReattachTest extends ActiveMQTestBase
       {
          final CountDownLatch latch = new CountDownLatch(1);
 
-         volatile int count;
+         int count;
 
          @Override
          public void onMessageAssert(final ClientMessage message)
@@ -736,7 +736,7 @@ public class RandomReattachTest extends ActiveMQTestBase
       {
          final CountDownLatch latch = new CountDownLatch(1);
 
-         volatile int count;
+         int count;
 
          @Override
          public void onMessageAssert(final ClientMessage message)

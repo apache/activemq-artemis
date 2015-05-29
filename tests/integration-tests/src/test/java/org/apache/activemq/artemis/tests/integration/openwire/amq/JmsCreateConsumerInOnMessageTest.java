@@ -38,7 +38,7 @@ public class JmsCreateConsumerInOnMessageTest extends BasicOpenWireTest implemen
    private MessageConsumer testConsumer;
    private MessageProducer producer;
    private Topic topic;
-   private Object lock = new Object();
+   private final Object lock = new Object();
 
    /**
     * Tests if a consumer can be created asynchronusly
@@ -63,11 +63,12 @@ public class JmsCreateConsumerInOnMessageTest extends BasicOpenWireTest implemen
       producer.send(msg);
 
       System.out.println("message sent: " + msg);
-      if (testConsumer == null)
+      synchronized (lock)
       {
-         synchronized (lock)
+         long timeout = System.currentTimeMillis() + 3000;
+         while (testConsumer == null && timeout > System.currentTimeMillis())
          {
-            lock.wait(3000);
+            lock.wait(1000);
          }
       }
       assertTrue(testConsumer != null);
@@ -83,10 +84,10 @@ public class JmsCreateConsumerInOnMessageTest extends BasicOpenWireTest implemen
       System.out.println("____________onmessage " + message);
       try
       {
-         testConsumer = consumerSession.createConsumer(topic);
-         consumerSession.createProducer(topic);
          synchronized (lock)
          {
+            testConsumer = consumerSession.createConsumer(topic);
+            consumerSession.createProducer(topic);
             lock.notify();
          }
       }

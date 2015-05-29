@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.extras.byteman;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
@@ -35,16 +39,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-
 @RunWith(BMUnitRunner.class)
 public class StompInternalStateTest extends ActiveMQTestBase
 {
    private static final String STOMP_QUEUE_NAME = "jms.queue.StompTestQueue";
 
-   private static volatile String resultTestStompProtocolManagerLeak = null;
+   private String resultTestStompProtocolManagerLeak = null;
 
    protected ActiveMQServer server = null;
 

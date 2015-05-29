@@ -92,7 +92,7 @@ public final class ChannelImpl implements Channel
 
    private final java.util.Queue<Packet> resendCache;
 
-   private volatile int firstStoredCommandID;
+   private int firstStoredCommandID;
 
    private final AtomicInteger lastConfirmedCommandID = new AtomicInteger(-1);
 

@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.vertx;
 
+import java.util.HashMap;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -42,8 +44,6 @@ import org.vertx.java.core.json.JsonObject;
 import org.vertx.java.platform.PlatformLocator;
 import org.vertx.java.platform.PlatformManager;
 import org.vertx.java.spi.cluster.impl.hazelcast.HazelcastClusterManagerFactory;
-
-import java.util.HashMap;
 
 /**
  * This class tests the basics of ActiveMQ
@@ -715,7 +715,7 @@ public class ActiveMQVertxUnitTest extends ActiveMQTestBase
    private class VertxTestHandler implements Handler<BaseMessage<?>>
    {
       private volatile BaseMessage<?> vertxMsg = null;
-      private Object lock = new Object();
+      private final Object lock = new Object();
 
       @Override
       public void handle(BaseMessage<?> arg0)
@@ -833,11 +833,12 @@ public class ActiveMQVertxUnitTest extends ActiveMQTestBase
          BaseMessage<?> msg = null;
          synchronized (lock)
          {
-            if (vertxMsg == null)
+            long timeout = System.currentTimeMillis() + 10000;
+            while (vertxMsg == null && timeout > System.currentTimeMillis())
             {
                try
                {
-                  lock.wait(10000);
+                  lock.wait(1000);
                }
                catch (InterruptedException e)
                {

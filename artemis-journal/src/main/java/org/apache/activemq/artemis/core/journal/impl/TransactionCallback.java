@@ -31,7 +31,7 @@ public class TransactionCallback implements IOAsyncTask
 
    private final AtomicInteger up = new AtomicInteger();
 
-   private volatile int done = 0;
+   private int done = 0;
 
    private volatile IOAsyncTask delegateCompletion;
 
