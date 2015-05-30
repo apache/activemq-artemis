@@ -11,7 +11,7 @@
    <description>ActiveMQ Artemis 2.0 Resource Adapter</description>
    <display-name>ActiveMQ Artemis 2.0 Resource Adapter</display-name>
 
-   <vendor-name>Red Hat Middleware LLC</vendor-name>
+   <vendor-name>Apache Software Foundation</vendor-name>
    <eis-type>JMS 1.1 Server</eis-type>
    <resourceadapter-version>1.0</resourceadapter-version>
 
