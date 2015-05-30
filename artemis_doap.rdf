@@ -67,7 +67,7 @@ under the License.
 
     <programming-language>Java</programming-language>
     <programming-language>C/C++</programming-language>
-    <vendor>Red Hat</vendor>
+    <vendor>Apache Software Foundation</vendor>
     <implements>
       <Specification>
         <name>JMS 2.0</name>
