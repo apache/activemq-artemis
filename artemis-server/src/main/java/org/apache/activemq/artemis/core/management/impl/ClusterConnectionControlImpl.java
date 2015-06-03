@@ -194,12 +194,12 @@ public class ClusterConnectionControlImpl extends AbstractControl implements Clu
       }
    }
 
-   public boolean isForwardWhenNoConsumers()
+   public String getMessageLoadBalancingType()
    {
       clearIO();
       try
       {
-         return configuration.isForwardWhenNoConsumers();
+         return configuration.getMessageLoadBalancingType().getType();
       }
       finally
       {

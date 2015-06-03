@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.topology;
 
+import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -82,6 +83,7 @@ public class NonHATopologyTest extends ActiveMQTestBase
                .setConnectorName("netty")
                .setRetryInterval(1000)
                .setConfirmationWindowSize(1000)
+               .setMessageLoadBalancingType(MessageLoadBalancingType.ON_DEMAND)
                .setStaticConnectors(list)
                .setAllowDirectConnectionsOnly(true));
          }

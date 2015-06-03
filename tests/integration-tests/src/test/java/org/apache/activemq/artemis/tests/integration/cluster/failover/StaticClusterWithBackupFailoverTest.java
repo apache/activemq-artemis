@@ -16,15 +16,17 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
+import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
+
 public class StaticClusterWithBackupFailoverTest extends ClusterWithBackupFailoverTestBase
 {
 
    @Override
-   protected void setupCluster(final boolean forwardWhenNoConsumers) throws Exception
+   protected void setupCluster(final MessageLoadBalancingType messageLoadBalancingType) throws Exception
    {
       setupClusterConnectionWithBackups("cluster0",
                                         "queues",
-                                        forwardWhenNoConsumers,
+                                        messageLoadBalancingType,
                                         1,
                                         isNetty(),
                                         0,
@@ -32,7 +34,7 @@ public class StaticClusterWithBackupFailoverTest extends ClusterWithBackupFailov
 
       setupClusterConnectionWithBackups("cluster1",
                                         "queues",
-                                        forwardWhenNoConsumers,
+                                        messageLoadBalancingType,
                                         1,
                                         isNetty(),
                                         1,
@@ -40,7 +42,7 @@ public class StaticClusterWithBackupFailoverTest extends ClusterWithBackupFailov
 
       setupClusterConnectionWithBackups("cluster2",
                                         "queues",
-                                        forwardWhenNoConsumers,
+                                        messageLoadBalancingType,
                                         1,
                                         isNetty(),
                                         2,
@@ -48,7 +50,7 @@ public class StaticClusterWithBackupFailoverTest extends ClusterWithBackupFailov
 
       setupClusterConnectionWithBackups("cluster0",
                                         "queues",
-                                        forwardWhenNoConsumers,
+                                        messageLoadBalancingType,
                                         1,
                                         isNetty(),
                                         3,
@@ -56,7 +58,7 @@ public class StaticClusterWithBackupFailoverTest extends ClusterWithBackupFailov
 
       setupClusterConnectionWithBackups("cluster1",
                                         "queues",
-                                        forwardWhenNoConsumers,
+                                        messageLoadBalancingType,
                                         1,
                                         isNetty(),
                                         4,
@@ -64,7 +66,7 @@ public class StaticClusterWithBackupFailoverTest extends ClusterWithBackupFailov
 
       setupClusterConnectionWithBackups("cluster2",
                                         "queues",
-                                        forwardWhenNoConsumers,
+                                        messageLoadBalancingType,
                                         1,
                                         isNetty(),
                                         5,

@@ -39,6 +39,7 @@ import org.apache.activemq.artemis.core.config.ha.LiveOnlyPolicyConfiguration;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.JournalType;
+import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.settings.impl.SlowConsumerPolicy;
 import org.junit.Assert;
 import org.junit.Test;
@@ -260,7 +261,7 @@ public class FileConfigurationTest extends ConfigurationImplTest
             Assert.assertEquals("queues1", ccc.getAddress());
             Assert.assertEquals(3, ccc.getRetryInterval());
             Assert.assertEquals(true, ccc.isDuplicateDetection());
-            Assert.assertEquals(false, ccc.isForwardWhenNoConsumers());
+            Assert.assertEquals(MessageLoadBalancingType.ON_DEMAND, ccc.getMessageLoadBalancingType());
             Assert.assertEquals(1, ccc.getMaxHops());
             Assert.assertEquals(123, ccc.getCallTimeout());
             Assert.assertEquals(123, ccc.getCallFailoverTimeout());
@@ -279,7 +280,7 @@ public class FileConfigurationTest extends ConfigurationImplTest
             Assert.assertEquals(456, ccc.getCallTimeout());
             Assert.assertEquals(456, ccc.getCallFailoverTimeout());
             Assert.assertEquals(false, ccc.isDuplicateDetection());
-            Assert.assertEquals(true, ccc.isForwardWhenNoConsumers());
+            Assert.assertEquals(MessageLoadBalancingType.STRICT, ccc.getMessageLoadBalancingType());
             Assert.assertEquals(2, ccc.getMaxHops());
             Assert.assertEquals(Collections.emptyList(), ccc.getStaticConnectors());
             Assert.assertEquals("dg1", ccc.getDiscoveryGroupName());

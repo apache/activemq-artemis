@@ -25,6 +25,7 @@ import org.apache.activemq.artemis.core.registry.JndiBindingRegistry;
 import org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
+import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.jms.server.config.impl.JMSConfigurationImpl;
 import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
@@ -191,7 +192,13 @@ public class JMSClusteredTestBase extends ActiveMQTestBase
                                                .setRetryInterval(1000)
                                                .setMaxHops(MAX_HOPS)
                                                .setConfirmationWindowSize(1024)
-                                               .setStaticConnectors(new ArrayList<String>() { { add(destinationLabel); } } ));
+                                               .setMessageLoadBalancingType(MessageLoadBalancingType.ON_DEMAND)
+                                               .setStaticConnectors(new ArrayList<String>()
+                                               {
+                                                  {
+                                                     add(destinationLabel);
+                                                  }
+                                               }));
 
       return configuration;
    }

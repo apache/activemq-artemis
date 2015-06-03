@@ -339,8 +339,10 @@ public final class ActiveMQDefaultConfiguration
    // should duplicate detection headers be inserted in forwarded messages?
    private static boolean DEFAULT_CLUSTER_DUPLICATE_DETECTION = true;
 
-   // should messages be load balanced if there are no matching consumers on target?
    private static boolean DEFAULT_CLUSTER_FORWARD_WHEN_NO_CONSUMERS = false;
+
+   // how should messages be load balanced?
+   private static String DEFAULT_CLUSTER_MESSAGE_LOAD_BALANCING_TYPE = "ON_DEMAND";
 
    // maximum number of hops cluster topology is propagated
    private static int DEFAULT_CLUSTER_MAX_HOPS = 1;
@@ -950,12 +952,17 @@ public final class ActiveMQDefaultConfiguration
       return DEFAULT_CLUSTER_DUPLICATE_DETECTION;
    }
 
-   /**
-    * should messages be load balanced if there are no matching consumers on target?
-    */
    public static boolean isDefaultClusterForwardWhenNoConsumers()
    {
       return DEFAULT_CLUSTER_FORWARD_WHEN_NO_CONSUMERS;
+   }
+
+   /**
+    * should messages be load balanced if there are no matching consumers on target?
+    */
+   public static String getDefaultClusterMessageLoadBalancingType()
+   {
+      return DEFAULT_CLUSTER_MESSAGE_LOAD_BALANCING_TYPE;
    }
 
    /**

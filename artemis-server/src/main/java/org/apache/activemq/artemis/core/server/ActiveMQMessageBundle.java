@@ -362,4 +362,7 @@ public interface ActiveMQMessageBundle
 
    @Message(id = 119112, value = "Cannot set MBeanServer during startup or while started")
    IllegalStateException cannotSetMBeanserver();
+
+   @Message(id = 119113, value = "Invalid message load balancing type {0}", format = Message.Format.MESSAGE_FORMAT)
+   IllegalArgumentException invalidMessageLoadBalancingType(String val);
 }

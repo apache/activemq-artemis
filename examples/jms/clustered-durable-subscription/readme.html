@@ -33,32 +33,32 @@ under the License.
      on different nodes of the cluster, and consume from them simultaneously.
      This allows the work of processing messages from a durable subscription to be spread across the cluster in
      a similar way to how JMS Queues can be load balanced across the cluster
-     </p>     
-     <p>In this example we first configure the two nodes to form a cluster, then we then create a durable subscriber 
+     </p>
+     <p>In this example we first configure the two nodes to form a cluster, then we then create a durable subscriber
      with the same name and client-id on both nodes, and we create a producer on only one of the nodes.</p>
      <p>We then send some messages via the producer, and we verify that the messages are round robin'd between
-     the two subscription instances. Note that each durable subscription instance with the same name and client-id 
+     the two subscription instances. Note that each durable subscription instance with the same name and client-id
      <b>does not</b> receive its own copy of the messages. This is because the instances on different nodes form a
      single "logical" durable subscription, in the same way multiple JMS Queue instances on different nodes
-     form a single "local" JMS Queue</p>     
+     form a single "local" JMS Queue</p>
      <p>This example uses JNDI to lookup the JMS Queue and ConnectionFactory objects. If you prefer not to use
-     JNDI, these could be instantiated directly.     
+     JNDI, these could be instantiated directly.
      <p>Here's the relevant snippet from the server configuration, which tells the server to form a cluster between the two nodes
-     and to load balance the messages between the nodes.</p>     
+     and to load balance the messages between the nodes.</p>
      <pre class="prettyprint">
      <code>&lt;cluster-connection name="my-cluster"&gt;
         &lt;address&gt;jms&lt;/address&gt;
         &lt;retry-interval&gt;500&lt;/retry-interval&gt;
         &lt;use-duplicate-detection&gt;true&lt;/use-duplicate-detection&gt;
-        &lt;forward-when-no-consumers&gt;true&lt;/forward-when-no-consumers&gt;
+        &lt;message-load-balancing&gt;STRICT&lt;/message-load-balancing&gt;
         &lt;max-hops&gt;1&lt;/max-hops&gt;
         &lt;discovery-group-ref discovery-group-name="my-discovery-group"/&gt;
      &lt;/cluster-connection&gt;
      </code>
-     </pre>    
+     </pre>
      <p>For more information on ActiveMQ Artemis load balancing, and clustering in general, please see the clustering
-     section of the user manual.</p>    
-       
+     section of the user manual.</p>
+
      <h2>Example step-by-step</h2>
      <p><i>To run the example, simply type <code>mvn verify -Pexample</code> from this directory</i></p>
 
@@ -96,11 +96,11 @@ under the License.
         <pre class="prettyprint">
           <code>
    connection0 = cf0.createConnection();
-   final String clientID = "my-client-id";         
+   final String clientID = "my-client-id";
    connection0.setClientID(clientID);
           </code>
         </pre>
-        
+
         <li>We create a JMS Connection connection1 which is a connection to server 1
         and set the same client-id.</li>
         <pre class="prettyprint">
@@ -116,7 +116,7 @@ under the License.
    Session session0 = connection0.createSession(false, Session.AUTO_ACKNOWLEDGE);
            </code>
         </pre>
-        
+
         <li>We create a JMS Session on server 1</li>
         <pre class="prettyprint">
            <code>
@@ -139,7 +139,7 @@ under the License.
         <pre class="prettyprint">
            <code>
    final String subscriptionName = "my-subscription";
-         
+
    MessageConsumer subscriber0 = session0.createDurableSubscriber(topic, subscriptionName);
 
    MessageConsumer subscriber1 = session1.createDurableSubscriber(topic, subscriptionName);
@@ -160,14 +160,14 @@ under the License.
 	for (int i = 0; i < numMessages; i++)
 	{
 	   TextMessage message = session0.createTextMessage("This is text message " + i);
-	      
+
 	   producer.send(message);
-	
+
 	   System.out.println("Sent message: " + message.getText());
 	}
            </code>
         </pre>
-        
+
         <li>
         We now consume those messages on *both* server 0 and server 1.
         Note that the messages have been load-balanced between the two nodes, with some
@@ -179,15 +179,15 @@ under the License.
 	for (int i = 0; i < numMessages; i += 2)
 	{
 	   TextMessage message0 = (TextMessage)consumer0.receive(5000);
-	
+
 	   System.out.println("Got message: " + message0.getText() + " from node 0");
-	
+
 	   TextMessage message1 = (TextMessage)consumer1.receive(5000);
-	
+
 	   System.out.println("Got message: " + message1.getText() + " from node 1");
 	}
            </code>
-        </pre> 
+        </pre>
 
         <li>And finally (no pun intended), <b>always</b> remember to close your JMS resources after use, in a <code>finally</code> block. Closing a JMS connection will automatically close all of its sessions, consumers, producer and browser objects</li>
 
@@ -199,7 +199,7 @@ under the License.
 	   {
 	      connection0.close();
 	   }
-	      
+
 	   if (connection1 != null)
 	   {
 	      connection1.close();

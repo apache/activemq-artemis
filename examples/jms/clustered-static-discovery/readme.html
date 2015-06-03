@@ -34,25 +34,25 @@ under the License.
      in a round-robin fashion.</p>
      <p>In other words, ActiveMQ Artemis <b>load balances</b> the sent messages across all consumers on the cluster</p>
      <p>This example uses JNDI to lookup the JMS Queue and ConnectionFactory objects. If you prefer not to use
-     JNDI, these could be instantiated directly.</p>     
+     JNDI, these could be instantiated directly.</p>
      <p>Here's the relevant snippet from the server configuration, which tells the server to form a cluster between the two nodes
-     and to load balance the messages between the nodes.</p>     
+     and to load balance the messages between the nodes.</p>
      <pre class="prettyprint">
      <code>&lt;cluster-connection name="my-cluster"&gt;
         &lt;address&gt;jms&lt;/address&gt;
         &lt;connector-ref>netty-connector&lt;/connector-ref>
         &lt;retry-interval&gt;500&lt;/retry-interval&gt;
         &lt;use-duplicate-detection&gt;true&lt;/use-duplicate-detection&gt;
-        &lt;forward-when-no-consumers&gt;true&lt;/forward-when-no-consumers&gt;
+        &lt;message-load-balancing&gt;STRICT&lt;/message-load-balancing&gt;
         &lt;max-hops&gt;1&lt;/max-hops&gt;
         &lt;static-connectors>
            &lt;connector-ref>server1-connector&lt;/connector-ref>
         &lt;/static-connectors>
      &lt;/cluster-connection&gt;
      </code>
-     </pre>    
+     </pre>
      <p>For more information on ActiveMQ Artemis load balancing, and clustering in general, please see the clustering
-     section of the user manual.</p>      
+     section of the user manual.</p>
      <h2>Example step-by-step</h2>
      <p><i>To run the example, simply type <code>mvn verify -Pexample</code> from this directory</i></p>
 
@@ -91,7 +91,7 @@ under the License.
    connection0 = cf0.createConnection();
           </code>
         </pre>
-        
+
         <li>We create a JMS Connection connection1 which is a connection to server 1</li>
         <pre class="prettyprint">
           <code>
@@ -105,7 +105,7 @@ under the License.
    Session session0 = connection0.createSession(false, Session.AUTO_ACKNOWLEDGE);
            </code>
         </pre>
-        
+
         <li>We create a JMS Session on server 1</li>
         <pre class="prettyprint">
            <code>
@@ -145,14 +145,14 @@ under the License.
 	for (int i = 0; i < numMessages; i++)
 	{
 	   TextMessage message = session0.createTextMessage("This is text message " + i);
-	      
+
 	   producer.send(message);
-	
+
 	   System.out.println("Sent message: " + message.getText());
 	}
            </code>
         </pre>
-        
+
         <li>We now consume those messages on *both* server 0 and server 1.
          We note the messages have been distributed between servers in a round robin fashion.
          ActiveMQ Artemis has <b>load balanced</b> the messages between the available consumers on the different nodes.
@@ -165,15 +165,15 @@ under the License.
 	for (int i = 0; i < numMessages; i += 2)
 	{
 	   TextMessage message0 = (TextMessage)consumer0.receive(5000);
-	
+
 	   System.out.println("Got message: " + message0.getText() + " from node 0");
-	
+
 	   TextMessage message1 = (TextMessage)consumer1.receive(5000);
-	
+
 	   System.out.println("Got message: " + message1.getText() + " from node 1");
 	}
            </code>
-        </pre> 
+        </pre>
 
         <li>And finally (no pun intended), <b>always</b> remember to close your JMS resources after use, in a <code>finally</code> block. Closing a JMS connection will automatically close all of its sessions, consumers, producer and browser objects</li>
 
@@ -185,7 +185,7 @@ under the License.
 	   {
 	      connection0.close();
 	   }
-	      
+
 	   if (connection1 != null)
 	   {
 	      connection1.close();

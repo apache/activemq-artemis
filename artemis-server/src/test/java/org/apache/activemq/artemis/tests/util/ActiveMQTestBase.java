@@ -109,6 +109,7 @@ import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.server.cluster.ClusterConnection;
 import org.apache.activemq.artemis.core.server.cluster.ClusterManager;
 import org.apache.activemq.artemis.core.server.cluster.RemoteQueueBinding;
+import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.server.impl.Activation;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.core.server.impl.ServerMessageImpl;
@@ -525,9 +526,9 @@ public abstract class ActiveMQTestBase extends Assert
               .setConnectorName(connectorName)
               .setRetryInterval(1000)
               .setDuplicateDetection(false)
-              .setForwardWhenNoConsumers(true)
               .setMaxHops(1)
               .setConfirmationWindowSize(1)
+              .setMessageLoadBalancingType(MessageLoadBalancingType.STRICT)
               .setStaticConnectors(connectors0);
 
       return clusterConnectionConfiguration;

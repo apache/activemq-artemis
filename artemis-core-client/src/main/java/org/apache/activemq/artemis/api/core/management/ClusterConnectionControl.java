@@ -46,7 +46,7 @@ public interface ClusterConnectionControl extends ActiveMQComponentControl
    /**
     * Return whether this cluster connection forward messages when it has no local consumers.
     */
-   boolean isForwardWhenNoConsumers();
+   String getMessageLoadBalancingType();
 
    /**
     * Return the Topology that this Cluster Connection knows about

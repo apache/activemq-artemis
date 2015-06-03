@@ -74,7 +74,7 @@ under the License.
             <retry-interval>500</retry-interval>
             <reconnect-attempts>5</reconnect-attempts>
             <use-duplicate-detection>true</use-duplicate-detection>
-            <forward-when-no-consumers>true</forward-when-no-consumers>
+            <message-load-balancing>STRICT</message-load-balancing>
             <max-hops>1</max-hops>
             <discovery-group-ref discovery-group-name="my-discovery-group"/>
          </cluster-connection>

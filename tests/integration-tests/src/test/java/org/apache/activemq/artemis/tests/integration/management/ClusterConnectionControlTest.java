@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.integration.management;
+import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.junit.Before;
 import org.junit.After;
 import org.junit.Test;
@@ -83,8 +84,8 @@ public class ClusterConnectionControlTest extends ManagementTestBase
       Assert.assertEquals(clusterConnectionConfig1.getRetryInterval(), clusterConnectionControl.getRetryInterval());
       Assert.assertEquals(clusterConnectionConfig1.isDuplicateDetection(),
                           clusterConnectionControl.isDuplicateDetection());
-      Assert.assertEquals(clusterConnectionConfig1.isForwardWhenNoConsumers(),
-                          clusterConnectionControl.isForwardWhenNoConsumers());
+      Assert.assertEquals(clusterConnectionConfig1.getMessageLoadBalancingType().getType(),
+                          clusterConnectionControl.getMessageLoadBalancingType());
       Assert.assertEquals(clusterConnectionConfig1.getMaxHops(), clusterConnectionControl.getMaxHops());
 
       Object[] connectors = clusterConnectionControl.getStaticConnectors();
@@ -117,8 +118,8 @@ public class ClusterConnectionControlTest extends ManagementTestBase
       Assert.assertEquals(clusterConnectionConfig2.getRetryInterval(), clusterConnectionControl.getRetryInterval());
       Assert.assertEquals(clusterConnectionConfig2.isDuplicateDetection(),
                           clusterConnectionControl.isDuplicateDetection());
-      Assert.assertEquals(clusterConnectionConfig2.isForwardWhenNoConsumers(),
-                          clusterConnectionControl.isForwardWhenNoConsumers());
+      Assert.assertEquals(clusterConnectionConfig2.getMessageLoadBalancingType().getType(),
+                          clusterConnectionControl.getMessageLoadBalancingType());
       Assert.assertEquals(clusterConnectionConfig2.getMaxHops(), clusterConnectionControl.getMaxHops());
 
       Object[] connectorPairs = clusterConnectionControl.getStaticConnectors();
@@ -242,9 +243,10 @@ public class ClusterConnectionControlTest extends ManagementTestBase
          .setConnectorName(connectorConfig.getName())
          .setRetryInterval(RandomUtil.randomPositiveLong())
          .setDuplicateDetection(RandomUtil.randomBoolean())
-         .setForwardWhenNoConsumers(RandomUtil.randomBoolean())
+         .setMessageLoadBalancingType(MessageLoadBalancingType.STRICT)
          .setMaxHops(RandomUtil.randomPositiveInt())
          .setConfirmationWindowSize(RandomUtil.randomPositiveInt())
+         .setMessageLoadBalancingType(MessageLoadBalancingType.ON_DEMAND)
          .setStaticConnectors(connectors);
 
       clusterConnectionConfig2 = new ClusterConnectionConfiguration()
@@ -253,9 +255,10 @@ public class ClusterConnectionControlTest extends ManagementTestBase
          .setConnectorName(connectorConfig.getName())
          .setRetryInterval(RandomUtil.randomPositiveLong())
          .setDuplicateDetection(RandomUtil.randomBoolean())
-         .setForwardWhenNoConsumers(RandomUtil.randomBoolean())
+         .setMessageLoadBalancingType(MessageLoadBalancingType.OFF)
          .setMaxHops(RandomUtil.randomPositiveInt())
          .setConfirmationWindowSize(RandomUtil.randomPositiveInt())
+         .setMessageLoadBalancingType(MessageLoadBalancingType.ON_DEMAND)
          .setDiscoveryGroupName(discoveryGroupName);
 
       Configuration conf_0 = createBasicConfig()

@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.integration.cluster.distribution;
+import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.junit.Before;
 
 import org.junit.Test;
@@ -46,8 +47,8 @@ public class ClusterHeadersRemovedTest extends ClusterTestBase
    @Test
    public void testHeadersRemoved() throws Exception
    {
-      setupClusterConnection("cluster1", 0, 1, "queues", false, 1, isNetty(), false);
-      setupClusterConnection("clusterX", 1, -1, "queues", false, 1, isNetty(), false);
+      setupClusterConnection("cluster1", 0, 1, "queues", MessageLoadBalancingType.ON_DEMAND, 1, isNetty(), false);
+      setupClusterConnection("clusterX", 1, -1, "queues", MessageLoadBalancingType.ON_DEMAND, 1, isNetty(), false);
       startServers(1, 0);
 
       setupSessionFactory(0, isNetty());

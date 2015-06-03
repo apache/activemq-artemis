@@ -30,6 +30,7 @@ import org.apache.activemq.artemis.core.persistence.impl.journal.LargeServerMess
 import org.apache.activemq.artemis.core.postoffice.impl.LocalQueueBinding;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.integration.cluster.distribution.ClusterTestBase;
@@ -58,9 +59,9 @@ public class ScaleDown3NodeTest extends ClusterTestBase
       scaleDownConfiguration1.setGroupName("bill");
       scaleDownConfiguration1.setEnabled(false);
 
-      setupClusterConnection("cluster0", "testAddress", false, 1, isNetty(), 0, 1, 2);
-      setupClusterConnection("cluster0", "testAddress", false, 1, isNetty(), 1, 0, 2);
-      setupClusterConnection("cluster0", "testAddress", false, 1, isNetty(), 2, 0, 1);
+      setupClusterConnection("cluster0", "testAddress", MessageLoadBalancingType.ON_DEMAND, 1, isNetty(), 0, 1, 2);
+      setupClusterConnection("cluster0", "testAddress", MessageLoadBalancingType.ON_DEMAND, 1, isNetty(), 1, 0, 2);
+      setupClusterConnection("cluster0", "testAddress", MessageLoadBalancingType.ON_DEMAND, 1, isNetty(), 2, 0, 1);
       String scaleDownConnector = servers[0].getConfiguration().getClusterConfigurations().get(0).getStaticConnectors().get(0);
       Assert.assertEquals(61617, servers[0].getConfiguration().getConnectorConfigurations().get(scaleDownConnector).getParams().get(TransportConstants.PORT_PROP_NAME));
       scaleDownConfiguration0.getConnectors().add(scaleDownConnector);

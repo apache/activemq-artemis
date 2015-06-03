@@ -17,6 +17,8 @@
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
 
+import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
+
 public class DiscoveryClusterWithBackupFailoverTest extends ClusterWithBackupFailoverTestBase
 {
 
@@ -25,19 +27,19 @@ public class DiscoveryClusterWithBackupFailoverTest extends ClusterWithBackupFai
    protected final int groupPort = getUDPDiscoveryPort();
 
    @Override
-   protected void setupCluster(final boolean forwardWhenNoConsumers) throws Exception
+   protected void setupCluster(final MessageLoadBalancingType messageLoadBalancingType) throws Exception
    {
       // The lives
 
-      setupDiscoveryClusterConnection("cluster0", 0, "dg1", "queues", forwardWhenNoConsumers, 1, isNetty());
-      setupDiscoveryClusterConnection("cluster1", 1, "dg1", "queues", forwardWhenNoConsumers, 1, isNetty());
-      setupDiscoveryClusterConnection("cluster2", 2, "dg1", "queues", forwardWhenNoConsumers, 1, isNetty());
+      setupDiscoveryClusterConnection("cluster0", 0, "dg1", "queues", messageLoadBalancingType, 1, isNetty());
+      setupDiscoveryClusterConnection("cluster1", 1, "dg1", "queues", messageLoadBalancingType, 1, isNetty());
+      setupDiscoveryClusterConnection("cluster2", 2, "dg1", "queues", messageLoadBalancingType, 1, isNetty());
 
       // The backups
 
-      setupDiscoveryClusterConnection("cluster0", 3, "dg1", "queues", forwardWhenNoConsumers, 1, isNetty());
-      setupDiscoveryClusterConnection("cluster1", 4, "dg1", "queues", forwardWhenNoConsumers, 1, isNetty());
-      setupDiscoveryClusterConnection("cluster2", 5, "dg1", "queues", forwardWhenNoConsumers, 1, isNetty());
+      setupDiscoveryClusterConnection("cluster0", 3, "dg1", "queues", messageLoadBalancingType, 1, isNetty());
+      setupDiscoveryClusterConnection("cluster1", 4, "dg1", "queues", messageLoadBalancingType, 1, isNetty());
+      setupDiscoveryClusterConnection("cluster2", 5, "dg1", "queues", messageLoadBalancingType, 1, isNetty());
    }
 
    @Override

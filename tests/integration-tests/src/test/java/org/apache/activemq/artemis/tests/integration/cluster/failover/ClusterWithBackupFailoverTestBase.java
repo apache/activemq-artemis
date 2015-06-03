@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.tests.integration.cluster.failover;
 import java.util.HashSet;
 
 import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.tests.integration.cluster.distribution.ClusterTestBase;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
@@ -33,7 +34,7 @@ public abstract class ClusterWithBackupFailoverTestBase extends ClusterTestBase
    protected static final String QUEUES_TESTADDRESS = "queues.testaddress";
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
-   protected abstract void setupCluster(final boolean forwardWhenNoConsumers) throws Exception;
+   protected abstract void setupCluster(final MessageLoadBalancingType messageLoadBalancingType) throws Exception;
 
    protected abstract void setupServers() throws Exception;
 
@@ -268,7 +269,7 @@ public abstract class ClusterWithBackupFailoverTestBase extends ClusterTestBase
 
    protected void setupCluster() throws Exception
    {
-      setupCluster(false);
+      setupCluster(MessageLoadBalancingType.ON_DEMAND);
    }
 
 

@@ -28,6 +28,7 @@ import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.core.message.impl.MessageImpl;
 import org.apache.activemq.artemis.core.server.Bindable;
@@ -69,7 +70,7 @@ public class MessageRedistributionTest extends ClusterTestBase
    @Test
    public void testRedistributionWithMessageGroups() throws Exception
    {
-      setupCluster(false);
+      setupCluster(MessageLoadBalancingType.ON_DEMAND);
 
       MessageRedistributionTest.log.info("Doing test");
 
@@ -174,7 +175,7 @@ public class MessageRedistributionTest extends ClusterTestBase
    @Test
    public void testRedistributionStopsWhenConsumerAdded() throws Exception
    {
-      setupCluster(false);
+      setupCluster(MessageLoadBalancingType.ON_DEMAND);
 
       MessageRedistributionTest.log.info("Doing test");
 
@@ -212,7 +213,7 @@ public class MessageRedistributionTest extends ClusterTestBase
    @Test
    public void testRedistributionWhenConsumerIsClosed() throws Exception
    {
-      setupCluster(false);
+      setupCluster(MessageLoadBalancingType.ON_DEMAND);
 
       MessageRedistributionTest.log.info("Doing test");
 
@@ -254,7 +255,7 @@ public class MessageRedistributionTest extends ClusterTestBase
    @Test
    public void testRedistributionWhenConsumerIsClosedDifferentQueues() throws Exception
    {
-      setupCluster(false);
+      setupCluster(MessageLoadBalancingType.ON_DEMAND);
 
       startServers(0, 1, 2);
 
@@ -334,7 +335,7 @@ public class MessageRedistributionTest extends ClusterTestBase
    @Test
    public void testRedistributionWhenConsumerIsClosedNotConsumersOnAllNodes() throws Exception
    {
-      setupCluster(false);
+      setupCluster(MessageLoadBalancingType.ON_DEMAND);
 
       startServers(0, 1, 2);
 
@@ -371,7 +372,7 @@ public class MessageRedistributionTest extends ClusterTestBase
    public void testNoRedistributionWhenConsumerIsClosedForwardWhenNoConsumersTrue() throws Exception
    {
       // x
-      setupCluster(true);
+      setupCluster(MessageLoadBalancingType.STRICT);
 
       startServers(0, 1, 2);
 
@@ -423,7 +424,7 @@ public class MessageRedistributionTest extends ClusterTestBase
    @Test
    public void testNoRedistributionWhenConsumerIsClosedNoConsumersOnOtherNodes() throws Exception
    {
-      setupCluster(false);
+      setupCluster(MessageLoadBalancingType.ON_DEMAND);
 
       startServers(0, 1, 2);
 
@@ -473,7 +474,7 @@ public class MessageRedistributionTest extends ClusterTestBase
    @Test
    public void testRedistributeWithScheduling() throws Exception
    {
-      setupCluster(false);
+      setupCluster(MessageLoadBalancingType.ON_DEMAND);
 
       AddressSettings setting = new AddressSettings().setRedeliveryDelay(10000);
       servers[0].getAddressSettingsRepository().addMatch("queues.testaddress", setting);
@@ -583,7 +584,7 @@ public class MessageRedistributionTest extends ClusterTestBase
    @Test
    public void testRedistributionWhenConsumerIsClosedQueuesWithFilters() throws Exception
    {
-      setupCluster(false);
+      setupCluster(MessageLoadBalancingType.ON_DEMAND);
 
       startServers(0, 1, 2);
 
@@ -624,7 +625,7 @@ public class MessageRedistributionTest extends ClusterTestBase
    @Test
    public void testRedistributionWhenConsumerIsClosedConsumersWithFilters() throws Exception
    {
-      setupCluster(false);
+      setupCluster(MessageLoadBalancingType.ON_DEMAND);
 
       startServers(0, 1, 2);
 
@@ -665,7 +666,7 @@ public class MessageRedistributionTest extends ClusterTestBase
    @Test
    public void testRedistributionWhenRemoteConsumerIsAdded() throws Exception
    {
-      setupCluster(false);
+      setupCluster(MessageLoadBalancingType.ON_DEMAND);
 
       startServers(0, 1, 2);
 
@@ -702,7 +703,7 @@ public class MessageRedistributionTest extends ClusterTestBase
    {
       for (int i = 0; i < 10; i++)
       {
-         setupCluster(false);
+         setupCluster(MessageLoadBalancingType.ON_DEMAND);
 
          startServers(0, 1, 2);
 
@@ -812,7 +813,7 @@ public class MessageRedistributionTest extends ClusterTestBase
       }
       for (int i = 0; i < 10; i++)
       {
-         setupCluster(false);
+         setupCluster(MessageLoadBalancingType.ON_DEMAND);
 
          startServers(0, 1);
 
@@ -877,7 +878,7 @@ public class MessageRedistributionTest extends ClusterTestBase
    @Test
    public void testRedistributionToQueuesWhereNotAllMessagesMatch() throws Exception
    {
-      setupCluster(false);
+      setupCluster(MessageLoadBalancingType.ON_DEMAND);
 
       startServers(0, 1, 2);
 
@@ -919,7 +920,7 @@ public class MessageRedistributionTest extends ClusterTestBase
       final long delay = 1000;
       setRedistributionDelay(delay);
 
-      setupCluster(false);
+      setupCluster(MessageLoadBalancingType.ON_DEMAND);
 
       startServers(0, 1, 2);
 
@@ -959,7 +960,7 @@ public class MessageRedistributionTest extends ClusterTestBase
       final long delay = 1000;
       setRedistributionDelay(delay);
 
-      setupCluster(false);
+      setupCluster(MessageLoadBalancingType.ON_DEMAND);
 
       startServers(0, 1, 2);
 
@@ -999,7 +1000,7 @@ public class MessageRedistributionTest extends ClusterTestBase
    @Test
    public void testRedistributionNumberOfMessagesGreaterThanBatchSize() throws Exception
    {
-      setupCluster(false);
+      setupCluster(MessageLoadBalancingType.ON_DEMAND);
 
       startServers(0, 1, 2);
 
@@ -1037,7 +1038,7 @@ public class MessageRedistributionTest extends ClusterTestBase
    @Test
    public void testRedistributionWhenNewNodeIsAddedWithConsumer() throws Exception
    {
-      setupCluster(false);
+      setupCluster(MessageLoadBalancingType.ON_DEMAND);
 
       startServers(0);
 
@@ -1069,7 +1070,7 @@ public class MessageRedistributionTest extends ClusterTestBase
    @Test
    public void testRedistributionWithPagingOnTarget() throws Exception
    {
-      setupCluster(false);
+      setupCluster(MessageLoadBalancingType.ON_DEMAND);
 
       AddressSettings as = new AddressSettings()
               .setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE)
@@ -1136,13 +1137,13 @@ public class MessageRedistributionTest extends ClusterTestBase
       session1.close();
    }
 
-   protected void setupCluster(final boolean forwardWhenNoConsumers) throws Exception
+   protected void setupCluster(final MessageLoadBalancingType messageLoadBalancingType) throws Exception
    {
-      setupClusterConnection("cluster0", "queues", forwardWhenNoConsumers, 1, isNetty(), 0, 1, 2);
+      setupClusterConnection("cluster0", "queues", messageLoadBalancingType, 1, isNetty(), 0, 1, 2);
 
-      setupClusterConnection("cluster1", "queues", forwardWhenNoConsumers, 1, isNetty(), 1, 0, 2);
+      setupClusterConnection("cluster1", "queues", messageLoadBalancingType, 1, isNetty(), 1, 0, 2);
 
-      setupClusterConnection("cluster2", "queues", forwardWhenNoConsumers, 1, isNetty(), 2, 0, 1);
+      setupClusterConnection("cluster2", "queues", messageLoadBalancingType, 1, isNetty(), 2, 0, 1);
    }
 
    protected void setRedistributionDelay(final long delay)

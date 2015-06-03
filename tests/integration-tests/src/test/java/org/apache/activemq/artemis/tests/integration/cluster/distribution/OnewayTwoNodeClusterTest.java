@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.distribution;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.junit.Before;
 
 import org.junit.Test;
@@ -37,12 +38,12 @@ public class OnewayTwoNodeClusterTest extends ClusterTestBase
 
       setupServer(0, isFileStorage(), isNetty());
       setupServer(1, isFileStorage(), isNetty());
-      setupCluster(false);
+      setupCluster(MessageLoadBalancingType.ON_DEMAND);
 
 
    }
 
-   private void setupCluster(boolean forward)
+   private void setupCluster(MessageLoadBalancingType messageLoadBalancingType)
    {
       for (ActiveMQServer server : servers)
       {
@@ -52,9 +53,9 @@ public class OnewayTwoNodeClusterTest extends ClusterTestBase
          }
       }
       // server #0 is connected to server #1
-      setupClusterConnection("cluster1", 0, 1, "queues", forward, 1, 0, 500, isNetty(), true);
+      setupClusterConnection("cluster1", 0, 1, "queues", messageLoadBalancingType, 1, 0, 500, isNetty(), true);
       // server #1 is connected to nobody
-      setupClusterConnection("clusterX", 1, -1, "queues", forward, 1,  0, 500, isNetty(), true);
+      setupClusterConnection("clusterX", 1, -1, "queues", messageLoadBalancingType, 1,  0, 500, isNetty(), true);
    }
 
    protected boolean  isNetty()
@@ -831,7 +832,7 @@ public class OnewayTwoNodeClusterTest extends ClusterTestBase
    @Test
    public void testRouteWhenNoConsumersFalseLoadBalancedQueues() throws Exception
    {
-      setupCluster(true);
+      setupCluster(MessageLoadBalancingType.STRICT);
       startServers(1, 0);
 
       setupSessionFactory(0, isNetty(), true);
@@ -908,7 +909,7 @@ public class OnewayTwoNodeClusterTest extends ClusterTestBase
    @Test
    public void testRouteWhenNoConsumersFalseLoadBalancedQueuesNoLocalQueue() throws Exception
    {
-      setupCluster(true);
+      setupCluster(MessageLoadBalancingType.STRICT);
 
       startServers(1, 0);
 
@@ -941,7 +942,7 @@ public class OnewayTwoNodeClusterTest extends ClusterTestBase
    @Test
    public void testRouteWhenNoConsumersTrueLoadBalancedQueues() throws Exception
    {
-      setupCluster(true);
+      setupCluster(MessageLoadBalancingType.STRICT);
       startServers(1, 0);
 
       setupSessionFactory(0,  isNetty(), true);
@@ -980,7 +981,7 @@ public class OnewayTwoNodeClusterTest extends ClusterTestBase
    {
       servers[0].getConfiguration().getClusterConfigurations().clear();
       // server #0 is connected to server #1
-      setupClusterConnection("cluster1", 0, 1, "queues", true, 1,  isNetty(), true);
+      setupClusterConnection("cluster1", 0, 1, "queues", MessageLoadBalancingType.STRICT, 1,  isNetty(), true);
 
       startServers(1, 0);
 
@@ -1020,7 +1021,7 @@ public class OnewayTwoNodeClusterTest extends ClusterTestBase
    {
       servers[0].getConfiguration().getClusterConfigurations().clear();
       // server #0 is connected to server #1
-      setupClusterConnection("cluster1", 0, 1, "queues", true, 1,  isNetty(), true);
+      setupClusterConnection("cluster1", 0, 1, "queues", MessageLoadBalancingType.STRICT, 1,  isNetty(), true);
 
       startServers(1, 0);
 
@@ -1111,7 +1112,7 @@ public class OnewayTwoNodeClusterTest extends ClusterTestBase
    @Test
    public void testRoundRobinMultipleQueuesWithConsumersWithFilters() throws Exception
    {
-      setupCluster(false);
+      setupCluster(MessageLoadBalancingType.ON_DEMAND);
 
       startServers(1, 0);
 
@@ -1183,8 +1184,8 @@ public class OnewayTwoNodeClusterTest extends ClusterTestBase
    @Test
    public void testMultipleClusterConnections() throws Exception
    {
-      setupClusterConnection("cluster2", 0, 1, "q2", false, 1,  isNetty(), true);
-      setupClusterConnection("cluster3", 0, 1, "q3", false, 1,  isNetty(), true);
+      setupClusterConnection("cluster2", 0, 1, "q2", MessageLoadBalancingType.ON_DEMAND, 1,  isNetty(), true);
+      setupClusterConnection("cluster3", 0, 1, "q3", MessageLoadBalancingType.ON_DEMAND, 1,  isNetty(), true);
 
       startServers(1, 0);
 

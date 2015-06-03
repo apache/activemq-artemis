@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.core.config.impl;
 
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.core.server.JournalType;
+import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.SlowConsumerPolicy;
 
@@ -176,9 +177,23 @@ public final class Validators
       {
          String val = (String) value;
          if (val == null || !val.equals(SlowConsumerPolicy.KILL.toString()) &&
-            !val.equals(SlowConsumerPolicy.NOTIFY.toString()))
+                 !val.equals(SlowConsumerPolicy.NOTIFY.toString()))
          {
             throw ActiveMQMessageBundle.BUNDLE.invalidSlowConsumerPolicyType(val);
+         }
+      }
+   };
+
+   public static final Validator MESSAGE_LOAD_BALANCING_TYPE = new Validator()
+   {
+      public void validate(final String name, final Object value)
+      {
+         String val = (String) value;
+         if (val == null || !val.equals(MessageLoadBalancingType.OFF.toString()) &&
+                 !val.equals(MessageLoadBalancingType.STRICT.toString()) &&
+                 !val.equals(MessageLoadBalancingType.ON_DEMAND.toString()))
+         {
+            throw ActiveMQMessageBundle.BUNDLE.invalidMessageLoadBalancingType(val);
          }
       }
    };

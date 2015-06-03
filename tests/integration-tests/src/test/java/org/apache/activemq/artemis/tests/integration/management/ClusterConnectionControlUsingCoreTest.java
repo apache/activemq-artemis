@@ -98,9 +98,9 @@ public class ClusterConnectionControlUsingCoreTest extends ClusterConnectionCont
             return (Boolean) proxy.retrieveAttributeValue("duplicateDetection");
          }
 
-         public boolean isForwardWhenNoConsumers()
+         public String getMessageLoadBalancingType()
          {
-            return (Boolean) proxy.retrieveAttributeValue("forwardWhenNoConsumers");
+            return (String) proxy.retrieveAttributeValue("messageLoadBalancingType");
          }
 
          public String getName()
