@@ -23,6 +23,7 @@ public class ServerLocatorParser extends URIFactory<ServerLocator, String>
 {
    public ServerLocatorParser()
    {
+      registerSchema(new InVMServerLocatorSchema());
       registerSchema(new TCPServerLocatorSchema());
       registerSchema(new UDPServerLocatorSchema());
       registerSchema(new JGroupsServerLocatorSchema());

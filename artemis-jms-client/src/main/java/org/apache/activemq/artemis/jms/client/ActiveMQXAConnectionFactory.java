@@ -34,35 +34,31 @@ public class ActiveMQXAConnectionFactory extends ActiveMQConnectionFactory imple
 {
    private static final long serialVersionUID = 743611571839154115L;
 
-   /**
-    *
-    */
    public ActiveMQXAConnectionFactory()
    {
       super();
    }
 
-   /**
-    * @param serverLocator
-    */
+   public ActiveMQXAConnectionFactory(String uri)
+   {
+      super(uri);
+   }
+
+   public ActiveMQXAConnectionFactory(String url, String user, String password)
+   {
+      super(url, user, password);
+   }
+
    public ActiveMQXAConnectionFactory(ServerLocator serverLocator)
    {
       super(serverLocator);
    }
 
-   /**
-    * @param ha
-    * @param groupConfiguration
-    */
    public ActiveMQXAConnectionFactory(final boolean ha, final DiscoveryGroupConfiguration groupConfiguration)
    {
       super(ha, groupConfiguration);
    }
 
-   /**
-    * @param ha
-    * @param initialConnectors
-    */
    public ActiveMQXAConnectionFactory(final boolean ha, final TransportConfiguration... initialConnectors)
    {
       super(ha, initialConnectors);

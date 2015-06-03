@@ -16,14 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.client;
 
-import org.apache.activemq.artemis.tests.util.JMSTestBase;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Test;
-
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.InvalidClientIDException;
+import javax.jms.JMSContext;
 import javax.jms.QueueConnection;
 import javax.jms.QueueSession;
 import javax.jms.Session;
@@ -36,10 +32,54 @@ import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
+import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.tests.util.JMSTestBase;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Test;
+
 public class ConnectionTest extends JMSTestBase
 {
 
    private Connection conn2;
+
+   @Test
+   public void testThroughNewConnectionFactory() throws Exception
+   {
+      testThroughNewConnectionFactory(new ActiveMQConnectionFactory("vm://0"));
+      testThroughNewConnectionFactory(new ActiveMQConnectionFactory("tcp://localhost:61616?&blockOnNonDurableSend=true&" +
+            "retryIntervalMultiplier=1.0&maxRetryInterval=2000&producerMaxRate=-1&" +
+            "blockOnDurableSend=true&connectionTTL=60000&compressLargeMessage=false&reconnectAttempts=0&" +
+            "cacheLargeMessagesClient=false&scheduledThreadPoolMaxSize=5&useGlobalPools=true&" +
+            "callFailoverTimeout=-1&initialConnectAttempts=1&clientFailureCheckPeriod=30000&" +
+            "blockOnAcknowledge=true&consumerWindowSize=1048576&minLargeMessageSize=102400&" +
+            "autoGroup=false&threadPoolMaxSize=-1&confirmationWindowSize=-1&" +
+            "transactionBatchSize=1048576&callTimeout=30000&preAcknowledge=false&" +
+            "connectionLoadBalancingPolicyClassName=org.apache.activemq.artemis.api.core.client.loadbalance." +
+            "RoundRobinConnectionLoadBalancingPolicy&dupsOKBatchSize=1048576&initialMessagePacketSize=1500&" +
+            "consumerMaxRate=-1&retryInterval=2000&failoverOnInitialConnection=false&producerWindowSize=65536&" +
+            "port=61616&host=localhost#"));
+   }
+
+   private void testThroughNewConnectionFactory(ActiveMQConnectionFactory factory) throws Exception
+   {
+      Connection conn = factory.createConnection();
+      conn.close();
+
+      try (JMSContext ctx = factory.createContext())
+      {
+         ctx.createProducer().send(ctx.createQueue("queue"),"Test");
+      }
+
+      try (JMSContext ctx = factory.createContext())
+      {
+         Assert.assertNotNull(ctx.createConsumer(ctx.createQueue("queue")).receiveNoWait());
+         Assert.assertNull(ctx.createConsumer(ctx.createQueue("queue")).receiveNoWait());
+      }
+
+      factory.close();
+   }
+
 
    @Test
    public void testSetSameIdToDifferentConnections() throws Exception

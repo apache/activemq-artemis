@@ -43,8 +43,8 @@ import java.net.URI;
 import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory;
-import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
+import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.api.jms.JMSFactoryType;
 import org.apache.activemq.artemis.jms.referenceable.ConnectionFactoryObjectFactory;
@@ -53,10 +53,13 @@ import org.apache.activemq.artemis.uri.ConnectionFactoryParser;
 import org.apache.activemq.artemis.uri.ServerLocatorParser;
 
 /**
- * ActiveMQ Artemis implementation of a JMS ConnectionFactory.
+ * <p>ActiveMQ Artemis implementation of a JMS ConnectionFactory.</p>
+ * <p>This connection factory will use defaults defined by {@link DefaultConnectionProperties}.
  */
-public class ActiveMQConnectionFactory implements Externalizable, Referenceable, ConnectionFactory, XAConnectionFactory
+public class ActiveMQConnectionFactory implements Externalizable, Referenceable, ConnectionFactory,
+                                                  XAConnectionFactory, AutoCloseable
 {
+
    private ServerLocator serverLocator;
 
    private String clientID;
@@ -67,7 +70,29 @@ public class ActiveMQConnectionFactory implements Externalizable, Referenceable,
 
    private  boolean readOnly;
 
+   private String user;
+
+   private String password;
+
    public void writeExternal(ObjectOutput out) throws IOException
+   {
+      URI uri = toURI();
+
+      try
+      {
+         out.writeUTF(uri.toASCIIString());
+      }
+      catch (Exception e)
+      {
+         if (e instanceof IOException)
+         {
+            throw (IOException) e;
+         }
+         throw new IOException(e);
+      }
+   }
+
+   public URI toURI() throws IOException
    {
       ConnectionFactoryParser parser = new ConnectionFactoryParser();
       String scheme;
@@ -84,12 +109,21 @@ public class ActiveMQConnectionFactory implements Externalizable, Referenceable,
       }
       else
       {
-         scheme = "tcp";
+         if (serverLocator.allInVM())
+         {
+            scheme = "vm";
+         }
+         else
+         {
+            scheme = "tcp";
+         }
       }
+
+      URI uri;
+
       try
       {
-         URI uri = parser.createSchema(scheme, this);
-         out.writeUTF(uri.toASCIIString());
+         uri = parser.createSchema(scheme, this);
       }
       catch (Exception e)
       {
@@ -99,6 +133,7 @@ public class ActiveMQConnectionFactory implements Externalizable, Referenceable,
          }
          throw new IOException(e);
       }
+      return uri;
    }
 
    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException
@@ -118,9 +153,43 @@ public class ActiveMQConnectionFactory implements Externalizable, Referenceable,
       }
    }
 
+   /** This will use a default URI from {@link DefaultConnectionProperties} */
    public ActiveMQConnectionFactory()
    {
-      serverLocator = null;
+      this(DefaultConnectionProperties.DEFAULT_BROKER_URL);
+   }
+
+   public ActiveMQConnectionFactory(String url)
+   {
+      ConnectionFactoryParser cfParser = new ConnectionFactoryParser();
+      ServerLocatorParser locatorParser = new ServerLocatorParser();
+      try
+      {
+         URI uri = new URI(url);
+         serverLocator = locatorParser.newObject(uri, null);
+         cfParser.populateObject(uri, this);
+      }
+      catch (Exception e)
+      {
+         throw new RuntimeException(e.getMessage(), e);
+      }
+
+      if (getUser() == null)
+      {
+         setUser(DefaultConnectionProperties.DEFAULT_USER);
+      }
+
+      if (getPassword() == null)
+      {
+         setPassword(DefaultConnectionProperties.DEFAULT_PASSWORD);
+      }
+   }
+
+   /** For compatibility and users used to this kind of constructor   */
+   public ActiveMQConnectionFactory(String url, String user, String password)
+   {
+      this(url);
+      setUser(user).setPassword(password);
    }
 
    public ActiveMQConnectionFactory(final ServerLocator serverLocator)
@@ -158,11 +227,9 @@ public class ActiveMQConnectionFactory implements Externalizable, Referenceable,
       serverLocator.disableFinalizeCheck();
    }
 
-   // ConnectionFactory implementation -------------------------------------------------------------
-
    public Connection createConnection() throws JMSException
    {
-      return createConnection(null, null);
+      return createConnection(user, password);
    }
 
    public Connection createConnection(final String username, final String password) throws JMSException
@@ -173,13 +240,13 @@ public class ActiveMQConnectionFactory implements Externalizable, Referenceable,
    @Override
    public JMSContext createContext()
    {
-      return createContext(null, null);
+      return createContext(user, password);
    }
 
    @Override
    public JMSContext createContext(final int sessionMode)
    {
-      return createContext(null, null, sessionMode);
+      return createContext(user, password, sessionMode);
    }
 
    @Override
@@ -208,9 +275,6 @@ public class ActiveMQConnectionFactory implements Externalizable, Referenceable,
       }
    }
 
-   /**
-    * @param mode
-    */
    private static void validateSessionMode(int mode)
    {
       switch (mode)
@@ -226,8 +290,6 @@ public class ActiveMQConnectionFactory implements Externalizable, Referenceable,
             throw new JMSRuntimeException("Invalid Session Mode: " + mode);
       }
    }
-
-   // QueueConnectionFactory implementation --------------------------------------------------------
 
    public QueueConnection createQueueConnection() throws JMSException
    {
@@ -320,8 +382,6 @@ public class ActiveMQConnectionFactory implements Externalizable, Referenceable,
                            ConnectionFactoryObjectFactory.class.getCanonicalName(),
                            null);
    }
-
-   // Public ---------------------------------------------------------------------------------------
 
    public boolean isHA()
    {
@@ -669,6 +729,30 @@ public class ActiveMQConnectionFactory implements Externalizable, Referenceable,
    {
       checkWrite();
       serverLocator.setInitialMessagePacketSize(size);
+   }
+
+   public ActiveMQConnectionFactory setUser(String user)
+   {
+      checkWrite();
+      this.user = user;
+      return this;
+   }
+
+   public String getUser()
+   {
+      return user;
+   }
+
+   public String getPassword()
+   {
+      return password;
+   }
+
+   public ActiveMQConnectionFactory setPassword(String password)
+   {
+      checkWrite();
+      this.password = password;
+      return this;
    }
 
    public void setGroupID(final String groupID)

@@ -16,19 +16,21 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import java.net.URI;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQNotConnectedException;
-import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
+import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal;
 import org.apache.activemq.artemis.core.client.impl.ServerLocatorInternal;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.uri.ServerLocatorParser;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -44,6 +46,37 @@ public class ServerLocatorConnectTest extends ActiveMQTestBase
       Configuration configuration = createDefaultConfig(isNetty());
       server = createServer(false, configuration);
       server.start();
+   }
+
+   @Test
+   public void testURL() throws Exception
+   {
+      ServerLocatorParser parser = new ServerLocatorParser();
+      // This URL was failing in some ConnectionFactoryTests.
+      // The issue seemed to be the # to be creating extra spaces on the parsing
+      // Added some treatment to fix that, and I kept the test here.
+      URI uri = new URI("tcp://localhost:61616?&blockOnNonDurableSend=true&" +
+                           "retryIntervalMultiplier=1.0&maxRetryInterval=2000&producerMaxRate=-1&" +
+                           "blockOnDurableSend=true&connectionTTL=60000&compressLargeMessage=false&reconnectAttempts=0&" +
+                           "cacheLargeMessagesClient=false&scheduledThreadPoolMaxSize=5&useGlobalPools=true&" +
+                           "callFailoverTimeout=-1&initialConnectAttempts=1&clientFailureCheckPeriod=30000&" +
+                           "blockOnAcknowledge=true&consumerWindowSize=1048576&minLargeMessageSize=102400&" +
+                           "autoGroup=false&threadPoolMaxSize=-1&confirmationWindowSize=-1&" +
+                           "transactionBatchSize=1048576&callTimeout=30000&preAcknowledge=false&" +
+                           "connectionLoadBalancingPolicyClassName=org.apache.activemq.artemis.api.core.client.loadbalance." +
+                           "RoundRobinConnectionLoadBalancingPolicy&dupsOKBatchSize=1048576&initialMessagePacketSize=1500&" +
+                           "consumerMaxRate=-1&retryInterval=2000&failoverOnInitialConnection=false&producerWindowSize=65536&" +
+                           "port=61616&host=localhost#");
+
+      // try it a few times to make sure it fails if it's broken
+      for (int i = 0; i < 10; i++)
+      {
+         ServerLocator locator = parser.newObject(uri, null);
+         ClientSessionFactory csf = createSessionFactory(locator);
+         csf.close();
+         locator.close();
+      }
+
    }
 
    @Test
@@ -150,7 +183,7 @@ public class ServerLocatorConnectTest extends ActiveMQTestBase
 
    public boolean isNetty()
    {
-      return false;
+      return true;
    }
 
    static class Connector implements Runnable

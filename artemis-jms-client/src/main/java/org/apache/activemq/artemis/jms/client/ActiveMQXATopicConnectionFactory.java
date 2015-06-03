@@ -24,41 +24,37 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.api.jms.JMSFactoryType;
 
 /**
- * A class that represents a XATopicConnectionFactory.
+ * {@inheritDoc}
  */
 public class ActiveMQXATopicConnectionFactory extends ActiveMQConnectionFactory implements XATopicConnectionFactory
 {
    private static final long serialVersionUID = -7018290426884419693L;
 
-   /**
-    *
-    */
    public ActiveMQXATopicConnectionFactory()
    {
       super();
    }
 
-   /**
-    * @param serverLocator
-    */
+   public ActiveMQXATopicConnectionFactory(String uri)
+   {
+      super(uri);
+   }
+
+   public ActiveMQXATopicConnectionFactory(String url, String user, String password)
+   {
+      super(url, user, password);
+   }
+
    public ActiveMQXATopicConnectionFactory(final ServerLocator serverLocator)
    {
       super(serverLocator);
    }
 
-   /**
-    * @param ha
-    * @param groupConfiguration
-    */
    public ActiveMQXATopicConnectionFactory(final boolean ha, final DiscoveryGroupConfiguration groupConfiguration)
    {
       super(ha, groupConfiguration);
    }
 
-   /**
-    * @param ha
-    * @param initialConnectors
-    */
    public ActiveMQXATopicConnectionFactory(final boolean ha, final TransportConfiguration... initialConnectors)
    {
       super(ha, initialConnectors);
