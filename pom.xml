@@ -884,8 +884,6 @@
             </configuration>
          </plugin>
          <plugin>
-            <!-- those were some common errors we used to have on the codebase,
-                 this should eliminate that -->
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-javadoc-plugin</artifactId>
             <configuration>
