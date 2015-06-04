@@ -1358,6 +1358,8 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
          transportConnection = null;
 
          connector = null;
+
+         throw new RuntimeException(cause.getMessage(), cause);
       }
 
       return transportConnection;

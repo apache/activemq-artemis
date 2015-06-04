@@ -141,7 +141,10 @@ public abstract class URISchema<T, P>
                }
                else
                {
-                  rc.put(parameters[i], null);
+                  if (!parameters[i].trim().isEmpty())
+                  {
+                     rc.put(parameters[i], null);
+                  }
                }
             }
          }

@@ -533,6 +533,22 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       }
    }
 
+   /*
+    * I'm not using isAllInVM here otherwsie BeanProperties would translate this as a property for the URL
+    */
+   public boolean allInVM()
+   {
+      for (TransportConfiguration config: getStaticTransportConfigurations())
+      {
+         if (!config.getFactoryClassName().contains("InVMConnectorFactory"))
+         {
+            return false;
+         }
+      }
+
+      return true;
+   }
+
    private ServerLocatorImpl(ServerLocatorImpl locator)
    {
       ha = locator.ha;

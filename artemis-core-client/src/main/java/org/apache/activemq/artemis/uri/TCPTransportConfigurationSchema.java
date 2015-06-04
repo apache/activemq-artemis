@@ -16,11 +16,6 @@
  */
 package org.apache.activemq.artemis.uri;
 
-import org.apache.activemq.artemis.api.core.TransportConfiguration;
-import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory;
-import org.apache.activemq.artemis.utils.uri.SchemaConstants;
-import org.apache.activemq.artemis.utils.uri.URISchema;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -28,6 +23,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory;
+import org.apache.activemq.artemis.utils.uri.SchemaConstants;
+import org.apache.activemq.artemis.utils.uri.URISchema;
 
 public class TCPTransportConfigurationSchema extends AbstractTransportConfigurationSchema
 {
@@ -68,7 +68,7 @@ public class TCPTransportConfigurationSchema extends AbstractTransportConfigurat
                                                              name));
       String connectors = uri.getFragment();
 
-      if (connectors != null)
+      if (connectors != null && !connectors.trim().isEmpty())
       {
          String[] split = connectors.split(",");
          for (String s : split)

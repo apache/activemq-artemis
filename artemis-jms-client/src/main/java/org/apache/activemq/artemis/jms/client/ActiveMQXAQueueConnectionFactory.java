@@ -24,41 +24,37 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.api.jms.JMSFactoryType;
 
 /**
- * A class that represents a XAQueueConnectionFactory.
+ * {@inheritDoc}
  */
 public class ActiveMQXAQueueConnectionFactory extends ActiveMQConnectionFactory implements XAQueueConnectionFactory
 {
    private static final long serialVersionUID = 8612457847251087454L;
 
-   /**
-    *
-    */
    public ActiveMQXAQueueConnectionFactory()
    {
       super();
    }
 
-   /**
-    * @param serverLocator
-    */
+   public ActiveMQXAQueueConnectionFactory(String uri)
+   {
+      super(uri);
+   }
+
+   public ActiveMQXAQueueConnectionFactory(String url, String user, String password)
+   {
+      super(url, user, password);
+   }
+
    public ActiveMQXAQueueConnectionFactory(ServerLocator serverLocator)
    {
       super(serverLocator);
    }
 
-   /**
-    * @param ha
-    * @param groupConfiguration
-    */
    public ActiveMQXAQueueConnectionFactory(final boolean ha, final DiscoveryGroupConfiguration groupConfiguration)
    {
       super(ha, groupConfiguration);
    }
 
-   /**
-    * @param ha
-    * @param initialConnectors
-    */
    public ActiveMQXAQueueConnectionFactory(final boolean ha, final TransportConfiguration... initialConnectors)
    {
       super(ha, initialConnectors);

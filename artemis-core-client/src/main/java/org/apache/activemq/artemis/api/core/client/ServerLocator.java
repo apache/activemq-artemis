@@ -740,6 +740,12 @@ public interface ServerLocator extends AutoCloseable
    boolean isHA();
 
    /**
+    * Verify if all of the transports are using inVM.
+    * @return {@code true} if the locator has all inVM transports.
+    */
+   boolean allInVM();
+
+   /**
     * Whether to compress large messages.
     *
     * @return

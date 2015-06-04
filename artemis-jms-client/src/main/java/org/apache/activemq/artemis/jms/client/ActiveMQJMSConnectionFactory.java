@@ -25,42 +25,38 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 
 
 /**
- * A class that represents a ConnectionFactory.
+ * {@inheritDoc}
  */
 public class ActiveMQJMSConnectionFactory extends ActiveMQConnectionFactory implements TopicConnectionFactory, QueueConnectionFactory
 {
 
    private static final long serialVersionUID = -2810634789345348326L;
 
-   /**
-    *
-    */
    public ActiveMQJMSConnectionFactory()
    {
       super();
    }
 
-   /**
-    * @param serverLocator
-    */
+   public ActiveMQJMSConnectionFactory(String uri)
+   {
+      super(uri);
+   }
+
+   public ActiveMQJMSConnectionFactory(String uri, String user, String password)
+   {
+      super(uri, user, password);
+   }
+
    public ActiveMQJMSConnectionFactory(ServerLocator serverLocator)
    {
       super(serverLocator);
    }
 
-   /**
-    * @param ha
-    * @param groupConfiguration
-    */
    public ActiveMQJMSConnectionFactory(boolean ha, final DiscoveryGroupConfiguration groupConfiguration)
    {
       super(ha, groupConfiguration);
    }
 
-   /**
-    * @param ha
-    * @param initialConnectors
-    */
    public ActiveMQJMSConnectionFactory(boolean ha, TransportConfiguration... initialConnectors)
    {
       super(ha, initialConnectors);

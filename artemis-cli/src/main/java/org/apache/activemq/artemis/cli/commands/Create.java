@@ -127,6 +127,9 @@ public class Create extends InputAbstract
    @Option(name = "--allow-anonymous", description = "Enables anonymous configuration on security (Default: input)")
    Boolean allowAnonymous = null;
 
+   @Option(name = "--require-login", description = "This will configure security to require user / password. Compliment --allow-anonymous")
+   Boolean requireLogin = null;
+
    @Option(name = "--user", description = "The username (Default: input)")
    String user;
 
@@ -323,7 +326,7 @@ public class Create extends InputAbstract
    {
       if (allowAnonymous == null)
       {
-         String value = input("--allow-anonymous", "Allow anonymous access? (Y/N):", "Y");
+         String value = input("--allow-anonymous | --require-login", "Allow anonymous access? (Y/N):", "Y");
          allowAnonymous = Boolean.valueOf(value.toLowerCase().equals("y"));
       }
       return allowAnonymous.booleanValue();
@@ -332,6 +335,20 @@ public class Create extends InputAbstract
    public void setAllowAnonymous(boolean allowGuest)
    {
       this.allowAnonymous = Boolean.valueOf(allowGuest);
+   }
+
+   public Boolean getRequireLogin()
+   {
+      if (requireLogin == null)
+      {
+         requireLogin = !isAllowAnonymous();
+      }
+      return requireLogin;
+   }
+
+   public void setRequireLogin(Boolean requireLogin)
+   {
+      this.requireLogin = requireLogin;
    }
 
    public String getPassword()
@@ -406,6 +423,12 @@ public class Create extends InputAbstract
    {
       IS_WINDOWS = System.getProperty("os.name").toLowerCase().trim().startsWith("win");
       IS_CYGWIN = IS_WINDOWS && "cygwin".equals(System.getenv("OSTYPE"));
+
+      // requireLogin should set alloAnonymous=false, to avoid user's questions
+      if (requireLogin != null && requireLogin.booleanValue())
+      {
+         allowAnonymous = Boolean.FALSE;
+      }
 
       context.out.println(String.format("Creating ActiveMQ Artemis instance at: %s", directory.getCanonicalPath()));
 
