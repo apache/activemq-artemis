@@ -64,6 +64,7 @@ public class WebServerComponentTest extends Assert
       webServerDTO.bind = "http://localhost:8161";
       webServerDTO.path = "webapps";
       WebServerComponent webServerComponent = new WebServerComponent();
+      Assert.assertFalse(webServerComponent.isStarted());
       webServerComponent.configure(webServerDTO, "./src/test/resources/", "./src/test/resources/");
       webServerComponent.start();
       // Make the connection attempt.
@@ -92,7 +93,9 @@ public class WebServerComponentTest extends Assert
       assertEquals(clientHandler.body, "12345");
       // Wait for the server to close the connection.
       ch.close();
+      Assert.assertTrue(webServerComponent.isStarted());
       webServerComponent.stop();
+      Assert.assertFalse(webServerComponent.isStarted());
    }
 
    class ClientHandler extends SimpleChannelInboundHandler<HttpObject>
