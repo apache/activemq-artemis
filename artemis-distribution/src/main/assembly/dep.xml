@@ -80,7 +80,7 @@
             <include>javax.inject:javax.inject</include>
             <include>org.eclipse.jetty.aggregate:jetty-all</include>
             <include>org.apache.geronimo.specs:</include>
-            <include>org.apache.geronimo.specs:geronimo-servlet_3.0_spec</include>
+            <include>org.apache.tomcat:tomcat-servlet-api</include>
             <include>commons-beanutils:commons-beanutils</include>
             <include>commons-logging:commons-logging</include>
             <include>org.fusesource.hawtbuf:hawtbuf</include>
