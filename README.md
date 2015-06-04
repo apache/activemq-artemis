@@ -7,6 +7,12 @@ This file describes some minimum 'stuff one needs to know' to get started coding
 For details about the modifying the code, building the project, running tests, IDE integration, etc. see 
 our [Hacking Guide](./docs/hacking-guide/en/SUMMARY.md).
 
+## Tests to Execute
+
+Don't forget to run tests.  The repository has a pull request builder, but to run those same tests use:
+
+    $ mvn compile test-compile -Pfast-tests -Pextra-tests test
+
 ## Examples
 
 To run an example firstly make sure you have run
