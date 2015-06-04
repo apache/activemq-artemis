@@ -92,7 +92,7 @@ public class WebServerComponent implements ExternalComponent
 
    public boolean isStarted()
    {
-      return server.isStarted();
+      return server != null && server.isStarted();
    }
 
    private void deployWar(String url, String warURL, String activeMQHome, String path)
