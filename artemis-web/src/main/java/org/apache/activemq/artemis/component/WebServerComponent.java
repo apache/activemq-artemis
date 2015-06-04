@@ -24,10 +24,10 @@ import org.apache.activemq.artemis.dto.ComponentDTO;
 import org.apache.activemq.artemis.dto.WebServerDTO;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.DefaultHandler;
 import org.eclipse.jetty.server.handler.HandlerList;
 import org.eclipse.jetty.server.handler.ResourceHandler;
-import org.eclipse.jetty.server.nio.SelectChannelConnector;
 import org.eclipse.jetty.webapp.WebAppContext;
 
 public class WebServerComponent implements ExternalComponent
@@ -44,7 +44,7 @@ public class WebServerComponent implements ExternalComponent
       String path = webServerConfig.path.startsWith("/") ? webServerConfig.path : "/" + webServerConfig.path;
       URI uri = new URI(webServerConfig.bind);
       server = new Server();
-      org.eclipse.jetty.server.nio.SelectChannelConnector connector = new SelectChannelConnector();
+      ServerConnector connector = new ServerConnector(server);
       connector.setPort(uri.getPort());
       connector.setHost(uri.getHost());
 
@@ -92,7 +92,7 @@ public class WebServerComponent implements ExternalComponent
 
    public boolean isStarted()
    {
-      return false;
+      return server.isStarted();
    }
 
    private void deployWar(String url, String warURL, String activeMQHome, String path)
