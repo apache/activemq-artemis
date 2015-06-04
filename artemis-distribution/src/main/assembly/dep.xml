@@ -84,6 +84,7 @@
             <include>commons-beanutils:commons-beanutils</include>
             <include>commons-logging:commons-logging</include>
             <include>org.fusesource.hawtbuf:hawtbuf</include>
+            <include>org.jgroups:jgroups</include>
          </includes>
          <!--excludes>
             <exclude>org.apache.activemq:artemis-website</exclude>
