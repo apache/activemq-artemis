@@ -204,7 +204,7 @@
          <!-- ### Build Time Dependencies ### -->
          <!-- This is a build dependency of this project, but is not needed at compile or runtime by other
          projects that depend on this project. This should be in the compiler plugin but can't because of a bug,
-         see https://jira.codehaus.org/browse/MCOMPILER-203-->
+         see https://issues.apache.org/jira/browse/MCOMPILER-203-->
          <dependency>
             <groupId>org.jboss.logging</groupId>
             <artifactId>jboss-logging-processor</artifactId>
@@ -441,12 +441,11 @@
             <version>${jetty.version}</version>
             <!-- License: (Joint): Apache 2.0 & EPL 1.0 -->
         </dependency>
-        <dependency>
-           <groupId>org.apache.geronimo.specs</groupId>
-           <artifactId>geronimo-servlet_3.0_spec</artifactId>
-           <version>1.0</version>
-           <!-- License: Apache 2.0 -->
-        </dependency>
+         <dependency>
+            <groupId>org.apache.tomcat</groupId>
+            <artifactId>tomcat-servlet-api</artifactId>
+            <version>8.0.23</version>
+         </dependency>
         <dependency>
            <groupId>org.jolokia</groupId>
            <artifactId>jolokia-war</artifactId>
