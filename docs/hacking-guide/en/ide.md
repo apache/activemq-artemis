@@ -49,6 +49,12 @@ Maven plugins used by sub-projects (e.g. documentation) which are not supported 
 Eclipse [m2e](http://eclipse.org/m2e/) is already included in "Eclipse IDE for Java Developers", or it can be installed 
 from [Eclipse Kepler release repository](http://download.eclipse.org/releases/kepler).
 
+### Git setup
+It is strongly recommended to turn off the auto-updating of .gitignore files by the Git Team extension.  Otherwise, it
+generates new .gitignore files in many directories that are not needed due to the top level .gitignore file.  To turn 
+it off, go to Preferences->Team->Git->Projects and deselect the "Automatically ignore derived resources" checkbox.
+
+
 ### Annotation Pre-Processing
 
 ActiveMQ Artemis uses [JBoss Logging](https://community.jboss.org/wiki/JBossLoggingTooling) and that requires source 

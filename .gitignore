@@ -4,3 +4,7 @@
 ratReport.txt
 **/server.lock
 **/data
+.classpath
+.project
+.settings
+.checkstyle
