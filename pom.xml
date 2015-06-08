@@ -97,6 +97,8 @@
       <skipLicenseCheck>true</skipLicenseCheck>
       <skipStyleCheck>true</skipStyleCheck>
       <geronimo.jms.2.spec.version>1.0-alpha-1</geronimo.jms.2.spec.version>
+      
+      <javac-compiler-id>javac-with-errorprone</javac-compiler-id>
    </properties>
 
    <scm>
@@ -443,6 +445,17 @@
    </dependencyManagement>
 
    <profiles>
+       <profile>
+           <id>M2E</id>
+           <activation>
+               <property>
+                   <name>m2e.version</name>
+               </property> 
+           </activation>
+           <properties>
+               <javac-compiler-id>javac</javac-compiler-id>
+           </properties>
+        </profile>     
       <profile>
          <id>dev</id>
          <modules>
@@ -661,11 +674,14 @@
             <plugin>
                <groupId>org.apache.maven.plugins</groupId>
                <artifactId>maven-compiler-plugin</artifactId>
-               <version>3.1</version>
+               <version>3.2</version>
                <!-- Enable Google's Error-Prone https://github.com/google/error-prone -->
                <configuration>
-                 <compilerId>javac-with-errorprone</compilerId>
+                 <showWarnings>true</showWarnings>
+                 <source>1.7</source>
+                 <target>1.7</target>
                  <forceJavacCompilerUse>true</forceJavacCompilerUse>
+                 <compilerId>${javac-compiler-id}</compilerId>
                  <compilerArgs>
                     <arg>-Xep:NonAtomicVolatileUpdate:ERROR</arg>
                     <arg>-Xep:SynchronizeOnNonFinalField:ERROR</arg>
@@ -835,15 +851,6 @@
                </configuration>
              </execution>
            </executions>
-         </plugin>
-         <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-compiler-plugin</artifactId>
-            <configuration>
-               <showWarnings>true</showWarnings>
-               <source>1.7</source>
-               <target>1.7</target>
-            </configuration>
          </plugin>
          <plugin>
             <groupId>org.apache.maven.plugins</groupId>
