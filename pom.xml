@@ -38,14 +38,6 @@
    <name>ActiveMQ Artemis Parent</name>
    <url>http://apache.org/activemq</url>
 
-   <licenses>
-      <license>
-         <name>ASL 2.0</name>
-         <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-         <distribution>repo</distribution>
-      </license>
-   </licenses>
-
    <prerequisites>
       <maven>3.0.0</maven>
    </prerequisites>
