@@ -59,7 +59,7 @@ the developers use a mirror on GitHub for collaboration and pull-request review 
 
 1. Identify a task (e.g. a bug to fix or feature to implement)
 
-   https://issues.apache.org/jira/browse/ACTIVEMQ6
+   https://issues.apache.org/jira/browse/ARTEMIS
 
 1. Create a topic branch in your local git repo to do your work
 
@@ -72,7 +72,7 @@ the developers use a mirror on GitHub for collaboration and pull-request review 
    <a name="commitMessageDetails"></a> When you commit your changes you will need to supply a commit message. We follow the
     50/72 git commit message format. An ActiveMQ Artemis commit message should be formatted in the following manner:
                                                                         
-   1. Add the ACTIVEMQ6 JIRA (if one exists) followed by a brief description of the change in the first line. This line
+   1. Add the ARTEMIS JIRA (if one exists) followed by a brief description of the change in the first line. This line
       should be limited to 50 characters.
    1. Insert a single blank line after the first line.
    1. Provide a detailed description of the change in the following lines, breaking paragraphs where needed. These lines
@@ -80,7 +80,7 @@ the developers use a mirror on GitHub for collaboration and pull-request review 
                                                                         
    An example correctly formatted commit message:
                                                                         
-         ACTIVEMQ6-123 Add new commit msg format to README
+         ARTEMIS-123 Add new commit msg format to README
         
          Adds a description of the new commit message format as well as examples
          of well formatted commit messages to the README.md.  This is required 
