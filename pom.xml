@@ -132,7 +132,7 @@
 
    <issueManagement>
       <system>JIRA</system>
-      <url>https://issues.apache.org/jira/browse/ACTIVEMQ6</url>
+      <url>https://issues.apache.org/jira/browse/ARTEMIS</url>
    </issueManagement>
 
    <developers>
