@@ -70,6 +70,7 @@
       <skipPerformanceTests>true</skipPerformanceTests>
       <skipConcurrentTests>true</skipConcurrentTests>
       <skipRestTests>true</skipRestTests>
+      <skipActiveMQ5Tests>true</skipActiveMQ5Tests>
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
       <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
@@ -949,6 +950,12 @@
                   <exclude>**/org/apache/activemq/artemis/utils/json/**</exclude>
                   <exclude>**/org/apache/activemq/artemis/utils/Base64.java</exclude>
                   <exclude>ratReport.txt</exclude>
+                  <!-- activemq5 unit tests exclude -->
+                  <exclude>**/*.data</exclude>
+                  <exclude>**/*.bin</exclude>
+                  <exclude>**/src/test/resources/keystore</exclude>
+                  <exclude>**/*.log</exclude>
+                  <exclude>**/*.redo</exclude>
                </excludes>
             </configuration>
             <executions>
