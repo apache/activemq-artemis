@@ -126,59 +126,29 @@
       <system>JIRA</system>
       <url>https://issues.apache.org/jira/browse/ARTEMIS</url>
    </issueManagement>
-
    <developers>
-      <developer>
-         <id>clebertsuconic</id>
-         <name>Clebert Suconic</name>
-         <email>clebertsuconic@apache.org</email>
-         <url>http://twitter.com/clebertsuconic</url>
-         <roles>
-            <role>project-owner</role>
-         </roles>
-         <timezone>0</timezone>
-      </developer>
-      <developer>
-         <id>andytaylor</id>
-         <name>Andy Taylor</name>
-         <email>andytaylor@apache.org</email>
-         <url>http://hornetq.com</url>
-         <timezone>0</timezone>
-      </developer>
-      <developer>
-         <id>howardgao</id>
-         <name>Howard Gao</name>
-         <email>hgao@redhat.com</email>
-         <url>http://hornetq.com</url>
-         <timezone>0</timezone>
-      </developer>
-      <developer>
-         <id>justinbertram</id>
-         <name>Justin Bertram</name>
-         <email>jbertram@redhat.com</email>
-         <url>http://hornetq.com</url>
-         <timezone>0</timezone>
-      </developer>
-      <developer>
-         <id>martyntaylor</id>
-         <name>Martyn Taylor</name>
-         <email>mtaylor@redhat.com</email>
-         <url>http://www.redhat.com</url>
-         <timezone>0</timezone>
-      </developer>
+       <developer>
+           <name>The Apache ActiveMQ Team</name>
+           <email>dev@activemq.apache.org</email>
+           <url>http://activemq.apache.org</url>
+           <organization>Apache Software Foundation</organization>
+           <organizationUrl>http://apache.org/</organizationUrl>
+       </developer>
    </developers>
-
-   <contributors>
-      <contributor>
-         <name>Tim Fox</name>
-      </contributor>
-      <contributor>
-         <name>Jeff Mesnil</name>
-      </contributor>
-      <contributor>
-         <name>Francisco Borges</name>
-      </contributor>
-   </contributors>
+    <mailingLists>
+        <mailingList>
+            <name>User List</name>
+            <subscribe>users-subscribe@activemq.apache.org</subscribe>
+            <unsubscribe>users-unsubscribe@activemq.apache.org</unsubscribe>
+            <post>users@activemq.apache.org</post>
+        </mailingList>
+        <mailingList>
+            <name>Development List</name>
+            <subscribe>dev-subscribe@activemq.apache.org</subscribe>
+            <unsubscribe>dev-unsubscribe@activemq.apache.org</unsubscribe>
+            <post>dev@activemq.apache.org</post>
+        </mailingList>
+    </mailingLists>
 
    <dependencyManagement>
       <dependencies>
