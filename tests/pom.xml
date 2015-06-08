@@ -84,6 +84,15 @@
             <skipExtraTests>false</skipExtraTests>
          </properties>
       </profile>
+      <profile>
+         <id>activemq5-unit-tests</id>
+         <modules>
+            <module>activemq5-unit-tests</module>
+         </modules>
+         <properties>
+            <skipActiveMQ5Tests>false</skipActiveMQ5Tests>
+         </properties>
+      </profile>
    </profiles>
 
    <modules>

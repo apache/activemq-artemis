@@ -1,0 +1,387 @@
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+   <modelVersion>4.0.0</modelVersion>
+
+   <parent>
+      <groupId>org.apache.activemq.tests</groupId>
+      <artifactId>artemis-tests-pom</artifactId>
+      <version>1.0.0-SNAPSHOT</version>
+   </parent>
+
+   <artifactId>activemq5-unit-tests</artifactId>
+   <packaging>jar</packaging>
+   <name>ActiveMQ5.x unit tests</name>
+
+   <properties>
+      <activemq.basedir>${project.basedir}/../..</activemq.basedir>
+      <activemq5.project.version>5.11.1</activemq5.project.version>
+      <jmdns-version>3.4.1</jmdns-version>
+      <ftpserver-version>1.0.6</ftpserver-version>
+      <jmock-version>2.5.1</jmock-version>
+      <spring-version>3.2.11.RELEASE</spring-version>
+      <org-apache-derby-version>10.11.1.1</org-apache-derby-version>
+      <commons-io-version>2.4</commons-io-version>
+      <commons-net-version>3.3</commons-net-version>
+      <qpid-jms-version>0.30</qpid-jms-version>
+      <xbean-version>3.18</xbean-version>
+      <hamcrest-version>1.3</hamcrest-version>
+      <slf4j-version>1.7.10</slf4j-version>
+      <jasypt-version>1.9.2</jasypt-version>
+      <directory-version>2.0.0-M6</directory-version>
+      <activeio-core-version>3.1.4</activeio-core-version>
+      
+   </properties>
+
+   <dependencies>
+
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>activemq-client</artifactId>
+         <version>${activemq5.project.version}</version>
+      </dependency>
+
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>activemq-jaas</artifactId>
+         <version>${activemq5.project.version}</version>
+      </dependency>
+
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>activemq-broker</artifactId>
+         <version>${activemq5.project.version}</version>
+         <type>test-jar</type>
+      </dependency>
+
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>activemq-jdbc-store</artifactId>
+         <version>${activemq5.project.version}</version>
+      </dependency>
+
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>activemq-kahadb-store</artifactId>
+         <version>${activemq5.project.version}</version>
+      </dependency>
+
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>activemq-leveldb-store</artifactId>
+         <version>${activemq5.project.version}</version>
+      </dependency>
+
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>activemq-pool</artifactId>
+         <version>${activemq5.project.version}</version>
+      </dependency>
+
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>activemq-spring</artifactId>
+         <version>${activemq5.project.version}</version>
+      </dependency>
+
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>activemq-partition</artifactId>
+         <version>${activemq5.project.version}</version>
+      </dependency>
+
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>activemq-stomp</artifactId>
+         <version>${activemq5.project.version}</version>
+      </dependency>
+
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>activemq-console</artifactId>
+         <version>${activemq5.project.version}</version>
+      </dependency>
+
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>activeio-core</artifactId>
+         <version>${activeio-core-version}</version>
+      </dependency>
+
+      <dependency>
+         <groupId>junit</groupId>
+         <artifactId>junit</artifactId>
+         <version>4.11</version>
+         <scope>compile</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>org.osgi</groupId>
+        <artifactId>org.osgi.core</artifactId>
+        <version>4.3.1</version>
+      </dependency>
+
+      <dependency>
+         <groupId>javax.jmdns</groupId>
+         <artifactId>jmdns</artifactId>
+         <version>${jmdns-version}</version>
+      </dependency>
+
+      <dependency>
+         <groupId>org.apache.ftpserver</groupId>
+         <artifactId>ftpserver-core</artifactId>
+         <version>${ftpserver-version}</version>
+         <scope>test</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jmock</groupId>
+        <artifactId>jmock-junit4</artifactId>
+        <version>${jmock-version}</version>
+        <scope>test</scope>
+      </dependency>
+
+      <dependency>
+         <groupId>org.jmock</groupId>
+         <artifactId>jmock-legacy</artifactId>
+         <version>${jmock-version}</version>
+         <scope>test</scope>
+      </dependency>
+
+      <dependency>
+         <groupId>org.springframework</groupId>
+         <artifactId>spring-jms</artifactId>
+         <version>${spring-version}</version>
+         <scope>test</scope>
+      </dependency>
+
+      <dependency>
+         <groupId>org.apache.derby</groupId>
+         <artifactId>derby</artifactId>
+         <version>${org-apache-derby-version}</version>
+         <scope>test</scope>
+      </dependency>
+
+      <dependency>
+         <groupId>commons-io</groupId>
+         <artifactId>commons-io</artifactId>
+         <version>${commons-io-version}</version>
+         <scope>test</scope>
+      </dependency>
+
+      <dependency>
+         <groupId>commons-net</groupId>
+         <artifactId>commons-net</artifactId>
+         <version>${commons-net-version}</version>
+      </dependency>
+
+      <dependency>
+         <groupId>org.apache.qpid</groupId>
+         <artifactId>qpid-amqp-1-0-client-jms</artifactId>
+         <version>${qpid-jms-version}</version>
+         <scope>test</scope>
+      </dependency>
+
+      <dependency>
+         <groupId>org.apache.xbean</groupId>
+         <artifactId>xbean-spring</artifactId>
+         <version>${xbean-version}</version>
+         <scope>test</scope>
+      </dependency>
+
+      <dependency>
+         <groupId>org.hamcrest</groupId>
+         <artifactId>hamcrest-all</artifactId>
+         <version>${hamcrest-version}</version>
+         <scope>test</scope>
+      </dependency>
+
+      <dependency>
+         <groupId>org.slf4j</groupId>
+         <artifactId>slf4j-log4j12</artifactId>
+         <version>${slf4j-version}</version>
+         <scope>test</scope>
+      </dependency>
+
+      <dependency>
+         <groupId>log4j</groupId>
+         <artifactId>log4j</artifactId>
+         <scope>test</scope>
+       </dependency>
+
+      <dependency>
+         <groupId>org.springframework</groupId>
+         <artifactId>spring-test</artifactId>
+         <version>${spring-version}</version>
+         <scope>test</scope>
+      </dependency>
+
+      <dependency>
+         <groupId>org.jasypt</groupId>
+         <artifactId>jasypt</artifactId>
+         <version>${jasypt-version}</version>
+      </dependency>
+
+      <dependency>
+         <groupId>org.jasypt</groupId>
+         <artifactId>jasypt-spring31</artifactId>
+         <version>${jasypt-version}</version>
+         <optional>true</optional>
+      </dependency>
+
+      <dependency>
+         <groupId>org.apache.directory.server</groupId>
+         <artifactId>apacheds-core-integ</artifactId>
+         <version>${directory-version}</version>
+         <scope>test</scope>
+         <exclusions>
+            <exclusion>
+               <groupId>bouncycastle</groupId>
+               <artifactId>bcprov-jdk15</artifactId>
+            </exclusion>
+         </exclusions>
+      </dependency>
+
+      <dependency>
+         <groupId>org.bouncycastle</groupId>
+         <artifactId>bcprov-jdk15</artifactId>
+         <version>1.46</version>
+         <scope>test</scope>
+      </dependency>
+
+      <dependency>
+         <groupId>org.apache.directory.server</groupId>
+         <artifactId>apacheds-server-integ</artifactId>
+         <version>${directory-version}</version>
+         <scope>test</scope>
+      </dependency>
+
+      <dependency>
+         <groupId>org.fusesource.joram-jms-tests</groupId>
+         <artifactId>joram-jms-tests</artifactId>
+         <version>1.0</version>
+         <scope>test</scope>
+      </dependency>
+
+      <dependency>
+         <groupId>org.easymock</groupId>
+         <artifactId>easymock</artifactId>
+         <version>3.2</version>
+         <scope>test</scope>
+      </dependency>
+
+      <dependency>
+         <groupId>org.fusesource.mqtt-client</groupId>
+         <artifactId>mqtt-client</artifactId>
+         <version>1.10</version>
+         <scope>test</scope>
+      </dependency>
+
+      <!-- artemis modules -->
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>artemis-commons</artifactId>
+         <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>artemis-server</artifactId>
+         <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>artemis-openwire-protocol</artifactId>
+         <version>${project.version}</version>
+      </dependency>
+
+   </dependencies>
+
+   <build>
+      <plugins>
+         <plugin>
+            <groupId>org.apache.rat</groupId>
+            <artifactId>apache-rat-plugin</artifactId>
+            <version>0.11</version>
+            <configuration>
+               <reportFile>${activemq.basedir}/ratReport.txt</reportFile>
+               <skip>${skipLicenseCheck}</skip>
+               <excludes>
+                  <exclude>**/*.data</exclude>
+                  <exclude>**/*.bin</exclude>
+                  <exclude>**/*.log</exclude>
+                  <exclude>**/*.redo</exclude>
+                  <exclude>**/src/test/resources/keystore</exclude>
+                  <exclude>**/META-INF/services/*</exclude>
+                  <exclude>**/*/*.txt</exclude>
+                  <exclude>**/*.md</exclude>
+               </excludes>
+            </configuration>
+            <executions>
+               <execution>
+                  <phase>compile</phase>
+                  <goals>
+                     <goal>check</goal>
+                  </goals>
+               </execution>
+            </executions>
+         </plugin>
+
+         <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-checkstyle-plugin</artifactId>
+            <version>2.12</version>
+            <configuration>
+               <skip>true</skip>
+            </configuration>
+            <executions>
+               <execution>
+                  <phase>compile</phase>
+                  <goals>
+                     <goal>check</goal>
+                  </goals>
+               </execution>
+            </executions>
+         </plugin>
+
+         <plugin>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>maven-bundle-plugin</artifactId>
+            <version>2.5.3</version>
+            <inherited>true</inherited>
+            <extensions>true</extensions>
+            <configuration>
+               <instructions>
+                  <Bundle-Activator>org.apache.activemq.util.osgi.Activator</Bundle-Activator>
+               </instructions>
+            </configuration>
+         </plugin>
+
+         <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+               <skipTests>${skipActiveMQ5Tests}</skipTests>
+            </configuration>
+         </plugin>
+ 
+      </plugins>
+   </build>
+
+</project>
+
