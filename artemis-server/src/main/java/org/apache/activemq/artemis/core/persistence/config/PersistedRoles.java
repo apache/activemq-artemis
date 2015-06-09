@@ -54,7 +54,6 @@ public class PersistedRoles implements EncodingSupport
    }
 
    /**
-    * @param address
     * @param addressMatch
     * @param sendRoles
     * @param consumeRoles

@@ -412,7 +412,7 @@ public final class SharedNothingBackupActivation extends Activation
    /**
     * Whether a remote backup server was in sync with its live server. If it was not in sync, it may
     * not take over the live's functions.
-    * <p/>
+    * <p>
     * A local backup server or a live server should always return {@code true}
     *
     * @return whether the backup is up-to-date, if the server is not a backup it always returns

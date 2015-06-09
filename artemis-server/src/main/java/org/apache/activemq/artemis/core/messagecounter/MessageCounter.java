@@ -557,7 +557,7 @@ public class MessageCounter
       }
 
       /**
-       * Return day counter data as string with format<br/>
+       * Return day counter data as string with format<br>
        * "Date, hour counter 0, hour counter 1, ..., hour counter 23".
        * @return String day counter data
        */

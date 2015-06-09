@@ -90,7 +90,7 @@ import org.apache.activemq.artemis.utils.TypedProperties;
 
 /**
  * Implementation of a Queue
- * <p/>
+ * <p>
  * Completely non blocking between adding to queue and delivering to consumers.
  */
 public class QueueImpl implements Queue

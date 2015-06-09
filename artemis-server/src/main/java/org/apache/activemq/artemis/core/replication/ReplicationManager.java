@@ -68,7 +68,7 @@ import org.apache.activemq.artemis.utils.ExecutorFactory;
 /**
  * Manages replication tasks on the live server (that is the live server side of a "remote backup"
  * use case).
- * <p/>
+ * <p>
  * Its equivalent in the backup server is {@link ReplicationEndpoint}.
  *
  * @see ReplicationEndpoint
@@ -309,7 +309,7 @@ public final class ReplicationManager implements ActiveMQComponent
 
    /**
     * Completes any pending operations.
-    * <p/>
+    * <p>
     * This can be necessary in case the live loses connection to the backup (network failure, or
     * backup crashing).
     */
@@ -607,7 +607,7 @@ public final class ReplicationManager implements ActiveMQComponent
 
    /**
     * Informs backup that data synchronization is done.
-    * <p/>
+    * <p>
     * So if 'live' fails, the (up-to-date) backup now may take over its duties. To do so, it must
     * know which is the live's {@code nodeID}.
     *
@@ -624,7 +624,7 @@ public final class ReplicationManager implements ActiveMQComponent
 
    /**
     * Reserves several LargeMessage IDs in the backup.
-    * <p/>
+    * <p>
     * Doing this before hand removes the need of synchronizing large-message deletes with the
     * largeMessageSyncList.
     *
@@ -641,7 +641,7 @@ public final class ReplicationManager implements ActiveMQComponent
 
    /**
     * Notifies the backup that the live server is stopping.
-    * <p/>
+    * <p>
     * This notification allows the backup to skip quorum voting (or any other measure to avoid
     * 'split-brain') and do a faster fail-over.
     *

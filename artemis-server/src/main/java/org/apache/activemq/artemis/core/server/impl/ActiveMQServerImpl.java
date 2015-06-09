@@ -814,7 +814,7 @@ public class ActiveMQServerImpl implements ActiveMQServer
 
    /**
     * Freeze all connections.
-    * <p/>
+    * <p>
     * If replicating, avoid freezing the replication connection. Helper method for
     * {@link #stop(boolean, boolean, boolean)}.
     */
@@ -1314,7 +1314,7 @@ public class ActiveMQServerImpl implements ActiveMQServer
    /**
     * Creates a transient queue. A queue that will exist as long as there are consumers.
     * The queue will be deleted as soon as all the consumers are removed.
-    * <p/>
+    * <p>
     * Notice: the queue won't be deleted until the first consumer arrives.
     *
     * @param address
@@ -1708,7 +1708,7 @@ public class ActiveMQServerImpl implements ActiveMQServer
 
    /**
     * Starts everything apart from RemotingService and loading the data.
-    * <p/>
+    * <p>
     * After optional intermediary steps, Part 1 is meant to be followed by part 2
     * {@link #initialisePart2(boolean)}.
     * @param scalingDown
@@ -2350,7 +2350,7 @@ public class ActiveMQServerImpl implements ActiveMQServer
 
    /**
     * Move data away before starting data synchronization for fail-back.
-    * <p/>
+    * <p>
     * Use case is a server, upon restarting, finding a former backup running in its place. It will
     * move any older data away and log a warning about it.
     */

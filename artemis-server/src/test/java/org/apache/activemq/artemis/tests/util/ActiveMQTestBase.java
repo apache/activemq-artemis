@@ -3006,7 +3006,7 @@ public abstract class ActiveMQTestBase extends Assert
 
    /**
     * Asserts that latch completes within a (rather large interval).
-    * <p/>
+    * <p>
     * Use this instead of just calling {@code latch.await()}. Otherwise your test may hang the whole
     * test run if it fails to count-down the latch.
     *

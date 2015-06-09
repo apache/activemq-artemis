@@ -113,7 +113,7 @@ public class AnyLiveNodeLocatorForReplication extends LiveNodeLocator
    /**
     * if a node goes down we try all the connectors again as one may now be available for
     * replication
-    * <p/>
+    * <p>
     * TODO: there will be a better way to do this by finding which nodes backup has gone down.
     */
    @Override

@@ -155,7 +155,6 @@ public class ReplicationStartSyncMessage extends PacketImpl
 
    /**
     * @return whether the server is configured to allow for fail-back
-    * @see Configuration#isAllowAutoFailBack()
     */
    public boolean isServerToFailBack()
    {

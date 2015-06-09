@@ -76,7 +76,7 @@ public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T
     * <p>
     * We could have a race between the state of {@link #matches} and {@link #cache}:
     * <p>
-    * Thread1: calls {@link #addMatch(String , T)}: i. cleans cache; ii. adds match to Map.<br/>
+    * Thread1: calls {@link #addMatch(String , T)}: i. cleans cache; ii. adds match to Map.<br>
     * Thread2: could add an (out-dated) entry to the cache between 'i. clean cache' and 'ii. add
     * match to Map'.
     * <p>

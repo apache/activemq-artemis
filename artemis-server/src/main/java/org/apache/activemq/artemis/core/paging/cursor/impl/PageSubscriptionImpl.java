@@ -189,7 +189,7 @@ final class PageSubscriptionImpl implements PageSubscription
 
    /**
     * A page marked as complete will be ignored until it's cleared.
-    * <p/>
+    * <p>
     * Usually paging is a stream of messages but in certain scenarios (such as a pending prepared
     * TX) we may have big holes on the page streaming, and we will need to ignore such pages on the
     * cursor/subscription.
@@ -989,7 +989,7 @@ final class PageSubscriptionImpl implements PageSubscription
 
    /**
     * This will hold information about the pending ACKs towards a page.
-    * <p/>
+    * <p>
     * This instance will be released as soon as the entire page is consumed, releasing the memory at
     * that point The ref counts are increased also when a message is ignored for any reason.
     */

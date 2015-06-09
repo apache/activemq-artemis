@@ -57,7 +57,7 @@ public class SharedNothingBackupQuorum implements Quorum, FailureListener
     * This is a safety net in case the live sends the first {@link ReplicationLiveIsStoppingMessage}
     * with code {@link org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationLiveIsStoppingMessage.LiveStopping#STOP_CALLED} and crashes before sending the second with
     * {@link org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationLiveIsStoppingMessage.LiveStopping#FAIL_OVER}.
-    * <p/>
+    * <p>
     * If the second message does come within this dead line, we fail over anyway.
     */
    public static final int WAIT_TIME_AFTER_FIRST_LIVE_STOPPING_MSG = 60;
@@ -186,7 +186,7 @@ public class SharedNothingBackupQuorum implements Quorum, FailureListener
 
    /**
     * Releases the latch, causing the backup activation thread to fail-over.
-    * <p/>
+    * <p>
     * The use case is for when the 'live' has an orderly shutdown, in which case it informs the
     * backup that it should fail-over.
     */

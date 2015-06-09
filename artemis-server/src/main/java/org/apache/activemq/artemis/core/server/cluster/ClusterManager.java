@@ -69,7 +69,7 @@ import org.apache.activemq.artemis.utils.FutureLatch;
 
 /**
  * A ClusterManager manages {@link ClusterConnection}s, {@link BroadcastGroup}s and {@link Bridge}s.
- * <p/>
+ * <p>
  * Note that {@link org.apache.activemq.artemis.core.server.cluster.impl.ClusterConnectionBridge}s extend Bridges but are controlled over through
  * {@link ClusterConnectionImpl}. As a node is discovered a new {@link org.apache.activemq.artemis.core.server.cluster.impl.ClusterConnectionBridge} is
  * deployed.
@@ -128,7 +128,7 @@ public final class ClusterManager implements ActiveMQComponent
       /**
        * Deployed means {@link ClusterManager#deploy()} was called but
        * {@link ClusterManager#start()} was not called.
-       * <p/>
+       * <p>
        * We need the distinction if {@link ClusterManager#stop()} is called before 'start'. As
        * otherwise we would leak locators.
        */

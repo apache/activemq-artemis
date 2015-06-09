@@ -16,10 +16,12 @@
  */
 package org.apache.activemq.artemis.core.server;
 
+import javax.management.MBeanServer;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.BridgeConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
@@ -47,8 +49,6 @@ import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.protocol.SessionCallback;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
-
-import javax.management.MBeanServer;
 
 /**
  * This interface defines the internal interface of the ActiveMQ Artemis Server exposed to other components
@@ -152,9 +152,7 @@ public interface ActiveMQServer extends ActiveMQComponent
    void setJMSQueueCreator(QueueCreator queueCreator);
 
    /**
-    * @see {@link org.apache.activemq.artemis.core.server.ActiveMQServer#setJMSQueueCreator(QueueCreator)} *
-    * *
-    * @return
+    * @see org.apache.activemq.artemis.core.server.ActiveMQServer#setJMSQueueCreator(QueueCreator)
     */
    QueueCreator getJMSQueueCreator();
 
@@ -162,10 +160,11 @@ public interface ActiveMQServer extends ActiveMQComponent
     * Wait for server initialization.
     * @param timeout
     * @param unit
-    * @see CountDownLatch#await(long, TimeUnit)
     * @return {@code true} if the server was already initialized or if it was initialized within the
     *         timeout period, {@code false} otherwise.
     * @throws InterruptedException
+
+    * @see java.util.concurrent.CountDownLatch#await(long, java.util.concurrent.TimeUnit)
     */
    boolean waitForActivation(long timeout, TimeUnit unit) throws InterruptedException;
 

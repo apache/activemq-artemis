@@ -130,14 +130,14 @@ import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalR
  * Controls access to the journals and other storage files such as the ones used to store pages and
  * large messages. This class must control writing of any non-transient data, as it is the key point
  * for synchronizing a replicating backup server.
- * <p/>
+ * <p>
  * Using this class also ensures that locks are acquired in the right order, avoiding dead-locks.
- * <p/>
+ * <p>
  * Notice that, turning on and off replication (on the live server side) is _mostly_ a matter of
  * using {@link ReplicatedJournal}s instead of regular {@link JournalImpl}, and sync the existing
  * data. For details see the Javadoc of
  * {@link #startReplication(ReplicationManager, PagingManager, String, boolean)}.
- * <p/>
+ * <p>
  */
 public class JournalStorageManager implements StorageManager
 {
@@ -342,17 +342,17 @@ public class JournalStorageManager implements StorageManager
 
    /**
     * Starts replication at the live-server side.
-    * <p/>
-    * In practice that means 2 things:<br/>
-    * (1) all currently existing data must be sent to the backup.<br/>
+    * <p>
+    * In practice that means 2 things:<br>
+    * (1) all currently existing data must be sent to the backup.<br>
     * (2) every new persistent information is replicated (sent) to the backup.
-    * <p/>
+    * <p>
     * To achieve (1), we lock the entire journal while collecting the list of files to send to the
     * backup. The journal does not remain locked during actual synchronization.
-    * <p/>
+    * <p>
     * To achieve (2), instead of writing directly to instances of {@link JournalImpl}, we write to
     * instances of {@link ReplicatedJournal}.
-    * <p/>
+    * <p>
     * At the backup-side replication is handled by {@link org.apache.activemq.artemis.core.replication.ReplicationEndpoint}.
     *
     * @param replicationManager
@@ -606,9 +606,9 @@ public class JournalStorageManager implements StorageManager
 
    /**
     * Sets a list of large message files into the replicationManager for synchronization.
-    * <p/>
+    * <p>
     * Collects a list of existing large messages and their current size, passing re.
-    * <p/>
+    * <p>
     * So we know how much of a given message to sync with the backup. Further data appends to the
     * messages will be replicated normally.
     *
@@ -3569,7 +3569,7 @@ public class JournalStorageManager implements StorageManager
 
    /**
     * This is only used when loading a transaction.
-    * <p/>
+    * <p>
     * it might be possible to merge the functionality of this class with
     * {@link org.apache.activemq.artemis.core.persistence.impl.journal.JournalStorageManager.FinishPageMessageOperation}
     */

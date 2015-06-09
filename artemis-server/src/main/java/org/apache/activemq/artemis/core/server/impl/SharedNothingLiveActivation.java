@@ -305,7 +305,7 @@ public class SharedNothingLiveActivation extends LiveActivation
    }
    /**
     * Determines whether there is another server already running with this server's nodeID.
-    * <p/>
+    * <p>
     * This can happen in case of a successful fail-over followed by the live's restart
     * (attempting a fail-back).
     *

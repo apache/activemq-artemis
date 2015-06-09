@@ -20,7 +20,7 @@ import org.apache.activemq.artemis.api.core.Message;
 
 /**
  * {@link org.apache.activemq.artemis.core.server.LargeServerMessage} methods used by the {@link ReplicationEndpoint}.
- * <p/>
+ * <p>
  * In practice a subset of the methods necessary to have a {@link org.apache.activemq.artemis.core.server.LargeServerMessage}
  *
  * @see org.apache.activemq.artemis.core.persistence.impl.journal.LargeServerMessageInSync
@@ -48,7 +48,7 @@ public interface ReplicatedLargeMessage
    void deleteFile() throws Exception;
 
    /**
-    * @see LargeServerMessage#addBytes(byte[])
+    * @see org.apache.activemq.artemis.core.server.LargeServerMessage#addBytes(byte[])
     */
    void addBytes(byte[] body) throws Exception;
 

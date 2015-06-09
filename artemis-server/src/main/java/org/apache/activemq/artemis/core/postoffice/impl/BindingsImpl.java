@@ -358,8 +358,8 @@ public final class BindingsImpl implements Bindings
 
    /**
     * This code has a race on the assigned value to routing names.
-    * <p/>
-    * This is not that much of an issue because<br/>
+    * <p>
+    * This is not that much of an issue because<br>
     * Say you have the same queue name bound into two servers. The routing will load balance between
     * these two servers. This will eventually send more messages to one server than the other
     * (depending if you are using multi-thread), and not lose messages.

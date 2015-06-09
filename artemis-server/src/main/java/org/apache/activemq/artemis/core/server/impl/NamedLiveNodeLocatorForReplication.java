@@ -31,7 +31,7 @@ import org.apache.activemq.artemis.core.server.cluster.qourum.SharedNothingBacku
 /**
  * NamedLiveNodeLocatorForReplication looks for a live server in the cluster with a specific backupGroupName
  *
- * @see org.apache.activemq.artemis.core.server.cluster.ha.HAPolicy#getGroupName()
+ * @see org.apache.activemq.artemis.core.server.cluster.ha.HAPolicy#getScaleDownGroupName()
  */
 public class NamedLiveNodeLocatorForReplication extends LiveNodeLocator
 {
