@@ -34,6 +34,10 @@ public class ActiveMQFrameDecoder2 extends LengthFieldBasedFrameDecoder
    @Override
    protected ByteBuf extractFrame(ChannelHandlerContext ctx, ByteBuf buffer, int index, int length)
    {
-      return super.extractFrame(ctx, buffer, index, length).skipBytes(DataConstants.SIZE_INT);
+      // This is a work around on https://github.com/netty/netty/commit/55fbf007f04fbba7bf50028f3c8b35d6c5ea5947
+      // Right now we need a copy when sending a message on the server otherwise messages won't be resent to the client
+      ByteBuf frame = ctx.alloc().buffer(length);
+      frame.writeBytes(buffer, index, length);
+      return frame.skipBytes(DataConstants.SIZE_INT);
    }
 }
