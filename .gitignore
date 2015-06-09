@@ -8,3 +8,4 @@ ratReport.txt
 .project
 .settings
 .checkstyle
+.factorypath
