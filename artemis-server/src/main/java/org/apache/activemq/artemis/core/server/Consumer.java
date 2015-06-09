@@ -23,7 +23,7 @@ import org.apache.activemq.artemis.core.filter.Filter;
 public interface Consumer
 {
    /**
-    * There was a change on semantic during 2.3 here.<br/>
+    * There was a change on semantic during 2.3 here.<br>
     * We now first accept the message, and the actual deliver is done as part of
     * {@link #proceedDeliver(MessageReference)}. This is to avoid holding a lock on the queues while
     * the delivery is being accomplished To avoid a lock on the queue in case of misbehaving
@@ -48,8 +48,7 @@ public interface Consumer
    Filter getFilter();
 
    /**
-    * Add the in-deliver mode messages to the ref-list passed as parameter
-    * @param refList the placeholder for where the output messages will be placed
+    * @return the list of messages being delivered
     */
    List<MessageReference>  getDeliveringMessages();
 

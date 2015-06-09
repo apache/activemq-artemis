@@ -55,8 +55,8 @@ public interface Binding extends UnproposalListener
 
    /**
     * This method will create a string representation meant for management operations.
-    * <p/>
-    * This is different from the {@link #toString()} method that is meant for debugging and will
+    * <p>
+    * This is different from the toString() method that is meant for debugging and will
     * contain information that regular users won't understand well.
     *
     * @return

@@ -433,7 +433,6 @@ public class ReplicatedJournal implements Journal
 
    /**
     * @param pages
-    * @throws Exception
     * @see org.apache.activemq.artemis.core.journal.Journal#perfBlast(int)
     */
    public void perfBlast(final int pages)

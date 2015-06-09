@@ -40,7 +40,7 @@ import org.apache.activemq.artemis.utils.TypedProperties;
 
 /**
  * A remote Grouping handler.
- * <p/>
+ * <p>
  * This will use management notifications to communicate with the node that has the Local Grouping
  * handler to make proposals.
  */

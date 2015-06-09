@@ -349,7 +349,7 @@ public interface StorageManager extends IDGenerator, ActiveMQComponent
 
    /**
     * Write message to page if we are paging.
-    * <p/>
+    * <p>
     * This is primarily a {@link PagingStore} call, but as with any other call writing persistent
     * data, it must go through here. Both for the sake of replication, and also to ensure that it
     * takes the locks (storage manager and pagingStore) in the right order. Avoiding thus the
@@ -363,7 +363,7 @@ public interface StorageManager extends IDGenerator, ActiveMQComponent
 
    /**
     * Stops the replication of data from the live to the backup.
-    * <p/>
+    * <p>
     * Typical scenario is a broken connection.
     */
    void stopReplication();
@@ -393,7 +393,7 @@ public interface StorageManager extends IDGenerator, ActiveMQComponent
 
    /**
     * Read lock the StorageManager. USE WITH CARE!
-    * <p/>
+    * <p>
     * The main lock is used to write lock the whole manager when starting replication. Sub-systems,
     * say Paging classes, that use locks of their own AND also write through the StorageManager MUST
     * first read lock the storageManager before taking their own locks. Otherwise, we may dead-lock
@@ -410,7 +410,7 @@ public interface StorageManager extends IDGenerator, ActiveMQComponent
 
    /**
     * Closes the {@link IDGenerator} persisting the current record ID.
-    * <p/>
+    * <p>
     * Effectively a "pre-stop" method. Necessary due to the "stop"-order at
     * {@link org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl}
     */

@@ -94,7 +94,7 @@ public abstract class NodeManager implements ActiveMQComponent
 
    /**
     * Sets the nodeID.
-    * <p/>
+    * <p>
     * Only used by replicating backups.
     *
     * @param nodeID
@@ -146,7 +146,7 @@ public abstract class NodeManager implements ActiveMQComponent
 
    /**
     * Ensures existence of persistent information about the server's nodeID.
-    * <p/>
+    * <p>
     * Roughly the different use cases are:
     * <ol>
     * <li>old live server restarts: a server.lock file already exists and contains a nodeID.
@@ -155,9 +155,6 @@ public abstract class NodeManager implements ActiveMQComponent
     * <li>replicated backup received its nodeID from its live: no file exists, we need to persist
     * the *current* nodeID
     * </ol>
-    *
-    * @throws Exception
-    * @throws IOException
     */
    protected final synchronized void setUpServerLockFile() throws IOException
    {

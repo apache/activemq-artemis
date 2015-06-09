@@ -1086,7 +1086,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
                html.append("<td colspan=\"3\">" + propstr.toString() + "</td></tr>");
             }
             html.append("</table></td></tr>");
-            html.append("</table><br/>");
+            html.append("</table><br>");
          }
 
          return html.toString();

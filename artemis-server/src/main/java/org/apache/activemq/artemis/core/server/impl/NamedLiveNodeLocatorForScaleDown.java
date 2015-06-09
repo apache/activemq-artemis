@@ -33,8 +33,6 @@ import org.apache.activemq.artemis.core.server.LiveNodeLocator;
 
 /**
  * NamedLiveNodeLocatorForScaleDown looks for a live server in the cluster with a specific scaleDownGroupName
- *
- * @see org.apache.activemq.artemis.core.config.Configuration#getScaleDownGroupName()
  */
 public class NamedLiveNodeLocatorForScaleDown extends LiveNodeLocator
 {

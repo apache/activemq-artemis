@@ -80,7 +80,7 @@ import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalR
 
 /**
  * Outputs a String description of the Journals contents.
- * <p/>
+ * <p>
  * Meant to be used in debugging.
  */
 public final class DescribeJournal

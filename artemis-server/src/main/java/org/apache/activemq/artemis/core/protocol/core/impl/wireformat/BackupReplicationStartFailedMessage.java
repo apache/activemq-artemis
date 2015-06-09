@@ -16,17 +16,16 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
-import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
-import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
-
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
+
 /**
  * Informs the Backup trying to start replicating of an error.
- * @see org.apache.activemq.artemis.core.server.impl.ReplicationError
  */
 public final class BackupReplicationStartFailedMessage extends PacketImpl
 {

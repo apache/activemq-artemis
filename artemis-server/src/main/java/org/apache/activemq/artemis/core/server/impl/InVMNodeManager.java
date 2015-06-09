@@ -31,7 +31,7 @@ import org.apache.activemq.artemis.utils.UUIDGenerator;
 
 /**
  * NodeManager used to run multiple servers in the same VM.
- * <p/>
+ * <p>
  * We use the {@link org.apache.activemq.artemis.core.server.impl.InVMNodeManager} instead of {@link org.apache.activemq.artemis.core.server.impl.FileLockNodeManager} when
  * multiple servers are run inside the same VM and File Locks can not be shared in the
  * same VM (it would cause a shared lock violation).

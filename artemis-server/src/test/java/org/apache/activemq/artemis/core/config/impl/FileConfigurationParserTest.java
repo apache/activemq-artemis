@@ -34,7 +34,7 @@ public class FileConfigurationParserTest extends ActiveMQTestBase
    /**
     * These "InvalidConfigurationTest*.xml" files are modified copies of {@value
     * ConfigurationTest-full-config.xml}, so just diff it for changes, e.g.
-    * <p/>
+    * <p>
     * <pre>
     * diff ConfigurationTest-full-config.xml InvalidConfigurationTest4.xml
     * </pre>
