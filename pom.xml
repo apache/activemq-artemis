@@ -674,7 +674,9 @@
             <plugin>
                <groupId>org.apache.maven.plugins</groupId>
                <artifactId>maven-compiler-plugin</artifactId>
-               <version>3.2</version>
+               <!-- version 3.2 is having problems with the APT processor resulting in
+                    java.lang.IllegalStateException: endPosTable already set  -->
+               <version>3.1</version>
                <!-- Enable Google's Error-Prone https://github.com/google/error-prone -->
                <configuration>
                  <showWarnings>true</showWarnings>
