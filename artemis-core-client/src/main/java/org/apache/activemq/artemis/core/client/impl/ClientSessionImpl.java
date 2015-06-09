@@ -1857,7 +1857,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
     * If you ever tried to debug XIDs you will know what this is about.
     * This will serialize and deserialize the XID to the same way it's going to be printed on server logs
     * or print-data.
-    * <p/>
+    * <p>
     * This will convert to the same XID deserialized on the Server, hence we will be able to debug eventual stuff
     *
     * @param xid

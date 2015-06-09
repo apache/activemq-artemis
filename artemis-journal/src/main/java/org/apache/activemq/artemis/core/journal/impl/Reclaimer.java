@@ -21,7 +21,7 @@ import org.apache.activemq.artemis.journal.ActiveMQJournalLogger;
 
 /**
  *
- * <p>The journal consists of an ordered list of journal files Fn where 0 <= n <= N</p>
+ * <p>The journal consists of an ordered list of journal files Fn where {@code 0 <= n <= N}</p>
  *
  * <p>A journal file can contain either positives (pos) or negatives (neg)</p>
  *
@@ -29,9 +29,9 @@ import org.apache.activemq.artemis.journal.ActiveMQJournalLogger;
  *
  * <p>A file Fn can be deleted if, and only if the following criteria are satisified</p>
  *
- * <p>1) All pos in a file Fn, must have corresponding neg in any file Fm where m >= n.</p>
+ * <p>1) All pos in a file Fn, must have corresponding neg in any file Fm where {@code m >= n}.</p>
  *
- * <p>2) All pos that correspond to any neg in file Fn, must all live in any file Fm where 0 <= m <= n
+ * <p>2) All pos that correspond to any neg in file Fn, must all live in any file Fm where {@code 0 <= m <= n}
  * which are also marked for deletion in the same pass of the algorithm.</p>
  */
 public class Reclaimer

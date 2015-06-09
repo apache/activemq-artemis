@@ -204,7 +204,6 @@ public class FileJMSConfiguration extends JMSConfigurationImpl implements Deploy
     * @param queues
     * @param topics
     * @param domain
-    * @return
     */
    protected void newConfig(final ArrayList<JMSQueueConfiguration> queues,
                             final ArrayList<TopicConfiguration> topics, String domain)

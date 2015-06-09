@@ -35,7 +35,6 @@ import java.util.concurrent.TimeUnit;
  * JGroups channels.
  *
  * @see JGroupsBroadcastEndpoint
- * @see UDPBroadcastEndpoint
  */
 public interface BroadcastEndpoint
 {

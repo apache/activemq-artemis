@@ -55,7 +55,7 @@ public interface Acceptor extends ActiveMQComponent
 
    /**
     * Whether this acceptor allows insecure connections.
-    * @throws java.lang.IllegalStatException if false @setDefaultActiveMQPrincipal
+    * @throws java.lang.IllegalStateException if false @setDefaultActiveMQPrincipal
     */
    boolean isUnsecurable();
 }

@@ -150,8 +150,6 @@ public final class ObjectNameBuilder
 
    /**
     * Returns the ObjectName used by DiscoveryGroupControl.
-    *
-    * @see DiscoveryGroupControl
     */
    public ObjectName getDiscoveryGroupObjectName(final String name) throws Exception
    {
@@ -160,7 +158,6 @@ public final class ObjectNameBuilder
 
    /**
     * Returns the ObjectName used by JMSServerControl.
-    * @see org.apache.activemq.artemis.api.jms.management.JMSServerControl
     */
    public ObjectName getJMSServerObjectName() throws Exception
    {
@@ -169,7 +166,6 @@ public final class ObjectNameBuilder
 
    /**
     * Returns the ObjectName used by JMSQueueControl.
-    * @see org.apache.activemq.artemis.api.jms.management.JMSQueueControl
     */
    public ObjectName getJMSQueueObjectName(final String name) throws Exception
    {
@@ -178,8 +174,6 @@ public final class ObjectNameBuilder
 
    /**
     * Returns the ObjectName used by TopicControl.
-    *
-    * @see TopicControl
     */
    public ObjectName getJMSTopicObjectName(final String name) throws Exception
    {
@@ -188,7 +182,6 @@ public final class ObjectNameBuilder
 
    /**
     * Returns the ObjectName used by ConnectionFactoryControl.
-    * @see org.apache.activemq.artemis.api.jms.management.ConnectionFactoryControl
     */
    public ObjectName getConnectionFactoryObjectName(final String name) throws Exception
    {

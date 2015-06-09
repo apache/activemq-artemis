@@ -28,7 +28,6 @@ import org.apache.activemq.artemis.core.server.ActiveMQComponent;
  * <p>
  * Notice also that even on the callback methods it's possible to pass the sync mode. That will only
  * make sense on the NIO operations.
- * @see org.apache.activemq.artemis.utils.IDGenerator
  */
 public interface Journal extends ActiveMQComponent
 {
@@ -206,7 +205,7 @@ public interface Journal extends ActiveMQComponent
 
    /**
     * This method will start compact using the compactorExecutor and block up to timeout seconds
-    * @param timeout the timeout in seconds or block forever if <= 0
+    * @param timeout the timeout in seconds or block forever if {@code <= 0}
     * @throws Exception
     */
    void scheduleCompactAndBlock(int timeout) throws Exception;

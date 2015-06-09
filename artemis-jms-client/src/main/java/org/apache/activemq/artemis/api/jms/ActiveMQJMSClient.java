@@ -58,8 +58,8 @@ public class ActiveMQJMSClient
     * updated whenever the cluster topology changes. If the topology includes backup servers that
     * information is also propagated to the client so that it can know which server to failover onto
     * in case of live server failure.
-    * @param discoveryAddress The UDP group address to listen for updates
-    * @param discoveryPort the UDP port to listen for updates
+    * @param groupConfiguration
+    * @param jmsFactoryType
     * @return the ActiveMQConnectionFactory
     */
    public static ActiveMQConnectionFactory createConnectionFactoryWithHA(final DiscoveryGroupConfiguration groupConfiguration, JMSFactoryType jmsFactoryType)
@@ -98,8 +98,8 @@ public class ActiveMQJMSClient
     *
     * The UDP address and port are used to listen for live servers in the cluster
     *
-    * @param discoveryAddress The UDP group address to listen for updates
-    * @param discoveryPort the UDP port to listen for updates
+    * @param groupConfiguration
+    * @param jmsFactoryType
     * @return the ActiveMQConnectionFactory
     */
    public static ActiveMQConnectionFactory createConnectionFactoryWithoutHA(final DiscoveryGroupConfiguration groupConfiguration, JMSFactoryType jmsFactoryType)
@@ -142,6 +142,7 @@ public class ActiveMQJMSClient
     * downloaded and automatically updated whenever the cluster topology changes. If the topology
     * includes backup servers that information is also propagated to the client so that it can know
     * which server to failover onto in case of live server failure.
+    * @param jmsFactoryType
     * @param initialServers The initial set of servers used to make a connection to the cluster.
     *           Each one is tried in turn until a successful connection is made. Once a connection
     *           is made, the cluster topology is downloaded and the rest of the list is ignored.
@@ -184,6 +185,7 @@ public class ActiveMQJMSClient
     * <p>
     * The ActiveMQConnectionFactory is not updated automatically as the cluster topology changes, and
     * no HA backup information is propagated to the client
+    * @param jmsFactoryType
     * @param transportConfigurations
     * @return the ActiveMQConnectionFactory
     */

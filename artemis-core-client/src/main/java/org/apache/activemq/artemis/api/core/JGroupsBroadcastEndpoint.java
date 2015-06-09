@@ -240,7 +240,7 @@ public abstract class JGroupsBroadcastEndpoint implements BroadcastEndpoint
    /**
     * This class maintain a global Map of JChannels wrapped in JChannelWrapper for
     * the purpose of reference counting.
-    * <p/>
+    *
     * Wherever a JChannel is needed it should only get it by calling the getChannel()
     * method of this class. The real disconnect of channels are also done here only.
     */

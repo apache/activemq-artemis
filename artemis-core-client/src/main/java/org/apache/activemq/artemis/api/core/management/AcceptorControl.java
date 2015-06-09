@@ -20,8 +20,6 @@ import java.util.Map;
 
 /**
  * An AcceptorControl is used to manage Acceptors.
- *
- * @see Acceptor
  */
 public interface AcceptorControl extends ActiveMQComponentControl
 {
@@ -33,8 +31,6 @@ public interface AcceptorControl extends ActiveMQComponentControl
    /**
     * Returns the class name of the AcceptorFactory implementation
     * used by this acceptor.
-    *
-    * @see AcceptorFactory
     */
    String getFactoryClassName();
 

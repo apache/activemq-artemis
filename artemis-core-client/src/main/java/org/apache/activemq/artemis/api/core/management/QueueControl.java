@@ -374,7 +374,6 @@ public interface QueueControl
     * it will flush one cycle on internal executors, so you would be sure that any pending tasks are done before you call
     * any other measure.
     * It is useful if you need the exact number of counts on a message
-    * @throws Exception
     */
    void flushExecutor();
 

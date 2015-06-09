@@ -173,7 +173,7 @@ public abstract class SessionContext
    /**
     * If we are doing a simple rollback on the RA, we need to ack the last message sent to the consumer,
     * otherwise DLQ won't work.
-    * <p/>
+    * <p>
     * this is because we only ACK after on the RA, We may review this if we always acked earlier.
     *
     * @param lastMessageAsDelivered

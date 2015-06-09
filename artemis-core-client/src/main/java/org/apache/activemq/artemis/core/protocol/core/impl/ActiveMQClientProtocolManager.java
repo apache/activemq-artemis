@@ -62,13 +62,13 @@ import org.apache.activemq.artemis.utils.VersionLoader;
 
 /**
  * This class will return specific packets for different types of actions happening on a messaging protocol.
- * <p/>
+ *
  * This is trying to unify the Core client into multiple protocols.
- * <p/>
+ *
  * Returning null in certain packets means no action is taken on this specific protocol.
- * <p/>
+ *
  * Semantic properties could also be added to this implementation.
- * <p/>
+ *
  * Implementations of this class need to be stateless.
  */
 

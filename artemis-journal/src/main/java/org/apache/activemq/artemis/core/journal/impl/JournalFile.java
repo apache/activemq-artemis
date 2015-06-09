@@ -53,7 +53,7 @@ public interface JournalFile
    boolean isCanReclaim();
 
    /** This is a field to identify that records on this file actually belong to the current file.
-    *  The possible implementation for this is fileID & Integer.MAX_VALUE */
+    *  The possible implementation for this is fileID &amp; Integer.MAX_VALUE */
    int getRecordID();
 
    long getFileID();

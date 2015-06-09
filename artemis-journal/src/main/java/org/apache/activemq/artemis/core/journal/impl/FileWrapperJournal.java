@@ -45,7 +45,7 @@ import org.apache.activemq.artemis.core.journal.impl.dataformat.JournalInternalR
 /**
  * Journal used at a replicating backup server during the synchronization of data with the 'live'
  * server. It just wraps a single {@link JournalFile}.
- * <p/>
+ *
  * Its main purpose is to store the data as a Journal would, but without verifying records.
  */
 public final class FileWrapperJournal extends JournalBase

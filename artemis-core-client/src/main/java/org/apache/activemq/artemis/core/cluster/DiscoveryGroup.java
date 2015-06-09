@@ -39,12 +39,12 @@ import org.apache.activemq.artemis.utils.TypedProperties;
 
 /**
  * This class is used to search for members on the cluster through the opaque interface {@link BroadcastEndpoint}.
- * <p/>
+ *
  * There are two current implementations, and that's probably all we will ever need.
- * <p/>
+ *
  * We will probably keep both interfaces for a while as UDP is a simple solution requiring no extra dependencies which
  * is suitable for users looking for embedded solutions.
- * <p/>
+ *
  */
 public final class DiscoveryGroup implements ActiveMQComponent
 {

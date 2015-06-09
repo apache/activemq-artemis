@@ -284,7 +284,6 @@ public interface JMSQueueControl extends DestinationControl
     * it will flush one cycle on internal executors, so you would be sure that any pending tasks are done before you call
     * any other measure.
     * It is useful if you need the exact number of counts on a message
-    * @throws Exception
     */
    void flushExecutor();
 
@@ -305,7 +304,7 @@ public interface JMSQueueControl extends DestinationControl
    /**
     * Lists all the messages being deliver per consumer.
     * <br>
-    * The Map's key is a toString representation for the consumer. Each consumer will then return a Map<String,Object>[] same way is returned by {@link #listScheduledMessages()}
+    * The Map's key is a toString representation for the consumer. Each consumer will then return a {@code Map<String,Object>[]} same way is returned by {@link #listScheduledMessages()}
     */
    @Operation(desc = "List all messages being delivered per consumer")
    Map<String, Map<String, Object>[]> listDeliveringMessages() throws Exception;

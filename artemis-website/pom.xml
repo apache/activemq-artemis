@@ -58,6 +58,21 @@
          <artifactId>artemis-selector</artifactId>
          <version>${project.version}</version>
       </dependency>
+      
+      <!-- stuff needed to resolve various classes during javadoc processing -->
+      <dependency>
+          <groupId>org.jboss.logging</groupId>
+          <artifactId>jboss-logging-processor</artifactId>
+          <scope>provided</scope>
+          <optional>true</optional>
+      </dependency>
+      <dependency>
+          <groupId>xalan</groupId>
+          <artifactId>xalan</artifactId>
+          <version>2.7.2</version>
+          <optional>true</optional>
+          <scope>provided</scope>
+      </dependency>
    </dependencies>
 
    <properties>

@@ -23,7 +23,7 @@ import java.security.PrivilegedAction;
 /**
  * <p>This class will provide default properties for constructors</p>
  *
- * <table border='1'>
+ * <table border='1' summary=''>
  * <tr> <td>Name</td> <td>Default Value</td></tr>
  * <tr> <td>AMQ_HOST or org.apache.activemq.AMQ_HOST</td> <td>localhost</td></tr>
  * <tr><td>AMQ_PORT or org.apache.activemq.AMQ_PORT</td> <td>61616</td></tr>

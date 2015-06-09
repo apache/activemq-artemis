@@ -72,8 +72,8 @@ import org.apache.activemq.artemis.utils.ConcurrentHashSet;
 import org.apache.activemq.artemis.utils.DataConstants;
 
 /**
- * <p>A circular log implementation.</p
- * <p/>
+ * <p>A circular log implementation.</p>
+ * <p></p>
  * <p>Look at {@link JournalImpl#load(LoaderCallback)} for the file layout
  */
 public class JournalImpl extends JournalBase implements TestableJournal, JournalRecordProvider
@@ -202,7 +202,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
     * We don't lock the journal during the whole compacting operation. During compacting we only
     * lock it (i) when gathering the initial structure, and (ii) when replicating the structures
     * after finished compacting.
-    * <p/>
+    *
     * However we need to lock it while taking and updating snapshots
     */
    private final ReadWriteLock journalLock = new ReentrantReadWriteLock();
@@ -1100,9 +1100,9 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
    /**
     * <p>If the system crashed after a prepare was called, it should store information that is required to bring the transaction
     * back to a state it could be committed. </p>
-    * <p/>
+    * <p></p>
     * <p> transactionData allows you to store any other supporting user-data related to the transaction</p>
-    * <p/>
+    * <p></p>
     * <p> This method also uses the same logic applied on {@link JournalImpl#appendCommitRecord(long, boolean)}
     *
     * @param txID
@@ -1448,7 +1448,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
    /**
     * Note: This method can't be called from the main executor, as it will invoke other methods
     * depending on it.
-    * <p/>
+    *
     * Note: only synchronized methods on journal are methods responsible for the life-cycle such as
     * stop, start records will still come as this is being executed
     */
@@ -1656,9 +1656,9 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
 
    /**
     * <p>Load data accordingly to the record layouts</p>
-    * <p/>
+    * <p></p>
     * <p>Basic record layout:</p>
-    * <table border=1>
+    * <table border=1 summary="">
     * <tr><td><b>Field Name</b></td><td><b>Size</b></td></tr>
     * <tr><td>RecordType</td><td>Byte (1)</td></tr>
     * <tr><td>FileID</td><td>Integer (4 bytes)</td></tr>
@@ -1666,15 +1666,15 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
     * <tr><td>TransactionID <i>(if record is transactional)</i></td><td>Long (8 bytes)</td></tr>
     * <tr><td>RecordID</td><td>Long (8 bytes)</td></tr>
     * <tr><td>BodySize(Add, update and delete)</td><td>Integer (4 bytes)</td></tr>
-    * <tr><td>UserDefinedRecordType (If add/update only)</td><td>Byte (1)</td</tr>
+    * <tr><td>UserDefinedRecordType (If add/update only)</td><td>Byte (1)</td></tr>
     * <tr><td>RecordBody</td><td>Byte Array (size=BodySize)</td></tr>
     * <tr><td>Check Size</td><td>Integer (4 bytes)</td></tr>
     * </table>
-    * <p/>
+    * <p></p>
     * <p> The check-size is used to validate if the record is valid and complete </p>
-    * <p/>
+    * <p></p>
     * <p>Commit/Prepare record layout:</p>
-    * <table border=1>
+    * <table border=1 summary="">
     * <tr><td><b>Field Name</b></td><td><b>Size</b></td></tr>
     * <tr><td>RecordType</td><td>Byte (1)</td></tr>
     * <tr><td>FileID</td><td>Integer (4 bytes)</td></tr>
@@ -1685,9 +1685,9 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
     * <tr><td>ExtraDataBytes</td><td>Bytes (sized by ExtraDataLength)</td></tr>
     * <tr><td>* FileID(n)</td><td>Integer (4 bytes)</td></tr>
     * <tr><td>* NumberOfElements(n)</td><td>Integer (4 bytes)</td></tr>
-    * <tr><td>CheckSize</td><td>Integer (4 bytes)</td</tr>
+    * <tr><td>CheckSize</td><td>Integer (4 bytes)</td></tr>
     * </table>
-    * <p/>
+    * <p></p>
     * <p> * FileID and NumberOfElements are the transaction summary, and they will be repeated (N)umberOfFiles times </p>
     */
    public JournalLoadInformation load(final LoaderCallback loadManager) throws Exception
@@ -3074,7 +3074,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
 
    /**
     * Returns Map with a {@link JournalFile} for all existing files.
-    * <p/>
+    *
     * These are the files needed to be sent to a backup in order to synchronize it.
     *
     * @param fileIds

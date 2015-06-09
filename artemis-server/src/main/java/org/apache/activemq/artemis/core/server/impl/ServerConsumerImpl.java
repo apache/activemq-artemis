@@ -506,7 +506,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener
 
    /**
     * Prompt delivery and send a "forced delivery" message to the consumer.
-    * <p/>
+    * <p>
     * When the consumer receives such a "forced delivery" message, it discards it and knows that
     * there are no other messages to be delivered.
     */

@@ -348,7 +348,7 @@ public abstract class ComparisonExpression extends BinaryExpression implements B
    }
 
    /**
-    * Only Numeric expressions can be used in >, >=, < or <= expressions.s
+    * Only Numeric expressions can be used in {@code >}, {@code >=}, {@code <} or {@code <=} expressions.
     *
     * @param expr
     */
@@ -372,7 +372,7 @@ public abstract class ComparisonExpression extends BinaryExpression implements B
    }
 
    /**
-    * Validates that the expression can be used in == or <> expression. Cannot
+    * Validates that the expression can be used in {@code ==} or {@code <>} expression. Cannot
     * not be NULL TRUE or FALSE litterals.
     *
     * @param expr

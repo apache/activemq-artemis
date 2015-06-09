@@ -27,7 +27,7 @@ public interface NotificationService
     * </ul>
     * in addition to the properties defined in <code>props</code>
     *
-    * @see ManagementHelper
+    * @see org.apache.activemq.artemis.api.core.management.ManagementHelper
     */
    void sendNotification(Notification notification) throws Exception;
 

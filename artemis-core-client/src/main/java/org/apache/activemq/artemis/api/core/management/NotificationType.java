@@ -25,7 +25,7 @@ package org.apache.activemq.artemis.api.core.management;
  * <li>Core messages to a notification address (default value is {@code activemq.notifications})
  * <li>JMS messages
  * </ul>
- * @see the ActiveMQ Artemis user manual section on "Management Notifications"
+ * see the ActiveMQ Artemis user manual section on "Management Notifications"
  */
 public interface NotificationType
 {

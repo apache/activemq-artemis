@@ -193,7 +193,7 @@ public class JournalFilesRepository
    /**
     * Set the {link #nextFileID} value to {@code targetUpdate} if the current value is less than
     * {@code targetUpdate}.
-    * <p/>
+    *
     * Notice that {@code nextFileID} is incremented before being used, see
     * {@link JournalFilesRepository#generateFileID()}.
     *
@@ -542,7 +542,7 @@ public class JournalFilesRepository
     *
     * @return uninitialized JournalFile
     * @throws Exception
-    * @see {@link JournalImpl#initFileHeader(SequentialFileFactory, SequentialFile, int, long)}
+    * @see JournalImpl#initFileHeader(SequentialFileFactory, SequentialFile, int, long)
     */
    public JournalFile takeFile(final boolean keepOpened,
                                final boolean multiAIO,
@@ -580,7 +580,7 @@ public class JournalFilesRepository
 
    /**
     * Creates files for journal synchronization of a replicated backup.
-    * <p/>
+    *
     * In order to simplify synchronization, the file IDs in the backup match those in the live
     * server.
     *
