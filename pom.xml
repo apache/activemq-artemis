@@ -949,6 +949,11 @@
                   <exclude>**/*.jks</exclude>
                   <exclude>**/org/apache/activemq/artemis/utils/json/**</exclude>
                   <exclude>**/org/apache/activemq/artemis/utils/Base64.java</exclude>
+                  <exclude>**/.settings/**</exclude>
+                  <exclude>**/.project</exclude>
+                  <exclude>**/.classpath</exclude>
+                  <exclude>**/.checkstyle</exclude>
+                  <exclude>**/.factorypath</exclude>
                   <exclude>ratReport.txt</exclude>
                   <!-- activemq5 unit tests exclude -->
                   <exclude>**/*.data</exclude>
