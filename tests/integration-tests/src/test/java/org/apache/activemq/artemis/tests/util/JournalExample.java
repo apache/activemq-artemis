@@ -27,7 +27,7 @@ import org.apache.activemq.artemis.utils.TimeAndCounterIDGenerator;
 
 /**
  * A JournalExample: Just an example on how to use the Journal Directly
- * <p/>
+ * <br>
  * TODO: find a better place to store this example
  */
 public class JournalExample

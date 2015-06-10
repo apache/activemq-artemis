@@ -41,18 +41,18 @@ import org.junit.Assert;
  * This test demonstrates and verifies the behaviour of a network bridge when it
  * forwards a message to a queue that is full and producer flow control is
  * enabled.
- * <p/>
+ * <br>
  * The expected behaviour is that the bridge will stop forwarding messages to
  * the full queue once the associated demand consumer's prefetch is full, but
  * will continue to forward messages to the other queues that are not full.
- * <p/>
+ * <br>
  * In actuality, a message that is sent <b>asynchronously</b> to a local queue,
  * but blocked by producer flow control on the remote queue, will stop the
  * bridge from forwarding all subsequent messages, even those destined for
  * remote queues that are not full. In the same scenario, but with a message
  * that is sent <b>synchronously</b> to the local queue, the bridge continues
  * forwarding messages to remote queues that are not full.
- * <p/>
+ * <br>
  * This test demonstrates the differing behaviour via the following scenario:
  * <ul>
  * <li>broker0, designated as the local broker, produces messages to two shared
@@ -73,7 +73,7 @@ import org.junit.Assert;
  * control on the "slow consumer" queue should not affect the "fast consumer"
  * queue, the expectation is that the fast consumer in broker1 will finish
  * processing all its messages well ahead of the slow consumer.
- * <p/>
+ * <br>
  * The difference between expected and actual behaviour is demonstrated by
  * changing the messages produced by broker0 from persistent to non-persistent.
  * With persistent messages, broker0 dispatches synchronously and the expected
@@ -81,14 +81,14 @@ import org.junit.Assert;
  * the slow consumer). With non-persistent messages, broker0 dispatches
  * asynchronously and the expected behaviour is <b>not</b> observed (i.e., the
  * fast consumer is only marginally faster than the slow consumer).
- * <p/>
+ * <br>
  * Since the expected behaviour may be desirable for both persistent and
  * non-persistent messages, this test also demonstrates an enhancement to the
  * network bridge configuration: <tt>isAlwaysSendSync</tt>. When false the
  * bridge operates as originally observed. When <tt>true</tt>, the bridge
  * operates with the same behaviour as was originally observed with persistent
  * messages, for both persistent and non-persistent messages.
- * <p/>
+ * <br>
  * https://issues.apache.org/jira/browse/AMQ-3331
  *
  * @author schow

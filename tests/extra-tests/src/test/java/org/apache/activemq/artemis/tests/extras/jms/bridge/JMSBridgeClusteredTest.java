@@ -29,7 +29,7 @@ import org.junit.Test;
 
 /**
  * A JMSBridgeClusteredTest
- * <p/>
+ * <br>
  * Tests of jms bridge using HA connection factories.
  */
 public class JMSBridgeClusteredTest extends ClusteredBridgeTestBase

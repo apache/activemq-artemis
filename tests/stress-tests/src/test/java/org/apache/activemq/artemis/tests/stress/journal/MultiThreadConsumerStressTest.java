@@ -37,7 +37,7 @@ import java.util.concurrent.CountDownLatch;
 
 /**
  * A MultiThreadConsumerStressTest
- * <p/>
+ * <br>
  * This test validates consuming / sending messages while compacting is working
  */
 public class MultiThreadConsumerStressTest extends ActiveMQTestBase

@@ -22,9 +22,6 @@ import org.apache.activemq.command.ConnectionInfo;
 import org.apache.activemq.state.ConnectionState;
 import org.apache.activemq.artemis.core.protocol.openwire.OpenWireConnection;
 
-/**
- * @See org.apache.activemq.broker.TransportConnectionState
- */
 public class AMQTransportConnectionState extends ConnectionState
 {
 

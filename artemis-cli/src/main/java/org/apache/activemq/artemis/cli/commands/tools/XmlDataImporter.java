@@ -140,7 +140,7 @@ public final class XmlDataImporter implements Action
     * This is the normal constructor for programmatic access to the
     * <code>org.apache.activemq.artemis.core.persistence.impl.journal.XmlDataImporter</code> if the session passed
     * in uses auto-commit for sends.
-    * <p/>
+    * <br>
     * If the session needs to be transactional then use the constructor which takes 2 sessions.
     *
     * @param inputStream the stream from which to read the XML for import
@@ -154,7 +154,7 @@ public final class XmlDataImporter implements Action
 
    /**
     * This is the constructor to use if you wish to import all messages transactionally.
-    * <p/>
+    * <br>
     * Pass in a session which doesn't use auto-commit for sends, and one that does (for management
     * operations necessary during import).
     *

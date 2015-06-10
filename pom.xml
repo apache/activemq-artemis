@@ -98,7 +98,7 @@
       <skipLicenseCheck>true</skipLicenseCheck>
       <skipStyleCheck>true</skipStyleCheck>
       <geronimo.jms.2.spec.version>1.0-alpha-1</geronimo.jms.2.spec.version>
-      
+
       <javac-compiler-id>javac-with-errorprone</javac-compiler-id>
    </properties>
 
@@ -451,12 +451,12 @@
            <activation>
                <property>
                    <name>m2e.version</name>
-               </property> 
+               </property>
            </activation>
            <properties>
                <javac-compiler-id>javac</javac-compiler-id>
            </properties>
-        </profile>     
+        </profile>
       <profile>
          <id>dev</id>
          <modules>
@@ -848,7 +848,7 @@
                <configuration>
                  <rules>
                    <requireJavaVersion>
-                     <version>1.8.0</version>
+                     <version>1.7.0</version>
                    </requireJavaVersion>
                  </rules>
                </configuration>
@@ -858,10 +858,6 @@
          <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-javadoc-plugin</artifactId>
-            <configuration>
-               <!--additionalparam>-Xmaxwarns 1</additionalparam-->
-               <additionalparam>-Xdoclint:none</additionalparam>
-            </configuration>
          </plugin>
          <plugin>
             <groupId>org.apache.maven.plugins</groupId>
@@ -1021,7 +1017,6 @@
                <aggregate>true</aggregate>
                <excludePackageNames>com.restfully.*:org.jboss.resteasy.examples.*:org.jboss.resteasy.tests.*
                </excludePackageNames>
-               <additionalparam>-Xdoclint:none</additionalparam>
             </configuration>
          </plugin>
          <plugin>

@@ -39,7 +39,7 @@ import org.junit.Test;
 
 /**
  * A ReferenceableTest.
- * <p/>
+ * <br>
  * All administered objects should be referenceable and serializable as per spec 4.2
  */
 public class ReferenceableTest extends JMSTestCase

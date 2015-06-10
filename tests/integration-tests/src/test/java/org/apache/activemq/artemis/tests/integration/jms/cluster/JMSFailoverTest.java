@@ -70,7 +70,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * A JMSFailoverTest
- * <p/>
+ * <br>
  * A simple test to test failover when using the JMS API.
  * Most of the failover tests are done on the Core API.
  */

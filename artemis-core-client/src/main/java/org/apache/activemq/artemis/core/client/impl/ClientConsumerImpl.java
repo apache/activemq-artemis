@@ -628,10 +628,10 @@ public final class ClientConsumerImpl implements ClientConsumerInternal
     * Such messages come from message senders who are configured to compress large messages, and
     * if some of the messages are compressed below the min-large-message-size limit, they are sent
     * as regular messages.
-    * <p/>
+    * <br>
     * However when decompressing the message, we are not sure how large the message could be..
     * for that reason we fake a large message controller that will deal with the message as it was a large message
-    * <p/>
+    * <br>
     * Say that you sent a 1G message full of spaces. That could be just bellow 100K compressed but you wouldn't have
     * enough memory to decompress it
     */

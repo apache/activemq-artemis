@@ -1715,7 +1715,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase
    /**
     * Server lacks a {@link ClusterConnectionConfiguration} necessary for the remote (replicating)
     * backup case.
-    * <p/>
+    * <br>
     * Use
     * {@link #setupClusterConnectionWithBackups(String, String, boolean, int, boolean, int, int[])}
     * to add it.

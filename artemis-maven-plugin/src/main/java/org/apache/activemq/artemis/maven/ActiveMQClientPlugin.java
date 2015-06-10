@@ -22,15 +22,13 @@ import java.util.Properties;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
 
 /**
  *         Allows a Java Client to be run which must hve a static main(String[] args) method
  */
-
-/**
- * @phase verify
- * @goal runClient
- */
+@Mojo(name = "runClient", defaultPhase = LifecyclePhase.VERIFY)
 public class ActiveMQClientPlugin extends AbstractMojo
 {
 

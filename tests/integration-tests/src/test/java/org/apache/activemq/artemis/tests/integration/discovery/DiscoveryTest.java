@@ -46,20 +46,20 @@ import org.junit.Test;
 
 /**
  * This will test Discovery test on JGroups and UDP.
- * <p/>
+ * <br>
  * In some configurations IPV6 may be a challenge. To make sure this test works, you may add this
  * property to your JVM settings: {@literal -Djgroups.bind_addr=::1}
- * <p/>
+ * <br>
  * Or ultimately you may also turn off IPV6: {@literal -Djava.net.preferIPv4Stack=true}
- * <p/>
+ * <br>
  * Note when you are not sure about your IP settings of your test machine, you should make sure
  * that the jgroups.bind_addr and java.net.preferXXStack by defining them explicitly, for example
  * if you would like to use IPV6, set BOTH properties to your JVM like the following:
  * -Djgroups.bind_addr=::1 -Djava.net.preferIPv6Addresses=true
- * <p/>
+ * <br>
  * or if you prefer IPV4:
  * -Djgroups.bind_addr=localhost -Djava.net.preferIPv4Stack=true
- * <p/>
+ * <br>
  * Also: Make sure you add integration-tests/src/tests/resources to your project path on the
  * tests/integration-tests
  */

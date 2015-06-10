@@ -67,7 +67,7 @@ import java.util.Set;
 
 /**
  * A QueueControlTest
- * <p/>
+ * <br>
  * on this testContaining WithRealData will use real data on the journals
  */
 public class JMSQueueControlTest extends ManagementTestBase

@@ -25,10 +25,10 @@ import org.jboss.logging.Messages;
 
 /**
  * Logger Code 11
- * <p/>
+ * <p>
  * Each message id must be 6 digits long starting with 10, the 3rd digit should be 9. So the range
  * is from 219000 to 119999.
- * <p/>
+ * <p>
  * Once released, methods should not be deleted as they may be referenced by knowledge base
  * articles. Unused methods should be marked as deprecated.
  */

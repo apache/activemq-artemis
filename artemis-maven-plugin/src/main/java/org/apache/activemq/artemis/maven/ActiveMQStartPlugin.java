@@ -31,13 +31,12 @@ import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.descriptor.PluginDescriptor;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
 import org.codehaus.classworlds.ClassRealm;
 import org.codehaus.classworlds.ClassWorld;
 
-/**
- * @phase verify
- * @goal start
- */
+@Mojo(name = "start", defaultPhase = LifecyclePhase.VERIFY)
 public class ActiveMQStartPlugin extends AbstractMojo
 
 {

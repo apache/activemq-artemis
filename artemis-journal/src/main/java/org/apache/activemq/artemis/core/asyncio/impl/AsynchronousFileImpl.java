@@ -54,7 +54,7 @@ public class AsynchronousFileImpl implements AsynchronousFile
 
    /**
     * This definition needs to match Version.h on the native sources.
-    * <p/>
+    * <br>
     * Or else the native module won't be loaded because of version mismatches
     */
    private static final int EXPECTED_NATIVE_VERSION = 52;
@@ -72,7 +72,7 @@ public class AsynchronousFileImpl implements AsynchronousFile
 
    /**
     * AIO can't guarantee ordering over callbacks.
-    * <p/>
+    * <br>
     * We use this {@link PriorityQueue} to hold values until they are in order
     */
    private final PriorityQueue<CallbackHolder> pendingCallbacks = new PriorityQueue<CallbackHolder>();
@@ -699,7 +699,7 @@ public class AsynchronousFileImpl implements AsynchronousFile
 
    /**
     * Explicitly adding a compare to clause that returns 0 for at least the same object.
-    * <p/>
+    * <br>
     * If {@link Comparable#compareTo(Object)} does not return 0 -for at least the same object- some
     * Collection classes methods will fail (example {@link PriorityQueue#remove(Object)}. If it
     * returns 0, then {@link #equals(Object)} must return {@code true} for the exact same cases,

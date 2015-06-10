@@ -39,7 +39,7 @@ import java.util.HashMap;
 
 /**
  * A PagingFailoverTest
- * <p/>
+ * <br>
  * TODO: validate replication failover also
  */
 public class PagingFailoverTest extends FailoverTestBase

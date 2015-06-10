@@ -34,7 +34,7 @@ import org.junit.Test;
 
 /**
  * A PagingOrderTest.
- * <p/>
+ * <br>
  * PagingTest has a lot of tests already. I decided to create a newer one more specialized on Ordering and counters
  */
 public class PagingSyncTest extends ActiveMQTestBase

@@ -63,7 +63,7 @@ import java.util.Map;
 
 /**
  * A JMSFailoverTest
- * <p/>
+ * <br>
  * A simple test to test setFailoverListener when using the JMS API.
  */
 public class JMSFailoverListenerTest extends ActiveMQTestBase

@@ -41,13 +41,13 @@ import org.junit.Test;
 
 /**
  * Test the loss of messages detected during testing with ActiveMQ 5.4.1 and 5.4.2.
- * <p/>
+ * <br>
  * Symptoms: - 1 record is lost "early" in the stream. - no more records lost.
- * <p/>
+ * <br>
  * Test Configuration: - Broker Settings: - Destination Policy - Occurs with "Destination Policy" using Store Cursor and
  * a memory limit - Not reproduced without "Destination Policy" defined - Persistence Adapter - Memory: Does not occur.
  * - KahaDB: Occurs. - Messages - Occurs with TextMessage and BinaryMessage - Persistent messages.
- * <p/>
+ * <br>
  * Notes: - Lower memory limits increase the rate of occurrence. - Higher memory limits may prevent the problem
  * (probably because memory limits not reached). - Producers sending a number of messages before consumers come online
  * increases rate of occurrence.
@@ -75,7 +75,7 @@ public class AMQ3167Test {
     /**
      * Create a new, unsecured, client connection to the test broker using the given username and password. This
      * connection bypasses all security.
-     * <p/>
+     * <br>
      * Don't forget to start the connection or no messages will be received by consumers even though producers will work
      * fine.
      *

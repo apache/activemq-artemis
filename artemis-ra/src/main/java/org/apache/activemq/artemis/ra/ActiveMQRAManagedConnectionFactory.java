@@ -294,7 +294,7 @@ public final class ActiveMQRAManagedConnectionFactory implements ManagedConnecti
 
    /**
     * Set the resource adapter
-    * <p/>
+    * <br>
     * This should ensure that when the RA is stopped, this MCF will be stopped as well.
     *
     * @param ra The resource adapter

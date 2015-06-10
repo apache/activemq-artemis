@@ -43,7 +43,7 @@ public class SelectorTest extends ActiveMQServerTestCase
 
    /**
     * Test case for http://jira.jboss.org/jira/browse/JBMESSAGING-105
-    * <p/>
+    * <br>
     * Two Messages are sent to a queue. There is one receiver on the queue. The receiver only
     * receives one of the messages due to a message selector only matching one of them. The receiver
     * is then closed. A new receiver is now attached to the queue. Redelivery of the remaining

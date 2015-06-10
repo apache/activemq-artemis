@@ -23,9 +23,9 @@ import org.jboss.logging.Messages;
 
 /**
  *         Logger Code 23
- *         <p/>
+ *         <br>
  *         each message id must be 6 digits long starting with 10, the 3rd digit should be 9
- *         <p/>
+ *         <br>
  *         so 239000 to 239999
  */
 @MessageBundle(projectCode = "AMQ")

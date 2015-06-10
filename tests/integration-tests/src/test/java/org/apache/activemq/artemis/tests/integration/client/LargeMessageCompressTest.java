@@ -39,7 +39,7 @@ import org.junit.Test;
 
 /**
  * A LargeMessageCompressTest
- * <p/>
+ * <br>
  * Just extend the LargeMessageTest
  */
 public class LargeMessageCompressTest extends LargeMessageTest
