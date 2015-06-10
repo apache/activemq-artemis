@@ -38,7 +38,7 @@ import org.apache.activemq.broker.BrokerService;
 public class ArtemisBrokerWrapper extends ArtemisBrokerBase
 {
 
-   protected Map<String, SimpleString> testQueues = new HashMap<String, SimpleString>();
+   protected final Map<String, SimpleString> testQueues = new HashMap<String, SimpleString>();
 
    public ArtemisBrokerWrapper(BrokerService brokerService)
    {
