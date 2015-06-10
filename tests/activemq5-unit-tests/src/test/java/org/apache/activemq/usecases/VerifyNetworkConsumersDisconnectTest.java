@@ -51,7 +51,7 @@ public class VerifyNetworkConsumersDisconnectTest extends JmsMultipleBrokersTest
     public static final int TIMEOUT = 30000;
 
     protected Map<String, MessageConsumer> consumerMap;
-    Map<Thread, Throwable> unhandledExceptions = new HashMap<Thread, Throwable>();
+    final Map<Thread, Throwable> unhandledExceptions = new HashMap<Thread, Throwable>();
 
     private void assertNoUnhandledExceptions() {
         for( Entry<Thread, Throwable> e: unhandledExceptions.entrySet()) {

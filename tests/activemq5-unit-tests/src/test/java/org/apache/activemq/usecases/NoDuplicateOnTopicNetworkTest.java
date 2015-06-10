@@ -265,7 +265,7 @@ public class NoDuplicateOnTopicNetworkTest extends CombinationTestSupport {
         private MessageConsumer consumer;
         private final String durableID = "DURABLE_ID";
 
-        private List<String> receivedStrings = Collections.synchronizedList(new ArrayList<String>());
+        private final List<String> receivedStrings = Collections.synchronizedList(new ArrayList<String>());
         private int numMessages = 10;
         private CountDownLatch recievedLatch = new CountDownLatch(numMessages);
 

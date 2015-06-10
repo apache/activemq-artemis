@@ -617,7 +617,7 @@ public class PListTest {
         }
     }
 
-    Map<PList, Object> locks = new HashMap<PList, Object>();
+    final Map<PList, Object> locks = new HashMap<PList, Object>();
 
     private Object plistLocks(PList plist) {
         Object lock = null;

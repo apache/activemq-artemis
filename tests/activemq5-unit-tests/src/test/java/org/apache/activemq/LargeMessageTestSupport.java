@@ -61,7 +61,7 @@ public class LargeMessageTestSupport extends ClientTestSupport implements Messag
     protected int deliveryMode = DeliveryMode.PERSISTENT;
     protected IdGenerator idGen = new IdGenerator();
     protected boolean validMessageConsumption = true;
-    protected AtomicInteger messageCount = new AtomicInteger(0);
+    protected final AtomicInteger messageCount = new AtomicInteger(0);
 
     protected int prefetchValue = 10000000;
 
@@ -182,9 +182,9 @@ public class LargeMessageTestSupport extends ClientTestSupport implements Messag
             producer.send(msg);
         }
         long now = System.currentTimeMillis();
-        while (now + 60000 > System.currentTimeMillis() && messageCount.get() < MESSAGE_COUNT) {
-            LOG.info("message count = " + messageCount);
-            synchronized (messageCount) {
+        synchronized (messageCount) {
+            while (now + 60000 > System.currentTimeMillis() && messageCount.get() < MESSAGE_COUNT) {
+                LOG.info("message count = " + messageCount);
                 messageCount.wait(1000);
             }
         }

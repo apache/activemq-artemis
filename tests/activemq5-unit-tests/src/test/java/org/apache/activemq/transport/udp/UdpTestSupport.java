@@ -46,7 +46,7 @@ public abstract class UdpTestSupport extends TestCase implements TransportListen
     protected Transport producer;
     protected Transport consumer;
 
-    protected Object lock = new Object();
+    protected final Object lock = new Object();
     protected Command receivedCommand;
     protected TransportServer server;
     protected boolean large;
@@ -251,10 +251,10 @@ public abstract class UdpTestSupport extends TestCase implements TransportListen
         Command answer = null;
         synchronized (lock) {
             answer = receivedCommand;
-            if (answer == null) {
+            while (answer == null) {
                 lock.wait(waitForCommandTimeout);
+                answer = receivedCommand;
             }
-            answer = receivedCommand;
         }
 
         assertNotNull("Should have received a Command by now!", answer);

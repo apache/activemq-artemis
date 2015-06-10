@@ -25,6 +25,7 @@ import org.apache.activemq.transport.discovery.simple.SimpleDiscoveryAgent;
 import javax.jms.*;
 import java.io.File;
 import java.net.URISyntaxException;
+import java.util.concurrent.CountDownLatch;
 
 public class TryJmsClient
 {
@@ -59,9 +60,7 @@ public class TryJmsClient
 
         startMessageSend();
 
-        synchronized(this) {
-            this.wait();
-        }
+        new CountDownLatch(1).await();
     }
 
     private void startUsageMonitor(final BrokerService brokerService) {

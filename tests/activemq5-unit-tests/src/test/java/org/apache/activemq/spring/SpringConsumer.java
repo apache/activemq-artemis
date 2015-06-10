@@ -43,13 +43,13 @@ public class SpringConsumer extends ConsumerBean implements MessageListener {
 
         try {
             ConnectionFactory factory = template.getConnectionFactory();
-            connection = factory.createConnection();
+            final Connection c = connection = factory.createConnection();
 
             // we might be a reusable connection in spring
             // so lets only set the client ID once if its not set
-            synchronized (connection) {
-                if (connection.getClientID() == null) {
-                    connection.setClientID(myId);
+            synchronized (c) {
+                if (c.getClientID() == null) {
+                    c.setClientID(myId);
                 }
             }
 

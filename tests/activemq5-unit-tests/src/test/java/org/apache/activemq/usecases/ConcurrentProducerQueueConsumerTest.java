@@ -95,7 +95,7 @@ public class ConcurrentProducerQueueConsumerTest extends TestSupport
 
         // periodically start a queue consumer
         final int consumersToActivate = 5;
-        final Object addConsumerSignal = new Object();
+        final CountDownLatch addConsumerSignal = new CountDownLatch(1);
         Executors.newCachedThreadPool(new ThreadFactory() {
             @Override
             public Thread newThread(Runnable r) {
@@ -108,9 +108,7 @@ public class ConcurrentProducerQueueConsumerTest extends TestSupport
                     MessageConsumer consumer = null;
                     for (int i = 0; i < consumersToActivate; i++) {
                         LOG.info("Waiting for add signal from producer...");
-                        synchronized (addConsumerSignal) {
-                            addConsumerSignal.wait(30 * 60 * 1000);
-                        }
+                        addConsumerSignal.await(30, TimeUnit.MINUTES);
                         TimedMessageListener listener = new TimedMessageListener();
                         consumer = createConsumer(factory.createConnection(), destination);
                         LOG.info("Created consumer " + consumer);
@@ -241,7 +239,7 @@ public class ConcurrentProducerQueueConsumerTest extends TestSupport
                                      final int numIterations,
                                      Session session,
                                      MessageProducer producer,
-                                     Object addConsumerSignal) throws Exception {
+                                     CountDownLatch addConsumerSignal) throws Exception {
         long start;
         long count = 0;
         double batchMax = 0, max = 0, sum = 0;
@@ -257,10 +255,8 @@ public class ConcurrentProducerQueueConsumerTest extends TestSupport
                 max = Math.max(max, (System.currentTimeMillis() - singleSendstart));
                 if (++count % 500 == 0) {
                     if (addConsumerSignal != null) {
-                        synchronized (addConsumerSignal) {
-                            addConsumerSignal.notifyAll();
-                            LOG.info("Signalled add consumer");
-                        }
+                        addConsumerSignal.countDown();
+                        LOG.info("Signalled add consumer");
                     }
                 }
                 ;

@@ -563,7 +563,7 @@ public class AMQ2149Test {
 }
 
 class TeardownTask implements Callable<Boolean> {
-    private Object brokerLock;
+    private final Object brokerLock;
     private BrokerService broker;
 
     public TeardownTask(Object brokerLock, BrokerService broker) {
