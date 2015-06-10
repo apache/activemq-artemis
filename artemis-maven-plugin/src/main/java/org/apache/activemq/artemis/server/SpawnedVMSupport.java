@@ -27,11 +27,11 @@ import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.maven.artifact.DefaultArtifact;
+import org.apache.maven.artifact.Artifact;
 
 public class SpawnedVMSupport
 {
-   public static Process spawnVM(List<DefaultArtifact> arts,
+   public static Process spawnVM(List<Artifact> arts,
                                  final String logName,
                                  final String className,
                                  final Properties properties,
@@ -71,7 +71,7 @@ public class SpawnedVMSupport
          .append(" ");
       String pathSeparater = System.getProperty("path.separator");
       StringBuilder classpath = new StringBuilder();
-      for (DefaultArtifact artifact : arts)
+      for (Artifact artifact : arts)
       {
          classpath.append(artifact.getFile()
                              .getAbsolutePath())
