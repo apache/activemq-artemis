@@ -150,7 +150,7 @@ public class JDBCMessagePriorityTest extends MessagePriorityTest {
         for (int priority = 0; priority < maxPriority; priority++) {
             producers.add(new ProducerThread(topic, MSG_NUM, priority));
             messageCounts[priority] = new AtomicInteger(0);
-            messageIds[priority] = 1l;
+            messageIds[priority] = 1L;
         }
 
         for (ProducerThread producer : producers) {

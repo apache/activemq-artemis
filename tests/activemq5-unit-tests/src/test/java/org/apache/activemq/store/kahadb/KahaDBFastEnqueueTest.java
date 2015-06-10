@@ -189,7 +189,7 @@ public class KahaDBFastEnqueueTest {
 
         MessageProducer producer = session.createProducer(destination);
         Long start = System.currentTimeMillis();
-        long i = 0l;
+        long i = 0L;
         while ( (i=count.getAndDecrement()) > 0) {
             Message message = null;
             if (useBytesMessage) {

@@ -101,9 +101,9 @@ public class AMQ4636Test {
         JDBCPersistenceAdapter jdbc = new TestJDBCPersistenceAdapter();
         jdbc.setDataSource(embeddedDataSource);
 
-        jdbc.setLockKeepAlivePeriod(1000l);
+        jdbc.setLockKeepAlivePeriod(1000L);
         LeaseDatabaseLocker leaseDatabaseLocker = new LeaseDatabaseLocker();
-        leaseDatabaseLocker.setLockAcquireSleepInterval(2000l);
+        leaseDatabaseLocker.setLockAcquireSleepInterval(2000L);
         jdbc.setLocker(leaseDatabaseLocker);
 
         broker = new BrokerService();

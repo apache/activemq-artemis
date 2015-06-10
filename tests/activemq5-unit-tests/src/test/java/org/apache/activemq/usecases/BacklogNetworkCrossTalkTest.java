@@ -69,7 +69,7 @@ public class BacklogNetworkCrossTalkTest extends JmsMultipleBrokersTestSupport {
         MessageConsumer clientB = createConsumer("B", destA);
 
 
-        final long maxWait = 5 * 60 * 1000l;
+        final long maxWait = 5 * 60 * 1000L;
         MessageIdList listA = getConsumerMessages("A", clientA);
         listA.setMaximumDuration(maxWait);
         listA.waitForMessagesToArrive(numMessages);

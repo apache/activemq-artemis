@@ -362,7 +362,7 @@ public class ConcurrentProducerQueueConsumerTest extends TestSupport
         final CountDownLatch firstReceiptLatch = new CountDownLatch(1);
 
         long mark = System.currentTimeMillis();
-        long firstReceipt = 0l;
+        long firstReceipt = 0L;
         long receiptAccumulator = 0;
         long batchReceiptAccumulator = 0;
         long maxReceiptTime = 0;

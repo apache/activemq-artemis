@@ -98,7 +98,7 @@ public class AMQ4485NetworkOfXBrokersWithNDestsFanoutTransactionTest extends Jms
         PolicyEntry policyEntry = new PolicyEntry();
         policyEntry.setExpireMessagesPeriod(0);
         policyEntry.setQueuePrefetch(1000);
-        policyEntry.setMemoryLimit(1024 * 1024l);
+        policyEntry.setMemoryLimit(1024 * 1024L);
         policyEntry.setOptimizedDispatch(false);
         policyEntry.setProducerFlowControl(false);
         policyEntry.setEnableAudit(true);
@@ -171,7 +171,7 @@ public class AMQ4485NetworkOfXBrokersWithNDestsFanoutTransactionTest extends Jms
                 }
                 return true;
             }
-        }, 1000 * 60 * 1000l));
+        }, 1000 * 60 * 1000L));
 
         assertTrue("No exceptions:" + exceptions, exceptions.isEmpty());
 

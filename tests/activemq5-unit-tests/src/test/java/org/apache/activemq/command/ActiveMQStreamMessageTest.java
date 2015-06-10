@@ -979,7 +979,7 @@ public class ActiveMQStreamMessageTest extends TestCase {
             message.writeObject(new Byte((byte) 2));
             message.writeObject(new Short((short) 2));
             message.writeObject(new Integer(2));
-            message.writeObject(new Long(2l));
+            message.writeObject(new Long(2L));
             message.writeObject(new Float(2.0f));
             message.writeObject(new Double(2.0d));
         }catch(Exception e) {

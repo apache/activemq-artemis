@@ -122,8 +122,8 @@ public class MessageGroupReconnectDistributionTest {
         final ArrayList<AtomicLong> batchCounters = new ArrayList<AtomicLong>(numConsumers);
 
         for (int i = 0; i < numConsumers; i++) {
-            consumedCounters.add(new AtomicLong(0l));
-            batchCounters.add(new AtomicLong(0l));
+            consumedCounters.add(new AtomicLong(0L));
+            batchCounters.add(new AtomicLong(0L));
 
             final int id = i;
             executorService.submit(new Runnable() {

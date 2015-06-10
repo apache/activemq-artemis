@@ -227,7 +227,7 @@ public class AMQ5266SingleDestTest {
         }
 
         // verify empty dlq
-        assertEquals("No pending messages", 0l, ((RegionBroker) brokerService.getRegionBroker()).getDestinationStatistics().getMessages().getCount());
+        assertEquals("No pending messages", 0L, ((RegionBroker) brokerService.getRegionBroker()).getDestinationStatistics().getMessages().getCount());
     }
 
     public class ExportQueuePublisher {

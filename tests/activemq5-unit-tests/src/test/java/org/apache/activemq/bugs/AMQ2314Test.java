@@ -157,7 +157,7 @@ public class AMQ2314Test extends CombinationTestSupport {
         broker.setUseJmx(true);
         broker.setAdvisorySupport(false);
         broker.setDeleteAllMessagesOnStartup(true);
-        broker.getSystemUsage().getMemoryUsage().setLimit(1024l*1024*64);
+        broker.getSystemUsage().getMemoryUsage().setLimit(1024L*1024*64);
 
         broker.addConnector("tcp://localhost:0").setName("Default");
         broker.start();

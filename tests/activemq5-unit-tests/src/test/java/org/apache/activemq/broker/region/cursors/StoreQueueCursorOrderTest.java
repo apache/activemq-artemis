@@ -106,7 +106,7 @@ public class StoreQueueCursorOrderTest {
             @Override
             public void run() {
             }
-        }, 2l) {};
+        }, 2L) {};
         msg.getMessageId().setFutureOrSequenceLong(future);
         underTest.addMessageLast(msg);
 
@@ -116,12 +116,12 @@ public class StoreQueueCursorOrderTest {
         msg = getMessage(1);
         messages[0] = msg;
         msg.setMemoryUsage(systemUsage.getMemoryUsage());
-        msg.getMessageId().setFutureOrSequenceLong(1l);
+        msg.getMessageId().setFutureOrSequenceLong(1L);
         underTest.addMessageLast(msg);
 
 
         assertTrue("cache is disabled as limit reached", !underTest.isCacheEnabled());
-        assertEquals("setBatch unset", 0l, queueMessageStore.batch.get());
+        assertEquals("setBatch unset", 0L, queueMessageStore.batch.get());
 
         int dequeueCount = 0;
 
@@ -171,9 +171,9 @@ public class StoreQueueCursorOrderTest {
         FutureTask<Long> future = new FutureTask<Long>(new Runnable() {
             @Override
             public void run() {
-                msgRef.getMessageId().setFutureOrSequenceLong(1l);
+                msgRef.getMessageId().setFutureOrSequenceLong(1L);
             }
-        }, 1l) {};
+        }, 1L) {};
         msg.getMessageId().setFutureOrSequenceLong(future);
         Executors.newSingleThreadExecutor().submit(future);
         underTest.addMessageLast(msg);
@@ -184,12 +184,12 @@ public class StoreQueueCursorOrderTest {
         msg = getMessage(1);
         messages[0] = msg;
         msg.setMemoryUsage(systemUsage.getMemoryUsage());
-        msg.getMessageId().setFutureOrSequenceLong(1l);
+        msg.getMessageId().setFutureOrSequenceLong(1L);
         underTest.addMessageLast(msg);
 
 
         assertTrue("cache is disabled as limit reached", !underTest.isCacheEnabled());
-        assertEquals("setBatch unset", 0l, queueMessageStore.batch.get());
+        assertEquals("setBatch unset", 0L, queueMessageStore.batch.get());
 
         int dequeueCount = 0;
 
@@ -239,9 +239,9 @@ public class StoreQueueCursorOrderTest {
         FutureTask<Long> future = new FutureTask<Long>(new Runnable() {
             @Override
             public void run() {
-                msgRef.getMessageId().setFutureOrSequenceLong(0l);
+                msgRef.getMessageId().setFutureOrSequenceLong(0L);
             }
-        }, 0l) {};
+        }, 0L) {};
         msg.getMessageId().setFutureOrSequenceLong(future);
         Executors.newSingleThreadExecutor().submit(future);
         underTest.addMessageLast(msg);
@@ -257,16 +257,16 @@ public class StoreQueueCursorOrderTest {
         FutureTask<Long> future2 = new FutureTask<Long>(new Runnable() {
             @Override
             public void run() {
-                msgRe2f.getMessageId().setFutureOrSequenceLong(1l);
+                msgRe2f.getMessageId().setFutureOrSequenceLong(1L);
             }
-        }, 1l) {};
+        }, 1L) {};
         msg.getMessageId().setFutureOrSequenceLong(future2);
         Executors.newSingleThreadExecutor().submit(future2);
         underTest.addMessageLast(msg);
 
 
         assertTrue("cache is disabled as limit reached", !underTest.isCacheEnabled());
-        assertEquals("setBatch set", 1l, queueMessageStore.batch.get());
+        assertEquals("setBatch set", 1L, queueMessageStore.batch.get());
 
         int dequeueCount = 0;
 
@@ -316,9 +316,9 @@ public class StoreQueueCursorOrderTest {
         FutureTask<Long> future0 = new FutureTask<Long>(new Runnable() {
             @Override
             public void run() {
-                msgRef.getMessageId().setFutureOrSequenceLong(0l);
+                msgRef.getMessageId().setFutureOrSequenceLong(0L);
             }
-        }, 0l) {};
+        }, 0L) {};
         msg.getMessageId().setFutureOrSequenceLong(future0);
         underTest.addMessageLast(msg);
         Executors.newSingleThreadExecutor().submit(future0);
@@ -332,9 +332,9 @@ public class StoreQueueCursorOrderTest {
         FutureTask<Long> future1 = new FutureTask<Long>(new Runnable() {
             @Override
             public void run() {
-                msgRef1.getMessageId().setFutureOrSequenceLong(3l);
+                msgRef1.getMessageId().setFutureOrSequenceLong(3L);
             }
-        }, 3l) {};
+        }, 3L) {};
         msg.getMessageId().setFutureOrSequenceLong(future1);
         underTest.addMessageLast(msg);
 
@@ -342,7 +342,7 @@ public class StoreQueueCursorOrderTest {
         msg = getMessage(2);
         messages[1] = msg;
         msg.setMemoryUsage(systemUsage.getMemoryUsage());
-        msg.getMessageId().setFutureOrSequenceLong(1l);
+        msg.getMessageId().setFutureOrSequenceLong(1L);
         underTest.addMessageLast(msg);
 
         assertTrue("cache enabled", underTest.isUseCache() && underTest.isCacheEnabled());
@@ -354,12 +354,12 @@ public class StoreQueueCursorOrderTest {
         msg = getMessage(3);
         messages[2] = msg;
         msg.setMemoryUsage(systemUsage.getMemoryUsage());
-        msg.getMessageId().setFutureOrSequenceLong(3l);
+        msg.getMessageId().setFutureOrSequenceLong(3L);
         underTest.addMessageLast(msg);
 
 
         assertTrue("cache is disabled as limit reached", !underTest.isCacheEnabled());
-        assertEquals("setBatch set", 2l, queueMessageStore.batch.get());
+        assertEquals("setBatch set", 2L, queueMessageStore.batch.get());
 
         int dequeueCount = 0;
 
@@ -405,13 +405,13 @@ public class StoreQueueCursorOrderTest {
         ActiveMQTextMessage msg = getMessage(0);
         messages[0] = msg;
         msg.setMemoryUsage(systemUsage.getMemoryUsage());
-        msg.getMessageId().setFutureOrSequenceLong(0l);
+        msg.getMessageId().setFutureOrSequenceLong(0L);
         underTest.addMessageLast(msg);
 
         msg = getMessage(1);
         messages[1] = msg;
         msg.setMemoryUsage(systemUsage.getMemoryUsage());
-        msg.getMessageId().setFutureOrSequenceLong(1l);
+        msg.getMessageId().setFutureOrSequenceLong(1L);
         underTest.addMessageLast(msg);
 
         assertTrue("cache enabled", underTest.isUseCache() && underTest.isCacheEnabled());
@@ -419,12 +419,12 @@ public class StoreQueueCursorOrderTest {
         msg = getMessage(2);
         messages[2] = msg;
         msg.setMemoryUsage(systemUsage.getMemoryUsage());
-        msg.getMessageId().setFutureOrSequenceLong(2l);
+        msg.getMessageId().setFutureOrSequenceLong(2L);
         underTest.addMessageLast(msg);
 
 
         assertTrue("cache is disabled as limit reached", !underTest.isCacheEnabled());
-        assertEquals("setBatch set", 2l, queueMessageStore.batch.get());
+        assertEquals("setBatch set", 2L, queueMessageStore.batch.get());
 
         int dequeueCount = 0;
 

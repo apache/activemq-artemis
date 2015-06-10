@@ -188,7 +188,7 @@ public class LeaseDatabaseLockerTest {
 
         statement = connection.prepareStatement(jdbc.getStatements().getLeaseUpdateStatement());
         statement.setString(1, null);
-        statement.setLong(2, 0l);
+        statement.setLong(2, 0L);
         statement.setString(3, fakeId);
         assertEquals("we released " + fakeId, 1, statement.executeUpdate());
         LOG.info("released " + fakeId);
