@@ -54,7 +54,7 @@ import static org.junit.Assert.assertEquals;
 
 /**
  * Stuck messages test client.
- * <p/>
+ * <br>
  * Will kick of publisher and consumer simultaneously, and will usually result in stuck messages on the queue.
  */
 @RunWith(Parameterized.class)

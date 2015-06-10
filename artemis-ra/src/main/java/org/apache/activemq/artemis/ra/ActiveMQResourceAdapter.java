@@ -1808,7 +1808,6 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
    }
 
    /**
-    * @return
     * @see ActiveMQRAProperties#getJgroupsChannelLocatorClass()
     */
    public String getJgroupsChannelLocatorClass()
@@ -1817,8 +1816,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
    }
 
    /**
-    * @return
-    * @see ActiveMQRAProperties#setJgroupsChannelLocatorClass()
+    * @see ActiveMQRAProperties#setJgroupsChannelLocatorClass(String)
     */
    public void setJgroupsChannelLocatorClass(String jgroupsChannelLocatorClass)
    {
@@ -1835,8 +1833,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
    }
 
    /**
-    * @return
-    * @see ActiveMQRAProperties#setJgroupsChannelRefName()
+    * @see ActiveMQRAProperties#setJgroupsChannelRefName(java.lang.String)
     */
    public void setJgroupsChannelRefName(String jgroupsChannelRefName)
    {

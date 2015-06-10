@@ -26,10 +26,10 @@ import org.jboss.logging.annotations.MessageLogger;
 
 /**
  * Logger Code 15
- * <p/>
+ * <br>
  * each message id must be 6 digits long starting with 15, the 3rd digit donates
  * the level so
- * <p/>
+ * <br>
  * <pre>
  * INF0  1
  * WARN  2
@@ -38,7 +38,7 @@ import org.jboss.logging.annotations.MessageLogger;
  * TRACE 5
  * FATAL 6
  * </pre>
- * <p/>
+ * <br>
  * so an INFO message would be 151000 to 151999
  */
 @MessageLogger(projectCode = "AMQ")

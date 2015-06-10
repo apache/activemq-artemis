@@ -49,7 +49,7 @@ import static org.junit.Assert.fail;
 /**
  * Testing how the broker reacts when a SQL Exception is thrown from
  * org.apache.activemq.store.jdbc.TransactionContext.executeBatch().
- * <p/>
+ * <br>
  * see https://issues.apache.org/jira/browse/AMQ-4636
  */
 public class AMQ4636Test {
@@ -123,7 +123,7 @@ public class AMQ4636Test {
     /**
      * adding a TestTransactionContext (wrapper to TransactionContext) so an SQLException is triggered
      * during TransactionContext.executeBatch() when called in the broker.
-     * <p/>
+     * <br>
      * Expectation: SQLException triggers a connection shutdown and failover should kick and try to redeliver the
      * message. SQLException should NOT be returned to client
      */

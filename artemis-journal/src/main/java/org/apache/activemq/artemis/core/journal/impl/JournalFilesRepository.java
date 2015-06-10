@@ -45,7 +45,7 @@ public class JournalFilesRepository
 
    /**
     * Used to debug the consistency of the journal ordering.
-    * <p/>
+    * <br>
     * This is meant to be false as these extra checks would cause performance issues
     */
    private static final boolean CHECK_CONSISTENCE = false;

@@ -20,7 +20,7 @@ import java.util.StringTokenizer;
 
 /**
  *         1.1 frames
- *         <p/>
+ *         <br>
  *         1. CONNECT/STOMP(new)
  *         2. CONNECTED
  *         3. SEND

@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
 
 /*
  * simulate message flow which cause the following exception in the broker
- * (exception logged by client) <p/> 2007-07-24 13:51:23,624
+ * (exception logged by client) <br> 2007-07-24 13:51:23,624
  * com.easynet.halo.Halo ERROR (LoggingErrorHandler.java: 23) JMS failure
  * javax.jms.JMSException: Transaction 'TX:ID:dmt-53625-1185281414694-1:0:344'
  * has not been started. at

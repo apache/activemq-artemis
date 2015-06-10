@@ -119,10 +119,10 @@ public final class UUID
     * identity hash (ie. same contents generate same hash) manually, without
     * sacrificing speed too much. Although multiplications with modulos would
     * generate better hashing, let's use just shifts, and do 2 bytes at a time.
-    * <p/>
+    * <br>
     * Of course, assuming UUIDs are randomized enough, even simpler approach
     * might be good enough?
-    * <p/>
+    * <br>
     * Is this a good hash? ... one of these days I better read more about basic
     * hashing techniques I swear!
     */

@@ -2576,12 +2576,12 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
    // -----------------------------------------------------------------------------
 
    /**
-    * <p/>
+    * <br>
     * Checks for holes on the transaction (a commit written but with an incomplete transaction).
-    * <p/>
+    * <br>
     * This method will validate if the transaction (PREPARE/COMMIT) is complete as stated on the
     * COMMIT-RECORD.
-    * <p/>
+    * <br>
     * For details see {@link JournalCompleteRecordTX} about how the transaction-summary is recorded.
     *
     * @param journalTransaction

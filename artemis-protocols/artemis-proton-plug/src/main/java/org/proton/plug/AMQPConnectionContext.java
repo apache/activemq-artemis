@@ -39,7 +39,6 @@ public interface AMQPConnectionContext
     * This is for future use and should be kept returning false.
     *
     * We will have to do some testing before we make this return true
-    * @return
     */
    boolean isSyncOnFlush();
 
@@ -48,9 +47,6 @@ public interface AMQPConnectionContext
    /**
     * This is for the Remoting layer to push bytes on the AMQP Connection
     * The buffer readerIndex should be at the latest read byte after this method is called
-    *
-    * @param buffer
-    * @return
     */
    void inputBuffer(ByteBuf buffer);
 

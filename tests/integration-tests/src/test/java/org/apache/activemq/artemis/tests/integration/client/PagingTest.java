@@ -2819,7 +2819,7 @@ public class PagingTest extends ActiveMQTestBase
     * - Consume the entire destination (not in page mode any more)
     * - Add stuff to a transaction again
     * - Check order
-    * <p/>
+    * <br>
     * Test under discussion at : http://community.jboss.org/thread/154061?tstart=0
     */
    @Test

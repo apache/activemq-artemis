@@ -71,27 +71,27 @@ import static org.junit.Assert.*;
 /**
  * Test creates a broker network with two brokers - producerBroker (with a
  * message producer attached) and consumerBroker (with consumer attached)
- * <p/>
+ * <br>
  * Simulates network duplicate message by stopping and restarting the
  * consumerBroker after message (with message ID ending in 120) is persisted to
  * consumerBrokerstore BUT BEFORE ack sent to the producerBroker over the
  * network connection. When the network connection is reestablished the
  * producerBroker resends message (with messageID ending in 120).
- * <p/>
+ * <br>
  * Expectation:
- * <p/>
+ * <br>
  * With the following policy entries set, would expect the duplicate message to
  * be read from the store and dispatched to the consumer - where the duplicate
  * could be detected by consumer.
- * <p/>
+ * <br>
  * PolicyEntry policy = new PolicyEntry(); policy.setQueue(">");
  * policy.setEnableAudit(false); policy.setUseCache(false);
  * policy.setExpireMessagesPeriod(0);
- * <p/>
- * <p/>
+ * <br>
+ * <br>
  * Note 1: Network needs to use replaywhenNoConsumers so enabling the
  * networkAudit to avoid this scenario is not feasible.
- * <p/>
+ * <br>
  * NOTE 2: Added a custom plugin to the consumerBroker so that the
  * consumerBroker shutdown will occur after a message has been persisted to
  * consumerBroker store but before an ACK is sent back to ProducerBroker. This

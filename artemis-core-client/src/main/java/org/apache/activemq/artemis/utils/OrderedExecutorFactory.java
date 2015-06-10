@@ -52,7 +52,7 @@ public final class OrderedExecutorFactory implements ExecutorFactory
 
    /**
     * An executor that always runs all tasks in order, using a delegate executor to run the tasks.
-    * <p/>
+    * <br>
     * More specifically, any call B to the {@link #execute(Runnable)} method that happens-after another call A to the
     * same method, will result in B's task running after A's.
     */

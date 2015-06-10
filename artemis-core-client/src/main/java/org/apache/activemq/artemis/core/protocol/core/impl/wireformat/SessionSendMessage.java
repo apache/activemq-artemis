@@ -29,7 +29,7 @@ public class SessionSendMessage extends MessagePacket
 
    /**
     * In case, we are using a different handler than the one set on the {@link org.apache.activemq.artemis.api.core.client.ClientSession}
-    * <p/>
+    * <br>
     * This field is only used at the client side.
     *
     * @see org.apache.activemq.artemis.api.core.client.ClientSession#setSendAcknowledgementHandler(SendAcknowledgementHandler)

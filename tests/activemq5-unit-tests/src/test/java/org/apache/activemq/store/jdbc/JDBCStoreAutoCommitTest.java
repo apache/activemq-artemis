@@ -57,7 +57,7 @@ import org.junit.Test;
  * to be compliant with JDBC spec; officially commit is not supposed to be
  * called on a connection that uses autocommit.The oracle v12 driver does a
  * check for autocommitSpecCompliance and it causes issues
- * <p/>
+ * <br>
  * To test; wrap the datasource used by the broker and check for autocommit
  * before delegating to real datasource. If commit is called on connection with
  * autocommit, wrapper throws a SQLException.

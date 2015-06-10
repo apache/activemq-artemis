@@ -27,7 +27,7 @@ import org.junit.Test;
 
 /**
  * Test JMS Security.
- * <p/>
+ * <br>
  * This test must be run with the Test security config. on the server
  */
 public class SecurityTest extends JMSTestCase

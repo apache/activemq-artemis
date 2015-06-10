@@ -23,7 +23,7 @@ import javax.jms.Topic;
 
 
 /**
- * The MCF default properties - these are set in the <tx-connection-factory> at the jms-ds.xml
+ * The MCF default properties - these are set in the tx-connection-factory at the jms-ds.xml
  */
 public class ActiveMQRAMCFProperties extends ConnectionFactoryProperties implements Serializable
 {

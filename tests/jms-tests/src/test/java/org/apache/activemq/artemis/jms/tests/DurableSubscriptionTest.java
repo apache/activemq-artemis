@@ -116,7 +116,7 @@ public class DurableSubscriptionTest extends JMSTestCase
     * JMS 1.1 6.11.1: A client can change an existing durable subscription by creating a durable
     * TopicSubscriber with the same name and a new topic and/or message selector, or NoLocal
     * attribute. Changing a durable subscription is equivalent to deleting and recreating it.
-    * <p/>
+    * <br>
     * Test with a different topic (a redeployed topic is a different topic).
     */
    @Test
@@ -169,7 +169,7 @@ public class DurableSubscriptionTest extends JMSTestCase
     * JMS 1.1 6.11.1: A client can change an existing durable subscription by creating a durable
     * TopicSubscriber with the same name and a new topic and/or message selector, or NoLocal
     * attribute. Changing a durable subscription is equivalent to deleting and recreating it.
-    * <p/>
+    * <br>
     * Test with a different selector.
     */
    @Test

@@ -22,15 +22,10 @@ import java.util.concurrent.locks.AbstractQueuedSynchronizer;
 /**
  * <p>This class will use the framework provided to by AbstractQueuedSynchronizer.</p>
  * <p>AbstractQueuedSynchronizer is the framework for any sort of concurrent synchronization, such as Semaphores, events, etc, based on AtomicIntegers.</p>
- * <p/>
  * <p>This class works just like CountDownLatch, with the difference you can also increase the counter</p>
- * <p/>
  * <p>It could be used for sync points when one process is feeding the latch while another will wait when everything is done. (e.g. waiting IO completions to finish)</p>
- * <p/>
  * <p>On ActiveMQ Artemis we have the requirement of increment and decrement a counter until the user fires a ready handler (commit). At that point we just act as a regular countDown.</p>
- * <p/>
  * <p>Note: This latch is reusable. Once it reaches zero, you can call up again, and reuse it on further waits.</p>
- * <p/>
  * <p>For example: prepareTransaction will wait for the current completions, and further adds will be called on the latch. Later on when commit is called you can reuse the same latch.</p>
  */
 public class ReusableLatch

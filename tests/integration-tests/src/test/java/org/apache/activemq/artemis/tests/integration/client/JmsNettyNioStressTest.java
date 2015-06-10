@@ -46,18 +46,18 @@ import java.util.concurrent.atomic.AtomicInteger;
  * -- https://issues.jboss.org/browse/HORNETQ-746
  * Stress test using netty with NIO and many JMS clients concurrently, to try
  * and induce a deadlock.
- * <p/>
+ * <br>
  * A large number of JMS clients are started concurrently. Some produce to queue
  * 1 over one connection, others consume from queue 1 and produce to queue 2
  * over a second connection, and others consume from queue 2 over a third
  * connection.
- * <p/>
+ * <br>
  * Each operation is done in a JMS transaction, sending/consuming one message
  * per transaction.
- * <p/>
+ * <br>
  * The server is set up with netty, with only one NIO worker and 1 activemq
  * server worker. This increases the chance for the deadlock to occur.
- * <p/>
+ * <br>
  * If the deadlock occurs, all threads will block/die. A simple transaction
  * counting strategy is used to verify that the count has reached the expected
  * value.

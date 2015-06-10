@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
  * The configuration is set to except a maximum of 2 concurrent connections
  * As the exception is deliberately ignored, the ActiveMQConnection would continue to
  * attempt to connect unless the connection's transport was also stopped on an error.
- * <p/>
+ * <br>
  * As the maximum connections allowed is 2, no more connections would be allowed unless
  * the transport was adequately destroyed on the broker side.
  */

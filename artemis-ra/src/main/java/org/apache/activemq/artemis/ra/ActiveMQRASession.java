@@ -1243,9 +1243,6 @@ public final class ActiveMQRASession implements QueueSession, TopicSession, XAQu
 
    /**
     * Get the XA resource
-    *
-    * @return The XA resource
-    * @throws IllegalStateException If non XA connection
     */
    public XAResource getXAResource()
    {
@@ -1889,10 +1886,6 @@ public final class ActiveMQRASession implements QueueSession, TopicSession, XAQu
       return (TopicSession) s;
    }
 
-   /**
-    * @throws SystemException
-    * @throws RollbackException
-    */
    public void checkState() throws JMSException
    {
       if (mc != null)

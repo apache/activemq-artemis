@@ -33,7 +33,7 @@ public class SimpleStartStopTest extends ActiveMQTestBase
    /**
     * Start / stopping the server shouldn't generate any errors.
     * Also it shouldn't bloat the journal with lots of IDs (it should do some cleanup when possible)
-    * <p/>
+    * <br>
     * This is also validating that the same server could be restarted after stopped
     *
     * @throws Exception

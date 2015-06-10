@@ -34,9 +34,6 @@ import org.proton.plug.handler.impl.DefaultEventHandler;
 import org.proton.plug.util.ByteUtil;
 import org.proton.plug.util.DebugInfo;
 
-/**
- * Clebert Suconic
- */
 public abstract class AbstractConnectionContext extends ProtonInitializable implements AMQPConnectionContext
 {
 
@@ -79,8 +76,6 @@ public abstract class AbstractConnectionContext extends ProtonInitializable impl
 
    /**
     * See comment at {@link org.proton.plug.AMQPConnectionContext#isSyncOnFlush()}
-    * @return
-    * @See {@link org.proton.plug.AMQPConnectionContext#isSyncOnFlush()}
     */
    public boolean isSyncOnFlush()
    {
