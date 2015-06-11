@@ -27,8 +27,9 @@ import org.apache.activemq.artemis.api.core.Interceptor;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.core.config.ConnectorServiceConfiguration;
 import org.apache.activemq.artemis.core.server.ConnectorServiceFactory;
+import org.apache.activemq.artemis.core.server.ServiceRegistry;
 
-public class ServiceRegistry
+public class ServiceRegistryImpl implements ServiceRegistry
 {
    private ExecutorService executorService;
 
@@ -43,11 +44,11 @@ public class ServiceRegistry
 
    private Map<String, Pair<ConnectorServiceFactory, ConnectorServiceConfiguration>> connectorServices;
 
-   public ServiceRegistry()
+   public ServiceRegistryImpl()
    {
-      this.incomingInterceptors = new ConcurrentHashMap<String, Interceptor>();
-      this.outgoingInterceptors = new ConcurrentHashMap<String, Interceptor>();
-      this.connectorServices = new ConcurrentHashMap<String, Pair<ConnectorServiceFactory, ConnectorServiceConfiguration>>();
+      this.incomingInterceptors = new ConcurrentHashMap<>();
+      this.outgoingInterceptors = new ConcurrentHashMap<>();
+      this.connectorServices = new ConcurrentHashMap<>();
    }
 
    public ExecutorService getExecutorService()

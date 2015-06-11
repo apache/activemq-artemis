@@ -102,6 +102,7 @@ import org.apache.activemq.artemis.core.server.QueueCreator;
 import org.apache.activemq.artemis.core.server.QueueFactory;
 import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.ServerSessionFactory;
+import org.apache.activemq.artemis.core.server.ServiceRegistry;
 import org.apache.activemq.artemis.core.server.cluster.BackupManager;
 import org.apache.activemq.artemis.core.server.cluster.ClusterManager;
 import org.apache.activemq.artemis.core.server.cluster.Transformer;
@@ -343,7 +344,7 @@ public class ActiveMQServerImpl implements ActiveMQServer
 
       this.parentServer = parentServer;
 
-      this.serviceRegistry = serviceRegistry == null ?  new ServiceRegistry() : serviceRegistry;
+      this.serviceRegistry = serviceRegistry == null ?  new ServiceRegistryImpl() : serviceRegistry;
    }
 
    // life-cycle methods
