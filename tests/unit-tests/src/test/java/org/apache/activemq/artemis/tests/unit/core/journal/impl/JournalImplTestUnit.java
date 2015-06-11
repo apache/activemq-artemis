@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.tests.unit.core.journal.impl;
 
 import java.nio.ByteBuffer;
 import java.util.List;
+import java.io.File;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQIOErrorException;
@@ -3220,6 +3221,26 @@ public abstract class JournalImplTestUnit extends JournalImplTestBase
       startJournal();
       loadAndCheck();
 
+   }
+
+   @Test
+   public void testLoadTruncatedFile() throws Exception
+   {
+      setup(2, 2 * 1024, true);
+      createJournal();
+      startJournal();
+
+      String testDir = getTestDir();
+      new File(testDir + File.separator + filePrefix + "-1." + fileExtension).createNewFile();
+
+      try
+      {
+         load();
+      }
+      catch (Exception e)
+      {
+         Assert.fail("Unexpected exception: " + e.toString());
+      }
    }
 
    protected abstract int getAlignment();

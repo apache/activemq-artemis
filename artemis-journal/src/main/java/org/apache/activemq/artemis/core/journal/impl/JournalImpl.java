@@ -375,18 +375,25 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
       {
          SequentialFile file = fileFactory.createSequentialFile(fileName, filesRepository.getMaxAIO());
 
-         file.open(1, false);
-
-         try
+         if (file.size() >= SIZE_HEADER)
          {
+            file.open(1, false);
 
-            JournalFileImpl jrnFile = readFileHeader(file);
+            try
+            {
+               JournalFileImpl jrnFile = readFileHeader(file);
 
-            orderedFiles.add(jrnFile);
+               orderedFiles.add(jrnFile);
+            }
+            finally
+            {
+               file.close();
+            }
          }
-         finally
+         else
          {
-            file.close();
+            ActiveMQJournalLogger.LOGGER.ignoringShortFile(fileName);
+            file.delete();
          }
       }
 
