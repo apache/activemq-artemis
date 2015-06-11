@@ -92,7 +92,14 @@ public class DivertConfiguration implements Serializable
     */
    public DivertConfiguration setRoutingName(final String routingName)
    {
-      this.routingName = routingName;
+      if (routingName == null)
+      {
+         this.routingName = UUIDGenerator.getInstance().generateStringUUID();
+      }
+      else
+      {
+         this.routingName = routingName;
+      }
       return this;
    }
 
