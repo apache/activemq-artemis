@@ -37,6 +37,7 @@ import io.airlift.airline.Arguments;
 import io.airlift.airline.Command;
 import io.airlift.airline.Option;
 import org.apache.activemq.artemis.core.asyncio.impl.AsynchronousFileImpl;
+import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 
 import static java.nio.file.attribute.PosixFilePermission.GROUP_EXECUTE;
 import static java.nio.file.attribute.PosixFilePermission.GROUP_READ;
@@ -106,6 +107,9 @@ public class Create extends InputAbstract
    @Option(name = "--max-hops", description = "Number of hops on the cluster configuration")
    int maxHops = 0;
 
+   @Option(name = "--message-load-balancing", description = "What kind of message load balancing to use for clustered configurations. Can be ON_DEMAND, STRICT, or OFF. (Default: ON_DEMAND)")
+   String messageLoadBalancing = MessageLoadBalancingType.ON_DEMAND.toString();
+
    @Option(name = "--replicated", description = "Enable broker replication")
    boolean replicated = false;
 
@@ -174,6 +178,16 @@ public class Create extends InputAbstract
    public void setPortOffset(int portOffset)
    {
       this.portOffset = portOffset;
+   }
+
+   public String getMessageLoadBalancing()
+   {
+      return messageLoadBalancing;
+   }
+
+   public void setMessageLoadBalancing(String messageLoadBalancing)
+   {
+      this.messageLoadBalancing = messageLoadBalancing;
    }
 
    public String getJavaOptions()
@@ -471,6 +485,11 @@ public class Create extends InputAbstract
       filters.put("${http.port}", String.valueOf(HTTP_PORT + portOffset));
       filters.put("${data.dir}", data);
       filters.put("${max-hops}", String.valueOf(maxHops));
+
+      // validate message-load-balancing
+      Enum.valueOf(MessageLoadBalancingType.class, messageLoadBalancing);
+
+      filters.put("${message-load-balancing}", messageLoadBalancing);
       filters.put("${user}", getUser());
       filters.put("${password}", getPassword());
       filters.put("${role}", getRole());
