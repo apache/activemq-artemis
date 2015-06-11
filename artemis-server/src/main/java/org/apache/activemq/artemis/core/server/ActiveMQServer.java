@@ -78,6 +78,8 @@ public interface ActiveMQServer extends ActiveMQComponent
 
    Configuration getConfiguration();
 
+   ServiceRegistry getServiceRegistry();
+
    RemotingService getRemotingService();
 
    StorageManager getStorageManager();

@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import org.apache.activemq.artemis.core.server.ServiceRegistry;
 import org.apache.activemq.artemis.tests.unit.core.config.impl.fakes.FakeConnectorServiceFactory;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.core.config.Configuration;
@@ -27,7 +28,7 @@ import org.apache.activemq.artemis.core.config.ConnectorServiceConfiguration;
 import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.artemis.core.server.ConnectorService;
 import org.apache.activemq.artemis.core.server.impl.ConnectorsService;
-import org.apache.activemq.artemis.core.server.impl.ServiceRegistry;
+import org.apache.activemq.artemis.core.server.impl.ServiceRegistryImpl;
 import org.apache.activemq.artemis.tests.unit.core.config.impl.fakes.FakeConnectorService;
 import org.junit.Before;
 import org.junit.Test;
@@ -43,7 +44,7 @@ public class ConnectorsServiceTest extends ActiveMQTestBase
    {
       // Setup Configuration
       configuration = new ConfigurationImpl();
-      serviceRegistry = new ServiceRegistry();
+      serviceRegistry = new ServiceRegistryImpl();
    }
 
    /**
