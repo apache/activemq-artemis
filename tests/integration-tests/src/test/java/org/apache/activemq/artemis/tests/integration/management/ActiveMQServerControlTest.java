@@ -658,6 +658,23 @@ public class ActiveMQServerControlTest extends ManagementTestBase
    }
 
    @Test
+   public void testNullRouteNameOnDivert() throws Exception
+   {
+      String address = RandomUtil.randomString();
+      String name = RandomUtil.randomString();
+      String forwardingAddress = RandomUtil.randomString();
+
+      ActiveMQServerControl serverControl = createManagementControl();
+
+      checkNoResource(ObjectNameBuilder.DEFAULT.getDivertObjectName(name));
+      assertEquals(0, serverControl.getDivertNames().length);
+
+      serverControl.createDivert(name.toString(), null, address, forwardingAddress, true, null, null);
+
+      checkResource(ObjectNameBuilder.DEFAULT.getDivertObjectName(name));
+   }
+
+   @Test
    public void testCreateAndDestroyDivert() throws Exception
    {
       String address = RandomUtil.randomString();
