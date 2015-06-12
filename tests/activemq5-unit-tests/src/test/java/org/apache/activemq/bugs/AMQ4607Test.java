@@ -49,7 +49,7 @@ public class AMQ4607Test extends JmsMultipleBrokersTestSupport implements Uncaug
 
     public boolean duplex = true;
     protected Map<String, MessageConsumer> consumerMap;
-    Map<Thread, Throwable> unhandeledExceptions = new HashMap<Thread, Throwable>();
+    final Map<Thread, Throwable> unhandeledExceptions = new HashMap<Thread, Throwable>();
 
     private void assertNoUnhandeledExceptions() {
         for( Entry<Thread, Throwable> e: unhandeledExceptions.entrySet()) {

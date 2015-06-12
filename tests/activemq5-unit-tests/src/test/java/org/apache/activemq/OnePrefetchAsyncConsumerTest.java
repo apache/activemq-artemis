@@ -154,7 +154,7 @@ public class OnePrefetchAsyncConsumerTest extends EmbeddedBrokerTestSupport {
     }
 
     private class TestServerSession implements ServerSession {
-        TestServerSessionPool pool;
+        final TestServerSessionPool pool;
         Session session;
 
         public TestServerSession(TestServerSessionPool pool) throws JMSException {

@@ -43,7 +43,7 @@ public class DbRestartJDBCQueueMasterSlaveLeaseTest extends DbRestartJDBCQueueMa
         LeaseLockerIOExceptionHandler ioExceptionHandler = new LeaseLockerIOExceptionHandler();
         ioExceptionHandler.setIgnoreSQLExceptions(false);
         ioExceptionHandler.setStopStartConnectors(false);
-        ioExceptionHandler.setResumeCheckSleepPeriod(500l);
+        ioExceptionHandler.setResumeCheckSleepPeriod(500L);
         brokerService.setIoExceptionHandler(ioExceptionHandler);
     }
 

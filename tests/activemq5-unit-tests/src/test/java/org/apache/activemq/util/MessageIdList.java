@@ -140,20 +140,28 @@ public class MessageIdList extends Assert implements MessageListener {
 
         long start = System.currentTimeMillis();
 
-        for (int i = 0; i < messageCount; i++) {
-            try {
-                if (hasReceivedMessages(messageCount)) {
-                    break;
-                }
-                long duration = System.currentTimeMillis() - start;
-                if (duration >= maximumDuration) {
-                    break;
-                }
-                synchronized (semaphore) {
+        synchronized (semaphore)
+        {
+            for (int i = 0; i < messageCount; i++)
+            {
+                try
+                {
+                    if (hasReceivedMessages(messageCount))
+                    {
+                        break;
+                    }
+                    long duration = System.currentTimeMillis() - start;
+                    if (duration >= maximumDuration)
+                    {
+                        break;
+                    }
+
                     semaphore.wait(maximumDuration - duration);
                 }
-            } catch (InterruptedException e) {
-                LOG.info("Caught: " + e);
+                catch (InterruptedException e)
+                {
+                    LOG.info("Caught: " + e);
+                }
             }
         }
         long end = System.currentTimeMillis() - start;

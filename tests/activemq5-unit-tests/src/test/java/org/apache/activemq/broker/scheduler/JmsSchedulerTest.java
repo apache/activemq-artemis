@@ -260,7 +260,7 @@ public class JmsSchedulerTest extends JobSchedulerTestSupport {
         // wait for the producer to block, which should happen immediately, and also wait long
         // enough for the delay to elapse.  We should see no deliveries as the send should block
         // on the first message.
-        Thread.sleep(10000l);
+        Thread.sleep(10000L);
 
         assertEquals(100, latch.getCount());
 
@@ -268,7 +268,7 @@ public class JmsSchedulerTest extends JobSchedulerTestSupport {
         broker.getSystemUsage().getJobSchedulerUsage().setLimit(1024 * 1024 * 33);
 
         // Wait long enough that the messages are enqueued and the delivery delay has elapsed.
-        Thread.sleep(10000l);
+        Thread.sleep(10000L);
 
         // Make sure we sent all the messages we expected to send
         Wait.waitFor(new Wait.Condition() {
@@ -276,12 +276,12 @@ public class JmsSchedulerTest extends JobSchedulerTestSupport {
             public boolean isSatisified() throws Exception {
                 return producer.getSentCount() == producer.getMessageCount();
             }
-        }, 20000l);
+        }, 20000L);
 
         assertEquals("Producer didn't send all messages", producer.getMessageCount(), producer.getSentCount());
 
         // Make sure we got all the messages we expected to get
-        latch.await(20000l, TimeUnit.MILLISECONDS);
+        latch.await(20000L, TimeUnit.MILLISECONDS);
 
         assertEquals("Consumer did not receive all messages.", 0, latch.getCount());
     }

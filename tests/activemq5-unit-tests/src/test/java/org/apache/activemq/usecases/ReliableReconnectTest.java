@@ -47,8 +47,8 @@ public class ReliableReconnectTest extends org.apache.activemq.TestSupport {
     protected int deliveryMode = DeliveryMode.PERSISTENT;
     protected String consumerClientId;
     protected Destination destination;
-    protected AtomicBoolean closeBroker = new AtomicBoolean(false);
-    protected AtomicInteger messagesReceived = new AtomicInteger(0);
+    protected final AtomicBoolean closeBroker = new AtomicBoolean(false);
+    protected final AtomicInteger messagesReceived = new AtomicInteger(0);
     protected BrokerService broker;
     protected int firstBatch = MESSAGE_COUNT / 10;
     private IdGenerator idGen = new IdGenerator();
@@ -159,7 +159,7 @@ public class ReliableReconnectTest extends org.apache.activemq.TestSupport {
         connection.close();
         spawnConsumer();
         synchronized (closeBroker) {
-            if (!closeBroker.get()) {
+            while (!closeBroker.get()) {
                 closeBroker.wait();
             }
         }
@@ -168,7 +168,7 @@ public class ReliableReconnectTest extends org.apache.activemq.TestSupport {
         startBroker(false);
         // System.err.println("Started Broker again");
         synchronized (messagesReceived) {
-            if (messagesReceived.get() < MESSAGE_COUNT) {
+            while (messagesReceived.get() < MESSAGE_COUNT) {
                 messagesReceived.wait(60000);
             }
         }

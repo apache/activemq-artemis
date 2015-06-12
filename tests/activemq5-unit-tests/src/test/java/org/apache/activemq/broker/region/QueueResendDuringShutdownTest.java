@@ -54,7 +54,7 @@ public class QueueResendDuringShutdownTest {
     private Connection                  producerConnection;
     private Queue                       queue;
 
-    private Object                      messageReceiveSync = new Object();
+    private final Object                messageReceiveSync = new Object();
     private int                         receiveCount;
 
     @Before
@@ -239,7 +239,7 @@ public class QueueResendDuringShutdownTest {
     protected void  waitForMessage (long delayMs) {
         try {
             synchronized ( this.messageReceiveSync ) {
-                if ( this.receiveCount == 0 ) {
+                while ( this.receiveCount == 0 ) {
                     this.messageReceiveSync.wait(delayMs);
                 }
             }

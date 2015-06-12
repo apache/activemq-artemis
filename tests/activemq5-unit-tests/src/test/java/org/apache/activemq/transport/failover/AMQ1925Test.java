@@ -21,6 +21,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.jms.Connection;
@@ -73,14 +74,12 @@ public class AMQ1925Test extends TestCase implements ExceptionListener {
 
 		// The runnable is likely to interrupt during the session#commit, since
 		// this takes the longest
-		final Object starter = new Object();
+		final CountDownLatch starter = new CountDownLatch(1);
 		final AtomicBoolean restarted = new AtomicBoolean();
 		new Thread(new Runnable() {
 			public void run() {
 				try {
-					synchronized (starter) {
-						starter.wait();
-					}
+					starter.await();
 
 					// Simulate broker failure & restart
 					bs.stop();
@@ -97,9 +96,6 @@ public class AMQ1925Test extends TestCase implements ExceptionListener {
 			}
 		}).start();
 
-		synchronized (starter) {
-			starter.notifyAll();
-		}
 		for (int i = 0; i < MESSAGE_COUNT; i++) {
 			Message message = consumer.receive(500);
 			assertNotNull("No Message " + i + " found", message);
@@ -108,9 +104,7 @@ public class AMQ1925Test extends TestCase implements ExceptionListener {
 				assertFalse("Timing problem, restarted too soon", restarted
 						.get());
 			if (i == 10) {
-				synchronized (starter) {
-					starter.notifyAll();
-				}
+				starter.countDown();
 			}
 			if (i > MESSAGE_COUNT - 100) {
 				assertTrue("Timing problem, restarted too late", restarted
@@ -143,14 +137,12 @@ public class AMQ1925Test extends TestCase implements ExceptionListener {
 
 		// The runnable is likely to interrupt during the session#commit, since
 		// this takes the longest
-		final Object starter = new Object();
+		final CountDownLatch starter = new CountDownLatch(1);
 		final AtomicBoolean restarted = new AtomicBoolean();
 		new Thread(new Runnable() {
 			public void run() {
 				try {
-					synchronized (starter) {
-						starter.wait();
-					}
+					starter.await();
 
 					// Simulate broker failure & restart
 					bs.stop();
@@ -167,9 +159,6 @@ public class AMQ1925Test extends TestCase implements ExceptionListener {
 			}
 		}).start();
 
-		synchronized (starter) {
-			starter.notifyAll();
-		}
 		Collection<Integer> results = new ArrayList<Integer>(MESSAGE_COUNT);
 		for (int i = 0; i < MESSAGE_COUNT; i++) {
 			Message message1 = consumer1.receive(20);
@@ -191,9 +180,7 @@ public class AMQ1925Test extends TestCase implements ExceptionListener {
 				assertFalse("Timing problem, restarted too soon", restarted
 						.get());
 			if (i == 10) {
-				synchronized (starter) {
-					starter.notifyAll();
-				}
+				starter.countDown();
 			}
 			if (i > MESSAGE_COUNT - 50) {
 				assertTrue("Timing problem, restarted too late", restarted

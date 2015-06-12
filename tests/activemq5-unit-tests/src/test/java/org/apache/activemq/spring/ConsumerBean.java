@@ -73,14 +73,19 @@ public class ConsumerBean extends Assert implements MessageListener {
 
         long start = System.currentTimeMillis();
 
-        try {
-            if (hasReceivedMessage()) {
-                synchronized (messages) {
+        synchronized(messages)
+        {
+            try
+            {
+                while (hasReceivedMessage())
+                {
                     messages.wait(4000);
                 }
             }
-        } catch (InterruptedException e) {
-            LOG.info("Caught: " + e);
+            catch (InterruptedException e)
+            {
+                LOG.info("Caught: " + e);
+            }
         }
         long end = System.currentTimeMillis() - start;
 
@@ -101,18 +106,18 @@ public class ConsumerBean extends Assert implements MessageListener {
         LOG.info("Waiting for (" + maxRemainingMessageCount + ") message(s) to arrive");
         long start = System.currentTimeMillis();
         long endTime = start + maxWaitTime;
-        while (maxRemainingMessageCount > 0) {
-            try {
-                synchronized (messages) {
+        synchronized (messages) {
+            while (maxRemainingMessageCount > 0) {
+                try {
                     messages.wait(1000);
+                    if (hasReceivedMessages(messageCount) || System.currentTimeMillis() > endTime) {
+                        break;
+                    }
+                } catch (InterruptedException e) {
+                    LOG.info("Caught: " + e);
                 }
-                if (hasReceivedMessages(messageCount) || System.currentTimeMillis() > endTime) {
-                    break;
-                }
-            } catch (InterruptedException e) {
-                LOG.info("Caught: " + e);
+                maxRemainingMessageCount = Math.max(0, messageCount - messages.size());
             }
-            maxRemainingMessageCount = Math.max(0, messageCount - messages.size());
         }
         long end = System.currentTimeMillis() - start;
         LOG.info("End of wait for " + end + " millis");

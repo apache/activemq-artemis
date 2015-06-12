@@ -82,9 +82,9 @@ public class TrapMessageInJDBCStoreTest extends TestCase {
         jdbc.setCleanupPeriod(0);
         testTransactionContext = new TestTransactionContext(jdbc);
 
-        jdbc.setLockKeepAlivePeriod(1000l);
+        jdbc.setLockKeepAlivePeriod(1000L);
         LeaseDatabaseLocker leaseDatabaseLocker = new LeaseDatabaseLocker();
-        leaseDatabaseLocker.setLockAcquireSleepInterval(2000l);
+        leaseDatabaseLocker.setLockAcquireSleepInterval(2000L);
         jdbc.setLocker(leaseDatabaseLocker);
 
         broker.setPersistenceAdapter(jdbc);

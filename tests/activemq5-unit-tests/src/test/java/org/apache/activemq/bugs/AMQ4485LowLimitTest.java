@@ -101,14 +101,14 @@ public class AMQ4485LowLimitTest extends JmsMultipleBrokersTestSupport {
             addNetworkConnector(broker);
         }
         broker.setSchedulePeriodForDestinationPurge(0);
-        broker.getSystemUsage().getMemoryUsage().setLimit(256 * 1024 * 1024l);
+        broker.getSystemUsage().getMemoryUsage().setLimit(256 * 1024 * 1024L);
 
 
         PolicyMap policyMap = new PolicyMap();
         PolicyEntry policyEntry = new PolicyEntry();
         policyEntry.setExpireMessagesPeriod(0);
         policyEntry.setQueuePrefetch(1000);
-        policyEntry.setMemoryLimit(2 * 1024 * 1024l);
+        policyEntry.setMemoryLimit(2 * 1024 * 1024L);
         policyEntry.setProducerFlowControl(false);
         policyEntry.setEnableAudit(true);
         policyEntry.setUseCache(true);
@@ -117,7 +117,7 @@ public class AMQ4485LowLimitTest extends JmsMultipleBrokersTestSupport {
         PolicyEntry inPolicyEntry = new PolicyEntry();
         inPolicyEntry.setExpireMessagesPeriod(0);
         inPolicyEntry.setQueuePrefetch(1000);
-        inPolicyEntry.setMemoryLimit(5 * 1024 * 1024l);
+        inPolicyEntry.setMemoryLimit(5 * 1024 * 1024L);
         inPolicyEntry.setProducerFlowControl(true);
         inPolicyEntry.setEnableAudit(true);
         inPolicyEntry.setUseCache(true);
@@ -252,7 +252,7 @@ public class AMQ4485LowLimitTest extends JmsMultipleBrokersTestSupport {
                 }
                 return true;
             }
-        }, 1000 * 60 * 1000l, 20*1000));
+        }, 1000 * 60 * 1000L, 20*1000));
 
         assertTrue("No exceptions:" + exceptions, exceptions.isEmpty());
 

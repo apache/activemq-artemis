@@ -83,8 +83,6 @@ public class JmsMultipleClientsTestSupport {
     protected List<Connection> connections = Collections.synchronizedList(new ArrayList<Connection>());
     protected MessageIdList allMessagesList = new MessageIdList();
 
-    private AtomicInteger producerLock;
-
     protected void startProducers(Destination dest, int msgCount) throws Exception {
         startProducers(createConnectionFactory(), dest, msgCount);
     }
@@ -92,7 +90,7 @@ public class JmsMultipleClientsTestSupport {
     protected void startProducers(final ConnectionFactory factory, final Destination dest, final int msgCount) throws Exception {
         // Use concurrent send
         if (useConcurrentSend) {
-            producerLock = new AtomicInteger(producerCount);
+            final AtomicInteger producerLock = new AtomicInteger(producerCount);
 
             for (int i = 0; i < producerCount; i++) {
                 Thread t = new Thread(new Runnable() {

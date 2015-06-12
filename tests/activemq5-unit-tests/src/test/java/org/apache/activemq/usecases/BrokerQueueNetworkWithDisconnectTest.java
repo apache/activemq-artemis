@@ -88,7 +88,7 @@ public class BrokerQueueNetworkWithDisconnectTest extends JmsMultipleBrokersTest
 
     @SuppressWarnings("unchecked")
     public void testNoStuckConnectionsWithTransportDisconnect() throws Exception {
-        inactiveDuration=60000l;
+        inactiveDuration=60000L;
         useDuplexNetworkBridge = true;
 
         bridgeBrokers(SPOKE, HUB);

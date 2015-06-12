@@ -19,6 +19,7 @@ package org.apache.activemq.transport;
 import java.io.IOException;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.util.ServiceStopper;
 
@@ -29,7 +30,7 @@ import org.apache.activemq.util.ServiceStopper;
 public class StubTransport extends TransportSupport {
 
     private Queue<Object> queue = new ConcurrentLinkedQueue<Object>();
-    private volatile int receiveCounter;
+    private AtomicInteger receiveCounter;
 
     protected void doStop(ServiceStopper stopper) throws Exception {
     }
@@ -38,7 +39,7 @@ public class StubTransport extends TransportSupport {
     }
 
     public void oneway(Object command) throws IOException {
-        receiveCounter++;
+        receiveCounter.incrementAndGet();
         queue.add(command);
     }
 
@@ -51,7 +52,7 @@ public class StubTransport extends TransportSupport {
     }
 
     public int getReceiveCounter() {
-        return receiveCounter;
+        return receiveCounter.get();
     }
 
 }

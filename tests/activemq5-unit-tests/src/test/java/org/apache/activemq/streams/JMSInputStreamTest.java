@@ -250,7 +250,7 @@ public class JMSInputStreamTest extends JmsTestSupport {
         }
         out.flush();
         synchronized (complete) {
-            if (!complete.get()) {
+            while (!complete.get()) {
                 complete.wait(30000);
             }
         }

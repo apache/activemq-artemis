@@ -25,6 +25,9 @@ import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.EmbeddedBrokerTestSupport;
 import org.apache.activemq.command.ActiveMQQueue;
 
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
 public class CraigsBugTest extends EmbeddedBrokerTestSupport {
 
     private String connectionUri;
@@ -49,9 +52,7 @@ public class CraigsBugTest extends EmbeddedBrokerTestSupport {
         conn.start();
 
         try {
-            synchronized (this) {
-                wait(3000);
-            }
+            new CountDownLatch(1).await(3, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

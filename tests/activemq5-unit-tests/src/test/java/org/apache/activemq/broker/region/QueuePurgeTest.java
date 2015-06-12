@@ -67,7 +67,7 @@ public class QueuePurgeTest extends CombinationTestSupport {
         broker.setDataDirectoryFile(testDataDir);
         broker.setUseJmx(true);
         broker.setDeleteAllMessagesOnStartup(true);
-        broker.getSystemUsage().getMemoryUsage().setLimit(1024l*1024*64);
+        broker.getSystemUsage().getMemoryUsage().setLimit(1024L*1024*64);
         KahaDBPersistenceAdapter persistenceAdapter = new KahaDBPersistenceAdapter();
         persistenceAdapter.setDirectory(new File(testDataDir, "kahadb"));
         broker.setPersistenceAdapter(persistenceAdapter);

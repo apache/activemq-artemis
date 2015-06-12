@@ -36,7 +36,7 @@ public class JmsCreateConsumerInOnMessageTest extends TestSupport implements Mes
     private MessageConsumer testConsumer;
     private MessageProducer producer;
     private Topic topic;
-    private Object lock = new Object();
+    private final Object lock = new Object();
 
     /*
      * @see junit.framework.TestCase#setUp()
@@ -71,8 +71,8 @@ public class JmsCreateConsumerInOnMessageTest extends TestSupport implements Mes
     public void testCreateConsumer() throws Exception {
         Message msg = super.createMessage();
         producer.send(msg);
-        if (testConsumer == null) {
-            synchronized (lock) {
+        synchronized (lock) {
+            while(testConsumer == null) {
                 lock.wait(3000);
             }
         }

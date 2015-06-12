@@ -82,7 +82,7 @@ public class AbortSlowConsumer1Test extends AbortSlowConsumerBase {
         consumer.close();
 
         TimeUnit.SECONDS.sleep(5);
-        assertTrue("no exceptions : " + exceptions.toArray(), exceptions.isEmpty());
+        assertTrue("no exceptions : " + exceptions, exceptions.isEmpty());
     }
 
     @Test(timeout = 60 * 1000)
@@ -99,6 +99,6 @@ public class AbortSlowConsumer1Test extends AbortSlowConsumerBase {
         conn.close();
 
         TimeUnit.SECONDS.sleep(5);
-        assertTrue("no exceptions : " + exceptions.toArray(), exceptions.isEmpty());
+        assertTrue("no exceptions : " + exceptions, exceptions.isEmpty());
     }
 }

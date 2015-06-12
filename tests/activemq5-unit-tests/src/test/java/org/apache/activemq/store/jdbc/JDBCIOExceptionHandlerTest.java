@@ -71,17 +71,17 @@ public class JDBCIOExceptionHandlerTest extends TestCase {
         JDBCPersistenceAdapter jdbc = new JDBCPersistenceAdapter();
         jdbc.setDataSource(dataSource);
 
-        jdbc.setLockKeepAlivePeriod(1000l);
+        jdbc.setLockKeepAlivePeriod(1000L);
         if (leaseLocker) {
             LeaseDatabaseLocker leaseDatabaseLocker = new LeaseDatabaseLocker();
             leaseDatabaseLocker.setHandleStartException(true);
-            leaseDatabaseLocker.setLockAcquireSleepInterval(2000l);
+            leaseDatabaseLocker.setLockAcquireSleepInterval(2000L);
             jdbc.setLocker(leaseDatabaseLocker);
         }
 
         broker.setPersistenceAdapter(jdbc);
         LeaseLockerIOExceptionHandler ioExceptionHandler = new LeaseLockerIOExceptionHandler();
-        ioExceptionHandler.setResumeCheckSleepPeriod(1000l);
+        ioExceptionHandler.setResumeCheckSleepPeriod(1000L);
         ioExceptionHandler.setStopStartConnectors(startStopConnectors);
         broker.setIoExceptionHandler(ioExceptionHandler);
         String connectionUri = broker.addConnector(TRANSPORT_URL).getPublishableConnectString();
@@ -129,18 +129,18 @@ public class JDBCIOExceptionHandlerTest extends TestCase {
                     JDBCPersistenceAdapter jdbc = new JDBCPersistenceAdapter();
                     jdbc.setDataSource(dataSource);
 
-                    jdbc.setLockKeepAlivePeriod(1000l);
+                    jdbc.setLockKeepAlivePeriod(1000L);
 
                     if (lease) {
                         LeaseDatabaseLocker leaseDatabaseLocker = new LeaseDatabaseLocker();
                         leaseDatabaseLocker.setHandleStartException(true);
-                        leaseDatabaseLocker.setLockAcquireSleepInterval(2000l);
+                        leaseDatabaseLocker.setLockAcquireSleepInterval(2000L);
                         jdbc.setLocker(leaseDatabaseLocker);
                     }
 
                     broker.setPersistenceAdapter(jdbc);
                     LeaseLockerIOExceptionHandler ioExceptionHandler = new LeaseLockerIOExceptionHandler();
-                    ioExceptionHandler.setResumeCheckSleepPeriod(1000l);
+                    ioExceptionHandler.setResumeCheckSleepPeriod(1000L);
                     ioExceptionHandler.setStopStartConnectors(false);
                     broker.setIoExceptionHandler(ioExceptionHandler);
                     slave.set(broker);

@@ -239,7 +239,7 @@ public class JdbcDurableSubDupTest {
 
             ActiveMQConnectionFactory factory;
             MessageProducer messageProducer;
-            long timeToLive = 0l;
+            long timeToLive = 0L;
 
             TextMessage message = null;
 
