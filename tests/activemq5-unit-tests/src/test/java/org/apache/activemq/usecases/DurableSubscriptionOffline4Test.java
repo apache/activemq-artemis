@@ -30,6 +30,7 @@ import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -80,7 +81,7 @@ public class DurableSubscriptionOffline4Test extends DurableSubscriptionOfflineT
         MessageProducer producer = session.createProducer(null);
 
         final int toSend = 500;
-        final String payload = new byte[40*1024].toString();
+        final String payload = Arrays.toString(new byte[40 * 1024]);
         int sent = 0;
         for (int i = sent; i < toSend; i++) {
             Message message = session.createTextMessage(payload);

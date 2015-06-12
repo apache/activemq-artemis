@@ -49,7 +49,7 @@ public class ActiveMQTextMessageTest extends TestCase {
         String string = "str";
         msg.setText(string);
         Message copy = msg.copy();
-        assertTrue(msg.getText() == ((ActiveMQTextMessage) copy).getText());
+        assertSame(msg.getText(), ((ActiveMQTextMessage) copy).getText());
     }
 
     public void testSetText() {

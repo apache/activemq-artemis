@@ -47,7 +47,7 @@ public class AMQ3779Test extends AutoFailTestSupport {
                 }
             }
         };
-        logger.getRootLogger().addAppender(appender);
+        Logger.getRootLogger().addAppender(appender);
 
         try {
 

@@ -22,11 +22,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Vector;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -46,7 +42,7 @@ public class PListTest {
     private PListStoreImpl store;
     private PListImpl plist;
     final ByteSequence payload = new ByteSequence(new byte[400]);
-    final String idSeed = new String("Seed" + new byte[1024]);
+    final String idSeed = new String("Seed" + Arrays.toString(new byte[1024]));
     final Vector<Throwable> exceptions = new Vector<Throwable>();
     ExecutorService executor;
 

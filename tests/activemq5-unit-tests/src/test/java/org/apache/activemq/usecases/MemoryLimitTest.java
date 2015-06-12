@@ -168,7 +168,7 @@ public class MemoryLimitTest extends TestSupport {
         final ProducerThread producer = new ProducerThread(sess, sess.createQueue("STORE.1")) {
             @Override
             protected Message createMessage(int i) throws Exception {
-                return sess.createTextMessage(payload + "::" + i);
+                return sess.createTextMessage(Arrays.toString(payload) + "::" + i);
             }
         };
         producer.setMessageCount(1000);
@@ -176,7 +176,7 @@ public class MemoryLimitTest extends TestSupport {
         final ProducerThread producer2 = new ProducerThread(sess, sess.createQueue("STORE.2")) {
             @Override
             protected Message createMessage(int i) throws Exception {
-                return sess.createTextMessage(payload + "::" + i);
+                return sess.createTextMessage(Arrays.toString(payload) + "::" + i);
             }
         };
         producer2.setMessageCount(1000);
