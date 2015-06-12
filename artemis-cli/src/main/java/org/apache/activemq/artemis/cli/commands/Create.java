@@ -107,8 +107,8 @@ public class Create extends InputAbstract
    @Option(name = "--max-hops", description = "Number of hops on the cluster configuration")
    int maxHops = 0;
 
-   @Option(name = "--message-load-balancing", description = "What kind of message load balancing to use for clustered configurations. Can be ON_DEMAND, STRICT, or OFF. (Default: ON_DEMAND)")
-   String messageLoadBalancing = MessageLoadBalancingType.ON_DEMAND.toString();
+   @Option(name = "--message-load-balancing", description = "Load balancing policy on cluster. [ON_DEMAND (default) | STRICT | OFF]")
+   MessageLoadBalancingType messageLoadBalancing = MessageLoadBalancingType.ON_DEMAND;
 
    @Option(name = "--replicated", description = "Enable broker replication")
    boolean replicated = false;
@@ -180,12 +180,12 @@ public class Create extends InputAbstract
       this.portOffset = portOffset;
    }
 
-   public String getMessageLoadBalancing()
+   public MessageLoadBalancingType getMessageLoadBalancing()
    {
       return messageLoadBalancing;
    }
 
-   public void setMessageLoadBalancing(String messageLoadBalancing)
+   public void setMessageLoadBalancing(MessageLoadBalancingType messageLoadBalancing)
    {
       this.messageLoadBalancing = messageLoadBalancing;
    }
@@ -486,10 +486,7 @@ public class Create extends InputAbstract
       filters.put("${data.dir}", data);
       filters.put("${max-hops}", String.valueOf(maxHops));
 
-      // validate message-load-balancing
-      Enum.valueOf(MessageLoadBalancingType.class, messageLoadBalancing);
-
-      filters.put("${message-load-balancing}", messageLoadBalancing);
+      filters.put("${message-load-balancing}", messageLoadBalancing.toString());
       filters.put("${user}", getUser());
       filters.put("${password}", getPassword());
       filters.put("${role}", getRole());
