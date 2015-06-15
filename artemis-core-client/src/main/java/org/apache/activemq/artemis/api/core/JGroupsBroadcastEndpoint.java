@@ -126,6 +126,15 @@ public abstract class JGroupsBroadcastEndpoint implements BroadcastEndpoint
          channel.removeReceiver(receiver);
          clientOpened = false;
       }
+      internalCloseChannel();
+   }
+
+   /**
+    * Closes the channel used in this JGroups Broadcast.
+    * Can be overridden by implementations that use an externally managed channel.
+    */
+   protected synchronized void internalCloseChannel()
+   {
       channel.close();
    }
 

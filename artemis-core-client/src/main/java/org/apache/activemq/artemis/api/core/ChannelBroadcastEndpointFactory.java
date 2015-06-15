@@ -18,6 +18,11 @@ package org.apache.activemq.artemis.api.core;
 
 import org.jgroups.JChannel;
 
+/**
+ * An implementation of BroadcastEndpointFactory that uses an externally managed JChannel for JGroups clustering.
+ *
+ * Note - the underlying JChannel is not closed in this implementation.
+ */
 public class ChannelBroadcastEndpointFactory implements BroadcastEndpointFactory
 {
    private final JChannel channel;

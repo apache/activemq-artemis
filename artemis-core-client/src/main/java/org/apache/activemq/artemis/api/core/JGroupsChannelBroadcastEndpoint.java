@@ -18,6 +18,11 @@ package org.apache.activemq.artemis.api.core;
 
 import org.jgroups.JChannel;
 
+/**
+ * An implementation of JGroupsBroadcastEndpoint that uses an externally managed JChannel for its operations.
+ *
+ * Note - this implementation does not close the JChannel, since its externally created.
+ */
 public class JGroupsChannelBroadcastEndpoint extends JGroupsBroadcastEndpoint
 {
    private final JChannel jChannel;
@@ -32,5 +37,11 @@ public class JGroupsChannelBroadcastEndpoint extends JGroupsBroadcastEndpoint
    public JChannel createChannel() throws Exception
    {
       return jChannel;
+   }
+
+   @Override
+   protected synchronized void internalCloseChannel()
+   {
+      // no-op, this version takes an externally managed channel.
    }
 }

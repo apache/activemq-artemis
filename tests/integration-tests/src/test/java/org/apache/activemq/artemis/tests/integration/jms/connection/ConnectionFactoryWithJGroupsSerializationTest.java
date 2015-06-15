@@ -25,6 +25,7 @@ import java.io.Serializable;
 
 import javax.jms.Queue;
 
+import org.apache.activemq.artemis.api.core.BroadcastEndpoint;
 import org.apache.activemq.artemis.api.core.BroadcastEndpointFactory;
 import org.apache.activemq.artemis.api.core.ChannelBroadcastEndpointFactory;
 import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
@@ -171,8 +172,14 @@ public class ConnectionFactoryWithJGroupsSerializationTest extends JMSTestBase
    @After
    public void tearDown() throws Exception
    {
+      // small hack, the channel here is cached, so checking that it's not closed by any endpoint
+      BroadcastEndpoint broadcastEndpoint = jmsServer.getActiveMQServer().getConfiguration()
+              .getDiscoveryGroupConfigurations().get("dg1")
+              .getBroadcastEndpointFactory().createBroadcastEndpoint();
+      broadcastEndpoint.close(true);
       if (channel != null)
       {
+         assertFalse(channel.isClosed());
          channel.close();
       }
 
