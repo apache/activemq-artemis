@@ -1267,7 +1267,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
          {
             ActiveMQClientLogger.LOGGER.errorCallingEnd(t);
             // This could occur if the TM interrupts the thread
-            XAException xaException = new XAException(XAException.XAER_RMERR);
+            XAException xaException = new XAException(XAException.XAER_RMFAIL);
             xaException.initCause(t);
             throw xaException;
          }
@@ -1293,7 +1293,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       catch (Throwable t)
       {
          // This could occur if the TM interrupts the thread
-         XAException xaException = new XAException(XAException.XAER_RMERR);
+         XAException xaException = new XAException(XAException.XAER_RMFAIL);
          xaException.initCause(t);
          throw xaException;
       }
@@ -1314,7 +1314,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       catch (Throwable t)
       {
          // This could occur if the TM interrupts the thread
-         XAException xaException = new XAException(XAException.XAER_RMERR);
+         XAException xaException = new XAException(XAException.XAER_RMFAIL);
          xaException.initCause(t);
          throw xaException;
       }
@@ -1331,7 +1331,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       catch (Throwable t)
       {
          // This could occur if the TM interrupts the thread
-         XAException xaException = new XAException(XAException.XAER_RMERR);
+         XAException xaException = new XAException(XAException.XAER_RMFAIL);
          xaException.initCause(t);
          throw xaException;
       }
@@ -1430,7 +1430,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
             catch (Throwable t)
             {
                // This could occur if the TM interrupts the thread
-               XAException xaException = new XAException(XAException.XAER_RMERR);
+               XAException xaException = new XAException(XAException.XAER_RMFAIL);
                xaException.initCause(t);
                throw xaException;
             }
@@ -1443,7 +1443,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
          ActiveMQClientLogger.LOGGER.errorDuringPrepare(e);
 
          // This should never occur
-         XAException xaException = new XAException(XAException.XAER_RMERR);
+         XAException xaException = new XAException(XAException.XAER_RMFAIL);
          xaException.initCause(e);
          throw xaException;
       }
@@ -1452,7 +1452,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
          ActiveMQClientLogger.LOGGER.errorDuringPrepare(t);
 
          // This could occur if the TM interrupts the thread
-         XAException xaException = new XAException(XAException.XAER_RMERR);
+         XAException xaException = new XAException(XAException.XAER_RMFAIL);
          xaException.initCause(t);
          throw xaException;
       }
@@ -1475,7 +1475,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
          catch (Throwable t)
          {
             // This could occur if the TM interrupts the thread
-            XAException xaException = new XAException(XAException.XAER_RMERR);
+            XAException xaException = new XAException(XAException.XAER_RMFAIL);
             xaException.initCause(t);
             throw xaException;
          }
@@ -1537,14 +1537,14 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
          }
 
          // This should never occur
-         XAException xaException = new XAException(XAException.XAER_RMERR);
+         XAException xaException = new XAException(XAException.XAER_RMFAIL);
          xaException.initCause(e);
          throw xaException;
       }
       catch (Throwable t)
       {
          // This could occur if the TM interrupts the thread
-         XAException xaException = new XAException(XAException.XAER_RMERR);
+         XAException xaException = new XAException(XAException.XAER_RMFAIL);
          xaException.initCause(t);
          throw xaException;
       }
@@ -1585,21 +1585,21 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
             catch (Throwable t)
             {
                // This could occur if the TM interrupts the thread
-               XAException xaException = new XAException(XAException.XAER_RMERR);
+               XAException xaException = new XAException(XAException.XAER_RMFAIL);
                xaException.initCause(t);
                throw xaException;
             }
          }
 
          // This should never occur
-         XAException xaException = new XAException(XAException.XAER_RMERR);
+         XAException xaException = new XAException(XAException.XAER_RMFAIL);
          xaException.initCause(e);
          throw xaException;
       }
       catch (Throwable t)
       {
          // This could occur if the TM interrupts the thread
-         XAException xaException = new XAException(XAException.XAER_RMERR);
+         XAException xaException = new XAException(XAException.XAER_RMFAIL);
          xaException.initCause(t);
          throw xaException;
       }
@@ -1744,7 +1744,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       if (!xa)
       {
          ActiveMQClientLogger.LOGGER.sessionNotXA();
-         throw new XAException(XAException.XAER_RMERR);
+         throw new XAException(XAException.XAER_RMFAIL);
       }
    }
 

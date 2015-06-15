@@ -165,7 +165,7 @@ public class SessionCloseTest extends ActiveMQTestBase
          }
       });
 
-      ActiveMQTestBase.expectXAException(XAException.XAER_RMERR, new ActiveMQAction()
+      ActiveMQTestBase.expectXAException(XAException.XAER_RMFAIL, new ActiveMQAction()
       {
          public void run() throws XAException
          {
@@ -173,7 +173,7 @@ public class SessionCloseTest extends ActiveMQTestBase
          }
       });
 
-      ActiveMQTestBase.expectXAException(XAException.XAER_RMERR, new ActiveMQAction()
+      ActiveMQTestBase.expectXAException(XAException.XAER_RMFAIL, new ActiveMQAction()
       {
          public void run() throws XAException
          {
@@ -181,7 +181,7 @@ public class SessionCloseTest extends ActiveMQTestBase
          }
       });
 
-      ActiveMQTestBase.expectXAException(XAException.XAER_RMERR, new ActiveMQAction()
+      ActiveMQTestBase.expectXAException(XAException.XAER_RMFAIL, new ActiveMQAction()
       {
          public void run() throws XAException
          {
@@ -189,7 +189,7 @@ public class SessionCloseTest extends ActiveMQTestBase
          }
       });
 
-      ActiveMQTestBase.expectXAException(XAException.XAER_RMERR, new ActiveMQAction()
+      ActiveMQTestBase.expectXAException(XAException.XAER_RMFAIL, new ActiveMQAction()
       {
          public void run() throws XAException
          {
@@ -197,7 +197,7 @@ public class SessionCloseTest extends ActiveMQTestBase
          }
       });
 
-      ActiveMQTestBase.expectXAException(XAException.XAER_RMERR, new ActiveMQAction()
+      ActiveMQTestBase.expectXAException(XAException.XAER_RMFAIL, new ActiveMQAction()
       {
          public void run() throws XAException
          {
@@ -205,7 +205,7 @@ public class SessionCloseTest extends ActiveMQTestBase
          }
       });
 
-      ActiveMQTestBase.expectXAException(XAException.XAER_RMERR, new ActiveMQAction()
+      ActiveMQTestBase.expectXAException(XAException.XAER_RMFAIL, new ActiveMQAction()
       {
          public void run() throws XAException
          {
