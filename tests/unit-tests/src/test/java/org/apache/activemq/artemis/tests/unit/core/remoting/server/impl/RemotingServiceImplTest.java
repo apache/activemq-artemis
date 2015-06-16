@@ -24,12 +24,11 @@ import java.util.List;
 
 import org.apache.activemq.artemis.api.core.Interceptor;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
-import org.apache.activemq.artemis.core.server.ServiceRegistry;
-import org.apache.activemq.artemis.tests.unit.core.remoting.server.impl.fake.FakeInterceptor;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.artemis.core.remoting.server.impl.RemotingServiceImpl;
 import org.apache.activemq.artemis.core.server.impl.ServiceRegistryImpl;
+import org.apache.activemq.artemis.tests.unit.core.remoting.server.impl.fake.FakeInterceptor;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -37,7 +36,7 @@ import static org.junit.Assert.assertTrue;
 
 public class RemotingServiceImplTest
 {
-   private ServiceRegistry serviceRegistry;
+   private ServiceRegistryImpl serviceRegistry;
 
    private RemotingServiceImpl remotingService;
 

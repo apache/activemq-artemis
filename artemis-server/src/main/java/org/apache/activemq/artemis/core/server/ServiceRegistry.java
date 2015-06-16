@@ -16,14 +16,14 @@
  */
 package org.apache.activemq.artemis.core.server;
 
+import java.util.Collection;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ScheduledExecutorService;
+
 import org.apache.activemq.artemis.api.core.Interceptor;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.core.config.ConnectorServiceConfiguration;
 import org.apache.activemq.artemis.core.server.cluster.Transformer;
-
-import java.util.Collection;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ScheduledExecutorService;
 
 /**
  * A holder for common services leveraged by the broker.
@@ -32,31 +32,11 @@ public interface ServiceRegistry
 {
    ExecutorService getExecutorService();
 
-   void setExecutorService(ExecutorService executorService);
-
    ScheduledExecutorService getScheduledExecutorService();
-
-   void setScheduledExecutorService(ScheduledExecutorService scheduledExecutorService);
-
-   void addConnectorService(ConnectorServiceFactory connectorServiceFactory, ConnectorServiceConfiguration configuration);
-
-   void removeConnectorService(ConnectorServiceConfiguration configuration);
 
    Collection<Pair<ConnectorServiceFactory, ConnectorServiceConfiguration>> getConnectorServices();
 
-   void addIncomingInterceptor(String name, Interceptor interceptor);
-
-   void removeIncomingInterceptor(String name);
-
    Collection<Interceptor> getIncomingInterceptors();
-
-   Interceptor getIncomingInterceptor(String name);
-
-   void addOutgoingInterceptor(String name, Interceptor interceptor);
-
-   Interceptor getOutgoingInterceptor(String name);
-
-   void removeOutgoingInterceptor(String name);
 
    Collection<Interceptor> getOutgoingInterceptors();
 
