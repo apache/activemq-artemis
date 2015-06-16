@@ -39,7 +39,7 @@ public class AIOJournalImplTest extends JournalImplTestUnit
 
       file.mkdir();
 
-      return new AIOSequentialFileFactory(getTestDir());
+      return new AIOSequentialFileFactory(getTestDirfile());
    }
 
 }

@@ -728,7 +728,7 @@ public class FakeSequentialFileFactory implements SequentialFileFactory
    }
 
    @Override
-   public String getDirectory()
+   public File getDirectory()
    {
       // TODO Auto-generated method stub
       return null;

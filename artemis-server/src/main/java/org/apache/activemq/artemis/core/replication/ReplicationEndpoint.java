@@ -294,7 +294,7 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
          }
 
          pageManager =
-            new PagingManagerImpl(new PagingStoreFactoryNIO(storageManager, config.getPagingDirectory(),
+            new PagingManagerImpl(new PagingStoreFactoryNIO(storageManager, config.getPagingLocation(),
                                                             config.getJournalBufferSize_NIO(),
                                                             server.getScheduledPool(),
                                                             server.getExecutorFactory(),

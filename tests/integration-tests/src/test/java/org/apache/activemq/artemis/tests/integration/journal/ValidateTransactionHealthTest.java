@@ -378,18 +378,18 @@ public class ValidateTransactionHealthTest extends ActiveMQTestBase
    {
       if (factoryType.equals("aio"))
       {
-         return new AIOSequentialFileFactory(directory,
+         return new AIOSequentialFileFactory(new File(directory),
                                              JournalConstants.DEFAULT_JOURNAL_BUFFER_SIZE_AIO,
                                              JournalConstants.DEFAULT_JOURNAL_BUFFER_TIMEOUT_AIO,
                                              false);
       }
       else if (factoryType.equals("nio2"))
       {
-         return new NIOSequentialFileFactory(directory, true);
+         return new NIOSequentialFileFactory(new File(directory), true);
       }
       else
       {
-         return new NIOSequentialFileFactory(directory, false);
+         return new NIOSequentialFileFactory(new File(directory), false);
       }
    }
 

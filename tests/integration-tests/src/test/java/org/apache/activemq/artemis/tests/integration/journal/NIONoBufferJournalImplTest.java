@@ -38,7 +38,7 @@ public class NIONoBufferJournalImplTest extends JournalImplTestUnit
 
       file.mkdir();
 
-      return new NIOSequentialFileFactory(getTestDir(), false);
+      return new NIOSequentialFileFactory(new File(getTestDir()), false);
    }
 
    @Override

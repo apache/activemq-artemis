@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.journal.impl;
 
+import java.io.File;
+
 import org.apache.activemq.artemis.core.journal.IOCriticalErrorListener;
 
 /**
@@ -38,7 +40,7 @@ public final class CompactJournal // NO_UCD
 
       try
       {
-         CompactJournal.compactJournal(arg[0], arg[1], arg[2], 2, Integer.parseInt(arg[3]), null);
+         CompactJournal.compactJournal(new File(arg[0]), arg[1], arg[2], 2, Integer.parseInt(arg[3]), null);
       }
       catch (Exception e)
       {
@@ -47,7 +49,7 @@ public final class CompactJournal // NO_UCD
 
    }
 
-   static void compactJournal(final String directory,
+   static void compactJournal(final File directory,
                                      final String journalPrefix,
                                      final String journalSuffix,
                                      final int minFiles,

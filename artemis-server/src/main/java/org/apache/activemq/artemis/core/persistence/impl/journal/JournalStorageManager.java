@@ -201,17 +201,11 @@ public class JournalStorageManager implements StorageManager
 
    private final int perfBlastPages;
 
-   private final boolean createBindingsDir;
-
-   private final String bindingsDir;
-
-   private final boolean createJournalDir;
-
-   private final String journalDir;
-
    private final String largeMessagesDirectory;
 
    private boolean journalLoaded = false;
+
+   private final Configuration config;
 
    // Persisted core configuration
    private final Map<SimpleString, PersistedRoles> mapPersistedRoles =
@@ -232,6 +226,8 @@ public class JournalStorageManager implements StorageManager
    {
       this.executorFactory = executorFactory;
 
+      this.config = config;
+
       executor = executorFactory.getExecutor();
 
       if (config.getJournalType() != JournalType.NIO && config.getJournalType() != JournalType.ASYNCIO)
@@ -239,17 +235,8 @@ public class JournalStorageManager implements StorageManager
          throw ActiveMQMessageBundle.BUNDLE.invalidJournal();
       }
 
-      bindingsDir = config.getBindingsDirectory();
-      if (bindingsDir == null)
-      {
-         throw new NullPointerException("bindings-dir is null");
-      }
 
-      createBindingsDir = config.isCreateBindingsDir();
-
-      journalDir = config.getJournalDirectory();
-
-      SequentialFileFactory bindingsFF = new NIOSequentialFileFactory(bindingsDir, criticalErrorListener);
+      SequentialFileFactory bindingsFF = new NIOSequentialFileFactory(config.getBindingsLocation(), criticalErrorListener);
 
       Journal localBindings = new JournalImpl(1024 * 1024,
                                               2,
@@ -263,13 +250,6 @@ public class JournalStorageManager implements StorageManager
       bindingsJournal = localBindings;
       originalBindingsJournal = localBindings;
 
-      if (journalDir == null)
-      {
-         throw new NullPointerException("journal-dir is null");
-      }
-
-      createJournalDir = config.isCreateJournalDir();
-
       syncNonTransactional = config.isJournalSyncNonTransactional();
 
       syncTransactional = config.isJournalSyncTransactional();
@@ -278,7 +258,7 @@ public class JournalStorageManager implements StorageManager
       {
          ActiveMQServerLogger.LOGGER.journalUseAIO();
 
-         journalFF = new AIOSequentialFileFactory(journalDir,
+         journalFF = new AIOSequentialFileFactory(config.getJournalLocation(),
                                                   config.getJournalBufferSize_AIO(),
                                                   config.getJournalBufferTimeout_AIO(),
                                                   config.isLogJournalWriteRate(),
@@ -287,7 +267,7 @@ public class JournalStorageManager implements StorageManager
       else if (config.getJournalType() == JournalType.NIO)
       {
          ActiveMQServerLogger.LOGGER.journalUseNIO();
-         journalFF = new NIOSequentialFileFactory(journalDir,
+         journalFF = new NIOSequentialFileFactory(config.getJournalLocation(),
                                                   true,
                                                   config.getJournalBufferSize_NIO(),
                                                   config.getJournalBufferTimeout_NIO(),
@@ -316,7 +296,7 @@ public class JournalStorageManager implements StorageManager
 
       largeMessagesDirectory = config.getLargeMessagesDirectory();
 
-      largeMessagesFactory = new NIOSequentialFileFactory(largeMessagesDirectory, false, criticalErrorListener);
+      largeMessagesFactory = new NIOSequentialFileFactory(config.getLargeMessagesLocation(), false, criticalErrorListener);
 
       perfBlastPages = config.getJournalPerfBlastPages();
 
@@ -2242,11 +2222,11 @@ public class JournalStorageManager implements StorageManager
          return;
       }
 
-      checkAndCreateDir(bindingsDir, createBindingsDir);
+      checkAndCreateDir(config.getBindingsLocation(), config.isCreateBindingsDir());
 
-      checkAndCreateDir(journalDir, createJournalDir);
+      checkAndCreateDir(config.getJournalLocation(), config.isCreateJournalDir());
 
-      checkAndCreateDir(largeMessagesDirectory, createJournalDir);
+      checkAndCreateDir(config.getLargeMessagesLocation(), config.isCreateJournalDir());
 
       cleanupIncompleteFiles();
 
@@ -2524,22 +2504,20 @@ public class JournalStorageManager implements StorageManager
 
    // Private ----------------------------------------------------------------------------------
 
-   private void checkAndCreateDir(final String dir, final boolean create)
+   private void checkAndCreateDir(final File dir, final boolean create)
    {
-      File f = new File(dir);
-
-      if (!f.exists())
+      if (!dir.exists())
       {
          if (create)
          {
-            if (!f.mkdirs())
+            if (!dir.mkdirs())
             {
                throw new IllegalStateException("Failed to create directory " + dir);
             }
          }
          else
          {
-            throw ActiveMQMessageBundle.BUNDLE.cannotCreateDir(dir);
+            throw ActiveMQMessageBundle.BUNDLE.cannotCreateDir(dir.getAbsolutePath());
          }
       }
    }

@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.cli.commands.tools;
 
 import java.io.BufferedOutputStream;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.util.List;
@@ -112,7 +113,7 @@ public class EncodeJournal extends Configurable implements Action
                                     final int fileSize,
                                     final PrintStream out) throws Exception
    {
-      NIOSequentialFileFactory nio = new NIOSequentialFileFactory(directory, null);
+      NIOSequentialFileFactory nio = new NIOSequentialFileFactory(new File(directory), null);
 
       JournalImpl journal = new JournalImpl(fileSize, minFiles, 0, 0, nio, journalPrefix, journalSuffix, 1);
 

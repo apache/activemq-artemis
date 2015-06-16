@@ -65,7 +65,7 @@ public class PrintData extends DataAbstract implements Action
       super.execute(context);
       try
       {
-         printData(getBinding(), getJournal(), getPaging());
+         printData(new File(getBinding()), new File(getJournal()), new File(getPaging()));
       }
       catch (Exception e)
       {
@@ -74,7 +74,7 @@ public class PrintData extends DataAbstract implements Action
       return null;
    }
 
-   public static void printData(String bindingsDirectory, String messagesDirectory, String pagingDirectory) throws Exception
+   public static void printData(File bindingsDirectory, File messagesDirectory, File pagingDirectory) throws Exception
    {
       // Having the version on the data report is an information very useful to understand what happened
       // When debugging stuff
@@ -148,7 +148,7 @@ public class PrintData extends DataAbstract implements Action
    }
 
 
-   private static void printPages(String pageDirectory, DescribeJournal describeJournal)
+   private static void printPages(File pageDirectory, DescribeJournal describeJournal)
    {
       try
       {
@@ -181,7 +181,7 @@ public class PrintData extends DataAbstract implements Action
          for (SimpleString store : stores)
          {
             PagingStore pgStore = manager.getPageStore(store);
-            String folder = null;
+            File folder = null;
 
             if (pgStore != null)
             {

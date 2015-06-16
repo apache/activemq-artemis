@@ -55,7 +55,7 @@ public class PagingStoreFactoryNIO implements PagingStoreFactory
 
    // Attributes ----------------------------------------------------
 
-   private final String directory;
+   private final File directory;
 
    private final ExecutorFactory executorFactory;
 
@@ -71,7 +71,7 @@ public class PagingStoreFactoryNIO implements PagingStoreFactory
 
    private final IOCriticalErrorListener critialErrorListener;
 
-   public PagingStoreFactoryNIO(final StorageManager storageManager, final String directory,
+   public PagingStoreFactoryNIO(final StorageManager storageManager, final File directory,
                                 final long syncTimeout,
                                 final ScheduledExecutorService scheduledExecutor,
                                 final ExecutorFactory executorFactory,
@@ -118,7 +118,7 @@ public class PagingStoreFactoryNIO implements PagingStoreFactory
 
       factory.createDirs();
 
-      File fileWithID = new File(directory + File.separatorChar +
+      File fileWithID = new File(directory,
                                  guid +
                                  File.separatorChar +
                                  PagingStoreFactoryNIO.ADDRESS_FILE);
@@ -145,9 +145,7 @@ public class PagingStoreFactoryNIO implements PagingStoreFactory
 
    public List<PagingStore> reloadStores(final HierarchicalRepository<AddressSettings> addressSettingsRepository) throws Exception
    {
-      File pageDirectory = new File(directory);
-
-      File[] files = pageDirectory.listFiles();
+      File[] files = directory.listFiles();
 
       if (files == null)
       {
@@ -210,6 +208,6 @@ public class PagingStoreFactoryNIO implements PagingStoreFactory
 
    private SequentialFileFactory newFileFactory(final String directoryName)
    {
-      return new NIOSequentialFileFactory(directory + File.separatorChar + directoryName, false, critialErrorListener);
+      return new NIOSequentialFileFactory(new File(directory, directoryName), false, critialErrorListener);
    }
 }

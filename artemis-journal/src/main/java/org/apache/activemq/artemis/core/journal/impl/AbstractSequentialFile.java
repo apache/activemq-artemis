@@ -41,7 +41,7 @@ public abstract class AbstractSequentialFile implements SequentialFile
 
    private File file;
 
-   private final String directory;
+   protected final File directory;
 
    protected final SequentialFileFactory factory;
 
@@ -66,13 +66,13 @@ public abstract class AbstractSequentialFile implements SequentialFile
     * @param file
     * @param directory
     */
-   public AbstractSequentialFile(final String directory,
-                                 final File file,
+   public AbstractSequentialFile(final File directory,
+                                 final String file,
                                  final SequentialFileFactory factory,
                                  final Executor writerExecutor)
    {
       super();
-      this.file = file;
+      this.file = new File(directory, file);
       this.directory = directory;
       this.factory = factory;
       this.writerExecutor = writerExecutor;

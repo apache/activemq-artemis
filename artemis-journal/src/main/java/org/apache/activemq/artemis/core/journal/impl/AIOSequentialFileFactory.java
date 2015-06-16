@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.core.journal.impl;
 
+import java.io.File;
 import java.nio.ByteBuffer;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
@@ -49,7 +50,7 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
       ActiveMQJournalLogger.LOGGER.trace(message);
    }
 
-   public AIOSequentialFileFactory(final String journalDir)
+   public AIOSequentialFileFactory(final File journalDir)
    {
       this(journalDir,
            JournalConstants.DEFAULT_JOURNAL_BUFFER_SIZE_AIO,
@@ -58,7 +59,7 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
            null);
    }
 
-   public AIOSequentialFileFactory(final String journalDir, final IOCriticalErrorListener listener)
+   public AIOSequentialFileFactory(final File journalDir, final IOCriticalErrorListener listener)
    {
       this(journalDir,
            JournalConstants.DEFAULT_JOURNAL_BUFFER_SIZE_AIO,
@@ -67,7 +68,7 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
            listener);
    }
 
-   public AIOSequentialFileFactory(final String journalDir,
+   public AIOSequentialFileFactory(final File journalDir,
                                    final int bufferSize,
                                    final int bufferTimeout,
                                    final boolean logRates)
@@ -75,7 +76,7 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
       this(journalDir, bufferSize, bufferTimeout, logRates, null);
    }
 
-   public AIOSequentialFileFactory(final String journalDir,
+   public AIOSequentialFileFactory(final File journalDir,
                                    final int bufferSize,
                                    final int bufferTimeout,
                                    final boolean logRates,

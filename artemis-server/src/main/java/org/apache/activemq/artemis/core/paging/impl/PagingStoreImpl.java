@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.core.paging.impl;
 
+import java.io.File;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -264,7 +265,7 @@ public class PagingStoreImpl implements PagingStore
       return pageSize;
    }
 
-   public String getFolder()
+   public File getFolder()
    {
       SequentialFileFactory factoryUsed = this.fileFactory;
       if (factoryUsed != null)

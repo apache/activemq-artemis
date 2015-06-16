@@ -241,6 +241,6 @@ public abstract class MixupCompactorTestBase extends JournalImplTestBase
    @Override
    protected SequentialFileFactory getFileFactory() throws Exception
    {
-      return new NIOSequentialFileFactory(getTestDir());
+      return new NIOSequentialFileFactory(getTestDirfile());
    }
 }

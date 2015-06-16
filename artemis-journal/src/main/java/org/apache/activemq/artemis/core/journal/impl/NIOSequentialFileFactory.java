@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.core.journal.impl;
 
+import java.io.File;
 import java.lang.ref.WeakReference;
 import java.nio.ByteBuffer;
 
@@ -24,12 +25,12 @@ import org.apache.activemq.artemis.core.journal.SequentialFile;
 
 public class NIOSequentialFileFactory extends AbstractSequentialFileFactory
 {
-   public NIOSequentialFileFactory(final String journalDir)
+   public NIOSequentialFileFactory(final File journalDir)
    {
       this(journalDir, null);
    }
 
-   public NIOSequentialFileFactory(final String journalDir, final IOCriticalErrorListener listener)
+   public NIOSequentialFileFactory(final File journalDir, final IOCriticalErrorListener listener)
    {
       this(journalDir,
            false,
@@ -39,12 +40,12 @@ public class NIOSequentialFileFactory extends AbstractSequentialFileFactory
            listener);
    }
 
-   public NIOSequentialFileFactory(final String journalDir, final boolean buffered)
+   public NIOSequentialFileFactory(final File journalDir, final boolean buffered)
    {
       this(journalDir, buffered, null);
    }
 
-   public NIOSequentialFileFactory(final String journalDir,
+   public NIOSequentialFileFactory(final File journalDir,
                                    final boolean buffered,
                                    final IOCriticalErrorListener listener)
    {
@@ -56,7 +57,7 @@ public class NIOSequentialFileFactory extends AbstractSequentialFileFactory
            listener);
    }
 
-   public NIOSequentialFileFactory(final String journalDir,
+   public NIOSequentialFileFactory(final File journalDir,
                                    final boolean buffered,
                                    final int bufferSize,
                                    final int bufferTimeout,
@@ -65,7 +66,7 @@ public class NIOSequentialFileFactory extends AbstractSequentialFileFactory
       this(journalDir, buffered, bufferSize, bufferTimeout, logRates, null);
    }
 
-   public NIOSequentialFileFactory(final String journalDir,
+   public NIOSequentialFileFactory(final File journalDir,
                                    final boolean buffered,
                                    final int bufferSize,
                                    final int bufferTimeout,

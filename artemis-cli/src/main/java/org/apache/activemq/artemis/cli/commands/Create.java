@@ -98,8 +98,8 @@ public class Create extends InputAbstract
    @Option(name = "--home", description = "Directory where ActiveMQ Artemis is installed")
    File home;
 
-   @Option(name = "--data", description = "Directory where ActiveMQ Data is used. Path are relative to artemis.instance/bin")
-   String data = "../data";
+   @Option(name = "--data", description = "Directory where ActiveMQ Data is used. Path are relative to artemis.instance")
+   String data = "./data";
 
    @Option(name = "--clustered", description = "Enable clustering")
    boolean clustered = false;
@@ -131,7 +131,7 @@ public class Create extends InputAbstract
    @Option(name = "--allow-anonymous", description = "Enables anonymous configuration on security (Default: input)")
    Boolean allowAnonymous = null;
 
-   @Option(name = "--require-login", description = "This will configure security to require user / password. Compliment --allow-anonymous")
+   @Option(name = "--require-login", description = "This will configure security to require user / password. Compliments --allow-anonymous")
    Boolean requireLogin = null;
 
    @Option(name = "--user", description = "The username (Default: input)")

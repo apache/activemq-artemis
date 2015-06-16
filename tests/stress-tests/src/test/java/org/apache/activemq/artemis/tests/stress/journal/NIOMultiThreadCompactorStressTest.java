@@ -16,6 +16,13 @@
  */
 package org.apache.activemq.artemis.tests.stress.journal;
 
+import javax.transaction.xa.XAResource;
+import javax.transaction.xa.Xid;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -37,12 +44,6 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import javax.transaction.xa.XAResource;
-import javax.transaction.xa.Xid;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.CountDownLatch;
 
 public class NIOMultiThreadCompactorStressTest extends ActiveMQTestBase
 {
@@ -89,7 +90,7 @@ public class NIOMultiThreadCompactorStressTest extends ActiveMQTestBase
          internalTestProduceAndConsume();
          stopServer();
 
-         NIOSequentialFileFactory factory = new NIOSequentialFileFactory(getJournalDir());
+         NIOSequentialFileFactory factory = new NIOSequentialFileFactory(new File(getJournalDir()));
          JournalImpl journal = new JournalImpl(ActiveMQDefaultConfiguration.getDefaultJournalFileSize(),
                                                2,
                                                0,

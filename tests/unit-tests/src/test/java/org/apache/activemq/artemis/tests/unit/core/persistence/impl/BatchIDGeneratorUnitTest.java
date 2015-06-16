@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.unit.core.persistence.impl;
+import java.io.File;
 import java.util.ArrayList;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
@@ -38,7 +39,7 @@ public class BatchIDGeneratorUnitTest extends ActiveMQTestBase
    @Test
    public void testSequence() throws Exception
    {
-      NIOSequentialFileFactory factory = new NIOSequentialFileFactory(getTestDir());
+      NIOSequentialFileFactory factory = new NIOSequentialFileFactory(new File(getTestDir()));
       Journal journal = new JournalImpl(10 * 1024, 2, 0, 0, factory, "activemq-bindings", "bindings", 1);
 
       journal.start();

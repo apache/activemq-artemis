@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.core.server.impl;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileLock;
@@ -50,12 +51,12 @@ public class FileLockNodeManager extends NodeManager
 
    protected boolean interrupted = false;
 
-   public FileLockNodeManager(final String directory, boolean replicatedBackup)
+   public FileLockNodeManager(final File directory, boolean replicatedBackup)
    {
       super(replicatedBackup, directory);
    }
 
-   public FileLockNodeManager(final String directory, boolean replicatedBackup, long lockAcquisitionTimeout)
+   public FileLockNodeManager(final File directory, boolean replicatedBackup, long lockAcquisitionTimeout)
    {
       super(replicatedBackup, directory);
 

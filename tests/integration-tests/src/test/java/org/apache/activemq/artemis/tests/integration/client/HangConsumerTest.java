@@ -16,6 +16,15 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import javax.management.MBeanServer;
+import java.lang.management.ManagementFactory;
+import java.util.LinkedList;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
+
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Interceptor;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -61,15 +70,6 @@ import org.apache.activemq.artemis.utils.ReusableLatch;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import javax.management.MBeanServer;
-import java.lang.management.ManagementFactory;
-import java.util.LinkedList;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Executor;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeUnit;
 
 /**
  * This test will simulate a consumer hanging on the delivery packet due to unbehaved clients
@@ -480,7 +480,7 @@ public class HangConsumerTest extends ActiveMQTestBase
 
             server.stop();
 
-            SequentialFileFactory messagesFF = new NIOSequentialFileFactory(server.getConfiguration().getBindingsDirectory(), null);
+            SequentialFileFactory messagesFF = new NIOSequentialFileFactory(server.getConfiguration().getBindingsLocation(), null);
 
             JournalImpl messagesJournal = new JournalImpl(1024 * 1024,
                                                           2,

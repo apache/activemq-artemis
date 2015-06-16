@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -220,7 +221,7 @@ public class JournalCrashTest extends ActiveMQTestBase
     */
    private void printJournal() throws Exception
    {
-      NIOSequentialFileFactory factory = new NIOSequentialFileFactory(getJournalDir());
+      NIOSequentialFileFactory factory = new NIOSequentialFileFactory(new File(getJournalDir()));
       JournalImpl journal = new JournalImpl(ActiveMQDefaultConfiguration.getDefaultJournalFileSize(),
                                             2,
                                             0,

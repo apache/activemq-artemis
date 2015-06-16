@@ -22,8 +22,6 @@ import java.util.List;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.tests.unit.core.journal.impl.fakes.FakeSequentialFileFactory;
-import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.core.journal.SequentialFile;
 import org.apache.activemq.artemis.core.journal.SequentialFileFactory;
 import org.apache.activemq.artemis.core.journal.impl.NIOSequentialFileFactory;
@@ -33,6 +31,8 @@ import org.apache.activemq.artemis.core.paging.impl.PagedMessageImpl;
 import org.apache.activemq.artemis.core.persistence.impl.nullpm.NullStorageManager;
 import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.server.impl.ServerMessageImpl;
+import org.apache.activemq.artemis.tests.unit.core.journal.impl.fakes.FakeSequentialFileFactory;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -52,14 +52,14 @@ public class PageTest extends ActiveMQTestBase
    public void testPageWithNIO() throws Exception
    {
       recreateDirectory(getTestDir());
-      testAdd(new NIOSequentialFileFactory(getTestDir()), 1000);
+      testAdd(new NIOSequentialFileFactory(getTestDirfile()), 1000);
    }
 
    @Test
    public void testDamagedDataWithNIO() throws Exception
    {
       recreateDirectory(getTestDir());
-      testDamagedPage(new NIOSequentialFileFactory(getTestDir()), 1000);
+      testDamagedPage(new NIOSequentialFileFactory(getTestDirfile()), 1000);
    }
 
    @Test

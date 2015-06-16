@@ -34,7 +34,7 @@ public class NIOBufferedJournalCompactTest extends NIOJournalCompactTest
 
       file.mkdir();
 
-      return new NIOSequentialFileFactory(getTestDir(), true);
+      return new NIOSequentialFileFactory(getTestDirfile(), true);
    }
 
 }

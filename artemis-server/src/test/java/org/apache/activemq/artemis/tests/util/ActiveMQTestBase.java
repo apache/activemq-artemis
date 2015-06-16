@@ -897,6 +897,11 @@ public abstract class ActiveMQTestBase extends Assert
       return testDir;
    }
 
+   protected final File getTestDirfile()
+   {
+      return new File(testDir);
+   }
+
    protected final void setTestDir(String testDir)
    {
       this.testDir = testDir;
@@ -981,6 +986,12 @@ public abstract class ActiveMQTestBase extends Assert
    protected String getPageDir()
    {
       return getPageDir(getTestDir());
+   }
+
+   protected File getPageDirFile()
+   {
+      return new File(getPageDir());
+
    }
 
    /**
@@ -1883,7 +1894,7 @@ public abstract class ActiveMQTestBase extends Assert
       JournalImpl messagesJournal = null;
       try
       {
-         SequentialFileFactory messagesFF = new NIOSequentialFileFactory(getJournalDir(), null);
+         SequentialFileFactory messagesFF = new NIOSequentialFileFactory(new File(getJournalDir()), null);
 
          messagesJournal = new JournalImpl(config.getJournalFileSize(),
                                            config.getJournalMinFiles(),
@@ -1929,7 +1940,7 @@ public abstract class ActiveMQTestBase extends Assert
    protected HashMap<Integer, AtomicInteger> countJournal(Configuration config) throws Exception
    {
       final HashMap<Integer, AtomicInteger> recordsType = new HashMap<Integer, AtomicInteger>();
-      SequentialFileFactory messagesFF = new NIOSequentialFileFactory(config.getJournalDirectory(), null);
+      SequentialFileFactory messagesFF = new NIOSequentialFileFactory(config.getJournalLocation(), null);
 
       JournalImpl messagesJournal = new JournalImpl(config.getJournalFileSize(),
                                                     config.getJournalMinFiles(),
@@ -1977,7 +1988,7 @@ public abstract class ActiveMQTestBase extends Assert
 
       if (messageJournal)
       {
-         ff = new NIOSequentialFileFactory(config.getJournalDirectory(), null);
+         ff = new NIOSequentialFileFactory(config.getJournalLocation(), null);
          journal = new JournalImpl(config.getJournalFileSize(),
                                    config.getJournalMinFiles(),
                                    0,
@@ -1989,7 +2000,7 @@ public abstract class ActiveMQTestBase extends Assert
       }
       else
       {
-         ff = new NIOSequentialFileFactory(config.getBindingsDirectory(), null);
+         ff = new NIOSequentialFileFactory(config.getJournalLocation(), null);
          journal = new JournalImpl(1024 * 1024,
                                    2,
                                    config.getJournalCompactMinFiles(),

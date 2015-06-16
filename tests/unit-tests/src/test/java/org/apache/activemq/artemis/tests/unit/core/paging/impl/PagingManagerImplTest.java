@@ -57,7 +57,7 @@ public class PagingManagerImplTest extends ActiveMQTestBase
       final StorageManager storageManager = new NullStorageManager();
 
       PagingStoreFactoryNIO storeFactory =
-         new PagingStoreFactoryNIO(storageManager, getPageDir(), 100, null, getOrderedExecutor(), true, null);
+         new PagingStoreFactoryNIO(storageManager, getPageDirFile(), 100, null, getOrderedExecutor(), true, null);
 
       PagingManagerImpl managerImpl = new PagingManagerImpl(storeFactory, addressSettings);
 

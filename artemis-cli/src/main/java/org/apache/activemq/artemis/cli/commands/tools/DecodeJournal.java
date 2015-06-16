@@ -117,7 +117,7 @@ public class DecodeJournal extends Configurable implements Action
             System.err.println("Could not create directory " + directory);
       }
 
-      NIOSequentialFileFactory nio = new NIOSequentialFileFactory(directory, null);
+      NIOSequentialFileFactory nio = new NIOSequentialFileFactory(new File(directory), null);
 
       JournalImpl journal = new JournalImpl(fileSize, minFiles, 0, 0, nio, journalPrefix, journalSuffix, 1);
 

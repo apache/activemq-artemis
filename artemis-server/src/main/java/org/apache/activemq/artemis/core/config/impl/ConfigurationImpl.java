@@ -18,9 +18,11 @@ package org.apache.activemq.artemis.core.config.impl;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -216,6 +218,11 @@ public class ConfigurationImpl implements Configuration, Serializable
    private long journalLockAcquisitionTimeout = ActiveMQDefaultConfiguration.getDefaultJournalLockAcquisitionTimeout();
 
    private HAPolicyConfiguration haPolicyConfiguration;
+
+   /**
+    * Parent folder for all data folders.
+    */
+   private File artemisInstance;
 
    // Public -------------------------------------------------------------------------
 
@@ -524,6 +531,11 @@ public class ConfigurationImpl implements Configuration, Serializable
       return this;
    }
 
+   public File getBindingsLocation()
+   {
+      return subFolder(getBindingsDirectory());
+   }
+
    public String getBindingsDirectory()
    {
       return bindingsDirectory;
@@ -549,6 +561,10 @@ public class ConfigurationImpl implements Configuration, Serializable
       return this;
    }
 
+   public File getJournalLocation()
+   {
+      return subFolder(getJournalDirectory());
+   }
 
    public String getJournalDirectory()
    {
@@ -570,6 +586,11 @@ public class ConfigurationImpl implements Configuration, Serializable
    {
       pagingDirectory = dir;
       return this;
+   }
+
+   public File getPagingLocation()
+   {
+      return subFolder(getPagingDirectory());
    }
 
    public String getPagingDirectory()
@@ -795,6 +816,11 @@ public class ConfigurationImpl implements Configuration, Serializable
    public String getLargeMessagesDirectory()
    {
       return largeMessagesDirectory;
+   }
+
+   public File getLargeMessagesLocation()
+   {
+      return subFolder(getLargeMessagesDirectory());
    }
 
    public ConfigurationImpl setLargeMessagesDirectory(final String directory)
@@ -1075,6 +1101,30 @@ public class ConfigurationImpl implements Configuration, Serializable
    public List<ConnectorServiceConfiguration> getConnectorServiceConfigurations()
    {
       return this.connectorServiceConfigurations;
+   }
+
+   public File getArtemisInstance()
+   {
+      if (artemisInstance != null)
+      {
+         return artemisInstance;
+      }
+
+      String strartemisInstance = System.getProperty("artemis.instance");
+
+      if (strartemisInstance == null)
+      {
+         strartemisInstance = System.getProperty("user.dir");
+      }
+
+      artemisInstance = new File(strartemisInstance);
+
+      return artemisInstance;
+   }
+
+   public void setArtemisInstance(File directory)
+   {
+      this.artemisInstance = directory;
    }
 
    public boolean isCheckForLiveServer()
@@ -1568,4 +1618,23 @@ public class ConfigurationImpl implements Configuration, Serializable
       this.haPolicyConfiguration = haPolicyConfiguration;
       return this;
    }
+
+   /**
+    * It will find the right location of a subFolder, related to artemisInstance
+    */
+   private File subFolder(String subFolder)
+   {
+      try
+      {
+         // Resolve wont work without "/" as the last character
+         URI artemisHome = new URI(getArtemisInstance().toURI() + "/");
+         URI relative = artemisHome.resolve(subFolder);
+         return new File(relative.getPath());
+      }
+      catch (Exception e)
+      {
+         throw new RuntimeException(e);
+      }
+   }
+
 }
