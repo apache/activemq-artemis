@@ -23,6 +23,7 @@ import java.nio.ByteBuffer;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -198,7 +199,7 @@ abstract class AbstractSequentialFileFactory implements SequentialFileFactory
 
       if (fileNames == null)
       {
-         throw new IOException("Failed to list: " + journalDir);
+         return Collections.EMPTY_LIST;
       }
 
       return Arrays.asList(fileNames);

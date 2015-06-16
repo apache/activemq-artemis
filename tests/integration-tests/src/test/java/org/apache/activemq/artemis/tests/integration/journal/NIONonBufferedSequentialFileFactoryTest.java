@@ -15,17 +15,17 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.integration.journal;
-import org.apache.activemq.artemis.tests.unit.core.journal.impl.SequentialFileFactoryTestBase;
 import org.apache.activemq.artemis.core.journal.SequentialFileFactory;
 import org.apache.activemq.artemis.core.journal.impl.NIOSequentialFileFactory;
+import org.apache.activemq.artemis.tests.unit.core.journal.impl.SequentialFileFactoryTestBase;
 
 public class NIONonBufferedSequentialFileFactoryTest extends SequentialFileFactoryTestBase
 {
 
    @Override
-   protected SequentialFileFactory createFactory()
+   protected SequentialFileFactory createFactory(String folder)
    {
-      return new NIOSequentialFileFactory(getTestDir(), false);
+      return new NIOSequentialFileFactory(folder, false);
    }
 
 }
