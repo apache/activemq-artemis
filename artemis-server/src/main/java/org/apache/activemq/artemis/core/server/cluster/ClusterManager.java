@@ -458,7 +458,12 @@ public final class ClusterManager implements ActiveMQComponent
          return;
       }
 
-      Transformer transformer = instantiateTransformer(config.getTransformerClassName());
+      Transformer transformer = server.getServiceRegistry().getBridgeTransformer(config.getName());
+
+      if (transformer == null)
+      {
+         transformer = instantiateTransformer(config.getTransformerClassName());
+      }
 
       Binding binding = postOffice.getBinding(new SimpleString(config.getQueueName()));
 

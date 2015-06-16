@@ -140,6 +140,11 @@ public class DivertImpl implements Divert
       return filter;
    }
 
+   public Transformer getTransformer()
+   {
+      return transformer;
+   }
+
    /* (non-Javadoc)
     * @see java.lang.Object#toString()
     */

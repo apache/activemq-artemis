@@ -28,6 +28,7 @@ import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.core.config.ConnectorServiceConfiguration;
 import org.apache.activemq.artemis.core.server.ConnectorServiceFactory;
 import org.apache.activemq.artemis.core.server.ServiceRegistry;
+import org.apache.activemq.artemis.core.server.cluster.Transformer;
 
 public class ServiceRegistryImpl implements ServiceRegistry
 {
@@ -42,6 +43,10 @@ public class ServiceRegistryImpl implements ServiceRegistry
 
    private Map<String, Interceptor> outgoingInterceptors;
 
+   private Map<String, Transformer> divertTransformers;
+
+   private Map<String, Transformer> bridgeTransformers;
+
    private Map<String, Pair<ConnectorServiceFactory, ConnectorServiceConfiguration>> connectorServices;
 
    public ServiceRegistryImpl()
@@ -49,6 +54,8 @@ public class ServiceRegistryImpl implements ServiceRegistry
       this.incomingInterceptors = new ConcurrentHashMap<>();
       this.outgoingInterceptors = new ConcurrentHashMap<>();
       this.connectorServices = new ConcurrentHashMap<>();
+      this.divertTransformers = new ConcurrentHashMap<>();
+      this.bridgeTransformers = new ConcurrentHashMap<>();
    }
 
    public ExecutorService getExecutorService()
@@ -124,5 +131,26 @@ public class ServiceRegistryImpl implements ServiceRegistry
    public Collection<Interceptor> getOutgoingInterceptors()
    {
       return Collections.unmodifiableCollection(outgoingInterceptors.values());
+   }
+
+   public void addDivertTransformer(String name, Transformer transformer)
+   {
+      divertTransformers.put(name, transformer);
+   }
+
+   public Transformer getDivertTransformer(String name)
+   {
+      return divertTransformers.get(name);
+   }
+
+   public void addBridgeTransformer(String name, Transformer transformer)
+   {
+      bridgeTransformers.put(name, transformer);
+   }
+
+   @Override
+   public Transformer getBridgeTransformer(String name)
+   {
+      return bridgeTransformers.get(name);
    }
 }

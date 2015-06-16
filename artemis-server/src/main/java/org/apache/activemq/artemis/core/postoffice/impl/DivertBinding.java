@@ -164,4 +164,9 @@ public class DivertBinding implements Binding
    {
    }
 
+   public Divert getDivert()
+   {
+      return divert;
+   }
+
 }
