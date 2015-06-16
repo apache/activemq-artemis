@@ -35,9 +35,9 @@ public class AIOSequentialFileFactoryTest extends SequentialFileFactoryTestBase
    }
 
    @Override
-   protected SequentialFileFactory createFactory()
+   protected SequentialFileFactory createFactory(String folder)
    {
-      return new AIOSequentialFileFactory(getTestDir());
+      return new AIOSequentialFileFactory(folder);
    }
 
    @Test
