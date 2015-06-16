@@ -58,6 +58,7 @@ public class ServiceRegistryImpl implements ServiceRegistry
       this.bridgeTransformers = new ConcurrentHashMap<>();
    }
 
+   @Override
    public ExecutorService getExecutorService()
    {
       return executorService;
@@ -88,6 +89,7 @@ public class ServiceRegistryImpl implements ServiceRegistry
       connectorServices.remove(configuration.getConnectorName());
    }
 
+   @Override
    public Collection<Pair<ConnectorServiceFactory, ConnectorServiceConfiguration>> getConnectorServices()
    {
       return connectorServices.values();
@@ -103,6 +105,7 @@ public class ServiceRegistryImpl implements ServiceRegistry
       incomingInterceptors.remove(name);
    }
 
+   @Override
    public Collection<Interceptor> getIncomingInterceptors()
    {
       return Collections.unmodifiableCollection(incomingInterceptors.values());
@@ -128,6 +131,7 @@ public class ServiceRegistryImpl implements ServiceRegistry
       outgoingInterceptors.remove(name);
    }
 
+   @Override
    public Collection<Interceptor> getOutgoingInterceptors()
    {
       return Collections.unmodifiableCollection(outgoingInterceptors.values());
@@ -138,6 +142,7 @@ public class ServiceRegistryImpl implements ServiceRegistry
       divertTransformers.put(name, transformer);
    }
 
+   @Override
    public Transformer getDivertTransformer(String name)
    {
       return divertTransformers.get(name);
