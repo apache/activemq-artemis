@@ -23,9 +23,9 @@ public class NIOSequentialFileFactoryTest extends SequentialFileFactoryTestBase
 {
 
    @Override
-   protected SequentialFileFactory createFactory()
+   protected SequentialFileFactory createFactory(String folder)
    {
-      return new NIOSequentialFileFactory(getTestDir(), true);
+      return new NIOSequentialFileFactory(folder, true);
    }
 
 }

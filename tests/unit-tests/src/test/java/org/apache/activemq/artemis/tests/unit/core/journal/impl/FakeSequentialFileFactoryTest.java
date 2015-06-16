@@ -23,7 +23,7 @@ public class FakeSequentialFileFactoryTest extends SequentialFileFactoryTestBase
 {
 
    @Override
-   protected SequentialFileFactory createFactory()
+   protected SequentialFileFactory createFactory(String folder)
    {
       return new FakeSequentialFileFactory();
    }

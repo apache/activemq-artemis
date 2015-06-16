@@ -15,25 +15,22 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.unit.core.journal.impl;
-import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
-import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
-import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Before;
-import org.junit.After;
-
-import org.junit.Test;
-
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import org.junit.Assert;
-
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.core.asyncio.impl.AsynchronousFileImpl;
 import org.apache.activemq.artemis.core.journal.SequentialFile;
 import org.apache.activemq.artemis.core.journal.SequentialFileFactory;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 public abstract class SequentialFileFactoryTestBase extends ActiveMQTestBase
 {
@@ -43,7 +40,7 @@ public abstract class SequentialFileFactoryTestBase extends ActiveMQTestBase
    {
       super.setUp();
 
-      factory = createFactory();
+      factory = createFactory(getTestDir());
 
       factory.start();
    }
@@ -63,9 +60,18 @@ public abstract class SequentialFileFactoryTestBase extends ActiveMQTestBase
       super.tearDown();
    }
 
-   protected abstract SequentialFileFactory createFactory();
+   protected abstract SequentialFileFactory createFactory(String folder);
 
    protected SequentialFileFactory factory;
+
+   @Test
+   public void listFilesOnNonExistentFolder() throws Exception
+   {
+      SequentialFileFactory fileFactory = createFactory("./target/dontexist");
+      List list = fileFactory.listFiles("tmp");
+      Assert.assertNotNull(list);
+      Assert.assertEquals(0, list.size());
+   }
 
    @Test
    public void testCreateAndListFiles() throws Exception
