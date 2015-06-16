@@ -226,7 +226,7 @@ public abstract class AMQTransaction
          // to execute properly.
          getLog().warn("PRE COMMIT FAILED: ", e);
          XAException xae = new XAException("PRE COMMIT FAILED");
-         xae.errorCode = XAException.XAER_RMERR;
+         xae.errorCode = XAException.XAER_RMFAIL;
          xae.initCause(e);
          throw xae;
       }
@@ -245,7 +245,7 @@ public abstract class AMQTransaction
          // to execute properly.
          getLog().warn("POST COMMIT FAILED: ", e);
          XAException xae = new XAException("POST COMMIT FAILED");
-         xae.errorCode = XAException.XAER_RMERR;
+         xae.errorCode = XAException.XAER_RMFAIL;
          xae.initCause(e);
          throw xae;
       }

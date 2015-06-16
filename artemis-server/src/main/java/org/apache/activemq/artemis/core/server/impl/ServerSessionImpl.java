@@ -1051,7 +1051,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener
          {
             e.printStackTrace();
 
-            throw new ActiveMQXAException(XAException.XAER_RMERR);
+            throw new ActiveMQXAException(XAException.XAER_RMFAIL);
          }
       }
       else
