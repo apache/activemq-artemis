@@ -29,6 +29,7 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.config.BridgeConfiguration;
+import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.CoreQueueConfiguration;
 import org.apache.activemq.artemis.core.journal.PreparedTransactionInfo;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
@@ -47,7 +48,12 @@ import org.apache.activemq.artemis.core.remoting.impl.invm.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.server.ServerMessage;
+import org.apache.activemq.artemis.core.server.cluster.Bridge;
+import org.apache.activemq.artemis.core.server.cluster.Transformer;
 import org.apache.activemq.artemis.core.server.cluster.impl.BridgeImpl;
+import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
+import org.apache.activemq.artemis.core.server.impl.ServiceRegistryImpl;
 import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
@@ -1874,6 +1880,40 @@ public class BridgeTest extends ActiveMQTestBase
 
       sf1.close();
       closeFields();
+   }
+
+   @Test
+   public void testInjectedTransformer() throws Exception
+   {
+      final SimpleString ADDRESS = new SimpleString("myAddress");
+      final SimpleString QUEUE = new SimpleString("myQueue");
+      final String BRIDGE = "myBridge";
+
+      ServiceRegistryImpl serviceRegistry = new ServiceRegistryImpl();
+      Transformer transformer = new Transformer()
+      {
+         @Override
+         public ServerMessage transform(ServerMessage message)
+         {
+            return null;
+         }
+      };
+      serviceRegistry.addBridgeTransformer(BRIDGE, transformer);
+      Configuration config = createDefaultInVMConfig().addConnectorConfiguration("in-vm", new TransportConfiguration(INVM_CONNECTOR_FACTORY));
+      ActiveMQServer server = addServer(new ActiveMQServerImpl(config, null, null, null, serviceRegistry));
+      server.start();
+      server.waitForActivation(100, TimeUnit.MILLISECONDS);
+      server.deployQueue(ADDRESS, QUEUE, null, false, false);
+      List<String> connectors = new ArrayList<>();
+      connectors.add("in-vm");
+      server.deployBridge(new BridgeConfiguration()
+                                  .setName(BRIDGE)
+                                  .setQueueName(QUEUE.toString())
+                                  .setForwardingAddress(ADDRESS.toString())
+                                  .setStaticConnectors(connectors));
+      Bridge bridge = server.getClusterManager().getBridges().get(BRIDGE);
+      assertNotNull(bridge);
+      assertEquals(transformer, ((BridgeImpl)bridge).getTransformer());
    }
 
    /**

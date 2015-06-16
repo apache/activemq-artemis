@@ -26,12 +26,22 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.DivertConfiguration;
 import org.apache.activemq.artemis.core.message.impl.MessageImpl;
+import org.apache.activemq.artemis.core.postoffice.Binding;
+import org.apache.activemq.artemis.core.postoffice.impl.DivertBinding;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
+import org.apache.activemq.artemis.core.server.Divert;
+import org.apache.activemq.artemis.core.server.ServerMessage;
+import org.apache.activemq.artemis.core.server.cluster.Transformer;
+import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
+import org.apache.activemq.artemis.core.server.impl.ServiceRegistryImpl;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.util.Collection;
+import java.util.concurrent.TimeUnit;
 
 public class DivertTest extends ActiveMQTestBase
 {
@@ -1334,4 +1344,41 @@ public class DivertTest extends ActiveMQTestBase
       Assert.assertNull(consumer4.receiveImmediate());
    }
 
+   @Test
+   public void testInjectedTransformer() throws Exception
+   {
+      final SimpleString ADDRESS = new SimpleString("myAddress");
+      final String DIVERT = "myDivert";
+
+      ServiceRegistryImpl serviceRegistry = new ServiceRegistryImpl();
+      Transformer transformer = new Transformer()
+      {
+         @Override
+         public ServerMessage transform(ServerMessage message)
+         {
+            return null;
+         }
+      };
+      serviceRegistry.addDivertTransformer(DIVERT, transformer);
+
+      ActiveMQServer server = addServer(new ActiveMQServerImpl(null, null, null, null, serviceRegistry));
+      server.start();
+      server.waitForActivation(100, TimeUnit.MILLISECONDS);
+      server.deployQueue(ADDRESS, SimpleString.toSimpleString("myQueue"), null, false, false);
+      server.deployDivert(new DivertConfiguration()
+                                  .setName(DIVERT)
+                                  .setAddress(ADDRESS.toString())
+                                  .setForwardingAddress(ADDRESS.toString()));
+      Collection<Binding> bindings = server.getPostOffice().getBindingsForAddress(ADDRESS).getBindings();
+      Divert divert = null;
+      for (Binding binding : bindings)
+      {
+         if (binding instanceof DivertBinding)
+         {
+            divert = ((DivertBinding)binding).getDivert();
+         }
+      }
+      assertNotNull(divert);
+      assertEquals(transformer, divert.getTransformer());
+   }
 }

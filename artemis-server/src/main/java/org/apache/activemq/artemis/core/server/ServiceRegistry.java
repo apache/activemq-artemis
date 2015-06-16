@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.core.server;
 import org.apache.activemq.artemis.api.core.Interceptor;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.core.config.ConnectorServiceConfiguration;
+import org.apache.activemq.artemis.core.server.cluster.Transformer;
 
 import java.util.Collection;
 import java.util.concurrent.ExecutorService;
@@ -58,4 +59,8 @@ public interface ServiceRegistry
    void removeOutgoingInterceptor(String name);
 
    Collection<Interceptor> getOutgoingInterceptors();
+
+   Transformer getDivertTransformer(String name);
+
+   Transformer getBridgeTransformer(String name);
 }

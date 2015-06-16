@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.core.server;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.filter.Filter;
+import org.apache.activemq.artemis.core.server.cluster.Transformer;
 
 public interface Divert extends Bindable
 {
@@ -28,4 +29,6 @@ public interface Divert extends Bindable
    SimpleString getUniqueName();
 
    SimpleString getRoutingName();
+
+   Transformer getTransformer();
 }

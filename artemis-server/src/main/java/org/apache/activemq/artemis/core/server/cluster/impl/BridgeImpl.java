@@ -806,6 +806,11 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
    {
       return (ClientSessionFactoryImpl) csf;
    }
+
+   public Transformer getTransformer()
+   {
+      return transformer;
+   }
    protected void fail(final boolean permanently)
    {
       ActiveMQServerLogger.LOGGER.debug(this + "\n\t::fail being called, permanently=" + permanently);

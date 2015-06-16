@@ -1516,7 +1516,12 @@ public class ActiveMQServerImpl implements ActiveMQServer
 
       SimpleString sAddress = new SimpleString(config.getAddress());
 
-      Transformer transformer = instantiateTransformer(config.getTransformerClassName());
+      Transformer transformer = getServiceRegistry().getDivertTransformer(config.getName());
+
+      if (transformer == null)
+      {
+         transformer = instantiateTransformer(config.getTransformerClassName());
+      }
 
       Filter filter = FilterImpl.createFilter(config.getFilterString());
 
