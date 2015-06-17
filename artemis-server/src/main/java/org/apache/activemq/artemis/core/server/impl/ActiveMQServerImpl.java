@@ -16,30 +16,6 @@
  */
 package org.apache.activemq.artemis.core.server.impl;
 
-import javax.management.MBeanServer;
-import java.io.File;
-import java.io.FilenameFilter;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.lang.management.ManagementFactory;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.TimeUnit;
-
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -125,13 +101,36 @@ import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.protocol.SessionCallback;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
-import org.apache.activemq.artemis.utils.ClassloadingUtil;
 import org.apache.activemq.artemis.utils.ConcurrentHashSet;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.OrderedExecutorFactory;
 import org.apache.activemq.artemis.utils.ReusableLatch;
 import org.apache.activemq.artemis.utils.SecurityFormatter;
 import org.apache.activemq.artemis.utils.VersionLoader;
+
+import javax.management.MBeanServer;
+import java.io.File;
+import java.io.FilenameFilter;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.lang.management.ManagementFactory;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
 
 /**
  * The ActiveMQ Artemis server implementation
@@ -1516,12 +1515,7 @@ public class ActiveMQServerImpl implements ActiveMQServer
 
       SimpleString sAddress = new SimpleString(config.getAddress());
 
-      Transformer transformer = getServiceRegistry().getDivertTransformer(config.getName());
-
-      if (transformer == null)
-      {
-         transformer = instantiateTransformer(config.getTransformerClassName());
-      }
+      Transformer transformer = getServiceRegistry().getDivertTransformer(config.getName(), config.getTransformerClassName());
 
       Filter filter = FilterImpl.createFilter(config.getFilterString());
 
@@ -2206,23 +2200,6 @@ public class ActiveMQServerImpl implements ActiveMQServer
       }
    }
 
-   private Transformer instantiateTransformer(final String transformerClassName)
-   {
-      Transformer transformer = null;
-
-      if (transformerClassName != null)
-      {
-         transformer = (Transformer) instantiateInstance(transformerClassName);
-      }
-
-      return transformer;
-   }
-
-   private Object instantiateInstance(final String className)
-   {
-      return safeInitNewInstance(className);
-   }
-
    private static ClassLoader getThisClassLoader()
    {
       return AccessController.doPrivileged(new PrivilegedAction<ClassLoader>()
@@ -2276,23 +2253,6 @@ public class ActiveMQServerImpl implements ActiveMQServer
             stopTheServer(true);
          }
       }
-   }
-
-
-   /**
-    * This seems duplicate code all over the place, but for security reasons we can't let something like this to be open in a
-    * utility class, as it would be a door to load anything you like in a safe VM.
-    * For that reason any class trying to do a privileged block should do with the AccessController directly.
-    */
-   private static Object safeInitNewInstance(final String className)
-   {
-      return AccessController.doPrivileged(new PrivilegedAction<Object>()
-      {
-         public Object run()
-         {
-            return ClassloadingUtil.newInstanceFromClassLoader(className);
-         }
-      });
    }
 
    public void addProtocolManagerFactory(ProtocolManagerFactory factory)

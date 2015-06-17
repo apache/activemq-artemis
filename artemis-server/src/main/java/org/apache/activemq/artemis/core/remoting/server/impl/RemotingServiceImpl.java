@@ -16,25 +16,6 @@
  */
 package org.apache.activemq.artemis.core.remoting.server.impl;
 
-import java.security.AccessController;
-import java.security.PrivilegedAction;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.ServiceLoader;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Executor;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.TimeUnit;
-
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQInterruptedException;
@@ -67,9 +48,27 @@ import org.apache.activemq.artemis.spi.core.remoting.BufferHandler;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.activemq.artemis.spi.core.remoting.ConnectionLifeCycleListener;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
-import org.apache.activemq.artemis.utils.ClassloadingUtil;
 import org.apache.activemq.artemis.utils.ConfigurationHelper;
 import org.apache.activemq.artemis.utils.ReusableLatch;
+
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.ServiceLoader;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
 
 public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycleListener
 {
@@ -187,19 +186,8 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
 
    private void setInterceptors(Configuration configuration)
    {
-      addReflectivelyInstantiatedInterceptors(configuration.getIncomingInterceptorClassNames(), incomingInterceptors);
-      addReflectivelyInstantiatedInterceptors(configuration.getOutgoingInterceptorClassNames(), outgoingInterceptors);
-      incomingInterceptors.addAll(serviceRegistry.getIncomingInterceptors());
-      outgoingInterceptors.addAll(serviceRegistry.getOutgoingInterceptors());
-   }
-
-   private void addReflectivelyInstantiatedInterceptors(List<String> classNames, List<BaseInterceptor> interceptors)
-   {
-      for (String className : classNames)
-      {
-         BaseInterceptor interceptor = ((BaseInterceptor) safeInitNewInstance(className));
-         interceptors.add(interceptor);
-      }
+      incomingInterceptors.addAll(serviceRegistry.getIncomingInterceptors(configuration.getIncomingInterceptorClassNames()));
+      outgoingInterceptors.addAll(serviceRegistry.getOutgoingInterceptors(configuration.getOutgoingInterceptorClassNames()));
    }
 
    public synchronized void start() throws Exception
@@ -808,17 +796,6 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
             }
          }
       }
-   }
-
-   private static Object safeInitNewInstance(final String className)
-   {
-      return AccessController.doPrivileged(new PrivilegedAction<Object>()
-      {
-         public Object run()
-         {
-            return ClassloadingUtil.newInstanceFromClassLoader(className);
-         }
-      });
    }
 
    protected void updateProtocols()
