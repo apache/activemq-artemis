@@ -20,8 +20,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import io.airlift.airline.Cli;
-import io.airlift.airline.ParseArgumentsMissingException;
-import io.airlift.airline.ParseArgumentsUnexpectedException;
+import io.airlift.airline.ParseException;
 import org.apache.activemq.artemis.cli.commands.Action;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.cli.commands.Create;
@@ -67,7 +66,7 @@ public class Artemis
       {
          parser.parse(args).execute(ActionContext.system());
       }
-      catch (ParseArgumentsUnexpectedException | ParseArgumentsMissingException e)
+      catch (ParseException e)
       {
          System.err.println(e.getMessage());
          System.out.println();
