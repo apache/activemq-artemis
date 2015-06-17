@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.server.impl;
 
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
@@ -29,6 +31,8 @@ import org.apache.activemq.artemis.core.config.ConnectorServiceConfiguration;
 import org.apache.activemq.artemis.core.server.ConnectorServiceFactory;
 import org.apache.activemq.artemis.core.server.ServiceRegistry;
 import org.apache.activemq.artemis.core.server.cluster.Transformer;
+import org.apache.activemq.artemis.spi.core.remoting.AcceptorFactory;
+import org.apache.activemq.artemis.utils.ClassloadingUtil;
 
 public class ServiceRegistryImpl implements ServiceRegistry
 {
@@ -47,6 +51,8 @@ public class ServiceRegistryImpl implements ServiceRegistry
 
    private Map<String, Transformer> bridgeTransformers;
 
+   private Map<String, AcceptorFactory> acceptorFactories;
+
    private Map<String, Pair<ConnectorServiceFactory, ConnectorServiceConfiguration>> connectorServices;
 
    public ServiceRegistryImpl()
@@ -56,6 +62,7 @@ public class ServiceRegistryImpl implements ServiceRegistry
       this.connectorServices = new ConcurrentHashMap<>();
       this.divertTransformers = new ConcurrentHashMap<>();
       this.bridgeTransformers = new ConcurrentHashMap<>();
+      this.acceptorFactories = new ConcurrentHashMap<>();
    }
 
    public ExecutorService getExecutorService()
@@ -152,5 +159,32 @@ public class ServiceRegistryImpl implements ServiceRegistry
    public Transformer getBridgeTransformer(String name)
    {
       return bridgeTransformers.get(name);
+   }
+
+   @Override
+   public AcceptorFactory getAcceptorFactory(String name, final String className)
+   {
+      AcceptorFactory factory = acceptorFactories.get(name);
+
+      if (factory == null)
+      {
+         factory = AccessController.doPrivileged(new PrivilegedAction<AcceptorFactory>()
+         {
+            public AcceptorFactory run()
+            {
+               return (AcceptorFactory) ClassloadingUtil.newInstanceFromClassLoader(className);
+            }
+         });
+
+         addAcceptorFactory(name, factory);
+      }
+
+      return factory;
+   }
+
+   @Override
+   public void addAcceptorFactory(String name, AcceptorFactory acceptorFactory)
+   {
+      acceptorFactories.put(name, acceptorFactory);
    }
 }

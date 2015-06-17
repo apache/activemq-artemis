@@ -20,6 +20,7 @@ import org.apache.activemq.artemis.api.core.Interceptor;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.core.config.ConnectorServiceConfiguration;
 import org.apache.activemq.artemis.core.server.cluster.Transformer;
+import org.apache.activemq.artemis.spi.core.remoting.AcceptorFactory;
 
 import java.util.Collection;
 import java.util.concurrent.ExecutorService;
@@ -63,4 +64,8 @@ public interface ServiceRegistry
    Transformer getDivertTransformer(String name);
 
    Transformer getBridgeTransformer(String name);
+
+   AcceptorFactory getAcceptorFactory(String name, String className);
+
+   void addAcceptorFactory(String name, AcceptorFactory acceptorFactory);
 }

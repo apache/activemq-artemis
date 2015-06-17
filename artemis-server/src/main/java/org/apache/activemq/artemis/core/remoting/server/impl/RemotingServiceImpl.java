@@ -229,15 +229,11 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
 
       threadPool = Executors.newCachedThreadPool(tFactory);
 
-      ClassLoader loader = Thread.currentThread().getContextClassLoader();
-
       for (TransportConfiguration info : acceptorsConfig)
       {
          try
          {
-            Class<?> clazz = loader.loadClass(info.getFactoryClassName());
-
-            AcceptorFactory factory = (AcceptorFactory) clazz.newInstance();
+            AcceptorFactory factory = server.getServiceRegistry().getAcceptorFactory(info.getName(), info.getFactoryClassName());
 
             Map<String, ProtocolManager> supportedProtocols = new ConcurrentHashMap();
 
