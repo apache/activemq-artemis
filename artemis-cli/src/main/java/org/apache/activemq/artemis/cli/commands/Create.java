@@ -83,7 +83,7 @@ public class Create extends InputAbstract
    public static final String ETC_CONNECTOR_SETTINGS_TXT = "etc/connector-settings.txt";
    public static final String ETC_BOOTSTRAP_WEB_SETTINGS_TXT = "etc/bootstrap-web-settings.txt";
 
-   @Arguments(description = "The instance directory to hold the broker's configuration and data", required = true)
+   @Arguments(description = "The instance directory to hold the broker's configuration and data.  Path must be writable.", required = true)
    File directory;
 
    @Option(name = "--host", description = "The host name of the broker (Default: 0.0.0.0 or input if clustered)")
@@ -412,6 +412,7 @@ public class Create extends InputAbstract
    @Override
    public Object execute(ActionContext context) throws Exception
    {
+      this.checkDirectory();
       super.execute(context);
 
       try
@@ -432,6 +433,24 @@ public class Create extends InputAbstract
       return this.getClass().getResourceAsStream(source);
    }
 
+   /**
+    * Checks that the directory provided either exists and is writable or doesn't exist but can be created.
+    */
+   private void checkDirectory()
+   {
+      if (!directory.exists())
+      {
+         boolean created = directory.mkdirs();
+         if (!created)
+         {
+            throw new RuntimeException(String.format("Unable to create the path '%s'.", directory));
+         }
+      }
+      else if (!directory.canWrite())
+      {
+         throw new RuntimeException(String.format("The path '%s' is not writable.", directory));
+      }
+   }
 
    public Object run(ActionContext context) throws Exception
    {
