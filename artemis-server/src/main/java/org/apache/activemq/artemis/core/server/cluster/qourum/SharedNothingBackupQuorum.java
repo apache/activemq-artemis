@@ -22,17 +22,18 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
+import org.apache.activemq.artemis.api.core.client.SessionFailureListener;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal;
 import org.apache.activemq.artemis.core.client.impl.Topology;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.protocol.core.CoreRemotingConnection;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationLiveIsStoppingMessage;
-import org.apache.activemq.artemis.core.remoting.FailureListener;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.NodeManager;
 
-public class SharedNothingBackupQuorum implements Quorum, FailureListener
+public class SharedNothingBackupQuorum implements Quorum, SessionFailureListener
 {
+
    public enum BACKUP_ACTIVATION
    {
       FAIL_OVER, FAILURE_REPLICATING, ALREADY_REPLICATING, STOP;
@@ -167,6 +168,13 @@ public class SharedNothingBackupQuorum implements Quorum, FailureListener
       connectionFailed(me, failedOver);
    }
 
+
+   @Override
+   public void beforeReconnect(ActiveMQException exception)
+   {
+      //noop
+   }
+
    @Override
    public void close()
    {
@@ -182,6 +190,8 @@ public class SharedNothingBackupQuorum implements Quorum, FailureListener
       this.sessionFactory = sessionFactory;
       this.connection = (CoreRemotingConnection)sessionFactory.getConnection();
       connection.addFailureListener(this);
+      //belts and braces, there are circumstances where the connection listener doesn't get called but the session does.
+      sessionFactory.addFailureListener(this);
    }
 
    /**
