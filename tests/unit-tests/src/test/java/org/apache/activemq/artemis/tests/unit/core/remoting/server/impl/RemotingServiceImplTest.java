@@ -83,8 +83,7 @@ public class RemotingServiceImplTest
    @Test
    public void testSetInterceptorsAddsBothInterceptorsFromConfigAndServiceRegistry() throws Exception
    {
-      Method method = RemotingServiceImpl.class.getDeclaredMethod("setInterceptors",
-                                                                  Configuration.class);
+      Method method = RemotingServiceImpl.class.getDeclaredMethod("setInterceptors", Configuration.class);
       Field incomingInterceptors = RemotingServiceImpl.class.getDeclaredField("incomingInterceptors");
       Field outgoingInterceptors = RemotingServiceImpl.class.getDeclaredField("outgoingInterceptors");
 
@@ -92,10 +91,10 @@ public class RemotingServiceImplTest
       incomingInterceptors.setAccessible(true);
       outgoingInterceptors.setAccessible(true);
 
-      serviceRegistry.addIncomingInterceptor("Foo", new FakeInterceptor());
-      serviceRegistry.addOutgoingInterceptor("Bar", new FakeInterceptor());
+      serviceRegistry.addIncomingInterceptor(new FakeInterceptor());
+      serviceRegistry.addOutgoingInterceptor(new FakeInterceptor());
 
-      List<String> interceptorClassNames = new ArrayList<String>();
+      List<String> interceptorClassNames = new ArrayList<>();
       interceptorClassNames.add(FakeInterceptor.class.getCanonicalName());
       configuration.setIncomingInterceptorClassNames(interceptorClassNames);
       configuration.setOutgoingInterceptorClassNames(interceptorClassNames);
@@ -104,8 +103,8 @@ public class RemotingServiceImplTest
 
       assertTrue(((List) incomingInterceptors.get(remotingService)).size() == 2 );
       assertTrue(((List) outgoingInterceptors.get(remotingService)).size() == 2 );
-      assertTrue(((List) incomingInterceptors.get(remotingService)).contains(serviceRegistry.getIncomingInterceptor("Foo")));
-      assertTrue(((List) outgoingInterceptors.get(remotingService)).contains(serviceRegistry.getOutgoingInterceptor("Bar")));
+      assertTrue(((List) incomingInterceptors.get(remotingService)).contains(serviceRegistry.getIncomingInterceptors(null).get(0)));
+      assertTrue(((List) outgoingInterceptors.get(remotingService)).contains(serviceRegistry.getOutgoingInterceptors(null).get(0)));
    }
 
    /**
@@ -115,19 +114,16 @@ public class RemotingServiceImplTest
    @Test
    public void testInterceptorsAreAddedOnCreationOfServiceRegistry() throws Exception
    {
-      Method method = RemotingServiceImpl.class.getDeclaredMethod("setInterceptors",
-                                                                  Configuration.class);
       Field incomingInterceptors = RemotingServiceImpl.class.getDeclaredField("incomingInterceptors");
       Field outgoingInterceptors = RemotingServiceImpl.class.getDeclaredField("outgoingInterceptors");
 
-      method.setAccessible(true);
       incomingInterceptors.setAccessible(true);
       outgoingInterceptors.setAccessible(true);
 
-      serviceRegistry.addIncomingInterceptor("Foo", new FakeInterceptor());
-      serviceRegistry.addOutgoingInterceptor("Bar", new FakeInterceptor());
+      serviceRegistry.addIncomingInterceptor(new FakeInterceptor());
+      serviceRegistry.addOutgoingInterceptor(new FakeInterceptor());
 
-      List<String> interceptorClassNames = new ArrayList<String>();
+      List<String> interceptorClassNames = new ArrayList<>();
       interceptorClassNames.add(FakeInterceptor.class.getCanonicalName());
       configuration.setIncomingInterceptorClassNames(interceptorClassNames);
       configuration.setOutgoingInterceptorClassNames(interceptorClassNames);
@@ -136,7 +132,7 @@ public class RemotingServiceImplTest
 
       assertTrue(((List) incomingInterceptors.get(remotingService)).size() == 2 );
       assertTrue(((List) outgoingInterceptors.get(remotingService)).size() == 2 );
-      assertTrue(((List) incomingInterceptors.get(remotingService)).contains(serviceRegistry.getIncomingInterceptor("Foo")));
-      assertTrue(((List) outgoingInterceptors.get(remotingService)).contains(serviceRegistry.getOutgoingInterceptor("Bar")));
+      assertTrue(((List) incomingInterceptors.get(remotingService)).contains(serviceRegistry.getIncomingInterceptors(null).get(0)));
+      assertTrue(((List) outgoingInterceptors.get(remotingService)).contains(serviceRegistry.getOutgoingInterceptors(null).get(0)));
    }
 }

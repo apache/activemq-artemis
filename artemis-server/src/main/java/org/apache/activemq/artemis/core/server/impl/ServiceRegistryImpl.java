@@ -16,23 +16,27 @@
  */
 package org.apache.activemq.artemis.core.server.impl;
 
-import java.security.AccessController;
-import java.security.PrivilegedAction;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ScheduledExecutorService;
-
+import org.apache.activemq.artemis.api.core.BaseInterceptor;
 import org.apache.activemq.artemis.api.core.Interceptor;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.core.config.ConnectorServiceConfiguration;
+import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.core.server.ConnectorServiceFactory;
 import org.apache.activemq.artemis.core.server.ServiceRegistry;
 import org.apache.activemq.artemis.core.server.cluster.Transformer;
 import org.apache.activemq.artemis.spi.core.remoting.AcceptorFactory;
 import org.apache.activemq.artemis.utils.ClassloadingUtil;
+
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ScheduledExecutorService;
 
 public class ServiceRegistryImpl implements ServiceRegistry
 {
@@ -43,9 +47,9 @@ public class ServiceRegistryImpl implements ServiceRegistry
    /* We are using a List rather than HashMap here as ActiveMQ Artemis allows multiple instances of the same class to be added
    * to the interceptor list
    */
-   private Map<String, Interceptor> incomingInterceptors;
+   private List<BaseInterceptor> incomingInterceptors;
 
-   private Map<String, Interceptor> outgoingInterceptors;
+   private List<BaseInterceptor> outgoingInterceptors;
 
    private Map<String, Transformer> divertTransformers;
 
@@ -57,87 +61,104 @@ public class ServiceRegistryImpl implements ServiceRegistry
 
    public ServiceRegistryImpl()
    {
-      this.incomingInterceptors = new ConcurrentHashMap<>();
-      this.outgoingInterceptors = new ConcurrentHashMap<>();
+      this.incomingInterceptors = Collections.synchronizedList(new ArrayList<BaseInterceptor>());
+      this.outgoingInterceptors = Collections.synchronizedList(new ArrayList<BaseInterceptor>());
       this.connectorServices = new ConcurrentHashMap<>();
       this.divertTransformers = new ConcurrentHashMap<>();
       this.bridgeTransformers = new ConcurrentHashMap<>();
       this.acceptorFactories = new ConcurrentHashMap<>();
    }
 
+   @Override
    public ExecutorService getExecutorService()
    {
       return executorService;
    }
 
+   @Override
    public void setExecutorService(ExecutorService executorService)
    {
       this.executorService = executorService;
    }
 
+   @Override
    public ScheduledExecutorService getScheduledExecutorService()
    {
       return scheduledExecutorService;
    }
 
+   @Override
    public void setScheduledExecutorService(ScheduledExecutorService scheduledExecutorService)
    {
       this.scheduledExecutorService = scheduledExecutorService;
    }
 
+   @Override
    public void addConnectorService(ConnectorServiceFactory connectorServiceFactory, ConnectorServiceConfiguration configuration)
    {
       connectorServices.put(configuration.getConnectorName(), new Pair<>(connectorServiceFactory, configuration));
    }
 
+   @Override
    public void removeConnectorService(ConnectorServiceConfiguration configuration)
    {
       connectorServices.remove(configuration.getConnectorName());
    }
 
-   public Collection<Pair<ConnectorServiceFactory, ConnectorServiceConfiguration>> getConnectorServices()
+   @Override
+   public Collection<Pair<ConnectorServiceFactory, ConnectorServiceConfiguration>> getConnectorServices(List<ConnectorServiceConfiguration> configs)
    {
+      if (configs != null)
+      {
+         for (final ConnectorServiceConfiguration config : configs)
+         {
+            if (connectorServices.get(config.getConnectorName()) == null)
+            {
+               ConnectorServiceFactory factory = AccessController.doPrivileged(new PrivilegedAction<ConnectorServiceFactory>()
+               {
+                  public ConnectorServiceFactory run()
+                  {
+                     return (ConnectorServiceFactory) ClassloadingUtil.newInstanceFromClassLoader(config.getFactoryClassName());
+                  }
+               });
+               addConnectorService(factory, config);
+            }
+         }
+      }
+
       return connectorServices.values();
    }
 
-   public void addIncomingInterceptor(String name, Interceptor interceptor)
+   @Override
+   public void addIncomingInterceptor(Interceptor interceptor)
    {
-      incomingInterceptors.put(name, interceptor);
+      incomingInterceptors.add(interceptor);
    }
 
-   public void removeIncomingInterceptor(String name)
+   @Override
+   public List<BaseInterceptor> getIncomingInterceptors(List<String> classNames)
    {
-      incomingInterceptors.remove(name);
+      List<BaseInterceptor> interceptors = new ArrayList<>(incomingInterceptors);
+
+      instantiateInterceptors(classNames, interceptors);
+
+      return interceptors;
    }
 
-   public Collection<Interceptor> getIncomingInterceptors()
+   @Override
+   public void addOutgoingInterceptor(Interceptor interceptor)
    {
-      return Collections.unmodifiableCollection(incomingInterceptors.values());
+      outgoingInterceptors.add(interceptor);
    }
 
-   public Interceptor getIncomingInterceptor(String name)
+   @Override
+   public List<BaseInterceptor> getOutgoingInterceptors(List<String> classNames)
    {
-      return incomingInterceptors.get(name);
-   }
+      List<BaseInterceptor> interceptors = new ArrayList<>(outgoingInterceptors);
 
-   public void addOutgoingInterceptor(String name, Interceptor interceptor)
-   {
-      outgoingInterceptors.put(name, interceptor);
-   }
+      instantiateInterceptors(classNames, interceptors);
 
-   public Interceptor getOutgoingInterceptor(String name)
-   {
-      return outgoingInterceptors.get(name);
-   }
-
-   public void removeOutgoingInterceptor(String name)
-   {
-      outgoingInterceptors.remove(name);
-   }
-
-   public Collection<Interceptor> getOutgoingInterceptors()
-   {
-      return Collections.unmodifiableCollection(outgoingInterceptors.values());
+      return interceptors;
    }
 
    @Override
@@ -147,9 +168,17 @@ public class ServiceRegistryImpl implements ServiceRegistry
    }
 
    @Override
-   public Transformer getDivertTransformer(String name)
+   public Transformer getDivertTransformer(String name, String className)
    {
-      return divertTransformers.get(name);
+      Transformer transformer = divertTransformers.get(name);
+
+      if (transformer == null && className != null)
+      {
+         transformer = instantiateTransformer(className);
+         addDivertTransformer(name, transformer);
+      }
+
+      return transformer;
    }
 
    @Override
@@ -159,9 +188,17 @@ public class ServiceRegistryImpl implements ServiceRegistry
    }
 
    @Override
-   public Transformer getBridgeTransformer(String name)
+   public Transformer getBridgeTransformer(String name, String className)
    {
-      return bridgeTransformers.get(name);
+      Transformer transformer = bridgeTransformers.get(name);
+
+      if (transformer == null && className != null)
+      {
+         transformer = instantiateTransformer(className);
+         addBridgeTransformer(name, transformer);
+      }
+
+      return transformer;
    }
 
    @Override
@@ -169,7 +206,7 @@ public class ServiceRegistryImpl implements ServiceRegistry
    {
       AcceptorFactory factory = acceptorFactories.get(name);
 
-      if (factory == null)
+      if (factory == null && className != null)
       {
          factory = AccessController.doPrivileged(new PrivilegedAction<AcceptorFactory>()
          {
@@ -189,5 +226,48 @@ public class ServiceRegistryImpl implements ServiceRegistry
    public void addAcceptorFactory(String name, AcceptorFactory acceptorFactory)
    {
       acceptorFactories.put(name, acceptorFactory);
+   }
+
+   private Transformer instantiateTransformer(final String className)
+   {
+      Transformer transformer = null;
+
+      if (className != null)
+      {
+         try
+         {
+            transformer = AccessController.doPrivileged(new PrivilegedAction<Transformer>()
+            {
+               public Transformer run()
+               {
+                  return (Transformer) ClassloadingUtil.newInstanceFromClassLoader(className);
+               }
+            });
+         }
+         catch (Exception e)
+         {
+            throw ActiveMQMessageBundle.BUNDLE.errorCreatingTransformerClass(e, className);
+         }
+      }
+      return transformer;
+   }
+
+   private void instantiateInterceptors(List<String> classNames, List<BaseInterceptor> interceptors)
+   {
+      if (classNames != null)
+      {
+         for (final String className : classNames)
+         {
+            BaseInterceptor interceptor = AccessController.doPrivileged(new PrivilegedAction<BaseInterceptor>()
+            {
+               public BaseInterceptor run()
+               {
+                  return (BaseInterceptor) ClassloadingUtil.newInstanceFromClassLoader(className);
+               }
+            });
+
+            interceptors.add(interceptor);
+         }
+      }
    }
 }

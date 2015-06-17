@@ -16,6 +16,28 @@
  */
 package org.apache.activemq.artemis.jms.bridge.impl;
 
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.ActiveMQInterruptedException;
+import org.apache.activemq.artemis.api.core.client.FailoverEventListener;
+import org.apache.activemq.artemis.api.core.client.FailoverEventType;
+import org.apache.activemq.artemis.api.jms.ActiveMQJMSConstants;
+import org.apache.activemq.artemis.jms.bridge.ActiveMQJMSBridgeLogger;
+import org.apache.activemq.artemis.jms.bridge.ConnectionFactoryFactory;
+import org.apache.activemq.artemis.jms.bridge.DestinationFactory;
+import org.apache.activemq.artemis.jms.bridge.JMSBridge;
+import org.apache.activemq.artemis.jms.bridge.JMSBridgeControl;
+import org.apache.activemq.artemis.jms.bridge.QualityOfServiceMode;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnection;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.jms.client.ActiveMQMessage;
+import org.apache.activemq.artemis.jms.server.ActiveMQJMSServerBundle;
+import org.apache.activemq.artemis.service.extensions.ServiceUtils;
+import org.apache.activemq.artemis.service.extensions.xa.recovery.ActiveMQRegistry;
+import org.apache.activemq.artemis.service.extensions.xa.recovery.XARecoveryConfig;
+import org.apache.activemq.artemis.utils.DefaultSensitiveStringCodec;
+import org.apache.activemq.artemis.utils.PasswordMaskingUtil;
+import org.apache.activemq.artemis.utils.SensitiveDataCodec;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
@@ -36,8 +58,6 @@ import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
 import javax.transaction.TransactionRolledbackException;
 import javax.transaction.xa.XAResource;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -48,29 +68,6 @@ import java.util.ServiceLoader;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-
-import org.apache.activemq.artemis.api.core.ActiveMQException;
-import org.apache.activemq.artemis.api.core.ActiveMQInterruptedException;
-import org.apache.activemq.artemis.api.core.client.FailoverEventListener;
-import org.apache.activemq.artemis.api.core.client.FailoverEventType;
-import org.apache.activemq.artemis.api.jms.ActiveMQJMSConstants;
-import org.apache.activemq.artemis.jms.bridge.ActiveMQJMSBridgeLogger;
-import org.apache.activemq.artemis.jms.bridge.ConnectionFactoryFactory;
-import org.apache.activemq.artemis.jms.bridge.DestinationFactory;
-import org.apache.activemq.artemis.jms.bridge.JMSBridge;
-import org.apache.activemq.artemis.jms.bridge.JMSBridgeControl;
-import org.apache.activemq.artemis.jms.bridge.QualityOfServiceMode;
-import org.apache.activemq.artemis.jms.client.ActiveMQConnection;
-import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
-import org.apache.activemq.artemis.jms.client.ActiveMQMessage;
-import org.apache.activemq.artemis.jms.server.ActiveMQJMSServerBundle;
-import org.apache.activemq.artemis.service.extensions.ServiceUtils;
-import org.apache.activemq.artemis.service.extensions.xa.recovery.ActiveMQRegistry;
-import org.apache.activemq.artemis.service.extensions.xa.recovery.XARecoveryConfig;
-import org.apache.activemq.artemis.utils.ClassloadingUtil;
-import org.apache.activemq.artemis.utils.DefaultSensitiveStringCodec;
-import org.apache.activemq.artemis.utils.PasswordMaskingUtil;
-import org.apache.activemq.artemis.utils.SensitiveDataCodec;
 
 public final class JMSBridgeImpl implements JMSBridge
 {
@@ -2266,22 +2263,6 @@ public final class JMSBridgeImpl implements JMSBridge
             ActiveMQJMSBridgeLogger.LOGGER.debug("Recovery Registry located = " + registry);
          }
       }
-   }
-
-   /**
-    * This seems duplicate code all over the place, but for security reasons we can't let something like this to be open in a
-    * utility class, as it would be a door to load anything you like in a safe VM.
-    * For that reason any class trying to do a privileged block should do with the AccessController directly.
-    */
-   private static Object safeInitNewInstance(final String className)
-   {
-      return AccessController.doPrivileged(new PrivilegedAction<Object>()
-      {
-         public Object run()
-         {
-            return ClassloadingUtil.newInstanceFromClassLoader(className);
-         }
-      });
    }
 
    public boolean isUseMaskedPassword()

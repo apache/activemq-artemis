@@ -16,18 +16,15 @@
  */
 package org.apache.activemq.artemis.ra.recovery;
 
-import java.security.AccessController;
-import java.security.PrivilegedAction;
-import java.util.ServiceLoader;
-import java.util.Set;
-
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.ra.ActiveMQRALogger;
 import org.apache.activemq.artemis.service.extensions.xa.recovery.ActiveMQRegistry;
 import org.apache.activemq.artemis.service.extensions.xa.recovery.ActiveMQRegistryImpl;
 import org.apache.activemq.artemis.service.extensions.xa.recovery.XARecoveryConfig;
-import org.apache.activemq.artemis.utils.ClassloadingUtil;
 import org.apache.activemq.artemis.utils.ConcurrentHashSet;
+
+import java.util.ServiceLoader;
+import java.util.Set;
 
 public final class RecoveryManager
 {
@@ -119,21 +116,6 @@ public final class RecoveryManager
       {
          ActiveMQRALogger.LOGGER.debug("Recovery Registry located = " + registry);
       }
-   }
-
-   /** This seems duplicate code all over the place, but for security reasons we can't let something like this to be open in a
-    *  utility class, as it would be a door to load anything you like in a safe VM.
-    *  For that reason any class trying to do a privileged block should do with the AccessController directly.
-    */
-   private static Object safeInitNewInstance(final String className)
-   {
-      return AccessController.doPrivileged(new PrivilegedAction<Object>()
-      {
-         public Object run()
-         {
-            return ClassloadingUtil.newInstanceFromClassLoader(className);
-         }
-      });
    }
 
    public Set<XARecoveryConfig> getResources()
