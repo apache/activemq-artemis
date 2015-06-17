@@ -63,7 +63,11 @@ public interface ServiceRegistry
 
    Transformer getDivertTransformer(String name);
 
+   void addDivertTransformer(String name, Transformer transformer);
+
    Transformer getBridgeTransformer(String name);
+
+   void addBridgeTransformer(String name, Transformer transformer);
 
    AcceptorFactory getAcceptorFactory(String name, String className);
 
