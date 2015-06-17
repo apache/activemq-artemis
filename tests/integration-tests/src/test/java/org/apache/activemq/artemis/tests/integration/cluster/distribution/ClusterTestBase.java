@@ -16,6 +16,22 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.distribution;
 
+import java.io.File;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.BroadcastGroupConfiguration;
@@ -67,21 +83,6 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public abstract class ClusterTestBase extends ActiveMQTestBase
 {
@@ -152,7 +153,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase
 
       for (int i = 0, nodeManagersLength = nodeManagers.length; i < nodeManagersLength; i++)
       {
-         nodeManagers[i] = new InVMNodeManager(isSharedStore(), getJournalDir(i, true));
+         nodeManagers[i] = new InVMNodeManager(isSharedStore(), new File(getJournalDir(i, true)));
       }
 
       locators = new ServerLocator[ClusterTestBase.MAX_SERVERS];
@@ -1717,7 +1718,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase
     * backup case.
     * <br>
     * Use
-    * {@link #setupClusterConnectionWithBackups(String, String, boolean, int, boolean, int, int[])}
+    * {@link #setupClusterConnectionWithBackups(String, String, org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType, int, boolean, int, int[])}
     * to add it.
     *
     * @param node
@@ -2169,11 +2170,6 @@ public abstract class ClusterTestBase extends ActiveMQTestBase
       clusterConfs.add(clusterConf);
    }
 
-   /**
-    * XXX waitForPrevious actually masks what can be considered a bug: that even controlling for
-    * {@link org.apache.activemq.artemis.core.server.ActiveMQServer#waitForInitialization} we still need to wait between starting a shared
-    * store backup and its live.
-    */
    protected void startServers(final int... nodes) throws Exception
    {
       for (int node : nodes)

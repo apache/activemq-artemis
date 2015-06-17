@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.core.paging;
 
+import java.io.File;
 import java.util.Collection;
 import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
 
@@ -53,7 +54,7 @@ public interface PagingStore extends ActiveMQComponent
 
    SimpleString getStoreName();
 
-   String getFolder();
+   File getFolder();
 
    AddressFullMessagePolicy getAddressFullMessagePolicy();
 

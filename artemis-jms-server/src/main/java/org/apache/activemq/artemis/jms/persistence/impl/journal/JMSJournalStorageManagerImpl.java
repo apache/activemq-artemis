@@ -57,8 +57,6 @@ public final class JMSJournalStorageManagerImpl implements JMSStorageManager
 
    private final IDGenerator idGenerator;
 
-   private final String journalDir;
-
    private final boolean createDir;
 
    private final Journal jmsJournal;
@@ -70,6 +68,8 @@ public final class JMSJournalStorageManagerImpl implements JMSStorageManager
    private final Map<Pair<PersistedType, String>, PersistedDestination> destinations = new ConcurrentHashMap<Pair<PersistedType, String>, PersistedDestination>();
 
    private final Map<Pair<PersistedType, String>, PersistedBindings> mapBindings = new ConcurrentHashMap<Pair<PersistedType, String>, PersistedBindings>();
+
+   private final Configuration config;
 
    // Static --------------------------------------------------------
 
@@ -83,17 +83,11 @@ public final class JMSJournalStorageManagerImpl implements JMSStorageManager
          throw new IllegalArgumentException("Only NIO and AsyncIO are supported journals");
       }
 
-      // Will use the same place as the bindings directory from the core journal
-      journalDir = config.getBindingsDirectory();
-
-      if (journalDir == null)
-      {
-         throw new NullPointerException("bindings-dir is null");
-      }
+      this.config = config;
 
       createDir = config.isCreateBindingsDir();
 
-      SequentialFileFactory bindingsJMS = new NIOSequentialFileFactory(journalDir);
+      SequentialFileFactory bindingsJMS = new NIOSequentialFileFactory(config.getJournalLocation());
 
       Journal localJMS = new JournalImpl(1024 * 1024,
                                          2,
@@ -265,7 +259,7 @@ public final class JMSJournalStorageManagerImpl implements JMSStorageManager
    public void start() throws Exception
    {
 
-      checkAndCreateDir(journalDir, createDir);
+      checkAndCreateDir(config.getJournalLocation(), createDir);
 
       jmsJournal.start();
 
@@ -335,15 +329,14 @@ public final class JMSJournalStorageManagerImpl implements JMSStorageManager
    // Private -------------------------------------------------------
 
 
-   private void checkAndCreateDir(final String dir, final boolean create)
+   private void checkAndCreateDir(final File dir, final boolean create)
    {
-      File f = new File(dir);
 
-      if (!f.exists())
+      if (!dir.exists())
       {
          if (create)
          {
-            if (!f.mkdirs())
+            if (!dir.mkdirs())
             {
                throw new IllegalStateException("Failed to create directory " + dir);
             }

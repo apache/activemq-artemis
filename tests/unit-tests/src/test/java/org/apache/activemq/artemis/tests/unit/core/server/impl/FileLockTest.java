@@ -15,16 +15,14 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.unit.core.server.impl;
-import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Before;
-
-import org.junit.Test;
-
 import java.io.File;
 
 import org.apache.activemq.artemis.core.asyncio.impl.AsynchronousFileImpl;
 import org.apache.activemq.artemis.core.server.impl.AIOFileLockNodeManager;
 import org.apache.activemq.artemis.core.server.impl.FileLockNodeManager;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.junit.Before;
+import org.junit.Test;
 
 public class FileLockTest extends ActiveMQTestBase
 {
@@ -42,7 +40,7 @@ public class FileLockTest extends ActiveMQTestBase
    @Test
    public void testNIOLock() throws Exception
    {
-      doTestLock(new FileLockNodeManager(getTestDir(), false), new FileLockNodeManager(getTestDir(), false));
+      doTestLock(new FileLockNodeManager(getTestDirfile(), false), new FileLockNodeManager(getTestDirfile(), false));
 
    }
 
@@ -51,7 +49,7 @@ public class FileLockTest extends ActiveMQTestBase
    {
       if (AsynchronousFileImpl.isLoaded())
       {
-         doTestLock(new AIOFileLockNodeManager(getTestDir(), false), new AIOFileLockNodeManager(getTestDir(), false));
+         doTestLock(new AIOFileLockNodeManager(getTestDirfile(), false), new AIOFileLockNodeManager(getTestDirfile(), false));
       }
 
    }

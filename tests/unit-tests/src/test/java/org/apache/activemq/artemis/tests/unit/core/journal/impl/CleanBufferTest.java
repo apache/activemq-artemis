@@ -16,18 +16,17 @@
  */
 package org.apache.activemq.artemis.tests.unit.core.journal.impl;
 
-import org.apache.activemq.artemis.tests.unit.core.journal.impl.fakes.FakeSequentialFileFactory;
-import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Test;
-
+import java.io.File;
 import java.nio.ByteBuffer;
-
-import org.junit.Assert;
 
 import org.apache.activemq.artemis.core.asyncio.impl.AsynchronousFileImpl;
 import org.apache.activemq.artemis.core.journal.SequentialFileFactory;
 import org.apache.activemq.artemis.core.journal.impl.AIOSequentialFileFactory;
 import org.apache.activemq.artemis.core.journal.impl.NIOSequentialFileFactory;
+import org.apache.activemq.artemis.tests.unit.core.journal.impl.fakes.FakeSequentialFileFactory;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.junit.Assert;
+import org.junit.Test;
 
 public class CleanBufferTest extends ActiveMQTestBase
 {
@@ -45,7 +44,7 @@ public class CleanBufferTest extends ActiveMQTestBase
    @Test
    public void testCleanOnNIO()
    {
-      SequentialFileFactory factory = new NIOSequentialFileFactory("Whatever");
+      SequentialFileFactory factory = new NIOSequentialFileFactory(new File("Whatever"));
 
       testBuffer(factory);
    }
@@ -55,7 +54,7 @@ public class CleanBufferTest extends ActiveMQTestBase
    {
       if (AsynchronousFileImpl.isLoaded())
       {
-         SequentialFileFactory factory = new AIOSequentialFileFactory("Whatever");
+         SequentialFileFactory factory = new AIOSequentialFileFactory(new File("Whatever"));
 
          testBuffer(factory);
       }

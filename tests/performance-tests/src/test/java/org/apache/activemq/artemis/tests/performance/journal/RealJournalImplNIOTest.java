@@ -37,7 +37,7 @@ public class RealJournalImplNIOTest extends JournalImplTestUnit
 
       file.mkdir();
 
-      return new NIOSequentialFileFactory(getTestDir());
+      return new NIOSequentialFileFactory(getTestDirfile());
    }
 
 }

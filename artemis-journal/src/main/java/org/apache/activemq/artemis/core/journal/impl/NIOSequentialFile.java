@@ -51,21 +51,12 @@ public final class NIOSequentialFile extends AbstractSequentialFile
    private int maxIO;
 
    public NIOSequentialFile(final SequentialFileFactory factory,
-                            final String directory,
-                            final String fileName,
+                            final File directory,
+                            final String file,
                             final int maxIO,
                             final Executor writerExecutor)
    {
-      super(directory, new File(directory + "/" + fileName), factory, writerExecutor);
-      defaultMaxIO = maxIO;
-   }
-
-   public NIOSequentialFile(final SequentialFileFactory factory,
-                            final File file,
-                            final int maxIO,
-                            final Executor writerExecutor)
-   {
-      super(file.getParent(), new File(file.getPath()), factory, writerExecutor);
+      super(directory, file, factory, writerExecutor);
       defaultMaxIO = maxIO;
    }
 
@@ -284,7 +275,7 @@ public final class NIOSequentialFile extends AbstractSequentialFile
 
    public SequentialFile cloneFile()
    {
-      return new NIOSequentialFile(factory, getFile(), maxIO, writerExecutor);
+      return new NIOSequentialFile(factory, directory, getFileName(), maxIO, writerExecutor);
    }
 
    public void writeDirect(final ByteBuffer bytes, final boolean sync, final IOAsyncTask callback)

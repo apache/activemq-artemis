@@ -42,7 +42,7 @@ public abstract class DataAbstract extends Configurable
    {
       if (largeMessges == null)
       {
-         largeMessges = getFileConfiguration().getLargeMessagesDirectory();
+         largeMessges = getFileConfiguration().getLargeMessagesLocation().getAbsolutePath();
       }
 
       checkIfDirectoryExists(largeMessges);
@@ -55,7 +55,7 @@ public abstract class DataAbstract extends Configurable
    {
       if (binding == null)
       {
-         binding = getFileConfiguration().getBindingsDirectory();
+         binding = getFileConfiguration().getBindingsLocation().getAbsolutePath();
       }
 
       checkIfDirectoryExists(binding);
@@ -67,7 +67,7 @@ public abstract class DataAbstract extends Configurable
    {
       if (journal == null)
       {
-         journal = getFileConfiguration().getJournalDirectory();
+         journal = getFileConfiguration().getJournalLocation().getAbsolutePath();
       }
 
       checkIfDirectoryExists(journal);
@@ -79,7 +79,7 @@ public abstract class DataAbstract extends Configurable
    {
       if (paging == null)
       {
-         paging = getFileConfiguration().getPagingDirectory();
+         paging = getFileConfiguration().getPagingLocation().getAbsolutePath();
       }
 
       checkIfDirectoryExists(paging);

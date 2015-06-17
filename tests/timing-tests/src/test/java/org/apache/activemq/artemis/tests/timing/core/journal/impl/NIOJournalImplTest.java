@@ -18,7 +18,6 @@ package org.apache.activemq.artemis.tests.timing.core.journal.impl;
 
 import java.io.File;
 
-import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.core.journal.SequentialFileFactory;
 import org.apache.activemq.artemis.core.journal.impl.NIOSequentialFileFactory;
 import org.apache.activemq.artemis.tests.unit.UnitTestLogger;
@@ -27,20 +26,12 @@ public class NIOJournalImplTest extends JournalImplTestUnit
 {
    private static final UnitTestLogger log = UnitTestLogger.LOGGER;
 
-   protected String journalDir = System.getProperty("java.io.tmpdir", "/tmp") + "/journal-test";
-
    @Override
    protected SequentialFileFactory getFileFactory() throws Exception
    {
-      File file = new File(journalDir);
+      File file = new File(getTemporaryDir());
 
-      NIOJournalImplTest.log.debug("deleting directory " + journalDir);
-
-      ActiveMQTestBase.deleteDirectory(file);
-
-      file.mkdir();
-
-      return new NIOSequentialFileFactory(journalDir);
+      return new NIOSequentialFileFactory(file);
    }
 
 }

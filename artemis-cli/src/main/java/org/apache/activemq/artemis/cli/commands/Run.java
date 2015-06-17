@@ -84,10 +84,10 @@ public class Run extends Configurable
 
    private void createDirectories(FileConfiguration fileConfiguration)
    {
-      new File(fileConfiguration.getBindingsDirectory()).mkdirs();
-      new File(fileConfiguration.getJournalDirectory()).mkdirs();
-      new File(fileConfiguration.getPagingDirectory()).mkdirs();
-      new File(fileConfiguration.getLargeMessagesDirectory()).mkdirs();
+      fileConfiguration.getPagingLocation().mkdirs();
+      fileConfiguration.getJournalLocation().mkdirs();
+      fileConfiguration.getBindingsLocation().mkdirs();
+      fileConfiguration.getLargeMessagesLocation().mkdirs();
    }
 
    /**
@@ -137,7 +137,6 @@ public class Run extends Configurable
                {
                   try
                   {
-                     //TODO stop components
                      server.stop();
                   }
                   catch (Exception e)

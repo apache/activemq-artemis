@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.core.config;
 
+import java.io.File;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -435,6 +436,11 @@ public interface Configuration
    String getBindingsDirectory();
 
    /**
+    * The binding location related to artemis.instance.
+    */
+   File getBindingsLocation();
+
+   /**
     * Sets the file system directory used to store bindings.
     */
    Configuration setBindingsDirectory(String dir);
@@ -458,6 +464,12 @@ public interface Configuration
     * Default value is {@link org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration#DEFAULT_JOURNAL_DIR}.
     */
    String getJournalDirectory();
+
+   /**
+    * The location of the journal related to artemis.instance.
+    * @return
+    */
+   File getJournalLocation();
 
    /**
     * Sets the file system directory used to store journal log.
@@ -675,6 +687,12 @@ public interface Configuration
     */
    Configuration setPagingDirectory(String dir);
 
+
+   /**
+    * The paging location related to artemis.instance
+    */
+   File getPagingLocation();
+
    // Large Messages Properties ------------------------------------------------------------
 
    /**
@@ -682,6 +700,9 @@ public interface Configuration
     * Default value is {@link org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration#DEFAULT_LARGE_MESSAGES_DIR}.
     */
    String getLargeMessagesDirectory();
+
+   /** The large message location related to artemis.instance */
+   File getLargeMessagesLocation();
 
    /**
     * Sets the file system directory used to store large messages.
@@ -864,4 +885,15 @@ public interface Configuration
    HAPolicyConfiguration getHAPolicyConfiguration();
 
    Configuration setHAPolicyConfiguration(HAPolicyConfiguration haPolicyConfiguration);
+
+   /**
+    * Set the Artemis instance relative folder for data and stuff.
+    */
+   void setArtemisInstance(File directory);
+
+   /**
+    * Set the Artemis instance relative folder for data and stuff.
+    */
+   File getArtemisInstance();
+
 }

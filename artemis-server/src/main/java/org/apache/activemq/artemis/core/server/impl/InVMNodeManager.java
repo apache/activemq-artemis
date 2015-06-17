@@ -16,11 +16,7 @@
  */
 package org.apache.activemq.artemis.core.server.impl;
 
-import static org.apache.activemq.artemis.core.server.impl.InVMNodeManager.State.LIVE;
-import static org.apache.activemq.artemis.core.server.impl.InVMNodeManager.State.FAILING_BACK;
-import static org.apache.activemq.artemis.core.server.impl.InVMNodeManager.State.NOT_STARTED;
-import static org.apache.activemq.artemis.core.server.impl.InVMNodeManager.State.PAUSED;
-
+import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.Semaphore;
 
@@ -28,6 +24,11 @@ import org.apache.activemq.artemis.api.core.ActiveMQIllegalStateException;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.NodeManager;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
+
+import static org.apache.activemq.artemis.core.server.impl.InVMNodeManager.State.FAILING_BACK;
+import static org.apache.activemq.artemis.core.server.impl.InVMNodeManager.State.LIVE;
+import static org.apache.activemq.artemis.core.server.impl.InVMNodeManager.State.NOT_STARTED;
+import static org.apache.activemq.artemis.core.server.impl.InVMNodeManager.State.PAUSED;
 
 /**
  * NodeManager used to run multiple servers in the same VM.
@@ -59,7 +60,7 @@ public final class InVMNodeManager extends NodeManager
          throw new RuntimeException("if replicated-backup, we need its journal directory");
    }
 
-   public InVMNodeManager(boolean replicatedBackup, String directory)
+   public InVMNodeManager(boolean replicatedBackup, File directory)
    {
       super(replicatedBackup, directory);
       liveLock = new Semaphore(1);

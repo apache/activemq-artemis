@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.integration.journal;
+import java.io.File;
 import java.nio.ByteBuffer;
 
 import org.apache.activemq.artemis.tests.unit.core.journal.impl.SequentialFileFactoryTestBase;
@@ -37,7 +38,7 @@ public class AIOSequentialFileFactoryTest extends SequentialFileFactoryTestBase
    @Override
    protected SequentialFileFactory createFactory(String folder)
    {
-      return new AIOSequentialFileFactory(folder);
+      return new AIOSequentialFileFactory(new File(folder));
    }
 
    @Test

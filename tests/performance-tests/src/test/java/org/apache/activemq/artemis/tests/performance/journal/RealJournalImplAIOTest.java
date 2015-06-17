@@ -51,7 +51,7 @@ public class RealJournalImplAIOTest extends JournalImplTestUnit
 
       file.mkdir();
 
-      return new AIOSequentialFileFactory(getTestDir());
+      return new AIOSequentialFileFactory(getTestDirfile());
    }
 
 }

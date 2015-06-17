@@ -174,7 +174,7 @@ public class ActiveMQBootstrap
          if (nodeManager == null)
          {
             boolean replicatedBackup = configuration.getHAPolicyConfiguration().getType() == HAPolicyConfiguration.TYPE.REPLICA;
-            nodeManager = new InVMNodeManager(replicatedBackup, configuration.getJournalDirectory());
+            nodeManager = new InVMNodeManager(replicatedBackup, configuration.getJournalLocation());
             managerMap.put(nodeId, nodeManager);
          }
          server = new InVMNodeManagerServer(configuration, ManagementFactory.getPlatformMBeanServer(),

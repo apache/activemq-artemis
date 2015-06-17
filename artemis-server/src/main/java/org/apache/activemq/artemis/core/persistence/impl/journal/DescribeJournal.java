@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.core.persistence.impl.journal;
 
 import javax.transaction.xa.Xid;
+import java.io.File;
 import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -105,7 +106,7 @@ public final class DescribeJournal
       return preparedTransactions;
    }
 
-   public static void describeBindingsJournal(final String bindingsDir) throws Exception
+   public static void describeBindingsJournal(final File bindingsDir) throws Exception
    {
 
       SequentialFileFactory bindingsFF = new NIOSequentialFileFactory(bindingsDir, null);
@@ -114,7 +115,7 @@ public final class DescribeJournal
       describeJournal(bindingsFF, bindings, bindingsDir);
    }
 
-   public static DescribeJournal describeMessagesJournal(final String messagesDir) throws Exception
+   public static DescribeJournal describeMessagesJournal(final File messagesDir) throws Exception
    {
 
       SequentialFileFactory messagesFF = new NIOSequentialFileFactory(messagesDir, null);
@@ -139,7 +140,7 @@ public final class DescribeJournal
     * @param journal
     * @throws Exception
     */
-   private static DescribeJournal describeJournal(SequentialFileFactory fileFactory, JournalImpl journal, final String path) throws Exception
+   private static DescribeJournal describeJournal(SequentialFileFactory fileFactory, JournalImpl journal, final File path) throws Exception
    {
       List<JournalFile> files = journal.orderFiles();
 

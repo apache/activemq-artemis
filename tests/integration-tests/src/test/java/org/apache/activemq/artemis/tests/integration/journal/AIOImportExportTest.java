@@ -40,6 +40,6 @@ public class AIOImportExportTest extends NIOImportExportTest
 
       file.mkdir();
 
-      return new AIOSequentialFileFactory(getTestDir());
+      return new AIOSequentialFileFactory(getTestDirfile());
    }
 }

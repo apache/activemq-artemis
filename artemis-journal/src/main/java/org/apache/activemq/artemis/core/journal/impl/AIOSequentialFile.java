@@ -46,14 +46,14 @@ public class AIOSequentialFile extends AbstractSequentialFile implements IOExcep
    public AIOSequentialFile(final SequentialFileFactory factory,
                             final int bufferSize,
                             final long bufferTimeoutMilliseconds,
-                            final String directory,
+                            final File directory,
                             final String fileName,
                             final int maxIO,
                             final BufferCallback bufferCallback,
                             final Executor writerExecutor,
                             final Executor pollerExecutor)
    {
-      super(directory, new File(directory + "/" + fileName), factory, writerExecutor);
+      super(directory, fileName, factory, writerExecutor);
       this.maxIO = maxIO;
       this.bufferCallback = bufferCallback;
       this.pollerExecutor = pollerExecutor;
@@ -85,8 +85,8 @@ public class AIOSequentialFile extends AbstractSequentialFile implements IOExcep
       return new AIOSequentialFile(factory,
                                    -1,
                                    -1,
-                                   getFile().getParent(),
-                                   getFileName(),
+                                   getFile().getParentFile(),
+                                   getFile().getName(),
                                    maxIO,
                                    bufferCallback,
                                    writerExecutor,

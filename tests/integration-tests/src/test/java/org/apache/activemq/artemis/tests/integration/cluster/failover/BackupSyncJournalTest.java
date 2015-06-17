@@ -16,6 +16,14 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
+import java.io.File;
+import java.io.RandomAccessFile;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -39,14 +47,6 @@ import org.apache.activemq.artemis.tests.util.TransportConfigurationUtils;
 import org.apache.activemq.artemis.utils.UUID;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.io.File;
-import java.io.RandomAccessFile;
-import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 public class BackupSyncJournalTest extends FailoverTestBase
 {
@@ -227,9 +227,9 @@ public class BackupSyncJournalTest extends FailoverTestBase
       {
          System.out.println("\n\n BINDINGS JOURNAL\n\n");
          Configuration config = server.getServer().getConfiguration();
-         DescribeJournal.describeBindingsJournal(config.getBindingsDirectory());
+         DescribeJournal.describeBindingsJournal(config.getBindingsLocation());
          System.out.println("\n\n MESSAGES JOURNAL\n\n");
-         DescribeJournal.describeMessagesJournal(config.getJournalDirectory());
+         DescribeJournal.describeMessagesJournal(config.getJournalLocation());
       }
       catch (Exception ignored)
       {

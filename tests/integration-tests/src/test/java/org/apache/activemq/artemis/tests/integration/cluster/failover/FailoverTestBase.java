@@ -16,6 +16,13 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
@@ -40,18 +47,11 @@ import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.core.server.impl.InVMNodeManager;
 import org.apache.activemq.artemis.tests.integration.cluster.util.SameProcessActiveMQServer;
 import org.apache.activemq.artemis.tests.integration.cluster.util.TestableServer;
-import org.apache.activemq.artemis.tests.util.ReplicatedBackupUtils;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.tests.util.ReplicatedBackupUtils;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-
-import java.io.IOException;
-import java.net.ServerSocket;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 public abstract class FailoverTestBase extends ActiveMQTestBase
 {
@@ -213,7 +213,7 @@ public abstract class FailoverTestBase extends ActiveMQTestBase
          .setSecurityEnabled(false);
 
       setupHAPolicyConfiguration();
-      nodeManager = new InVMNodeManager(true, backupConfig.getJournalDirectory());
+      nodeManager = new InVMNodeManager(true, backupConfig.getJournalLocation());
 
       backupServer = createTestableServer(backupConfig);
 

@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.cli.commands.tools;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
+import java.io.File;
 import java.io.OutputStream;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -344,7 +345,7 @@ public final class XmlDataExporter extends DataAbstract implements Action
 
    private void getJmsBindings() throws Exception
    {
-      SequentialFileFactory bindingsJMS = new NIOSequentialFileFactory(config.getBindingsDirectory());
+      SequentialFileFactory bindingsJMS = new NIOSequentialFileFactory(config.getBindingsLocation());
 
       Journal jmsJournal = new JournalImpl(1024 * 1024,
                                            2,
@@ -764,7 +765,7 @@ public final class XmlDataExporter extends DataAbstract implements Action
             }
          };
          PagingStoreFactory pageStoreFactory =
-            new PagingStoreFactoryNIO(storageManager, config.getPagingDirectory(), 1000L, scheduled, executorFactory, true,
+            new PagingStoreFactoryNIO(storageManager, config.getPagingLocation(), 1000L, scheduled, executorFactory, true,
                                       null);
          HierarchicalRepository<AddressSettings> addressSettingsRepository = new HierarchicalObjectRepository<>();
          addressSettingsRepository.setDefault(new AddressSettings());
@@ -780,7 +781,7 @@ public final class XmlDataExporter extends DataAbstract implements Action
 
             if (pageStore != null)
             {
-               String folder = pageStore.getFolder();
+               File folder = pageStore.getFolder();
                ActiveMQServerLogger.LOGGER.debug("Reading page store " + store + " folder = " + folder);
 
                int pageId = (int) pageStore.getFirstPage();

@@ -114,12 +114,12 @@ public class JournalCleanupCompactStressTest extends ActiveMQTestBase
       int maxAIO;
       if (AsynchronousFileImpl.isLoaded())
       {
-         factory = new AIOSequentialFileFactory(dir.getPath());
+         factory = new AIOSequentialFileFactory(dir);
          maxAIO = ActiveMQDefaultConfiguration.getDefaultJournalMaxIoAio();
       }
       else
       {
-         factory = new NIOSequentialFileFactory(dir.getPath(), true);
+         factory = new NIOSequentialFileFactory(dir, true);
          maxAIO = ActiveMQDefaultConfiguration.getDefaultJournalMaxIoNio();
       }
 

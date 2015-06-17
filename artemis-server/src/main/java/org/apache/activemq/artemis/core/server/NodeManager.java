@@ -34,7 +34,7 @@ public abstract class NodeManager implements ActiveMQComponent
    private static final String ACCESS_MODE = "rw";
 
    protected final boolean replicatedBackup;
-   private final String directory;
+   private final File directory;
    private final Object nodeIDGuard = new Object();
    private SimpleString nodeID;
    private UUID uuid;
@@ -42,7 +42,7 @@ public abstract class NodeManager implements ActiveMQComponent
 
    protected FileChannel channel;
 
-   public NodeManager(final boolean replicatedBackup, final String directory)
+   public NodeManager(final boolean replicatedBackup, final File directory)
    {
       this.directory = directory;
       this.replicatedBackup = replicatedBackup;

@@ -124,7 +124,7 @@ public abstract class Configurable extends ActionAbstract
       {
          if (getBrokerInstance() == null)
          {
-            final String defaultLocation = "../data";
+            final String defaultLocation = "./data";
             fileConfiguration = new FileConfiguration();
             // These will be the default places in case the file can't be loaded
             fileConfiguration.setBindingsDirectory(defaultLocation + "/bindings");

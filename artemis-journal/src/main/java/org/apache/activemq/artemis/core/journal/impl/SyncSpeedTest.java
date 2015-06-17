@@ -59,11 +59,11 @@ public class SyncSpeedTest
    {
       if (AIO)
       {
-         fileFactory = new AIOSequentialFileFactory(".", 0, 0, false, null);
+         fileFactory = new AIOSequentialFileFactory(new File("."), 0, 0, false, null);
       }
       else
       {
-         fileFactory = new NIOSequentialFileFactory(".", false, 0, 0, false, null);
+         fileFactory = new NIOSequentialFileFactory(new File("."), false, 0, 0, false, null);
       }
    }
 
@@ -74,7 +74,7 @@ public class SyncSpeedTest
          return new AIOSequentialFile(fileFactory,
                                       0,
                                       0,
-                                      ".",
+                                      new File("."),
                                       fileName,
                                       100000,
                                       null,
@@ -83,7 +83,7 @@ public class SyncSpeedTest
       }
       else
       {
-         return new NIOSequentialFile(fileFactory, new File(fileName), 1000, null);
+         return new NIOSequentialFile(fileFactory, new File("."), fileName, 1000, null);
       }
    }
 

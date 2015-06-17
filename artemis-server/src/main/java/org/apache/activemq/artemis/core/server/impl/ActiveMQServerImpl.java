@@ -353,7 +353,7 @@ public class ActiveMQServerImpl implements ActiveMQServer
    /*
     * Can be overridden for tests
     */
-   protected NodeManager createNodeManager(final String directory, boolean replicatingBackup)
+   protected NodeManager createNodeManager(final File directory, boolean replicatingBackup)
    {
       NodeManager manager;
       if (!configuration.isPersistenceEnabled())
@@ -396,7 +396,7 @@ public class ActiveMQServerImpl implements ActiveMQServer
       {
          checkJournalDirectory();
 
-         nodeManager = createNodeManager(configuration.getJournalDirectory(), false);
+         nodeManager = createNodeManager(configuration.getJournalLocation(), false);
 
          nodeManager.start();
 
@@ -500,7 +500,7 @@ public class ActiveMQServerImpl implements ActiveMQServer
    {
       nodeManager.stop();
       nodeManager =
-            createNodeManager(configuration.getJournalDirectory(), true);
+            createNodeManager(configuration.getJournalLocation(), true);
    }
 
    public Activation getActivation()
@@ -1603,7 +1603,7 @@ public class ActiveMQServerImpl implements ActiveMQServer
    private PagingManager createPagingManager()
    {
 
-      return new PagingManagerImpl(new PagingStoreFactoryNIO(storageManager, configuration.getPagingDirectory(),
+      return new PagingManagerImpl(new PagingStoreFactoryNIO(storageManager, configuration.getPagingLocation(),
                                                              configuration.getJournalBufferTimeout_NIO(),
                                                              scheduledPool,
                                                              executorFactory,
@@ -2240,7 +2240,7 @@ public class ActiveMQServerImpl implements ActiveMQServer
     */
    void checkJournalDirectory()
    {
-      File journalDir = new File(configuration.getJournalDirectory());
+      File journalDir = configuration.getJournalLocation();
 
       if (!journalDir.exists() && configuration.isPersistenceEnabled())
       {

@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.unit.core.paging.impl;
 
+import java.io.File;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
@@ -128,7 +129,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase
    public void testPageWithNIO() throws Exception
    {
       ActiveMQTestBase.recreateDirectory(getTestDir());
-      testConcurrentPaging(new NIOSequentialFileFactory(getTestDir()), 1);
+      testConcurrentPaging(new NIOSequentialFileFactory(new File(getTestDir())), 1);
    }
 
    @Test
@@ -644,7 +645,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase
    public void testRestartPage() throws Throwable
    {
       clearDataRecreateServerDirs();
-      SequentialFileFactory factory = new NIOSequentialFileFactory(getPageDir());
+      SequentialFileFactory factory = new NIOSequentialFileFactory(new File(getPageDir()));
 
       PagingStoreFactory storeFactory = new FakeStoreFactory(factory);
 
@@ -681,7 +682,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase
    public void testOrderOnPaging() throws Throwable
    {
       clearDataRecreateServerDirs();
-      SequentialFileFactory factory = new NIOSequentialFileFactory(getPageDir());
+      SequentialFileFactory factory = new NIOSequentialFileFactory(new File(getPageDir()));
 
       PagingStoreFactory storeFactory = new FakeStoreFactory(factory);
 

@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.core.journal;
 
+import java.io.File;
 import java.nio.ByteBuffer;
 import java.util.List;
 
@@ -71,7 +72,7 @@ public interface SequentialFileFactory
 
    int calculateBlockSize(int bytes);
 
-   String getDirectory();
+   File getDirectory();
 
    void clearBuffer(ByteBuffer buffer);
 

@@ -18,6 +18,8 @@ package org.apache.activemq.artemis.tests.util;
 
 import javax.management.MBeanServer;
 
+import java.io.File;
+
 import org.apache.activemq.artemis.core.asyncio.impl.AsynchronousFileImpl;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.impl.FileConfiguration;
@@ -62,7 +64,7 @@ public class ColocatedActiveMQServer extends ActiveMQServerImpl
 
    @Override
    protected NodeManager
-   createNodeManager(final String directory, boolean replicatingBackup)
+   createNodeManager(final File directory, boolean replicatingBackup)
    {
       if (replicatingBackup)
       {

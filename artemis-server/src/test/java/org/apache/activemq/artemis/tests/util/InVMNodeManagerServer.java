@@ -18,6 +18,8 @@ package org.apache.activemq.artemis.tests.util;
 
 import javax.management.MBeanServer;
 
+import java.io.File;
+
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.NodeManager;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
@@ -65,7 +67,7 @@ public final class InVMNodeManagerServer extends ActiveMQServerImpl
    }
 
    @Override
-   protected NodeManager createNodeManager(final String directory, boolean replicatingBackup)
+   protected NodeManager createNodeManager(final File directory, boolean replicatingBackup)
    {
       return nodeManager;
    }

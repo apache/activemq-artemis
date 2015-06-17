@@ -45,7 +45,7 @@ abstract class AbstractSequentialFileFactory implements SequentialFileFactory
    // Timeout used to wait executors to shutdown
    protected static final int EXECUTOR_TIMEOUT = 60;
 
-   protected final String journalDir;
+   protected final File journalDir;
 
    protected final TimedBuffer timedBuffer;
 
@@ -62,7 +62,7 @@ abstract class AbstractSequentialFileFactory implements SequentialFileFactory
     *  */
    protected ExecutorService writeExecutor;
 
-   AbstractSequentialFileFactory(final String journalDir,
+   AbstractSequentialFileFactory(final File journalDir,
                                         final boolean buffered,
                                         final int bufferSize,
                                         final int bufferTimeout,
@@ -109,7 +109,8 @@ abstract class AbstractSequentialFileFactory implements SequentialFileFactory
       }
    }
 
-   public String getDirectory()
+   @Override
+   public File getDirectory()
    {
       return journalDir;
    }
@@ -175,8 +176,7 @@ abstract class AbstractSequentialFileFactory implements SequentialFileFactory
     */
    public void createDirs() throws Exception
    {
-      File file = new File(journalDir);
-      boolean ok = file.mkdirs();
+      boolean ok = journalDir.mkdirs();
       if (!ok)
       {
          throw new IOException("Failed to create directory " + journalDir);
@@ -185,8 +185,6 @@ abstract class AbstractSequentialFileFactory implements SequentialFileFactory
 
    public List<String> listFiles(final String extension) throws Exception
    {
-      File dir = new File(journalDir);
-
       FilenameFilter fnf = new FilenameFilter()
       {
          public boolean accept(final File file, final String name)
@@ -195,7 +193,7 @@ abstract class AbstractSequentialFileFactory implements SequentialFileFactory
          }
       };
 
-      String[] fileNames = dir.list(fnf);
+      String[] fileNames = journalDir.list(fnf);
 
       if (fileNames == null)
       {

@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,7 +33,7 @@ public class RealNodeManagerTest extends NodeManagerTest
    @Test
    public void testId() throws Exception
    {
-      NodeManager nodeManager = new FileLockNodeManager(getTemporaryDir(), false);
+      NodeManager nodeManager = new FileLockNodeManager(new File(getTemporaryDir()), false);
       nodeManager.start();
       UUID id1 = nodeManager.getUUID();
       nodeManager.stop();

@@ -297,7 +297,7 @@ public class RedeliveryConsumerTest extends ActiveMQTestBase
                                             2,
                                             0,
                                             0,
-                                            new NIOSequentialFileFactory(server.getConfiguration().getJournalDirectory()),
+                                            new NIOSequentialFileFactory(server.getConfiguration().getJournalLocation()),
                                             "activemq-data",
                                             "amq",
                                             1);
