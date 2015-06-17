@@ -140,16 +140,19 @@ public class ServiceRegistryImpl implements ServiceRegistry
       return Collections.unmodifiableCollection(outgoingInterceptors.values());
    }
 
+   @Override
    public void addDivertTransformer(String name, Transformer transformer)
    {
       divertTransformers.put(name, transformer);
    }
 
+   @Override
    public Transformer getDivertTransformer(String name)
    {
       return divertTransformers.get(name);
    }
 
+   @Override
    public void addBridgeTransformer(String name, Transformer transformer)
    {
       bridgeTransformers.put(name, transformer);
