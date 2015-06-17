@@ -20,6 +20,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import io.airlift.airline.Cli;
+import io.airlift.airline.ParseArgumentsMissingException;
 import io.airlift.airline.ParseArgumentsUnexpectedException;
 import org.apache.activemq.artemis.cli.commands.Action;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
@@ -37,7 +38,7 @@ import org.apache.activemq.artemis.cli.commands.tools.XmlDataImporter;
 
 public class Artemis
 {
-
+   @SuppressWarnings("unchecked")
    public static void main(String[] args) throws Exception
    {
       String instance = System.getProperty("artemis.instance");
@@ -47,19 +48,18 @@ public class Artemis
          .withDefaultCommand(HelpAction.class);
 
 
-      builder.withGroup("data").withDescription("data tools group (print|exp|imp|exp|encode|decode) (example ./artemis data print)").
-              withDefaultCommand(HelpData.class).withCommands(PrintData.class, XmlDataExporter.class, XmlDataImporter.class,
-                                                               DecodeJournal.class, EncodeJournal.class);
+      builder.withGroup("data")
+              .withDescription("data tools group (print|exp|imp|exp|encode|decode) (example ./artemis data print)").
+              withDefaultCommand(HelpData.class).withCommands(PrintData.class, XmlDataExporter.class,
+              XmlDataImporter.class,DecodeJournal.class, EncodeJournal.class);
 
       if (instance != null)
       {
-         builder = builder
-            .withCommands(Run.class, Stop.class, Kill.class);
+         builder = builder.withCommands(Run.class, Stop.class, Kill.class);
       }
       else
       {
-         builder = builder
-            .withCommand(Create.class);
+         builder = builder.withCommand(Create.class);
       }
 
       Cli<Action> parser = builder.build();
@@ -67,7 +67,7 @@ public class Artemis
       {
          parser.parse(args).execute(ActionContext.system());
       }
-      catch (ParseArgumentsUnexpectedException e)
+      catch (ParseArgumentsUnexpectedException | ParseArgumentsMissingException e)
       {
          System.err.println(e.getMessage());
          System.out.println();
