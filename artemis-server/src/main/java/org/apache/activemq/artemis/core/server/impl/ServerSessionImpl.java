@@ -589,7 +589,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener
 
       if (ActiveMQServerLogger.LOGGER.isDebugEnabled())
       {
-         ActiveMQServerLogger.LOGGER.debug("Queue " + name + " created on address " + name +
+         ActiveMQServerLogger.LOGGER.debug("Queue " + name + " created on address " + address +
                                              " with filter=" + filterString + " temporary = " +
                                              temporary + " durable=" + durable + " on session user=" + this.username + ", connection=" + this.remotingConnection);
       }
