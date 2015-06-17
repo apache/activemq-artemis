@@ -28,9 +28,20 @@ public class ArtemisTest
    @Test
    public void invalidCliDoesntThrowException()
    {
+      testCli("create");
+   }
+
+   @Test
+   public void invalidPathDoesntThrowException()
+   {
+      testCli("create","/rawr");
+   }
+
+   private void testCli(String... args)
+   {
       try
       {
-         Artemis.main(new String[]{"create"});
+         Artemis.main(args);
       }
       catch (Exception e)
       {
