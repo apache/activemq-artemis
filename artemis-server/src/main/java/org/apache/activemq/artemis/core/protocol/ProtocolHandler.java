@@ -29,8 +29,8 @@ import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPipeline;
 import io.netty.handler.codec.ByteToMessageDecoder;
-import io.netty.handler.codec.http.DefaultFullHttpRequest;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
+import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpRequestDecoder;
@@ -102,9 +102,9 @@ public class ProtocolHandler
       @Override
       public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception
       {
-         if (msg instanceof DefaultFullHttpRequest)
+         if (msg instanceof FullHttpRequest)
          {
-            DefaultFullHttpRequest request = (DefaultFullHttpRequest) msg;
+            FullHttpRequest request = (FullHttpRequest) msg;
             HttpHeaders headers = request.headers();
             String upgrade = headers.get("upgrade");
             if (upgrade != null && upgrade.equalsIgnoreCase("websocket"))
