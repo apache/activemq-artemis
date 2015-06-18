@@ -26,7 +26,6 @@ public class Kill extends Configurable
 {
    @Override
    public Object execute(ActionContext context) throws Exception
-
    {
       super.execute(context);
 
