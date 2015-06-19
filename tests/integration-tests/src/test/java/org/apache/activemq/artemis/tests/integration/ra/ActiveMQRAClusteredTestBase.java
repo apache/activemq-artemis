@@ -83,7 +83,7 @@ public class ActiveMQRAClusteredTestBase extends ActiveMQRATestBase
          .setJournalDirectory(getTestDir() + "/" + directoryPrefix + "Journal/")
          .setBindingsDirectory(getTestDir() + "/" + directoryPrefix + "Bind/")
          .setLargeMessagesDirectory(getTestDir() + "/" + directoryPrefix + "Large/")
-         .setPagingDirectory(getTestDir() + "/" + directoryPrefix + "Page / ")
+         .setPagingDirectory(getTestDir() + "/" + directoryPrefix + "Page/")
          .addConnectorConfiguration(secondaryConnectorName, secondaryConnector)
          .addConnectorConfiguration(primaryConnectorName, primaryConnector)
          .addClusterConfiguration(ActiveMQTestBase.basicClusterConnectionConfig(secondaryConnectorName, primaryConnectorName));
