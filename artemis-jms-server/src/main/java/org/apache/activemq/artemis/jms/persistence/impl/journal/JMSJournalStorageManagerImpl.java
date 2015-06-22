@@ -87,7 +87,7 @@ public final class JMSJournalStorageManagerImpl implements JMSStorageManager
 
       createDir = config.isCreateBindingsDir();
 
-      SequentialFileFactory bindingsJMS = new NIOSequentialFileFactory(config.getJournalLocation());
+      SequentialFileFactory bindingsJMS = new NIOSequentialFileFactory(config.getBindingsLocation());
 
       Journal localJMS = new JournalImpl(1024 * 1024,
                                          2,

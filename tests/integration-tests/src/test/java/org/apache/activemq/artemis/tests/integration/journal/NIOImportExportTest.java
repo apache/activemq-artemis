@@ -16,14 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.journal;
 
-import java.io.File;
-
 import org.apache.activemq.artemis.core.journal.EncodingSupport;
 import org.apache.activemq.artemis.core.journal.SequentialFileFactory;
 import org.apache.activemq.artemis.core.journal.impl.NIOSequentialFileFactory;
 import org.apache.activemq.artemis.tests.unit.core.journal.impl.JournalImplTestBase;
 import org.apache.activemq.artemis.tests.unit.core.journal.impl.fakes.SimpleEncoding;
-import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Test;
 
 public class NIOImportExportTest extends JournalImplTestBase
@@ -35,12 +32,6 @@ public class NIOImportExportTest extends JournalImplTestBase
    @Override
    protected SequentialFileFactory getFileFactory() throws Exception
    {
-      File file = new File(getTestDir());
-
-      ActiveMQTestBase.deleteDirectory(file);
-
-      file.mkdir();
-
       return new NIOSequentialFileFactory(getTestDirfile(), true);
    }
 

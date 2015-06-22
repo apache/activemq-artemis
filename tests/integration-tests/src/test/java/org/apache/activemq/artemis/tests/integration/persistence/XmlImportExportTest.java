@@ -409,7 +409,7 @@ public class XmlImportExportTest extends ActiveMQTestBase
 
       ByteArrayOutputStream xmlOutputStream = new ByteArrayOutputStream();
       XmlDataExporter xmlDataExporter = new XmlDataExporter();
-      xmlDataExporter.process(xmlOutputStream, server.getConfiguration().getBindingsDirectory(), server.getConfiguration().getJournalDirectory(), server.getConfiguration().getPagingDirectory(), server.getConfiguration().getLargeMessagesDirectory());
+      xmlDataExporter.process(xmlOutputStream, server.getConfiguration().getBindingsLocation().getAbsolutePath(), server.getConfiguration().getJournalLocation().getAbsolutePath(), server.getConfiguration().getPagingLocation().getAbsolutePath(), server.getConfiguration().getLargeMessagesLocation().getAbsolutePath());
       System.out.print(new String(xmlOutputStream.toByteArray()));
 
       clearDataRecreateServerDirs();
