@@ -20,6 +20,10 @@ import org.proton.plug.AMQPConnectionContextFactory;
 import org.proton.plug.AMQPConnectionCallback;
 import org.proton.plug.AMQPServerConnectionContext;
 
+import static org.proton.plug.context.AMQPConstants.Connection.DEFAULT_IDLE_TIMEOUT;
+import static org.proton.plug.context.AMQPConstants.Connection.DEFAULT_CHANNEL_MAX;
+import static org.proton.plug.context.AMQPConstants.Connection.DEFAULT_MAX_FRAME_SIZE;
+
 public class ProtonServerConnectionContextFactory extends AMQPConnectionContextFactory
 {
    private static final ProtonServerConnectionContextFactory theInstance = new ProtonServerConnectionContextFactory();
@@ -31,7 +35,15 @@ public class ProtonServerConnectionContextFactory extends AMQPConnectionContextF
 
    public AMQPServerConnectionContext createConnection(AMQPConnectionCallback connectionCallback)
    {
-      ProtonServerConnectionContext connection = new ProtonServerConnectionContext(connectionCallback);
-      return connection;
+      return createConnection(connectionCallback,DEFAULT_IDLE_TIMEOUT, DEFAULT_MAX_FRAME_SIZE, DEFAULT_CHANNEL_MAX);
+   }
+
+   @Override
+   public AMQPServerConnectionContext createConnection(AMQPConnectionCallback connectionCallback, int idleTimeout, int maxFrameSize, int channelMax)
+   {
+      return new ProtonServerConnectionContext(connectionCallback,
+            idleTimeout,
+            maxFrameSize,
+            channelMax);
    }
 }

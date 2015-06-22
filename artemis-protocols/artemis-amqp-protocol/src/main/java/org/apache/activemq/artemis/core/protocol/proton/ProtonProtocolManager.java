@@ -40,6 +40,9 @@ import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.proton.plug.AMQPServerConnectionContext;
 import org.proton.plug.context.server.ProtonServerConnectionContextFactory;
 
+import static org.proton.plug.context.AMQPConstants.Connection.DEFAULT_CHANNEL_MAX;
+import static org.proton.plug.context.AMQPConstants.Connection.DEFAULT_MAX_FRAME_SIZE;
+
 /**
  * A proton protocol manager, basically reads the Proton Input and maps proton resources to ActiveMQ Artemis resources
  */
@@ -93,8 +96,17 @@ public class ProtonProtocolManager implements ProtocolManager<Interceptor>, Noti
    public ConnectionEntry createConnectionEntry(Acceptor acceptorUsed, Connection remotingConnection)
    {
       ActiveMQProtonConnectionCallback connectionCallback = new ActiveMQProtonConnectionCallback(this, remotingConnection);
+      long ttl = ActiveMQClient.DEFAULT_CONNECTION_TTL;
 
-      AMQPServerConnectionContext amqpConnection = ProtonServerConnectionContextFactory.getFactory().createConnection(connectionCallback);
+      if (server.getConfiguration().getConnectionTTLOverride() != -1)
+      {
+         ttl = server.getConfiguration().getConnectionTTLOverride();
+      }
+      AMQPServerConnectionContext amqpConnection = ProtonServerConnectionContextFactory.getFactory().createConnection(
+            connectionCallback,
+            (int) ttl,
+            DEFAULT_MAX_FRAME_SIZE,
+            DEFAULT_CHANNEL_MAX);
 
       Executor executor = server.getExecutorFactory().getExecutor();
 
@@ -103,7 +115,7 @@ public class ProtonProtocolManager implements ProtocolManager<Interceptor>, Noti
       connectionCallback.setProtonConnectionDelegate(delegate);
 
       ConnectionEntry entry = new ConnectionEntry(delegate, executor,
-                                                  System.currentTimeMillis(), ActiveMQClient.DEFAULT_CONNECTION_TTL);
+                                                  System.currentTimeMillis(), ttl);
 
       return entry;
    }

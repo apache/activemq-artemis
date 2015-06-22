@@ -34,9 +34,12 @@ import org.proton.plug.handler.impl.DefaultEventHandler;
 import org.proton.plug.util.ByteUtil;
 import org.proton.plug.util.DebugInfo;
 
+import static org.proton.plug.context.AMQPConstants.Connection.DEFAULT_IDLE_TIMEOUT;
+import static org.proton.plug.context.AMQPConstants.Connection.DEFAULT_CHANNEL_MAX;
+import static org.proton.plug.context.AMQPConstants.Connection.DEFAULT_MAX_FRAME_SIZE;
+
 public abstract class AbstractConnectionContext extends ProtonInitializable implements AMQPConnectionContext
 {
-
 
    protected ProtonHandler handler = ProtonHandler.Factory.create();
 
@@ -48,8 +51,21 @@ public abstract class AbstractConnectionContext extends ProtonInitializable impl
 
    public AbstractConnectionContext(AMQPConnectionCallback connectionCallback)
    {
+      this(connectionCallback, DEFAULT_IDLE_TIMEOUT, DEFAULT_MAX_FRAME_SIZE, DEFAULT_CHANNEL_MAX);
+   }
+
+   public AbstractConnectionContext(AMQPConnectionCallback connectionCallback, int idleTimeout, int maxFrameSize, int channelMax)
+   {
       this.connectionCallback = connectionCallback;
       connectionCallback.setConnection(this);
+      Transport transport = handler.getTransport();
+      if (idleTimeout > 0)
+      {
+         transport.setIdleTimeout(idleTimeout);
+         transport.tick(idleTimeout / 2);
+      }
+      transport.setChannelMax(channelMax);
+      transport.setMaxFrameSize(maxFrameSize);
       handler.addEventHandler(listener);
    }
 

@@ -34,5 +34,9 @@ public class ProtonClientConnectionContextFactory extends AMQPConnectionContextF
       return new ProtonClientConnectionContext(connectionCallback);
    }
 
-
+   @Override
+   public AMQPConnectionContext createConnection(AMQPConnectionCallback connectionCallback, int idleTimeout, int maxFrameSize, int channelMax)
+   {
+      return new ProtonClientConnectionContext(connectionCallback, idleTimeout, maxFrameSize, channelMax);
+   }
 }

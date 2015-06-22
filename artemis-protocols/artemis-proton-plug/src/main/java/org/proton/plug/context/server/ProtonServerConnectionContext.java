@@ -35,6 +35,11 @@ public class ProtonServerConnectionContext extends AbstractConnectionContext imp
       super(connectionSP);
    }
 
+   public ProtonServerConnectionContext(AMQPConnectionCallback connectionSP, int idleTimeout, int maxFrameSize, int channelMax)
+   {
+      super(connectionSP, idleTimeout, maxFrameSize, channelMax);
+   }
+
    protected AbstractProtonSessionContext newSessionExtension(Session realSession) throws ActiveMQAMQPException
    {
       AMQPSessionCallback sessionSPI = connectionCallback.createSessionCallback(this);
