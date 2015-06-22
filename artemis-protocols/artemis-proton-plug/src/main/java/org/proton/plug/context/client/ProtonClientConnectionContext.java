@@ -36,6 +36,11 @@ public class ProtonClientConnectionContext extends AbstractConnectionContext imp
       super(connectionCallback);
    }
 
+   public ProtonClientConnectionContext(AMQPConnectionCallback connectionCallback, int idleTimeout, int maxFrameSize, int channelMax)
+   {
+      super(connectionCallback, idleTimeout, maxFrameSize, channelMax);
+   }
+
    // Maybe a client interface?
    public void clientOpen(ClientSASL sasl) throws Exception
    {
