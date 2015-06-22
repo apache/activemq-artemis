@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.core.server;
 
+import org.apache.activemq.artemis.api.core.BaseInterceptor;
 import org.apache.activemq.artemis.api.core.Interceptor;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.core.config.ConnectorServiceConfiguration;
@@ -23,6 +24,7 @@ import org.apache.activemq.artemis.core.server.cluster.Transformer;
 import org.apache.activemq.artemis.spi.core.remoting.AcceptorFactory;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -43,32 +45,64 @@ public interface ServiceRegistry
 
    void removeConnectorService(ConnectorServiceConfiguration configuration);
 
-   Collection<Pair<ConnectorServiceFactory, ConnectorServiceConfiguration>> getConnectorServices();
+   /**
+    * Get a collection of paired org.apache.activemq.artemis.core.server.ConnectorServiceFactory and
+    * org.apache.activemq.artemis.core.config.ConnectorServiceConfiguration instances.
+    *
+    * @param configs
+    * @return
+    */
+   Collection<Pair<ConnectorServiceFactory, ConnectorServiceConfiguration>> getConnectorServices(List<ConnectorServiceConfiguration> configs);
 
-   void addIncomingInterceptor(String name, Interceptor interceptor);
+   void addIncomingInterceptor(Interceptor interceptor);
 
-   void removeIncomingInterceptor(String name);
+   /**
+    * Get a list of org.apache.activemq.artemis.api.core.BaseInterceptor instances
+    *
+    * @param classNames
+    * @return
+    */
+   List<BaseInterceptor> getIncomingInterceptors(List<String> classNames);
 
-   Collection<Interceptor> getIncomingInterceptors();
+   void addOutgoingInterceptor(Interceptor interceptor);
 
-   Interceptor getIncomingInterceptor(String name);
+   /**
+    * Get a list of org.apache.activemq.artemis.api.core.BaseInterceptor instances
+    *
+    * @param classNames
+    * @return
+    */
+   List<BaseInterceptor> getOutgoingInterceptors(List<String> classNames);
 
-   void addOutgoingInterceptor(String name, Interceptor interceptor);
-
-   Interceptor getOutgoingInterceptor(String name);
-
-   void removeOutgoingInterceptor(String name);
-
-   Collection<Interceptor> getOutgoingInterceptors();
-
-   Transformer getDivertTransformer(String name);
+   /**
+    * Get an instance of org.apache.activemq.artemis.core.server.cluster.Transformer for a divert
+    *
+    * @param name the name of divert for which the transformer will be used
+    * @param className the fully qualified name of the transformer implementation (can be null)
+    * @return
+    */
+   Transformer getDivertTransformer(String name, String className);
 
    void addDivertTransformer(String name, Transformer transformer);
 
-   Transformer getBridgeTransformer(String name);
+   /**
+    * Get an instance of org.apache.activemq.artemis.core.server.cluster.Transformer for a bridge
+    *
+    * @param name the name of bridge for which the transformer will be used
+    * @param className the fully qualified name of the transformer implementation (can be null)
+    * @return
+    */
+   Transformer getBridgeTransformer(String name, String className);
 
    void addBridgeTransformer(String name, Transformer transformer);
 
+   /**
+    * Get an instance of org.apache.activemq.artemis.spi.core.remoting.AcceptorFactory
+    *
+    * @param name the name of acceptor for which the factory will be used
+    * @param className the fully qualified name of the factory implementation (can be null)
+    * @return
+    */
    AcceptorFactory getAcceptorFactory(String name, String className);
 
    void addAcceptorFactory(String name, AcceptorFactory acceptorFactory);

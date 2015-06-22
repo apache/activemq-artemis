@@ -16,22 +16,21 @@
  */
 package org.apache.activemq.artemis.tests.unit.core.remoting.server.impl;
 
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
+import org.apache.activemq.artemis.core.remoting.server.impl.RemotingServiceImpl;
+import org.apache.activemq.artemis.core.server.ServiceRegistry;
+import org.apache.activemq.artemis.core.server.impl.ServiceRegistryImpl;
+import org.apache.activemq.artemis.tests.unit.core.remoting.server.impl.fake.FakeInterceptor;
+import org.junit.Before;
+import org.junit.Test;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-
-import org.apache.activemq.artemis.api.core.Interceptor;
-import org.apache.activemq.artemis.api.core.TransportConfiguration;
-import org.apache.activemq.artemis.core.server.ServiceRegistry;
-import org.apache.activemq.artemis.tests.unit.core.remoting.server.impl.fake.FakeInterceptor;
-import org.apache.activemq.artemis.core.config.Configuration;
-import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
-import org.apache.activemq.artemis.core.remoting.server.impl.RemotingServiceImpl;
-import org.apache.activemq.artemis.core.server.impl.ServiceRegistryImpl;
-import org.junit.Before;
-import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;
 
@@ -53,59 +52,34 @@ public class RemotingServiceImplTest
    }
 
    /**
-    * Tests that the method addReflectivelyInstantiatedInterceptors creates new instances of interceptors and adds
-    * them to the provided list.
-    */
-   @Test
-   public void testAddReflectivelyInstantiatedInterceptorsAddsNewInstancesToList() throws Exception
-   {
-      Method method = RemotingServiceImpl.class.getDeclaredMethod("addReflectivelyInstantiatedInterceptors",
-                                                                  List.class,
-                                                                  List.class);
-      method.setAccessible(true);
-      List<String> interceptorClassNames = new ArrayList<String>();
-      for (int i = 0; i < 5; i++)
-      {
-         interceptorClassNames.add(FakeInterceptor.class.getCanonicalName());
-      }
-      List<Interceptor> interceptors = new ArrayList<Interceptor>();
-      method.invoke(remotingService, interceptorClassNames, interceptors);
-
-      assertTrue(interceptors.size() == 5);
-      assertTrue(interceptors.get(0) instanceof FakeInterceptor);
-      assertTrue(interceptors.get(0) != interceptors.get(1));
-   }
-
-   /**
     * Tests ensures that setInterceptors methods adds both interceptors from the service registry and also interceptors
     * defined in the configuration.
     */
    @Test
    public void testSetInterceptorsAddsBothInterceptorsFromConfigAndServiceRegistry() throws Exception
    {
-      Method method = RemotingServiceImpl.class.getDeclaredMethod("setInterceptors",
-                                                                  Configuration.class);
+      Method setInterceptors = RemotingServiceImpl.class.getDeclaredMethod("setInterceptors", Configuration.class);
       Field incomingInterceptors = RemotingServiceImpl.class.getDeclaredField("incomingInterceptors");
       Field outgoingInterceptors = RemotingServiceImpl.class.getDeclaredField("outgoingInterceptors");
 
-      method.setAccessible(true);
+      setInterceptors.setAccessible(true);
       incomingInterceptors.setAccessible(true);
       outgoingInterceptors.setAccessible(true);
 
-      serviceRegistry.addIncomingInterceptor("Foo", new FakeInterceptor());
-      serviceRegistry.addOutgoingInterceptor("Bar", new FakeInterceptor());
+      serviceRegistry.addIncomingInterceptor(new FakeInterceptor());
+      serviceRegistry.addOutgoingInterceptor(new FakeInterceptor());
 
-      List<String> interceptorClassNames = new ArrayList<String>();
+      List<String> interceptorClassNames = new ArrayList<>();
       interceptorClassNames.add(FakeInterceptor.class.getCanonicalName());
       configuration.setIncomingInterceptorClassNames(interceptorClassNames);
       configuration.setOutgoingInterceptorClassNames(interceptorClassNames);
 
-      method.invoke(remotingService, configuration);
+      setInterceptors.invoke(remotingService, configuration);
 
       assertTrue(((List) incomingInterceptors.get(remotingService)).size() == 2 );
       assertTrue(((List) outgoingInterceptors.get(remotingService)).size() == 2 );
-      assertTrue(((List) incomingInterceptors.get(remotingService)).contains(serviceRegistry.getIncomingInterceptor("Foo")));
-      assertTrue(((List) outgoingInterceptors.get(remotingService)).contains(serviceRegistry.getOutgoingInterceptor("Bar")));
+      assertTrue(((List) incomingInterceptors.get(remotingService)).contains(serviceRegistry.getIncomingInterceptors(null).get(0)));
+      assertTrue(((List) outgoingInterceptors.get(remotingService)).contains(serviceRegistry.getOutgoingInterceptors(null).get(0)));
    }
 
    /**
@@ -115,19 +89,16 @@ public class RemotingServiceImplTest
    @Test
    public void testInterceptorsAreAddedOnCreationOfServiceRegistry() throws Exception
    {
-      Method method = RemotingServiceImpl.class.getDeclaredMethod("setInterceptors",
-                                                                  Configuration.class);
       Field incomingInterceptors = RemotingServiceImpl.class.getDeclaredField("incomingInterceptors");
       Field outgoingInterceptors = RemotingServiceImpl.class.getDeclaredField("outgoingInterceptors");
 
-      method.setAccessible(true);
       incomingInterceptors.setAccessible(true);
       outgoingInterceptors.setAccessible(true);
 
-      serviceRegistry.addIncomingInterceptor("Foo", new FakeInterceptor());
-      serviceRegistry.addOutgoingInterceptor("Bar", new FakeInterceptor());
+      serviceRegistry.addIncomingInterceptor(new FakeInterceptor());
+      serviceRegistry.addOutgoingInterceptor(new FakeInterceptor());
 
-      List<String> interceptorClassNames = new ArrayList<String>();
+      List<String> interceptorClassNames = new ArrayList<>();
       interceptorClassNames.add(FakeInterceptor.class.getCanonicalName());
       configuration.setIncomingInterceptorClassNames(interceptorClassNames);
       configuration.setOutgoingInterceptorClassNames(interceptorClassNames);
@@ -136,7 +107,7 @@ public class RemotingServiceImplTest
 
       assertTrue(((List) incomingInterceptors.get(remotingService)).size() == 2 );
       assertTrue(((List) outgoingInterceptors.get(remotingService)).size() == 2 );
-      assertTrue(((List) incomingInterceptors.get(remotingService)).contains(serviceRegistry.getIncomingInterceptor("Foo")));
-      assertTrue(((List) outgoingInterceptors.get(remotingService)).contains(serviceRegistry.getOutgoingInterceptor("Bar")));
+      assertTrue(((List) incomingInterceptors.get(remotingService)).contains(serviceRegistry.getIncomingInterceptors(null).get(0)));
+      assertTrue(((List) outgoingInterceptors.get(remotingService)).contains(serviceRegistry.getOutgoingInterceptors(null).get(0)));
    }
 }

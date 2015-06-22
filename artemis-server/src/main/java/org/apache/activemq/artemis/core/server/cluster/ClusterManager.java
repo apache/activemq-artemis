@@ -16,18 +16,6 @@
  */
 package org.apache.activemq.artemis.core.server.cluster;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.Executor;
-import java.util.concurrent.ScheduledExecutorService;
-
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.BroadcastGroupConfiguration;
@@ -49,7 +37,6 @@ import org.apache.activemq.artemis.core.protocol.core.Packet;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ActiveMQExceptionMessage;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
-import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.NodeManager;
@@ -66,6 +53,18 @@ import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
 import org.apache.activemq.artemis.utils.ConcurrentHashSet;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.FutureLatch;
+
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ScheduledExecutorService;
 
 /**
  * A ClusterManager manages {@link ClusterConnection}s, {@link BroadcastGroup}s and {@link Bridge}s.
@@ -458,12 +457,7 @@ public final class ClusterManager implements ActiveMQComponent
          return;
       }
 
-      Transformer transformer = server.getServiceRegistry().getBridgeTransformer(config.getName());
-
-      if (transformer == null)
-      {
-         transformer = instantiateTransformer(config.getTransformerClassName());
-      }
+      Transformer transformer = server.getServiceRegistry().getBridgeTransformer(config.getName(), config.getTransformerClassName());
 
       Binding binding = postOffice.getBinding(new SimpleString(config.getQueueName()));
 
@@ -814,26 +808,6 @@ public final class ClusterManager implements ActiveMQComponent
       {
          ActiveMQServerLogger.LOGGER.trace("ClusterConnection.start at " + clusterConnection, new Exception("trace"));
       }
-   }
-
-   private Transformer instantiateTransformer(final String transformerClassName)
-   {
-      Transformer transformer = null;
-
-      if (transformerClassName != null)
-      {
-         ClassLoader loader = Thread.currentThread().getContextClassLoader();
-         try
-         {
-            Class<?> clz = loader.loadClass(transformerClassName);
-            transformer = (Transformer) clz.newInstance();
-         }
-         catch (Exception e)
-         {
-            throw ActiveMQMessageBundle.BUNDLE.errorCreatingTransformerClass(e, transformerClassName);
-         }
-      }
-      return transformer;
    }
 
 
