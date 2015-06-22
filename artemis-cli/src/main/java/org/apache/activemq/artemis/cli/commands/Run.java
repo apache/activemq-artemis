@@ -34,12 +34,27 @@ import org.apache.activemq.artemis.factory.SecurityManagerFactory;
 import org.apache.activemq.artemis.integration.Broker;
 import org.apache.activemq.artemis.integration.bootstrap.ActiveMQBootstrapLogger;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
+import org.apache.activemq.artemis.utils.ReusableLatch;
 
 @Command(name = "run", description = "runs the broker instance")
 public class Run extends Configurable
 {
    @Option(name = "--allow-kill", description = "This will allow the server to kill itself. Useful for tests (failover tests for instance)")
    boolean allowKill;
+
+   static boolean embedded = false;
+
+   public static final ReusableLatch latchRunning = new ReusableLatch(0);
+
+   /**
+    * This will disable the System.exit at the end of the server.stop, as that means there are other things
+    * happening on the same VM.
+    * @param embedded
+    */
+   public static void setEmbedded(boolean embedded)
+   {
+      Run.embedded = true;
+   }
 
    private Broker server;
 
@@ -96,6 +111,8 @@ public class Run extends Configurable
     */
    private void addShutdownHook(File configurationDir)
    {
+
+      latchRunning.countUp();
       final File file = new File(configurationDir,"STOP_ME");
       if (file.exists())
       {
@@ -147,7 +164,11 @@ public class Run extends Configurable
                }
                finally
                {
-                  Runtime.getRuntime().exit(0);
+                  latchRunning.countDown();
+                  if (!embedded)
+                  {
+                     Runtime.getRuntime().exit(0);
+                  }
                }
             }
          }
