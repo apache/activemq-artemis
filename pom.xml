@@ -463,7 +463,6 @@
             <module>artemis-boot</module>
             <module>artemis-dto</module>
             <module>artemis-web</module>
-            <module>artemis-website</module>
             <module>artemis-cli</module>
             <module>artemis-commons</module>
             <module>artemis-selector</module>
