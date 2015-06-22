@@ -2000,7 +2000,7 @@ public abstract class ActiveMQTestBase extends Assert
       }
       else
       {
-         ff = new NIOSequentialFileFactory(config.getJournalLocation(), null);
+         ff = new NIOSequentialFileFactory(config.getBindingsLocation(), null);
          journal = new JournalImpl(1024 * 1024,
                                    2,
                                    config.getJournalCompactMinFiles(),
