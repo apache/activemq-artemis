@@ -16,8 +16,10 @@
  */
 package org.apache.activemq.artemis.core.remoting.server;
 
+import java.util.List;
 import java.util.Set;
 
+import org.apache.activemq.artemis.api.core.BaseInterceptor;
 import org.apache.activemq.artemis.api.core.Interceptor;
 import org.apache.activemq.artemis.core.protocol.core.CoreRemotingConnection;
 import org.apache.activemq.artemis.core.security.ActiveMQPrincipal;
@@ -43,7 +45,11 @@ public interface RemotingService
 
    void addIncomingInterceptor(Interceptor interceptor);
 
+   List<BaseInterceptor> getIncomingInterceptors();
+
    void addOutgoingInterceptor(Interceptor interceptor);
+
+   List<BaseInterceptor> getOutgoinInterceptors();
 
    boolean removeIncomingInterceptor(Interceptor interceptor);
 

@@ -16,6 +16,26 @@
  */
 package org.apache.activemq.artemis.core.remoting.server.impl;
 
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.ServiceLoader;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQInterruptedException;
@@ -50,25 +70,6 @@ import org.apache.activemq.artemis.spi.core.remoting.ConnectionLifeCycleListener
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.ConfigurationHelper;
 import org.apache.activemq.artemis.utils.ReusableLatch;
-
-import java.security.AccessController;
-import java.security.PrivilegedAction;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.ServiceLoader;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Executor;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.TimeUnit;
 
 public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycleListener
 {
@@ -612,6 +613,12 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
    }
 
    @Override
+   public List<BaseInterceptor> getIncomingInterceptors()
+   {
+      return Collections.unmodifiableList(incomingInterceptors);
+   }
+
+   @Override
    public boolean removeIncomingInterceptor(final Interceptor interceptor)
    {
       if (incomingInterceptors.remove(interceptor))
@@ -630,6 +637,12 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
    {
       outgoingInterceptors.add(interceptor);
       updateProtocols();
+   }
+
+   @Override
+   public List<BaseInterceptor> getOutgoinInterceptors()
+   {
+      return Collections.unmodifiableList(outgoingInterceptors);
    }
 
    @Override

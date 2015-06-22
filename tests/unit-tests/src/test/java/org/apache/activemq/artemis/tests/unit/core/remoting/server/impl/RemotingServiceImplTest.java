@@ -22,14 +22,13 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
-import org.apache.activemq.artemis.api.core.Interceptor;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
-import org.apache.activemq.artemis.core.server.ServiceRegistry;
-import org.apache.activemq.artemis.tests.unit.core.remoting.server.impl.fake.FakeInterceptor;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.artemis.core.remoting.server.impl.RemotingServiceImpl;
+import org.apache.activemq.artemis.core.server.ServiceRegistry;
 import org.apache.activemq.artemis.core.server.impl.ServiceRegistryImpl;
+import org.apache.activemq.artemis.tests.unit.core.remoting.server.impl.fake.FakeInterceptor;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -53,27 +52,21 @@ public class RemotingServiceImplTest
    }
 
    /**
-    * Tests that the method addReflectivelyInstantiatedInterceptors creates new instances of interceptors and adds
-    * them to the provided list.
+    * Tests that the service registry gets propaged into remotingService.
     */
    @Test
-   public void testAddReflectivelyInstantiatedInterceptorsAddsNewInstancesToList() throws Exception
+   public void testPropagatingInterceptors() throws Exception
    {
-      Method method = RemotingServiceImpl.class.getDeclaredMethod("addReflectivelyInstantiatedInterceptors",
-                                                                  List.class,
-                                                                  List.class);
-      method.setAccessible(true);
-      List<String> interceptorClassNames = new ArrayList<String>();
       for (int i = 0; i < 5; i++)
       {
-         interceptorClassNames.add(FakeInterceptor.class.getCanonicalName());
+         serviceRegistry.addIncomingInterceptor(new FakeInterceptor());
       }
-      List<Interceptor> interceptors = new ArrayList<Interceptor>();
-      method.invoke(remotingService, interceptorClassNames, interceptors);
 
-      assertTrue(interceptors.size() == 5);
-      assertTrue(interceptors.get(0) instanceof FakeInterceptor);
-      assertTrue(interceptors.get(0) != interceptors.get(1));
+      remotingService = new RemotingServiceImpl(null, configuration, null, null, null, null, null, serviceRegistry);
+
+      assertTrue(remotingService.getIncomingInterceptors().size() == 5);
+      assertTrue(remotingService.getIncomingInterceptors().get(0) instanceof FakeInterceptor);
+      assertTrue(remotingService.getIncomingInterceptors().get(0) != remotingService.getIncomingInterceptors().get(1));
    }
 
    /**
