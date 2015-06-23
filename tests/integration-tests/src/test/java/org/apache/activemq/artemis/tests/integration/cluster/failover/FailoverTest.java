@@ -1185,7 +1185,7 @@ public class FailoverTest extends FailoverTestBase
       }
       catch (XAException e)
       {
-         Assert.assertEquals(XAException.XA_RBOTHER, e.errorCode);
+         Assert.assertEquals(XAException.XAER_RMFAIL, e.errorCode);
       }
 
       ClientConsumer consumer = session.createConsumer(FailoverTestBase.ADDRESS);
@@ -1268,7 +1268,7 @@ public class FailoverTest extends FailoverTestBase
       }
       catch (XAException e)
       {
-         Assert.assertEquals(XAException.XA_RBOTHER, e.errorCode);
+         Assert.assertEquals(XAException.XAER_RMFAIL, e.errorCode);
          // XXXX  session.rollback();
       }
 
@@ -1405,7 +1405,7 @@ public class FailoverTest extends FailoverTestBase
       }
       catch (XAException e)
       {
-         Assert.assertEquals(XAException.XA_RBOTHER, e.errorCode);
+         Assert.assertEquals(XAException.XAER_RMFAIL, e.errorCode);
       }
    }
 
@@ -1491,7 +1491,7 @@ public class FailoverTest extends FailoverTestBase
       }
       catch (XAException e)
       {
-         Assert.assertEquals(XAException.XA_RBOTHER, e.errorCode);
+         Assert.assertEquals(XAException.XAER_RMFAIL, e.errorCode);
       }
    }
 
