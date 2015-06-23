@@ -1242,7 +1242,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
             {
                ActiveMQClientLogger.LOGGER.debug("Error on rollback during end call!", ignored);
             }
-            throw new XAException(XAException.XA_RBOTHER);
+            throw new XAException(XAException.XAER_RMFAIL);
          }
 
          try
@@ -1393,7 +1393,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
 
       if (rollbackOnly)
       {
-         throw new XAException(XAException.XA_RBOTHER);
+         throw new XAException(XAException.XAER_RMFAIL);
       }
 
       // Note - don't need to flush acks since the previous end would have
@@ -1437,7 +1437,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
 
             ActiveMQClientLogger.LOGGER.errorDuringPrepare(e);
 
-            throw new XAException(XAException.XA_RBOTHER);
+            throw new XAException(XAException.XAER_RMFAIL);
          }
 
          ActiveMQClientLogger.LOGGER.errorDuringPrepare(e);
