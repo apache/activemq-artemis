@@ -258,8 +258,7 @@ public final class JMSJournalStorageManagerImpl implements JMSStorageManager
    @Override
    public void start() throws Exception
    {
-
-      checkAndCreateDir(config.getJournalLocation(), createDir);
+      checkAndCreateDir(config.getBindingsLocation(), createDir);
 
       jmsJournal.start();
 
