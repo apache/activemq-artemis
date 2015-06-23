@@ -21,11 +21,19 @@ import org.apache.activemq.artemis.core.postoffice.DuplicateIDCache;
 import org.apache.activemq.artemis.core.postoffice.impl.DuplicateIDCacheImpl;
 import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 
 public class DuplicateCacheTest extends StorageManagerTestBase
 {
+
+   @After
+   @Override
+   public void tearDown() throws Exception
+   {
+      super.tearDown();
+   }
 
    @Test
    public void testDuplicate() throws Exception
