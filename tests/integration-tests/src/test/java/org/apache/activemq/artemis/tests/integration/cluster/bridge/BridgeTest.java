@@ -239,7 +239,7 @@ public class BridgeTest extends ActiveMQTestBase
 
          if (largeMessage)
          {
-            message.setBodyInputStream(ActiveMQTestBase.createFakeLargeStream(1024 * 1024));
+            message.setBodyInputStream(ActiveMQTestBase.createFakeLargeStream(10 * 1024));
          }
 
          message.putIntProperty(propKey, i);
@@ -259,7 +259,7 @@ public class BridgeTest extends ActiveMQTestBase
 
          if (largeMessage)
          {
-            readMessages(message);
+            readLargeMessages(message, 10);
          }
 
          message.acknowledge();
@@ -362,13 +362,13 @@ public class BridgeTest extends ActiveMQTestBase
          .setName("bridge1")
          .setQueueName(queueName0)
          .setForwardingAddress(forwardAddress)
-         .setRetryInterval(1000)
+         .setRetryInterval(100)
          .setReconnectAttempts(-1)
          .setReconnectAttemptsOnSameNode(-1)
          .setUseDuplicateDetection(false)
          .setConfirmationWindowSize(numMessages * messageSize / 2)
          .setStaticConnectors(connectorConfig)
-         .setCallTimeout(5000);
+         .setCallTimeout(500);
 
       List<BridgeConfiguration> bridgeConfigs = new ArrayList<BridgeConfiguration>();
       bridgeConfigs.add(bridgeConfiguration);
@@ -418,7 +418,7 @@ public class BridgeTest extends ActiveMQTestBase
 
          if (largeMessage)
          {
-            message.setBodyInputStream(ActiveMQTestBase.createFakeLargeStream(1024 * 1024));
+            message.setBodyInputStream(ActiveMQTestBase.createFakeLargeStream(10 * 1024));
          }
 
          message.putIntProperty(propKey, i);
@@ -443,7 +443,7 @@ public class BridgeTest extends ActiveMQTestBase
 
          if (largeMessage)
          {
-            readMessages(message);
+            readLargeMessages(message, 10);
          }
 
          message.acknowledge();
@@ -480,11 +480,11 @@ public class BridgeTest extends ActiveMQTestBase
    /**
     * @param message
     */
-   private void readMessages(final ClientMessage message)
+   private void readLargeMessages(final ClientMessage message, int kiloBlocks)
    {
       byte[] byteRead = new byte[1024];
 
-      for (int j = 0; j < 1024; j++)
+      for (int j = 0; j < kiloBlocks; j++)
       {
          message.getBodyBuffer().readBytes(byteRead);
       }
@@ -603,7 +603,7 @@ public class BridgeTest extends ActiveMQTestBase
 
          if (largeMessage)
          {
-            message.setBodyInputStream(ActiveMQTestBase.createFakeLargeStream(1024 * 1024));
+            message.setBodyInputStream(ActiveMQTestBase.createFakeLargeStream(10 * 1024));
          }
 
          producer0.send(message);
@@ -621,7 +621,7 @@ public class BridgeTest extends ActiveMQTestBase
 
          if (largeMessage)
          {
-            message.setBodyInputStream(ActiveMQTestBase.createFakeLargeStream(1024 * 1024));
+            message.setBodyInputStream(ActiveMQTestBase.createFakeLargeStream(10 * 1024));
          }
 
          producer0.send(message);
@@ -641,7 +641,7 @@ public class BridgeTest extends ActiveMQTestBase
 
          if (largeMessage)
          {
-            readMessages(message);
+            readLargeMessages(message, 10);
          }
       }
 
@@ -1333,9 +1333,9 @@ public class BridgeTest extends ActiveMQTestBase
       ActiveMQServer server0 = null;
       ActiveMQServer server1 = null;
 
-      final int PAGE_MAX = 100 * 1024;
+      final int PAGE_MAX = 10 * 1024;
 
-      final int PAGE_SIZE = 10 * 1024;
+      final int PAGE_SIZE = 1 * 1024;
       try
       {
 
@@ -1345,6 +1345,7 @@ public class BridgeTest extends ActiveMQTestBase
          Map<String, Object> server1Params = new HashMap<String, Object>();
          addTargetParameters(server1Params);
          server1 = createClusteredServerWithParams(isNetty(), 1, true, PAGE_SIZE, PAGE_MAX, server1Params);
+         server1.getConfiguration().setJournalBufferTimeout_AIO(0).setJournalBufferTimeout_NIO(0);
 
          final String testAddress = "testAddress";
          final String queueName0 = "queue0";
@@ -1359,7 +1360,7 @@ public class BridgeTest extends ActiveMQTestBase
 
          server0.getConfiguration().setConnectorConfigurations(connectors);
 
-         server0.getConfiguration().setIDCacheSize(20000);
+         server0.getConfiguration().setIDCacheSize(20000).setJournalBufferTimeout_NIO(0).setJournalBufferTimeout_AIO(0);
 
          ArrayList<String> staticConnectors = new ArrayList<String>();
          staticConnectors.add(server1tc.getName());
@@ -1420,7 +1421,7 @@ public class BridgeTest extends ActiveMQTestBase
 
          session1.start();
 
-         final int numMessages = 6000;
+         final int numMessages = 200;
 
          final SimpleString propKey = new SimpleString("testkey");
 
@@ -1570,11 +1571,7 @@ public class BridgeTest extends ActiveMQTestBase
       public synchronized boolean intercept(Packet packet, RemotingConnection connection) throws ActiveMQException
       {
 
-         if (packet instanceof SessionSendMessage && count == 1000)
-         {
-            System.out.println("Going to kill the server");
-         }
-         if (packet instanceof SessionSendMessage && ++count == 5000)
+         if (packet instanceof SessionSendMessage && ++count == 100)
          {
             try
             {

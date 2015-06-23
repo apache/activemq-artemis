@@ -89,6 +89,7 @@ public class PagingLeakTest extends ActiveMQTestBase
       )
    public void testValidateLeak() throws Throwable
    {
+      System.out.println("location::" + getBindingsDir());
 
       List<PagePositionImpl> positions = new ArrayList<PagePositionImpl>();
 
@@ -121,13 +122,15 @@ public class PagingLeakTest extends ActiveMQTestBase
       // A backup that will be waiting to be activated
       Configuration config = createDefaultNettyConfig();
 
+      config.setJournalBufferTimeout_AIO(0).setJournalBufferTimeout_NIO(0);
+
       final ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(config, true));
 
       server.start();
 
       AddressSettings settings = new AddressSettings()
-              .setPageSizeBytes(20 * 1024)
-              .setMaxSizeBytes(200 * 1024)
+              .setPageSizeBytes(2 * 1024)
+              .setMaxSizeBytes(20 * 1024)
               .setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE);
 
       server.getAddressSettingsRepository().addMatch("#", settings);
@@ -199,9 +202,9 @@ public class PagingLeakTest extends ActiveMQTestBase
       }
 
 
-      int numberOfMessages = 10000;
+      int numberOfMessages = 500;
 
-      Consumer consumer1 = new Consumer(100, "-1", 150);
+      Consumer consumer1 = new Consumer(10, "-1", 150);
       Consumer consumer2 = new Consumer(0, "-2", numberOfMessages);
 
       final ServerLocator locator = createInVMLocator(0);
@@ -219,20 +222,21 @@ public class PagingLeakTest extends ActiveMQTestBase
          msg.getBodyBuffer().writeBytes(b);
          producer.send(msg);
 
-         if (i == 1000)
+         if (i == 100)
          {
             System.out.println("Starting consumers!!!");
             consumer1.start();
             consumer2.start();
          }
 
-         if (i % 1000 == 0)
+         if (i % 250 == 0)
          {
             validateInstances();
          }
 
       }
 
+      System.out.println("Sent " + numberOfMessages);
 
       consumer1.join();
       consumer2.join();
