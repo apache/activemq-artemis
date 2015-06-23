@@ -1894,7 +1894,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase
       Thread compactorThread = new Thread(compressRunnable);
       compactorThread.start();
 
-      Thread.sleep(10000);
+      Thread.sleep(1000);
 
       running.set(false);
 
