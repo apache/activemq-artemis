@@ -1928,14 +1928,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
       clearIO();
 
-      try
-      {
-         server.stop(true);
-      }
-      finally
-      {
-         blockOnIO();
-      }
+      server.stop(true);
    }
 
    @Override
