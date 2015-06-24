@@ -923,7 +923,7 @@ final class PageSubscriptionImpl implements PageSubscription
       {
          // This could become null if the page file was deleted, or if the queue was removed maybe?
          // it's better to diagnose it (based on support tickets) instead of NPE
-         ActiveMQServerLogger.LOGGER.warn("PageCursorInfo == null on address " + this.getPagingStore().getAddress() + ", pos = " + pos + ", queue = " + cursorId);
+         ActiveMQServerLogger.LOGGER.nullPageCursorInfo(this.getPagingStore().getAddress().toString(), pos.toString(), cursorId);
       }
       else
       {

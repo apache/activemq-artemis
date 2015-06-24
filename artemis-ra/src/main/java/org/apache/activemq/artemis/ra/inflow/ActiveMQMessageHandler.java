@@ -228,7 +228,7 @@ public class ActiveMQMessageHandler implements MessageHandler
       }
       catch (Throwable e)
       {
-         ActiveMQRALogger.LOGGER.warn("Error interrupting handler on endpoint " + endpoint + " handler=" + consumer);
+         ActiveMQRALogger.LOGGER.errorInterruptingHandler(endpoint.toString(), consumer.toString(), e);
       }
       return null;
    }

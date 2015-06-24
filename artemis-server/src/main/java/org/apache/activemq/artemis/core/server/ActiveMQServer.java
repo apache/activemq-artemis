@@ -248,7 +248,7 @@ public interface ActiveMQServer extends ActiveMQComponent
 
    ServerSession getSessionByID(String sessionID);
 
-   void threadDump(String reason);
+   void threadDump();
 
    /**
     * return true if there is a binding for this address (i.e. if there is a created queue)

@@ -2765,8 +2765,7 @@ public class JournalStorageManager implements StorageManager
                      long messageID = buff.readLong();
                      if (!pendingLargeMessages.remove(new Pair<Long, Long>(recordDeleted.id, messageID)))
                      {
-                        // TODO: Logging
-                        ActiveMQServerLogger.LOGGER.warn("Large message " + recordDeleted.id + " wasn't found when dealing with add pending large message");
+                        ActiveMQServerLogger.LOGGER.largeMessageNotFound(recordDeleted.id);
                      }
                      installLargeMessageConfirmationOnTX(tx, recordDeleted.id);
                      break;

@@ -95,6 +95,12 @@ public interface ActiveMQJMSServerLogger extends BasicLogger
             format = Message.Format.MESSAGE_FORMAT)
    void failedToCorrectHost(@Cause Exception e, String name);
 
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 122018,
+           value = "Failed to send notification: {0}",
+           format = Message.Format.MESSAGE_FORMAT)
+   void failedToSendNotification(String notification);
+
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 124000, value = "key attribute missing for JMS configuration {0}" , format = Message.Format.MESSAGE_FORMAT)
    void jmsConfigMissingKey(Node e);

@@ -60,8 +60,8 @@ public interface ActiveMQMessageBundle
    @Message(id = 119000, value = "Activation for server {0}", format = Message.Format.MESSAGE_FORMAT)
    String activationForServer(ActiveMQServer server);
 
-   @Message(id = 119001, value = "Generating thread dump because - {0}", format = Message.Format.MESSAGE_FORMAT)
-   String generatingThreadDump(String reason);
+   @Message(id = 119001, value = "Generating thread dump", format = Message.Format.MESSAGE_FORMAT)
+   String generatingThreadDump();
 
    @Message(id = 119002, value = "Thread {0} name = {1} id = {2} group = {3}", format = Message.Format.MESSAGE_FORMAT)
    String threadDump(Thread key, String name, Long id, ThreadGroup threadGroup);
