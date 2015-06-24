@@ -357,10 +357,6 @@ public interface ActiveMQServerLogger extends BasicLogger
    void errorStoppingReplication(@Cause Exception e);
 
    @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 222015, value = "{0}", format = Message.Format.MESSAGE_FORMAT)
-   void warn(String message);
-
-   @LogMessage(level = Logger.Level.WARN)
    @Message(id = 222016, value = "Cannot deploy a connector with no name specified.", format = Message.Format.MESSAGE_FORMAT)
    void connectorWithNoName();
 
@@ -1110,6 +1106,65 @@ public interface ActiveMQServerLogger extends BasicLogger
       format = Message.Format.MESSAGE_FORMAT)
    void cannotFindRoleForUser(String user);
 
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 222192,
+           value = "Could not delete: {0}",
+           format = Message.Format.MESSAGE_FORMAT)
+   void couldNotDeleteTempFile(String tempFileName);
+
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 222193,
+           value = "Memory Limit reached. Producer ({0}) stopped to prevent flooding {1} (blocking for {2}s). See http://activemq.apache.org/producer-flow-control.html for more info.",
+           format = Message.Format.MESSAGE_FORMAT)
+   void memoryLimitReached(String producerID, String address, long duration);
+
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 222194,
+           value = "PageCursorInfo == null on address {0}, pos = {1}, queue = {2}.",
+           format = Message.Format.MESSAGE_FORMAT)
+   void nullPageCursorInfo(String address, String position, long id);
+
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 222195,
+           value = "Large message {0} wasn't found when dealing with add pending large message",
+           format = Message.Format.MESSAGE_FORMAT)
+   void largeMessageNotFound(long id);
+
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 222196,
+           value = "Couldn't find binding with id={0} on routeFromCluster for message={1} binding = {2}",
+           format = Message.Format.MESSAGE_FORMAT)
+   void bindingNotFound(long id, String message, String binding);
+
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 222197,
+           value = "Internal error! Delivery logic has identified a non delivery and still handled a consumer!",
+           format = Message.Format.MESSAGE_FORMAT)
+   void nonDeliveryHandled();
+
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 222198,
+           value = "Couldn't flush ClusterManager executor ({0}) in 10 seconds, verify your thread pool size",
+           format = Message.Format.MESSAGE_FORMAT)
+   void couldNotFlushClusterManager(String manager);
+
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 222199,
+           value = "Thread dump: {0}",
+           format = Message.Format.MESSAGE_FORMAT)
+   void threadDump(String manager);
+
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 222200,
+           value = "Couldn't finish executor on {0}",
+           format = Message.Format.MESSAGE_FORMAT)
+   void couldNotFinishExecutor(String clusterConnection);
+
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 222201,
+           value = "Timed out waiting for backup activation to exit",
+           format = Message.Format.MESSAGE_FORMAT)
+   void backupActivationTimeout();
 
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 224000, value = "Failure in initialisation", format = Message.Format.MESSAGE_FORMAT)

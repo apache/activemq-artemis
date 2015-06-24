@@ -686,7 +686,7 @@ public final class BindingsImpl implements Bindings
          }
          else
          {
-            ActiveMQServerLogger.LOGGER.warn("Couldn't find binding with id=" + bindingID + " on routeFromCluster for message=" + message + " binding = " + this);
+            ActiveMQServerLogger.LOGGER.bindingNotFound(bindingID, message.toString(), this.toString());
          }
       }
    }

@@ -477,7 +477,7 @@ public class ActiveMQActivation
 
          if (threadTearDown.isAlive())
          {
-            ActiveMQRALogger.LOGGER.warn("Thread " + threadTearDown + " couldn't be finished");
+            ActiveMQRALogger.LOGGER.threadCouldNotFinish(threadTearDown.toString());
          }
       }
 

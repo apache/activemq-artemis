@@ -2182,7 +2182,7 @@ public class QueueImpl implements Queue
                   {
                      // this shouldn't really happen,
                      // however I'm keeping this as an assertion case future developers ever change the logic here on this class
-                     ActiveMQServerLogger.LOGGER.warn("Internal error! Delivery logic has identified a non delivery and still handled a consumer!");
+                     ActiveMQServerLogger.LOGGER.nonDeliveryHandled();
                   }
                   else
                   {

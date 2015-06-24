@@ -491,7 +491,8 @@ public class ActiveMQServerImpl implements ActiveMQServer
 
       if (System.currentTimeMillis() - start >= timeout)
       {
-         threadDump("Timed out waiting for backup activation to exit");
+         ActiveMQServerLogger.LOGGER.backupActivationTimeout();
+         threadDump();
       }
    }
 
@@ -576,14 +577,14 @@ public class ActiveMQServerImpl implements ActiveMQServer
       return postOffice.isAddressBound(SimpleString.toSimpleString(address));
    }
 
-   public void threadDump(final String reason)
+   public void threadDump()
    {
       StringWriter str = new StringWriter();
       PrintWriter out = new PrintWriter(str);
 
       Map<Thread, StackTraceElement[]> stackTrace = Thread.getAllStackTraces();
 
-      out.println(ActiveMQMessageBundle.BUNDLE.generatingThreadDump(reason));
+      out.println(ActiveMQMessageBundle.BUNDLE.generatingThreadDump());
       out.println("*******************************************************************************");
 
       for (Map.Entry<Thread, StackTraceElement[]> el : stackTrace.entrySet())
@@ -601,7 +602,7 @@ public class ActiveMQServerImpl implements ActiveMQServer
       out.println(ActiveMQMessageBundle.BUNDLE.endThreadDump());
       out.println("*******************************************************************************");
 
-      ActiveMQServerLogger.LOGGER.warn(str.toString());
+      ActiveMQServerLogger.LOGGER.threadDump(str.toString());
    }
 
    public final void stop(boolean failoverOnServerShutdown) throws Exception

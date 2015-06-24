@@ -97,6 +97,14 @@ public interface ActiveMQRALogger extends BasicLogger
    @Message(id = 152006, value = "Unable to call after delivery", format = Message.Format.MESSAGE_FORMAT)
    void unableToCallAfterDelivery(@Cause Exception e);
 
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 152007, value = "Thread {0} could not be finished", format = Message.Format.MESSAGE_FORMAT)
+   void threadCouldNotFinish(String thread);
+
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 152008, value = "Error interrupting handler on endpoint {0} handler = {1}", format = Message.Format.MESSAGE_FORMAT)
+   void errorInterruptingHandler(String endpoint, String handler, @Cause Throwable cause);
+
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 154000, value = "Error while creating object Reference.", format = Message.Format.MESSAGE_FORMAT)
    void errorCreatingReference(@Cause Exception e);

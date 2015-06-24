@@ -1200,7 +1200,7 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
       }
       catch (Exception e)
       {
-         ActiveMQJMSServerLogger.LOGGER.warn("Failed to send notification : " + notif);
+         ActiveMQJMSServerLogger.LOGGER.failedToSendNotification(notif.toString());
       }
    }
 

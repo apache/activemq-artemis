@@ -405,7 +405,7 @@ public final class XmlDataImporter implements Action
          File tempFile = new File(tempFileName);
          if (!tempFile.delete())
          {
-            ActiveMQServerLogger.LOGGER.warn("Could not delete: " + tempFileName);
+            ActiveMQServerLogger.LOGGER.couldNotDeleteTempFile(tempFileName);
          }
          tempFileName = "";
       }

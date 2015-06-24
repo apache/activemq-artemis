@@ -386,7 +386,8 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
       executor.execute(future);
       if (!future.await(10000))
       {
-         server.threadDump("Couldn't finish executor on " + this);
+         ActiveMQServerLogger.LOGGER.couldNotFinishExecutor(this.toString());
+         server.threadDump();
       }
    }
 

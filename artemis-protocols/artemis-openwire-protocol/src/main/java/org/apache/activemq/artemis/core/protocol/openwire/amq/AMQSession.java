@@ -595,10 +595,7 @@ public class AMQSession implements SessionCallback
          long now = System.currentTimeMillis();
          if (now >= nextWarn)
          {
-            ActiveMQServerLogger.LOGGER.warn("Memory Limit reached. Producer (" + producerId + ") stopped to prevent flooding "
-                               + result.getBlockingAddress()
-                               + " See http://activemq.apache.org/producer-flow-control.html for more info"
-                               + " (blocking for " + ((now - start) / 1000) + "s");
+            ActiveMQServerLogger.LOGGER.memoryLimitReached(producerId.toString(), result.getBlockingAddress().toString(), ((now - start) / 1000));
             nextWarn = now + blockedProducerWarningInterval;
          }
       }

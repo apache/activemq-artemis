@@ -391,8 +391,8 @@ public final class ClusterManager implements ActiveMQComponent
       executor.execute(future);
       if (!future.await(10000))
       {
-         server.threadDump("Couldn't flush ClusterManager executor (" + this +
-                              ") in 10 seconds, verify your thread pool size");
+         ActiveMQServerLogger.LOGGER.couldNotFlushClusterManager(this.toString());
+         server.threadDump();
       }
    }
 
