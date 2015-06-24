@@ -753,6 +753,7 @@ public class ActiveMQServerImpl implements ActiveMQServer
       messagingServerControl = null;
       memoryManager = null;
       backupManager = null;
+      storageManager = null;
 
       sessions.clear();
 

@@ -1019,6 +1019,14 @@ public class ActiveMQServerControlTest extends ManagementTestBase
       });
    }
 
+   @Test
+   public void testForceFailover() throws Exception
+   {
+      ActiveMQServerControl serverControl = createManagementControl();
+      serverControl.forceFailover();
+      assertFalse(server.isStarted());
+   }
+
    protected void scaleDown(ScaleDownHandler handler) throws Exception
    {
       SimpleString address = new SimpleString("testQueue");
