@@ -46,6 +46,11 @@ public class ActiveMQQueue extends ActiveMQDestination implements Queue
       super(JMS_QUEUE_ADDRESS_PREFIX + name, name, false, true, null);
    }
 
+   public ActiveMQQueue(final String name, boolean temporary)
+   {
+      super(JMS_QUEUE_ADDRESS_PREFIX + name, name, temporary, true, null);
+   }
+
 
 
    /**

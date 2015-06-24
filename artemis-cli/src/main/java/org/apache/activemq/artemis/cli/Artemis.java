@@ -22,9 +22,11 @@ import java.io.OutputStream;
 import io.airlift.airline.Cli;
 import org.apache.activemq.artemis.cli.commands.Action;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
+import org.apache.activemq.artemis.cli.commands.Consumer;
 import org.apache.activemq.artemis.cli.commands.Create;
 import org.apache.activemq.artemis.cli.commands.HelpAction;
 import org.apache.activemq.artemis.cli.commands.Kill;
+import org.apache.activemq.artemis.cli.commands.Producer;
 import org.apache.activemq.artemis.cli.commands.Run;
 import org.apache.activemq.artemis.cli.commands.Stop;
 import org.apache.activemq.artemis.cli.commands.tools.DecodeJournal;
@@ -37,12 +39,14 @@ import org.apache.activemq.artemis.cli.commands.tools.XmlDataImporter;
 public class Artemis
 {
    @SuppressWarnings("unchecked")
-   public static void main(String[] args) throws Exception
+   public static void main(String...args) throws Exception
    {
       String instance = System.getProperty("artemis.instance");
       Cli.CliBuilder<Action> builder = Cli.<Action>builder("artemis")
          .withDescription("ActiveMQ Artemis Command Line")
          .withCommand(HelpAction.class)
+         .withCommand(Producer.class)
+         .withCommand(Consumer.class)
          .withDefaultCommand(HelpAction.class);
 
 

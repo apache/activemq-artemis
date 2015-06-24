@@ -16,15 +16,14 @@
  */
 package org.apache.activemq.artemis.jms.client;
 
-import java.io.Serializable;
-import java.util.UUID;
-
 import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.JMSRuntimeException;
 import javax.naming.NamingException;
 import javax.naming.Reference;
 import javax.naming.Referenceable;
+import java.io.Serializable;
+import java.util.UUID;
 
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -53,6 +52,17 @@ public class ActiveMQDestination implements Destination, Serializable, Reference
 
    public static final String JMS_TEMP_TOPIC_ADDRESS_PREFIX = "jms.temptopic.";
 
+   public static final String QUEUE_QUALIFIED_PREFIX = "queue://";
+   public static final String TOPIC_QUALIFIED_PREFIX = "topic://";
+   public static final String TEMP_QUEUE_QUALIFED_PREFIX = "temp-queue://";
+   public static final String TEMP_TOPIC_QUALIFED_PREFIX = "temp-topic://";
+   public static final byte QUEUE_TYPE = 0x01;
+   public static final byte TOPIC_TYPE = 0x02;
+   public static final byte TEMP_MASK = 0x04;
+   public static final byte TEMP_TOPIC_TYPE = TOPIC_TYPE | TEMP_MASK;
+   public static final byte TEMP_QUEUE_TYPE = QUEUE_TYPE | TEMP_MASK;
+
+
    private static final char SEPARATOR = '.';
 
    private static String escape(final String input)
@@ -63,6 +73,44 @@ public class ActiveMQDestination implements Destination, Serializable, Reference
       }
       return input.replace("\\", "\\\\").replace(".", "\\.");
    }
+
+   /**
+    * Static helper method for working with destinations.
+    */
+   public static ActiveMQDestination createDestination(String name, byte defaultType)
+   {
+      if (name.startsWith(QUEUE_QUALIFIED_PREFIX))
+      {
+         return new ActiveMQQueue(name.substring(QUEUE_QUALIFIED_PREFIX.length()));
+      }
+      else if (name.startsWith(TOPIC_QUALIFIED_PREFIX))
+      {
+         return new ActiveMQTopic(name.substring(TOPIC_QUALIFIED_PREFIX.length()));
+      }
+      else if (name.startsWith(TEMP_QUEUE_QUALIFED_PREFIX))
+      {
+         return new ActiveMQQueue(name.substring(TEMP_QUEUE_QUALIFED_PREFIX.length()), true);
+      }
+      else if (name.startsWith(TEMP_TOPIC_QUALIFED_PREFIX))
+      {
+         return new ActiveMQTopic(name.substring(TEMP_TOPIC_QUALIFED_PREFIX.length()), true);
+      }
+
+      switch (defaultType)
+      {
+         case QUEUE_TYPE:
+            return new ActiveMQQueue(name);
+         case TOPIC_TYPE:
+            return new ActiveMQTopic(name);
+         case TEMP_QUEUE_TYPE:
+            return new ActiveMQQueue(name, true);
+         case TEMP_TOPIC_TYPE:
+            return new ActiveMQTopic(name, true);
+         default:
+            throw new IllegalArgumentException("Invalid default destination type: " + defaultType);
+      }
+   }
+
 
    public static Destination fromAddress(final String address)
    {
@@ -356,7 +404,7 @@ public class ActiveMQDestination implements Destination, Serializable, Reference
          return false;
       }
 
-      ActiveMQDestination that = (ActiveMQDestination)o;
+      ActiveMQDestination that = (ActiveMQDestination) o;
 
       return address.equals(that.address);
    }

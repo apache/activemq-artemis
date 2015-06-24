@@ -43,7 +43,12 @@ public class ActiveMQTopic extends ActiveMQDestination implements Topic
 
    public ActiveMQTopic(final String name)
    {
-      super(JMS_TOPIC_ADDRESS_PREFIX + name, name, false, false, null);
+      this(name, false);
+   }
+
+   public ActiveMQTopic(final String name, boolean temporary)
+   {
+      super(JMS_TOPIC_ADDRESS_PREFIX + name, name, temporary, false, null);
    }
 
 

@@ -16,15 +16,40 @@
  */
 package org.apache.activemq.artemis.test;
 
+import java.io.File;
+import java.util.concurrent.TimeUnit;
+
 import org.apache.activemq.artemis.cli.Artemis;
+import org.apache.activemq.artemis.cli.commands.Run;
+import org.junit.After;
 import org.junit.Assert;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 /**
  * Test to validate that the CLI doesn't throw improper exceptions when invoked.
  */
 public class ArtemisTest
 {
+   @Rule
+   public TemporaryFolder temporaryFolder;
+
+   public ArtemisTest()
+   {
+      File parent = new File("./target/tmp");
+      parent.mkdirs();
+      temporaryFolder = new TemporaryFolder(parent);
+   }
+
+
+   @After
+   public void cleanup()
+   {
+      System.clearProperty("artemis.instance");
+      Run.setEmbedded(false);
+   }
+
    @Test
    public void invalidCliDoesntThrowException()
    {
@@ -35,6 +60,22 @@ public class ArtemisTest
    public void invalidPathDoesntThrowException()
    {
       testCli("create","/rawr");
+   }
+
+   @Test
+   public void testSimpleRun() throws Exception
+   {
+      Run.setEmbedded(true);
+      Artemis.main("create", temporaryFolder.getRoot().getAbsolutePath(), "--force", "--silent-input", "--no-web");
+      System.setProperty("artemis.instance", temporaryFolder.getRoot().getAbsolutePath());
+      // Some exceptions may happen on the initialization, but they should be ok on start the basic core protocol
+      Artemis.main("run");
+      Artemis.main("produce", "--txSize", "500");
+      Artemis.main("consume", "--txSize", "500", "--verbose");
+      Artemis.main("stop");
+      Artemis.main("data", "print");
+      Assert.assertTrue(Run.latchRunning.await(5, TimeUnit.SECONDS));
+
    }
 
    private void testCli(String... args)
