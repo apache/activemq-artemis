@@ -1,11 +1,16 @@
 # Working with the Code
 
 While the canonical Apache ActiveMQ Artemis git repository is hosted on Apache hardware at https://git-wip-us.apache.org/repos/asf?p=activemq-artemis.git
-the developers use a mirror on GitHub for collaboration and pull-request review functionality.
+contributors are encouraged (but not required) to use a mirror on GitHub for collaboration and pull-request review
+functionality. Follow the steps below to get set up with GitHub, etc.
+
+If you do not wish to use GitHub for whatever reason you can follow the overall process outlined in the "Typical
+development cycle" section below but instead attach [a patch file](http://git-scm.com/docs/git-format-patch) to the
+related JIRA or an email to the [dev list](http://activemq.apache.org/mailing-lists.html).
 
 ## Initial Steps
 
-1. Create a github account if you don't have one already
+1. Create a GitHub account if you don't have one already
 
    http://github.com
    
@@ -116,7 +121,7 @@ the developers use a mirror on GitHub for collaboration and pull-request review 
 
 1. Get your changes merged into upstream
 
-    1. Send a github pull request, by clicking the pull request link while in your repo's fork.
+    1. Send a GitHub pull request, by clicking the pull request link while in your repo's fork.
     1. An email will automatically be sent to the ActiveMQ developer list.
     1. As part of the review you may see an automated test run comment on your request.
     1. After review a maintainer will merge your PR into the canonical git repository at which point those changes will 
@@ -137,7 +142,7 @@ the developers use a mirror on GitHub for collaboration and pull-request review 
         $ git fetch upstream
         $ git pull
 
-1. Pushing pulled updates (or local commits if you aren't using topic branches) to your private github repo (origin)
+1. Pushing pulled updates (or local commits if you aren't using topic branches) to your private GitHub repo (origin)
     
         $ git push  
         Counting objects: 192, done.  
