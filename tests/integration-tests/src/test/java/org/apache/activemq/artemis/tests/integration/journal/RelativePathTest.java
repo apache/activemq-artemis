@@ -50,7 +50,7 @@ public class RelativePathTest extends ActiveMQTestBase
 
       File instanceHome = new File(getTemporaryDir(), "artemisHome");
 
-      configuration.setArtemisInstance(instanceHome);
+      configuration.setBrokerInstance(instanceHome);
 
       // the journal should be outside of the artemisInstance on this case
       File journalOutside = new File(getTemporaryDir(), "./journalOut").getAbsoluteFile();
@@ -89,7 +89,7 @@ public class RelativePathTest extends ActiveMQTestBase
 
       System.out.println("InstanceHome->" + instanceHome);
       instanceHome.mkdirs();
-      configuration.setArtemisInstance(instanceHome);
+      configuration.setBrokerInstance(instanceHome);
 
       configuration.setJournalDirectory("./data");
       configuration.setPagingDirectory("./paging");

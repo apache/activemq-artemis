@@ -16,10 +16,35 @@
  */
 package org.apache.activemq.artemis.cli.commands;
 
+import java.io.File;
+
 import io.airlift.airline.Help;
 
 public class HelpAction extends Help implements Action
 {
+   @Override
+   public boolean isVerbose()
+   {
+      return false;
+   }
+
+   @Override
+   public void setHomeValues(File brokerHome, File brokerInstance)
+   {
+
+   }
+
+   @Override
+   public String getBrokerInstance()
+   {
+      return null;
+   }
+
+   @Override
+   public String getBrokerHome()
+   {
+      return null;
+   }
 
    @Override
    public Object execute(ActionContext context) throws Exception

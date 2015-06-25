@@ -72,7 +72,8 @@ public class Producer extends DestAbstract
 
             threadsArray[i].setVerbose(verbose).setSleep(sleep).setPersistent(!nonpersistent).
                             setMessageSize(messageSize).setTextMessageSize(textMessageSize).
-                            setMsgTTL(msgTTL).setMsgGroupID(msgGroupID).setTransactionBatchSize(txBatchSize);
+                            setMsgTTL(msgTTL).setMsgGroupID(msgGroupID).setTransactionBatchSize(txBatchSize).
+                            setMessageCount(messageCount);
          }
 
          for (ProducerThread thread : threadsArray)
@@ -80,13 +81,15 @@ public class Producer extends DestAbstract
             thread.start();
          }
 
+         int messagesProduced = 0;
          for (ProducerThread thread : threadsArray)
          {
             thread.join();
+            messagesProduced += thread.getSentCount();
          }
-      }
 
-      return null;
+         return messagesProduced;
+      }
    }
 
 }

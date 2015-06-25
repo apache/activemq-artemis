@@ -889,11 +889,11 @@ public interface Configuration
    /**
     * Set the Artemis instance relative folder for data and stuff.
     */
-   void setArtemisInstance(File directory);
+   void setBrokerInstance(File directory);
 
    /**
     * Set the Artemis instance relative folder for data and stuff.
     */
-   File getArtemisInstance();
+   File getBrokerInstance();
 
 }

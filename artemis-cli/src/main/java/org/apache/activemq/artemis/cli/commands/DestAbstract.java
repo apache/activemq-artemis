@@ -36,9 +36,6 @@ public class DestAbstract extends ActionAbstract
    @Option(name = "--password", description = "Password used to connect")
    String password;
 
-   @Option(name = "--verbose", description = "It will print messages individually")
-   boolean verbose;
-
    @Option(name = "--sleep", description = "Time wait between each message")
    int sleep = 0;
 

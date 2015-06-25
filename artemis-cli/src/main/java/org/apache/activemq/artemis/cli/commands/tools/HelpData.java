@@ -17,6 +17,7 @@
 
 package org.apache.activemq.artemis.cli.commands.tools;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,6 +27,30 @@ import org.apache.activemq.artemis.cli.commands.ActionContext;
 
 public class HelpData extends Help implements Action
 {
+
+   @Override
+   public boolean isVerbose()
+   {
+      return false;
+   }
+
+   @Override
+   public void setHomeValues(File brokerHome, File brokerInstance)
+   {
+
+   }
+
+   @Override
+   public String getBrokerInstance()
+   {
+      return null;
+   }
+
+   @Override
+   public String getBrokerHome()
+   {
+      return null;
+   }
 
    @Override
    public Object execute(ActionContext context) throws Exception

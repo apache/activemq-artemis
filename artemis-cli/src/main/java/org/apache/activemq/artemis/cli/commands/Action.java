@@ -16,9 +16,18 @@
  */
 package org.apache.activemq.artemis.cli.commands;
 
+import java.io.File;
+
 public interface Action
 {
+   boolean isVerbose();
+
+   void setHomeValues(File brokerHome, File brokerInstance);
 
    Object execute(ActionContext context) throws Exception;
+
+   String getBrokerInstance();
+
+   String getBrokerHome();
 
 }
