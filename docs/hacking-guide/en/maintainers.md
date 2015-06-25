@@ -1,7 +1,27 @@
 # Notes for Maintainers
 
 Core ActiveMQ Artemis members have write access to the Apache ActiveMQ Artemis repositories and will be responsible for 
-acknowledging and pushing commits contributed via pull requests on GitHub.  
+acknowledging and pushing commits contributed via pull requests on GitHub.
+
+Core ActiveMQ Artemis members are also able to push their own commits directly to the canonical Apache repository.
+However, the expectation here is that the developer has made a good effort to test their changes and is reasonably
+confident that the changes that are being committed will not break the build.
+
+What does it mean to be reasonably confident? If the developer has run the same maven commands that the pull-request
+builds are running they can be reasonably confident. Currently the [PR build](https://builds.apache.org/job/ActiveMQ-Artemis-PR-Build/)
+runs this command:
+
+    mvn compile test-compile javadoc:javadoc -Pfast-tests -Pextra-tests test
+
+However, if the changes are significant, touches a wide area of code, or even if the developer just wants a second
+opinion they are encouraged to engage other members of the community to obtain an additional review prior to pushing.
+This can easily be done via a pull request on GitHub, a patch file attached to an email or JIRA, commit to a branch
+in the Apache git repo, etc. Having additional eyes looking at significant changes prior to committing to the main
+development branches is definitely encouraged if it helps obtain the "reasonable confidence" that the build is not
+broken and code quality has not decreased.
+
+If the build does break then developer is expected to make their best effort to get the builds fixed in a reasonable
+amount of time. If it cannot be fixed in a reasonable amount of time the commit can be reverted and re-reviewed.
 
 ## Commit Messages
 
