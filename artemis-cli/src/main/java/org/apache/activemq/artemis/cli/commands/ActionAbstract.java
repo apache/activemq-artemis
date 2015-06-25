@@ -16,10 +16,88 @@
  */
 package org.apache.activemq.artemis.cli.commands;
 
+import java.io.File;
+
+import io.airlift.airline.Option;
+
 public abstract class ActionAbstract implements Action
 {
 
+   @Option(name = "--verbose", description = "Adds more information on the execution")
+   boolean verbose;
+
+   private String brokerInstance;
+
+   private String brokerHome;
+
    protected ActionContext context;
+
+   @Override
+   public boolean isVerbose()
+   {
+      return verbose;
+
+   }
+
+   @Override
+   public void setHomeValues(File brokerHome, File brokerInstance)
+   {
+      if (brokerHome != null)
+      {
+         this.brokerHome = brokerHome.getAbsolutePath();
+      }
+      if (brokerInstance != null)
+      {
+         this.brokerInstance = brokerInstance.getAbsolutePath();
+      }
+   }
+
+   public String getBrokerInstance()
+   {
+      if (brokerInstance == null)
+      {
+         /* We use File URI for locating files.  The ARTEMIS_HOME variable is used to determine file paths.  For Windows
+         the ARTEMIS_HOME variable will include back slashes (An invalid file URI character path separator).  For this
+         reason we overwrite the ARTEMIS_HOME variable with backslashes replaced with forward slashes. */
+         brokerInstance = System.getProperty("artemis.instance");
+         if (brokerInstance != null)
+         {
+            brokerInstance = brokerInstance.replace("\\", "/");
+            System.setProperty("artemis.instance", brokerInstance);
+         }
+         if (brokerInstance == null)
+         {
+            // if still null we will try to improvise with "."
+            brokerInstance = ".";
+         }
+      }
+      return brokerInstance;
+   }
+
+
+   public String getBrokerHome()
+   {
+      if (brokerHome == null)
+      {
+         /* We use File URI for locating files.  The ARTEMIS_HOME variable is used to determine file paths.  For Windows
+         the ARTEMIS_HOME variable will include back slashes (An invalid file URI character path separator).  For this
+         reason we overwrite the ARTEMIS_HOME variable with backslashes replaced with forward slashes. */
+         brokerHome = System.getProperty("artemis.home");
+         if (brokerHome != null)
+         {
+            brokerHome = brokerHome.replace("\\", "/");
+            System.setProperty("artemis.home", brokerHome);
+         }
+
+         if (brokerHome == null)
+         {
+            // if still null we will try to improvise with "."
+            brokerHome = ".";
+         }
+      }
+      return brokerHome;
+   }
+
 
    public Object execute(ActionContext context) throws Exception
    {

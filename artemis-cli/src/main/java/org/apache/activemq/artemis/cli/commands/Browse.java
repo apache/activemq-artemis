@@ -27,20 +27,9 @@ import org.apache.activemq.artemis.cli.commands.util.ConsumerThread;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 
-@Command(name = "consume", description = "It will send consume messages from an instance")
-public class Consumer extends DestAbstract
+@Command(name = "browse", description = "It will send consume messages from an instance")
+public class Browse extends DestAbstract
 {
-
-
-   @Option(name = "--durable", description = "It will use durable subscription in case of client")
-   boolean durable = false;
-
-   @Option(name = "--breakOnNull", description = "It will break on null messages")
-   boolean breakOnNull = false;
-
-   @Option(name = "--receiveTimeout", description = "Time used on receive(timeout)")
-   int receiveTimeout;
-
    @Option(name = "--filter", description = "filter to be used with the consumer")
    String filter;
 
@@ -70,8 +59,7 @@ public class Consumer extends DestAbstract
             }
             threadsArray[i] = new ConsumerThread(session, dest, i);
 
-            threadsArray[i].setVerbose(verbose).setSleep(sleep).setDurable(durable).setBatchSize(txBatchSize).setBreakOnNull(breakOnNull)
-                          .setMessageCount(messageCount).setReceiveTimeOut(receiveTimeout).setFilter(filter).setBrowse(false);
+            threadsArray[i].setVerbose(verbose).setSleep(sleep).setMessageCount(messageCount).setFilter(filter).setBrowse(true);
          }
 
          for (ConsumerThread thread : threadsArray)

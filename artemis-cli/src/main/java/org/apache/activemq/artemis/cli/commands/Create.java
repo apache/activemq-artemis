@@ -248,12 +248,7 @@ public class Create extends InputAbstract
    {
       if (home == null)
       {
-         String homeStr = System.getProperty("artemis.home");
-         if (homeStr == null)
-         {
-            homeStr = ".";
-         }
-         home = new File(homeStr);
+         home = new File(getBrokerHome());
       }
       return home;
    }

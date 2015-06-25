@@ -16,15 +16,6 @@
  */
 package org.apache.activemq.artemis.jms.client;
 
-import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.OutputStream;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-
 import javax.jms.DeliveryMode;
 import javax.jms.Destination;
 import javax.jms.IllegalStateException;
@@ -34,6 +25,14 @@ import javax.jms.JMSRuntimeException;
 import javax.jms.Message;
 import javax.jms.MessageFormatException;
 import javax.jms.MessageNotWriteableException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.OutputStream;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -969,6 +968,7 @@ public class ActiveMQMessage implements javax.jms.Message
       sb.append(getJMSMessageID());
       sb.append("]:");
       sb.append(message.isDurable() ? "PERSISTENT" : "NON-PERSISTENT");
+      sb.append("/" + message.toString());
       return sb.toString();
    }
 

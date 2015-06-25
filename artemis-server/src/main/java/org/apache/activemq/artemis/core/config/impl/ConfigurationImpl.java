@@ -1103,7 +1103,7 @@ public class ConfigurationImpl implements Configuration, Serializable
       return this.connectorServiceConfigurations;
    }
 
-   public File getArtemisInstance()
+   public File getBrokerInstance()
    {
       if (artemisInstance != null)
       {
@@ -1122,7 +1122,7 @@ public class ConfigurationImpl implements Configuration, Serializable
       return artemisInstance;
    }
 
-   public void setArtemisInstance(File directory)
+   public void setBrokerInstance(File directory)
    {
       this.artemisInstance = directory;
    }
@@ -1627,7 +1627,7 @@ public class ConfigurationImpl implements Configuration, Serializable
       try
       {
          // Resolve wont work without "/" as the last character
-         URI artemisHome = new URI(getArtemisInstance().toURI() + "/");
+         URI artemisHome = new URI(getBrokerInstance().toURI() + "/");
          URI relative = artemisHome.resolve(subFolder);
          return new File(relative.getPath());
       }

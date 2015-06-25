@@ -22,9 +22,12 @@ import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
+import javax.jms.Queue;
+import javax.jms.QueueBrowser;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.jms.Topic;
+import java.util.Enumeration;
 import java.util.concurrent.CountDownLatch;
 
 public class ConsumerThread extends Thread
@@ -39,6 +42,9 @@ public class ConsumerThread extends Thread
    int sleep;
    int batchSize;
    boolean verbose;
+   boolean browse;
+
+   String filter;
 
    int received = 0;
    int transactions = 0;
@@ -56,6 +62,102 @@ public class ConsumerThread extends Thread
    @Override
    public void run()
    {
+      if (browse)
+      {
+         browse();
+      }
+      else
+      {
+         consume();
+      }
+   }
+
+   public void browse()
+   {
+      running = true;
+      QueueBrowser consumer = null;
+      String threadName = Thread.currentThread().getName();
+      System.out.println(threadName + " wait until " + messageCount + " messages are consumed");
+      try
+      {
+         if (filter != null)
+         {
+            consumer = session.createBrowser((Queue)destination, filter);
+         }
+         else
+         {
+            consumer = session.createBrowser((Queue)destination);
+         }
+         Enumeration<Message> enumBrowse = consumer.getEnumeration();
+
+         while (enumBrowse.hasMoreElements())
+         {
+            Message msg = enumBrowse.nextElement();
+            if (msg != null)
+            {
+               System.out.println(threadName + " Received " + (msg instanceof TextMessage ? ((TextMessage) msg).getText() : msg.getJMSMessageID()));
+
+               if (verbose)
+               {
+                  System.out.println("..."  + msg);
+               }
+               if (bytesAsText && (msg instanceof BytesMessage))
+               {
+                  long length = ((BytesMessage) msg).getBodyLength();
+                  byte[] bytes = new byte[(int) length];
+                  ((BytesMessage) msg).readBytes(bytes);
+                  System.out.println("Message:" + msg);
+               }
+               received++;
+
+               if (received >= messageCount)
+               {
+                  break;
+               }
+            }
+            else
+            {
+               break;
+            }
+
+            if (sleep > 0)
+            {
+               Thread.sleep(sleep);
+            }
+
+         }
+
+         consumer.close();
+      }
+      catch (Exception e)
+      {
+         e.printStackTrace();
+      }
+      finally
+      {
+         if (finished != null)
+         {
+            finished.countDown();
+         }
+         if (consumer != null)
+         {
+            System.out.println(threadName + " Consumed: " + this.getReceived() + " messages");
+            try
+            {
+               consumer.close();
+            }
+            catch (JMSException e)
+            {
+               e.printStackTrace();
+            }
+         }
+      }
+
+      System.out.println(threadName + " Consumer thread finished");
+   }
+
+   public void consume()
+   {
       running = true;
       MessageConsumer consumer = null;
       String threadName = Thread.currentThread().getName();
@@ -64,11 +166,25 @@ public class ConsumerThread extends Thread
       {
          if (durable && destination instanceof Topic)
          {
-            consumer = session.createDurableSubscriber((Topic) destination, getName());
+            if (filter != null)
+            {
+               consumer = session.createDurableSubscriber((Topic) destination, getName(), filter, false);
+            }
+            else
+            {
+               consumer = session.createDurableSubscriber((Topic) destination, getName());
+            }
          }
          else
          {
-            consumer = session.createConsumer(destination);
+            if (filter != null)
+            {
+               consumer = session.createConsumer(destination, filter);
+            }
+            else
+            {
+               consumer = session.createConsumer(destination);
+            }
          }
          while (running && received < messageCount)
          {
@@ -76,6 +192,10 @@ public class ConsumerThread extends Thread
             if (msg != null)
             {
                System.out.println(threadName + " Received " + (msg instanceof TextMessage ? ((TextMessage) msg).getText() : msg.getJMSMessageID()));
+               if (verbose)
+               {
+                  System.out.println("..."  + msg);
+               }
                if (bytesAsText && (msg instanceof BytesMessage))
                {
                   long length = ((BytesMessage) msg).getBodyLength();
@@ -263,6 +383,28 @@ public class ConsumerThread extends Thread
    public ConsumerThread setBytesAsText(boolean bytesAsText)
    {
       this.bytesAsText = bytesAsText;
+      return this;
+   }
+
+   public String getFilter()
+   {
+      return filter;
+   }
+
+   public ConsumerThread setFilter(String filter)
+   {
+      this.filter = filter;
+      return this;
+   }
+
+   public boolean isBrowse()
+   {
+      return browse;
+   }
+
+   public ConsumerThread setBrowse(boolean browse)
+   {
+      this.browse = browse;
       return this;
    }
 }
