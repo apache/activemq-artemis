@@ -14,42 +14,40 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.core.journal.impl;
+package org.apache.activemq.artemis.cli.commands.tools;
 
 import java.io.File;
 
+import io.airlift.airline.Command;
+import org.apache.activemq.artemis.cli.commands.Action;
+import org.apache.activemq.artemis.cli.commands.ActionContext;
+import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.journal.IOCriticalErrorListener;
+import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
+import org.apache.activemq.artemis.core.journal.impl.NIOSequentialFileFactory;
 
-/**
- * This is an undocumented class, that will open a journal and force compacting on it.
- * <p>
- * It may be used under special cases, but it shouldn't be needed under regular circumstances as the
- * system should detect the need for compacting. The regular use is to configure min-compact
- * parameters.
- */
-public final class CompactJournal // NO_UCD
+@Command(name = "compact", description = "Compacts the journal of a non running server")
+public final class CompactJournal extends DataAbstract implements Action
 {
-
-   public static void main(final String[] arg)
+   @Override
+   public Object execute(ActionContext context) throws Exception
    {
-      if (arg.length != 4)
-      {
-         System.err.println("Use: java -cp activemq-core.jar org.apache.activemq.artemis.core.journal.impl.CompactJournal <JournalDirectory> <JournalPrefix> <FileExtension> <FileSize>");
-         return;
-      }
-
+      super.execute(context);
       try
       {
-         CompactJournal.compactJournal(new File(arg[0]), arg[1], arg[2], 2, Integer.parseInt(arg[3]), null);
+         Configuration configuration = getFileConfiguration();
+         compactJournal(new File(getJournal()), "activemq-data", "amq", configuration.getJournalMinFiles(), configuration.getJournalFileSize(), null);
+         compactJournal(new File(getBinding()), "activemq-bindings", "bindings", 2, 1048576, null);
       }
       catch (Exception e)
       {
-         e.printStackTrace();
+         treatError(e, "data", "compact");
       }
-
+      return null;
    }
 
-   static void compactJournal(final File directory,
+
+   void compactJournal(final File directory,
                                      final String journalPrefix,
                                      final String journalSuffix,
                                      final int minFiles,
