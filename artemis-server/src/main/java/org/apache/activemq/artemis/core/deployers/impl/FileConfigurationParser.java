@@ -1525,6 +1525,9 @@ public final class FileConfigurationParser extends XMLConfigurationUtil
          }
       }
 
+      // Warn if connection-ttl-override/connection-ttl == check-period
+      compareTTLWithCheckPeriod(mainConfig, connectionTTL, clientFailureCheckPeriod);
+
       ClusterConnectionConfiguration config = new ClusterConnectionConfiguration()
          .setName(name)
          .setAddress(address)
@@ -1686,6 +1689,9 @@ public final class FileConfigurationParser extends XMLConfigurationUtil
          }
       }
 
+      // Warn if connection-ttl-override/connection-ttl == check-period
+      compareTTLWithCheckPeriod(mainConfig, connectionTTL, clientFailureCheckPeriod);
+
       BridgeConfiguration config = new BridgeConfiguration()
          .setName(name)
          .setQueueName(queueName)
@@ -1804,5 +1810,14 @@ public final class FileConfigurationParser extends XMLConfigurationUtil
          .setFactoryClassName(clazz)
          .setParams(params)
          .setName(name);
+   }
+
+   private void compareTTLWithCheckPeriod(final Configuration config, final long connectionTTL, final long checkPeriod)
+   {
+      if (config.getConnectionTTLOverride() == checkPeriod)
+          ActiveMQServerLogger.LOGGER.connectionTTLEqualsCheckPeriod("connection-ttl-override", "check-period");
+
+      if (connectionTTL == checkPeriod)
+          ActiveMQServerLogger.LOGGER.connectionTTLEqualsCheckPeriod("connection-ttl", "check-period");
    }
 }
