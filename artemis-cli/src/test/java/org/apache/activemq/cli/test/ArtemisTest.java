@@ -75,7 +75,7 @@ public class ArtemisTest
       Artemis.main("create", temporaryFolder.getRoot().getAbsolutePath(), "--force", "--silent-input", "--no-web");
       System.setProperty("artemis.instance", temporaryFolder.getRoot().getAbsolutePath());
       // Some exceptions may happen on the initialization, but they should be ok on start the basic core protocol
-      Artemis.main("run");
+      Artemis.execute("run");
       Assert.assertEquals(Integer.valueOf(70), Artemis.execute("producer", "--txt-size", "50", "--message-count", "70", "--verbose"));
       Assert.assertEquals(Integer.valueOf(70), Artemis.execute("consumer", "--txt-size", "50", "--verbose", "--break-on-null", "--receive-timeout", "100"));
 
