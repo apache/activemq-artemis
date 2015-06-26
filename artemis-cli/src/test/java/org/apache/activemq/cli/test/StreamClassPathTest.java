@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.activemq.artemis.test;
+package org.apache.activemq.cli.test;
 
 import java.io.InputStream;
 

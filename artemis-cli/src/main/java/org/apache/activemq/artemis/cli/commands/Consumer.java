@@ -27,7 +27,7 @@ import org.apache.activemq.artemis.cli.commands.util.ConsumerThread;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 
-@Command(name = "consume", description = "It will send consume messages from an instance")
+@Command(name = "consumer", description = "It will send consume messages from an instance")
 public class Consumer extends DestAbstract
 {
 
@@ -35,11 +35,11 @@ public class Consumer extends DestAbstract
    @Option(name = "--durable", description = "It will use durable subscription in case of client")
    boolean durable = false;
 
-   @Option(name = "--breakOnNull", description = "It will break on null messages")
+   @Option(name = "--break-on-null", description = "It will break on null messages")
    boolean breakOnNull = false;
 
-   @Option(name = "--receiveTimeout", description = "Time used on receive(timeout)")
-   int receiveTimeout;
+   @Option(name = "--receive-timeout", description = "Time used on receive(timeout)")
+   int receiveTimeout = 3000;
 
    @Option(name = "--filter", description = "filter to be used with the consumer")
    String filter;

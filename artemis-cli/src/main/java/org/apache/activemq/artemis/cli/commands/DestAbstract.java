@@ -27,7 +27,7 @@ public class DestAbstract extends ActionAbstract
    @Option(name = "--destination", description = "Destination to be used. it could be prefixed with queue:// or topic:: (Default: queue://TEST")
    String destination = "queue://TEST";
 
-   @Option(name = "--messageCount", description = "Number of messages to act on (Default: 1000)")
+   @Option(name = "--message-count", description = "Number of messages to act on (Default: 1000)")
    int messageCount = 1000;
 
    @Option(name = "--user", description = "User used to connect")
@@ -39,7 +39,7 @@ public class DestAbstract extends ActionAbstract
    @Option(name = "--sleep", description = "Time wait between each message")
    int sleep = 0;
 
-   @Option(name = "--txSize", description = "TX Batch Size")
+   @Option(name = "--txt-size", description = "TX Batch Size")
    int txBatchSize;
 
    @Option(name = "--threads", description = "Number of Threads to be used (Default: 1)")

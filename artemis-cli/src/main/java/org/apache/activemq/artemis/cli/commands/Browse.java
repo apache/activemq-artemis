@@ -17,17 +17,17 @@
 
 package org.apache.activemq.artemis.cli.commands;
 
-import javax.jms.Connection;
-import javax.jms.Destination;
-import javax.jms.Session;
-
 import io.airlift.airline.Command;
 import io.airlift.airline.Option;
 import org.apache.activemq.artemis.cli.commands.util.ConsumerThread;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 
-@Command(name = "browse", description = "It will send consume messages from an instance")
+import javax.jms.Connection;
+import javax.jms.Destination;
+import javax.jms.Session;
+
+@Command(name = "browser", description = "It will send consume messages from an instance")
 public class Browse extends DestAbstract
 {
    @Option(name = "--filter", description = "filter to be used with the consumer")
