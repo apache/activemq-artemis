@@ -1459,7 +1459,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
     * Note: only synchronized methods on journal are methods responsible for the life-cycle such as
     * stop, start records will still come as this is being executed
     */
-   protected synchronized void compact() throws Exception
+   public synchronized void compact() throws Exception
    {
       if (compactor != null)
       {

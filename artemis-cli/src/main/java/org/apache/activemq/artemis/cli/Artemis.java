@@ -31,6 +31,7 @@ import org.apache.activemq.artemis.cli.commands.Kill;
 import org.apache.activemq.artemis.cli.commands.Producer;
 import org.apache.activemq.artemis.cli.commands.Run;
 import org.apache.activemq.artemis.cli.commands.Stop;
+import org.apache.activemq.artemis.cli.commands.tools.CompactJournal;
 import org.apache.activemq.artemis.cli.commands.tools.DecodeJournal;
 import org.apache.activemq.artemis.cli.commands.tools.EncodeJournal;
 import org.apache.activemq.artemis.cli.commands.tools.HelpData;
@@ -101,9 +102,10 @@ public class Artemis
 
 
       builder.withGroup("data")
-         .withDescription("data tools group (print|exp|imp|exp|encode|decode) (example ./artemis data print)").
+         .withDescription("data tools group (print|exp|imp|exp|encode|decode|compact) (example ./artemis data print)").
          withDefaultCommand(HelpData.class).withCommands(PrintData.class, XmlDataExporter.class,
-                                                         XmlDataImporter.class, DecodeJournal.class, EncodeJournal.class);
+                                                         XmlDataImporter.class, DecodeJournal.class, EncodeJournal.class,
+                                                         CompactJournal.class);
 
       if (instance != null)
       {
