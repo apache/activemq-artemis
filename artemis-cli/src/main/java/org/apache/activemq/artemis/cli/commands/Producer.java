@@ -27,17 +27,17 @@ import org.apache.activemq.artemis.cli.commands.util.ProducerThread;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 
-@Command(name = "produce", description = "It will send messages to an instance")
+@Command(name = "producer", description = "It will send messages to an instance")
 public class Producer extends DestAbstract
 {
 
-   @Option(name = "--nonPersistent", description = "It will send messages non persistently")
+   @Option(name = "--non-persistent", description = "It will send messages non persistently")
    boolean nonpersistent = false;
 
-   @Option(name = "--messageSize", description = "Size of each byteMessage (The producer will use byte message on this case)")
+   @Option(name = "--message-size", description = "Size of each byteMessage (The producer will use byte message on this case)")
    int messageSize = 0;
 
-   @Option(name = "--textSize", description = "Size of each textNessage (The producer will use text message on this case)")
+   @Option(name = "--text-size", description = "Size of each textNessage (The producer will use text message on this case)")
    int textMessageSize;
 
    @Option(name = "--msgttl", description = "TTL for each message")
