@@ -1166,6 +1166,14 @@ public interface ActiveMQServerLogger extends BasicLogger
            format = Message.Format.MESSAGE_FORMAT)
    void backupActivationTimeout();
 
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 222202,
+           value = "<{0}> should not be set to the same value as <{1}>.  " +
+                   "If a system is under high load, or there is a minor network delay, " +
+                   "there is a high probability of a cluster split/failure due to connection timeout.",
+           format = Message.Format.MESSAGE_FORMAT)
+   void connectionTTLEqualsCheckPeriod(String ttl, String checkPeriod);
+
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 224000, value = "Failure in initialisation", format = Message.Format.MESSAGE_FORMAT)
    void initializationError(@Cause Throwable e);
