@@ -28,9 +28,11 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.impl.SecurityConfiguration;
+import org.apache.activemq.artemis.core.registry.JndiBindingRegistry;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManagerImpl;
 import org.apache.activemq.artemiswrapper.ArtemisBrokerHelper;
 import org.apache.activemq.broker.BrokerService;
@@ -39,6 +41,7 @@ public class ArtemisBrokerWrapper extends ArtemisBrokerBase
 {
 
    protected final Map<String, SimpleString> testQueues = new HashMap<String, SimpleString>();
+   protected JMSServerManagerImpl jmsServer;
 
    public ArtemisBrokerWrapper(BrokerService brokerService)
    {
@@ -154,11 +157,12 @@ public class ArtemisBrokerWrapper extends ArtemisBrokerBase
          anySet.add(guestRole);
          anySet.add(destRole);
       }
-/* no need to start jms server here
-         jmsServer = new JMSServerManagerImpl(server);
-	      jmsServer.setContext(new InVMNamingContext());
-	      jmsServer.start();
-*/
+
+      jmsServer = new JMSServerManagerImpl(server);
+      InVMNamingContext namingContext = new InVMNamingContext();
+      jmsServer.setRegistry(new JndiBindingRegistry(namingContext));
+      jmsServer.start();
+
       Set<TransportConfiguration> acceptors = serverConfig.getAcceptorConfigurations();
       Iterator<TransportConfiguration> iter = acceptors.iterator();
 
