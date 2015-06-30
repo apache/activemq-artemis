@@ -99,7 +99,7 @@
       <activemq.basedir>${project.basedir}</activemq.basedir>
       <skipLicenseCheck>true</skipLicenseCheck>
       <skipStyleCheck>true</skipStyleCheck>
-      <geronimo.jms.2.spec.version>1.0-alpha-1</geronimo.jms.2.spec.version>
+      <geronimo.jms.2.spec.version>1.0-alpha-2</geronimo.jms.2.spec.version>
 
       <javac-compiler-id>javac-with-errorprone</javac-compiler-id>
    </properties>
