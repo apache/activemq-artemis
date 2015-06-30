@@ -306,6 +306,12 @@
 
       <dependency>
          <groupId>org.apache.activemq</groupId>
+         <artifactId>artemis-jms-server</artifactId>
+         <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-openwire-protocol</artifactId>
          <version>${project.version}</version>
       </dependency>
