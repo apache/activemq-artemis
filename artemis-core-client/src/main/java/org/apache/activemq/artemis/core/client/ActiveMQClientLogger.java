@@ -418,4 +418,23 @@ public interface ActiveMQClientLogger extends BasicLogger
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 214025, value = "Invalid type {0}, Using default connection factory at {1}", format = Message.Format.MESSAGE_FORMAT)
    void invalidCFType(String type, String uri);
+
+   @LogMessage(level = Logger.Level.TRACE)
+   @Message(id = 214026,
+      value = "Failure captured on connectionID={0}, performing failover or reconnection now",
+      format = Message.Format.MESSAGE_FORMAT)
+   void failoverOrReconnect(Object connectionID, @Cause Throwable cause);
+
+   @LogMessage(level = Logger.Level.DEBUG)
+   @Message(id = 214027,
+      value = "Replaying commands for channelID={0} with lastCommandID from the server={1}",
+      format = Message.Format.MESSAGE_FORMAT)
+   void replayingCommands(Object connectionID, int lastConfirmedCommandID);
+
+   @LogMessage(level = Logger.Level.DEBUG)
+   @Message(id = 214028,
+      value = "Couldn't reattach session {0}, performing as a failover operation now and recreating objects",
+      format = Message.Format.MESSAGE_FORMAT)
+   void reconnectCreatingNewSession(long id);
+
 }
