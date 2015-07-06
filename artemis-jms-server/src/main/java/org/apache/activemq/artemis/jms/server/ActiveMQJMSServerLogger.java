@@ -48,10 +48,6 @@ public interface ActiveMQJMSServerLogger extends BasicLogger
    ActiveMQJMSServerLogger LOGGER = Logger.getMessageLogger(ActiveMQJMSServerLogger.class, ActiveMQJMSServerLogger.class.getPackage().getName());
 
    @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 121003, value = "JMS Server Manager Running cached command for {0}" , format = Message.Format.MESSAGE_FORMAT)
-   void serverRunningCachedCommand(Runnable run);
-
-   @LogMessage(level = Logger.Level.INFO)
    @Message(id = 121004, value = "JMS Server Manager Caching command for {0} since the JMS Server is not active yet",
             format = Message.Format.MESSAGE_FORMAT)
    void serverCachingCommand(Object runnable);
@@ -100,6 +96,12 @@ public interface ActiveMQJMSServerLogger extends BasicLogger
            value = "Failed to send notification: {0}",
            format = Message.Format.MESSAGE_FORMAT)
    void failedToSendNotification(String notification);
+
+   @LogMessage(level = Logger.Level.DEBUG)
+   @Message(id = 123000, value = "JMS Server Manager Running cached command for {0}." +
+           "(In the event of failover after failback has occurred, this message may be output multiple times.)",
+           format = Message.Format.MESSAGE_FORMAT)
+   void serverRunningCachedCommand(Runnable run);
 
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 124000, value = "key attribute missing for JMS configuration {0}" , format = Message.Format.MESSAGE_FORMAT)
