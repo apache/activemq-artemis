@@ -71,7 +71,7 @@ abstract class AbstractSequentialFileFactory implements SequentialFileFactory
    {
       this.journalDir = journalDir;
 
-      if (buffered)
+      if (buffered && bufferTimeout > 0)
       {
          timedBuffer = new TimedBuffer(bufferSize, bufferTimeout, logRates);
       }

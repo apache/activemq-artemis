@@ -35,6 +35,12 @@ under the License.
 
       <paging-directory>${data.dir}/paging</paging-directory>
 
+      <!-- Nanosecond time for batching timeout before IO operations
+           This will batch multiple writes before IO writes.
+           Increasing this timeout would benefit scalabitility of multiple
+           producers and consumers -->
+      <journal-buffer-timeout>100</journal-buffer-timeout>
+
       <bindings-directory>${data.dir}/bindings</bindings-directory>
 
       <journal-directory>${data.dir}/journal</journal-directory>
