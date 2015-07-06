@@ -975,12 +975,6 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
 
             if (!reattached)
             {
-
-               if (ActiveMQClientLogger.LOGGER.isDebugEnabled())
-               {
-                  ActiveMQClientLogger.LOGGER.debug("ClientSession couldn't be reattached, creating a new session");
-               }
-
                for (ClientConsumerInternal consumer : cloneConsumers())
                {
                   consumer.clearAtFailover();

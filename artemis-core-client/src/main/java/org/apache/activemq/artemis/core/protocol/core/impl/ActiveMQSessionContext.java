@@ -594,10 +594,7 @@ public class ActiveMQSessionContext extends SessionContext
 
       if (response.isReattached())
       {
-         if (ActiveMQClientLogger.LOGGER.isDebugEnabled())
-         {
-            ActiveMQClientLogger.LOGGER.debug("ClientSession reattached fine, replaying commands");
-         }
+         ActiveMQClientLogger.LOGGER.replayingCommands(sessionChannel.getID(), response.getLastConfirmedCommandID());
          // The session was found on the server - we reattached transparently ok
 
          sessionChannel.replayCommands(response.getLastConfirmedCommandID());
@@ -606,6 +603,7 @@ public class ActiveMQSessionContext extends SessionContext
       }
       else
       {
+         ActiveMQClientLogger.LOGGER.reconnectCreatingNewSession(sessionChannel.getID());
 
          sessionChannel.clearCommands();
 
