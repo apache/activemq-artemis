@@ -29,7 +29,6 @@ import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
 import org.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.api.jms.JMSFactoryType;
-import org.apache.activemq.artemis.common.example.ActiveMQExample;
 
 /**
  * This example demonstrates a cluster of three nodes set up in a symmetric topology - i.e. each
@@ -48,15 +47,9 @@ import org.apache.activemq.artemis.common.example.ActiveMQExample;
  * <p>
  * Please see the readme.html file for more information.
  */
-public class SymmetricClusterExample extends ActiveMQExample
+public class SymmetricClusterExample
 {
-   public static void main(final String[] args)
-   {
-      new SymmetricClusterExample().run(args);
-   }
-
-   @Override
-   public boolean runExample() throws Exception
+   public static void main(final String[] args) throws Exception
    {
       Connection connection0 = null;
 
@@ -180,53 +173,51 @@ public class SymmetricClusterExample extends ActiveMQExample
 
             if (received0 == null)
             {
-               return false;
+               throw new IllegalStateException("Message is null!");
             }
 
             TextMessage received1 = (TextMessage)subscriber1.receive(5000);
 
             if (received1 == null)
             {
-               return false;
+               throw new IllegalStateException("Message is null!");
             }
 
             TextMessage received2 = (TextMessage)subscriber2.receive(5000);
 
             if (received2 == null)
             {
-               return false;
+               throw new IllegalStateException("Message is null!");
             }
 
             TextMessage received3 = (TextMessage)subscriber3.receive(5000);
 
             if (received3 == null)
             {
-               return false;
+               throw new IllegalStateException("Message is null!");
             }
 
             TextMessage received4 = (TextMessage)subscriber4.receive(5000);
 
             if (received4 == null)
             {
-               return false;
+               throw new IllegalStateException("Message is null!");
             }
 
             TextMessage received5 = (TextMessage)subscriber5.receive(5000);
 
             if (received5 == null)
             {
-               return false;
+               throw new IllegalStateException("Message is null!");
             }
 
             TextMessage received6 = (TextMessage)consumer0.receive(5000);
 
             if (received6 == null)
             {
-               return false;
+               throw new IllegalStateException("Message is null!");
             }
          }
-
-         return true;
       }
       finally
       {

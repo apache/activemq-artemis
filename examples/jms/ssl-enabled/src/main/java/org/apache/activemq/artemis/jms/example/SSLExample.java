@@ -25,20 +25,12 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.naming.InitialContext;
 
-import org.apache.activemq.artemis.common.example.ActiveMQExample;
-
 /**
  * A simple JMS Queue example that uses SSL secure transport.
  */
-public class SSLExample extends ActiveMQExample
+public class SSLExample
 {
-   public static void main(final String[] args)
-   {
-      new SSLExample().run(args);
-   }
-
-   @Override
-   public boolean runExample() throws Exception
+   public static void main(final String[] args) throws Exception
    {
       Connection connection = null;
       InitialContext initialContext = null;
@@ -82,8 +74,6 @@ public class SSLExample extends ActiveMQExample
          System.out.println("Received message: " + messageReceived.getText());
 
          initialContext.close();
-
-         return true;
       }
       finally
       {
@@ -98,5 +88,4 @@ public class SSLExample extends ActiveMQExample
          }
       }
    }
-
 }

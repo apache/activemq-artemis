@@ -26,20 +26,12 @@ import javax.jms.TemporaryQueue;
 import javax.jms.TextMessage;
 import javax.naming.InitialContext;
 
-import org.apache.activemq.artemis.common.example.ActiveMQExample;
-
 /**
  * A simple JMS example that shows how to use temporary queues.
  */
-public class TemporaryQueueExample extends ActiveMQExample
+public class TemporaryQueueExample
 {
-   public static void main(final String[] args)
-   {
-      new TemporaryQueueExample().run(args);
-   }
-
-   @Override
-   public boolean runExample() throws Exception
+   public static void main(final String[] args) throws Exception
    {
       Connection connection = null;
       InitialContext initialContext = null;
@@ -115,8 +107,6 @@ public class TemporaryQueueExample extends ActiveMQExample
          {
             System.out.println("Exception got when trying to access a temp queue outside its scope: " + e);
          }
-
-         return true;
       }
       finally
       {

@@ -29,14 +29,13 @@ under the License.
 
    <core xmlns="urn:activemq:core">
 
+      <bindings-directory>${data.dir:../data}/bindings</bindings-directory>
 
-      <bindings-directory>../../server0/data/messaging/bindings</bindings-directory>
+      <journal-directory>${data.dir:../data}/journal</journal-directory>
 
-      <journal-directory>../../server0/data/messaging/journal</journal-directory>
+      <large-messages-directory>${data.dir:../data}/largemessages</large-messages-directory>
 
-      <large-messages-directory>../../server0/data/messaging/largemessages</large-messages-directory>
-
-      <paging-directory>../../server0/data/messaging/paging</paging-directory>
+      <paging-directory>${data.dir:../data}/paging</paging-directory>
       <!-- Connectors -->
 
       <connectors>
@@ -87,7 +86,9 @@ under the License.
                <backup-request-retry-interval>2000</backup-request-retry-interval>
                <max-backups>1</max-backups>
                <request-backup>true</request-backup>
-               <master/>
+               <master>
+                  <failover-on-shutdown>true</failover-on-shutdown>
+               </master>
                <slave/>
             </colocated>
          </shared-store>

@@ -29,17 +29,19 @@ under the License.
 
    <core xmlns="urn:activemq:core">
 
-      <bindings-directory>../../data/messaging/bindings</bindings-directory>
+      <bindings-directory>../data/bindings</bindings-directory>
 
-      <journal-directory>../../data/messaging/journal</journal-directory>
+      <journal-directory>../data/journal</journal-directory>
 
-      <large-messages-directory>../../data/messaging/largemessages</large-messages-directory>
+      <large-messages-directory>../data/largemessages</large-messages-directory>
 
-      <paging-directory>../../data/messaging/paging</paging-directory>
+      <paging-directory>../data/paging</paging-directory>
 
       <ha-policy>
          <shared-store>
-            <master/>
+            <master>
+               <failover-on-shutdown>true</failover-on-shutdown>
+            </master>
          </shared-store>
       </ha-policy>
 

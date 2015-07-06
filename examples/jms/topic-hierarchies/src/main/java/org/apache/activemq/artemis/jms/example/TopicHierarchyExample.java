@@ -27,22 +27,15 @@ import javax.jms.Topic;
 import javax.naming.InitialContext;
 
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
-import org.apache.activemq.artemis.common.example.ActiveMQExample;
 
 /**
  * This example demonstrates how a JMS TopicSubscriber can be created to subscribe to a wild-card Topic.
  *
  * For more information please see the readme.html
  */
-public class TopicHierarchyExample extends ActiveMQExample
+public class TopicHierarchyExample
 {
-   public static void main(final String[] args)
-   {
-      new TopicHierarchyExample().run(args);
-   }
-
-   @Override
-   public boolean runExample() throws Exception
+   public static void main(final String[] args) throws Exception
    {
       Connection connection = null;
       InitialContext initialContext = null;
@@ -113,12 +106,10 @@ public class TopicHierarchyExample extends ActiveMQExample
 
          if (message != null)
          {
-            return false;
+            throw new IllegalStateException("Message was not null.");
          }
 
          System.out.println("Didn't received any more message: " + message);
-
-         return true;
       }
       finally
       {
@@ -133,5 +124,4 @@ public class TopicHierarchyExample extends ActiveMQExample
          }
       }
    }
-
 }

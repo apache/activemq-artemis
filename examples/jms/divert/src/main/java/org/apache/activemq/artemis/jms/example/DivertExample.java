@@ -28,23 +28,15 @@ import javax.jms.Topic;
 import javax.naming.InitialContext;
 import java.util.Hashtable;
 
-import org.apache.activemq.artemis.common.example.ActiveMQExample;
-
 /**
  * This examples demonstrates the use of ActiveMQ Artemis "Diverts" to transparently divert or copy messages
  * from one address to another.
  *
  * Please see the readme.html for more information.
  */
-public class DivertExample extends ActiveMQExample
+public class DivertExample
 {
-   public static void main(final String[] args)
-   {
-      new DivertExample().run(args);
-   }
-
-   @Override
-   public boolean runExample() throws Exception
+   public static void main(final String[] args) throws Exception
    {
       Connection connectionLondon = null;
 
@@ -58,7 +50,7 @@ public class DivertExample extends ActiveMQExample
          // Step 1. Create an initial context to perform the JNDI lookup on the London server
          Hashtable<String, Object> properties = new Hashtable<String, Object>();
          properties.put("java.naming.factory.initial", "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
-         properties.put("connectionFactory.ConnectionFactory", DEFAULT_TCP1);
+         properties.put("connectionFactory.ConnectionFactory", "tcp://localhost:61616");
          properties.put("queue.queue/orders", "orders");
          properties.put("topic.topic/priceUpdates", "priceUpdates");
          properties.put("topic.topic/spyTopic", "spyTopic");
@@ -77,7 +69,7 @@ public class DivertExample extends ActiveMQExample
          // Step 6. Create an initial context to perform the JNDI lookup on the New York server
          properties = new Hashtable<String, Object>();
          properties.put("java.naming.factory.initial", "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
-         properties.put("connectionFactory.ConnectionFactory", DEFAULT_TCP2);
+         properties.put("connectionFactory.ConnectionFactory2", "tcp://localhost:61617");
          properties.put("topic.topic/newYorkPriceUpdates", "newYorkPriceUpdates");
          initialContextNewYork = new InitialContext(properties);
 
@@ -94,7 +86,7 @@ public class DivertExample extends ActiveMQExample
          ConnectionFactory cfLondon = (ConnectionFactory)initialContextLondon.lookup("ConnectionFactory");
 
          // Step 9. Perform a lookup on the Connection Factory on the New York server
-         ConnectionFactory cfNewYork = (ConnectionFactory)initialContextNewYork.lookup("ConnectionFactory");
+         ConnectionFactory cfNewYork = (ConnectionFactory)initialContextNewYork.lookup("ConnectionFactory2");
 
          // Step 10. Create a JMS Connection on the London server
          connectionLondon = cfLondon.createConnection();
@@ -181,7 +173,7 @@ public class DivertExample extends ActiveMQExample
 
          if (priceUpdate1 != null)
          {
-            return false;
+            throw new IllegalStateException("Message is not null");
          }
 
          System.out.println("Did not received price update in New York, look it's: " + priceUpdate1);
@@ -190,7 +182,7 @@ public class DivertExample extends ActiveMQExample
 
          if (priceUpdate2 != null)
          {
-            return false;
+            throw new IllegalStateException("Message is not null");
          }
 
          System.out.println("Did not received price update in New York, look it's: " + priceUpdate2);
@@ -211,7 +203,7 @@ public class DivertExample extends ActiveMQExample
 
          if (message != null)
          {
-            return false;
+            throw new IllegalStateException("Message is not null");
          }
 
          System.out.println("Didn't receive local price update, look, it's: " + message);
@@ -231,8 +223,6 @@ public class DivertExample extends ActiveMQExample
 
          System.out.println("Received forwarded price update on server 2: " + priceUpdate2.getText());
          System.out.println("Time of forward: " + priceUpdate2.getLongProperty("time_of_forward"));
-
-         return true;
       }
       finally
       {
@@ -255,5 +245,4 @@ public class DivertExample extends ActiveMQExample
          }
       }
    }
-
 }

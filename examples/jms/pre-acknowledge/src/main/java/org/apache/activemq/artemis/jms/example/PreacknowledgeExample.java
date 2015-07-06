@@ -32,7 +32,6 @@ import javax.naming.InitialContext;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSConstants;
 import org.apache.activemq.artemis.api.jms.management.JMSManagementHelper;
-import org.apache.activemq.artemis.common.example.ActiveMQExample;
 
 /**
  * This example demonstrates the use of ActiveMQ Artemis "pre-acknowledge" functionality where
@@ -40,15 +39,9 @@ import org.apache.activemq.artemis.common.example.ActiveMQExample;
  *
  * Please see the readme.html for more details.
  */
-public class PreacknowledgeExample extends ActiveMQExample
+public class PreacknowledgeExample
 {
-   public static void main(final String[] args)
-   {
-      new PreacknowledgeExample().run(args);
-   }
-
-   @Override
-   public boolean runExample() throws Exception
+   public static void main(final String[] args) throws Exception
    {
       Connection connection = null;
 
@@ -98,15 +91,13 @@ public class PreacknowledgeExample extends ActiveMQExample
 
          if (count != 0)
          {
-            return false;
+            throw new IllegalStateException("Queue message count is not 0.");
          }
 
          // Step 8. Finally, receive the message
          TextMessage messageReceived = (TextMessage)messageConsumer.receive(5000);
 
          System.out.println("Received message: " + messageReceived.getText());
-
-         return true;
       }
       finally
       {
@@ -124,7 +115,7 @@ public class PreacknowledgeExample extends ActiveMQExample
 
    // To do this we send a management message to get the message count.
    // In real life you wouldn't create a new session every time you send a management message
-   private int getMessageCount(final Connection connection) throws Exception
+   private static int getMessageCount(final Connection connection) throws Exception
    {
       QueueSession session = ((QueueConnection)connection).createQueueSession(false, Session.AUTO_ACKNOWLEDGE);
 

@@ -27,21 +27,13 @@ import javax.jms.TextMessage;
 import javax.jms.Topic;
 import javax.naming.InitialContext;
 
-import org.apache.activemq.artemis.common.example.ActiveMQExample;
-
 /**
  * An example where a client will send a JMS message to a Topic.
  * Browser clients connected using Web Sockets will be able to receive the message.
  */
-public class StompWebSocketExample extends ActiveMQExample
+public class StompWebSocketExample
 {
-   public static void main(final String[] args)
-   {
-      new StompWebSocketExample().run(args);
-   }
-
-   @Override
-   public boolean runExample() throws Exception
+   public static void main(final String[] args) throws Exception
    {
       Connection connection = null;
       InitialContext initialContext = null;
@@ -70,8 +62,6 @@ public class StompWebSocketExample extends ActiveMQExample
 
          message = (TextMessage)consumer.receive();
          System.out.println("Received message: " + message.getText());
-
-         return true;
       }
       finally
       {

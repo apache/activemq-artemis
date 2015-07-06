@@ -38,6 +38,16 @@ under the License.
    <dependencies>
       <dependency>
          <groupId>org.apache.activemq</groupId>
+         <artifactId>artemis-server</artifactId>
+         <version>${project.version}</version>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>artemis-jms-server</artifactId>
+         <version>${project.version}</version>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-core-client</artifactId>
          <version>${project.version}</version>
       </dependency>
@@ -55,11 +65,6 @@ under the License.
          <groupId>org.apache.geronimo.specs</groupId>
          <artifactId>geronimo-jms_2.0_spec</artifactId>
       </dependency>
-      <dependency>
-         <groupId>org.apache.activemq.examples.jms</groupId>
-         <artifactId>common</artifactId>
-         <version>${project.version}</version>
-      </dependency>
    </dependencies>
 
    <profiles>
@@ -76,10 +81,6 @@ under the License.
                            <goals>
                               <goal>create</goal>
                            </goals>
-                           <configuration>
-                              <instance>${basedir}/target/server0</instance>
-                              <configuration>${basedir}/target/classes/activemq/server0</configuration>
-                           </configuration>
                         </execution>
                         <execution>
                            <id>runClient</id>
@@ -88,9 +89,6 @@ under the License.
                            </goals>
                            <configuration>
                               <clientClass>org.apache.activemq.artemis.jms.example.Server</clientClass>
-                              <args>
-                                 <param>${basedir}/target/server0</param>
-                              </args>
                            </configuration>
                         </execution>
                      </executions>
@@ -98,6 +96,11 @@ under the License.
                         <dependency>
                            <groupId>org.apache.activemq.examples.jms</groupId>
                            <artifactId>artemis-jms-perf-example</artifactId>
+                           <version>${project.version}</version>
+                        </dependency>
+                        <dependency>
+                           <groupId>org.apache.activemq</groupId>
+                           <artifactId>artemis-core-client</artifactId>
                            <version>${project.version}</version>
                         </dependency>
                      </dependencies>

@@ -32,28 +32,19 @@ import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.apache.activemq.artemis.common.example.ActiveMQExample;
-import org.apache.activemq.artemis.common.example.DummyXid;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 
 /**
  * A simple JMS example showing the usage of XA support in JMS.
  */
-public class XASendExample extends ActiveMQExample
+public class XASendExample
 {
-   private volatile boolean result = true;
-
-   private final ArrayList<String> receiveHolder = new ArrayList<String>();
-
-   public static void main(final String[] args)
+   public static void main(final String[] args) throws Exception
    {
-      new XASendExample().run(args);
-   }
-
-   @Override
-   public boolean runExample() throws Exception
-   {
+      AtomicBoolean result = new AtomicBoolean(true);
+      final ArrayList<String> receiveHolder = new ArrayList<String>();
       XAConnection connection = null;
       InitialContext initialContext = null;
       try
@@ -81,7 +72,7 @@ public class XASendExample extends ActiveMQExample
 
          // Step 8. Create a normal Message Consumer
          MessageConsumer normalConsumer = normalSession.createConsumer(queue);
-         normalConsumer.setMessageListener(new SimpleMessageListener());
+         normalConsumer.setMessageListener(new SimpleMessageListener(receiveHolder, result));
 
          // Step 9. Get the JMS Session
          Session session = xaSession.getSession();
@@ -95,8 +86,8 @@ public class XASendExample extends ActiveMQExample
 
          // Step 12. create a transaction
          Xid xid1 = new DummyXid("xa-example1".getBytes(StandardCharsets.UTF_8), 1, UUIDGenerator.getInstance()
-                                                                           .generateStringUUID()
-                                                                           .getBytes());
+                 .generateStringUUID()
+                 .getBytes());
 
          // Step 13. Get the JMS XAResource
          XAResource xaRes = xaSession.getXAResource();
@@ -111,7 +102,7 @@ public class XASendExample extends ActiveMQExample
          Thread.sleep(2000);
 
          // Step 16. Check the result, it should receive none!
-         checkNoMessageReceived();
+         checkNoMessageReceived(receiveHolder);
 
          // Step 17. Stop the work
          xaRes.end(xid1, XAResource.TMSUCCESS);
@@ -123,12 +114,12 @@ public class XASendExample extends ActiveMQExample
          xaRes.rollback(xid1);
 
          // Step 20. No messages should be received!
-         checkNoMessageReceived();
+         checkNoMessageReceived(receiveHolder);
 
          // Step 21. Create another transaction
          Xid xid2 = new DummyXid("xa-example2".getBytes(), 1, UUIDGenerator.getInstance()
-                                                                           .generateStringUUID()
-                                                                           .getBytes());
+                 .generateStringUUID()
+                 .getBytes());
 
          // Step 22. Start the transaction
          xaRes.start(xid2, XAResource.TMNOFLAGS);
@@ -144,7 +135,7 @@ public class XASendExample extends ActiveMQExample
          xaRes.prepare(xid2);
 
          // Step 26. No messages should be received at this moment
-         checkNoMessageReceived();
+         checkNoMessageReceived(receiveHolder);
 
          // Step 27. Commit!
          xaRes.commit(xid2, false);
@@ -152,9 +143,10 @@ public class XASendExample extends ActiveMQExample
          Thread.sleep(2000);
 
          // Step 28. Check the result, all message received
-         checkAllMessageReceived();
+         checkAllMessageReceived(receiveHolder);
 
-         return result;
+         if (!result.get())
+            throw new IllegalStateException();
       }
       finally
       {
@@ -170,42 +162,47 @@ public class XASendExample extends ActiveMQExample
       }
    }
 
-   private void checkAllMessageReceived()
+   private static void checkAllMessageReceived(ArrayList<String> receiveHolder)
    {
       if (receiveHolder.size() != 2)
       {
-         System.out.println("Number of messages received not correct ! -- " + receiveHolder.size());
-         result = false;
+         throw new IllegalStateException("Number of messages received not correct ! -- " + receiveHolder.size());
       }
       receiveHolder.clear();
    }
 
-   private void checkNoMessageReceived()
+   private static void checkNoMessageReceived(ArrayList<String> receiveHolder)
    {
       if (receiveHolder.size() > 0)
       {
-         System.out.println("Message received, wrong!");
-         result = false;
+         throw new IllegalStateException("Message received, wrong!");
       }
       receiveHolder.clear();
    }
+}
 
-   public class SimpleMessageListener implements MessageListener
+class SimpleMessageListener implements MessageListener
+{
+   ArrayList<String> receiveHolder;
+   AtomicBoolean result;
+
+   public SimpleMessageListener(ArrayList<String> receiveHolder, AtomicBoolean result)
    {
-      public void onMessage(final Message message)
-      {
-         try
-         {
-            System.out.println("Message received: " + message);
-            receiveHolder.add(((TextMessage)message).getText());
-         }
-         catch (JMSException e)
-         {
-            result = false;
-            e.printStackTrace();
-         }
-      }
-
+      this.receiveHolder = receiveHolder;
+      this.result = result;
    }
 
+   public void onMessage(final Message message)
+   {
+      try
+      {
+         System.out.println("Message received: " + message);
+         receiveHolder.add(((TextMessage)message).getText());
+      }
+      catch (JMSException e)
+      {
+         result.set(false);
+         e.printStackTrace();
+      }
+   }
 }

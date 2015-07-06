@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.jms.example;
 
+import org.apache.activemq.artemis.util.ServerUtil;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -24,23 +26,20 @@ import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.naming.InitialContext;
+import java.lang.IllegalStateException;
 import java.util.Hashtable;
-
-import org.apache.activemq.artemis.common.example.ActiveMQExample;
 
 /**
  * A simple example that demonstrates server side load-balancing of messages between the queue instances on different
  * nodes of the cluster.
  */
-public class ColocatedFailoverScaleDownExample extends ActiveMQExample
+public class ColocatedFailoverScaleDownExample
 {
-   public static void main(final String[] args) throws Exception
-   {
-      new ColocatedFailoverScaleDownExample().run(args);
-   }
+   private static Process server0;
 
-   @Override
-   public boolean runExample() throws Exception
+   private static Process server1;
+
+   public static void main(final String[] args) throws Exception
    {
       final int numMessages = 30;
 
@@ -52,15 +51,18 @@ public class ColocatedFailoverScaleDownExample extends ActiveMQExample
 
       try
       {
+         server0 = ServerUtil.startServer(args[0], ColocatedFailoverScaleDownExample.class.getSimpleName() + "0", 0, 5000);
+         server1 = ServerUtil.startServer(args[1], ColocatedFailoverScaleDownExample.class.getSimpleName() + "1", 1, 5000);
+
          // Step 1. Get an initial context for looking up JNDI for both servers
          Hashtable<String, Object> properties = new Hashtable<String, Object>();
          properties.put("java.naming.factory.initial", "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
-         properties.put("connectionFactory.ConnectionFactory", DEFAULT_TCP2);
+         properties.put("connectionFactory.ConnectionFactory", "tcp://localhost:61617");
          initialContext1 = new InitialContext(properties);
 
          properties = new Hashtable<String, Object>();
          properties.put("java.naming.factory.initial", "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
-         properties.put("connectionFactory.ConnectionFactory", DEFAULT_TCP1 + "?ha=true&retryInterval=1000&retryIntervalMultiplier=1.0&reconnectAttempts=-1");
+         properties.put("connectionFactory.ConnectionFactory", "tcp://localhost:61616?ha=true&retryInterval=1000&retryIntervalMultiplier=1.0&reconnectAttempts=-1");
          properties.put("queue.queue/exampleQueue", "exampleQueue");
          initialContext = new InitialContext(properties);
 
@@ -94,9 +96,8 @@ public class ColocatedFailoverScaleDownExample extends ActiveMQExample
 
          // Step 7. Crash server #0, the live server, and wait a little while to make sure
          // it has really crashed
-         killServer(0);
+         ServerUtil.killServer(server0);
          Thread.sleep(5000);
-
 
          // Step 8. start the connection ready to receive messages
          connection1.start();
@@ -111,11 +112,13 @@ public class ColocatedFailoverScaleDownExample extends ActiveMQExample
          for (int i = 0; i < numMessages * 2; i++)
          {
             message0 = (TextMessage)consumer.receive(5000);
+            if (message0 == null)
+            {
+               throw new IllegalStateException("Message not received!");
+            }
             System.out.println("Got message: " + message0.getText());
          }
          message0.acknowledge();
-
-         return true;
       }
       finally
       {
@@ -139,7 +142,9 @@ public class ColocatedFailoverScaleDownExample extends ActiveMQExample
          {
             initialContext1.close();
          }
+
+         ServerUtil.killServer(server0);
+         ServerUtil.killServer(server1);
       }
    }
-
 }

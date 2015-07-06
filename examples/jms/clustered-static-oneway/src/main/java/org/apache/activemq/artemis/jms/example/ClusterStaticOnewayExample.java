@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.jms.example;
 
+import org.apache.activemq.artemis.util.ServerUtil;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -26,21 +28,13 @@ import javax.jms.TextMessage;
 import javax.naming.InitialContext;
 import java.util.Hashtable;
 
-import org.apache.activemq.artemis.common.example.ActiveMQExample;
-
 /**
  * A simple example that demonstrates server side load-balancing of messages between the queue instances on different
  * nodes of the cluster. The cluster is created from a static list of nodes.
  */
-public class ClusterStaticOnewayExample extends ActiveMQExample
+public class ClusterStaticOnewayExample
 {
-   public static void main(final String[] args)
-   {
-      new ClusterStaticOnewayExample().run(args);
-   }
-
-   @Override
-   public boolean runExample() throws Exception
+   public static void main(final String[] args) throws Exception
    {
       Connection initialConnection = null;
 
@@ -51,13 +45,13 @@ public class ClusterStaticOnewayExample extends ActiveMQExample
       Connection connection2 = null;
 
       InitialContext ic0 = null;
-      Thread.sleep(5000);
+
       try
       {
          // Step 1. Get an initial context for looking up JNDI from server 0
          Hashtable<String, Object> properties = new Hashtable<String, Object>();
          properties.put("java.naming.factory.initial", "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
-         properties.put("connectionFactory.ConnectionFactory", DEFAULT_TCP1);
+         properties.put("connectionFactory.ConnectionFactory", "tcp://localhost:61616");
          properties.put("queue.queue/exampleQueue", "exampleQueue");
          ic0 = new InitialContext(properties);
 
@@ -106,9 +100,9 @@ public class ClusterStaticOnewayExample extends ActiveMQExample
 
          Thread.sleep(4000);
 
-         int con0Node = getServer(connection0);
-         int con1Node = getServer(connection1);
-         int con2Node = getServer(connection2);
+         int con0Node = ServerUtil.getServer(connection0);
+         int con1Node = ServerUtil.getServer(connection1);
+         int con2Node = ServerUtil.getServer(connection2);
 
          System.out.println("con0Node = " + con0Node);
          System.out.println("con1Node = " + con1Node);
@@ -116,11 +110,10 @@ public class ClusterStaticOnewayExample extends ActiveMQExample
 
          if(con0Node + con1Node + con2Node != 3)
          {
-            System.out.println("connections not load balanced");
-            return false;
+            throw new IllegalStateException("connections not load balanced");
          }
          // Step 13. We create a JMS MessageProducer object on server 0
-         Session sendSession = getServerConnection(0, connection0, connection1, connection2).createSession(false, Session.AUTO_ACKNOWLEDGE);
+         Session sendSession = ServerUtil.getServerConnection(0, connection0, connection1, connection2).createSession(false, Session.AUTO_ACKNOWLEDGE);
 
          MessageProducer producer = sendSession.createProducer(queue);
 
@@ -156,8 +149,6 @@ public class ClusterStaticOnewayExample extends ActiveMQExample
 
             System.out.println("Got message: " + message2.getText() + " from node " + con2Node);
          }
-
-         return true;
       }
       finally
       {
@@ -189,5 +180,4 @@ public class ClusterStaticOnewayExample extends ActiveMQExample
          }
       }
    }
-
 }

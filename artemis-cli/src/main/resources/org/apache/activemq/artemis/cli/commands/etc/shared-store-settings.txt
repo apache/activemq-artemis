@@ -1,6 +1,8 @@
 
       <ha-policy>
          <shared-store>
-            <${master-slave}/>
+            <${master-slave}>
+               <failover-on-shutdown>${failover-on-shutdown}</failover-on-shutdown>
+            </${master-slave}>
          </shared-store>
       </ha-policy>

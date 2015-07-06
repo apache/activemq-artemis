@@ -37,11 +37,6 @@ under the License.
 
    <dependencies>
       <dependency>
-         <groupId>org.apache.activemq.examples.jms</groupId>
-         <artifactId>common</artifactId>
-         <version>${project.version}</version>
-      </dependency>
-      <dependency>
          <groupId>org.apache.geronimo.specs</groupId>
          <artifactId>geronimo-jms_2.0_spec</artifactId>
       </dependency>
@@ -57,25 +52,59 @@ under the License.
                   <artifactId>artemis-maven-plugin</artifactId>
                   <executions>
                      <execution>
-                        <id>create</id>
+                        <id>create0</id>
                         <goals>
                            <goal>create</goal>
                         </goals>
                         <configuration>
                            <instance>${basedir}/target/server0</instance>
-                           <configuration>${basedir}/target/classes/activemq/server0</configuration>
-                           <javaOptions>-Dudp-address=${udp-address}</javaOptions>
+                           <sharedStore>true</sharedStore>
+                           <slave>false</slave>
+                           <dataFolder>../data</dataFolder>
+                           <failoverOnShutdown>true</failoverOnShutdown>
                         </configuration>
                      </execution>
                      <execution>
-                        <id>create2</id>
+                        <id>create1</id>
                         <goals>
                            <goal>create</goal>
                         </goals>
                         <configuration>
                            <instance>${basedir}/target/server1</instance>
-                           <configuration>${basedir}/target/classes/activemq/server1</configuration>
-                           <javaOptions>-Dudp-address=${udp-address}</javaOptions>
+                           <sharedStore>true</sharedStore>
+                           <slave>true</slave>
+                           <dataFolder>../data</dataFolder>
+                           <failoverOnShutdown>true</failoverOnShutdown>
+                        </configuration>
+                     </execution>
+                     <execution>
+                        <id>start0</id>
+                        <goals>
+                           <goal>cli</goal>
+                        </goals>
+                        <configuration>
+                           <spawn>true</spawn>
+                           <location>${basedir}/target/server0</location>
+                           <testURI>tcp://localhost:61616</testURI>
+                           <args>
+                              <param>run</param>
+                           </args>
+                           <name>server0</name>
+                        </configuration>
+                     </execution>
+                     <execution>
+                        <id>start1</id>
+                        <goals>
+                           <goal>cli</goal>
+                        </goals>
+                        <configuration>
+                           <spawn>true</spawn>
+                           <location>${basedir}/target/server1</location>
+                           <testURI>tcp://localhost:61617</testURI>
+                           <args>
+                              <param>run</param>
+                           </args>
+                           <name>server1</name>
                         </configuration>
                      </execution>
                      <execution>
@@ -85,9 +114,29 @@ under the License.
                         </goals>
                         <configuration>
                            <clientClass>org.apache.activemq.artemis.jms.example.StopServerFailoverExample</clientClass>
+                        </configuration>
+                     </execution>
+                     <execution>
+                        <id>stop0</id>
+                        <goals>
+                           <goal>cli</goal>
+                        </goals>
+                        <configuration>
+                           <location>${basedir}/target/server0</location>
                            <args>
-                              <param>${basedir}/target/server0</param>
-                              <param>${basedir}/target/server1</param>
+                              <param>stop</param>
+                           </args>
+                        </configuration>
+                     </execution>
+                     <execution>
+                        <id>stop1</id>
+                        <goals>
+                           <goal>cli</goal>
+                        </goals>
+                        <configuration>
+                           <location>${basedir}/target/server1</location>
+                           <args>
+                              <param>stop</param>
                            </args>
                         </configuration>
                      </execution>

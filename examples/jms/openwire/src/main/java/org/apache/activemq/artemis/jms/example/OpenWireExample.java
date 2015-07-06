@@ -26,24 +26,19 @@ import javax.jms.TextMessage;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.command.ActiveMQQueue;
-import org.apache.activemq.artemis.common.example.ActiveMQExample;
+
+import java.lang.Exception;
 
 /**
  * A simple JMS Queue example that creates a producer and consumer on a queue
  * and sends then receives a message.
  */
-public class OpenWireExample extends ActiveMQExample
+public class OpenWireExample
 {
    public static final String OWHOST = "localhost";
    public static final int OWPORT = 61616;
 
-   public static void main(final String[] args)
-   {
-      new OpenWireExample().run(args);
-   }
-
-   @Override
-   public boolean runExample() throws Exception
+   public static void main(final String[] args) throws Exception
    {
       Connection connection = null;
 
@@ -84,8 +79,6 @@ public class OpenWireExample extends ActiveMQExample
          TextMessage messageReceived = (TextMessage) messageConsumer.receive(5000);
 
          System.out.println("Received message: " + messageReceived.getText());
-
-         return true;
       }
       finally
       {

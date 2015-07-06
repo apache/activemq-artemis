@@ -26,8 +26,6 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.naming.InitialContext;
 
-import org.apache.activemq.artemis.common.example.ActiveMQExample;
-
 /**
  * This example demonstrates how sessions created from a single connection can be load
  * balanced across the different nodes of the cluster.
@@ -35,15 +33,9 @@ import org.apache.activemq.artemis.common.example.ActiveMQExample;
  * In this example there are three nodes and we use a round-robin client side load-balancing
  * policy.
  */
-public class ClientSideLoadBalancingExample extends ActiveMQExample
+public class ClientSideLoadBalancingExample
 {
-   public static void main(final String[] args)
-   {
-      new ClientSideLoadBalancingExample().run(args);
-   }
-
-   @Override
-   public boolean runExample() throws Exception
+   public static void main(final String[] args) throws Exception
    {
       InitialContext initialContext = null;
 
@@ -116,8 +108,6 @@ public class ClientSideLoadBalancingExample extends ActiveMQExample
          consume(sessionA, queue, numMessages, "A");
          consume(sessionB, queue, numMessages, "B");
          consume(sessionC, queue, numMessages, "C");
-
-         return true;
       }
       finally
       {
@@ -143,7 +133,7 @@ public class ClientSideLoadBalancingExample extends ActiveMQExample
       }
    }
 
-   private void consume(Session session, Queue queue, int numMessages, String node) throws JMSException
+   private static void consume(Session session, Queue queue, int numMessages, String node) throws JMSException
    {
       MessageConsumer consumer = session.createConsumer(queue);
 
@@ -154,6 +144,5 @@ public class ClientSideLoadBalancingExample extends ActiveMQExample
       }
 
       System.out.println("receive other message from node " + node + ": " + consumer.receive(2000));
-
    }
 }

@@ -37,8 +37,8 @@ under the License.
 
    <dependencies>
       <dependency>
-         <groupId>org.apache.activemq.examples.jms</groupId>
-         <artifactId>common</artifactId>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>artemis-cli</artifactId>
          <version>${project.version}</version>
       </dependency>
       <dependency>
@@ -57,7 +57,7 @@ under the License.
                   <artifactId>artemis-maven-plugin</artifactId>
                   <executions>
                      <execution>
-                        <id>create</id>
+                        <id>create0</id>
                         <goals>
                            <goal>create</goal>
                         </goals>
@@ -66,7 +66,7 @@ under the License.
                         </configuration>
                      </execution>
                      <execution>
-                        <id>create2</id>
+                        <id>create1</id>
                         <goals>
                            <goal>create</goal>
                         </goals>

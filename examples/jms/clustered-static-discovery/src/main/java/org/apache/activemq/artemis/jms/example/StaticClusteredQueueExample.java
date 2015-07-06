@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.jms.example;
 
+import org.apache.activemq.artemis.util.ServerUtil;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -26,21 +28,13 @@ import javax.jms.TextMessage;
 import javax.naming.InitialContext;
 import java.util.Hashtable;
 
-import org.apache.activemq.artemis.common.example.ActiveMQExample;
-
 /**
  * A simple example that demonstrates server side load-balancing of messages between the queue instances on different
  * nodes of the cluster. The cluster is created from a static list of nodes.
  */
-public class StaticClusteredQueueExample extends ActiveMQExample
+public class StaticClusteredQueueExample
 {
-   public static void main(final String[] args)
-   {
-      new StaticClusteredQueueExample().run(args);
-   }
-
-   @Override
-   public boolean runExample() throws Exception
+   public static void main(final String[] args) throws Exception
    {
       Connection initialConnection = null;
 
@@ -59,7 +53,7 @@ public class StaticClusteredQueueExample extends ActiveMQExample
          // Step 1. Get an initial context for looking up JNDI from server 3
          Hashtable<String, Object> properties = new Hashtable<String, Object>();
          properties.put("java.naming.factory.initial", "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
-         properties.put("connectionFactory.ConnectionFactory", DEFAULT_TCP4);
+         properties.put("connectionFactory.ConnectionFactory", "tcp://localhost:61619");
          properties.put("queue.queue/exampleQueue", "exampleQueue");
          ic0 = new InitialContext(properties);
 
@@ -139,14 +133,14 @@ public class StaticClusteredQueueExample extends ActiveMQExample
          // We note the messages have been distributed between servers in a round robin fashion
          // JMS Queues implement point-to-point message where each message is only ever consumed by a
          // maximum of one consumer
-         int con0Node = getServer(connection0);
-         int con1Node = getServer(connection1);
-         int con2Node = getServer(connection2);
-         int con3Node = getServer(connection3);
+         int con0Node = ServerUtil.getServer(connection0);
+         int con1Node = ServerUtil.getServer(connection1);
+         int con2Node = ServerUtil.getServer(connection2);
+         int con3Node = ServerUtil.getServer(connection3);
 
          if(con0Node + con1Node + con2Node + con3Node != 6)
          {
-            return false;
+            throw new IllegalStateException();
          }
          for (int i = 0; i < numMessages; i += 4)
          {
@@ -166,8 +160,6 @@ public class StaticClusteredQueueExample extends ActiveMQExample
 
             System.out.println("Got message: " + message3.getText() + " from node " + con3Node);
          }
-
-         return true;
       }
       finally
       {
@@ -204,5 +196,4 @@ public class StaticClusteredQueueExample extends ActiveMQExample
          }
       }
    }
-
 }

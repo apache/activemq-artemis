@@ -37,11 +37,6 @@ under the License.
 
    <dependencies>
       <dependency>
-         <groupId>org.apache.activemq.examples.jms</groupId>
-         <artifactId>common</artifactId>
-         <version>${project.version}</version>
-      </dependency>
-      <dependency>
          <groupId>org.apache.geronimo.specs</groupId>
          <artifactId>geronimo-jms_2.0_spec</artifactId>
       </dependency>
@@ -64,14 +59,35 @@ under the License.
                         </goals>
                      </execution>
                      <execution>
+                        <id>start</id>
+                        <goals>
+                           <goal>cli</goal>
+                        </goals>
+                        <configuration>
+                           <spawn>true</spawn>
+                           <testURI>tcp://localhost:61616</testURI>
+                           <args>
+                              <param>run</param>
+                           </args>
+                        </configuration>
+                     </execution>
+                     <execution>
                         <id>runClient</id>
                         <goals>
                            <goal>runClient</goal>
                         </goals>
                         <configuration>
                            <clientClass>org.apache.activemq.artemis.jms.example.QueueBrowserExample</clientClass>
+                        </configuration>
+                     </execution>
+                     <execution>
+                        <id>stop</id>
+                        <goals>
+                           <goal>cli</goal>
+                        </goals>
+                        <configuration>
                            <args>
-                              <param>${basedir}/target/server0</param>
+                              <param>stop</param>
                            </args>
                         </configuration>
                      </execution>

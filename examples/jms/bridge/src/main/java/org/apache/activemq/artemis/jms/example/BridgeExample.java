@@ -26,21 +26,13 @@ import javax.jms.Session;
 import javax.naming.InitialContext;
 import java.util.Hashtable;
 
-import org.apache.activemq.artemis.common.example.ActiveMQExample;
-
 /**
  * This example demonstrates a core bridge set-up between two nodes, consuming messages from a queue
  * on one node and forwarding them to an address on the second node.
  */
-public class BridgeExample extends ActiveMQExample
+public class BridgeExample
 {
-   public static void main(final String[] args)
-   {
-      new BridgeExample().run(args);
-   }
-
-   @Override
-   public boolean runExample() throws Exception
+   public static void main(final String[] args) throws Exception
    {
       Connection connection0 = null;
 
@@ -120,9 +112,9 @@ public class BridgeExample extends ActiveMQExample
          producer.send(message);
 
          System.out.println("Sent " + message.getStringProperty("name") +
-                            " message with " +
-                            message.getStringProperty("hat") +
-                            " hat to sausage-factory on node 0");
+                                    " message with " +
+                                    message.getStringProperty("hat") +
+                                    " hat to sausage-factory on node 0");
 
          // Step 14 - we successfully receive the aardvark message from the mincing-machine one node 1. The aardvark's
          // hat is now blue since it has been transformed!
@@ -130,9 +122,9 @@ public class BridgeExample extends ActiveMQExample
          Message receivedMessage = consumer.receive(5000);
 
          System.out.println("Received " + receivedMessage.getStringProperty("name") +
-                            " message with " +
-                            receivedMessage.getStringProperty("hat") +
-                            " hat from mincing-machine on node 1");
+                                    " message with " +
+                                    receivedMessage.getStringProperty("hat") +
+                                    " hat from mincing-machine on node 1");
 
          // Step 13. We create and send another message, this time representing a sasquatch with a mauve hat to the
          // sausage-factory on node 0. This won't be bridged to the mincing-machine since we only want aardvarks, not
@@ -147,9 +139,9 @@ public class BridgeExample extends ActiveMQExample
          producer.send(message);
 
          System.out.println("Sent " + message.getStringProperty("name") +
-                            " message with " +
-                            message.getStringProperty("hat") +
-                            " hat to sausage-factory on node 0");
+                                    " message with " +
+                                    message.getStringProperty("hat") +
+                                    " hat to sausage-factory on node 0");
 
          // Step 14. We don't receive the message since it has not been bridged.
 
@@ -161,10 +153,8 @@ public class BridgeExample extends ActiveMQExample
          }
          else
          {
-            return false;
+            throw new IllegalStateException();
          }
-
-         return true;
       }
       finally
       {
@@ -191,5 +181,4 @@ public class BridgeExample extends ActiveMQExample
          }
       }
    }
-
 }

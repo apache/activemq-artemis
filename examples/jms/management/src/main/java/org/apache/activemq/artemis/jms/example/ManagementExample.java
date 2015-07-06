@@ -30,20 +30,13 @@ import javax.naming.InitialContext;
 
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.api.jms.management.JMSManagementHelper;
-import org.apache.activemq.artemis.common.example.ActiveMQExample;
 
 /**
  * An example that shows how to manage ActiveMQ Artemis using JMS messages.
  */
-public class ManagementExample extends ActiveMQExample
+public class ManagementExample
 {
-   public static void main(final String[] args)
-   {
-      new ManagementExample().run(args);
-   }
-
-   @Override
-   public boolean runExample() throws Exception
+   public static void main(final String[] args) throws Exception
    {
       QueueConnection connection = null;
       InitialContext initialContext = null;
@@ -131,8 +124,6 @@ public class ManagementExample extends ActiveMQExample
          // there is none to consume. The call will timeout after 5000ms and messageReceived will be null
          TextMessage messageReceived = (TextMessage)messageConsumer.receive(5000);
          System.out.println("Received message: " + messageReceived);
-
-         return true;
       }
       finally
       {

@@ -25,20 +25,12 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.naming.InitialContext;
 
-import org.apache.activemq.artemis.common.example.ActiveMQExample;
-
 /**
  * A simple JMS example that shows how to implement and use interceptors with ActiveMQ Artemis.
  */
-public class InterceptorExample extends ActiveMQExample
+public class InterceptorExample
 {
-   public static void main(final String[] args)
-   {
-      new InterceptorExample().run(args);
-   }
-
-   @Override
-   public boolean runExample() throws Exception
+   public static void main(final String[] args) throws Exception
    {
       Connection connection = null;
       InitialContext initialContext = null;
@@ -66,8 +58,8 @@ public class InterceptorExample extends ActiveMQExample
          TextMessage message = session.createTextMessage("This is a text message");
 
          System.out.println("Sending message [" + message.getText() +
-                            "] with String property: " +
-                            message.getStringProperty("newproperty"));
+                                    "] with String property: " +
+                                    message.getStringProperty("newproperty"));
 
          // Step 8. Send the Message
          producer.send(message);
@@ -82,10 +74,8 @@ public class InterceptorExample extends ActiveMQExample
          TextMessage messageReceived = (TextMessage)messageConsumer.receive(5000);
 
          System.out.println("Received message [" + messageReceived.getText() +
-                            "] with String property: " +
-                            messageReceived.getStringProperty("newproperty"));
-
-         return true;
+                                    "] with String property: " +
+                                    messageReceived.getStringProperty("newproperty"));
       }
       finally
       {
@@ -100,5 +90,4 @@ public class InterceptorExample extends ActiveMQExample
          }
       }
    }
-
 }

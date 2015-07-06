@@ -29,7 +29,6 @@ import java.util.Map;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.api.jms.JMSFactoryType;
-import org.apache.activemq.artemis.common.example.ActiveMQExample;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 
@@ -40,15 +39,9 @@ import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
  *
  * For more information please see the readme.html file.
  */
-public class InstantiateConnectionFactoryExample extends ActiveMQExample
+public class InstantiateConnectionFactoryExample
 {
-   public static void main(final String[] args)
-   {
-      new InstantiateConnectionFactoryExample().run(args);
-   }
-
-   @Override
-   public boolean runExample() throws Exception
+   public static void main(final String[] args) throws Exception
    {
       Connection connection = null;
       try
@@ -95,8 +88,6 @@ public class InstantiateConnectionFactoryExample extends ActiveMQExample
          TextMessage messageReceived = (TextMessage)messageConsumer.receive(5000);
 
          System.out.println("Received message: " + messageReceived.getText());
-
-         return true;
       }
       finally
       {
@@ -106,5 +97,4 @@ public class InstantiateConnectionFactoryExample extends ActiveMQExample
          }
       }
    }
-
 }

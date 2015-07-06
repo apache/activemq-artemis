@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.jms.example;
 
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -31,25 +32,15 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.naming.InitialContext;
 
-import org.apache.activemq.artemis.common.example.ActiveMQExample;
-
 /**
  * A simple JMS example that shows the delivery order of messages with priorities.
  */
-public class MessagePriorityExample extends ActiveMQExample
+public class MessagePriorityExample
 {
-   private volatile boolean result = true;
-
-   private final ArrayList<TextMessage> msgReceived = new ArrayList<TextMessage>();
-
-   public static void main(final String[] args)
+   public static void main(final String[] args) throws Exception
    {
-      new MessagePriorityExample().run(args);
-   }
-
-   @Override
-   public boolean runExample() throws Exception
-   {
+      AtomicBoolean result = new AtomicBoolean(true);
+      final ArrayList<TextMessage> msgReceived = new ArrayList<TextMessage>();
       Connection connection = null;
       InitialContext initialContext = null;
       try
@@ -74,7 +65,7 @@ public class MessagePriorityExample extends ActiveMQExample
 
          // Step 7. Create a JMS Message Consumer
          MessageConsumer redConsumer = session.createConsumer(queue);
-         redConsumer.setMessageListener(new SimpleMessageListener());
+         redConsumer.setMessageListener(new SimpleMessageListener(msgReceived, result));
 
          // Step 8. Create three messages
          TextMessage[] sentMessages = new TextMessage[3];
@@ -85,16 +76,16 @@ public class MessagePriorityExample extends ActiveMQExample
          // Step 9. Send the Messages, each has a different priority
          producer.send(sentMessages[0]);
          System.out.println("Message sent: " + sentMessages[0].getText() +
-                            " with priority: " +
-                            sentMessages[0].getJMSPriority());
+                                    " with priority: " +
+                                    sentMessages[0].getJMSPriority());
          producer.send(sentMessages[1], DeliveryMode.NON_PERSISTENT, 5, 0);
          System.out.println("Message sent: " + sentMessages[1].getText() +
-                            "with priority: " +
-                            sentMessages[1].getJMSPriority());
+                                    "with priority: " +
+                                    sentMessages[1].getJMSPriority());
          producer.send(sentMessages[2], DeliveryMode.NON_PERSISTENT, 9, 0);
          System.out.println("Message sent: " + sentMessages[2].getText() +
-                            "with priority: " +
-                            sentMessages[2].getJMSPriority());
+                                    "with priority: " +
+                                    sentMessages[2].getJMSPriority());
 
          // Step 10. Start the connection now.
          connection.start();
@@ -108,12 +99,12 @@ public class MessagePriorityExample extends ActiveMQExample
             TextMessage rm = msgReceived.get(i);
             if (!rm.getText().equals(sentMessages[2 - i].getText()))
             {
-               System.err.println("Priority is broken!");
-               result = false;
+               throw new IllegalStateException("Priority is broken!");
             }
          }
 
-         return result;
+         if (!result.get())
+            throw new IllegalStateException();
       }
       finally
       {
@@ -128,28 +119,31 @@ public class MessagePriorityExample extends ActiveMQExample
          }
       }
    }
+}
 
-   public class SimpleMessageListener implements MessageListener
+class SimpleMessageListener implements MessageListener
+{
+   ArrayList<TextMessage> msgReceived;
+   AtomicBoolean result;
+
+   public SimpleMessageListener(ArrayList<TextMessage> msgReceived, AtomicBoolean result)
    {
+      this.msgReceived = msgReceived;
+      this.result = result;
+   }
 
-      public SimpleMessageListener()
+   public void onMessage(final Message msg)
+   {
+      TextMessage textMessage = (TextMessage)msg;
+      try
       {
+         System.out.println("Received message : [" + textMessage.getText() + "]");
       }
-
-      public void onMessage(final Message msg)
+      catch (JMSException e)
       {
-         TextMessage textMessage = (TextMessage)msg;
-         try
-         {
-            System.out.println("Received message : [" + textMessage.getText() + "]");
-         }
-         catch (JMSException e)
-         {
-            result = false;
-         }
-         msgReceived.add(textMessage);
+         result.set(false);
       }
-
+      msgReceived.add(textMessage);
    }
 
 }

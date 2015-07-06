@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.jms.example;
 
+import org.apache.activemq.artemis.util.ServerUtil;
+
 import java.lang.Object;
 import java.lang.String;
 import java.util.Hashtable;
@@ -32,37 +34,37 @@ import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.naming.InitialContext;
-
-import org.apache.activemq.artemis.common.example.ActiveMQExample;
+import javax.naming.NamingException;
 
 /**
  * A simple example that demonstrates application-layer failover of the JMS connection from one node to another
  * when the live server crashes
  */
-public class ApplicationLayerFailoverExample extends ActiveMQExample
+public class ApplicationLayerFailoverExample
 {
-   public static void main(final String[] args)
-   {
-      new ApplicationLayerFailoverExample().run(args);
-   }
+   private static InitialContext initialContext;
 
-   private volatile InitialContext initialContext;
+   private static Connection connection;
 
-   private volatile Connection connection;
+   private static Session session;
 
-   private volatile Session session;
+   private static MessageConsumer consumer;
 
-   private volatile MessageConsumer consumer;
+   private static MessageProducer producer;
 
-   private volatile MessageProducer producer;
+   private static final CountDownLatch failoverLatch = new CountDownLatch(1);
 
-   private final CountDownLatch failoverLatch = new CountDownLatch(1);
+   private static Process server0;
 
-   @Override
-   public boolean runExample() throws Exception
+   private static Process server1;
+
+   public static void main(final String[] args) throws Exception
    {
       try
       {
+         server0 = ServerUtil.startServer(args[0], ApplicationLayerFailoverExample.class.getSimpleName() + "0", 0, 5000);
+         server1 = ServerUtil.startServer(args[1], ApplicationLayerFailoverExample.class.getSimpleName() + "1", 1, 5000);
+
          // Step 1. We create our JMS Connection, Session, MessageProducer and MessageConsumer on server 1.
          createJMSObjects(0);
 
@@ -99,20 +101,11 @@ public class ApplicationLayerFailoverExample extends ActiveMQExample
 
          System.out.println("Killing the server");
 
-         killServer(0);
-
-         // this utility method will wait for the server1 to be activated
-         waitForServerStart(1, 20000);
-
+         ServerUtil.killServer(server0);
 
          // Step 6. Wait for the client side to register the failure and reconnect
 
          boolean ok = failoverLatch.await(5000, TimeUnit.MILLISECONDS);
-
-         if (!ok)
-         {
-            return false;
-         }
 
          System.out.println("Reconnection has occurred. Now sending more messages.");
 
@@ -135,23 +128,21 @@ public class ApplicationLayerFailoverExample extends ActiveMQExample
 
             System.out.println("Got message: " + message0.getText());
          }
-
-         return true;
       }
       catch(Throwable t)
       {
          t.printStackTrace();
-         return false;
       }
       finally
       {
          // Step 14. Be sure to close our resources!
-
          closeResources();
+         ServerUtil.killServer(server0);
+         ServerUtil.killServer(server1);
       }
    }
 
-   private void createJMSObjects(final int server) throws Exception
+   private static void createJMSObjects(final int server) throws Exception
    {
       // Step 1. Get an initial context for looking up JNDI from the server
       Hashtable<String, Object> properties = new Hashtable<String, Object>();
@@ -182,20 +173,34 @@ public class ApplicationLayerFailoverExample extends ActiveMQExample
       producer = session.createProducer(queue);
    }
 
-   private void closeResources() throws Exception
+   private static void closeResources()
    {
       if (initialContext != null)
       {
-         initialContext.close();
+         try
+         {
+            initialContext.close();
+         }
+         catch (NamingException e)
+         {
+            e.printStackTrace();
+         }
       }
 
       if (connection != null)
       {
-         connection.close();
+         try
+         {
+            connection.close();
+         }
+         catch (JMSException e)
+         {
+            e.printStackTrace();
+         }
       }
    }
 
-   private class ExampleListener implements ExceptionListener
+   private static class ExampleListener implements ExceptionListener
    {
       public void onException(final JMSException exception)
       {

@@ -29,17 +29,10 @@ import javax.jms.TextMessage;
 import javax.naming.InitialContext;
 
 import org.apache.activemq.artemis.api.core.Message;
-import org.apache.activemq.artemis.common.example.ActiveMQExample;
 
-public class ScheduledMessageExample extends ActiveMQExample
+public class ScheduledMessageExample
 {
-   public static void main(final String[] args)
-   {
-      new ScheduledMessageExample().run(args);
-   }
-
-   @Override
-   public boolean runExample() throws Exception
+   public static void main(final String[] args) throws Exception
    {
       Connection connection = null;
       InitialContext initialContext = null;
@@ -89,8 +82,6 @@ public class ScheduledMessageExample extends ActiveMQExample
 
          System.out.println("Received message: " + messageReceived.getText());
          System.out.println("Time of receive: " + formatter.format(new Date()));
-
-         return true;
       }
       finally
       {
@@ -105,5 +96,4 @@ public class ScheduledMessageExample extends ActiveMQExample
          }
       }
    }
-
 }

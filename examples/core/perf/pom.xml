@@ -52,11 +52,6 @@ under the License.
          <version>${netty.version}</version>
       </dependency>
       <dependency>
-         <groupId>org.apache.activemq.examples.jms</groupId>
-         <artifactId>common</artifactId>
-         <version>${project.version}</version>
-      </dependency>
-      <dependency>
          <groupId>org.apache.geronimo.specs</groupId>
          <artifactId>geronimo-jms_2.0_spec</artifactId>
       </dependency>
@@ -64,7 +59,7 @@ under the License.
 
    <profiles>
       <profile>
-         <id>default</id>
+         <id>server</id>
          <build>
             <plugins>
                <plugin>
@@ -72,26 +67,16 @@ under the License.
                   <artifactId>artemis-maven-plugin</artifactId>
                   <executions>
                      <execution>
-                        <id>start</id>
+                        <id>create0</id>
                         <goals>
-                           <goal>start</goal>
+                           <goal>create</goal>
                         </goals>
                         <configuration>
-                           <waitOnStart>true</waitOnStart>
-                           <configurationDir>${basedir}/target/classes/server0</configurationDir>
-                           <systemProperties>
-                              <property>
-                                 <name>build.directory</name>
-                                 <value>${basedir}/target/</value>
-                              </property>
-                           </systemProperties>
+                           <instance>${basedir}/target/server0</instance>
+                           <configuration>${basedir}/target/classes/activemq/server0</configuration>
                         </configuration>
                      </execution>
                   </executions>
-                  <configuration>
-                     <waitOnStart>false</waitOnStart>
-                     <configurationDir>${basedir}/target/classes/server0</configurationDir>
-                  </configuration>
                   <dependencies>
                      <dependency>
                         <groupId>org.apache.activemq.examples.core</groupId>
@@ -175,6 +160,4 @@ under the License.
          </build>
       </profile>
    </profiles>
-
-
 </project>

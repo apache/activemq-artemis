@@ -37,8 +37,8 @@ under the License.
 
    <dependencies>
       <dependency>
-         <groupId>org.apache.activemq.examples.jms</groupId>
-         <artifactId>common</artifactId>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>artemis-core-client</artifactId>
          <version>${project.version}</version>
       </dependency>
       <dependency>
@@ -61,9 +61,18 @@ under the License.
                         <goals>
                            <goal>create</goal>
                         </goals>
+                     </execution>
+                     <execution>
+                        <id>start</id>
+                        <goals>
+                           <goal>cli</goal>
+                        </goals>
                         <configuration>
-                           <instance>${basedir}/target/server0</instance>
-                           <configuration>${basedir}/target/classes/activemq/server0</configuration>
+                           <spawn>true</spawn>
+                           <testURI>tcp://localhost:61616</testURI>
+                           <args>
+                              <param>run</param>
+                           </args>
                         </configuration>
                      </execution>
                      <execution>
@@ -73,8 +82,16 @@ under the License.
                         </goals>
                         <configuration>
                            <clientClass>org.apache.activemq.artemis.jms.example.ScheduledMessageExample</clientClass>
+                        </configuration>
+                     </execution>
+                     <execution>
+                        <id>stop</id>
+                        <goals>
+                           <goal>cli</goal>
+                        </goals>
+                        <configuration>
                            <args>
-                              <param>${basedir}/target/server0</param>
+                              <param>stop</param>
                            </args>
                         </configuration>
                      </execution>

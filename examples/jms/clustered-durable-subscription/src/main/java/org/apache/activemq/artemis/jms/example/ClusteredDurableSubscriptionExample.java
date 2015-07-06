@@ -26,23 +26,15 @@ import javax.jms.Topic;
 import javax.naming.InitialContext;
 import java.util.Hashtable;
 
-import org.apache.activemq.artemis.common.example.ActiveMQExample;
-
 /**
  * A simple example that shows a JMS Durable Subscription across two nodes of a cluster.
  *
  * The same durable subscription can exist on more than one node of the cluster, and messages
  * sent to the topic will be load-balanced in a round-robin fashion between the two nodes
  */
-public class ClusteredDurableSubscriptionExample extends ActiveMQExample
+public class ClusteredDurableSubscriptionExample
 {
-   public static void main(final String[] args)
-   {
-      new ClusteredDurableSubscriptionExample().run(args);
-   }
-
-   @Override
-   public boolean runExample() throws Exception
+   public static void main(final String[] args) throws Exception
    {
       Connection connection0 = null;
 
@@ -145,8 +137,6 @@ public class ClusteredDurableSubscriptionExample extends ActiveMQExample
 
             System.out.println("Got message: " + message1.getText() + " from node 1");
          }
-
-         return true;
       }
       finally
       {
@@ -172,5 +162,4 @@ public class ClusteredDurableSubscriptionExample extends ActiveMQExample
          }
       }
    }
-
 }

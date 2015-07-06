@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.jms.example;
 
+import org.apache.activemq.artemis.util.ServerUtil;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
@@ -26,8 +28,6 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.naming.InitialContext;
 
-import org.apache.activemq.artemis.common.example.ActiveMQExample;
-
 /**
  * Example of live and replicating backup pair.
  * <p>
@@ -35,15 +35,13 @@ import org.apache.activemq.artemis.common.example.ActiveMQExample;
  * <p>
  * Later the live server is restarted and takes back its position by asking the backup to stop ("fail-back").
  */
-public class ReplicatedFailbackStaticExample extends ActiveMQExample
+public class ReplicatedFailbackStaticExample
 {
-   public static void main(final String[] args)
-   {
-      new ReplicatedFailbackStaticExample().run(args);
-   }
+   private static Process server0;
 
-   @Override
-   public boolean runExample() throws Exception
+   private static Process server1;
+
+   public static void main(final String[] args) throws Exception
    {
       final int numMessages = 30;
 
@@ -53,6 +51,9 @@ public class ReplicatedFailbackStaticExample extends ActiveMQExample
 
       try
       {
+         server0 = ServerUtil.startServer(args[0], ReplicatedFailbackStaticExample.class.getSimpleName() + "0", 0, 30000);
+         server1 = ServerUtil.startServer(args[1], ReplicatedFailbackStaticExample.class.getSimpleName() + "1", 1, 10000);
+
          // Step 1. Get an initial context for looking up JNDI from the server #1
          initialContext = new InitialContext();
 
@@ -97,10 +98,9 @@ public class ReplicatedFailbackStaticExample extends ActiveMQExample
             System.out.println("Got message: " + message0.getText());
          }
 
-         // Step 10. Crash server #1, the live server, and wait a little while to make sure
+         // Step 10. Crash server #0, the live server, and wait a little while to make sure
          // it has really crashed
-         Thread.sleep(5000);
-         killServer(0);
+         ServerUtil.killServer(server0);
 
          // Step 11. Acknowledging the 2nd half of the sent messages will fail as failover to the
          // backup server has occurred
@@ -121,9 +121,7 @@ public class ReplicatedFailbackStaticExample extends ActiveMQExample
          }
          message0.acknowledge();
 
-         reStartServer(0, 10000);
-
-         Thread.sleep(10000);
+         server0 = ServerUtil.startServer(args[0], ReplicatedFailbackStaticExample.class.getSimpleName() + "0", 0, 10000);
 
          // Step 11. Acknowledging the 2nd half of the sent messages will fail as failover to the
          // backup server has occurred
@@ -143,8 +141,6 @@ public class ReplicatedFailbackStaticExample extends ActiveMQExample
             System.out.printf("Got message: %s (redelivered?: %s)\n", message0.getText(), message0.getJMSRedelivered());
          }
          message0.acknowledge();
-
-         return true;
       }
       finally
       {
@@ -159,7 +155,9 @@ public class ReplicatedFailbackStaticExample extends ActiveMQExample
          {
             initialContext.close();
          }
+
+         ServerUtil.killServer(server0);
+         ServerUtil.killServer(server1);
       }
    }
-
 }

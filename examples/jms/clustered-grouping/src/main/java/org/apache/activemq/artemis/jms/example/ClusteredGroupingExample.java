@@ -26,21 +26,13 @@ import javax.jms.TextMessage;
 import javax.naming.InitialContext;
 import java.util.Hashtable;
 
-import org.apache.activemq.artemis.common.example.ActiveMQExample;
-
 /**
  * A simple example that demonstrates server side load-balancing of messages between the queue instances on different
  * nodes of the cluster.
  */
-public class ClusteredGroupingExample extends ActiveMQExample
+public class ClusteredGroupingExample
 {
-   public static void main(String[] args)
-   {
-      new ClusteredGroupingExample().run(args);
-   }
-
-   @Override
-   public boolean runExample() throws Exception
+   public static void main(String[] args) throws Exception
    {
       Connection connection0 = null;
 
@@ -171,8 +163,6 @@ public class ClusteredGroupingExample extends ActiveMQExample
             System.out.println("Got message: " + message0.getText() + " from node 0");
 
          }
-
-         return true;
       }
       finally
       {

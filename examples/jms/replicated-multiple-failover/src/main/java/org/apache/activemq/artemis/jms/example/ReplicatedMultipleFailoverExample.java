@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.jms.example;
 
+import org.apache.activemq.artemis.util.ServerUtil;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
@@ -26,17 +28,15 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.naming.InitialContext;
 
-import org.apache.activemq.artemis.common.example.ActiveMQExample;
-
-public class ReplicatedMultipleFailoverExample extends ActiveMQExample
+public class ReplicatedMultipleFailoverExample
 {
-   public static void main(final String[] args)
-   {
-      new ReplicatedMultipleFailoverExample().run(args);
-   }
+   private static Process server0;
 
-   @Override
-   public boolean runExample() throws Exception
+   private static Process server1;
+
+   private static Process server2;
+
+   public static void main(final String[] args) throws Exception
    {
       final int numMessages = 30;
 
@@ -46,6 +46,12 @@ public class ReplicatedMultipleFailoverExample extends ActiveMQExample
 
       try
       {
+         server0 = ServerUtil.startServer(args[0], ReplicatedMultipleFailoverExample.class.getSimpleName() + "0", 0, 5000);
+         server1 = ServerUtil.startServer(args[1], ReplicatedMultipleFailoverExample.class.getSimpleName() + "1", 1, 5000);
+         server2 = ServerUtil.startServer(args[2], ReplicatedMultipleFailoverExample.class.getSimpleName() + "2", 2, 5000);
+
+         Process[] processes = new Process[] {server0, server1, server2};
+
          // Step 1. Get an initial context for looking up JNDI from the server #1
          initialContext = new InitialContext();
 
@@ -90,10 +96,10 @@ public class ReplicatedMultipleFailoverExample extends ActiveMQExample
             System.out.println("Got message: " + message0.getText());
          }
 
-         // Step 10. Crash server #1, the live server, and wait a little while to make sure
+         // Step 10. Crash server #0, the live server, and wait a little while to make sure
          // it has really crashed
+         ServerUtil.killServer(server0);
          Thread.sleep(5000);
-         killServer(0);
 
          // Step 11. Acknowledging the 2nd half of the sent messages will fail as failover to the
          // backup server has occurred
@@ -114,8 +120,7 @@ public class ReplicatedMultipleFailoverExample extends ActiveMQExample
          }
          message0.acknowledge();
 
-         Thread.sleep(5000);
-         killServer(getServer(connection));
+         ServerUtil.killServer(processes[ServerUtil.getServer(connection)]);
 
          // Step 11. Acknowledging the 2nd half of the sent messages will fail as failover to the
          // backup server has occurred
@@ -135,8 +140,6 @@ public class ReplicatedMultipleFailoverExample extends ActiveMQExample
             System.out.printf("Got message: %s (redelivered?: %s)%n", message0.getText(), message0.getJMSRedelivered());
          }
          message0.acknowledge();
-
-         return true;
       }
       finally
       {
@@ -151,7 +154,10 @@ public class ReplicatedMultipleFailoverExample extends ActiveMQExample
          {
             initialContext.close();
          }
+
+         ServerUtil.killServer(server0);
+         ServerUtil.killServer(server1);
+         ServerUtil.killServer(server2);
       }
    }
-
 }

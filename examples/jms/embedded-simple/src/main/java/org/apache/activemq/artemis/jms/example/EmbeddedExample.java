@@ -16,6 +16,12 @@
  */
 package org.apache.activemq.artemis.jms.example;
 
+import org.apache.activemq.artemis.api.jms.JMSFactoryType;
+import org.apache.activemq.artemis.core.config.impl.SecurityConfiguration;
+import org.apache.activemq.artemis.jms.server.JMSServerManager;
+import org.apache.activemq.artemis.jms.server.embedded.EmbeddedJMS;
+import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManagerImpl;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -27,81 +33,58 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.activemq.artemis.api.jms.JMSFactoryType;
-import org.apache.activemq.artemis.common.example.ActiveMQExample;
-import org.apache.activemq.artemis.core.config.impl.SecurityConfiguration;
-import org.apache.activemq.artemis.jms.server.JMSServerManager;
-import org.apache.activemq.artemis.jms.server.embedded.EmbeddedJMS;
-import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManagerImpl;
-
 /**
  * This example demonstrates how to run an ActiveMQ Artemis embedded with JMS
  */
-public class EmbeddedExample extends ActiveMQExample
+public class EmbeddedExample
 {
-
    public static void main(final String[] args) throws Exception
    {
-      new EmbeddedExample().runExample();
-   }
+      EmbeddedJMS jmsServer = new EmbeddedJMS();
 
-   @Override
-   public boolean runExample() throws Exception
-   {
+      SecurityConfiguration securityConfig = new SecurityConfiguration();
+      securityConfig.addUser("guest", "guest");
+      securityConfig.addRole("guest", "guest");
+      securityConfig.setDefaultUser("guest");
+      jmsServer.setSecurityManager(new ActiveMQSecurityManagerImpl(securityConfig));
+
+      jmsServer.start();
+      System.out.println("Started Embedded JMS Server");
+
+      JMSServerManager jmsServerManager = jmsServer.getJMSServerManager();
+      List<String> connectors = new ArrayList<String>();
+      connectors.add("in-vm");
+      jmsServerManager.createConnectionFactory("ConnectionFactory", false, JMSFactoryType.CF, connectors, "ConnectionFactory");
+      jmsServerManager.createQueue(false, "exampleQueue", null, false, "queue/exampleQueue");
+
+      ConnectionFactory cf = (ConnectionFactory) jmsServer.lookup("ConnectionFactory");
+      Queue queue = (Queue) jmsServer.lookup("queue/exampleQueue");
+
+      // Step 10. Send and receive a message using JMS API
+      Connection connection = null;
       try
       {
-         EmbeddedJMS jmsServer = new EmbeddedJMS();
-
-         SecurityConfiguration securityConfig = new SecurityConfiguration();
-         securityConfig.addUser("guest", "guest");
-         securityConfig.addRole("guest", "guest");
-         securityConfig.setDefaultUser("guest");
-         jmsServer.setSecurityManager(new ActiveMQSecurityManagerImpl(securityConfig));
-
-         jmsServer.start();
-         System.out.println("Started Embedded JMS Server");
-
-         JMSServerManager jmsServerManager = jmsServer.getJMSServerManager();
-         List<String> connectors = new ArrayList<String>();
-         connectors.add("in-vm");
-         jmsServerManager.createConnectionFactory("ConnectionFactory", false, JMSFactoryType.CF, connectors, "ConnectionFactory");
-         jmsServerManager.createQueue(false, "exampleQueue", null, false, "queue/exampleQueue");
-
-         ConnectionFactory cf = (ConnectionFactory)jmsServer.lookup("ConnectionFactory");
-         Queue queue = (Queue)jmsServer.lookup("queue/exampleQueue");
-
-         // Step 10. Send and receive a message using JMS API
-         Connection connection = null;
-         try
-         {
-            connection = cf.createConnection();
-            Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-            MessageProducer producer = session.createProducer(queue);
-            TextMessage message = session.createTextMessage("Hello sent at " + new Date());
-            System.out.println("Sending message: " + message.getText());
-            producer.send(message);
-            MessageConsumer messageConsumer = session.createConsumer(queue);
-            connection.start();
-            TextMessage messageReceived = (TextMessage)messageConsumer.receive(1000);
-            System.out.println("Received message:" + messageReceived.getText());
-         }
-         finally
-         {
-            if (connection != null)
-            {
-               connection.close();
-            }
-
-            // Step 11. Stop the JMS server
-            jmsServer.stop();
-            System.out.println("Stopped the JMS Server");
-         }
+         connection = cf.createConnection();
+         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         MessageProducer producer = session.createProducer(queue);
+         TextMessage message = session.createTextMessage("Hello sent at " + new Date());
+         System.out.println("Sending message: " + message.getText());
+         producer.send(message);
+         MessageConsumer messageConsumer = session.createConsumer(queue);
+         connection.start();
+         TextMessage messageReceived = (TextMessage) messageConsumer.receive(1000);
+         System.out.println("Received message:" + messageReceived.getText());
       }
-      catch (Exception e)
+      finally
       {
-         e.printStackTrace();
-         return false;
+         if (connection != null)
+         {
+            connection.close();
+         }
+
+         // Step 11. Stop the JMS server
+         jmsServer.stop();
+         System.out.println("Stopped the JMS Server");
       }
-      return true;
    }
 }

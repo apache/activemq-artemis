@@ -25,20 +25,12 @@ import javax.jms.Topic;
 import javax.jms.TopicSubscriber;
 import javax.naming.InitialContext;
 
-import org.apache.activemq.artemis.common.example.ActiveMQExample;
-
 /**
  * A simple JMS example that shows how to use a durable subscription.
  */
-public class DurableSubscriptionExample extends ActiveMQExample
+public class DurableSubscriptionExample
 {
-   public static void main(final String[] args)
-   {
-      new DurableSubscriptionExample().run(args);
-   }
-
-   @Override
-   public boolean runExample() throws Exception
+   public static void main(final String[] args) throws Exception
    {
       Connection connection = null;
       InitialContext initialContext = null;
@@ -111,8 +103,6 @@ public class DurableSubscriptionExample extends ActiveMQExample
 
          // Step 18. Delete the durable subscription
          session.unsubscribe("subscriber-1");
-
-         return true;
       }
       finally
       {

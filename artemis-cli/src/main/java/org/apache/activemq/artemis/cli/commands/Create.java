@@ -121,6 +121,9 @@ public class Create extends InputAbstract
    @Option(name = "--slave", description = "Valid for shared store or replication: this is a slave server?")
    boolean slave;
 
+   @Option(name = "--failover-on-shutdown", description = "Valid for shared store: will shutdown trigger a failover? (Default: false)")
+   boolean failoverOnShutodwn;
+
    @Option(name = "--cluster-user", description = "The cluster user to use for clustering. (Default: input)")
    String clusterUser = null;
 
@@ -424,6 +427,16 @@ public class Create extends InputAbstract
       this.slave = slave;
    }
 
+   public boolean isFailoverOnShutodwn()
+   {
+      return failoverOnShutodwn;
+   }
+
+   public void setFailoverOnShutodwn(boolean failoverOnShutodwn)
+   {
+      this.failoverOnShutodwn = failoverOnShutodwn;
+   }
+
    public Boolean getAllowAnonymous()
    {
       return allowAnonymous;
@@ -493,6 +506,8 @@ public class Create extends InputAbstract
       HashMap<String, String> filters = new HashMap<String, String>();
 
       filters.put("${master-slave}", isSlave() ? "slave" : "master");
+
+      filters.put("${failover-on-shutdown}", isFailoverOnShutodwn() ? "true" : "false");
 
       if (replicated)
       {

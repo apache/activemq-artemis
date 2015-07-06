@@ -28,10 +28,9 @@ under the License.
    </parent>
 
    <properties>
-      <endpoint />
-      <applicationid />
-      <mastersecret />
-      <mavenVersion>2.2.1</mavenVersion>
+      <endpoint/>
+      <applicationid/>
+      <mastersecret/>
       <activemq.basedir>${project.basedir}/../../..</activemq.basedir>
    </properties>
 
@@ -44,43 +43,6 @@ under the License.
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-cli</artifactId>
          <version>${project.version}</version>
-      </dependency>
-
-      <!-- maven -->
-      <dependency>
-         <groupId>org.apache.maven</groupId>
-         <artifactId>maven-artifact</artifactId>
-         <version>${mavenVersion}</version>
-      </dependency>
-      <dependency>
-         <groupId>org.apache.maven</groupId>
-         <artifactId>maven-plugin-api</artifactId>
-         <version>${mavenVersion}</version>
-      </dependency>
-      <dependency>
-         <groupId>org.apache.maven</groupId>
-         <artifactId>maven-project</artifactId>
-         <version>${mavenVersion}</version>
-      </dependency>
-      <dependency>
-         <groupId>org.apache.maven</groupId>
-         <artifactId>maven-model</artifactId>
-         <version>${mavenVersion}</version>
-      </dependency>
-      <dependency>
-         <groupId>org.apache.maven</groupId>
-         <artifactId>maven-core</artifactId>
-         <version>${mavenVersion}</version>
-      </dependency>
-      <dependency>
-         <groupId>org.apache.maven</groupId>
-         <artifactId>maven-artifact-manager</artifactId>
-         <version>${mavenVersion}</version>
-      </dependency>
-      <dependency>
-         <groupId>org.apache.maven</groupId>
-         <artifactId>maven-repository-metadata</artifactId>
-         <version>${mavenVersion}</version>
       </dependency>
    </dependencies>
 
@@ -122,8 +84,7 @@ under the License.
                         </goals>
                         <configuration>
                            <spawn>true</spawn>
-                           <testServer>true</testServer>
-                           <!-- this list was extracted from mvn dependency:tree on integration/aerogear -->
+                           <testURI>tcp://localhost:61616</testURI>
                            <args>
                               <param>run</param>
                            </args>
@@ -136,9 +97,6 @@ under the License.
                         </goals>
                         <configuration>
                            <clientClass>org.apache.activemq.artemis.jms.example.AerogearExample</clientClass>
-                           <args>
-                              <param>${basedir}/target/server0</param>
-                           </args>
                         </configuration>
                      </execution>
                      <execution>

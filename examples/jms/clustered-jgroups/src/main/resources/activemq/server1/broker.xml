@@ -29,14 +29,13 @@ under the License.
 
    <core xmlns="urn:activemq:core">
 
+      <bindings-directory>${data.dir:./data}/bindings</bindings-directory>
 
-      <paging-directory>server1/paging</paging-directory>
+      <journal-directory>${data.dir:./data}/journal</journal-directory>
 
-      <bindings-directory>server1/bindings</bindings-directory>
+      <large-messages-directory>${data.dir:./data}/largemessages</large-messages-directory>
 
-      <journal-directory>server1/journal</journal-directory>
-
-      <large-messages-directory>server1/large-messages</large-messages-directory>
+      <paging-directory>${data.dir:./data}/paging</paging-directory>
 
       <!-- Connectors -->
       <connectors>

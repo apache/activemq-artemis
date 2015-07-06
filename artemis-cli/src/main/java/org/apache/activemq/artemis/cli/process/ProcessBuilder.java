@@ -36,7 +36,7 @@ public class ProcessBuilder
          {
             for (Process p : processes)
             {
-               if (p.isAlive())
+//               if (p.isAlive())
                {
                   p.destroy();
                }
@@ -53,7 +53,7 @@ public class ProcessBuilder
    {
       for (Process p: processes)
       {
-         if (!p.isAlive())
+//         if (!p.isAlive())
          {
             processes.remove(p);
          }
@@ -93,14 +93,14 @@ public class ProcessBuilder
 
       ProcessLogger outputLogger = new ProcessLogger(true,
                                                      process.getInputStream(),
-                                                     logname + "::Out",
+                                                     logname,
                                                      false);
       outputLogger.start();
 
       // Adding a reader to System.err, so the VM won't hang on a System.err.println as identified on this forum thread:
       ProcessLogger errorLogger = new ProcessLogger(true,
                                                     process.getErrorStream(),
-                                                    logname + "::Err",
+                                                    logname,
                                                     true);
       errorLogger.start();
 
@@ -172,11 +172,11 @@ public class ProcessBuilder
                {
                   if (sendToErr)
                   {
-                     System.err.println(logName + " err:" + line);
+                     System.err.println(logName + "-err:" + line);
                   }
                   else
                   {
-                     System.out.println(logName + " out:" + line);
+                     System.out.println(logName + "-out:" + line);
                   }
                }
             }

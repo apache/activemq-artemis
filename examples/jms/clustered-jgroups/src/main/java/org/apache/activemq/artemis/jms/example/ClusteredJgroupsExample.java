@@ -26,20 +26,12 @@ import javax.jms.TextMessage;
 import javax.naming.InitialContext;
 import java.util.Hashtable;
 
-import org.apache.activemq.artemis.common.example.ActiveMQExample;
-
 /**
  * A simple example that demonstrates clustering using jgroups.
  */
-public class ClusteredJgroupsExample extends ActiveMQExample
+public class ClusteredJgroupsExample
 {
-   public static void main(final String[] args)
-   {
-      new ClusteredJgroupsExample().run(args);
-   }
-
-   @Override
-   public boolean runExample() throws Exception
+   public static void main(final String[] args) throws Exception
    {
       Connection connection0 = null;
 
@@ -128,8 +120,6 @@ public class ClusteredJgroupsExample extends ActiveMQExample
 
             System.out.println("Got message: " + message1.getText() + " from node 1");
          }
-
-         return true;
       }
       finally
       {
@@ -156,5 +146,4 @@ public class ClusteredJgroupsExample extends ActiveMQExample
          }
       }
    }
-
 }

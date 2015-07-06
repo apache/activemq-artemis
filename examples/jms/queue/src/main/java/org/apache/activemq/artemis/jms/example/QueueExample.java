@@ -25,20 +25,12 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.naming.InitialContext;
 
-import org.apache.activemq.artemis.common.example.ActiveMQExample;
-
 /**
  * A simple JMS Queue example that creates a producer and consumer on a queue and sends then receives a message.
  */
-public class QueueExample extends ActiveMQExample
+public class QueueExample
 {
-   public static void main(final String[] args)
-   {
-      new QueueExample().run(args);
-   }
-
-   @Override
-   public boolean runExample() throws Exception
+   public static void main(final String[] args) throws Exception
    {
       Connection connection = null;
       InitialContext initialContext = null;
@@ -80,8 +72,6 @@ public class QueueExample extends ActiveMQExample
          TextMessage messageReceived = (TextMessage)messageConsumer.receive(5000);
 
          System.out.println("Received message: " + messageReceived.getText());
-
-         return true;
       }
       finally
       {

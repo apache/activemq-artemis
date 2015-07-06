@@ -29,13 +29,13 @@ under the License.
 
    <core xmlns="urn:activemq:core">
 
-      <bindings-directory>${data.dir:../data}/bindings</bindings-directory>
+      <bindings-directory>${data.dir:./data}/bindings</bindings-directory>
 
-      <journal-directory>${data.dir:../data}/journal</journal-directory>
+      <journal-directory>${data.dir:./data}/journal</journal-directory>
 
-      <large-messages-directory>${data.dir:../data}/largemessages</large-messages-directory>
+      <large-messages-directory>${data.dir:./data}/largemessages</large-messages-directory>
 
-      <paging-directory>${data.dir:../data}/paging</paging-directory>
+      <paging-directory>${data.dir:./data}/paging</paging-directory>
 
       <!-- Acceptors -->
       <acceptors>
@@ -73,6 +73,5 @@ under the License.
             <permission type="send" roles="guest"/>
          </security-setting>
       </security-settings>
-
    </core>
 </configuration>

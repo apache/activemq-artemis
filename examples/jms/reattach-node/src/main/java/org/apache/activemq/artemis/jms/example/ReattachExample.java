@@ -30,22 +30,15 @@ import javax.naming.InitialContext;
 
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.api.jms.management.JMSManagementHelper;
-import org.apache.activemq.artemis.common.example.ActiveMQExample;
 
 /**
  * This examples demonstrates a connection created to a server. Failure of the network connection is then simulated
  *
  * The network is brought back up and the client reconnects and resumes transparently.
  */
-public class ReattachExample extends ActiveMQExample
+public class ReattachExample
 {
-   public static void main(final String[] args)
-   {
-      new ReattachExample().run(args);
-   }
-
-   @Override
-   public boolean runExample() throws Exception
+   public static void main(final String[] args) throws Exception
    {
       Connection connection = null;
       InitialContext initialContext = null;
@@ -103,8 +96,6 @@ public class ReattachExample extends ActiveMQExample
          TextMessage messageReceived = (TextMessage)messageConsumer.receive(5000);
 
          System.out.println("Received message: " + messageReceived.getText());
-
-         return true;
       }
       finally
       {
@@ -121,12 +112,12 @@ public class ReattachExample extends ActiveMQExample
       }
    }
 
-   private void stopAcceptor() throws Exception
+   private static void stopAcceptor() throws Exception
    {
       stopStartAcceptor(true);
    }
 
-   private void startAcceptor() throws Exception
+   private static void startAcceptor() throws Exception
    {
       stopStartAcceptor(false);
    }
@@ -134,7 +125,7 @@ public class ReattachExample extends ActiveMQExample
    // To do this we send a management message to close the acceptor, we do this on a different
    // connection factory which uses a different remoting connection so we can still send messages
    // when the main connection has been stopped
-   private void stopStartAcceptor(final boolean stop) throws Exception
+   private static void stopStartAcceptor(final boolean stop) throws Exception
    {
       Hashtable<String, Object> properties = new Hashtable<String, Object>();
       properties.put("java.naming.factory.initial", "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");

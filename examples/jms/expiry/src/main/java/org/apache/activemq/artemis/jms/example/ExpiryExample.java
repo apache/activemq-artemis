@@ -25,20 +25,12 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.naming.InitialContext;
 
-import org.apache.activemq.artemis.common.example.ActiveMQExample;
-
 /**
  * An example showing how messages are moved to an expiry queue when they expire.
  */
-public class ExpiryExample extends ActiveMQExample
+public class ExpiryExample
 {
-   public static void main(final String[] args)
-   {
-      new ExpiryExample().run(args);
-   }
-
-   @Override
-   public boolean runExample() throws Exception
+   public static void main(final String[] args) throws Exception
    {
       Connection connection = null;
       InitialContext initialContext = null;
@@ -116,8 +108,6 @@ public class ExpiryExample extends ActiveMQExample
          System.out.println("*Origin destination* of the expired message: " + messageReceived.getStringProperty("_AMQ_ORIG_ADDRESS"));
          // Step 21. the actual expiration time is stored in the _AMQ_ACTUAL_EXPIRY property
          System.out.println("*Actual expiration time* of the expired message: " + messageReceived.getLongProperty("_AMQ_ACTUAL_EXPIRY"));
-
-         return true;
       }
       finally
       {
@@ -132,5 +122,4 @@ public class ExpiryExample extends ActiveMQExample
          }
       }
    }
-
 }

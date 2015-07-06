@@ -23,20 +23,12 @@ import javax.jms.JMSProducer;
 import javax.jms.Topic;
 import javax.naming.InitialContext;
 
-import org.apache.activemq.artemis.common.example.ActiveMQExample;
-
 /**
  * A JMS Example that uses shared consumers.
  */
-public class JMSSharedConsumerExample extends ActiveMQExample
+public class JMSSharedConsumerExample
 {
    public static void main(final String[] args) throws Exception
-   {
-      new JMSSharedConsumerExample().run(args);
-   }
-
-   @Override
-   public boolean runExample() throws Exception
    {
       InitialContext initialContext = null;
       JMSContext jmsContext = null;
@@ -80,8 +72,6 @@ public class JMSSharedConsumerExample extends ActiveMQExample
          body = jmsConsumer2.receiveBody(String.class, 5000);
 
          System.out.println("body = " + body);
-
-         return true;
       }
       finally
       {

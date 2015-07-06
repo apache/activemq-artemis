@@ -16,12 +16,6 @@
  */
 package org.apache.activemq.artemis.maven;
 
-import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.LinkOption;
-import java.nio.file.Path;
-import java.util.Map;
-
 import org.apache.activemq.artemis.cli.Artemis;
 import org.apache.activemq.artemis.cli.commands.Run;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
@@ -34,18 +28,18 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
+import java.nio.file.Path;
+
 @Mojo(name = "cli", defaultPhase = LifecyclePhase.VERIFY)
 public class ArtemisCLIPlugin extends AbstractMojo
-
 {
-
-   @Parameter
-   String name;
-
-   /**
-    * The plugin descriptor
-    */
    private PluginDescriptor descriptor;
+
+   @Parameter(defaultValue = "server")
+   String name;
 
    @Parameter(defaultValue = "${activemq.basedir}", required = true)
    private File home;
@@ -62,8 +56,17 @@ public class ArtemisCLIPlugin extends AbstractMojo
    @Parameter
    private boolean spawn = false;
 
+   @Parameter(defaultValue = "10000")
+   private long spawnTimeout;
+
    @Parameter
-   private boolean testServer;
+   private String testURI = null;
+
+   @Parameter
+   private String testUser = null;
+
+   @Parameter
+   private String testPassword = null;
 
 
    /**
@@ -120,13 +123,11 @@ public class ArtemisCLIPlugin extends AbstractMojo
          }
       }
 
-      Map properties = getPluginContext();
-
       try
       {
          if (spawn)
          {
-            final Process process = org.apache.activemq.artemis.cli.process.ProcessBuilder.build("server", location, true, args);
+            final Process process = org.apache.activemq.artemis.cli.process.ProcessBuilder.build(name, location, true, args);
             Runtime.getRuntime().addShutdownHook(new Thread()
             {
                public void run()
@@ -135,14 +136,21 @@ public class ArtemisCLIPlugin extends AbstractMojo
                }
             });
 
-            if (testServer)
+            if (testURI != null)
             {
-               for (int tryNr = 0; tryNr < 20; tryNr++)
+               long timeout = System.currentTimeMillis() + spawnTimeout;
+               while (System.currentTimeMillis() <= timeout)
                {
-                  try
+                  try (ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory(testURI))
                   {
-                     ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory();
-                     cf.createConnection().close();
+                     if (testUser != null && testPassword != null)
+                     {
+                        cf.createConnection(testUser, testPassword).close();
+                     }
+                     else
+                     {
+                        cf.createConnection().close();
+                     }
                      getLog().info("Server started");
                   }
                   catch (Exception e)

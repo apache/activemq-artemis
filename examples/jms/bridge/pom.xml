@@ -27,20 +27,15 @@ under the License.
       <version>1.0.1-SNAPSHOT</version>
    </parent>
 
-   <artifactId>artemis-jms-bridge-example</artifactId>
+   <artifactId>artemis-jms-core-bridge-example</artifactId>
    <packaging>jar</packaging>
-   <name>ActiveMQ Artemis JMS Bridge Example</name>
+   <name>ActiveMQ Artemis Core Bridge Example</name>
 
    <properties>
       <activemq.basedir>${project.basedir}/../../..</activemq.basedir>
    </properties>
 
    <dependencies>
-      <dependency>
-         <groupId>org.apache.activemq.examples.jms</groupId>
-         <artifactId>common</artifactId>
-         <version>${project.version}</version>
-      </dependency>
       <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-server</artifactId>
@@ -62,7 +57,7 @@ under the License.
                   <artifactId>artemis-maven-plugin</artifactId>
                   <executions>
                      <execution>
-                        <id>create</id>
+                        <id>create0</id>
                         <goals>
                            <goal>create</goal>
                         </goals>
@@ -72,7 +67,7 @@ under the License.
                         </configuration>
                      </execution>
                      <execution>
-                        <id>create2</id>
+                        <id>create1</id>
                         <goals>
                            <goal>create</goal>
                         </goals>
@@ -83,15 +78,65 @@ under the License.
                         </configuration>
                      </execution>
                      <execution>
+                        <id>start0</id>
+                        <goals>
+                           <goal>cli</goal>
+                        </goals>
+                        <configuration>
+                           <spawn>true</spawn>
+                           <location>${basedir}/target/server0</location>
+                           <testURI>tcp://localhost:61616</testURI>
+                           <args>
+                              <param>run</param>
+                           </args>
+                           <name>server0</name>
+                        </configuration>
+                     </execution>
+                     <execution>
+                        <id>start1</id>
+                        <goals>
+                           <goal>cli</goal>
+                        </goals>
+                        <configuration>
+                           <spawn>true</spawn>
+                           <location>${basedir}/target/server1</location>
+                           <testURI>tcp://localhost:61617</testURI>
+                           <args>
+                              <param>run</param>
+                           </args>
+                           <name>server1</name>
+                        </configuration>
+                     </execution>
+                     <execution>
                         <id>runClient</id>
                         <goals>
-                           <goal>client</goal>
+                           <goal>runClient</goal>
                         </goals>
                         <configuration>
                            <clientClass>org.apache.activemq.artemis.jms.example.BridgeExample</clientClass>
+                        </configuration>
+                     </execution>
+                     <execution>
+                        <id>stop0</id>
+                        <goals>
+                           <goal>cli</goal>
+                        </goals>
+                        <configuration>
+                           <location>${basedir}/target/server0</location>
                            <args>
-                              <param>${basedir}/target/server0</param>
-                              <param>${basedir}/target/server1</param>
+                              <param>stop</param>
+                           </args>
+                        </configuration>
+                     </execution>
+                     <execution>
+                        <id>stop1</id>
+                        <goals>
+                           <goal>cli</goal>
+                        </goals>
+                        <configuration>
+                           <location>${basedir}/target/server1</location>
+                           <args>
+                              <param>stop</param>
                            </args>
                         </configuration>
                      </execution>
@@ -99,28 +144,8 @@ under the License.
                   <dependencies>
                      <dependency>
                         <groupId>org.apache.activemq.examples.jms</groupId>
-                        <artifactId>artemis-jms-bridge-example</artifactId>
+                        <artifactId>artemis-jms-core-bridge-example</artifactId>
                         <version>${project.version}</version>
-                     </dependency>
-                     <dependency>
-                        <groupId>org.apache.activemq</groupId>
-                        <artifactId>artemis-core-client</artifactId>
-                        <version>${project.version}</version>
-                     </dependency>
-                     <dependency>
-                        <groupId>org.apache.activemq</groupId>
-                        <artifactId>artemis-jms-client</artifactId>
-                        <version>${project.version}</version>
-                     </dependency>
-                     <dependency>
-                        <groupId>io.netty</groupId>
-                        <artifactId>netty-all</artifactId>
-                        <version>${netty.version}</version>
-                     </dependency>
-                     <dependency>
-                        <groupId>org.apache.geronimo.specs</groupId>
-                        <artifactId>geronimo-jms_2.0_spec</artifactId>
-                        <version>${geronimo.jms.2.spec.version}</version>
                      </dependency>
                   </dependencies>
                </plugin>

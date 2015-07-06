@@ -24,23 +24,17 @@ import javax.jms.Message;
 import javax.jms.Queue;
 import javax.naming.InitialContext;
 
-import org.apache.activemq.artemis.common.example.ActiveMQExample;
-
+import java.lang.Exception;
+import java.lang.IllegalStateException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 /**
  * A JMS Completion Listener Example.
  */
-public class JMSCompletionListenerExample extends ActiveMQExample
+public class JMSCompletionListenerExample
 {
-   public static void main(final String[] args)
-   {
-      new JMSCompletionListenerExample().run(args);
-   }
-
-   @Override
-   public boolean runExample() throws Exception
+   public static void main(final String[] args) throws Exception
    {
       InitialContext initialContext = null;
       JMSContext jmsContext = null;
@@ -84,7 +78,10 @@ public class JMSCompletionListenerExample extends ActiveMQExample
          producer.send(queue, "this is a string");
 
          //Step 7. wait for the Completion handler
-         return latch.await(5, TimeUnit.SECONDS);
+         if (!latch.await(5, TimeUnit.SECONDS))
+         {
+            throw new IllegalStateException("Completion listener not called as expected.");
+         }
       }
       finally
       {

@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.jms.example;
 
+import org.apache.activemq.artemis.api.core.client.FailoverEventListener;
+import org.apache.activemq.artemis.api.core.client.FailoverEventType;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnection;
+import org.apache.activemq.artemis.util.ServerUtil;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -25,38 +30,19 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.naming.InitialContext;
 
-import org.apache.activemq.artemis.api.core.client.FailoverEventListener;
-import org.apache.activemq.artemis.api.core.client.FailoverEventType;
-import org.apache.activemq.artemis.common.example.ActiveMQExample;
-import org.apache.activemq.artemis.jms.client.ActiveMQConnection;
-
 /**
  * This example demonstrates how you can listen on failover event on the client side
- *
+ * <p/>
  * In this example there are two nodes running in a cluster, both server will be running for start,
  * but after a while the first server will crash. This will trigger a fail-over event
  */
-public class ClientSideFailoverListerExample extends ActiveMQExample
+public class ClientSideFailoverListerExample
 {
+   private static Process server0;
+
+   private static Process server1;
+
    public static void main(final String[] args) throws Exception
-   {
-      new ClientSideFailoverListerExample().run(args);
-   }
-
-   @Override
-   protected void startServers(String[] serversArgs) throws Exception
-   {
-      startServer(0, 5000);
-
-      // server 1 is a backup, it's not activated
-      startServer(1, 0);
-
-      Thread.sleep(1000);
-   }
-
-
-   @Override
-   public boolean runExample() throws Exception
    {
       InitialContext initialContext = null;
 
@@ -64,20 +50,23 @@ public class ClientSideFailoverListerExample extends ActiveMQExample
 
       try
       {
+         server0 = ServerUtil.startServer(args[0], ClientSideFailoverListerExample.class.getSimpleName() + "0", 0, 5000);
+         server1 = ServerUtil.startServer(args[1], ClientSideFailoverListerExample.class.getSimpleName() + "1", 1, 0);
+
          // Step 1. Get an initial context for looking up JNDI from server 0
          initialContext = new InitialContext();
 
          // Step 2. Look-up the JMS Queue object from JNDI
-         Queue queue = (Queue)initialContext.lookup("queue/exampleQueue");
+         Queue queue = (Queue) initialContext.lookup("queue/exampleQueue");
 
          // Step 3. Look-up a JMS Connection Factory object from JNDI on server 0
-         ConnectionFactory connectionFactory = (ConnectionFactory)initialContext.lookup("ConnectionFactory");
+         ConnectionFactory connectionFactory = (ConnectionFactory) initialContext.lookup("ConnectionFactory");
 
          // Step 4. We create 1 JMS connections from the same connection factory.
          // Wait a little while to make sure broadcasts from all nodes have reached the client
          Thread.sleep(5000);
          connectionA = connectionFactory.createConnection();
-         ((ActiveMQConnection)connectionA).setFailoverListener(new FailoverListenerImpl());
+         ((ActiveMQConnection) connectionA).setFailoverListener(new FailoverListenerImpl());
 
          // Step 5. We create JMS Sessions
          Session sessionA = connectionA.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -102,8 +91,6 @@ public class ClientSideFailoverListerExample extends ActiveMQExample
          // Step 9. We consume messages from the session A, one at a time.
          // We reached message no 5 the first server will crash
          consume(sessionA, queue, numMessages, "A");
-
-         return true;
       }
       finally
       {
@@ -118,20 +105,23 @@ public class ClientSideFailoverListerExample extends ActiveMQExample
          {
             initialContext.close();
          }
+
+         ServerUtil.killServer(server0);
+         ServerUtil.killServer(server1);
       }
    }
 
-   private void consume(Session session, Queue queue, int numMessages, String node) throws Exception
+   private static void consume(Session session, Queue queue, int numMessages, String node) throws Exception
    {
       MessageConsumer consumer = session.createConsumer(queue);
 
       for (int i = 0; i < numMessages; i++)
       {
-         TextMessage message = (TextMessage)consumer.receive(2000);
+         TextMessage message = (TextMessage) consumer.receive(2000);
          System.out.println("Got message: " + message.getText() + " from node " + node);
          if (i == 5)
          {
-            killServer(0);
+            ServerUtil.killServer(server0);
          }
       }
 

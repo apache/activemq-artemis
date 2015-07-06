@@ -40,29 +40,19 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
-import org.apache.activemq.artemis.common.example.ActiveMQExample;
-import org.apache.activemq.artemis.common.example.DummyXid;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 
 /**
  * A simple JMS example showing how to administer un-finished transactions.
  */
-public class XAHeuristicExample extends ActiveMQExample
+public class XAHeuristicExample
 {
-   private volatile boolean result = true;
-
-   private final ArrayList<String> receiveHolder = new ArrayList<String>();
-
    private static final String JMX_URL = "service:jmx:rmi:///jndi/rmi://localhost:3001/jmxrmi";
 
-   public static void main(final String[] args)
+   public static void main(final String[] args) throws Exception
    {
-      new XAHeuristicExample().run(args);
-   }
-
-   @Override
-   public boolean runExample() throws Exception
-   {
+      Boolean result = true;
+      final ArrayList<String> receiveHolder = new ArrayList<String>();
       XAConnection connection = null;
       InitialContext initialContext = null;
       try
@@ -90,7 +80,7 @@ public class XAHeuristicExample extends ActiveMQExample
 
          // Step 8. Create a normal Message Consumer
          MessageConsumer normalConsumer = normalSession.createConsumer(queue);
-         normalConsumer.setMessageListener(new SimpleMessageListener());
+         normalConsumer.setMessageListener(new SimpleMessageListener(receiveHolder, result));
 
          // Step 9. Get the JMS Session
          Session session = xaSession.getSession();
@@ -104,8 +94,8 @@ public class XAHeuristicExample extends ActiveMQExample
 
          // Step 12. create a transaction
          Xid xid1 = new DummyXid("xa-example1".getBytes(StandardCharsets.ISO_8859_1), 1, UUIDGenerator.getInstance()
-                                                                           .generateStringUUID()
-                                                                           .getBytes());
+                 .generateStringUUID()
+                 .getBytes());
 
          // Step 13. Get the JMS XAResource
          XAResource xaRes = xaSession.getXAResource();
@@ -125,12 +115,12 @@ public class XAHeuristicExample extends ActiveMQExample
          xaRes.prepare(xid1);
 
          // Step 18. Check none should be received
-         checkNoMessageReceived();
+         checkNoMessageReceived(receiveHolder);
 
          // Step 19. Create another transaction.
          Xid xid2 = new DummyXid("xa-example2".getBytes(), 1, UUIDGenerator.getInstance()
-                                                                           .generateStringUUID()
-                                                                           .getBytes());
+                 .generateStringUUID()
+                 .getBytes());
 
          // Step 20. Begin the transaction work
          xaRes.start(xid2, XAResource.TMNOFLAGS);
@@ -147,7 +137,7 @@ public class XAHeuristicExample extends ActiveMQExample
          xaRes.prepare(xid2);
 
          // Step 24. Again, no messages should be received!
-         checkNoMessageReceived();
+         checkNoMessageReceived(receiveHolder);
 
          // Step 25. Create JMX Connector to connect to the server's MBeanServer
          JMXConnector connector = JMXConnectorFactory.connect(new JMXServiceURL(JMX_URL), new HashMap<String, String>());
@@ -180,7 +170,7 @@ public class XAHeuristicExample extends ActiveMQExample
          Thread.sleep(2000);
 
          // Step 30. Check the result, only the 'world' message received
-         checkMessageReceived("world");
+         checkMessageReceived("world", receiveHolder);
 
          // Step 31. Check the prepared transaction again, should have none.
          infos = (String[])mbsc.invoke(serverObject, "listPreparedTransactions", null, null);
@@ -188,8 +178,6 @@ public class XAHeuristicExample extends ActiveMQExample
 
          // Step 32. Close the JMX Connector
          connector.close();
-
-         return result;
       }
       finally
       {
@@ -205,48 +193,52 @@ public class XAHeuristicExample extends ActiveMQExample
       }
    }
 
-   private void checkMessageReceived(final String value)
+   private static void checkMessageReceived(final String value, ArrayList<String> receiveHolder)
    {
       if (receiveHolder.size() != 1)
       {
-         System.out.println("Number of messages received not correct ! -- " + receiveHolder.size());
-         result = false;
+         throw new IllegalStateException("Number of messages received not correct ! -- " + receiveHolder.size());
       }
       String msg = receiveHolder.get(0);
       if (!msg.equals(value))
       {
-         System.out.println("Received message [" + msg + "], but we expect [" + value + "]");
-         result = false;
+         throw new IllegalStateException("Received message [" + msg + "], but we expect [" + value + "]");
       }
       receiveHolder.clear();
    }
 
-   private void checkNoMessageReceived()
+   private static void checkNoMessageReceived(ArrayList<String> receiveHolder)
    {
       if (receiveHolder.size() > 0)
       {
-         System.out.println("Message received, wrong!");
-         result = false;
+         throw new IllegalStateException("Message received, wrong!");
       }
       receiveHolder.clear();
    }
+}
 
-   public class SimpleMessageListener implements MessageListener
+class SimpleMessageListener implements MessageListener
+{
+   ArrayList<String> receiveHolder;
+   Boolean result;
+
+   SimpleMessageListener(ArrayList<String> receiveHolder, Boolean result)
    {
-      public void onMessage(final Message message)
-      {
-         try
-         {
-            System.out.println("Message received: " + ((TextMessage)message).getText());
-            receiveHolder.add(((TextMessage)message).getText());
-         }
-         catch (JMSException e)
-         {
-            result = false;
-            e.printStackTrace();
-         }
-      }
-
+      this.receiveHolder = receiveHolder;
+      this.result = result;
    }
 
+   public void onMessage(final Message message)
+   {
+      try
+      {
+         System.out.println("Message received: " + ((TextMessage)message).getText());
+         receiveHolder.add(((TextMessage)message).getText());
+      }
+      catch (JMSException e)
+      {
+         result = false;
+         e.printStackTrace();
+      }
+   }
 }

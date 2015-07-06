@@ -37,11 +37,6 @@ under the License.
 
    <dependencies>
       <dependency>
-         <groupId>org.apache.activemq.examples.jms</groupId>
-         <artifactId>common</artifactId>
-         <version>${project.version}</version>
-      </dependency>
-      <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-spring-integration</artifactId>
          <version>${project.version}</version>
@@ -72,9 +67,6 @@ under the License.
                         </goals>
                         <configuration>
                            <clientClass>org.apache.activemq.artemis.jms.example.SpringExample</clientClass>
-                           <args>
-                              <param>${basedir}/target/server0</param>
-                           </args>
                         </configuration>
                      </execution>
                   </executions>

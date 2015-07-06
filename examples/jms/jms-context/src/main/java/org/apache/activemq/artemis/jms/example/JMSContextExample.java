@@ -21,21 +21,14 @@ import javax.jms.DeliveryMode;
 import javax.jms.JMSContext;
 import javax.jms.Queue;
 import javax.naming.InitialContext;
-
-import org.apache.activemq.artemis.common.example.ActiveMQExample;
+import java.lang.Exception;
 
 /**
  * A simple JMS Queue example that creates a producer and consumer on a queue and sends then receives a message.
  */
-public class JMSContextExample extends ActiveMQExample
+public class JMSContextExample
 {
-   public static void main(final String[] args)
-   {
-      new JMSContextExample().run(args);
-   }
-
-   @Override
-   public boolean runExample() throws Exception
+   public static void main(final String[] args) throws Exception
    {
       InitialContext initialContext = null;
       JMSContext jmsContext = null;
@@ -60,8 +53,6 @@ public class JMSContextExample extends ActiveMQExample
          String payLoad = jmsContext.createConsumer(queue).receiveBody(String.class);
 
          System.out.println("payLoad = " + payLoad);
-
-         return true;
       }
       finally
       {

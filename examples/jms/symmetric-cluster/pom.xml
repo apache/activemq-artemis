@@ -37,8 +37,8 @@ under the License.
 
    <dependencies>
       <dependency>
-         <groupId>org.apache.activemq.examples.jms</groupId>
-         <artifactId>common</artifactId>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>artemis-jms-client</artifactId>
          <version>${project.version}</version>
       </dependency>
       <dependency>
@@ -57,7 +57,7 @@ under the License.
                   <artifactId>artemis-maven-plugin</artifactId>
                   <executions>
                      <execution>
-                        <id>create</id>
+                        <id>create0</id>
                         <goals>
                            <goal>create</goal>
                         </goals>
@@ -122,7 +122,96 @@ under the License.
                            <javaOptions>-Dudp-address=${udp-address}</javaOptions>
                         </configuration>
                      </execution>
-
+                     <execution>
+                        <id>start0</id>
+                        <goals>
+                           <goal>cli</goal>
+                        </goals>
+                        <configuration>
+                           <spawn>true</spawn>
+                           <location>${basedir}/target/server0</location>
+                           <testURI>tcp://localhost:61616</testURI>
+                           <args>
+                              <param>run</param>
+                           </args>
+                           <name>server0</name>
+                        </configuration>
+                     </execution>
+                     <execution>
+                        <id>start1</id>
+                        <goals>
+                           <goal>cli</goal>
+                        </goals>
+                        <configuration>
+                           <spawn>true</spawn>
+                           <location>${basedir}/target/server1</location>
+                           <testURI>tcp://localhost:61617</testURI>
+                           <args>
+                              <param>run</param>
+                           </args>
+                           <name>server1</name>
+                        </configuration>
+                     </execution>
+                     <execution>
+                        <id>start2</id>
+                        <goals>
+                           <goal>cli</goal>
+                        </goals>
+                        <configuration>
+                           <spawn>true</spawn>
+                           <location>${basedir}/target/server2</location>
+                           <testURI>tcp://localhost:61618</testURI>
+                           <args>
+                              <param>run</param>
+                           </args>
+                           <name>server2</name>
+                        </configuration>
+                     </execution>
+                     <execution>
+                        <id>start3</id>
+                        <goals>
+                           <goal>cli</goal>
+                        </goals>
+                        <configuration>
+                           <spawn>true</spawn>
+                           <location>${basedir}/target/server3</location>
+                           <testURI>tcp://localhost:61619</testURI>
+                           <args>
+                              <param>run</param>
+                           </args>
+                           <name>server3</name>
+                        </configuration>
+                     </execution>
+                     <execution>
+                        <id>start4</id>
+                        <goals>
+                           <goal>cli</goal>
+                        </goals>
+                        <configuration>
+                           <spawn>true</spawn>
+                           <location>${basedir}/target/server4</location>
+                           <testURI>tcp://localhost:61620</testURI>
+                           <args>
+                              <param>run</param>
+                           </args>
+                           <name>server4</name>
+                        </configuration>
+                     </execution>
+                     <execution>
+                        <id>start5</id>
+                        <goals>
+                           <goal>cli</goal>
+                        </goals>
+                        <configuration>
+                           <spawn>true</spawn>
+                           <location>${basedir}/target/server5</location>
+                           <testURI>tcp://localhost:61621</testURI>
+                           <args>
+                              <param>run</param>
+                           </args>
+                           <name>server5</name>
+                        </configuration>
+                     </execution>
                      <execution>
                         <id>runClient</id>
                         <goals>
@@ -130,13 +219,77 @@ under the License.
                         </goals>
                         <configuration>
                            <clientClass>org.apache.activemq.artemis.jms.example.SymmetricClusterExample</clientClass>
+                        </configuration>
+                     </execution>
+                     <execution>
+                        <id>stop0</id>
+                        <goals>
+                           <goal>cli</goal>
+                        </goals>
+                        <configuration>
+                           <location>${basedir}/target/server0</location>
                            <args>
-                              <param>${basedir}/target/server0</param>
-                              <param>${basedir}/target/server1</param>
-                              <param>${basedir}/target/server2</param>
-                              <param>${basedir}/target/server3</param>
-                              <param>${basedir}/target/server4</param>
-                              <param>${basedir}/target/server5</param>
+                              <param>stop</param>
+                           </args>
+                        </configuration>
+                     </execution>
+                     <execution>
+                        <id>stop1</id>
+                        <goals>
+                           <goal>cli</goal>
+                        </goals>
+                        <configuration>
+                           <location>${basedir}/target/server1</location>
+                           <args>
+                              <param>stop</param>
+                           </args>
+                        </configuration>
+                     </execution>
+                     <execution>
+                        <id>stop2</id>
+                        <goals>
+                           <goal>cli</goal>
+                        </goals>
+                        <configuration>
+                           <location>${basedir}/target/server2</location>
+                           <args>
+                              <param>stop</param>
+                           </args>
+                        </configuration>
+                     </execution>
+                     <execution>
+                        <id>stop3</id>
+                        <goals>
+                           <goal>cli</goal>
+                        </goals>
+                        <configuration>
+                           <location>${basedir}/target/server3</location>
+                           <args>
+                              <param>stop</param>
+                           </args>
+                        </configuration>
+                     </execution>
+                     <execution>
+                        <id>stop4</id>
+                        <goals>
+                           <goal>cli</goal>
+                        </goals>
+                        <configuration>
+                           <location>${basedir}/target/server4</location>
+                           <args>
+                              <param>stop</param>
+                           </args>
+                        </configuration>
+                     </execution>
+                     <execution>
+                        <id>stop5</id>
+                        <goals>
+                           <goal>cli</goal>
+                        </goals>
+                        <configuration>
+                           <location>${basedir}/target/server5</location>
+                           <args>
+                              <param>stop</param>
                            </args>
                         </configuration>
                      </execution>

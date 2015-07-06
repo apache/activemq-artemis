@@ -27,7 +27,7 @@ under the License.
       <version>1.0.1-SNAPSHOT</version>
    </parent>
 
-   <artifactId>non-transaction-failover</artifactId>
+   <artifactId>artemis-jms-non-transaction-failover-example</artifactId>
    <packaging>jar</packaging>
    <name>ActiveMQ Artemis JMS Non Transaction Failover Example</name>
 
@@ -37,8 +37,8 @@ under the License.
 
    <dependencies>
       <dependency>
-         <groupId>org.apache.activemq.examples.jms</groupId>
-         <artifactId>common</artifactId>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>artemis-cli</artifactId>
          <version>${project.version}</version>
       </dependency>
       <dependency>
@@ -57,13 +57,16 @@ under the License.
                   <artifactId>artemis-maven-plugin</artifactId>
                   <executions>
                      <execution>
-                        <id>create</id>
+                        <id>create0</id>
                         <goals>
                            <goal>create</goal>
                         </goals>
                         <configuration>
                            <instance>${basedir}/target/server0</instance>
-                           <configuration>${basedir}/target/classes/activemq/server0</configuration>
+                           <sharedStore>true</sharedStore>
+                           <slave>false</slave>
+                           <dataFolder>../data</dataFolder>
+                           <failoverOnShutdown>true</failoverOnShutdown>
                         </configuration>
                      </execution>
                      <execution>
@@ -73,7 +76,10 @@ under the License.
                         </goals>
                         <configuration>
                            <instance>${basedir}/target/server1</instance>
-                           <configuration>${basedir}/target/classes/activemq/server1</configuration>
+                           <sharedStore>true</sharedStore>
+                           <slave>true</slave>
+                           <dataFolder>../data</dataFolder>
+                           <failoverOnShutdown>true</failoverOnShutdown>
                         </configuration>
                      </execution>
                      <execution>
@@ -93,7 +99,7 @@ under the License.
                   <dependencies>
                      <dependency>
                         <groupId>org.apache.activemq.examples.jms</groupId>
-                        <artifactId>non-transaction-failover</artifactId>
+                        <artifactId>artemis-jms-non-transaction-failover-example</artifactId>
                         <version>${project.version}</version>
                      </dependency>
                    </dependencies>

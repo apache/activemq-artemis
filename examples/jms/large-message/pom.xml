@@ -37,8 +37,8 @@ under the License.
 
    <dependencies>
       <dependency>
-         <groupId>org.apache.activemq.examples.jms</groupId>
-         <artifactId>common</artifactId>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>artemis-cli</artifactId>
          <version>${project.version}</version>
       </dependency>
       <dependency>
@@ -61,10 +61,6 @@ under the License.
                         <goals>
                            <goal>create</goal>
                         </goals>
-                        <configuration>
-                           <instance>${basedir}/target/server0</instance>
-                           <configuration>${basedir}/target/classes/activemq/server0</configuration>
-                        </configuration>
                      </execution>
                      <execution>
                         <id>runClient</id>

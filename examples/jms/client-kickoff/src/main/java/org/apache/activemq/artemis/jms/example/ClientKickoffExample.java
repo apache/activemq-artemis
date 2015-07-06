@@ -27,27 +27,21 @@ import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
 import javax.naming.InitialContext;
+import java.lang.Exception;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.activemq.artemis.api.core.management.ActiveMQServerControl;
 import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
-import org.apache.activemq.artemis.common.example.ActiveMQExample;
 
 /**
  * An example that shows how to kick off a client connected to ActiveMQ Artemis by using JMX.
  */
-public class ClientKickoffExample extends ActiveMQExample
+public class ClientKickoffExample
 {
    private static final String JMX_URL = "service:jmx:rmi:///jndi/rmi://localhost:3000/jmxrmi";
 
-   public static void main(final String[] args)
-   {
-      new ClientKickoffExample().run(args);
-   }
-
-   @Override
-   public boolean runExample() throws Exception
+   public static void main(final String[] args) throws Exception
    {
       QueueConnection connection = null;
       InitialContext initialContext = null;
@@ -67,7 +61,7 @@ public class ClientKickoffExample extends ActiveMQExample
          connection.setExceptionListener(new ExceptionListener()
          {
             @Override
-         public void onException(final JMSException e)
+            public void onException(final JMSException e)
             {
                exception.set(e);
             }
@@ -81,9 +75,9 @@ public class ClientKickoffExample extends ActiveMQExample
          JMXConnector connector = JMXConnectorFactory.connect(new JMXServiceURL(JMX_URL), new HashMap<String, String>());
          MBeanServerConnection mbsc = connector.getMBeanServerConnection();
          ActiveMQServerControl serverControl = MBeanServerInvocationHandler.newProxyInstance(mbsc,
-                                                                                            on,
-                                                                                            ActiveMQServerControl.class,
-                                                                                            false);
+                                                                                             on,
+                                                                                             ActiveMQServerControl.class,
+                                                                                             false);
 
          // Step 7. List the remote address connected to the server
          System.out.println("List of remote addresses connected to the server:");
@@ -107,8 +101,6 @@ public class ClientKickoffExample extends ActiveMQExample
          System.err.println("----------------------------------");
          exception.get().printStackTrace();
          System.err.println("----------------------------------");
-
-         return true;
       }
       finally
       {
@@ -123,5 +115,4 @@ public class ClientKickoffExample extends ActiveMQExample
          }
       }
    }
-
 }

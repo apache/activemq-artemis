@@ -27,7 +27,6 @@ import javax.naming.InitialContext;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.SendAcknowledgementHandler;
-import org.apache.activemq.artemis.common.example.ActiveMQExample;
 import org.apache.activemq.artemis.jms.client.ActiveMQSession;
 
 /**
@@ -37,15 +36,9 @@ import org.apache.activemq.artemis.jms.client.ActiveMQSession;
  * to the stream of messages being sent to the server.
  * For more information please see the readme.html file
  */
-public class SendAcknowledgementsExample extends ActiveMQExample
+public class SendAcknowledgementsExample
 {
-   public static void main(final String[] args)
-   {
-      new SendAcknowledgementsExample().run(args);
-   }
-
-   @Override
-   public boolean runExample() throws Exception
+   public static void main(final String[] args) throws Exception
    {
       Connection connection = null;
       InitialContext initialContext = null;
@@ -101,8 +94,6 @@ public class SendAcknowledgementsExample extends ActiveMQExample
 
             System.out.println("Sent message " + i);
          }
-
-         return true;
       }
       finally
       {
@@ -118,5 +109,4 @@ public class SendAcknowledgementsExample extends ActiveMQExample
          }
       }
    }
-
 }

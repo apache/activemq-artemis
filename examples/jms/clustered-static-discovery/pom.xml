@@ -37,8 +37,8 @@ under the License.
 
    <dependencies>
       <dependency>
-         <groupId>org.apache.activemq.examples.jms</groupId>
-         <artifactId>common</artifactId>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>artemis-cli</artifactId>
          <version>${project.version}</version>
       </dependency>
       <dependency>
@@ -57,7 +57,7 @@ under the License.
                   <artifactId>artemis-maven-plugin</artifactId>
                   <executions>
                      <execution>
-                        <id>create</id>
+                        <id>create0</id>
                         <goals>
                            <goal>create</goal>
                         </goals>
@@ -67,14 +67,23 @@ under the License.
                         </configuration>
                      </execution>
                      <execution>
-                        <id>create2</id>
+                        <id>create1</id>
                         <goals>
                            <goal>create</goal>
                         </goals>
                         <configuration>
                            <instance>${basedir}/target/server1</instance>
                            <configuration>${basedir}/target/classes/activemq/server1</configuration>
-                           <portOffset>1</portOffset>
+                        </configuration>
+                     </execution>
+                     <execution>
+                        <id>create2</id>
+                        <goals>
+                           <goal>create</goal>
+                        </goals>
+                        <configuration>
+                           <instance>${basedir}/target/server2</instance>
+                           <configuration>${basedir}/target/classes/activemq/server2</configuration>
                         </configuration>
                      </execution>
                      <execution>
@@ -83,20 +92,68 @@ under the License.
                            <goal>create</goal>
                         </goals>
                         <configuration>
-                           <instance>${basedir}/target/server2</instance>
-                           <configuration>${basedir}/target/classes/activemq/server2</configuration>
-                           <portOffset>2</portOffset>
+                           <instance>${basedir}/target/server3</instance>
+                           <configuration>${basedir}/target/classes/activemq/server3</configuration>
                         </configuration>
                      </execution>
                      <execution>
-                        <id>create4</id>
+                        <id>start0</id>
                         <goals>
-                           <goal>create</goal>
+                           <goal>cli</goal>
                         </goals>
                         <configuration>
-                           <instance>${basedir}/target/server3</instance>
-                           <configuration>${basedir}/target/classes/activemq/server3</configuration>
-                           <portOffset>3</portOffset>
+                           <spawn>true</spawn>
+                           <location>${basedir}/target/server0</location>
+                           <testURI>tcp://localhost:61616</testURI>
+                           <args>
+                              <param>run</param>
+                           </args>
+                           <name>server0</name>
+                        </configuration>
+                     </execution>
+                     <execution>
+                        <id>start1</id>
+                        <goals>
+                           <goal>cli</goal>
+                        </goals>
+                        <configuration>
+                           <spawn>true</spawn>
+                           <location>${basedir}/target/server1</location>
+                           <testURI>tcp://localhost:61617</testURI>
+                           <args>
+                              <param>run</param>
+                           </args>
+                           <name>server1</name>
+                        </configuration>
+                     </execution>
+                     <execution>
+                        <id>start2</id>
+                        <goals>
+                           <goal>cli</goal>
+                        </goals>
+                        <configuration>
+                           <spawn>true</spawn>
+                           <location>${basedir}/target/server2</location>
+                           <testURI>tcp://localhost:61618</testURI>
+                           <args>
+                              <param>run</param>
+                           </args>
+                           <name>server2</name>
+                        </configuration>
+                     </execution>
+                     <execution>
+                        <id>start3</id>
+                        <goals>
+                           <goal>cli</goal>
+                        </goals>
+                        <configuration>
+                           <spawn>true</spawn>
+                           <location>${basedir}/target/server3</location>
+                           <testURI>tcp://localhost:61619</testURI>
+                           <args>
+                              <param>run</param>
+                           </args>
+                           <name>server3</name>
                         </configuration>
                      </execution>
                      <execution>
@@ -106,11 +163,53 @@ under the License.
                         </goals>
                         <configuration>
                            <clientClass>org.apache.activemq.artemis.jms.example.StaticClusteredQueueExample</clientClass>
+                        </configuration>
+                     </execution>
+                     <execution>
+                        <id>stop0</id>
+                        <goals>
+                           <goal>cli</goal>
+                        </goals>
+                        <configuration>
+                           <location>${basedir}/target/server0</location>
                            <args>
-                              <param>${basedir}/target/server0</param>
-                              <param>${basedir}/target/server1</param>
-                              <param>${basedir}/target/server2</param>
-                              <param>${basedir}/target/server3</param>
+                              <param>stop</param>
+                           </args>
+                        </configuration>
+                     </execution>
+                     <execution>
+                        <id>stop1</id>
+                        <goals>
+                           <goal>cli</goal>
+                        </goals>
+                        <configuration>
+                           <location>${basedir}/target/server1</location>
+                           <args>
+                              <param>stop</param>
+                           </args>
+                        </configuration>
+                     </execution>
+                     <execution>
+                        <id>stop2</id>
+                        <goals>
+                           <goal>cli</goal>
+                        </goals>
+                        <configuration>
+                           <location>${basedir}/target/server2</location>
+                           <args>
+                              <param>stop</param>
+                           </args>
+                        </configuration>
+                     </execution>
+                     <execution>
+                        <id>stop3</id>
+                        <goals>
+                           <goal>cli</goal>
+                        </goals>
+                        <configuration>
+                           <location>${basedir}/target/server3</location>
+                           <args>
+                              <param>stop</param>
                            </args>
                         </configuration>
                      </execution>

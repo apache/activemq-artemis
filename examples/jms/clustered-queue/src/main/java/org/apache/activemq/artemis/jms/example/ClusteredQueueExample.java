@@ -26,21 +26,13 @@ import javax.jms.TextMessage;
 import javax.naming.InitialContext;
 import java.util.Hashtable;
 
-import org.apache.activemq.artemis.common.example.ActiveMQExample;
-
 /**
  * A simple example that demonstrates server side load-balancing of messages between the queue instances on different
  * nodes of the cluster.
  */
-public class ClusteredQueueExample extends ActiveMQExample
+public class ClusteredQueueExample
 {
-   public static void main(final String[] args)
-   {
-      new ClusteredQueueExample().run(args);
-   }
-
-   @Override
-   public boolean runExample() throws Exception
+   public static void main(final String[] args) throws Exception
    {
       Connection connection0 = null;
 
@@ -55,7 +47,7 @@ public class ClusteredQueueExample extends ActiveMQExample
          // Step 1. Get an initial context for looking up JNDI from server 0
          Hashtable<String, Object> properties = new Hashtable<String, Object>();
          properties.put("java.naming.factory.initial", "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
-         properties.put("connectionFactory.ConnectionFactory", DEFAULT_TCP1);
+         properties.put("connectionFactory.ConnectionFactory", "tcp://localhost:61616");
          properties.put("queue.queue/exampleQueue", "exampleQueue");
          ic0 = new InitialContext(properties);
 
@@ -68,7 +60,7 @@ public class ClusteredQueueExample extends ActiveMQExample
          // Step 4. Get an initial context for looking up JNDI from server 1
          properties = new Hashtable<String, Object>();
          properties.put("java.naming.factory.initial", "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
-         properties.put("connectionFactory.ConnectionFactory", DEFAULT_TCP2);
+         properties.put("connectionFactory.ConnectionFactory", "tcp://localhost:61617");
          ic1 = new InitialContext(properties);
 
          // Step 5. Look-up a JMS Connection Factory object from JNDI on server 1
@@ -129,8 +121,6 @@ public class ClusteredQueueExample extends ActiveMQExample
 
             System.out.println("Got message: " + message1.getText() + " from node 1");
          }
-
-         return true;
       }
       finally
       {
@@ -157,5 +147,4 @@ public class ClusteredQueueExample extends ActiveMQExample
          }
       }
    }
-
 }

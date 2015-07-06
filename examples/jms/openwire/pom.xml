@@ -35,6 +35,17 @@ under the License.
       <activemq.basedir>${project.basedir}/../../..</activemq.basedir>
    </properties>
 
+   <dependencies>
+      <dependency>
+         <groupId>org.apache.geronimo.specs</groupId>
+         <artifactId>geronimo-jms_2.0_spec</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>activemq-client</artifactId>
+      </dependency>
+   </dependencies>
+
    <profiles>
       <profile>
          <id>example</id>
@@ -49,9 +60,18 @@ under the License.
                         <goals>
                            <goal>create</goal>
                         </goals>
+                     </execution>
+                     <execution>
+                        <id>start</id>
+                        <goals>
+                           <goal>cli</goal>
+                        </goals>
                         <configuration>
-                           <instance>${basedir}/target/server0</instance>
-                           <configuration>${basedir}/target/classes/activemq/server0</configuration>
+                           <spawn>true</spawn>
+                           <testURI>tcp://localhost:61616</testURI>
+                           <args>
+                              <param>run</param>
+                           </args>
                         </configuration>
                      </execution>
                      <execution>
@@ -61,8 +81,16 @@ under the License.
                         </goals>
                         <configuration>
                            <clientClass>org.apache.activemq.artemis.jms.example.OpenWireExample</clientClass>
+                        </configuration>
+                     </execution>
+                     <execution>
+                        <id>stop</id>
+                        <goals>
+                           <goal>cli</goal>
+                        </goals>
+                        <configuration>
                            <args>
-                              <param>${basedir}/target/server0</param>
+                              <param>stop</param>
                            </args>
                         </configuration>
                      </execution>
@@ -79,21 +107,4 @@ under the License.
          </build>
       </profile>
    </profiles>
-   <dependencies>
-      <dependency>
-         <groupId>org.apache.activemq.examples.jms</groupId>
-         <artifactId>common</artifactId>
-         <version>${project.version}</version>
-      </dependency>
-      <dependency>
-         <groupId>org.apache.geronimo.specs</groupId>
-         <artifactId>geronimo-jms_2.0_spec</artifactId>
-      </dependency>
-      <dependency>
-         <groupId>org.apache.activemq</groupId>
-         <artifactId>activemq-client</artifactId>
-      </dependency>
-   </dependencies>
-
-
 </project>

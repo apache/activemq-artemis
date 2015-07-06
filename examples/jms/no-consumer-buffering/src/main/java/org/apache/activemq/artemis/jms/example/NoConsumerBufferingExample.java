@@ -25,21 +25,13 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.naming.InitialContext;
 
-import org.apache.activemq.artemis.common.example.ActiveMQExample;
-
 /**
  * This example demonstrates how ActiveMQ Artemis consumers can be configured to not buffer any messages from
  * the server.
  */
-public class NoConsumerBufferingExample extends ActiveMQExample
+public class NoConsumerBufferingExample
 {
-   public static void main(final String[] args)
-   {
-      new NoConsumerBufferingExample().run(args);
-   }
-
-   @Override
-   public boolean runExample() throws Exception
+   public static void main(final String[] args) throws Exception
    {
       Connection connection = null;
       InitialContext initialContext = null;
@@ -114,8 +106,6 @@ public class NoConsumerBufferingExample extends ActiveMQExample
 
             System.out.println("Consumed message from consumer1: " + message.getText());
          }
-
-         return true;
       }
       finally
       {
@@ -131,5 +121,4 @@ public class NoConsumerBufferingExample extends ActiveMQExample
          }
       }
    }
-
 }

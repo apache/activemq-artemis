@@ -27,7 +27,6 @@ import javax.jms.Topic;
 import javax.naming.InitialContext;
 import java.util.Hashtable;
 
-import org.apache.activemq.artemis.common.example.ActiveMQExample;
 import org.apache.activemq.artemis.jms.bridge.JMSBridge;
 import org.apache.activemq.artemis.jms.bridge.QualityOfServiceMode;
 import org.apache.activemq.artemis.jms.bridge.impl.JMSBridgeImpl;
@@ -39,22 +38,16 @@ import org.apache.activemq.artemis.jms.bridge.impl.JNDIDestinationFactory;
  * The source and target destinations are located on 2 different ActiveMQ Artemis server.
  * The source and target queues are bridged by a JMS Bridge configured and running on the "target" server.
  */
-public class JMSBridgeExample extends ActiveMQExample
+public class JMSBridgeExample
 {
    public static void main(final String[] args) throws Exception
    {
-      new JMSBridgeExample().run(args);
-   }
-
-   @Override
-   public boolean runExample() throws Exception
-   {
-      String sourceServer = ActiveMQExample.DEFAULT_TCP1;
-      String targetServer = ActiveMQExample.DEFAULT_TCP2;
+      String sourceServer = "tcp://localhost:61616";
+      String targetServer = "tcp://localhost:61617";
 
       System.out.println("client will publish messages to " + sourceServer +
-                         " and receives message from " +
-                         targetServer);
+                                 " and receives message from " +
+                                 targetServer);
 
       // Step 1. Create JNDI contexts for source and target servers
       InitialContext sourceContext = JMSBridgeExample.createContext(sourceServer);
@@ -65,23 +58,23 @@ public class JMSBridgeExample extends ActiveMQExample
       // Step 2. Create and start a JMS Bridge
       // Note, the Bridge needs a transaction manager, in this instance we will use the JBoss TM
       JMSBridge jmsBridge = new JMSBridgeImpl(
-               new JNDIConnectionFactoryFactory(sourceJndiParams, "ConnectionFactory"),
-               new JNDIConnectionFactoryFactory(targetJndiParams, "ConnectionFactory"),
-               new JNDIDestinationFactory(sourceJndiParams, "source/topic"),
-               new JNDIDestinationFactory(targetJndiParams, "target/queue"),
-               null,
-               null,
-               null,
-               null,
-               null,
-               5000,
-               10,
-               QualityOfServiceMode.DUPLICATES_OK,
-               1,
-               -1,
-               null,
-               null,
-               true);
+              new JNDIConnectionFactoryFactory(sourceJndiParams, "ConnectionFactory"),
+              new JNDIConnectionFactoryFactory(targetJndiParams, "ConnectionFactory"),
+              new JNDIDestinationFactory(sourceJndiParams, "source/topic"),
+              new JNDIDestinationFactory(targetJndiParams, "target/queue"),
+              null,
+              null,
+              null,
+              null,
+              null,
+              5000,
+              10,
+              QualityOfServiceMode.DUPLICATES_OK,
+              1,
+              -1,
+              null,
+              null,
+              true);
 
       Connection sourceConnection = null;
       Connection targetConnection = null;
@@ -135,7 +128,7 @@ public class JMSBridgeExample extends ActiveMQExample
          // Step 12. Be sure to close the resources!
          if(jmsBridge != null)
          {
-             jmsBridge.stop();
+            jmsBridge.stop();
          }
          if (sourceContext != null)
          {
@@ -154,8 +147,6 @@ public class JMSBridgeExample extends ActiveMQExample
             targetConnection.close();
          }
       }
-
-      return true;
    }
 
    private static InitialContext createContext(final String server) throws Exception

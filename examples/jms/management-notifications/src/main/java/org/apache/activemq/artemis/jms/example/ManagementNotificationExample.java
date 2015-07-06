@@ -30,20 +30,12 @@ import javax.jms.Session;
 import javax.jms.Topic;
 import javax.naming.InitialContext;
 
-import org.apache.activemq.artemis.common.example.ActiveMQExample;
-
 /**
  * An example that shows how to receive management notifications using JMS messages.
  */
-public class ManagementNotificationExample extends ActiveMQExample
+public class ManagementNotificationExample
 {
-   public static void main(final String[] args)
-   {
-      new ManagementNotificationExample().run(args);
-   }
-
-   @Override
-   public boolean runExample() throws Exception
+   public static void main(final String[] args) throws Exception
    {
       Connection connection = null;
       InitialContext initialContext = null;
@@ -112,8 +104,6 @@ public class ManagementNotificationExample extends ActiveMQExample
          // sleep a little bit to be sure to receive the notification for the security
          // authentication violation before leaving the example
          Thread.sleep(2000);
-
-         return true;
       }
       finally
       {

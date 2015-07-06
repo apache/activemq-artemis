@@ -104,8 +104,14 @@ public class ActiveMQCreatePlugin extends AbstractMojo
    @Parameter(defaultValue = "false")
    private boolean slave;
 
-   @Parameter(defaultValue = "../data")
+   @Parameter(defaultValue = "./data")
    String dataFolder;
+
+   @Parameter(defaultValue = "false")
+   private boolean failoverOnShutdown;
+
+   @Parameter(defaultValue = "ON_DEMAND")
+   private String messageLoadBalancing;
 
    @Component
    private RepositorySystem repositorySystem;
@@ -162,6 +168,10 @@ public class ActiveMQCreatePlugin extends AbstractMojo
 
    public void execute() throws MojoExecutionException, MojoFailureException
    {
+      if (System.getProperty("bypassAddress") != null)
+      {
+         System.out.println("BYPASSADDRESS");
+      }
       getLog().info("Local " + localRepository);
       MavenProject project = (MavenProject) getPluginContext().get("project");
 
@@ -224,12 +234,7 @@ public class ActiveMQCreatePlugin extends AbstractMojo
          add(listCommands, "--replicated");
       }
 
-      if (replicated)
-      {
-         add(listCommands, "--shared-store");
-      }
-
-      if (replicated)
+      if (sharedStore)
       {
          add(listCommands, "--shared-store");
       }
@@ -237,6 +242,12 @@ public class ActiveMQCreatePlugin extends AbstractMojo
       if (clustered)
       {
          add(listCommands, "--clustered");
+         add(listCommands, "--message-load-balancing", messageLoadBalancing);
+      }
+
+      if (failoverOnShutdown)
+      {
+         add(listCommands, "--failover-on-shutdown");
       }
 
       add(listCommands, "--verbose");

@@ -31,25 +31,14 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.naming.InitialContext;
 
-import org.apache.activemq.artemis.common.example.ActiveMQExample;
-
 /**
  * A simple JMS Queue example that sends and receives message groups.
  */
-public class MessageGroupExample extends ActiveMQExample
+public class MessageGroupExample
 {
-   private final Map<String, String> messageReceiverMap = new ConcurrentHashMap<String, String>();
-
-   private boolean result = true;
-
-   public static void main(final String[] args)
+   public static void main(final String[] args) throws Exception
    {
-      new MessageGroupExample().run(args);
-   }
-
-   @Override
-   public boolean runExample() throws Exception
-   {
+      final Map<String, String> messageReceiverMap = new ConcurrentHashMap<String, String>();
       Connection connection = null;
       InitialContext initialContext = null;
       try
@@ -74,9 +63,9 @@ public class MessageGroupExample extends ActiveMQExample
 
          // Step 7. Create two consumers
          MessageConsumer consumer1 = session.createConsumer(queue);
-         consumer1.setMessageListener(new SimpleMessageListener("consumer-1"));
+         consumer1.setMessageListener(new SimpleMessageListener("consumer-1", messageReceiverMap));
          MessageConsumer consumer2 = session.createConsumer(queue);
-         consumer2.setMessageListener(new SimpleMessageListener("consumer-2"));
+         consumer2.setMessageListener(new SimpleMessageListener("consumer-2", messageReceiverMap));
 
          // Step 8. Create and send 10 text messages with group id 'Group-0'
          int msgCount = 10;
@@ -103,12 +92,9 @@ public class MessageGroupExample extends ActiveMQExample
             String receiver = messageReceiverMap.get(grpMsg.getText());
             if (!trueReceiver.equals(receiver))
             {
-               System.out.println("Group message [" + grpMsg.getText() + "[ went to wrong receiver: " + receiver);
-               result = false;
+               throw new IllegalStateException("Group message [" + grpMsg.getText() + "[ went to wrong receiver: " + receiver);
             }
          }
-
-         return result;
       }
       finally
       {
@@ -123,29 +109,30 @@ public class MessageGroupExample extends ActiveMQExample
          }
       }
    }
+}
 
-   private class SimpleMessageListener implements MessageListener
+class SimpleMessageListener implements MessageListener
+{
+   private final String name;
+   private final Map<String, String> messageReceiverMap;
+
+   public SimpleMessageListener(final String listenerName, Map<String, String> messageReceiverMap)
    {
-      private final String name;
-
-      public SimpleMessageListener(final String listenerName)
-      {
-         name = listenerName;
-      }
-
-      public void onMessage(final Message message)
-      {
-         try
-         {
-            TextMessage msg = (TextMessage)message;
-            System.out.format("Message: [%s] received by %s%n", msg.getText(), name);
-            messageReceiverMap.put(msg.getText(), name);
-         }
-         catch (JMSException e)
-         {
-            e.printStackTrace();
-         }
-      }
+      name = listenerName;
+      this.messageReceiverMap = messageReceiverMap;
    }
 
+   public void onMessage(final Message message)
+   {
+      try
+      {
+         TextMessage msg = (TextMessage)message;
+         System.out.format("Message: [%s] received by %s%n", msg.getText(), name);
+         messageReceiverMap.put(msg.getText(), name);
+      }
+      catch (JMSException e)
+      {
+         e.printStackTrace();
+      }
+   }
 }

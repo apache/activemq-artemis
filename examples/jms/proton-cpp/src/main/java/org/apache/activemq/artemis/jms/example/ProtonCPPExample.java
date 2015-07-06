@@ -30,7 +30,6 @@ import javax.naming.InitialContext;
 
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.api.jms.management.JMSManagementHelper;
-import org.apache.activemq.artemis.common.example.ActiveMQExample;
 
 /**
  * This example demonstrates the use of ActiveMQ Artemis "pre-acknowledge" functionality where
@@ -38,15 +37,9 @@ import org.apache.activemq.artemis.common.example.ActiveMQExample;
  *
  * Please see the readme.html for more details.
  */
-public class ProtonCPPExample extends ActiveMQExample
+public class ProtonCPPExample
 {
-   public static void main(final String[] args)
-   {
-      new ProtonCPPExample().run(args);
-   }
-
-   @Override
-   public boolean runExample() throws Exception
+   public static void main(final String[] args) throws Exception
    {
       Connection connection = null;
 
@@ -95,8 +88,6 @@ public class ProtonCPPExample extends ActiveMQExample
             // Sending message back to client
             producerAnswer.send(session.createTextMessage("HELLO from Apache ActiveMQ Artemis"));
          }
-
-         return true;
       }
       finally
       {

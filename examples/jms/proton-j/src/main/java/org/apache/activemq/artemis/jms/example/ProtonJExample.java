@@ -23,16 +23,10 @@ import org.apache.qpid.amqp_1_0.client.Receiver;
 import org.apache.qpid.amqp_1_0.client.Sender;
 import org.apache.qpid.amqp_1_0.client.Session;
 import org.apache.qpid.amqp_1_0.type.UnsignedInteger;
-import org.apache.activemq.artemis.common.example.ActiveMQExample;
 
-public class ProtonJExample extends ActiveMQExample
+public class ProtonJExample
 {
-   public static void main(String[] args)
-   {
-      new ProtonJExample().run(args);
-   }
-   @Override
-   public boolean runExample() throws Exception
+   public static void main(String[] args) throws Exception
    {
       Connection connection = null;
 
@@ -71,7 +65,5 @@ public class ProtonJExample extends ActiveMQExample
             connection.close();
          }
       }
-
-      return true;
    }
 }
