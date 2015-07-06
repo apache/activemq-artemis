@@ -60,6 +60,7 @@
             <include>org.apache.activemq:artemis-proton-plug</include>
             <include>org.apache.activemq:artemis-hornetq-protocol</include>
             <include>org.apache.activemq:artemis-stomp-protocol</include>
+            <include>org.apache.activemq:artemis-mqtt-protocol</include>
             <include>org.apache.activemq:artemis-ra</include>
             <include>org.apache.activemq:artemis-selector</include>
             <include>org.apache.activemq:artemis-server</include>
@@ -86,6 +87,7 @@
             <include>commons-collections:commons-collections</include>
             <include>org.fusesource.hawtbuf:hawtbuf</include>
             <include>org.jgroups:jgroups</include>
+            <include>io.netty:netty-codec-mqtt</include>
          </includes>
          <!--excludes>
             <exclude>org.apache.activemq:artemis-website</exclude>
