@@ -57,11 +57,12 @@ public class ActiveMQSecurityManagerImplTest extends ActiveMQTestBase
    @Test
    public void testDefaultSecurity()
    {
-      securityManager.getConfiguration().addUser("guest", "guest");
+      securityManager.getConfiguration().addUser("guest", "password");
       securityManager.getConfiguration().addRole("guest", "guest");
       securityManager.getConfiguration().setDefaultUser("guest");
       Assert.assertTrue(securityManager.validateUser(null, null));
-      Assert.assertTrue(securityManager.validateUser("guest", "guest"));
+      Assert.assertTrue(securityManager.validateUser("guest", "password"));
+      Assert.assertFalse(securityManager.validateUser(null, "wrongpass"));
       HashSet<Role> roles = new HashSet<Role>();
       roles.add(new Role("guest", true, true, true, true, true, true, true));
       Assert.assertTrue(securityManager.validateUserAndRole(null, null, roles, CheckType.CREATE_DURABLE_QUEUE));
