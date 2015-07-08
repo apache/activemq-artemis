@@ -23,6 +23,7 @@ import org.apache.activemq.artemis.core.config.impl.SecurityConfiguration;
 import org.apache.activemq.artemis.core.security.CheckType;
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.security.User;
+import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 
 /**
  * A basic implementation of the ActiveMQSecurityManager. This can be used within an appserver and be deployed by
@@ -31,6 +32,8 @@ import org.apache.activemq.artemis.core.security.User;
 public class ActiveMQSecurityManagerImpl implements ActiveMQSecurityManager
 {
    private final SecurityConfiguration configuration;
+
+   private ActiveMQServerLogger logger = ActiveMQServerLogger.LOGGER;
 
    public ActiveMQSecurityManagerImpl()
    {
@@ -44,19 +47,24 @@ public class ActiveMQSecurityManagerImpl implements ActiveMQSecurityManager
 
    // Public ---------------------------------------------------------------------
 
-   public boolean validateUser(final String user, final String password)
+   public boolean validateUser(final String username, final String password)
    {
-      if (user == null && configuration.getDefaultUser() == null)
+      if (username != null)
       {
-         return false;
+         User user = configuration.getUser(username);
+         return user != null && user.isValid(username, password);
       }
-
-      String defaultUser = configuration.getDefaultUser();
-      User theUser = configuration.getUser(user == null ? defaultUser : user);
-
-      boolean ok = theUser != null && theUser.isValid(user == null ? defaultUser : user, password == null ? defaultUser
-                                                                                                         : password);
-      return ok;
+      else if (username == null && password == null)
+      {
+         return configuration.getDefaultUser() != null;
+      }
+      else // the only possible case here is user == null, password != null
+      {
+         logger.debug("Validating default user against a provided password.  This happens when username=null, password!=null");
+         String defaultUsername = configuration.getDefaultUser();
+         User defaultUser = configuration.getUser(defaultUsername);
+         return defaultUser != null && defaultUser.isValid(defaultUsername, password);
+      }
    }
 
    public boolean validateUserAndRole(final String user,
