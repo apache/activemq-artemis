@@ -177,7 +177,6 @@ public interface Stomp
 
       public interface Error
       {
-         //1.0 only
          String MESSAGE = "message";
 
          //1.1
