@@ -506,6 +506,11 @@ public class AMQSession implements SessionCallback
       this.coreSession.close(false);
    }
 
+   public AMQConsumer getConsumer(Long coreConsumerId)
+   {
+      return consumers.get(coreConsumerId);
+   }
+
    private class SendRetryTask implements Runnable
    {
       private ServerMessage coreMsg;
