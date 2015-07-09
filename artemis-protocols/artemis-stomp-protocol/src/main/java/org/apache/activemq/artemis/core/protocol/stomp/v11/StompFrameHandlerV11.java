@@ -787,12 +787,12 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
 
                   headers.put(headerName, headerValue);
 
-                  if (headerName.equals(CONTENT_LENGTH_HEADER_NAME))
+                  if (headerName.equals(Stomp.Headers.CONTENT_LENGTH))
                   {
                      contentLength = Integer.parseInt(headerValue);
                   }
 
-                  if (headerName.equals(CONTENT_TYPE_HEADER_NAME))
+                  if (headerName.equals(Stomp.Headers.CONTENT_TYPE))
                   {
                      contentType = headerValue;
                   }

@@ -27,66 +27,66 @@ public class StompDecoder
 {
    public static final boolean TRIM_LEADING_HEADER_VALUE_WHITESPACE = true;
 
-   public static final String COMMAND_ABORT = "ABORT";
+   public static final String COMMAND_ABORT = Stomp.Commands.ABORT;
 
    public static final int COMMAND_ABORT_LENGTH = COMMAND_ABORT.length();
 
-   public static final String COMMAND_ACK = "ACK";
+   public static final String COMMAND_ACK = Stomp.Commands.ACK;
 
    public static final int COMMAND_ACK_LENGTH = COMMAND_ACK.length();
 
-   public static final String COMMAND_NACK = "NACK";
+   public static final String COMMAND_NACK = Stomp.Commands.NACK;
 
    public static final int COMMAND_NACK_LENGTH = COMMAND_NACK.length();
 
-   public static final String COMMAND_BEGIN = "BEGIN";
+   public static final String COMMAND_BEGIN = Stomp.Commands.BEGIN;
 
    public static final int COMMAND_BEGIN_LENGTH = COMMAND_BEGIN.length();
 
-   public static final String COMMAND_COMMIT = "COMMIT";
+   public static final String COMMAND_COMMIT = Stomp.Commands.COMMIT;
 
    public static final int COMMAND_COMMIT_LENGTH = COMMAND_COMMIT.length();
 
-   public static final String COMMAND_CONNECT = "CONNECT";
+   public static final String COMMAND_CONNECT = Stomp.Commands.CONNECT;
 
    public static final int COMMAND_CONNECT_LENGTH = COMMAND_CONNECT.length();
 
-   public static final String COMMAND_DISCONNECT = "DISCONNECT";
+   public static final String COMMAND_DISCONNECT = Stomp.Commands.DISCONNECT;
 
    public static final int COMMAND_DISCONNECT_LENGTH = COMMAND_DISCONNECT.length();
 
-   public static final String COMMAND_SEND = "SEND";
+   public static final String COMMAND_SEND = Stomp.Commands.SEND;
 
    public static final int COMMAND_SEND_LENGTH = COMMAND_SEND.length();
 
-   public static final String COMMAND_STOMP = "STOMP";
+   public static final String COMMAND_STOMP = Stomp.Commands.STOMP;
 
    public static final int COMMAND_STOMP_LENGTH = COMMAND_STOMP.length();
 
-   public static final String COMMAND_SUBSCRIBE = "SUBSCRIBE";
+   public static final String COMMAND_SUBSCRIBE = Stomp.Commands.SUBSCRIBE;
 
    public static final int COMMAND_SUBSCRIBE_LENGTH = COMMAND_SUBSCRIBE.length();
 
-   public static final String COMMAND_UNSUBSCRIBE = "UNSUBSCRIBE";
+   public static final String COMMAND_UNSUBSCRIBE = Stomp.Commands.UNSUBSCRIBE;
 
    public static final int COMMAND_UNSUBSCRIBE_LENGTH = COMMAND_UNSUBSCRIBE.length();
 
    /**
     * * added by meddy, 27 april 2011, handle header parser for reply to websocket protocol ***
     */
-   public static final String COMMAND_CONNECTED = "CONNECTED";
+   public static final String COMMAND_CONNECTED = Stomp.Responses.CONNECTED;
 
    public static final int COMMAND_CONNECTED_LENGTH = COMMAND_CONNECTED.length();
 
-   public static final String COMMAND_MESSAGE = "MESSAGE";
+   public static final String COMMAND_MESSAGE = Stomp.Responses.MESSAGE;
 
    public static final int COMMAND_MESSAGE_LENGTH = COMMAND_MESSAGE.length();
 
-   public static final String COMMAND_ERROR = "ERROR";
+   public static final String COMMAND_ERROR = Stomp.Responses.ERROR;
 
    public static final int COMMAND_ERROR_LENGTH = COMMAND_ERROR.length();
 
-   public static final String COMMAND_RECEIPT = "RECEIPT";
+   public static final String COMMAND_RECEIPT = Stomp.Responses.RECEIPT;
 
    public static final int COMMAND_RECEIPT_LENGTH = COMMAND_RECEIPT.length();
    /**
@@ -130,10 +130,6 @@ public class StompDecoder
    public static final byte SPACE = (byte) ' ';
 
    public static final byte TAB = (byte) '\t';
-
-   public static final String CONTENT_TYPE_HEADER_NAME = "content-type";
-
-   public static final String CONTENT_LENGTH_HEADER_NAME = "content-length";
 
    public byte[] workingBuffer = new byte[1024];
 
@@ -346,7 +342,7 @@ public class StompDecoder
 
                headers.put(headerName, headerValue);
 
-               if (headerName.equals(CONTENT_LENGTH_HEADER_NAME))
+               if (headerName.equals(Stomp.Headers.CONTENT_LENGTH))
                {
                   contentLength = Integer.parseInt(headerValue.toString());
                }

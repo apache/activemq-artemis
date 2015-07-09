@@ -475,15 +475,15 @@ public final class StompConnection implements RemotingConnection
             requestVersions.add(tokenizer.nextToken());
          }
 
-         if (requestVersions.contains("1.2"))
+         if (requestVersions.contains(StompVersions.V1_2.toString()))
          {
             this.version = StompVersions.V1_2;
          }
-         else if (requestVersions.contains("1.1"))
+         else if (requestVersions.contains(StompVersions.V1_1.toString()))
          {
             this.version = StompVersions.V1_1;
          }
-         else if (requestVersions.contains("1.0"))
+         else if (requestVersions.contains(StompVersions.V1_0.toString()))
          {
             this.version = StompVersions.V1_0;
          }
@@ -491,8 +491,8 @@ public final class StompConnection implements RemotingConnection
          {
             //not a supported version!
             ActiveMQStompException error = BUNDLE.versionNotSupported(acceptVersion);
-            error.addHeader("version", acceptVersion);
-            error.addHeader("content-type", "text/plain");
+            error.addHeader(Stomp.Headers.Error.VERSION, acceptVersion);
+            error.addHeader(Stomp.Headers.CONTENT_TYPE, "text/plain");
             error.setBody("Supported protocol version are " + manager.getSupportedVersionsAsString());
             error.setDisconnect(true);
             throw error;

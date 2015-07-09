@@ -24,6 +24,7 @@ import org.apache.activemq.artemis.core.protocol.stomp.Stomp;
 import org.apache.activemq.artemis.core.protocol.stomp.StompConnection;
 import org.apache.activemq.artemis.core.protocol.stomp.StompDecoder;
 import org.apache.activemq.artemis.core.protocol.stomp.StompFrame;
+import org.apache.activemq.artemis.core.protocol.stomp.StompVersions;
 import org.apache.activemq.artemis.core.protocol.stomp.VersionedStompFrameHandler;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 
@@ -58,7 +59,7 @@ public class StompFrameHandlerV10 extends VersionedStompFrameHandler implements 
 
          if (frame.hasHeader(Stomp.Headers.ACCEPT_VERSION))
          {
-            response.addHeader(Stomp.Headers.Connected.VERSION, "1.0");
+            response.addHeader(Stomp.Headers.Connected.VERSION, StompVersions.V1_0.toString());
          }
 
          response.addHeader(Stomp.Headers.Connected.SESSION, connection.getID().toString());

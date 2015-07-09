@@ -77,13 +77,13 @@ public class ActiveMQStompException extends Exception
       StompFrame frame = null;
       if (handler == null)
       {
-         frame = new StompFrame("ERROR");
+         frame = new StompFrame(Stomp.Responses.ERROR);
       }
       else
       {
-         frame = handler.createStompFrame("ERROR");
+         frame = handler.createStompFrame(Stomp.Responses.ERROR);
       }
-      frame.addHeader("message", this.getMessage());
+      frame.addHeader(Stomp.Headers.Error.MESSAGE, this.getMessage());
       for (Header header : headers)
       {
          frame.addHeader(header.key, header.val);
