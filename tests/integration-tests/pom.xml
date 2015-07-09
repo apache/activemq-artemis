@@ -32,6 +32,17 @@
       <vertx.testtools.version>2.0.3-final</vertx.testtools.version>
    </properties>
 
+   <repositories>
+       <!-- for the paho dependency -->
+       <repository>
+           <id>eclipse.m2</id>
+           <url>https://repo.eclipse.org/content/groups/snapshots/</url>
+           <releases><enabled>false</enabled></releases>
+           <snapshots><enabled>true</enabled></snapshots>
+       </repository>
+   </repositories>
+
+
    <dependencies>
       <dependency>
          <groupId>org.apache.activemq</groupId>
@@ -121,6 +132,32 @@
          <artifactId>artemis-openwire-protocol</artifactId>
          <version>${project.version}</version>
       </dependency>
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>artemis-hornetq-protocol</artifactId>
+         <version>${project.version}</version>
+      </dependency>
+
+      <!-- MQTT Deps -->
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>artemis-mqtt-protocol</artifactId>
+         <version>${project.version}</version>
+      </dependency>
+      <dependency>
+         <groupId>org.fusesource.mqtt-client</groupId>
+         <artifactId>mqtt-client</artifactId>
+      </dependency>
+      <dependency>
+          <groupId>org.eclipse.paho</groupId>
+          <artifactId>mqtt-client</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>io.netty</groupId>
+         <artifactId>netty-codec-mqtt</artifactId>
+      </dependency>
+      <!-- END MQTT Deps -->
+
       <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-aerogear-integration</artifactId>
