@@ -209,7 +209,7 @@ class StompProtocolManager implements ProtocolManager<StompFrameInterceptor>, No
    public boolean isProtocol(byte[] array)
    {
       String frameStart = new String(array, StandardCharsets.US_ASCII);
-      return frameStart.startsWith(StompCommands.CONNECT.name()) || frameStart.startsWith(StompCommands.STOMP.name());
+      return frameStart.startsWith(Stomp.Commands.CONNECT) || frameStart.startsWith(Stomp.Commands.STOMP);
    }
 
    @Override
