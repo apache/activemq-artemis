@@ -390,4 +390,14 @@ public class AMQConsumer implements BrowserListener
          session.getCoreSession().acknowledge(nativeId, lastMi.nativeId);
       }
    }
+
+   public org.apache.activemq.command.ActiveMQDestination getDestination()
+   {
+      return actualDest;
+   }
+
+   public ConsumerInfo getInfo()
+   {
+      return info;
+   }
 }
