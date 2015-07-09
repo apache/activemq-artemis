@@ -27,11 +27,11 @@ under the License.
   <body onload="prettyPrint()">
      <h1>JMS Expiration Example</h1>
 
-     <p>This example shows you how to configure ActiveMQ Artemis so messages are expipired after a certain time..</p>
+     <p>This example shows you how to configure ActiveMQ Artemis so messages are expipired after a certain time.</p>
      <p>Messages can be retained in the messaging system for a limited period of time before being removed.
          JMS specification states that clients should not receive messages that have been expired (but it does not guarantee this will not happen).</p>
      <p>ActiveMQ Artemis can assign a <em>expiry address</em> to a given queue so that when messages are expired, they are removed from the queue and
-        routed to an this address. These "expired" messages can later be consumed for further inspection.
+        routed to this address. These "expired" messages can later be consumed for further inspection.
      <p>
          The example will send 1 message with a short <em>time-to-live</em> to a queue. We will wait for the message to expire and checks that the message
          is no longer in the queue it was sent to.

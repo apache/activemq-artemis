@@ -686,7 +686,7 @@ public class JSONArray
    }
 
    /**
-    * Append an long value. This increases the array's length by one.
+    * Append a long value. This increases the array's length by one.
     *
     * @param value A long value.
     * @return this.
@@ -848,7 +848,7 @@ public class JSONArray
    }
 
    /**
-    * Remove a index and close the hole.
+    * Remove an index and close the hole.
     * @param index The index of the element to be removed.
     * @return The value that was associated with the index,
     * or null if there was no value.

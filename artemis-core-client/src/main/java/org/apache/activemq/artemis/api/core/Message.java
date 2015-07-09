@@ -158,7 +158,7 @@ public interface Message
     * Returns the message timestamp.
     * <br>
     * The timestamp corresponds to the time this message
-    * was handled by a ActiveMQ Artemis server.
+    * was handled by an ActiveMQ Artemis server.
     */
    long getTimestamp();
 
@@ -196,7 +196,7 @@ public interface Message
    boolean isLargeMessage();
 
    /**
-    * Returns the message body as a ActiveMQBuffer
+    * Returns the message body as an ActiveMQBuffer
     */
    ActiveMQBuffer getBodyBuffer();
 
@@ -211,7 +211,7 @@ public interface Message
    Message writeBodyBufferString(String string);
 
    /**
-    * Returns a <em>copy</em> of the message body as a ActiveMQBuffer. Any modification
+    * Returns a <em>copy</em> of the message body as an ActiveMQBuffer. Any modification
     * of this buffer should not impact the underlying buffer.
     */
    ActiveMQBuffer getBodyBufferCopy();
@@ -285,7 +285,7 @@ public interface Message
    Message putCharProperty(String key, char value);
 
    /**
-    * Puts a int property in this message.
+    * Puts an int property in this message.
     *
     * @param key   property name
     * @param value property value

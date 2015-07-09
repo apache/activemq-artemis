@@ -238,7 +238,7 @@ public class PagingWithFailoverAndCountersTest extends ActiveMQTestBase
                      currentMsg = msg.getLongProperty("count");
                      if (currentMsg < lastCommit)
                      {
-                        failed("Message recieved in duplicate out of order, LastCommit = " + lastCommit + ", currentMsg = " + currentMsg);
+                        failed("Message received in duplicate out of order, LastCommit = " + lastCommit + ", currentMsg = " + currentMsg);
                      }
                      msg.acknowledge();
                      if (txSize > 0 && msgcount > 0 && (msgcount % txSize == 0))

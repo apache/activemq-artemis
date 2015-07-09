@@ -83,7 +83,7 @@ public class AMQ1917Test extends TestCase {
             tpe.shutdown();
         }
 
-        public void testLoadedSendRecieveWithCorrelationId() throws Exception {
+        public void testLoadedSendReceiveWithCorrelationId() throws Exception {
 
             ActiveMQConnectionFactory connectionFactory = new org.apache.activemq.ActiveMQConnectionFactory();
             connectionFactory.setBrokerURL(connectionUri);

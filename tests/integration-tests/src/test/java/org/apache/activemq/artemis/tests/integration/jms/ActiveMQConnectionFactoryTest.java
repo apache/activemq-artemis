@@ -48,7 +48,7 @@ import org.apache.activemq.artemis.tests.util.RandomUtil;
 
 /**
  *
- * A ActiveMQConnectionFactoryTest
+ * ActiveMQConnectionFactoryTest
  */
 public class ActiveMQConnectionFactoryTest extends ActiveMQTestBase
 {

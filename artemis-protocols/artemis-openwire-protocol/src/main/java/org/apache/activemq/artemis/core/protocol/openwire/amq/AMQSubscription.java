@@ -105,7 +105,7 @@ public interface AMQSubscription extends AMQSubscriptionRecovery
    void gc();
 
    /**
-    * Used by a Slave Broker to update dispatch infomation
+    * Used by a Slave Broker to update dispatch information
     * @param mdn
     * @throws Exception
     */

@@ -46,7 +46,7 @@ public class TopicReplicationTest extends JmsMultipleBrokersTestSupport {
         MessageConsumer clientC = createConsumer("replication-broker4", dest);
         MessageConsumer clientD = createConsumer("replication-broker4", dest);
 
-        //let consumers propogate around the network
+        //let consumers propagate around the network
         Thread.sleep(2000);
 
         // Get message count

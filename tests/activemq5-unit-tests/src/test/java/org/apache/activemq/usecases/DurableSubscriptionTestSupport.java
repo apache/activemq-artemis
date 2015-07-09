@@ -417,7 +417,7 @@ public abstract class DurableSubscriptionTestSupport extends TestSupport {
         Session session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
         Topic topic = session.createTopic("topic-" + getName());
         MessageConsumer consumer = session.createDurableSubscriber(topic, "sub1");
-        // Drain any messages that may allready be in the sub
+        // Drain any messages that may already be in the sub
         while (consumer.receive(1000) != null) {
         }
 
@@ -443,7 +443,7 @@ public abstract class DurableSubscriptionTestSupport extends TestSupport {
         Session session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
         Topic topic = session.createTopic("topic-" + getName());
         MessageConsumer consumer = session.createDurableSubscriber(topic, "sub1");
-        // Drain any messages that may allready be in the sub
+        // Drain any messages that may already be in the sub
         while (consumer.receive(1000) != null) {
         }
 
@@ -473,7 +473,7 @@ public abstract class DurableSubscriptionTestSupport extends TestSupport {
         Session session = connection.createSession(false, ActiveMQSession.INDIVIDUAL_ACKNOWLEDGE);
         Topic topic = session.createTopic("topic-" + getName());
         MessageConsumer consumer = session.createDurableSubscriber(topic, "sub1");
-        // Drain any messages that may allready be in the sub
+        // Drain any messages that may already be in the sub
         while (consumer.receive(1000) != null) {
         }
         consumer.close();

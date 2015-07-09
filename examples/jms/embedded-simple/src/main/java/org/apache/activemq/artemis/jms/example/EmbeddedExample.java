@@ -36,7 +36,7 @@ import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManagerImpl
 import org.apache.activemq.artemis.api.jms.JMSFactoryType;
 
 /**
- * This example demonstrates how to run a ActiveMQ Artemis embedded with JMS
+ * This example demonstrates how to run an ActiveMQ Artemis embedded with JMS
  */
 public class EmbeddedExample extends ActiveMQExample
 {

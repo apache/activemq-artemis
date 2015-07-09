@@ -52,7 +52,7 @@ public class AMQConnectionContext
    private boolean faultTolerant;
    private final AtomicBoolean stopping = new AtomicBoolean();
    private final MessageEvaluationContext messageEvaluationContext;
-   private boolean dontSendReponse;
+   private boolean dontSendResponse;
    private boolean clientMaster = true;
    private ConnectionState connectionState;
    private XATransactionId xid;
@@ -97,7 +97,7 @@ public class AMQConnectionContext
       rc.networkConnection = this.networkConnection;
       rc.faultTolerant = this.faultTolerant;
       rc.stopping.set(this.stopping.get());
-      rc.dontSendReponse = this.dontSendReponse;
+      rc.dontSendResponse = this.dontSendResponse;
       rc.clientMaster = this.clientMaster;
       return rc;
    }
@@ -334,12 +334,12 @@ public class AMQConnectionContext
 
    public void setDontSendReponse(boolean b)
    {
-      this.dontSendReponse = b;
+      this.dontSendResponse = b;
    }
 
    public boolean isDontSendReponse()
    {
-      return dontSendReponse;
+      return dontSendResponse;
    }
 
    /**

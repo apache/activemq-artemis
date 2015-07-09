@@ -374,7 +374,7 @@ public class VirtualTopicDLQTest extends TestCase {
 
         public synchronized void onException(JMSException ex) {
             ex.printStackTrace();
-            LOG.error("Consumer for destination, (" + destinationName + "), JMS Exception occured.  Shutting down client.");
+            LOG.error("Consumer for destination, (" + destinationName + "), JMS Exception occurred.  Shutting down client.");
         }
 
         public synchronized void setStop(boolean bStop) {

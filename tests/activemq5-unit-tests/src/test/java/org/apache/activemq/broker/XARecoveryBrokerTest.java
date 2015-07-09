@@ -455,7 +455,7 @@ public class XARecoveryBrokerTest extends BrokerRestartTestSupport {
 
     }
 
-    public void testQueuePersistentCommitedMessagesNotLostOnRestart() throws Exception {
+    public void testQueuePersistentCommittedMessagesNotLostOnRestart() throws Exception {
 
         ActiveMQDestination destination = createDestination();
 
@@ -502,7 +502,7 @@ public class XARecoveryBrokerTest extends BrokerRestartTestSupport {
         assertNoMessagesLeft(connection);
     }
 
-    public void testQueuePersistentCommited2PhaseMessagesNotLostOnRestart() throws Exception {
+    public void testQueuePersistentCommitted2PhaseMessagesNotLostOnRestart() throws Exception {
 
         ActiveMQDestination destination = createDestination();
 
@@ -551,7 +551,7 @@ public class XARecoveryBrokerTest extends BrokerRestartTestSupport {
         assertNoMessagesLeft(connection);
     }
 
-    public void testQueuePersistentCommitedAcksNotLostOnRestart() throws Exception {
+    public void testQueuePersistentCommittedAcksNotLostOnRestart() throws Exception {
 
         ActiveMQDestination destination = createDestination();
 
@@ -691,8 +691,8 @@ public class XARecoveryBrokerTest extends BrokerRestartTestSupport {
         dataArrayResponse = (DataArrayResponse)connection.request(recoverInfo);
         assertEquals("there are no prepared tx", 0, dataArrayResponse.getData().length);
 
-        assertEquals("enqueue count does not see commited acks", 0, destinationView.getQueueSize());
-        assertEquals("enqueue count does not see commited acks", 4, destinationView.getDequeueCount());
+        assertEquals("enqueue count does not see committed acks", 0, destinationView.getQueueSize());
+        assertEquals("enqueue count does not see committed acks", 4, destinationView.getDequeueCount());
 
     }
 

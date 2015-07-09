@@ -216,7 +216,7 @@ public class InactivityMonitorTest extends CombinationTestSupport implements Tra
     }
 
     /**
-     * Used to test when a operation blocks. This should not cause transport to
+     * Used to test when an operation blocks. This should not cause transport to
      * get disconnected.
      *
      * @throws Exception

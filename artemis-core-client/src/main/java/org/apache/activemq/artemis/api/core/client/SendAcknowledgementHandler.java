@@ -19,7 +19,7 @@ package org.apache.activemq.artemis.api.core.client;
 import org.apache.activemq.artemis.api.core.Message;
 
 /**
- * A SendAcknowledgementHandler notifies a client when an message sent asynchronously has been
+ * A SendAcknowledgementHandler notifies a client when a message sent asynchronously has been
  * received by the server.
  * <p>
  * If the session is not blocking when sending durable or non-durable messages, the session can set

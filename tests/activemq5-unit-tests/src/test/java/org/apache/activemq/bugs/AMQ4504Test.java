@@ -73,7 +73,7 @@ public class AMQ4504Test {
         MessageConsumer consumer = connection.createSession(false, Session.AUTO_ACKNOWLEDGE).createConsumer(activeMQQueue);
         try {
             for (int i=0; i< numMessages * numDests; i++) {
-                assertNotNull("recieved:"  + i, consumer.receive(4000));
+                assertNotNull("received:"  + i, consumer.receive(4000));
             }
         } finally {
             connection.close();

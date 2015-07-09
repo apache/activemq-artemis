@@ -115,7 +115,7 @@ public final class ActiveMQClient
    public static final String DEFAULT_CORE_PROTOCOL = "CORE";
 
    /**
-    * Creates a ActiveMQConnectionFactory;
+    * Creates an ActiveMQConnectionFactory;
     *
     * @return the ActiveMQConnectionFactory
     */

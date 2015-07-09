@@ -53,7 +53,7 @@ which we will cover in a later chapter.
 >
 > The `ha-policy` configurations replaces any current HA configuration
 > in the root of the `broker.xml` configuration. All old
-> configuration is now deprecated altho best efforts will be made to
+> configuration is now deprecated although best efforts will be made to
 > honour it if configured this way.
 
 > **Note**

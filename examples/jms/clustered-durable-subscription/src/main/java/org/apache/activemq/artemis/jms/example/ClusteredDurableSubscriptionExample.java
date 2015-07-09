@@ -133,7 +133,7 @@ public class ClusteredDurableSubscriptionExample extends ActiveMQExample
          // Step 14. We now consume those messages on *both* server 0 and server 1.
          // Note that the messages have been load-balanced between the two nodes, with some
          // messages on node 0 and others on node 1.
-         // The "logical" subscription is distributed across the cluster an contains exactly one copy of all the
+         // The "logical" subscription is distributed across the cluster and contains exactly one copy of all the
          // messages
 
          for (int i = 0; i < numMessages; i += 2)

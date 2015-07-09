@@ -160,7 +160,7 @@ public class TempStoreDataCleanupTest {
         );
 
         int endPercentage = broker.getAdminView().getMemoryPercentUsage();
-        LOG.info("MemoryUseage at test end = " + endPercentage);
+        LOG.info("MemoryUsage at test end = " + endPercentage);
 
         assertEquals(startPercentage, endPercentage);
     }

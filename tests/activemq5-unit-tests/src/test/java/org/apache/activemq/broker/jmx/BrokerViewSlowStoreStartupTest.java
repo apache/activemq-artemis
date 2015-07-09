@@ -278,13 +278,13 @@ public class BrokerViewSlowStoreStartupTest {
 
         try {
             view.removeConnector("tcp");
-            fail("Should have thrown an NoSuchElementException");
+            fail("Should have thrown a NoSuchElementException");
         } catch(NoSuchElementException e) {
         }
 
         try {
             view.removeNetworkConnector("tcp");
-            fail("Should have thrown an NoSuchElementException");
+            fail("Should have thrown a NoSuchElementException");
         } catch(NoSuchElementException e) {
         }
 

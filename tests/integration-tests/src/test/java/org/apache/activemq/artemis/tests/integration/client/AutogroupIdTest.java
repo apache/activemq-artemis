@@ -165,7 +165,7 @@ public class AutogroupIdTest extends ActiveMQTestBase
    }
 
    /*
-   * tests that even tho we have an grouping round robin distributor we don't pin the consumer as autogroup is false
+   * tests that even though we have a grouping round robin distributor we don't pin the consumer as autogroup is false
    * */
    @Test
    public void testGroupIdAutomaticallyNotSet() throws Exception

@@ -154,19 +154,19 @@ public class StompTest extends StompTestBase
    @Test
    public void testSendMessageToNonExistentQueue() throws Exception
    {
-      String nonExistantQueue = RandomUtil.randomString();
+      String nonExistentQueue = RandomUtil.randomString();
       String frame = "CONNECT\n" + "login: brianm\n" + "passcode: wombats\n\n" + Stomp.NULL;
       sendFrame(frame);
 
       frame = receiveFrame(10000);
       Assert.assertTrue(frame.startsWith("CONNECTED"));
 
-      frame = "SEND\n" + "destination:" + getQueuePrefix() + nonExistantQueue + "\n\n" + "Hello World" + Stomp.NULL;
+      frame = "SEND\n" + "destination:" + getQueuePrefix() + nonExistentQueue + "\n\n" + "Hello World" + Stomp.NULL;
 
       sendFrame(frame);
       receiveFrame(1000);
 
-      MessageConsumer consumer = session.createConsumer(ActiveMQJMSClient.createQueue(nonExistantQueue));
+      MessageConsumer consumer = session.createConsumer(ActiveMQJMSClient.createQueue(nonExistentQueue));
       TextMessage message = (TextMessage) consumer.receive(1000);
       Assert.assertNotNull(message);
       Assert.assertEquals("Hello World", message.getText());
@@ -180,9 +180,9 @@ public class StompTest extends StompTestBase
       Assert.assertTrue(Math.abs(tnow - tmsg) < 1500);
 
       // closing the consumer here should trigger auto-deletion
-      assertNotNull(server.getActiveMQServer().getPostOffice().getBinding(new SimpleString(ResourceNames.JMS_QUEUE + nonExistantQueue)));
+      assertNotNull(server.getActiveMQServer().getPostOffice().getBinding(new SimpleString(ResourceNames.JMS_QUEUE + nonExistentQueue)));
       consumer.close();
-      assertNull(server.getActiveMQServer().getPostOffice().getBinding(new SimpleString(ResourceNames.JMS_QUEUE + nonExistantQueue)));
+      assertNull(server.getActiveMQServer().getPostOffice().getBinding(new SimpleString(ResourceNames.JMS_QUEUE + nonExistentQueue)));
    }
 
    /*
@@ -1133,9 +1133,9 @@ public class StompTest extends StompTestBase
    }
 
    @Test
-   public void testSubscribeToNonExistantQueue() throws Exception
+   public void testSubscribeToNonExistentQueue() throws Exception
    {
-      String nonExistantQueue = RandomUtil.randomString();
+      String nonExistentQueue = RandomUtil.randomString();
 
       String frame = "CONNECT\n" + "login: brianm\n" + "passcode: wombats\n\n" + Stomp.NULL;
       sendFrame(frame);
@@ -1145,7 +1145,7 @@ public class StompTest extends StompTestBase
 
       frame = "SUBSCRIBE\n" + "destination:" +
          getQueuePrefix() +
-         nonExistantQueue +
+         nonExistentQueue +
          "\n" +
          "receipt: 12\n" +
          "\n\n" +
@@ -1155,18 +1155,18 @@ public class StompTest extends StompTestBase
       frame = receiveFrame(10000);
       Assert.assertTrue(frame.startsWith("RECEIPT"));
 
-      sendMessage(getName(), ActiveMQJMSClient.createQueue(nonExistantQueue));
+      sendMessage(getName(), ActiveMQJMSClient.createQueue(nonExistentQueue));
 
       frame = receiveFrame(10000);
       Assert.assertTrue(frame.startsWith("MESSAGE"));
       Assert.assertTrue(frame.indexOf("destination:") > 0);
       Assert.assertTrue(frame.indexOf(getName()) > 0);
 
-      assertNotNull(server.getActiveMQServer().getPostOffice().getBinding(new SimpleString(ResourceNames.JMS_QUEUE + nonExistantQueue)));
+      assertNotNull(server.getActiveMQServer().getPostOffice().getBinding(new SimpleString(ResourceNames.JMS_QUEUE + nonExistentQueue)));
 
       frame = "UNSUBSCRIBE\n" + "destination:" +
          getQueuePrefix() +
-         nonExistantQueue +
+         nonExistentQueue +
          "\n" +
          "receipt: 1234\n" +
          "\n\n" +
@@ -1176,9 +1176,9 @@ public class StompTest extends StompTestBase
       frame = receiveFrame(10000);
       Assert.assertTrue(frame.startsWith("RECEIPT"));
 
-      assertNull(server.getActiveMQServer().getPostOffice().getBinding(new SimpleString(ResourceNames.JMS_QUEUE + nonExistantQueue)));
+      assertNull(server.getActiveMQServer().getPostOffice().getBinding(new SimpleString(ResourceNames.JMS_QUEUE + nonExistentQueue)));
 
-      sendMessage(getName(), ActiveMQJMSClient.createQueue(nonExistantQueue));
+      sendMessage(getName(), ActiveMQJMSClient.createQueue(nonExistentQueue));
 
       frame = receiveFrame(1000);
       log.info("Received frame: " + frame);

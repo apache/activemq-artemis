@@ -586,7 +586,7 @@ public interface ClientSession extends XAResource, AutoCloseable
     * Queries information on a binding.
     *
     * @param address the address of the biding to query
-    * @return a AddressQuery containing information on the binding attached to the given address
+    * @return an AddressQuery containing information on the binding attached to the given address
     * @throws ActiveMQException if an exception occurs while querying the binding
     */
    AddressQuery addressQuery(SimpleString address) throws ActiveMQException;

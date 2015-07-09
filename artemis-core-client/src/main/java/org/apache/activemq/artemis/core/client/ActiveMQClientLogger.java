@@ -248,11 +248,11 @@ public interface ActiveMQClientLogger extends BasicLogger
    void propertyNotInteger(String propName, String name);
 
    @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 212044, value = "Property {0} must be an Long, it is {1}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 212044, value = "Property {0} must be a Long, it is {1}", format = Message.Format.MESSAGE_FORMAT)
    void propertyNotLong(String propName, String name);
 
    @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 212045, value = "Property {0} must be an Boolean, it is {1}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 212045, value = "Property {0} must be a Boolean, it is {1}", format = Message.Format.MESSAGE_FORMAT)
    void propertyNotBoolean(String propName, String name);
 
    @LogMessage(level = Logger.Level.WARN)

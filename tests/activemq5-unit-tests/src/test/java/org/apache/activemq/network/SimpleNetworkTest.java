@@ -120,7 +120,7 @@ public class SimpleNetworkTest {
         });
 
         TopicRequestor requestor = new TopicRequestor((TopicSession)localSession, included);
-        // allow for consumer infos to perculate arround
+        // allow for consumer infos to perculate around
         Thread.sleep(5000);
         for (int i = 0; i < MESSAGE_COUNT; i++) {
             TextMessage msg = localSession.createTextMessage("test msg: " + i);
@@ -136,7 +136,7 @@ public class SimpleNetworkTest {
         MessageConsumer excludedConsumer = remoteSession.createConsumer(excluded);
         MessageProducer includedProducer = localSession.createProducer(included);
         MessageProducer excludedProducer = localSession.createProducer(excluded);
-        // allow for consumer infos to perculate arround
+        // allow for consumer infos to perculate around
         Thread.sleep(2000);
         Message test = localSession.createTextMessage("test");
         includedProducer.send(test);

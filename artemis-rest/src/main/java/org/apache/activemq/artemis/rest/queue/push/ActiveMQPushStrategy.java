@@ -24,7 +24,7 @@ import org.jboss.resteasy.specimpl.ResteasyUriBuilder;
 import org.jboss.resteasy.spi.Link;
 
 /**
- * Forwarding to a ActiveMQ/REST-* endpoing
+ * Forwarding to an ActiveMQ/REST-* endpoing
  */
 public class ActiveMQPushStrategy extends UriTemplateStrategy
 {

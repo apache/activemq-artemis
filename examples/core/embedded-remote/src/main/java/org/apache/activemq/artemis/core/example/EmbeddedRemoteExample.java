@@ -32,7 +32,7 @@ import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactor
 
 /**
  *
- * This example shows how to run a ActiveMQ Artemis core client and server embedded in your
+ * This example shows how to run an ActiveMQ Artemis core client and server embedded in your
  * own application
  */
 public class EmbeddedRemoteExample

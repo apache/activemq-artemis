@@ -78,7 +78,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal
    // while holding a lock or failover could dead lock eventually
    // And we can't use the sessionExecutor as that's being used for message handlers
    // for that reason we have a separate flowControlExecutor that's using the thread pool
-   // Which is a OrderedExecutor
+   // Which is an OrderedExecutor
    private final Executor flowControlExecutor;
 
    // Number of pending calls on flow control
@@ -896,7 +896,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal
    // ---------------------------------------------------------------------------------------
 
    /**
-    * Sending a initial credit for slow consumers
+    * Sending an initial credit for slow consumers
     */
    private void startSlowConsumer()
    {

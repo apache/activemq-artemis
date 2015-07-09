@@ -396,14 +396,14 @@ public class PageSubscriptionCounterImpl implements PageSubscriptionCounter
       {
          this.counter = counter;
          this.id = id;
-         this.ammount = add;
+         this.amount = add;
       }
 
       PageSubscriptionCounterImpl counter;
 
       long id;
 
-      int ammount;
+      int amount;
    }
 
    private static class CounterOperations extends TransactionOperationAbstract implements TransactionOperation
@@ -415,7 +415,7 @@ public class PageSubscriptionCounterImpl implements PageSubscriptionCounter
       {
          for (ItemOper oper : operations)
          {
-            oper.counter.incrementProcessed(oper.id, oper.ammount);
+            oper.counter.incrementProcessed(oper.id, oper.amount);
          }
       }
    }

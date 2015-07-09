@@ -358,7 +358,7 @@ public class RecoveryBrokerTest extends BrokerRestartTestSupport {
         assertNoMessagesLeft(connection);
     }
 
-    public void testQueuePersistentCommitedMessagesNotLostOnRestart() throws Exception {
+    public void testQueuePersistentCommittedMessagesNotLostOnRestart() throws Exception {
 
         ActiveMQDestination destination = new ActiveMQQueue("TEST");
 
@@ -406,7 +406,7 @@ public class RecoveryBrokerTest extends BrokerRestartTestSupport {
     }
     
 
-    public void testQueuePersistentCommitedAcksNotLostOnRestart() throws Exception {
+    public void testQueuePersistentCommittedAcksNotLostOnRestart() throws Exception {
 
         ActiveMQDestination destination = new ActiveMQQueue("TEST");
 

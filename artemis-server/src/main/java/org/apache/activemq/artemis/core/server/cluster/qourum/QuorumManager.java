@@ -295,7 +295,7 @@ public final class QuorumManager implements ClusterTopologyListener, ActiveMQCom
       }
    }
    /**
-    * this will connect to a node and then cast a vote. whether or not this vote is asked of the target node is dependant
+    * this will connect to a node and then cast a vote. whether or not this vote is asked of the target node is dependent
     * on {@link org.apache.activemq.artemis.core.server.cluster.qourum.Vote#isRequestServerVote()}
     */
    private final class VoteRunnable implements Runnable

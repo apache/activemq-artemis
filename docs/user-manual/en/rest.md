@@ -589,7 +589,7 @@ headers. here's an example of that.
 
 You can set the time to live, expiration, and/or the priority of the
 message in the queue or topic by setting an additional query parameter.
-The `expiration` query parameter is an long specify the time in
+The `expiration` query parameter is a long specifying the time in
 milliseconds since epoch (a long date). The `ttl` query parameter is a
 time in milliseconds you want the message active. The `priority` is
 another query parameter with an integer value between 0 and 9 expressing
@@ -651,7 +651,7 @@ parameters (`application/x-www-form-urlencoded`) described below.
     in which the consumer connections will be closed if idle.
 
 -   `delete-when-idle`. Boolean value, If true, a topic subscription
-    will be deleted (even if it is durable) when an the idle timeout is
+    will be deleted (even if it is durable) when the idle timeout is
     reached.
 
 > **Note**
@@ -920,7 +920,7 @@ Here is an example of creating an auto-acknowledged queue pull consumer.
     you'll see later, it is transmitted with each response just to
     remind you.
 
-Creating an manually-acknowledged consumer for a topic is pretty much
+Creating a manually-acknowledged consumer for a topic is pretty much
 the same. Here's an example of creating a durable manually-acknowledged
 topic pull subscription.
 

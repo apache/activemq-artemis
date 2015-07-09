@@ -307,7 +307,7 @@ public class ActiveMQSession implements QueueSession, TopicSession
    {
       if (destination != null && !(destination instanceof ActiveMQDestination))
       {
-         throw new InvalidDestinationException("Not a ActiveMQ Artemis Destination:" + destination);
+         throw new InvalidDestinationException("Not an ActiveMQ Artemis Destination:" + destination);
       }
 
       try
@@ -364,7 +364,7 @@ public class ActiveMQSession implements QueueSession, TopicSession
 
       if (!(destination instanceof ActiveMQDestination))
       {
-         throw new InvalidDestinationException("Not a ActiveMQDestination:" + destination);
+         throw new InvalidDestinationException("Not an ActiveMQDestination:" + destination);
       }
 
       ActiveMQDestination jbdest = (ActiveMQDestination)destination;
@@ -460,7 +460,7 @@ public class ActiveMQSession implements QueueSession, TopicSession
       checkTopic(topic);
       if (!(topic instanceof ActiveMQDestination))
       {
-         throw new InvalidDestinationException("Not a ActiveMQTopic:" + topic);
+         throw new InvalidDestinationException("Not an ActiveMQTopic:" + topic);
       }
       if ("".equals(messageSelector))
       {
@@ -881,7 +881,7 @@ public class ActiveMQSession implements QueueSession, TopicSession
       }
       if (!(queue instanceof ActiveMQDestination))
       {
-         throw new InvalidDestinationException("Not a ActiveMQQueue:" + queue);
+         throw new InvalidDestinationException("Not an ActiveMQQueue:" + queue);
       }
       if ("".equals(filterString))
       {

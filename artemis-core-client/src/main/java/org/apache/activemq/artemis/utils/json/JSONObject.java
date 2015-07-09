@@ -1385,7 +1385,7 @@ public class JSONObject
    }
 
    /**
-    * Throw an exception if the object is an NaN or infinite number.
+    * Throw an exception if the object is a NaN or infinite number.
     * @param o The object to test.
     * @throws JSONException If o is a non-finite number.
     */

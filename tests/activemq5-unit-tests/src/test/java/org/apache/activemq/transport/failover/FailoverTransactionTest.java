@@ -494,7 +494,7 @@ public class FailoverTransactionTest extends TestSupport {
             // duplicate checker not updated on canceled tasks, even it
             // it was, recovery of the audit would fail as the message is
             // not recorded in the store and the audit may not be up to date.
-            // So if duplicate messages are a absolute no no after restarts,
+            // So if duplicate messages are an absolute no no after restarts,
             // ConcurrentStoreAndDispatchQueues must be disabled
             ((KahaDBPersistenceAdapter) store).setConcurrentStoreAndDispatchQueues(false);
         }

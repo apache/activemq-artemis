@@ -57,7 +57,7 @@ import org.slf4j.LoggerFactory;
  * 
  * If the network bridges gets stuck at any point subsequent queues will not get messages.  This test 
  * samples the production and consumption stats every second and if the flow of messages
- * get stuck then this tast fails.  The test monitors the flow of messages for 1 min.
+ * get stuck then this test fails.  The test monitors the flow of messages for 1 min.
  *  
  * @author chirino
  */
@@ -319,7 +319,7 @@ public class NetworkLoadTest extends TestCase {
 
             // The test is just checking to make sure thaat the producer and consumer does not hang
             // due to the network hops take to route the message form the producer to the consumer.
-            assertTrue("Recieved some messages since last sample", r>0);
+            assertTrue("Received some messages since last sample", r>0);
             assertTrue("Produced some messages since last sample", p>0);
             
         }

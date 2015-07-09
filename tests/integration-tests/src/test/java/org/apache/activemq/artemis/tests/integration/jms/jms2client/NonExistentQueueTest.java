@@ -56,7 +56,7 @@ public class NonExistentQueueTest extends JMSTestBase
 
 
    @Test
-   public void sendToNonExistantDestination() throws Exception
+   public void sendToNonExistentDestination() throws Exception
    {
       Destination destination = ActiveMQJMSClient.createTopic("DoesNotExist");
       TransportConfiguration transportConfiguration = new TransportConfiguration(InVMConnectorFactory.class.getName());
@@ -69,7 +69,7 @@ public class NonExistentQueueTest extends JMSTestBase
       {
          MessageProducer messageProducer = session.createProducer(null);
          messageProducer.send(destination, session.createMessage());
-         Assert.fail("Succeeded in sending message to a non-existant destination using JMS 1 API!");
+         Assert.fail("Succeeded in sending message to a non-existent destination using JMS 1 API!");
       }
       catch (JMSException e)
       { // Expected }
@@ -83,7 +83,7 @@ public class NonExistentQueueTest extends JMSTestBase
       try
       {
          jmsProducer.send(destination, context.createMessage());
-         Assert.fail("Succeeded in sending message to a non-existant destination using JMS 2 API!");
+         Assert.fail("Succeeded in sending message to a non-existent destination using JMS 2 API!");
       }
       catch (JMSRuntimeException e)
       { // Expected }

@@ -179,7 +179,7 @@ public class StompDecoder
     * terminated with a null character
     *
     * Note: This is the decoder for 1.0 stomp frames. However to support for stomp 1.1
-    * and 1.2, it is also responsible for giving out an proper exception when it detects
+    * and 1.2, it is also responsible for giving out a proper exception when it detects
     * unsupported EOLs ("\r\n" valid for 1.2 only). The StompConnection will switch
     * to proper version decoders on catching such exceptions.
     */

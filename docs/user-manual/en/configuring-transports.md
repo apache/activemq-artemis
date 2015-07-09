@@ -27,7 +27,7 @@ In the above example we're defining an acceptor that uses
 The `acceptor` element contains a `URI` that defines the kind of Acceptor
 to create along with its configuration. The `schema` part of the `URI`
 defines the Acceptor type which can either be `tcp` or `vm` which is
-`Netty` or an In VM Acceptor respectively. For `Netty` teh host and the
+`Netty` or an In VM Acceptor respectively. For `Netty` the host and the
 port of the `URI` define what host and port the Acceptor will bind to. For
 In VM the `Authority` part of the `URI` defines a unique server id.
 

@@ -1223,7 +1223,7 @@
          <xsd:element name="forward-when-no-consumers" type="xsd:boolean" default="false" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
-                  DEPRECATED: use message-load-balancing-type instead. Select STRICT to mimic foward-when-no-consumers=true
+                  DEPRECATED: use message-load-balancing-type instead. Select STRICT to mimic forward-when-no-consumers=true
                   and ON_DEMAND to mimic forward-when-no-consumers=false.
                </xsd:documentation>
             </xsd:annotation>

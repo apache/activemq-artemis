@@ -73,7 +73,7 @@ public class SpawnedJMSServer
             }
             else
             {
-               // stop anyway but with a error status
+               // stop anyway but with an error status
                System.exit(1);
             }
          }
