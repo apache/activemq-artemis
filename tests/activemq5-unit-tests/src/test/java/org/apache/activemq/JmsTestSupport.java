@@ -107,7 +107,7 @@ public class JmsTestSupport extends CombinationTestSupport {
     }
 
     protected ConnectionFactory createConnectionFactory() throws Exception {
-        return new ActiveMQConnectionFactory("vm://localhost");
+        return new ActiveMQConnectionFactory("tcp://localhost:61616");
     }
 
     protected BrokerService createBroker() throws Exception {

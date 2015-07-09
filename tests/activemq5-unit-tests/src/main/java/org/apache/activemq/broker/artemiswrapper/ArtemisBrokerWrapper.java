@@ -64,11 +64,6 @@ public class ArtemisBrokerWrapper extends ArtemisBrokerBase
       Set<TransportConfiguration> acceptors0 = serverConfig.getAcceptorConfigurations();
       Iterator<TransportConfiguration> iter0 = acceptors0.iterator();
 
-      while (iter0.hasNext())
-      {
-         System.out.println("===>: " + iter0.next());
-      }
-
       Map<String, AddressSettings> addressSettings = serverConfig.getAddressesSettings();
       String match = "jms.queue.#";
       AddressSettings dlaSettings = new AddressSettings();
@@ -168,7 +163,7 @@ public class ArtemisBrokerWrapper extends ArtemisBrokerBase
 
       while (iter.hasNext())
       {
-         System.out.println(">: " + iter.next());
+         System.out.println("acceptor =>: " + iter.next());
       }
       server.start();
 
