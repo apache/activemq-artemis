@@ -23,18 +23,6 @@ under the License.
         "http://java.sun.com/dtd/web-app_2_3.dtd">
 
 <web-app>
-    <listener>
-        <listener-class>org.jboss.resteasy.plugins.server.servlet.ResteasyBootstrap</listener-class>
-    </listener>
-
-
-    <listener>
-        <listener-class>org.apache.activemq.rest.integration.ActiveMQBootstrapListener</listener-class>
-    </listener>
-
-    <listener>
-        <listener-class>org.apache.activemq.rest.integration.RestMessagingBootstrapListener</listener-class>
-    </listener>
 
     <filter>
         <filter-name>Rest-Messaging</filter-name>
@@ -47,5 +35,17 @@ under the License.
         <filter-name>Rest-Messaging</filter-name>
         <url-pattern>/*</url-pattern>
     </filter-mapping>
+
+    <listener>
+        <listener-class>org.jboss.resteasy.plugins.server.servlet.ResteasyBootstrap</listener-class>
+    </listener>
+
+    <listener>
+        <listener-class>org.apache.activemq.rest.integration.ActiveMQBootstrapListener</listener-class>
+    </listener>
+
+    <listener>
+        <listener-class>org.apache.activemq.rest.integration.RestMessagingBootstrapListener</listener-class>
+    </listener>
 
 </web-app>
