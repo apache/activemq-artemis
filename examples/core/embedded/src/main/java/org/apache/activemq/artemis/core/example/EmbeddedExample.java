@@ -35,7 +35,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServers;
 
 /**
  *
- * This example shows how to run a ActiveMQ Artemis core client and server embedded in your
+ * This example shows how to run an ActiveMQ Artemis core client and server embedded in your
  * own application
  */
 public class EmbeddedExample

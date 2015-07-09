@@ -47,7 +47,7 @@ public class WireformatNegociationTest extends CombinationTestSupport {
     private final AtomicReference<Exception> asyncError = new AtomicReference<Exception>();
     private final AtomicBoolean ignoreAsycError = new AtomicBoolean();
 
-    private final CountDownLatch negociationCounter = new CountDownLatch(2);
+    private final CountDownLatch negotiationCounter = new CountDownLatch(2);
 
     protected void setUp() throws Exception {
         super.setUp();
@@ -63,7 +63,7 @@ public class WireformatNegociationTest extends CombinationTestSupport {
             public void onCommand(Object command) {
                 if (command instanceof WireFormatInfo) {
                     clientWF.set((WireFormatInfo)command);
-                    negociationCounter.countDown();
+                    negotiationCounter.countDown();
                 }
             }
 
@@ -71,7 +71,7 @@ public class WireformatNegociationTest extends CombinationTestSupport {
                 if (!ignoreAsycError.get()) {
                     LOG.info("Client transport error: ", error);
                     asyncError.set(error);
-                    negociationCounter.countDown();
+                    negotiationCounter.countDown();
                 }
             }
 
@@ -100,7 +100,7 @@ public class WireformatNegociationTest extends CombinationTestSupport {
                         public void onCommand(Object command) {
                             if (command instanceof WireFormatInfo) {
                                 serverWF.set((WireFormatInfo)command);
-                                negociationCounter.countDown();
+                                negotiationCounter.countDown();
                             }
                         }
 
@@ -108,7 +108,7 @@ public class WireformatNegociationTest extends CombinationTestSupport {
                             if (!ignoreAsycError.get()) {
                                 LOG.info("Server transport error: ", error);
                                 asyncError.set(error);
-                                negociationCounter.countDown();
+                                negotiationCounter.countDown();
                             }
                         }
 
@@ -157,7 +157,7 @@ public class WireformatNegociationTest extends CombinationTestSupport {
         startServer("tcp://localhost:61616?wireFormat.version=1");
         startClient("tcp://localhost:61616");
 
-        assertTrue("Connect timeout", negociationCounter.await(10, TimeUnit.SECONDS));
+        assertTrue("Connect timeout", negotiationCounter.await(10, TimeUnit.SECONDS));
         assertNull("Async error: " + asyncError, asyncError.get());
 
         assertNotNull(clientWF.get());
@@ -175,7 +175,7 @@ public class WireformatNegociationTest extends CombinationTestSupport {
         startServer("tcp://localhost:61616");
         startClient("tcp://localhost:61616?wireFormat.version=1");
 
-        assertTrue("Connect timeout", negociationCounter.await(10, TimeUnit.SECONDS));
+        assertTrue("Connect timeout", negotiationCounter.await(10, TimeUnit.SECONDS));
         assertNull("Async error: " + asyncError, asyncError.get());
 
         assertNotNull(clientWF.get());
@@ -193,7 +193,7 @@ public class WireformatNegociationTest extends CombinationTestSupport {
         startServer("tcp://localhost:61616");
         startClient("tcp://localhost:61616");
 
-        assertTrue("Connect timeout", negociationCounter.await(10, TimeUnit.SECONDS));
+        assertTrue("Connect timeout", negotiationCounter.await(10, TimeUnit.SECONDS));
         assertNull("Async error: " + asyncError, asyncError.get());
 
         assertNotNull(clientWF.get());
@@ -208,7 +208,7 @@ public class WireformatNegociationTest extends CombinationTestSupport {
         startServer("tcp://localhost:61616");
         startClient("tcp://localhost:61616?wireFormat.maxInactivityDurationInitalDelay=60000");
 
-        assertTrue("Connect timeout", negociationCounter.await(10, TimeUnit.SECONDS));
+        assertTrue("Connect timeout", negotiationCounter.await(10, TimeUnit.SECONDS));
         assertNull("Async error: " + asyncError, asyncError.get());
 
         assertNotNull(clientWF.get());
@@ -223,7 +223,7 @@ public class WireformatNegociationTest extends CombinationTestSupport {
         startServer("tcp://localhost:61616");
         startClient("tcp://localhost:61616?wireFormat.maxFrameSize=1048576");
 
-        assertTrue("Connect timeout", negociationCounter.await(10, TimeUnit.SECONDS));
+        assertTrue("Connect timeout", negotiationCounter.await(10, TimeUnit.SECONDS));
         assertNull("Async error: " + asyncError, asyncError.get());
 
         assertNotNull(clientWF.get());

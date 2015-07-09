@@ -58,17 +58,17 @@ public class ProducerFlowControlSendFailTest extends ProducerFlowControlTest {
     }
     
     @Override
-    public void test2ndPubisherWithStandardConnectionThatIsBlocked() throws Exception {
+    public void test2ndPublisherWithStandardConnectionThatIsBlocked() throws Exception {
         // with sendFailIfNoSpace set, there is no blocking of the connection
     }
     
     @Override
-    public void testAsyncPubisherRecoverAfterBlock() throws Exception {
+    public void testAsyncPublisherRecoverAfterBlock() throws Exception {
         // sendFail means no flowControllwindow as there is no producer ack, just an exception
     }
     
     @Override
-    public void testPubisherRecoverAfterBlock() throws Exception {
+    public void testPublisherRecoverAfterBlock() throws Exception {
         ActiveMQConnectionFactory factory = (ActiveMQConnectionFactory)createConnectionFactory();
         // with sendFail, there must be no flowControllwindow
         // sendFail is an alternative flow control mechanism that does not block
@@ -116,7 +116,7 @@ public class ProducerFlowControlSendFailTest extends ProducerFlowControlTest {
         keepGoing.set(false);
     }
 
-    public void testPubisherRecoverAfterBlockWithSyncSend() throws Exception {
+    public void testPublisherRecoverAfterBlockWithSyncSend() throws Exception {
         ActiveMQConnectionFactory factory = (ActiveMQConnectionFactory)createConnectionFactory();
         factory.setExceptionListener(null);
         factory.setUseAsyncSend(false);

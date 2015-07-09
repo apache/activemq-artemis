@@ -29,7 +29,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.core.server.ServerMessage;
 
 /**
-* This class implements a ActiveMQ Artemis filter
+* This class implements an ActiveMQ Artemis filter
 *
 * ActiveMQ Artemis filters have the same syntax as JMS 1.1 selectors, but the identifiers are different.
 *

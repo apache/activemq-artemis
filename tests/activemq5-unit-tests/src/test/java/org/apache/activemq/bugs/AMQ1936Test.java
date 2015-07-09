@@ -45,7 +45,7 @@ import org.apache.activemq.util.Wait;
 import org.apache.log4j.Logger;
 
 /**
- * A AMQ1936Test
+ * AMQ1936Test
  *
  */
 public class AMQ1936Test extends TestCase {

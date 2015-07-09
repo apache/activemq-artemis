@@ -53,12 +53,12 @@ public final class ActiveMQBuffers
    }
 
    /**
-    * Creates a ActiveMQBuffer wrapping an underlying NIO ByteBuffer
+    * Creates an ActiveMQBuffer wrapping an underlying NIO ByteBuffer
     *
     * The position on this buffer won't affect the position on the inner buffer
     *
     * @param underlying the underlying NIO ByteBuffer
-    * @return a ActiveMQBuffer wrapping the underlying NIO ByteBuffer
+    * @return an ActiveMQBuffer wrapping the underlying NIO ByteBuffer
     */
    public static ActiveMQBuffer wrappedBuffer(final ByteBuffer underlying)
    {
@@ -70,10 +70,10 @@ public final class ActiveMQBuffers
    }
 
    /**
-    * Creates a ActiveMQBuffer wrapping an underlying byte array
+    * Creates an ActiveMQBuffer wrapping an underlying byte array
     *
     * @param underlying the underlying byte array
-    * @return a ActiveMQBuffer wrapping the underlying byte array
+    * @return an ActiveMQBuffer wrapping the underlying byte array
     */
    public static ActiveMQBuffer wrappedBuffer(final byte[] underlying)
    {

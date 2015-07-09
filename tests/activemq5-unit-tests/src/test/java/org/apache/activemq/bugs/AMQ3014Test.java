@@ -41,7 +41,7 @@ import org.junit.Test;
  * This test involves the creation of a local and remote broker, both of which
  * communicate over VM and TCP. The local broker establishes a bridge to the
  * remote broker for the purposes of verifying that broker info is only
- * transfered once the local broker's ID is known to the bridge support.
+ * transferred once the local broker's ID is known to the bridge support.
  */
 public class AMQ3014Test {
     // Change this URL to be an unused port.

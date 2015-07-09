@@ -57,7 +57,7 @@ public class TopicConnectionTest extends PubSubTestCase
          // now the connection has a client ID (either "testSetClientID_1" or one set by the provider
          Assert.assertTrue(subscriberConnection.getClientID() != null);
 
-         // a attempt to set a client ID should now throw an IllegalStateException
+         // an attempt to set a client ID should now throw an IllegalStateException
          subscriberConnection.setClientID("another client ID");
          Assert.fail("Should raise a javax.jms.IllegalStateException");
       }
@@ -100,7 +100,7 @@ public class TopicConnectionTest extends PubSubTestCase
          // we start the connection
          subscriberConnection.start();
 
-         // an attempt to set the client ID now should throw a IllegalStateException
+         // an attempt to set the client ID now should throw an IllegalStateException
          subscriberConnection.setClientID("testSetClientID_2");
          Assert.fail("Should throw a javax.jms.IllegalStateException");
       }

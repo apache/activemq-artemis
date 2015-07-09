@@ -1093,7 +1093,7 @@ public abstract class ActiveMQTestBase extends Assert
 
    protected static void expectActiveMQException(final ActiveMQExceptionType errorCode, final ActiveMQAction action)
    {
-      expectActiveMQException("must throw a ActiveMQException with the expected errorCode: " + errorCode,
+      expectActiveMQException("must throw an ActiveMQException with the expected errorCode: " + errorCode,
                               errorCode,
                               action);
    }

@@ -157,7 +157,7 @@ public class JmsSessionRecoverTest extends TestCase {
     }
 
     /**
-     * Test to make sure that a Async recover works.
+     * Test to make sure that an Async recover works.
      * 
      * @throws JMSException
      * @throws InterruptedException
@@ -226,7 +226,7 @@ public class JmsSessionRecoverTest extends TestCase {
     }
 
     /**
-     * Test to make sure that a Async recover works when using AUTO_ACKNOWLEDGE.
+     * Test to make sure that an Async recover works when using AUTO_ACKNOWLEDGE.
      * 
      * @throws JMSException
      * @throws InterruptedException

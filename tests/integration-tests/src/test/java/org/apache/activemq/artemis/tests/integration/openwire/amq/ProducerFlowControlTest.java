@@ -52,7 +52,7 @@ public class ProducerFlowControlTest extends BasicOpenWireTest
    private Thread asyncThread = null;
 
    @Test
-   public void test2ndPubisherWithProducerWindowSendConnectionThatIsBlocked() throws Exception
+   public void test2ndPublisherWithProducerWindowSendConnectionThatIsBlocked() throws Exception
    {
       factory.setProducerWindowSize(1024 * 64);
       flowControlConnection = (ActiveMQConnection) factory.createConnection();
@@ -85,7 +85,7 @@ public class ProducerFlowControlTest extends BasicOpenWireTest
    }
 
    @Test
-   public void testPubisherRecoverAfterBlock() throws Exception
+   public void testPublisherRecoverAfterBlock() throws Exception
    {
       flowControlConnection = (ActiveMQConnection) factory.createConnection();
       flowControlConnection.start();
@@ -139,7 +139,7 @@ public class ProducerFlowControlTest extends BasicOpenWireTest
    }
 
    @Test
-   public void testAsyncPubisherRecoverAfterBlock() throws Exception
+   public void testAsyncPublisherRecoverAfterBlock() throws Exception
    {
       factory.setProducerWindowSize(1024 * 5);
       factory.setUseAsyncSend(true);
@@ -195,7 +195,7 @@ public class ProducerFlowControlTest extends BasicOpenWireTest
    }
 
    @Test
-   public void test2ndPubisherWithSyncSendConnectionThatIsBlocked() throws Exception
+   public void test2ndPublisherWithSyncSendConnectionThatIsBlocked() throws Exception
    {
       factory.setAlwaysSyncSend(true);
       flowControlConnection = (ActiveMQConnection) factory.createConnection();
@@ -255,7 +255,7 @@ public class ProducerFlowControlTest extends BasicOpenWireTest
    }
 
    @Test
-   public void test2ndPubisherWithStandardConnectionThatIsBlocked() throws Exception
+   public void test2ndPublisherWithStandardConnectionThatIsBlocked() throws Exception
    {
       flowControlConnection = (ActiveMQConnection) factory.createConnection();
       flowControlConnection.start();

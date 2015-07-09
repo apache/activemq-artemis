@@ -299,7 +299,7 @@ public class MBeanTest extends EmbeddedBrokerTestSupport {
         long queueSize = queue.getQueueSize();
         compdatalist = queue.browse();
         int actualCount = compdatalist.length;
-        echo("Orginal queue size is now " + queueSize);
+        echo("Original queue size is now " + queueSize);
         echo("Original browse queue size: " + actualCount);
 
         long dlqSize = dlq.getQueueSize();

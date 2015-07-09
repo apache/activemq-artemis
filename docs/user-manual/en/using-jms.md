@@ -111,7 +111,7 @@ host:port combinations in the URL (e.g.
 many host:port combinations in the URL they are treated as the *initial
 connector(s)* for the underlying connection.
 
-The `udp` scheme is also supported which should use an host:port
+The `udp` scheme is also supported which should use a host:port
 combination that matches the `group-address` and `group-port` from the
 corresponding `broadcast-group` configured on the ActiveMQ Artemis server(s).
 

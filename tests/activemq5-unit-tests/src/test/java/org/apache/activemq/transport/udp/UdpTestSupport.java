@@ -110,7 +110,7 @@ public abstract class UdpTestSupport extends TestCase implements TransportListen
             producer.oneway(new ProducerInfo());
 
             Command received = assertCommandReceived();
-            assertTrue("Should have received a ActiveMQTextMessage but was: " + received, received instanceof ActiveMQTextMessage);
+            assertTrue("Should have received an ActiveMQTextMessage but was: " + received, received instanceof ActiveMQTextMessage);
             ActiveMQTextMessage actual = (ActiveMQTextMessage)received;
 
             assertEquals("getDestination", expected.getDestination(), actual.getDestination());

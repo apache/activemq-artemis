@@ -1791,7 +1791,7 @@ public class SymmetricClusterTest extends ClusterTestBase
 
    @Test
    /**
-    * This test verifies that an string exclude filter '!jms.eu.uk' results in bindings not being created for this
+    * This test verifies that a string exclude filter '!jms.eu.uk' results in bindings not being created for this
     * address for nodes in a cluster.  But ensures that other addresses are matched and bindings created.
     */
    public void testClusterAddressDoesNotCreatesBindingsForStringExcludesAddressFilters() throws Exception

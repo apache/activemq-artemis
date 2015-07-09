@@ -113,7 +113,7 @@ public class MemoryUsageCleanupTest {
     public void testIt() throws Exception {
 
         final int startPercentage = broker.getAdminView().getMemoryPercentUsage();
-        LOG.info("MemoryUseage at test start = " + startPercentage);
+        LOG.info("MemoryUsage at test start = " + startPercentage);
 
         for (int i = 0; i < 2; i++) {
             LOG.info("Started the test iteration: " + i + " using queueName = " + queueName);
@@ -144,7 +144,7 @@ public class MemoryUsageCleanupTest {
             TimeUnit.SECONDS.sleep(2);
         }
 
-        LOG.info("MemoryUseage before awaiting temp store cleanup = " + broker.getAdminView().getMemoryPercentUsage());
+        LOG.info("MemoryUsage before awaiting temp store cleanup = " + broker.getAdminView().getMemoryPercentUsage());
 
         assertTrue("MemoryUsage should return to: " + startPercentage +
                    "% but was " + broker.getAdminView().getMemoryPercentUsage() + "%", Wait.waitFor(new Wait.Condition() {
@@ -156,7 +156,7 @@ public class MemoryUsageCleanupTest {
         }));
 
         int endPercentage = broker.getAdminView().getMemoryPercentUsage();
-        LOG.info("MemoryUseage at test end = " + endPercentage);
+        LOG.info("MemoryUsage at test end = " + endPercentage);
     }
 
     public void destroyQueue() {

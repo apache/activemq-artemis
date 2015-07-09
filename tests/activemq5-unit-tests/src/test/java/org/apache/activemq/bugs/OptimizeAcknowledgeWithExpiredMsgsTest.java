@@ -306,7 +306,7 @@ public class OptimizeAcknowledgeWithExpiredMsgsTest {
         }
 
         public synchronized void onException(JMSException ex) {
-            LOG.error("JMS Exception occured.  Shutting down client.");
+            LOG.error("JMS Exception occurred.  Shutting down client.");
         }
     }
 }

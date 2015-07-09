@@ -32,7 +32,7 @@ public abstract class QuorumVote<V extends Vote, T>
    }
 
    /**
-    * called by the {@link org.apache.activemq.artemis.core.server.cluster.qourum.QuorumManager} when one of teh nodes in the quorum is
+    * called by the {@link org.apache.activemq.artemis.core.server.cluster.qourum.QuorumManager} when one of the nodes in the quorum is
     * successfully connected to. The QuorumVote can then decide whether or not a decision can be made with just that information.
     *
     * @return the vote to use

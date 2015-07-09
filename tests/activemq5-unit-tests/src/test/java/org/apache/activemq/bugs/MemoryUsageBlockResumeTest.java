@@ -158,7 +158,7 @@ public class MemoryUsageBlockResumeTest extends TestSupport implements Thread.Un
 
         for (;count < 10; count++) {
             assertTrue((m = consumer.receive(messageReceiveTimeout)) != null);
-            LOG.info("Recieved Message (" + count + "):" + m + ", System Memory Usage " + broker.getSystemUsage().getMemoryUsage().getPercentUsage());
+            LOG.info("Received Message (" + count + "):" + m + ", System Memory Usage " + broker.getSystemUsage().getMemoryUsage().getPercentUsage());
             messagesConsumed.incrementAndGet();
         }
         consumer.close();
@@ -172,7 +172,7 @@ public class MemoryUsageBlockResumeTest extends TestSupport implements Thread.Un
         consumer = consumerSession.createConsumer(destination);
         for (count = 0;count < toSend*2; count++) {
             assertTrue((m = consumer.receive(messageReceiveTimeout)) != null);
-            LOG.info("Recieved Message (" + count + "):" + m + ", System Memory Usage " + broker.getSystemUsage().getMemoryUsage().getPercentUsage() );
+            LOG.info("Received Message (" + count + "):" + m + ", System Memory Usage " + broker.getSystemUsage().getMemoryUsage().getPercentUsage() );
             messagesConsumed.incrementAndGet();
         }
 

@@ -73,7 +73,7 @@ public class AMQ3674Test {
             brokerView.destroyDurableSubscriber("subscriber1", "myTopic");
             fail("Expected Exception for Durable consumer is in use");
         } catch(Exception e) {
-            LOG.info("Recieved expected exception: " + e.getMessage());
+            LOG.info("Received expected exception: " + e.getMessage());
         }
 
         LOG.info("Current Durable Topic Subscriptions: " + brokerView.getDurableTopicSubscribers().length);

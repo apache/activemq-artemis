@@ -182,7 +182,7 @@ public class FailoverConsumerOutstandingCommitTest {
         broker.start();
 
         assertTrue("consumer added through failover", commitDoneLatch.await(20, TimeUnit.SECONDS));
-        assertTrue("another message was recieved after failover", messagesReceived.await(20, TimeUnit.SECONDS));
+        assertTrue("another message was received after failover", messagesReceived.await(20, TimeUnit.SECONDS));
 
         connection.close();
     }

@@ -32,7 +32,7 @@ import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
 
 /**
  *
- * A ObjectMessageDeliveryTest
+ * ObjectMessageDeliveryTest
  */
 public class ObjectMessageDeliveryTest extends ActiveMQServerTestCase
 {

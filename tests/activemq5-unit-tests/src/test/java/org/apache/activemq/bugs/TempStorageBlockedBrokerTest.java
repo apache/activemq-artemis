@@ -117,7 +117,7 @@ public class TempStorageBlockedBrokerTest extends TestSupport {
         while ((m = consumer.receive(messageReceiveTimeout)) != null) {
             count++;
             if (count != 0 && count%10 == 0) {
-                LOG.info("Recieved Message (" + count + "):" + m);
+                LOG.info("Received Message (" + count + "):" + m);
             }
             messagesConsumed.incrementAndGet();
             try {
@@ -132,7 +132,7 @@ public class TempStorageBlockedBrokerTest extends TestSupport {
         while ((m = consumer.receive(messageReceiveTimeout)) != null) {
             count++;
             if (count != 0 && count%100 == 0) {
-                LOG.info("Recieved Message (" + count + "):" + m);
+                LOG.info("Received Message (" + count + "):" + m);
             }
             messagesConsumed.incrementAndGet();
             try {

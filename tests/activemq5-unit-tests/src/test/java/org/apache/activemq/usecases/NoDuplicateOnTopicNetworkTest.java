@@ -267,10 +267,10 @@ public class NoDuplicateOnTopicNetworkTest extends CombinationTestSupport {
 
         private final List<String> receivedStrings = Collections.synchronizedList(new ArrayList<String>());
         private int numMessages = 10;
-        private CountDownLatch recievedLatch = new CountDownLatch(numMessages);
+        private CountDownLatch receivedLatch = new CountDownLatch(numMessages);
 
         public CountDownLatch getLatch() {
-            return recievedLatch;
+            return receivedLatch;
         }
         
         public List<String> getMessageStrings() {
@@ -324,7 +324,7 @@ public class NoDuplicateOnTopicNetworkTest extends CombinationTestSupport {
                     try {
                         LOG.debug("Received message [" + msg.getText() + "]");
                         receivedStrings.add(msg.getText());
-                        recievedLatch.countDown();
+                        receivedLatch.countDown();
                     } catch (JMSException e) {
                         fail("Unexpected :" + e);
                     }

@@ -711,14 +711,14 @@ specified. The following shows all the available configuration options
     Apache ActiveMQ Artemis will *not* forward messages to other nodes
     if there are no *queues* of the same name on the other nodes, even
     if this parameter is set to `STRICT`. Using `STRICT` is like setting
-    the legacy `foward-when-no-consumers` parameter to `true`.
+    the legacy `forward-when-no-consumers` parameter to `true`.
 
     If this is set to `ON_DEMAND` then Apache ActiveMQ Artemis will only
     forward messages to other nodes of the cluster if the address to which
     they are being forwarded has queues which have consumers, and if those
     consumers have message filters (selectors) at least one of those
     selectors must match the message. Using `ON_DEMAND` is like setting
-    the legacy `foward-when-no-consumers` parameter to `false`.
+    the legacy `forward-when-no-consumers` parameter to `false`.
 
     Default is `ON_DEMAND`.
 

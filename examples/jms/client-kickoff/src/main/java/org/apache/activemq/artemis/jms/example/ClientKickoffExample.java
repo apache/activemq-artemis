@@ -77,7 +77,7 @@ public class ClientKickoffExample extends ActiveMQExample
          // Step 5. We start the connection
          connection.start();
 
-         // Step 6. Create a ActiveMQServerControlMBean proxy to manage the server
+         // Step 6. Create an ActiveMQServerControlMBean proxy to manage the server
          ObjectName on = ObjectNameBuilder.DEFAULT.getActiveMQServerObjectName();
          JMXConnector connector = JMXConnectorFactory.connect(new JMXServiceURL(JMX_URL), new HashMap<String, String>());
          MBeanServerConnection mbsc = connector.getMBeanServerConnection();

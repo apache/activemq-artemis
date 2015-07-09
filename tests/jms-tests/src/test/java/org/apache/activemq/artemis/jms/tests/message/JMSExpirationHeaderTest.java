@@ -281,7 +281,7 @@ public class JMSExpirationHeaderTest extends MessageHeaderTestBase
             }
             catch (Throwable t)
             {
-               log.trace("receive() exits with an throwable", t);
+               log.trace("receive() exits with a throwable", t);
                ProxyAssertSupport.fail();
             }
             finally

@@ -223,7 +223,7 @@ public abstract class MessageHeaderTestBase extends ActiveMQServerTestCase
          }
          catch (JMSException e)
          {
-            // not a int
+            // not an int
          }
 
          if (found)

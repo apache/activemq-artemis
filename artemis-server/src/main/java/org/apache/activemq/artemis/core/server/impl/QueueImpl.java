@@ -106,7 +106,7 @@ public class QueueImpl implements Queue
    public static final int CHECK_QUEUE_SIZE_PERIOD = 100;
 
    /**
-    * If The system gets slow for any reason, this is the maximum time an Delivery or
+    * If The system gets slow for any reason, this is the maximum time a Delivery or
     * or depage executor should be hanging on
     */
    public static final int DELIVERY_TIMEOUT = 1000;

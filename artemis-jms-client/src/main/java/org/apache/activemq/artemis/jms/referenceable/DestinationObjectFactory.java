@@ -27,7 +27,7 @@ import javax.naming.spi.ObjectFactory;
  *
  * A DestinationObjectFactory.
  *
- * Given a Reference - reconstructs a ActiveMQDestination
+ * Given a Reference - reconstructs an ActiveMQDestination
  */
 public class DestinationObjectFactory implements ObjectFactory
 {

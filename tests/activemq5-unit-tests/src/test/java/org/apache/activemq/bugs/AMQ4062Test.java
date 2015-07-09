@@ -130,7 +130,7 @@ public class AMQ4062Test {
     public void testDirableSubPrefetchRecovered() throws Exception{
 
         PrefetchConsumer consumer=new PrefetchConsumer(true, connectionUri);
-        consumer.recieve();
+        consumer.receive();
         durableSubscriptions=getDurableSubscriptions();
         ConsumerInfo info=getConsumerInfo(durableSubscriptions);
 
@@ -159,7 +159,7 @@ public class AMQ4062Test {
         //assertEquals(0, info.getPrefetchSize());
 
         consumer=new PrefetchConsumer(false, connectionUri);
-        consumer.recieve();
+        consumer.receive();
         consumer.a.countDown();
 
         info=null;
@@ -213,7 +213,7 @@ public class AMQ4062Test {
             this.uri = uri;
         }
 
-        public void recieve() throws Exception{
+        public void receive() throws Exception{
             ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(user, password, uri);
             connection = (ActiveMQConnection)connectionFactory.createConnection();
             connection.setClientID("3");

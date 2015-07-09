@@ -116,7 +116,7 @@ public class ConnectionTest extends JMSTestCase
          // we startthe connection
          connection.start();
 
-         // an attempt to set the client ID now should throw a IllegalStateException
+         // an attempt to set the client ID now should throw an IllegalStateException
          connection.setClientID("testSetClientID_2");
          ProxyAssertSupport.fail("Should throw a javax.jms.IllegalStateException");
       }

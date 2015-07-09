@@ -192,7 +192,7 @@ public class JobSchedulerTest {
         scheduler.addListener(new JobListener() {
             @Override
             public void scheduledJob(String id, ByteSequence job) {
-                LOG.info("Job exectued: {}", 11 - done.getCount());
+                LOG.info("Job executed: {}", 11 - done.getCount());
                 done.countDown();
             }
         });

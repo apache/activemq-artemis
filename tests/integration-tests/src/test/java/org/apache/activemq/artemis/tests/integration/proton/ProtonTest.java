@@ -278,7 +278,7 @@ public class ProtonTest extends ActiveMQTestBase
 
       // There is a bug on the qpid client library currently, we can expect having to interrupt the thread on browsers.
       // but we can't have it on 10 iterations... something must be broken if that's the case
-      Assert.assertTrue("Test had to interrupt on all ocasions.. this is beyond the expected for the test", success);
+      Assert.assertTrue("Test had to interrupt on all occasions.. this is beyond the expected for the test", success);
    }
 
    @Test
@@ -886,7 +886,7 @@ public class ProtonTest extends ActiveMQTestBase
 
 
    @Test
-   public void testUsingPlainAMQPSenderWithNonExistantQueue() throws Exception
+   public void testUsingPlainAMQPSenderWithNonExistentQueue() throws Exception
    {
       if (this.protocol != 0 && protocol != 3)
       {
@@ -938,7 +938,7 @@ public class ProtonTest extends ActiveMQTestBase
 
 
    @Test
-   public void testUsingPlainAMQPReceiverWithNonExistantQueue() throws Exception
+   public void testUsingPlainAMQPReceiverWithNonExistentQueue() throws Exception
    {
       if (this.protocol != 0 && protocol != 3)
       {

@@ -22,7 +22,7 @@ system property (which defaults to server0). To run a 2nd server with a configur
 
    $ mvn verify -Pserver -Dserver.dir=server1
 
-server1 should contain a copy of configuration equivilent to that found under the server0 director with different
+server1 should contain a copy of configuration equivalent to that found under the server0 director with different
 settings.
 
 To run a server with the same configuration but on a different host.  Check out this source on the host machine and

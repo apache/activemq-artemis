@@ -758,7 +758,7 @@ public class BrokerTest extends BrokerTestSupport {
 
     //
     // TODO: need to reimplement this since we don't fail when we send to a
-    // non-existant
+    // non-existent
     // destination. But if we can access the Region directly then we should be
     // able to
     // check that if the destination was removed.
@@ -843,7 +843,7 @@ public class BrokerTest extends BrokerTestSupport {
     // ActiveMQDestination.createDestination(connectionInfo1.getConnectionId()+":1",
     // destinationType);
     //            
-    // // Should not be able to send to a non-existant temp destination.
+    // // Should not be able to send to a non-existent temp destination.
     // try {
     // connection1.request(createMessage(producerInfo1, destination,
     // deliveryMode));

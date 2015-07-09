@@ -340,7 +340,7 @@ public class AMQ2149Test {
         int batch = 200;
         long expectedSeq;
 
-        final TimerTask restartTask = schedualRestartTask(null, new Configurer() {
+        final TimerTask restartTask = scheduleRestartTask(null, new Configurer() {
             public void configure(BrokerService broker) throws Exception {
             }
         });
@@ -385,7 +385,7 @@ public class AMQ2149Test {
         });
 
         final Timer timer = new Timer();
-        schedualRestartTask(timer, new Configurer() {
+        scheduleRestartTask(timer, new Configurer() {
             public void configure(BrokerService broker) throws Exception {
             }
         });
@@ -408,7 +408,7 @@ public class AMQ2149Test {
         });
 
         final Timer timer = new Timer();
-        schedualRestartTask(timer, null);
+        scheduleRestartTask(timer, null);
 
         try {
             verifyOrderedMessageReceipt(ActiveMQDestination.TOPIC_TYPE);
@@ -441,7 +441,7 @@ public class AMQ2149Test {
         });
 
         final Timer timer = new Timer();
-        schedualRestartTask(timer, null);
+        scheduleRestartTask(timer, null);
 
         try {
             verifyOrderedMessageReceipt(destinationType, 1, true);
@@ -470,7 +470,7 @@ public class AMQ2149Test {
         }
     }
 
-    private TimerTask schedualRestartTask(final Timer timer, final Configurer configurer) {
+    private TimerTask scheduleRestartTask(final Timer timer, final Configurer configurer) {
         class RestartTask extends TimerTask {
             public void run() {
                 synchronized (brokerLock) {

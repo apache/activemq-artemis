@@ -30,7 +30,7 @@ import org.apache.activemq.artemis.spi.core.naming.BindingRegistry;
 
 /**
  * Simple bootstrap class that parses activemq config files (server and jms and security) and starts
- * a ActiveMQServer instance and populates it with configured JMS endpoints.
+ * an ActiveMQServer instance and populates it with configured JMS endpoints.
  * <p>
  * JMS Endpoints are registered with a simple MapBindingRegistry.  If you want to use a different registry
  * you must set the registry property of this class or call the setRegistry() method if you want to use JNDI
