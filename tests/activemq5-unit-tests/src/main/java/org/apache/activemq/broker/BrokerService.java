@@ -431,7 +431,7 @@ public class BrokerService implements Service
 
    public TransportConnector addConnector(String bindAddress) throws Exception
    {
-      return null;
+      return addConnector(new URI(bindAddress));
    }
 
    public void setIoExceptionHandler(IOExceptionHandler ioExceptionHandler)
@@ -653,6 +653,8 @@ public class BrokerService implements Service
 
    public TransportConnector addConnector(URI bindAddress) throws Exception
    {
+      Integer port = bindAddress.getPort();
+      this.extraConnectors.add(port);
       return null;
    }
 
