@@ -34,6 +34,12 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.BaseInterceptor;
 import org.apache.activemq.artemis.api.core.Interceptor;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.management.CoreNotificationType;
+import org.apache.activemq.artemis.api.core.management.ManagementHelper;
+import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQConsumer;
+import org.apache.activemq.artemis.core.server.management.ManagementService;
+import org.apache.activemq.artemis.core.server.management.Notification;
+import org.apache.activemq.artemis.core.server.management.NotificationListener;
 import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.command.ActiveMQMessage;
 import org.apache.activemq.command.ActiveMQTopic;
@@ -84,7 +90,7 @@ import org.apache.activemq.util.IdGenerator;
 import org.apache.activemq.util.InetAddressUtil;
 import org.apache.activemq.util.LongSequenceGenerator;
 
-public class OpenWireProtocolManager implements ProtocolManager<Interceptor>
+public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, NotificationListener
 {
    private static final IdGenerator BROKER_ID_GENERATOR = new IdGenerator();
    private static final IdGenerator ID_GENERATOR = new IdGenerator();
@@ -121,6 +127,8 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>
 
    private Map<TransactionId, AMQSession> transactions = new ConcurrentHashMap<TransactionId, AMQSession>();
 
+   private Map<String, SessionId> sessionIdMap = new ConcurrentHashMap<String, SessionId>();
+
    public OpenWireProtocolManager(OpenWireProtocolManagerFactory factory, ActiveMQServer server)
    {
       this.factory = factory;
@@ -130,6 +138,11 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>
       wireFactory.setCacheEnabled(false);
       brokerState = new BrokerState();
       advisoryProducerId.setConnectionId(ID_GENERATOR.generateId());
+      ManagementService service = server.getManagementService();
+      if (service != null)
+      {
+         service.addNotificationListener(this);
+      }
    }
 
 
@@ -603,6 +616,7 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>
       amqSession.initialize();
       amqSession.setInternal(internal);
       sessions.put(ss.getSessionId(), amqSession);
+      sessionIdMap.put(amqSession.getCoreSession().getName(), ss.getSessionId());
       return amqSession;
    }
 
@@ -782,5 +796,52 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>
    public void registerTx(TransactionId txId, AMQSession amqSession)
    {
       transactions.put(txId, amqSession);
+   }
+
+   //advisory support
+   @Override
+   public void onNotification(Notification notif)
+   {
+      try
+      {
+         if (notif.getType() instanceof CoreNotificationType)
+         {
+            CoreNotificationType type = (CoreNotificationType)notif.getType();
+            switch (type)
+            {
+               case CONSUMER_SLOW:
+                  fireSlowConsumer(notif);
+                  break;
+               default:
+                  break;
+            }
+         }
+      }
+      catch (Exception e)
+      {
+         ActiveMQServerLogger.LOGGER.error("Failed to send notification " + notif, e);
+      }
+   }
+
+   private void fireSlowConsumer(Notification notif) throws Exception
+   {
+      SimpleString coreSessionId = notif.getProperties().getSimpleStringProperty(ManagementHelper.HDR_SESSION_NAME);
+      Long coreConsumerId = notif.getProperties().getLongProperty(ManagementHelper.HDR_CONSUMER_NAME);
+      SessionId sessionId = sessionIdMap.get(coreSessionId.toString());
+      AMQSession session = sessions.get(sessionId);
+      AMQConsumer consumer = session.getConsumer(coreConsumerId);
+      ActiveMQDestination destination = consumer.getDestination();
+
+      if (!AdvisorySupport.isAdvisoryTopic(destination))
+      {
+         ActiveMQTopic topic = AdvisorySupport.getSlowConsumerAdvisoryTopic(destination);
+         ConnectionId connId = sessionId.getParentId();
+         AMQTransportConnectionState cc = (AMQTransportConnectionState)this.brokerConnectionStates.get(connId);
+         OpenWireConnection conn = cc.getConnection();
+         ActiveMQMessage advisoryMessage = new ActiveMQMessage();
+         advisoryMessage.setStringProperty(AdvisorySupport.MSG_PROPERTY_CONSUMER_ID, consumer.getId().toString());
+
+         fireAdvisory(conn.getConext(), topic, advisoryMessage, consumer.getId());
+      }
    }
 }

@@ -20,6 +20,7 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -32,10 +33,14 @@ import org.apache.activemq.artemis.core.registry.JndiBindingRegistry;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.core.settings.impl.SlowConsumerPolicy;
+import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManagerImpl;
 import org.apache.activemq.artemiswrapper.ArtemisBrokerHelper;
 import org.apache.activemq.broker.BrokerService;
+import org.apache.activemq.broker.region.policy.PolicyEntry;
+import org.apache.activemq.broker.region.policy.PolicyMap;
 
 public class ArtemisBrokerWrapper extends ArtemisBrokerBase
 {
@@ -62,14 +67,26 @@ public class ArtemisBrokerWrapper extends ArtemisBrokerBase
       Configuration serverConfig = server.getConfiguration();
 
       Set<TransportConfiguration> acceptors0 = serverConfig.getAcceptorConfigurations();
-      Iterator<TransportConfiguration> iter0 = acceptors0.iterator();
 
-      Map<String, AddressSettings> addressSettings = serverConfig.getAddressesSettings();
+      Map<String, AddressSettings> addressSettingsMap = serverConfig.getAddressesSettings();
+
+      //do policy translation
+      PolicyMap policyMap = this.bservice.getDestinationPolicy();
+
+      if (policyMap != null)
+      {
+         translatePolicyMap(serverConfig, policyMap);
+      }
+
       String match = "jms.queue.#";
-      AddressSettings dlaSettings = new AddressSettings();
+      AddressSettings commonSettings = addressSettingsMap.get(match);
+      if (commonSettings == null)
+      {
+         commonSettings = new AddressSettings();
+         addressSettingsMap.put(match, commonSettings);
+      }
       SimpleString dla = new SimpleString("jms.queue.ActiveMQ.DLQ");
-      dlaSettings.setDeadLetterAddress(dla);
-      addressSettings.put(match, dlaSettings);
+      commonSettings.setDeadLetterAddress(dla);
 
       serverConfig.getAcceptorConfigurations().add(transportConfiguration);
       if (this.bservice.enableSsl())
@@ -175,6 +192,47 @@ public class ArtemisBrokerWrapper extends ArtemisBrokerBase
       ArtemisBrokerHelper.setBroker(this.bservice);
       stopped = false;
 
+   }
+
+   private void translatePolicyMap(Configuration serverConfig, PolicyMap policyMap)
+   {
+      List allEntries = policyMap.getAllEntries();
+      for (Object o : allEntries)
+      {
+         PolicyEntry entry = (PolicyEntry)o;
+         org.apache.activemq.command.ActiveMQDestination targetDest = entry.getDestination();
+         String match = getCorePattern(targetDest);
+         Map<String, AddressSettings> settingsMap = serverConfig.getAddressesSettings();
+         AddressSettings settings = settingsMap.get(match);
+         if (settings == null)
+         {
+            settings = new AddressSettings();
+            settingsMap.put(match, settings);
+         }
+
+         if (entry.isAdvisoryForSlowConsumers())
+         {
+            settings.setSlowConsumerThreshold(1000);
+            settings.setSlowConsumerCheckPeriod(1);
+            settings.setSlowConsumerPolicy(SlowConsumerPolicy.NOTIFY);
+         }
+      }
+   }
+
+   private String getCorePattern(org.apache.activemq.command.ActiveMQDestination dest)
+   {
+      String physicalName = dest.getPhysicalName();
+      String pattern = physicalName.replace(">", "#");
+      if (dest.isTopic())
+      {
+         pattern = "jms.topic." + pattern;
+      }
+      else
+      {
+         pattern = "jms.queue." + pattern;
+      }
+
+      return pattern;
    }
 
    @Override
