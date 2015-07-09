@@ -138,7 +138,7 @@ public class MessageCounter
    public synchronized void onTimer()
    {
       // Actor approach here: Instead of having the Counter locking the queue, we will use the Queue's executor
-      // instead of possibly making an lock on the queue.
+      // instead of possibly making a lock on the queue.
       // This way the scheduled Threads will be free to keep doing their pings in case the server is busy with paging or
       // any other deliveries
       serverQueue.getExecutor().execute(onTimeExecutor);

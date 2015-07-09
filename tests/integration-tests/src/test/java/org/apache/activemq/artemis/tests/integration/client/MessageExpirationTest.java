@@ -107,7 +107,7 @@ public class MessageExpirationTest extends ActiveMQTestBase
       // stopping the consumer to cleanup the client's buffer
       session.stop();
 
-      // we recieve the message and then rollback...   then we wait some time > expiration, the message must be gone
+      // we receive the message and then rollback...   then we wait some time > expiration, the message must be gone
       session.rollback();
 
 

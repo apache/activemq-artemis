@@ -37,7 +37,7 @@ import org.apache.activemq.artemis.uri.ConnectionFactoryParser;
 public class ActiveMQJMSClient
 {
    /**
-    * Creates a ActiveMQConnectionFactory;
+    * Creates an ActiveMQConnectionFactory;
     *
     * @return the ActiveMQConnectionFactory
     */
@@ -48,7 +48,7 @@ public class ActiveMQJMSClient
    }
 
    /**
-    * Creates a ActiveMQConnectionFactory that receives cluster topology updates from the cluster as
+    * Creates an ActiveMQConnectionFactory that receives cluster topology updates from the cluster as
     * servers leave or join and new backups are appointed or removed.
     * <p>
     * The discoveryAddress and discoveryPort parameters in this method are used to listen for UDP
@@ -94,7 +94,7 @@ public class ActiveMQJMSClient
    }
 
    /**
-    * Create a ActiveMQConnectionFactory which creates session factories from a set of live servers, no HA backup information is propagated to the client
+    * Create an ActiveMQConnectionFactory which creates session factories from a set of live servers, no HA backup information is propagated to the client
     *
     * The UDP address and port are used to listen for live servers in the cluster
     *
@@ -134,7 +134,7 @@ public class ActiveMQJMSClient
    }
 
    /**
-    * Create a ActiveMQConnectionFactory which will receive cluster topology updates from the cluster
+    * Create an ActiveMQConnectionFactory which will receive cluster topology updates from the cluster
     * as servers leave or join and new backups are appointed or removed.
     * <p>
     * The initial list of servers supplied in this method is simply to make an initial connection to
@@ -180,7 +180,7 @@ public class ActiveMQJMSClient
    }
 
    /**
-    * Create a ActiveMQConnectionFactory which creates session factories using a static list of
+    * Create an ActiveMQConnectionFactory which creates session factories using a static list of
     * transportConfigurations.
     * <p>
     * The ActiveMQConnectionFactory is not updated automatically as the cluster topology changes, and

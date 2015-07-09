@@ -78,7 +78,7 @@ public class AMQ4323Test {
         // ensure there are a bunch of data files but multiple entries in each
         adapter.setJournalMaxFileLength(1024 * 20);
 
-        // speed up the test case, checkpoint an cleanup early and often
+        // speed up the test case, checkpoint and cleanup early and often
         adapter.setCheckpointInterval(500);
         adapter.setCleanupInterval(500);
 

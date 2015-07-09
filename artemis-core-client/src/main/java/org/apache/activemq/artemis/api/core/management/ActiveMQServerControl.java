@@ -19,7 +19,7 @@ package org.apache.activemq.artemis.api.core.management;
 import javax.management.MBeanOperationInfo;
 
 /**
- * A ActiveMQServerControl is used to manage ActiveMQ Artemis servers.
+ * An ActiveMQServerControl is used to manage ActiveMQ Artemis servers.
  */
 public interface ActiveMQServerControl
 {

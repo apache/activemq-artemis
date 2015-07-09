@@ -33,7 +33,7 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
 
 /**
- * A test that makes sure that a ActiveMQ Artemis server cleans up the associated
+ * A test that makes sure that an ActiveMQ Artemis server cleans up the associated
  * resources when one of its client crashes.
  */
 public class ClientCrashTest extends ClientTestBase

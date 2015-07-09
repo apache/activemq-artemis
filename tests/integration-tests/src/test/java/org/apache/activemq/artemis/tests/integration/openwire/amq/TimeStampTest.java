@@ -79,7 +79,7 @@ public class TimeStampTest extends BasicOpenWireTest
 
       // assert message timestamp is unchanged
       assertEquals(
-            "JMS Message Timestamp of recieved message should be the same as the sent message\n        ",
+            "JMS Message Timestamp of received message should be the same as the sent message\n        ",
             sentMessage.getJMSTimestamp(), receivedMessage.getJMSTimestamp());
 
       // Clean up

@@ -21,7 +21,7 @@ import java.nio.ByteBuffer;
 import io.netty.buffer.ByteBuf;
 
 /**
- * A ActiveMQBuffer wraps a Netty's ChannelBuffer and is used throughout ActiveMQ Artemis code base.
+ * An ActiveMQBuffer wraps a Netty's ChannelBuffer and is used throughout ActiveMQ Artemis code base.
  * <p>
  * Instances of it can be obtained from {@link ActiveMQBuffers} factory.
  * <p>

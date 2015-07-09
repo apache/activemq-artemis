@@ -208,7 +208,7 @@ public interface ActiveMQClientMessageBundle
    @Message(id = 119053, value = "Element {0} requires a valid Double value, but ''{1}'' cannot be parsed as a Double", format = Message.Format.MESSAGE_FORMAT)
    IllegalArgumentException mustBeDouble(Node elem, String value);
 
-   @Message(id = 119054, value = "Element {0} requires a valid Integer value, but ''{1}'' cannot be parsed as a Integer", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 119054, value = "Element {0} requires a valid Integer value, but ''{1}'' cannot be parsed as an Integer", format = Message.Format.MESSAGE_FORMAT)
    IllegalArgumentException mustBeInteger(Node elem, String value);
 
    @Message(id = 119055, value = "Element {0} requires a valid Long value, but ''{1}'' cannot be parsed as a Long", format = Message.Format.MESSAGE_FORMAT)

@@ -67,7 +67,7 @@ public class MulticastDiscoveryOnFaultyNetworkTest extends JmsMultipleBrokersTes
         msgs.waitForMessagesToArrive(MESSAGE_COUNT);
 
         assertTrue("At least message " + MESSAGE_COUNT + 
-                " must be recieved, duplicates are expected, count=" + msgs.getMessageCount(),
+                " must be received, duplicates are expected, count=" + msgs.getMessageCount(),
                 MESSAGE_COUNT <= msgs.getMessageCount());
     }
 

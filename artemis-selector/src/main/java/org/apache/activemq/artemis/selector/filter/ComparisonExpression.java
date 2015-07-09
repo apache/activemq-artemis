@@ -156,7 +156,7 @@ public abstract class ComparisonExpression extends BinaryExpression implements B
          {
             return Boolean.FALSE;
             // throw new RuntimeException("LIKE can only operate on String
-            // identifiers. LIKE attemped on: '" + rv.getClass());
+            // identifiers. LIKE attempted on: '" + rv.getClass());
          }
 
          return likePattern.matcher((String) rv).matches() ? Boolean.TRUE : Boolean.FALSE;
@@ -230,7 +230,7 @@ public abstract class ComparisonExpression extends BinaryExpression implements B
    {
       checkEqualOperand(left);
       checkEqualOperand(right);
-      checkEqualOperandCompatability(left, right);
+      checkEqualOperandCompatibility(left, right);
       return doCreateEqual(left, right);
    }
 
@@ -393,7 +393,7 @@ public abstract class ComparisonExpression extends BinaryExpression implements B
     * @param left
     * @param right
     */
-   private static void checkEqualOperandCompatability(Expression left, Expression right)
+   private static void checkEqualOperandCompatibility(Expression left, Expression right)
    {
       if (left instanceof ConstantExpression && right instanceof ConstantExpression)
       {

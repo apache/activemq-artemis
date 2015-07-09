@@ -24,7 +24,7 @@ import javax.management.ObjectName;
 
 
 /**
- * A ActiveMQRAService ensures that ActiveMQ Artemis Resource Adapter will be stopped *before* the ActiveMQ Artemis server.
+ * An ActiveMQRAService ensures that ActiveMQ Artemis Resource Adapter will be stopped *before* the ActiveMQ Artemis server.
  * https://jira.jboss.org/browse/HORNETQ-339
  */
 public class ActiveMQRAService

@@ -591,7 +591,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
          if (connection == null || !connection.getID().equals(connectionID) || !clientProtocolManager.isAlive())
          {
             // We already failed over/reconnected - probably the first failure came in, all the connections were failed
-            // over then a async connection exception or disconnect
+            // over then an async connection exception or disconnect
             // came in for one of the already exitLoop connections, so we return true - we don't want to call the
             // listeners again
 

@@ -177,7 +177,7 @@ public class CheckDuplicateMessagesOnDuplexTest {
         ManagementContext managementContext = new ManagementContext();
         managementContext.setCreateConnector(false);
         localBroker.setManagementContext(managementContext);
-        PersistenceAdapter persistenceAdapter = persistanceAdapterFactory("target/local");
+        PersistenceAdapter persistenceAdapter = persistenceAdapterFactory("target/local");
         localBroker.setPersistenceAdapter(persistenceAdapter);
         List<TransportConnector> transportConnectors = new ArrayList<TransportConnector>();
         DebugTransportFactory tf = new DebugTransportFactory();
@@ -197,7 +197,7 @@ public class CheckDuplicateMessagesOnDuplexTest {
         ManagementContext managementContext = new ManagementContext();
         managementContext.setCreateConnector(false);
         remoteBroker.setManagementContext(managementContext);
-        PersistenceAdapter persistenceAdapter = persistanceAdapterFactory("target/remote");
+        PersistenceAdapter persistenceAdapter = persistenceAdapterFactory("target/remote");
         remoteBroker.setPersistenceAdapter(persistenceAdapter);
         List<NetworkConnector> networkConnectors = new ArrayList<NetworkConnector>();
         DiscoveryNetworkConnector networkConnector = new DiscoveryNetworkConnector();
@@ -281,15 +281,15 @@ public class CheckDuplicateMessagesOnDuplexTest {
         remoteBroker.waitUntilStopped();
     }
 
-    private PersistenceAdapter persistanceAdapterFactory(String path) {
+    private PersistenceAdapter persistenceAdapterFactory(String path) {
         if (useLevelDB) {
-            return persistanceAdapterFactory_LevelDB(path);
+            return persistenceAdapterFactory_LevelDB(path);
         } else {
-            return persistanceAdapterFactory_KahaDB(path);
+            return persistenceAdapterFactory_KahaDB(path);
         }
     }
 
-    private PersistenceAdapter persistanceAdapterFactory_KahaDB(String path) {
+    private PersistenceAdapter persistenceAdapterFactory_KahaDB(String path) {
         KahaDBPersistenceAdapter kahaDBPersistenceAdapter = new KahaDBPersistenceAdapter();
         kahaDBPersistenceAdapter.setDirectory(new File(path));
         kahaDBPersistenceAdapter.setIgnoreMissingJournalfiles(true);
@@ -298,7 +298,7 @@ public class CheckDuplicateMessagesOnDuplexTest {
         return kahaDBPersistenceAdapter;
     }
 
-    private PersistenceAdapter persistanceAdapterFactory_LevelDB(String path) {
+    private PersistenceAdapter persistenceAdapterFactory_LevelDB(String path) {
         LevelDBPersistenceAdapter levelDBPersistenceAdapter = new LevelDBPersistenceAdapter();
         levelDBPersistenceAdapter.setDirectory(new File(path));
         return levelDBPersistenceAdapter;

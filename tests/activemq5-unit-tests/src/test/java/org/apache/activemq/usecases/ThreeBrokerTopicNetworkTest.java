@@ -105,7 +105,7 @@ public class ThreeBrokerTopicNetworkTest extends JmsMultipleBrokersTestSupport {
         MessageConsumer clientB = createConsumer("BrokerC", dest, "dummy > 30");
         MessageConsumer clientC = createConsumer("BrokerC", dest, "dummy = 34");
 
-        // let consumers propogate around the network
+        // let consumers propagate around the network
         Thread.sleep(2000);
         // Send messages
         // Send messages for broker A
@@ -229,7 +229,7 @@ public class ThreeBrokerTopicNetworkTest extends JmsMultipleBrokersTestSupport {
         MessageConsumer clientA = createConsumer("BrokerA", dest);
         MessageConsumer clientB = createConsumer("BrokerB", dest);
         MessageConsumer clientC = createConsumer("BrokerC", dest);
-        //let consumers propogate around the network
+        //let consumers propagate around the network
         Thread.sleep(2000);
 
         // Send messages
@@ -285,7 +285,7 @@ public class ThreeBrokerTopicNetworkTest extends JmsMultipleBrokersTestSupport {
         MessageConsumer clientA = createConsumer("BrokerA", dest);
         MessageConsumer clientB = createConsumer("BrokerB", dest);
         MessageConsumer clientC = createConsumer("BrokerC", dest);
-        //let consumers propogate around the network
+        //let consumers propagate around the network
         Thread.sleep(2000);
 
         // Send messages
@@ -328,7 +328,7 @@ public class ThreeBrokerTopicNetworkTest extends JmsMultipleBrokersTestSupport {
         MessageConsumer clientA = createDurableSubscriber("BrokerA", (Topic)dest, "clientA");
         MessageConsumer clientB = createDurableSubscriber("BrokerB", (Topic)dest, "clientB");
         MessageConsumer clientC = createDurableSubscriber("BrokerC", (Topic)dest, "clientC");
-        //let consumers propogate around the network
+        //let consumers propagate around the network
         Thread.sleep(2000);
 
         // Send messages
@@ -368,7 +368,7 @@ public class ThreeBrokerTopicNetworkTest extends JmsMultipleBrokersTestSupport {
         MessageConsumer clientB = createConsumer("BrokerB", dest);
         MessageConsumer clientC = createConsumer("BrokerC", dest);
 
-        //let consumers propogate around the network
+        //let consumers propagate around the network
         Thread.sleep(2000);
 
         // Send messages

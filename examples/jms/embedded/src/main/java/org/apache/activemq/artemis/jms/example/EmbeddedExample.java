@@ -42,7 +42,7 @@ import org.apache.activemq.artemis.jms.server.config.impl.JMSQueueConfigurationI
 import org.apache.activemq.artemis.jms.server.embedded.EmbeddedJMS;
 
 /**
- * This example demonstrates how to run a ActiveMQ Artemis embedded with JMS
+ * This example demonstrates how to run an ActiveMQ Artemis embedded with JMS
  */
 public final class EmbeddedExample extends ActiveMQExample
 {

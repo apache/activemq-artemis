@@ -352,7 +352,7 @@ public class AsynchronousFailoverTest extends FailoverTestBase
             {
                if (counterGap)
                {
-                  Assert.fail("got a another counter gap at " + count + ": " + counts);
+                  Assert.fail("got another counter gap at " + count + ": " + counts);
                }
                else
                {

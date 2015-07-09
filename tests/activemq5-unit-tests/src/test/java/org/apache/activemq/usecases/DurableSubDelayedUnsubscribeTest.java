@@ -493,7 +493,7 @@ public class DurableSubDelayedUnsubscribeTest {
                     }
                 }
 
-                // 50% unsubscribe, 50% abondon subscription
+                // 50% unsubscribe, 50% abandon subscription
                 if (!ALLOW_SUBSCRIPTION_ABANDONMENT) {
                     unsubscribe();
                     ALLOW_SUBSCRIPTION_ABANDONMENT = true;

@@ -31,7 +31,7 @@ public class ActiveMQXAResourceWrapperImpl implements ActiveMQXAResourceWrapper
    // The EIS Version
    private final String productVersion;
 
-   // A composite of NodeID + JNDIName that allows adminstrator looking at an XAResource to determine it's origin.
+   // A composite of NodeID + JNDIName that allows administrator looking at an XAResource to determine it's origin.
    private final String jndiNameNodeId;
 
    /**

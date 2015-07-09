@@ -22,7 +22,7 @@ import java.util.zip.DataFormatException;
 import java.util.zip.Inflater;
 
 /**
- * A InflaterWriter
+ * InflaterWriter
  * <p>
  * This class takes an OutputStream. Compressed bytes
  * can directly be written into this class. The class will

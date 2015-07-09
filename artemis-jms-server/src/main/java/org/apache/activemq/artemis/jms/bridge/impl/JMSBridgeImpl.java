@@ -1840,7 +1840,7 @@ public final class JMSBridgeImpl implements JMSBridge
 
             if (val instanceof byte[] == false)
             {
-               //Can't set byte[] array props through the JMS API - if we're bridging a ActiveMQ Artemis message it might have such props
+               //Can't set byte[] array props through the JMS API - if we're bridging an ActiveMQ Artemis message it might have such props
                msg.setObjectProperty(propName, entry.getValue());
             }
             else if (msg instanceof ActiveMQMessage)

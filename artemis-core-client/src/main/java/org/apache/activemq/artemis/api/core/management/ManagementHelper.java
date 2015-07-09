@@ -99,7 +99,7 @@ public final class ManagementHelper
    }
 
    /**
-    * Stores a operation invocation in a message to invoke the corresponding operation the value from the server resource.
+    * Stores an operation invocation in a message to invoke the corresponding operation the value from the server resource.
     *
     * @param message       message
     * @param resourceName  the name of the resource
@@ -114,7 +114,7 @@ public final class ManagementHelper
    }
 
    /**
-    * Stores a operation invocation in a  message to invoke the corresponding operation the value from the server resource.
+    * Stores an operation invocation in a  message to invoke the corresponding operation the value from the server resource.
     *
     * @param message       message
     * @param resourceName  the name of the server resource

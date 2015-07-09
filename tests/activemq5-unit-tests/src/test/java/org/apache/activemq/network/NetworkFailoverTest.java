@@ -116,7 +116,7 @@ public class NetworkFailoverTest extends TestCase {
             }
         });
 
-        // allow for consumer infos to perculate arround
+        // allow for consumer infos to perculate around
         Thread.sleep(2000);
         long done = System.currentTimeMillis() + (MESSAGE_COUNT * 6000);
         int i = 0;

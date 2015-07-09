@@ -54,7 +54,7 @@ import org.junit.Test;
 
 /**
  *
- * A ActiveMQConnectionFactoryTest
+ * ActiveMQConnectionFactoryTest
  */
 public class SimpleJNDIClientTest extends ActiveMQTestBase
 {

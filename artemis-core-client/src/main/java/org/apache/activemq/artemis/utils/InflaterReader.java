@@ -22,8 +22,8 @@ import java.util.zip.DataFormatException;
 import java.util.zip.Inflater;
 
 /**
- * An InflaterReader
- * It takes an compressed input stream and decompressed it as it is being read.
+ * InflaterReader
+ * It takes a compressed input stream and decompressed it as it is being read.
  * Not for concurrent use.
  */
 public class InflaterReader extends InputStream

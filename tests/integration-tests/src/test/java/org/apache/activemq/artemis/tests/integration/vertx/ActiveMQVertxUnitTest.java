@@ -282,7 +282,7 @@ public class ActiveMQVertxUnitTest extends ActiveMQTestBase
       Float recvFloat = msg.getBodyBuffer().readFloat();
       assertEquals(aFloat, recvFloat);
 
-      //send a Integer
+      //send an Integer
       Integer aInt = new Integer(1234);
       vertx.eventBus().send(incomingVertxAddress1, aInt);
       msg = receiveFromQueue(incomingQueue1);
@@ -456,7 +456,7 @@ public class ActiveMQVertxUnitTest extends ActiveMQTestBase
 
       handler.checkFloatMessageReceived(aFloat);
 
-      //send a Integer
+      //send an Integer
       Integer aInt = new Integer(1234);
       vertx.eventBus().send(incomingVertxAddress2, aInt);
 
@@ -597,7 +597,7 @@ public class ActiveMQVertxUnitTest extends ActiveMQTestBase
       handler1.checkFloatMessageReceived(aFloat);
       handler2.checkFloatMessageReceived(aFloat);
 
-      //send a Integer
+      //send an Integer
       Integer aInt = new Integer(1234);
       vertx.eventBus().send(incomingVertxAddress3, aInt);
 

@@ -49,7 +49,7 @@ public class ProducerFlowControlTest extends JmsTestSupport {
     // used to test sendFailIfNoSpace on SystemUsage 
     protected final AtomicBoolean gotResourceException = new AtomicBoolean(false);
 
-    public void test2ndPubisherWithProducerWindowSendConnectionThatIsBlocked() throws Exception {
+    public void test2ndPublisherWithProducerWindowSendConnectionThatIsBlocked() throws Exception {
         ActiveMQConnectionFactory factory = (ActiveMQConnectionFactory)createConnectionFactory();
         factory.setProducerWindowSize(1024 * 64);
         connection = (ActiveMQConnection)factory.createConnection();
@@ -80,7 +80,7 @@ public class ProducerFlowControlTest extends JmsTestSupport {
         msg.acknowledge();
     }
 
-    public void testPubisherRecoverAfterBlock() throws Exception {
+    public void testPublisherRecoverAfterBlock() throws Exception {
         ActiveMQConnectionFactory factory = (ActiveMQConnectionFactory)createConnectionFactory();
         connection = (ActiveMQConnection)factory.createConnection();
         connections.add(connection);
@@ -125,7 +125,7 @@ public class ProducerFlowControlTest extends JmsTestSupport {
 		assertFalse("producer has resumed", done.get());
     }
 
-    public void testAsyncPubisherRecoverAfterBlock() throws Exception {
+    public void testAsyncPublisherRecoverAfterBlock() throws Exception {
         ActiveMQConnectionFactory factory = (ActiveMQConnectionFactory)createConnectionFactory();
         factory.setProducerWindowSize(1024 * 5);
         factory.setUseAsyncSend(true);
@@ -173,7 +173,7 @@ public class ProducerFlowControlTest extends JmsTestSupport {
         assertFalse("producer has resumed", done.get());
     }
 
-    public void test2ndPubisherWithSyncSendConnectionThatIsBlocked() throws Exception {
+    public void test2ndPublisherWithSyncSendConnectionThatIsBlocked() throws Exception {
         ActiveMQConnectionFactory factory = (ActiveMQConnectionFactory)createConnectionFactory();
         factory.setAlwaysSyncSend(true);
         connection = (ActiveMQConnection)factory.createConnection();
@@ -229,7 +229,7 @@ public class ProducerFlowControlTest extends JmsTestSupport {
         msg.acknowledge();
     }
 
-    public void test2ndPubisherWithStandardConnectionThatIsBlocked() throws Exception {
+    public void test2ndPublisherWithStandardConnectionThatIsBlocked() throws Exception {
         ConnectionFactory factory = createConnectionFactory();
         connection = (ActiveMQConnection)factory.createConnection();
         connections.add(connection);

@@ -27,7 +27,7 @@ import javax.naming.spi.ObjectFactory;
  *
  * A ConnectionFactoryObjectFactory.
  *
- * Given a reference - reconstructs a ActiveMQRAConnectionFactory
+ * Given a reference - reconstructs an ActiveMQRAConnectionFactory
  */
 public class ConnectionFactoryObjectFactory implements ObjectFactory
 {

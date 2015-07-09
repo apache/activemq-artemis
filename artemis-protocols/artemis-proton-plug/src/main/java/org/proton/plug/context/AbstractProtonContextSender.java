@@ -28,7 +28,7 @@ import org.proton.plug.util.CreditsSemaphore;
 import org.proton.plug.util.NettyWritable;
 
 /**
- * A this is a wrapper around a ActiveMQ Artemis ServerConsumer for handling outgoing messages and incoming acks via a Proton Sender
+ * A this is a wrapper around an ActiveMQ Artemis ServerConsumer for handling outgoing messages and incoming acks via a Proton Sender
  */
 public abstract class AbstractProtonContextSender extends ProtonInitializable implements ProtonDeliveryHandler
 {

@@ -164,7 +164,7 @@ just a set of key value pairs that define the users and their password, like so:
     sam=activemq3
 
 The `artemis-roles.properties` defines what groups these users belong too
-where the key is the user and the value is a comma seperated list of the groups
+where the key is the user and the value is a comma separated list of the groups
 the user belongs to, like so:
 
     bill=user

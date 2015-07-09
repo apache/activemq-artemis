@@ -37,7 +37,7 @@ import org.apache.activemq.command.ActiveMQQueue;
 import org.apache.activemq.store.kahadb.KahaDBStore;
 
 /*
- A AMQ2356Test
+ AMQ2356Test
  We have an environment where we have a very large number of destinations.
  In an effort to reduce the number of threads I have set the options
  -Dorg.apache.activemq.UseDedicatedTaskRunner=false

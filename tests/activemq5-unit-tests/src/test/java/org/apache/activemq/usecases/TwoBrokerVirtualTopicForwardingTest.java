@@ -49,7 +49,7 @@ public class TwoBrokerVirtualTopicForwardingTest extends JmsMultipleBrokersTestS
         MessageConsumer clientB = createConsumer("BrokerB", createDestination("Consumer.B.VirtualTopic.tempTopic", false));
 
 
-        // give a sec to let advisories propogate
+        // give a sec to let advisories propagate
         Thread.sleep(500);
 
         ActiveMQQueue queueA = new ActiveMQQueue("Consumer.A.VirtualTopic.tempTopic");
@@ -91,7 +91,7 @@ public class TwoBrokerVirtualTopicForwardingTest extends JmsMultipleBrokersTestS
         MessageConsumer clientB = createConsumer("BrokerB", createDestination("Consumer.B.VirtualTopic.tempTopic", false));
 
 
-        // give a sec to let advisories propogate
+        // give a sec to let advisories propagate
         Thread.sleep(500);
 
         ActiveMQQueue queueA = new ActiveMQQueue("Consumer.A.VirtualTopic.tempTopic");
@@ -133,7 +133,7 @@ public class TwoBrokerVirtualTopicForwardingTest extends JmsMultipleBrokersTestS
         MessageConsumer clientC = createConsumer("BrokerB", createDestination("VirtualTopic.tempTopic", true));
 
 
-        // give a sec to let advisories propogate
+        // give a sec to let advisories propagate
         Thread.sleep(500);
 
         ActiveMQQueue queueA = new ActiveMQQueue("Consumer.A.VirtualTopic.tempTopic");

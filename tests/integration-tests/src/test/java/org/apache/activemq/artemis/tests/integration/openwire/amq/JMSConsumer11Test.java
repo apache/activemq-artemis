@@ -90,14 +90,14 @@ public class JMSConsumer11Test extends BasicOpenWireTest
       System.out.println("received2: " + message2);
       assertNotNull(message2);
 
-      System.out.println("commitning sessions !! " + session.getClass().getName());
+      System.out.println("committing sessions !! " + session.getClass().getName());
       session.commit();
-      System.out.println("commited session, now 2");
+      System.out.println("committed session, now 2");
       session2.commit();
 
-      System.out.println("all commited");
+      System.out.println("all committed");
       Message m = consumer.receiveNoWait();
-      System.out.println("recieved 3: " + m);
+      System.out.println("received 3: " + m);
       assertNull(m);
 
       try

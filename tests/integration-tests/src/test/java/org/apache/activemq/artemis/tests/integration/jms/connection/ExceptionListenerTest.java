@@ -43,7 +43,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  *
- * A ExceptionListenerTest
+ * ExceptionListenerTest
  */
 public class ExceptionListenerTest extends ActiveMQTestBase
 {

@@ -29,7 +29,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * A test that makes sure that a ActiveMQ Artemis client gracefully exists after the last session is
+ * A test that makes sure that an ActiveMQ Artemis client gracefully exists after the last session is
  * closed. Test for http://jira.jboss.org/jira/browse/JBMESSAGING-417.
  *
  * This is not technically a crash test, but it uses the same type of topology as the crash tests

@@ -281,7 +281,7 @@ public final class PageTransactionInfoImpl implements PageTransactionInfo
    // Inner classes -------------------------------------------------
 
    /** a Message shouldn't be delivered until it's committed
-    *  For that reason the page-refernce will be written right away
+    *  For that reason the page-reference will be written right away
     *  But in certain cases we can only deliver after the commit
     *  For that reason we will perform a late delivery
     *  through the method redeliver.

@@ -386,7 +386,7 @@ public final class ActiveMQDefaultConfiguration
    // Will this server, if a backup, restart once it has been stopped because of failback or scaling down.
    private static boolean DEFAULT_RESTART_BACKUP = false;
 
-   // Whether a server will automatically stop when a another places a request to take over its place. The use case is when a regular server stops and its backup takes over its duties, later the main server restarts and requests the server (the former backup) to stop operating.
+   // Whether a server will automatically stop when another places a request to take over its place. The use case is when a regular server stops and its backup takes over its duties, later the main server restarts and requests the server (the former backup) to stop operating.
    private static boolean DEFAULT_ALLOW_AUTO_FAILBACK = true;
 
    // if we have to start as a replicated server this is the delay to wait before fail-back occurs
@@ -1078,7 +1078,7 @@ public final class ActiveMQDefaultConfiguration
    }
 
    /**
-    * Whether a server will automatically stop when a another places a request to take over its place. The use case is when a regular server stops and its backup takes over its duties, later the main server restarts and requests the server (the former backup) to stop operating.
+    * Whether a server will automatically stop when another places a request to take over its place. The use case is when a regular server stops and its backup takes over its duties, later the main server restarts and requests the server (the former backup) to stop operating.
     */
    public static boolean isDefaultAllowAutoFailback()
    {

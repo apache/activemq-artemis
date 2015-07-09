@@ -21,7 +21,7 @@ import java.util.List;
 
 /**
  *
- * This class converts a JMS selector expression into a ActiveMQ Artemis core filter expression.
+ * This class converts a JMS selector expression into an ActiveMQ Artemis core filter expression.
  *
  * JMS selector and ActiveMQ Artemis filters use the same syntax but have different identifiers.
  *

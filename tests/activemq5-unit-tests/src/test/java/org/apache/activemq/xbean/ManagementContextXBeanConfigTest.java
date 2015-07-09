@@ -45,7 +45,7 @@ public class ManagementContextXBeanConfigTest extends TestCase {
     protected BrokerService brokerService;
     private static final transient Logger LOG = LoggerFactory.getLogger(ManagementContextXBeanConfigTest.class);
 
-    public void testManagmentContextConfiguredCorrectly() throws Exception {
+    public void testManagementContextConfiguredCorrectly() throws Exception {
         assertEquals(2011, brokerService.getManagementContext().getConnectorPort());
         assertEquals("test.domain", brokerService.getManagementContext().getJmxDomainName());
         // Make sure the broker is registered in the right jmx domain.

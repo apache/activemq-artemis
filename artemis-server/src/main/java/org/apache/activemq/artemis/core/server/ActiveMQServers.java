@@ -28,7 +28,7 @@ import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManagerImpl
 /**
  * ActiveMQServers is a factory class for instantiating ActiveMQServer instances.
  * <p>
- * This class should be used when you want to instantiate a ActiveMQServer instance for embedding in
+ * This class should be used when you want to instantiate an ActiveMQServer instance for embedding in
  * your own application, as opposed to directly instantiating an implementing instance.
  */
 public final class ActiveMQServers

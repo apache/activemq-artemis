@@ -359,7 +359,7 @@ public class MessageImplTest extends ActiveMQTestBase
       buf.setIndex(buf.capacity() / 2, buf.capacity() / 2);
 
       // ok this is not actually happening during the read process, but changing this shouldn't affect the buffer on copy
-      // this is to exagerate the isolation on this test
+      // this is to exaggerate the isolation on this test
       buf.writeBytes(new byte[1024]);
    }
 
