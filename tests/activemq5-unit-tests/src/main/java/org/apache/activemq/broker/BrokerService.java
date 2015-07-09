@@ -132,7 +132,6 @@ import org.slf4j.MDC;
  * number of transport connectors, network connectors and a bunch of properties
  * which can be used to configure the broker as its lazily created.
  *
- * @org.apache.xbean.XBean
  */
 public class BrokerService implements Service
 {
@@ -259,11 +258,6 @@ public class BrokerService implements Service
 
    }
 
-
-   /**
-    * @throws Exception
-    * @org.apache .xbean.DestroyMethod
-    */
    @Override
    public void stop() throws Exception
    {
@@ -321,8 +315,6 @@ public class BrokerService implements Service
     * Factory method to create a new broker
     *
     * @throws Exception
-    * @throws
-    * @throws
     */
    protected Broker createBroker() throws Exception
    {
