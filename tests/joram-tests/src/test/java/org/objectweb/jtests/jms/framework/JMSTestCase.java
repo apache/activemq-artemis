@@ -67,7 +67,7 @@ public abstract class JMSTestCase extends Assert
    }
 
    /**
-    * Should be overriden
+    * Should be overridden
     * @return
     */
    protected Properties getProviderProperties() throws IOException

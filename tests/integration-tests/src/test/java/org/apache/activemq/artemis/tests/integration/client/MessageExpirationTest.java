@@ -92,7 +92,7 @@ public class MessageExpirationTest extends ActiveMQTestBase
 
       producer.send(message);
 
-      // second message, this message shouldn't be overriden
+      // second message, this message shouldn't be overridden
       message = session.createMessage(false);
       message.setExpiration(System.currentTimeMillis() + EXPIRATION * 3);
       producer.send(message);
