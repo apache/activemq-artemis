@@ -29,7 +29,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
  */
 public class StompFrame
 {
-   private static final byte[] END_OF_FRAME = new byte[]{0, '\n'};
+   protected static final byte[] END_OF_FRAME = new byte[]{0, '\n'};
 
    protected final String command;
 

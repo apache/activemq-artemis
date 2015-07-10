@@ -28,8 +28,6 @@ import org.apache.activemq.artemis.core.protocol.stomp.StompFrame;
 
 public class StompFrameV12 extends StompFrame
 {
-   private static final byte[] END_OF_FRAME = new byte[]{0, '\n'};
-
    //stomp 1.1 talks about repetitive headers.
    private final List<Header> allHeaders = new ArrayList<Header>();
 
