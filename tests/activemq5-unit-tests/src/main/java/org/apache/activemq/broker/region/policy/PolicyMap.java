@@ -23,13 +23,6 @@ import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.filter.DestinationMap;
 import org.apache.activemq.filter.DestinationMapEntry;
 
-/**
- * Represents a destination based configuration of policies so that individual
- * destinations or wildcard hierarchies of destinations can be configured using
- * different policies.
- *
- * @org.apache.xbean.XBean
- */
 public class PolicyMap extends DestinationMap
 {
 
@@ -46,11 +39,6 @@ public class PolicyMap extends DestinationMap
       return answer;
    }
 
-   /**
-    * Sets the individual entries on the policy map
-    *
-    * @org.apache.xbean.ElementType class="org.apache.activemq.broker.region.policy.PolicyEntry"
-    */
    public void setPolicyEntries(List entries)
    {
       super.setEntries(entries);

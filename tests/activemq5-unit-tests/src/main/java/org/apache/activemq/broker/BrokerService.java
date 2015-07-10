@@ -208,9 +208,6 @@ public class BrokerService implements Service
    // Properties
    // -------------------------------------------------------------------------
 
-   /**
-    * Returns the message broker
-    */
    public Broker getBroker() throws Exception
    {
       if (broker == null)
@@ -225,11 +222,6 @@ public class BrokerService implements Service
       return brokerName;
    }
 
-   /**
-    * Sets the name of this broker; which must be unique in the network
-    *
-    * @param brokerName
-    */
    public void setBrokerName(String brokerName)
    {
       if (brokerName == null)
@@ -244,11 +236,6 @@ public class BrokerService implements Service
       this.brokerName = str.trim();
    }
 
-   /**
-    * Factory method to create a new broker
-    *
-    * @throws Exception
-    */
    protected Broker createBroker() throws Exception
    {
       broker = createBrokerWrapper();
