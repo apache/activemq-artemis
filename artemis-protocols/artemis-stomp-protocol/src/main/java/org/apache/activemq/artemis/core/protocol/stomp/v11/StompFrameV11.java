@@ -29,7 +29,7 @@ import org.apache.activemq.artemis.core.protocol.stomp.StompFrame;
 public class StompFrameV11 extends StompFrame
 {
    //stomp 1.1 talks about repetitive headers.
-   private final List<Header> allHeaders = new ArrayList<Header>();
+   protected final List<Header> allHeaders = new ArrayList<Header>();
 
    public StompFrameV11(String command, Map<String, String> headers, byte[] content)
    {
@@ -66,6 +66,13 @@ public class StompFrameV11 extends StompFrame
             head.append(h.getEncodedValue());
             head.append(Stomp.NEWLINE);
          }
+         if (bytesBody != null && bytesBody.length > 0)
+         {
+            head.append(Stomp.Headers.CONTENT_LENGTH);
+            head.append(Stomp.Headers.SEPARATOR);
+            head.append(bytesBody.length);
+            head.append(Stomp.NEWLINE);
+         }
          // Add a newline to separate the headers from the content.
          head.append(Stomp.NEWLINE);
 
@@ -95,6 +102,4 @@ public class StompFrameV11 extends StompFrame
          allHeaders.add(new Header(key, val));
       }
    }
-
-
 }
