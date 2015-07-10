@@ -103,7 +103,8 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
          else
          {
             // not valid
-            response = new StompFrame(Stomp.Responses.ERROR, true);
+            response = createStompFrame(Stomp.Responses.ERROR);
+            response.setNeedsDisconnect(true);
             response.addHeader(Stomp.Headers.Error.MESSAGE, "Failed to connect");
             response.setBody("The login account is not valid.");
          }
@@ -268,7 +269,7 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
 
    public StompFrame createPingFrame()
    {
-      StompFrame frame = new StompFrame(Stomp.Commands.STOMP);
+      StompFrame frame = createStompFrame(Stomp.Commands.STOMP);
       frame.setPing(true);
       return frame;
    }

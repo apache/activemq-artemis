@@ -165,7 +165,7 @@ public abstract class VersionedStompFrameHandler
 
    public StompFrame handleReceipt(String receiptID)
    {
-      StompFrame receipt = new StompFrame(Stomp.Responses.RECEIPT);
+      StompFrame receipt = createStompFrame(Stomp.Responses.RECEIPT);
       receipt.addHeader(Stomp.Headers.Response.RECEIPT_ID, receiptID);
 
       return receipt;
