@@ -387,6 +387,16 @@ class StompProtocolManager implements ProtocolManager<StompFrameInterceptor>, No
       return versions.substring(1);
    }
 
+   public String getSupportedVersionsAsErrorVersion()
+   {
+      String versions = "";
+      for (StompVersions version : StompVersions.values())
+      {
+         versions += "," + version;
+      }
+      return versions.substring(1);
+   }
+
    public String getVirtualHostName()
    {
       return "activemq";
