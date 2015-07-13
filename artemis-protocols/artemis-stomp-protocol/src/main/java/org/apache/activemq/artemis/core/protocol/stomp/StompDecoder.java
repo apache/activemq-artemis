@@ -711,7 +711,7 @@ public class StompDecoder
       return str.toString();
    }
 
-   //this should be overriden by subclasses.
+   /** This should be overridden by subclasses. */
    public void init(StompDecoder decoder)
    {
    }
