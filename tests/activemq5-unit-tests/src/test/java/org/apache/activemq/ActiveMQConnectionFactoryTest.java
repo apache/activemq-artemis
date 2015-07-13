@@ -27,9 +27,11 @@ import javax.jms.ExceptionListener;
 import javax.jms.JMSException;
 import javax.jms.Session;
 
+import org.apache.activemq.artemiswrapper.ArtemisBrokerHelper;
 import org.apache.activemq.broker.BrokerRegistry;
 import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.broker.TransportConnector;
+import org.apache.activemq.transport.tcp.TcpTransportFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,6 +67,11 @@ public class ActiveMQConnectionFactoryTest extends CombinationTestSupport {
             broker.stop();
         } catch (Throwable ignore) {
         }
+        try {
+            ArtemisBrokerHelper.stopArtemisBroker();
+        } catch (Throwable ignore) {
+        }
+        TcpTransportFactory.clearService();
     }
 
     public void testUseURIToSetOptionsOnConnectionFactory() throws URISyntaxException, JMSException {
@@ -120,6 +127,7 @@ public class ActiveMQConnectionFactoryTest extends CombinationTestSupport {
     }
 
     public void testGetBrokerName() throws URISyntaxException, JMSException {
+        System.out.println("------------------beging testing...............");
         ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory("vm://localhost?broker.persistent=false");
         connection = (ActiveMQConnection)cf.createConnection();
         connection.start();

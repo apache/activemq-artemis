@@ -507,7 +507,7 @@ public abstract class ArtemisBrokerBase implements Broker {
 			throws Exception {
 		if (netty) {
 			return createDefaultConfig(new HashMap<String, Object>(),
-					INVM_ACCEPTOR_FACTORY, NETTY_ACCEPTOR_FACTORY);
+					NETTY_ACCEPTOR_FACTORY);
 		} else {
 			return createDefaultConfig(new HashMap<String, Object>(),
 					INVM_ACCEPTOR_FACTORY);
