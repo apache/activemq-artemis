@@ -379,7 +379,12 @@ class StompProtocolManager implements ProtocolManager<StompFrameInterceptor>, No
 
    public String getSupportedVersionsAsString()
    {
-      return "v" + StompVersions.V1_0 + " v" + StompVersions.V1_1 + " v" + StompVersions.V1_2;
+      String versions = "";
+      for (StompVersions version : StompVersions.values())
+      {
+         versions += " v" + version;
+      }
+      return versions.substring(1);
    }
 
    public String getVirtualHostName()
