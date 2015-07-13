@@ -21,6 +21,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URI;
 
+import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.command.ActiveMQDestination;
 
 public class ArtemisBrokerHelper {
@@ -72,5 +73,24 @@ public class ArtemisBrokerHelper {
       service = startedBroker;
    }
 
+   public static BrokerService getBroker() {
+      return (BrokerService)service;
+   }
+
+   public static void stopArtemisBroker() throws Exception
+   {
+      try
+      {
+         if (service != null)
+         {
+            Method startMethod = serviceClass.getMethod("stop");
+            startMethod.invoke(service, (Object[]) null);
+         }
+      }
+      finally
+      {
+         service = null;
+      }
+   }
 }
 

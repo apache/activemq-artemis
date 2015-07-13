@@ -194,11 +194,13 @@ public class BrokerService implements Service
    @Override
    public void stop() throws Exception
    {
+      System.out.println("broker is: " + broker);
 
       LOG.info("Apache ActiveMQ Artemis{} ({}, {}) is shutting down", new Object[]{getBrokerVersion(), getBrokerName(), brokerId});
 
       if (broker != null)
       {
+         System.out.println("______________________stopping broker: " + broker.getClass().getName());
          broker.stop();
          broker = null;
       }
@@ -566,7 +568,10 @@ public class BrokerService implements Service
    public TransportConnector addConnector(URI bindAddress) throws Exception
    {
       Integer port = bindAddress.getPort();
-      this.extraConnectors.add(port);
+      if (port != 0)
+      {
+         this.extraConnectors.add(port);
+      }
       return null;
    }
 
@@ -719,6 +724,10 @@ public class BrokerService implements Service
       return null;
    }
 
+   public String getDefaultUri()
+   {
+      return "tcp://localhost:61616";
+   }
 }
 
 
