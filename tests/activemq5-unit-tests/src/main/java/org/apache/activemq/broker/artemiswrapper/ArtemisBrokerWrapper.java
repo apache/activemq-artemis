@@ -58,15 +58,14 @@ public class ArtemisBrokerWrapper extends ArtemisBrokerBase
    {
       testDir = temporaryFolder.getRoot().getAbsolutePath();
       clearDataRecreateServerDirs();
-      server = createServer(realStore, false);
+      server = createServer(realStore, true);
+      server.getConfiguration().getAcceptorConfigurations().clear();
       HashMap<String, Object> params = new HashMap<String, Object>();
       params.put(TransportConstants.PORT_PROP_NAME, "61616");
       params.put(TransportConstants.PROTOCOLS_PROP_NAME, "OPENWIRE");
       TransportConfiguration transportConfiguration = new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, params);
 
       Configuration serverConfig = server.getConfiguration();
-
-      Set<TransportConfiguration> acceptors0 = serverConfig.getAcceptorConfigurations();
 
       Map<String, AddressSettings> addressSettingsMap = serverConfig.getAddressesSettings();
 
@@ -170,18 +169,18 @@ public class ArtemisBrokerWrapper extends ArtemisBrokerBase
          anySet.add(destRole);
       }
 
+      Set<TransportConfiguration> acceptors = serverConfig.getAcceptorConfigurations();
+      Iterator<TransportConfiguration> iter = acceptors.iterator();
+      while (iter.hasNext())
+      {
+         System.out.println("acceptor =>: " + iter.next());
+      }
+
       jmsServer = new JMSServerManagerImpl(server);
       InVMNamingContext namingContext = new InVMNamingContext();
       jmsServer.setRegistry(new JndiBindingRegistry(namingContext));
       jmsServer.start();
 
-      Set<TransportConfiguration> acceptors = serverConfig.getAcceptorConfigurations();
-      Iterator<TransportConfiguration> iter = acceptors.iterator();
-
-      while (iter.hasNext())
-      {
-         System.out.println("acceptor =>: " + iter.next());
-      }
       server.start();
 
 /*
