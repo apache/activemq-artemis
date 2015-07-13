@@ -491,7 +491,7 @@ public final class StompConnection implements RemotingConnection
          {
             //not a supported version!
             ActiveMQStompException error = BUNDLE.versionNotSupported(acceptVersion);
-            error.addHeader(Stomp.Headers.Error.VERSION, acceptVersion);
+            error.addHeader(Stomp.Headers.Error.VERSION, manager.getSupportedVersionsAsErrorVersion());
             error.addHeader(Stomp.Headers.CONTENT_TYPE, "text/plain");
             error.setBody("Supported protocol versions are " + manager.getSupportedVersionsAsString());
             error.setDisconnect(true);
