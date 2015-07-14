@@ -20,6 +20,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -241,6 +242,10 @@ public class ActiveMQConnectionFactory extends JNDIBaseStorable implements Conne
          String scheme = uri.getScheme();
          if ("vm".equals(scheme)) {
              Map<String, String> params = URISupport.parseParameters(uri);
+             //EMPTY_MAP is immutable, so use a normal map instead.
+             if (params == Collections.EMPTY_MAP) {
+                 params = new HashMap<String, String>();
+             }
              params.put("invmBrokerId", uri.getHost() == null ? "localhost" : uri.getHost());
              defaultTcpUri = URISupport.createRemainingURI(defaultTcpUri, params);
              return defaultTcpUri;
