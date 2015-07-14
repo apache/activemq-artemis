@@ -91,6 +91,7 @@ public class ActiveMQStompException extends Exception
 
       if (body != null)
       {
+         frame.addHeader(Stomp.Headers.CONTENT_TYPE, "text/plain");
          frame.setByteBody(body.getBytes(StandardCharsets.UTF_8));
       }
       else

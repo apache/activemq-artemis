@@ -105,6 +105,7 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
             // not valid
             response = createStompFrame(Stomp.Responses.ERROR);
             response.setNeedsDisconnect(true);
+            response.addHeader(Stomp.Headers.CONTENT_TYPE, "text/plain");
             response.addHeader(Stomp.Headers.Error.MESSAGE, "Failed to connect");
             response.setBody("The login account is not valid.");
          }
