@@ -211,6 +211,7 @@ public class StompSession implements SessionCallback
       if (stompSubscription != null)
       {
          StompFrame frame = connection.getFrameHandler().createStompFrame(Stomp.Responses.ERROR);
+         frame.addHeader(Stomp.Headers.CONTENT_TYPE, "text/plain");
          frame.setBody("consumer with ID " + consumerId + " disconnected by server");
          connection.sendFrame(frame);
       }
