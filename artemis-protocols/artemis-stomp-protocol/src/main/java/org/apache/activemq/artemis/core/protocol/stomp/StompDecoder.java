@@ -162,8 +162,11 @@ public class StompDecoder
    //max len of EOL (default is 1 for '\n')
    protected int eolLen = 1;
 
-   public StompDecoder()
+   protected final VersionedStompFrameHandler handler;
+
+   public StompDecoder(VersionedStompFrameHandler handler)
    {
+      this.handler = handler;
    }
 
    public boolean hasBytes()
@@ -276,7 +279,9 @@ public class StompDecoder
 
          // reset
 
-         StompFrame ret = new StompFrame(command, headers, content);
+         StompFrame ret = handler.createStompFrame(command);
+         ret.headers = headers;
+         ret.setByteBody(content);
 
          init();
 
@@ -412,7 +417,7 @@ public class StompDecoder
          }
          else if (workingBuffer[offset] == CR)
          {
-            if (nextChar) throw BUNDLE.invalidTwoCRs();
+            if (nextChar) throw BUNDLE.invalidTwoCRs().setHandler(handler);
             nextChar = true;
          }
          else
@@ -424,7 +429,7 @@ public class StompDecoder
 
       if (nextChar)
       {
-         throw BUNDLE.badCRs();
+         throw BUNDLE.badCRs().setHandler(handler);
       }
 
       if (data < 4 + offset)
@@ -616,7 +621,7 @@ public class StompDecoder
       if (workingBuffer[pos - 1] != NEW_LINE)
       {
          //give a signal to try other versions
-         ActiveMQStompException error = BUNDLE.notValidNewLine(workingBuffer[pos - 1]);
+         ActiveMQStompException error = BUNDLE.notValidNewLine(workingBuffer[pos - 1]).setHandler(handler);
          error.setCode(ActiveMQStompException.INVALID_EOL_V10);
          error.setBody(BUNDLE.unexpectedNewLine(workingBuffer[pos - 1]));
          throw error;
@@ -627,7 +632,7 @@ public class StompDecoder
 
    public void throwInvalid() throws ActiveMQStompException
    {
-      ActiveMQStompException error = BUNDLE.invalidCommand(this.dumpByteArray(workingBuffer));
+      ActiveMQStompException error = BUNDLE.invalidCommand(this.dumpByteArray(workingBuffer)).setHandler(handler);
       error.setCode(ActiveMQStompException.INVALID_COMMAND);
       error.setBody(BUNDLE.invalidFrame(this.dumpByteArray(workingBuffer)));
       throw error;

@@ -35,7 +35,7 @@ public class StompFrameHandlerV12 extends StompFrameHandlerV11 implements FrameE
    public StompFrameHandlerV12(StompConnection connection)
    {
       super(connection);
-      decoder = new StompDecoderV12();
+      decoder = new StompDecoderV12(this);
       decoder.init();
    }
 
@@ -78,8 +78,7 @@ public class StompFrameHandlerV12 extends StompFrameHandlerV11 implements FrameE
 
       if (messageID == null)
       {
-         ActiveMQStompException error = BUNDLE.noIDInAck();
-         error.setHandler(connection.getFrameHandler());
+         ActiveMQStompException error = BUNDLE.noIDInAck().setHandler(connection.getFrameHandler());
          return error.getFrame();
       }
 
@@ -99,9 +98,11 @@ public class StompFrameHandlerV12 extends StompFrameHandlerV11 implements FrameE
    {
       protected boolean nextEOLChar = false;
 
-      public StompDecoderV12()
+      public StompDecoderV12(StompFrameHandlerV12 handler)
       {
-         //1.2 allow '\r\n'
+         super(handler);
+
+         //1.2 allows '\r\n'
          eolLen = 2;
       }
 
@@ -212,7 +213,7 @@ public class StompFrameHandlerV12 extends StompFrameHandlerV11 implements FrameE
                {
                   if (nextEOLChar)
                   {
-                     throw BUNDLE.invalidTwoCRs();
+                     throw BUNDLE.invalidTwoCRs().setHandler(handler);
                   }
                   nextEOLChar = true;
                   break;

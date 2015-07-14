@@ -33,7 +33,7 @@ public class StompFrame
 
    protected final String command;
 
-   protected final Map<String, String> headers;
+   protected Map<String, String> headers;
 
    private String body;
 

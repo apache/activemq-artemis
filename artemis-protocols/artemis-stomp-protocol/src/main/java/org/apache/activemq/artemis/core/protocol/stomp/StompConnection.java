@@ -249,7 +249,7 @@ public final class StompConnection implements RemotingConnection
 
       if (!manager.destinationExists(destination))
       {
-         throw BUNDLE.destinationNotExist(destination);
+         throw BUNDLE.destinationNotExist(destination).setHandler(frameHandler);
       }
    }
 
@@ -266,7 +266,7 @@ public final class StompConnection implements RemotingConnection
          }
          catch (Exception e)
          {
-            throw new ActiveMQStompException(e.getMessage(), e);
+            throw new ActiveMQStompException(e.getMessage(), e).setHandler(frameHandler);
          }
          autoCreated = true;
       }
@@ -490,7 +490,7 @@ public final class StompConnection implements RemotingConnection
          else
          {
             //not a supported version!
-            ActiveMQStompException error = BUNDLE.versionNotSupported(acceptVersion);
+            ActiveMQStompException error = BUNDLE.versionNotSupported(acceptVersion).setHandler(frameHandler);
             error.addHeader(Stomp.Headers.Error.VERSION, manager.getSupportedVersionsAsErrorVersion());
             error.addHeader(Stomp.Headers.CONTENT_TYPE, "text/plain");
             error.setBody("Supported protocol versions are " + manager.getSupportedVersionsAsString());
@@ -514,7 +514,7 @@ public final class StompConnection implements RemotingConnection
    {
       if (host == null)
       {
-         ActiveMQStompException error = BUNDLE.nullHostHeader();
+         ActiveMQStompException error = BUNDLE.nullHostHeader().setHandler(frameHandler);
          error.setBody(BUNDLE.hostCannotBeNull());
          throw error;
       }
@@ -522,7 +522,7 @@ public final class StompConnection implements RemotingConnection
       String localHost = manager.getVirtualHostName();
       if (!host.equals(localHost))
       {
-         ActiveMQStompException error = BUNDLE.hostNotMatch();
+         ActiveMQStompException error = BUNDLE.hostNotMatch().setHandler(frameHandler);
          error.setBody(BUNDLE.hostNotMatchDetails(host));
          throw error;
       }
@@ -542,13 +542,13 @@ public final class StompConnection implements RemotingConnection
       {
          if (isDestroyed())
          {
-            throw BUNDLE.connectionDestroyed();
+            throw BUNDLE.connectionDestroyed().setHandler(frameHandler);
          }
          if (!initialized)
          {
             if (!(Stomp.Commands.CONNECT.equals(cmd) || Stomp.Commands.STOMP.equals(cmd)))
             {
-               throw BUNDLE.connectionNotEstablished();
+               throw BUNDLE.connectionNotEstablished().setHandler(frameHandler);
             }
             //decide version
             negotiateVersion(request);
@@ -609,7 +609,7 @@ public final class StompConnection implements RemotingConnection
       }
       catch (Exception e)
       {
-         throw BUNDLE.errorGetSession(e);
+         throw BUNDLE.errorGetSession(e).setHandler(frameHandler);
       }
 
       return session;
@@ -619,7 +619,7 @@ public final class StompConnection implements RemotingConnection
    {
       if (!this.valid)
       {
-         throw BUNDLE.invalidConnection();
+         throw BUNDLE.invalidConnection().setHandler(frameHandler);
       }
    }
 
@@ -649,7 +649,7 @@ public final class StompConnection implements RemotingConnection
       }
       catch (Exception e)
       {
-         throw BUNDLE.errorSendMessage(message, e);
+         throw BUNDLE.errorSendMessage(message, e).setHandler(frameHandler);
       }
    }
 
@@ -677,7 +677,7 @@ public final class StompConnection implements RemotingConnection
       }
       catch (Exception e)
       {
-         throw BUNDLE.errorBeginTx(txID, e);
+         throw BUNDLE.errorBeginTx(txID, e).setHandler(frameHandler);
       }
    }
 
@@ -689,7 +689,7 @@ public final class StompConnection implements RemotingConnection
       }
       catch (Exception e)
       {
-         throw BUNDLE.errorCommitTx(txID, e);
+         throw BUNDLE.errorCommitTx(txID, e).setHandler(frameHandler);
       }
    }
 
@@ -705,7 +705,7 @@ public final class StompConnection implements RemotingConnection
       }
       catch (Exception e)
       {
-         throw BUNDLE.errorAbortTx(txID, e);
+         throw BUNDLE.errorAbortTx(txID, e).setHandler(frameHandler);
       }
    }
 
@@ -740,7 +740,7 @@ public final class StompConnection implements RemotingConnection
       {
          if (destination == null)
          {
-            throw BUNDLE.noDestination();
+            throw BUNDLE.noDestination().setHandler(frameHandler);
          }
          subscriptionID = "subscription/" + destination;
       }
@@ -755,7 +755,7 @@ public final class StompConnection implements RemotingConnection
       }
       catch (Exception e)
       {
-         throw BUNDLE.errorCreatSubscription(subscriptionID, e);
+         throw BUNDLE.errorCreatSubscription(subscriptionID, e).setHandler(frameHandler);
       }
    }
 
@@ -771,7 +771,7 @@ public final class StompConnection implements RemotingConnection
       }
       catch (Exception e)
       {
-         throw BUNDLE.errorUnsubscrib(subscriptionID, e);
+         throw BUNDLE.errorUnsubscrib(subscriptionID, e).setHandler(frameHandler);
       }
    }
 
@@ -787,7 +787,7 @@ public final class StompConnection implements RemotingConnection
       }
       catch (Exception e)
       {
-         throw BUNDLE.errorAck(messageID, e);
+         throw BUNDLE.errorAck(messageID, e).setHandler(frameHandler);
       }
    }
 

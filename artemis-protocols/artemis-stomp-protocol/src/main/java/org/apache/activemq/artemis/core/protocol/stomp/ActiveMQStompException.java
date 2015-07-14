@@ -128,8 +128,9 @@ public class ActiveMQStompException extends Exception
       code = newCode;
    }
 
-   public void setHandler(VersionedStompFrameHandler frameHandler)
+   public ActiveMQStompException setHandler(VersionedStompFrameHandler frameHandler)
    {
       this.handler = frameHandler;
+      return this;
    }
 }

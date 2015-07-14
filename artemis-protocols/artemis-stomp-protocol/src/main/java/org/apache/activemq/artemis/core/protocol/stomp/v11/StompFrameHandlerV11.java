@@ -41,7 +41,7 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
    {
       super(connection);
       connection.addStompEventListener(this);
-      decoder = new StompDecoderV11();
+      decoder = new StompDecoderV11(this);
       decoder.init();
    }
 
@@ -124,7 +124,7 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
       String[] params = heartBeatHeader.split(",");
       if (params.length != 2)
       {
-         throw new ActiveMQStompException("Incorrect heartbeat header " + heartBeatHeader);
+         throw new ActiveMQStompException(connection, "Incorrect heartbeat header " + heartBeatHeader);
       }
 
       //client ping
@@ -171,7 +171,7 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
       }
       else
       {
-         response = BUNDLE.needSubscriptionID().getFrame();
+         response = BUNDLE.needSubscriptionID().setHandler(this).getFrame();
          return response;
       }
 
@@ -202,7 +202,7 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
 
       if (subscriptionID == null)
       {
-         response = BUNDLE.needSubscriptionID().getFrame();
+         response = BUNDLE.needSubscriptionID().setHandler(this).getFrame();
          return response;
       }
 
@@ -428,6 +428,11 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
       protected boolean isEscaping = false;
       protected SimpleBytes holder = new SimpleBytes(1024);
 
+      public StompDecoderV11(StompFrameHandlerV11 handler)
+      {
+         super(handler);
+      }
+
       @Override
       public void init(StompDecoder decoder)
       {
@@ -470,7 +475,7 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
             }
             else if (workingBuffer[offset] == CR)
             {
-               if (nextChar) throw BUNDLE.invalidTwoCRs();
+               if (nextChar) throw BUNDLE.invalidTwoCRs().setHandler(handler);
                nextChar = true;
             }
             else
@@ -483,7 +488,7 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
 
          if (nextChar)
          {
-            throw BUNDLE.badCRs();
+            throw BUNDLE.badCRs().setHandler(handler);
          }
 
          //if some EOLs have been processed, drop those bytes before parsing command
