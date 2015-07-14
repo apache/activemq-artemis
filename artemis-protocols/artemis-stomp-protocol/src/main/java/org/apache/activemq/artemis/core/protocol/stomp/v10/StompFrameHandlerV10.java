@@ -35,7 +35,7 @@ public class StompFrameHandlerV10 extends VersionedStompFrameHandler implements 
    public StompFrameHandlerV10(StompConnection connection)
    {
       super(connection);
-      decoder = new StompDecoder();
+      decoder = new StompDecoder(this);
       decoder.init();
       connection.addStompEventListener(this);
    }
