@@ -41,7 +41,7 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
    {
       super(connection);
       connection.addStompEventListener(this);
-      decoder = new StompDecoderV11();
+      decoder = new StompDecoderV11(this);
       decoder.init();
    }
 
@@ -427,6 +427,11 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
    {
       protected boolean isEscaping = false;
       protected SimpleBytes holder = new SimpleBytes(1024);
+
+      public StompDecoderV11(StompFrameHandlerV11 handler)
+      {
+         super(handler);
+      }
 
       @Override
       public void init(StompDecoder decoder)
