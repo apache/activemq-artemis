@@ -364,7 +364,8 @@ class StompProtocolManager implements ProtocolManager<StompFrameInterceptor>, No
             ActiveMQServerLogger.LOGGER.errorProcessingIOCallback(errorCode, errorMessage);
 
             ActiveMQStompException e = new ActiveMQStompException("Error sending reply",
-                                                                  ActiveMQExceptionType.createException(errorCode, errorMessage));
+                                                                  ActiveMQExceptionType.createException(errorCode, errorMessage))
+                  .setHandler(connection.getFrameHandler());
 
             StompFrame error = e.getFrame();
             send(connection, error);
@@ -426,7 +427,7 @@ class StompProtocolManager implements ProtocolManager<StompFrameInterceptor>, No
       StompSession session = getTransactedSession(connection, txID);
       if (session == null)
       {
-         throw new ActiveMQStompException("No transaction started: " + txID);
+         throw new ActiveMQStompException(connection, "No transaction started: " + txID);
       }
       transactedSessions.remove(txID);
       session.getSession().commit();
@@ -437,7 +438,7 @@ class StompProtocolManager implements ProtocolManager<StompFrameInterceptor>, No
       StompSession session = getTransactedSession(connection, txID);
       if (session == null)
       {
-         throw new ActiveMQStompException("No transaction started: " + txID);
+         throw new ActiveMQStompException(connection, "No transaction started: " + txID);
       }
       transactedSessions.remove(txID);
       session.getSession().rollback(false);
@@ -452,7 +453,7 @@ class StompProtocolManager implements ProtocolManager<StompFrameInterceptor>, No
       stompSession.setNoLocal(noLocal);
       if (stompSession.containsSubscription(subscriptionID))
       {
-         throw new ActiveMQStompException("There already is a subscription for: " + subscriptionID +
+         throw new ActiveMQStompException(connection, "There already is a subscription for: " + subscriptionID +
                                              ". Either use unique subscription IDs or do not create multiple subscriptions for the same destination");
       }
       long consumerID = server.getStorageManager().generateID();
@@ -473,7 +474,7 @@ class StompProtocolManager implements ProtocolManager<StompFrameInterceptor>, No
       boolean unsubscribed = stompSession.unsubscribe(subscriptionID, durableSubscriberName);
       if (!unsubscribed)
       {
-         throw new ActiveMQStompException("Cannot unsubscribe as no subscription exists for id: " + subscriptionID);
+         throw new ActiveMQStompException(connection, "Cannot unsubscribe as no subscription exists for id: " + subscriptionID);
       }
    }
 

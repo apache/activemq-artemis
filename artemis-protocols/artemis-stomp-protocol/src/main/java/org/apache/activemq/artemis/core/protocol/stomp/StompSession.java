@@ -223,7 +223,7 @@ public class StompSession implements SessionCallback
 
       if (pair == null)
       {
-         throw BUNDLE.failToAckMissingID(id);
+         throw BUNDLE.failToAckMissingID(id).setHandler(connection.getFrameHandler());
       }
 
       long consumerID = pair.getA();
@@ -235,7 +235,7 @@ public class StompSession implements SessionCallback
       {
          if (!sub.getID().equals(subscriptionID))
          {
-            throw BUNDLE.subscriptionIDMismatch(subscriptionID, sub.getID());
+            throw BUNDLE.subscriptionIDMismatch(subscriptionID, sub.getID()).setHandler(connection.getFrameHandler());
          }
       }
 
