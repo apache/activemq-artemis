@@ -102,7 +102,7 @@ public class StompFrameHandlerV10 extends VersionedStompFrameHandler implements 
       {
          if (destination == null)
          {
-            ActiveMQStompException error = BUNDLE.needIDorDestination();
+            ActiveMQStompException error = BUNDLE.needIDorDestination().setHandler(this);
             response = error.getFrame();
             return response;
          }

@@ -158,7 +158,7 @@ public abstract class VersionedStompFrameHandler
 
    public StompFrame onUnknown(String command)
    {
-      ActiveMQStompException error = BUNDLE.unknownCommand(command);
+      ActiveMQStompException error = BUNDLE.unknownCommand(command).setHandler(this);
       StompFrame response = error.getFrame();
       return response;
    }
@@ -178,7 +178,7 @@ public abstract class VersionedStompFrameHandler
       String txID = request.getHeader(Stomp.Headers.TRANSACTION);
       if (txID == null)
       {
-         ActiveMQStompException error = BUNDLE.needTxIDHeader();
+         ActiveMQStompException error = BUNDLE.needTxIDHeader().setHandler(this);
          response = error.getFrame();
          return response;
       }
@@ -230,7 +230,7 @@ public abstract class VersionedStompFrameHandler
       }
       catch (Exception e)
       {
-         ActiveMQStompException error = BUNDLE.errorHandleSend(e);
+         ActiveMQStompException error = BUNDLE.errorHandleSend(e).setHandler(this);
          response = error.getFrame();
       }
 
@@ -248,7 +248,7 @@ public abstract class VersionedStompFrameHandler
       String txID = frame.getHeader(Stomp.Headers.TRANSACTION);
       if (txID == null)
       {
-         ActiveMQStompException error = BUNDLE.beginTxNoID();
+         ActiveMQStompException error = BUNDLE.beginTxNoID().setHandler(this);
          response = error.getFrame();
       }
       else
@@ -272,7 +272,7 @@ public abstract class VersionedStompFrameHandler
 
       if (txID == null)
       {
-         ActiveMQStompException error = BUNDLE.abortTxNoID();
+         ActiveMQStompException error = BUNDLE.abortTxNoID().setHandler(this);
          response = error.getFrame();
          return response;
       }
@@ -391,7 +391,7 @@ public abstract class VersionedStompFrameHandler
    /**
     * this method is called when a newer version of handler is created. It should
     * take over the state of the decoder of the existingHandler so that
-    * the decoding can be continued. For V10 handler it's never get called.
+    * the decoding can be continued. For V10 handler it's never called.
     *
     * @param existingHandler
     */
