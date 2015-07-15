@@ -65,6 +65,7 @@ under the License.
       <module>core</module>
       <module>jms</module>
       <module>soak</module>
+      <module>mqtt</module>
    </modules>
 
 </project>
