@@ -64,6 +64,8 @@ public class Create extends InputAbstract
 
    private static final Integer HTTP_PORT = 8161;
 
+   private static final Integer MQTT_PORT = 1883;
+
    public static final String BIN_ARTEMIS_CMD = "bin/artemis.cmd";
    public static final String BIN_ARTEMIS_SERVICE_EXE = "bin/artemis-service.exe";
    public static final String BIN_ARTEMIS_SERVICE_XML = "bin/artemis-service.xml";
@@ -501,6 +503,7 @@ public class Create extends InputAbstract
       filters.put("${amqp.port}", String.valueOf(AMQP_PORT + portOffset));
       filters.put("${stomp.port}", String.valueOf(STOMP_PORT + portOffset));
       filters.put("${hq.port}", String.valueOf(HQ_PORT + portOffset));
+      filters.put("${mqtt.port}", String.valueOf(MQTT_PORT + portOffset));
       filters.put("${http.port}", String.valueOf(HTTP_PORT + portOffset));
       filters.put("${data.dir}", data);
       filters.put("${max-hops}", String.valueOf(maxHops));

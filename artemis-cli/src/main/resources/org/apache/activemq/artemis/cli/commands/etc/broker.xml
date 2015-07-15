@@ -55,7 +55,11 @@ ${connector-config.settings}
 
          <!-- HornetQ Compatibility Acceptor.  Enables ActiveMQ Artemis Core and STOMP for legacy HornetQ clients. -->
          <acceptor name="hornetq">tcp://${host}:${hq.port}?protocols=HORNETQ,STOMP</acceptor>
+
+         <!-- MQTT Acceptor -->
+         <acceptor name="hornetq">tcp://${host}:${mqtt.port}?protocols=MQTT</acceptor>
       </acceptors>
+
 ${cluster-security.settings}${cluster.settings}${replicated.settings}${shared-store.settings}
       <security-settings>
          <security-setting match="#">
