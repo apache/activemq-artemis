@@ -229,10 +229,7 @@ public class StompFrame
          iBuffer++;
       }
 
-      char[] total = new char[iBuffer];
-      System.arraycopy(buffer, 0, total, 0, iBuffer);
-
-      return new String(total);
+      return new String(buffer, 0, iBuffer);
    }
 
    public void setBody(String body)

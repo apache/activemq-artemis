@@ -312,11 +312,7 @@ public class StompDecoder
             {
                if (inHeaderName)
                {
-                  byte[] data = new byte[pos - headerBytesCopyStart - 1];
-
-                  System.arraycopy(workingBuffer, headerBytesCopyStart, data, 0, data.length);
-
-                  headerName = new String(data);
+                  headerName = new String(workingBuffer, headerBytesCopyStart, pos - headerBytesCopyStart - 1);
 
                   inHeaderName = false;
 
@@ -339,11 +335,7 @@ public class StompDecoder
                   break outer;
                }
 
-               byte[] data = new byte[pos - headerBytesCopyStart - 1];
-
-               System.arraycopy(workingBuffer, headerBytesCopyStart, data, 0, data.length);
-
-               String headerValue = new String(data);
+               String headerValue = new String(workingBuffer, headerBytesCopyStart, pos - headerBytesCopyStart - 1);
 
                headers.put(headerName, headerValue);
 
