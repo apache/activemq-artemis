@@ -9,3 +9,12 @@ ratReport.txt
 .settings
 .checkstyle
 .factorypath
+
+# for native build
+**/CMakeCache.txt
+**/CMakeFiles/
+**/Makefile
+**/cmake_install.cmake
+
+# this file is generated
+artemis-native/src/main/c/org_apache_activemq_artemis_core_libaio_Native.h
