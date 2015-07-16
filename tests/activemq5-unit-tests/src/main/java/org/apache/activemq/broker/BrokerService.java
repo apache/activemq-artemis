@@ -89,9 +89,12 @@ public class BrokerService implements Service
    private Throwable startException = null;
    private boolean startAsync = false;
    public Set<Integer> extraConnectors = new HashSet<Integer>();
+
+   private final List<TransportConnector> transportConnectors = new ArrayList<TransportConnector>();
    private File dataDirectoryFile;
 
    private PolicyMap destinationPolicy;
+   private SystemUsage systemUsage;
 
    static
    {
@@ -340,7 +343,7 @@ public class BrokerService implements Service
 
    public List<TransportConnector> getTransportConnectors()
    {
-      return new ArrayList<>();
+      return transportConnectors;
    }
 
    public TransportConnector addConnector(String bindAddress) throws Exception
@@ -406,7 +409,11 @@ public class BrokerService implements Service
 
    public SystemUsage getSystemUsage()
    {
-      return null;
+      if (systemUsage == null)
+      {
+         systemUsage = new SystemUsage();
+      }
+      return systemUsage;
    }
 
    public synchronized PListStore getTempDataStore()
@@ -460,6 +467,7 @@ public class BrokerService implements Service
 
    public void setSystemUsage(SystemUsage memoryManager)
    {
+      this.systemUsage = memoryManager;
    }
 
    public void setManagementContext(ManagementContext managementContext)
@@ -568,11 +576,19 @@ public class BrokerService implements Service
    public TransportConnector addConnector(URI bindAddress) throws Exception
    {
       Integer port = bindAddress.getPort();
+      FakeTransportConnector connector = null;
       if (port != 0)
       {
+         connector = new FakeTransportConnector(bindAddress);
+         this.transportConnectors.add(connector);
          this.extraConnectors.add(port);
       }
-      return null;
+      else
+      {
+         connector = new FakeTransportConnector(new URI(this.getDefaultUri()));
+         this.transportConnectors.add(connector);
+      }
+      return connector;
    }
 
    public void setCacheTempDestinations(boolean cacheTempDestinations)
