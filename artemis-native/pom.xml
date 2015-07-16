@@ -25,7 +25,7 @@
    </parent>
 
    <artifactId>artemis-native</artifactId>
-   <packaging>${native-package-type}</packaging>
+   <packaging>jar</packaging>
    <dependencies>
       <dependency>
          <groupId>org.apache.activemq</groupId>
@@ -86,49 +86,8 @@
    </build>
 
 
-   <profiles>
-      <profile>
-         <id>native-build</id>
-         <properties>
-            <native-package-type>nar</native-package-type>
-         </properties>
-         <build>
-            <plugins>
-               <plugin>
-                  <groupId>com.github.maven-nar</groupId>
-                  <artifactId>nar-maven-plugin</artifactId>
-                  <version>3.0.0</version>
-                  <extensions>true</extensions>
-                  <configuration>
-                     <java>
-                        <include>true</include>
-                     </java>
-                     <c>
-                        <systemIncludePaths>
-                        </systemIncludePaths>
-                     </c>
-                     <linker>
-                        <sysLibs>
-                           <sysLib>
-                              <name>aio</name>
-                           </sysLib>
-                        </sysLibs>
-                     </linker>
-                     <libraries>
-                        <library>
-                           <type>jni</type>
-                           <narSystemPackage>org.apache.activemq.artemis.core.libaio</narSystemPackage>
-                        </library>
-                     </libraries>
-                  </configuration>
-               </plugin>
-            </plugins>
-         </build>
-      </profile>
-   </profiles>
 
    <properties>
-      <native-package-type>jar</native-package-type>
       <activemq.basedir>${project.basedir}/..</activemq.basedir>
    </properties>
 
