@@ -92,7 +92,7 @@ public final class StompConnection implements RemotingConnection
 
    private final Object sendLock = new Object();
 
-   private int minLargeMessageSize;
+   private final int minLargeMessageSize;
 
    public StompFrame decode(ActiveMQBuffer buffer) throws ActiveMQStompException
    {
