@@ -29,7 +29,7 @@ public class StompProtocolManagerFactory extends AbstractProtocolManagerFactory<
 
    private static final String MODULE_NAME = "artemis-stomp-protocol";
 
-   private static String[] SUPPORTED_PROTOCOLS = {STOMP_PROTOCOL_NAME};
+   private static final String[] SUPPORTED_PROTOCOLS = {STOMP_PROTOCOL_NAME};
 
    public ProtocolManager createProtocolManager(final ActiveMQServer server, final List<StompFrameInterceptor> incomingInterceptors, List<StompFrameInterceptor> outgoingInterceptors)
    {
