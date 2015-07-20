@@ -44,6 +44,13 @@ public class StompFrameV11 extends StompFrame
    @Override
    public ActiveMQBuffer toActiveMQBuffer() throws Exception
    {
+      if (isPing())
+      {
+         // ping has some special treatment done at the super package only.
+         // on that case we will defer it to super.
+         return super.toActiveMQBuffer();
+      }
+
       if (buffer == null)
       {
          if (bytesBody != null)
