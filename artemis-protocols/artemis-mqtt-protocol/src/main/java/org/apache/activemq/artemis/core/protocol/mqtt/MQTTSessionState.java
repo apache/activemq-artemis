@@ -39,7 +39,7 @@ public class MQTTSessionState
    // Used to store Packet ID of Publish QoS1 and QoS2 message.  See spec: 4.3.3 QoS 2: Exactly once delivery.  Method B.
    private Map<Integer, MQTTMessageInfo> messageRefStore;
 
-   private Map<String, Map<Long, Integer>> addressMessageMap;
+   private ConcurrentHashMap<String, Map<Long, Integer>> addressMessageMap;
 
    private Set<Integer> pubRec;
 
