@@ -128,6 +128,13 @@ public class StompFrame
             head.append(header.getValue());
             head.append(Stomp.NEWLINE);
          }
+         if (bytesBody != null && bytesBody.length > 0 && !hasHeader(Stomp.Headers.CONTENT_LENGTH))
+         {
+            head.append(Stomp.Headers.CONTENT_LENGTH);
+            head.append(Stomp.Headers.SEPARATOR);
+            head.append(bytesBody.length);
+            head.append(Stomp.NEWLINE);
+         }
          // Add a newline to separate the headers from the content.
          head.append(Stomp.NEWLINE);
 
