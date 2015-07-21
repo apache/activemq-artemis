@@ -71,7 +71,7 @@ The reaper thread can be configured with the following properties in
 
 -   `message-expiry-thread-priority`
 
-    The reaper thread priority (it must be between 0 and 9, 9 being the
+    The reaper thread priority (it must be between 1 and 10, 10 being the
     highest priority, default is 3)
 
 ## Example
