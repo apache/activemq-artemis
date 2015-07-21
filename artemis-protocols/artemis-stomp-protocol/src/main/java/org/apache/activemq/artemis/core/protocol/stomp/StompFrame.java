@@ -117,7 +117,7 @@ public class StompFrame
             return buffer;
          }
 
-         StringBuffer head = new StringBuffer();
+         StringBuilder head = new StringBuilder();
          head.append(command);
          head.append(Stomp.NEWLINE);
          // Output the headers.
@@ -148,7 +148,7 @@ public class StompFrame
       return buffer;
    }
 
-   protected void encodeHeaders(StringBuffer head)
+   protected void encodeHeaders(StringBuilder head)
    {
       for (Map.Entry<String, String> header : headers.entrySet())
       {

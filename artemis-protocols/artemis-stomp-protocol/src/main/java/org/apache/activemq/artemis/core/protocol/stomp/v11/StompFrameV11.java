@@ -39,7 +39,7 @@ public class StompFrameV11 extends StompFrame
    }
 
    @Override
-   protected void encodeHeaders(StringBuffer head)
+   protected void encodeHeaders(StringBuilder head)
    {
       for (Header h : allHeaders)
       {
