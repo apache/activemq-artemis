@@ -73,7 +73,7 @@ public class StompFrameV11 extends StompFrame
             head.append(h.getEncodedValue());
             head.append(Stomp.NEWLINE);
          }
-         if (bytesBody != null && bytesBody.length > 0)
+         if (bytesBody != null && bytesBody.length > 0 && !hasHeader(Stomp.Headers.CONTENT_LENGTH))
          {
             head.append(Stomp.Headers.CONTENT_LENGTH);
             head.append(Stomp.Headers.SEPARATOR);
