@@ -92,7 +92,6 @@ import org.apache.activemq.artemis.utils.json.JSONObject;
 public class ServerSessionImpl implements ServerSession, FailureListener
 {
    // Constants -----------------------------------------------------------------------------
-
    private static final boolean isTrace = ActiveMQServerLogger.LOGGER.isTraceEnabled();
 
    // Static -------------------------------------------------------------------------------
@@ -927,7 +926,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener
    public synchronized void xaCommit(final Xid xid, final boolean onePhase) throws Exception
    {
 
-      if (tx != null && tx.getXid().equals(xid))
+      if (tx != null && !tx.getXid().equals(xid))
       {
          final String msg = "Cannot commit, session is currently doing work in transaction " + tx.getXid();
 
