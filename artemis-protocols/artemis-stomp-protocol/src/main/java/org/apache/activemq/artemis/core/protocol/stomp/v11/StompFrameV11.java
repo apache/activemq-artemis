@@ -16,13 +16,10 @@
  */
 package org.apache.activemq.artemis.core.protocol.stomp.v11;
 
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
-import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.core.protocol.stomp.Stomp;
 import org.apache.activemq.artemis.core.protocol.stomp.StompFrame;
 
@@ -42,58 +39,15 @@ public class StompFrameV11 extends StompFrame
    }
 
    @Override
-   public ActiveMQBuffer toActiveMQBuffer() throws Exception
+   protected void encodeHeaders(StringBuffer head)
    {
-      if (isPing())
+      for (Header h : allHeaders)
       {
-         // ping has some special treatment done at the super package only.
-         // on that case we will defer it to super.
-         return super.toActiveMQBuffer();
-      }
-
-      if (buffer == null)
-      {
-         if (bytesBody != null)
-         {
-            buffer = ActiveMQBuffers.dynamicBuffer(bytesBody.length + 512);
-         }
-         else
-         {
-            buffer = ActiveMQBuffers.dynamicBuffer(512);
-         }
-
-         StringBuffer head = new StringBuffer();
-         head.append(command);
+         head.append(h.getEncodedKey());
+         head.append(Stomp.Headers.SEPARATOR);
+         head.append(h.getEncodedValue());
          head.append(Stomp.NEWLINE);
-         // Output the headers.
-         for (Header h : allHeaders)
-         {
-            head.append(h.getEncodedKey());
-            head.append(Stomp.Headers.SEPARATOR);
-            head.append(h.getEncodedValue());
-            head.append(Stomp.NEWLINE);
-         }
-         if (bytesBody != null && bytesBody.length > 0 && !hasHeader(Stomp.Headers.CONTENT_LENGTH))
-         {
-            head.append(Stomp.Headers.CONTENT_LENGTH);
-            head.append(Stomp.Headers.SEPARATOR);
-            head.append(bytesBody.length);
-            head.append(Stomp.NEWLINE);
-         }
-         // Add a newline to separate the headers from the content.
-         head.append(Stomp.NEWLINE);
-
-         buffer.writeBytes(head.toString().getBytes(StandardCharsets.UTF_8));
-         if (bytesBody != null)
-         {
-            buffer.writeBytes(bytesBody);
-         }
-
-         buffer.writeBytes(END_OF_FRAME);
-
-         size = buffer.writerIndex();
       }
-      return buffer;
    }
 
    @Override

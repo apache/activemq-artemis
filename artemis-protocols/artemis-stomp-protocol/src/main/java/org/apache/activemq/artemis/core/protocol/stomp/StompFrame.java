@@ -121,13 +121,7 @@ public class StompFrame
          head.append(command);
          head.append(Stomp.NEWLINE);
          // Output the headers.
-         for (Map.Entry<String, String> header : headers.entrySet())
-         {
-            head.append(header.getKey());
-            head.append(Stomp.Headers.SEPARATOR);
-            head.append(header.getValue());
-            head.append(Stomp.NEWLINE);
-         }
+         encodeHeaders(head);
          if (bytesBody != null && bytesBody.length > 0 && !hasHeader(Stomp.Headers.CONTENT_LENGTH))
          {
             head.append(Stomp.Headers.CONTENT_LENGTH);
@@ -152,6 +146,17 @@ public class StompFrame
          buffer.readerIndex(0);
       }
       return buffer;
+   }
+
+   protected void encodeHeaders(StringBuffer head)
+   {
+      for (Map.Entry<String, String> header : headers.entrySet())
+      {
+         head.append(header.getKey());
+         head.append(Stomp.Headers.SEPARATOR);
+         head.append(header.getValue());
+         head.append(Stomp.NEWLINE);
+      }
    }
 
    public String getHeader(String key)
