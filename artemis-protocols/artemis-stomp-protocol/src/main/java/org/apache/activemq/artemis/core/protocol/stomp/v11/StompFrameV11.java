@@ -44,6 +44,13 @@ public class StompFrameV11 extends StompFrame
    @Override
    public ActiveMQBuffer toActiveMQBuffer() throws Exception
    {
+      if (isPing())
+      {
+         // ping has some special treatment done at the super package only.
+         // on that case we will defer it to super.
+         return super.toActiveMQBuffer();
+      }
+
       if (buffer == null)
       {
          if (bytesBody != null)
@@ -66,7 +73,7 @@ public class StompFrameV11 extends StompFrame
             head.append(h.getEncodedValue());
             head.append(Stomp.NEWLINE);
          }
-         if (bytesBody != null && bytesBody.length > 0 && !hasHeader(Stomp.Headers.CONTENT_LENGTH))
+         if (bytesBody != null && bytesBody.length > 0)
          {
             head.append(Stomp.Headers.CONTENT_LENGTH);
             head.append(Stomp.Headers.SEPARATOR);
