@@ -234,7 +234,7 @@ public abstract class URISchema<T, P>
                PropertyDescriptor[] descriptors = beanUtils.getPropertyUtils().getPropertyDescriptors(bean);
                for (PropertyDescriptor descriptor : descriptors)
                {
-                  if (descriptor.getReadMethod() != null && descriptor.getWriteMethod() != null && isWriteable(descriptor, ignored))
+                  if (descriptor.getReadMethod() != null && isWriteable(descriptor, ignored))
                   {
                      String value = beanUtils.getProperty(bean, descriptor.getName());
                      if (value != null)
