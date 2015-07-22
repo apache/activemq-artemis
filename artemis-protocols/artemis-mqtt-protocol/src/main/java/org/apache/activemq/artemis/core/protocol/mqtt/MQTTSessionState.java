@@ -17,16 +17,17 @@
 
 package org.apache.activemq.artemis.core.protocol.mqtt;
 
-import io.netty.handler.codec.mqtt.MqttTopicSubscription;
-import org.apache.activemq.artemis.api.core.Pair;
-import org.apache.activemq.artemis.core.server.ServerMessage;
-
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import io.netty.handler.codec.mqtt.MqttTopicSubscription;
+import org.apache.activemq.artemis.api.core.Pair;
+import org.apache.activemq.artemis.core.server.ServerMessage;
 
 public class MQTTSessionState
 {
@@ -52,7 +53,7 @@ public class MQTTSessionState
    // Objects track the Outbound message references
    private Map<Integer, Pair<String, Long>> outboundMessageReferenceStore;
 
-   private ConcurrentHashMap<String, ConcurrentHashMap<Long, Integer>> reverseOutboundReferenceStore;
+   private ConcurrentMap<String, ConcurrentHashMap<Long, Integer>> reverseOutboundReferenceStore;
 
    private final Object outboundLock = new Object();
 
