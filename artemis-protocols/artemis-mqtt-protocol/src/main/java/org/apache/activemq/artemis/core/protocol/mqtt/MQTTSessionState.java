@@ -35,12 +35,12 @@ public class MQTTSessionState
 
    private ServerMessage willMessage;
 
-   private final ConcurrentHashMap<String, MqttTopicSubscription> subscriptions = new ConcurrentHashMap<>();
+   private final ConcurrentMap<String, MqttTopicSubscription> subscriptions = new ConcurrentHashMap<>();
 
    // Used to store Packet ID of Publish QoS1 and QoS2 message.  See spec: 4.3.3 QoS 2: Exactly once delivery.  Method B.
    private Map<Integer, MQTTMessageInfo> messageRefStore;
 
-   private ConcurrentHashMap<String, Map<Long, Integer>> addressMessageMap;
+   private ConcurrentMap<String, Map<Long, Integer>> addressMessageMap;
 
    private Set<Integer> pubRec;
 
@@ -53,7 +53,7 @@ public class MQTTSessionState
    // Objects track the Outbound message references
    private Map<Integer, Pair<String, Long>> outboundMessageReferenceStore;
 
-   private ConcurrentMap<String, ConcurrentHashMap<Long, Integer>> reverseOutboundReferenceStore;
+   private ConcurrentMap<String, ConcurrentMap<Long, Integer>> reverseOutboundReferenceStore;
 
    private final Object outboundLock = new Object();
 

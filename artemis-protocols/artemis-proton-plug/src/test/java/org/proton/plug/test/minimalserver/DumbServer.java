@@ -18,11 +18,12 @@ package org.proton.plug.test.minimalserver;
 
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.LinkedBlockingDeque;
 
 public class DumbServer
 {
-   static ConcurrentHashMap<String, BlockingDeque<Object>> maps = new ConcurrentHashMap<>();
+   static ConcurrentMap<String, BlockingDeque<Object>> maps = new ConcurrentHashMap<>();
 
    public static BlockingDeque getQueue(String name)
    {

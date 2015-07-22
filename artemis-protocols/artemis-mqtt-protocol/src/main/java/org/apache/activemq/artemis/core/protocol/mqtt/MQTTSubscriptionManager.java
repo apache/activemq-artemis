@@ -25,14 +25,15 @@ import org.apache.activemq.artemis.core.server.ServerConsumer;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 public class MQTTSubscriptionManager
 {
    private MQTTSession session;
 
-   private ConcurrentHashMap<Long, Integer> consumerQoSLevels;
+   private ConcurrentMap<Long, Integer> consumerQoSLevels;
 
-   private ConcurrentHashMap<String, ServerConsumer> consumers;
+   private ConcurrentMap<String, ServerConsumer> consumers;
 
    private MQTTLogger log = MQTTLogger.LOGGER;
 
