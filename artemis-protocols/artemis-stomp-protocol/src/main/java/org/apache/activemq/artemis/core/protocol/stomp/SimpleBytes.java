@@ -21,7 +21,7 @@ import java.nio.charset.StandardCharsets;
 
 public class SimpleBytes
 {
-   private int step;
+   private final int step;
    private byte[] contents;
    private int index;
 
