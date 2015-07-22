@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 public class FactoryFinder
 {
@@ -51,7 +52,7 @@ public class FactoryFinder
     */
    protected static class StandaloneObjectFactory implements ObjectFactory
    {
-      final ConcurrentHashMap<String, Class> classMap = new ConcurrentHashMap<String, Class>();
+      final ConcurrentMap<String, Class> classMap = new ConcurrentHashMap<String, Class>();
 
       public Object create(final String path) throws InstantiationException, IllegalAccessException, ClassNotFoundException, IOException
       {

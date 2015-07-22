@@ -17,7 +17,7 @@
 package org.apache.activemq.artemis.core.protocol.openwire.amq;
 
 import java.io.IOException;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.activemq.broker.region.MessageReference;
@@ -38,7 +38,7 @@ public class AMQConnectionContext
    private OpenWireProtocolManager broker; //use protocol manager to represent the broker
    private boolean inRecoveryMode;
    private AMQTransaction transaction;
-   private ConcurrentHashMap<TransactionId, AMQTransaction> transactions;
+   private ConcurrentMap<TransactionId, AMQTransaction> transactions;
    private AMQSecurityContext securityContext;
    private ConnectionId connectionId;
    private String clientId;
@@ -216,13 +216,13 @@ public class AMQConnectionContext
       this.inRecoveryMode = inRecoveryMode;
    }
 
-   public ConcurrentHashMap<TransactionId, AMQTransaction> getTransactions()
+   public ConcurrentMap<TransactionId, AMQTransaction> getTransactions()
    {
       return transactions;
    }
 
    public void setTransactions(
-         ConcurrentHashMap<TransactionId, AMQTransaction> transactions)
+         ConcurrentMap<TransactionId, AMQTransaction> transactions)
    {
       this.transactions = transactions;
    }
