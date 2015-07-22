@@ -53,6 +53,8 @@ public class TransportConstants
 
    public static final String USE_INVM_PROP_NAME = "useInvm";
 
+   /** @deprecated use PROTOCOLS_PROP_NAME */
+   @Deprecated
    public static final String PROTOCOL_PROP_NAME = "protocol";
 
    public static final String PROTOCOLS_PROP_NAME = "protocols";
