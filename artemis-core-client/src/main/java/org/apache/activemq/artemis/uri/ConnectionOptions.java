@@ -63,6 +63,17 @@ public class ConnectionOptions
       this.ha = ha;
    }
 
+   /** Se need both options (ha / HA in case of typos on the URI) */
+   public boolean isHA()
+   {
+      return ha;
+   }
+
+   public void setHA(boolean ha)
+   {
+      this.ha = ha;
+   }
+
    @Override
    public String toString()
    {

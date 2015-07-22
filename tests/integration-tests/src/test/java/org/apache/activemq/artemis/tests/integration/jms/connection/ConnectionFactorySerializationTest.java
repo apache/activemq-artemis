@@ -144,6 +144,7 @@ public class ConnectionFactorySerializationTest extends JMSTestBase
       byte[] x = serialize(cf);
       ActiveMQConnectionFactory y = deserialize(x, ActiveMQConnectionFactory.class);
       checkEquals(cf, y);
+      Assert.assertEquals(cf.isHA(), y.isHA());
       TransportConfiguration[] staticConnectors = y.getStaticConnectors();
       Assert.assertEquals(staticConnectors.length, 2);
       TransportConfiguration tc0 = cf.getStaticConnectors()[0];
