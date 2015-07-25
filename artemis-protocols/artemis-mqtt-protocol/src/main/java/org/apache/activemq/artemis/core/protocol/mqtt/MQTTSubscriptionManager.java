@@ -17,15 +17,15 @@
 
 package org.apache.activemq.artemis.core.protocol.mqtt;
 
-import io.netty.handler.codec.mqtt.MqttTopicSubscription;
-import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.core.server.Queue;
-import org.apache.activemq.artemis.core.server.ServerConsumer;
-
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+
+import io.netty.handler.codec.mqtt.MqttTopicSubscription;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.server.ServerConsumer;
 
 public class MQTTSubscriptionManager
 {
@@ -134,6 +134,7 @@ public class MQTTSubscriptionManager
       }
    }
 
+   // FIXME: Do we need this synchronzied?
    private synchronized void removeSubscription(String address) throws Exception
    {
       ServerConsumer consumer = consumers.get(address);

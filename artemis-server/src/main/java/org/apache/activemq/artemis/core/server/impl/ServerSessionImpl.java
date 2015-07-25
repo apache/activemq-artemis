@@ -543,7 +543,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener
             credits);
    }
 
-   public void createQueue(final SimpleString address,
+   public Queue createQueue(final SimpleString address,
                            final SimpleString name,
                            final SimpleString filterString,
                            final boolean temporary,
@@ -561,14 +561,16 @@ public class ServerSessionImpl implements ServerSession, FailureListener
 
       ((ActiveMQServerImpl)server).checkQueueCreationLimit(getUsername());
 
+      Queue queue;
+
       // any non-temporary JMS queue created via this method should be marked as auto-created
       if (!temporary && address.toString().startsWith(ResourceNames.JMS_QUEUE) && address.equals(name))
       {
-         server.createQueue(address, name, filterString, SimpleString.toSimpleString(getUsername()), durable, temporary, true);
+         queue = server.createQueue(address, name, filterString, SimpleString.toSimpleString(getUsername()), durable, temporary, true);
       }
       else
       {
-         server.createQueue(address, name, filterString, SimpleString.toSimpleString(getUsername()), durable, temporary);
+         queue = server.createQueue(address, name, filterString, SimpleString.toSimpleString(getUsername()), durable, temporary);
       }
 
       if (temporary)
@@ -593,6 +595,8 @@ public class ServerSessionImpl implements ServerSession, FailureListener
                                              " with filter=" + filterString + " temporary = " +
                                              temporary + " durable=" + durable + " on session user=" + this.username + ", connection=" + this.remotingConnection);
       }
+
+      return queue;
 
    }
 

@@ -331,7 +331,7 @@ public class AMQServerSession extends ServerSessionImpl
    }
 
    @Override
-   public void createQueue(final SimpleString address,
+   public Queue createQueue(final SimpleString address,
                            final SimpleString name,
                            final SimpleString filterString,
                            final boolean temporary,
@@ -339,11 +339,10 @@ public class AMQServerSession extends ServerSessionImpl
    {
       if (!this.internal)
       {
-         super.createQueue(address, name, filterString, temporary, durable);
-         return;
+         return super.createQueue(address, name, filterString, temporary, durable);
       }
 
-      server.createQueue(address, name, filterString, SimpleString.toSimpleString(getUsername()), durable, temporary);
+      Queue queue = server.createQueue(address, name, filterString, SimpleString.toSimpleString(getUsername()), durable, temporary);
 
       if (temporary)
       {
@@ -368,6 +367,7 @@ public class AMQServerSession extends ServerSessionImpl
                                              temporary + " durable=" + durable + " on session user=" + this.username + ", connection=" + this.remotingConnection);
       }
 
+      return queue;
    }
 
    @Override

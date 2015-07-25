@@ -17,13 +17,13 @@
 
 package org.apache.activemq.artemis.core.protocol.mqtt;
 
+import java.util.Iterator;
+
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.BindingQueryResult;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.ServerMessage;
-
-import java.util.Iterator;
 
 
 public class MQTTRetainMessageManager
@@ -46,11 +46,11 @@ public class MQTTRetainMessageManager
    {
       SimpleString retainAddress = new SimpleString(MQTTUtil.convertMQTTAddressFilterToCoreRetain(address));
 
-      if (!session.getServerSession().executeQueueQuery(retainAddress).isExists())
-      {
-         session.getServerSession().createQueue(retainAddress, retainAddress, null, false, true);
-      }
       Queue queue = session.getServer().locateQueue(retainAddress);
+      if (queue == null)
+      {
+         queue = session.getServerSession().createQueue(retainAddress, retainAddress, null, false, true);
+      }
 
       // Set the address of this message to the retained queue.
       message.setAddress(retainAddress);

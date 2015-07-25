@@ -87,7 +87,7 @@ public interface ServerSession
 
    void stop();
 
-   void createQueue(SimpleString address,
+   Queue createQueue(SimpleString address,
                     SimpleString name,
                     SimpleString filterString,
                     boolean temporary,
