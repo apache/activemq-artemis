@@ -46,15 +46,15 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.Pair;
+import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.journal.EncodingSupport;
-import org.apache.activemq.artemis.core.journal.IOAsyncTask;
 import org.apache.activemq.artemis.core.journal.IOCompletion;
 import org.apache.activemq.artemis.core.journal.JournalLoadInformation;
 import org.apache.activemq.artemis.core.journal.LoaderCallback;
 import org.apache.activemq.artemis.core.journal.PreparedTransactionInfo;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
-import org.apache.activemq.artemis.core.journal.SequentialFile;
-import org.apache.activemq.artemis.core.journal.SequentialFileFactory;
+import org.apache.activemq.artemis.core.io.SequentialFile;
+import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.journal.TestableJournal;
 import org.apache.activemq.artemis.core.journal.TransactionFailureCallback;
 import org.apache.activemq.artemis.core.journal.impl.dataformat.ByteArrayEncoding;
@@ -293,7 +293,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
 
       final CountDownLatch latch = new CountDownLatch(numIts * 2);
 
-      class MyIOAsyncTask implements IOCompletion
+      class MyAIOCallback implements IOCompletion
       {
          public void done()
          {
@@ -310,7 +310,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
          }
       }
 
-      final MyIOAsyncTask task = new MyIOAsyncTask();
+      final MyAIOCallback task = new MyAIOCallback();
 
       final int recordSize = 1024;
 
@@ -373,11 +373,11 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
 
       for (String fileName : fileNames)
       {
-         SequentialFile file = fileFactory.createSequentialFile(fileName, filesRepository.getMaxAIO());
+         SequentialFile file = fileFactory.createSequentialFile(fileName);
 
          if (file.size() >= SIZE_HEADER)
          {
-            file.open(1, false);
+            file.open();
 
             try
             {
@@ -2776,11 +2776,11 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
                                     final boolean completeTransaction,
                                     final boolean sync,
                                     final JournalTransaction tx,
-                                    final IOAsyncTask parameterCallback) throws Exception
+                                    final IOCallback parameterCallback) throws Exception
    {
       checkJournalIsLoaded();
 
-      final IOAsyncTask callback;
+      final IOCallback callback;
 
       final int size = encoder.getEncodeSize();
 
@@ -2896,7 +2896,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
       {
          for (String dataFile : dataFiles)
          {
-            SequentialFile file = fileFactory.createSequentialFile(dataFile, 1);
+            SequentialFile file = fileFactory.createSequentialFile(dataFile);
             if (file.exists())
             {
                file.delete();
@@ -2905,7 +2905,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
 
          for (String newFile : newFiles)
          {
-            SequentialFile file = fileFactory.createSequentialFile(newFile, 1);
+            SequentialFile file = fileFactory.createSequentialFile(newFile);
             if (file.exists())
             {
                final String originalName = file.getFileName();
@@ -2916,8 +2916,8 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
 
          for (Pair<String, String> rename : renames)
          {
-            SequentialFile fileTmp = fileFactory.createSequentialFile(rename.getA(), 1);
-            SequentialFile fileTo = fileFactory.createSequentialFile(rename.getB(), 1);
+            SequentialFile fileTmp = fileFactory.createSequentialFile(rename.getA());
+            SequentialFile fileTo = fileFactory.createSequentialFile(rename.getB());
             // We should do the rename only if the tmp file still exist, or else we could
             // delete a valid file depending on where the crash occurred during the control file delete
             if (fileTmp.exists())
@@ -2951,7 +2951,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
          for (String fileToDelete : leftFiles)
          {
             ActiveMQJournalLogger.LOGGER.deletingOrphanedFile(fileToDelete);
-            SequentialFile file = fileFactory.createSequentialFile(fileToDelete, 1);
+            SequentialFile file = fileFactory.createSequentialFile(fileToDelete);
             file.delete();
          }
       }

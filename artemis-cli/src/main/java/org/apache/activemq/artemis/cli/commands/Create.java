@@ -26,6 +26,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.attribute.PosixFilePermission;
+import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -36,8 +37,10 @@ import java.util.regex.Pattern;
 import io.airlift.airline.Arguments;
 import io.airlift.airline.Command;
 import io.airlift.airline.Option;
-import org.apache.activemq.artemis.core.asyncio.impl.AsynchronousFileImpl;
+import org.apache.activemq.artemis.cli.commands.util.SyncCalculation;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
+import org.apache.activemq.artemis.jlibaio.LibaioContext;
+import org.apache.activemq.artemis.jlibaio.LibaioFile;
 
 import static java.nio.file.attribute.PosixFilePermission.GROUP_EXECUTE;
 import static java.nio.file.attribute.PosixFilePermission.GROUP_READ;
@@ -84,6 +87,7 @@ public class Create extends InputAbstract
    public static final String ETC_CLUSTER_SETTINGS_TXT = "etc/cluster-settings.txt";
    public static final String ETC_CONNECTOR_SETTINGS_TXT = "etc/connector-settings.txt";
    public static final String ETC_BOOTSTRAP_WEB_SETTINGS_TXT = "etc/bootstrap-web-settings.txt";
+   public static final String ETC_JOURNAL_BUFFER_SETTINGS = "etc/journal-buffer-settings.txt";
 
    @Arguments(description = "The instance directory to hold the broker's configuration and data.  Path must be writable.", required = true)
    File directory;
@@ -141,6 +145,9 @@ public class Create extends InputAbstract
 
    @Option(name = "--require-login", description = "This will configure security to require user / password, opposite of --allow-anonymous")
    Boolean requireLogin = null;
+
+   @Option(name = "--no-sync-test", description = "Disable the calculation for the buffer")
+   boolean noSyncTest;
 
    @Option(name = "--user", description = "The username (Default: input)")
    String user;
@@ -529,12 +536,16 @@ public class Create extends InputAbstract
          filters.put("${shared-store.settings}", "");
       }
 
-      if (IS_WINDOWS || !AsynchronousFileImpl.isLoaded())
+      boolean aio;
+
+      if (IS_WINDOWS || !supportsLibaio())
       {
+         aio = false;
          filters.put("${journal.settings}", "NIO");
       }
       else
       {
+         aio = true;
          filters.put("${journal.settings}", "ASYNCIO");
       }
 
@@ -590,7 +601,8 @@ public class Create extends InputAbstract
       new File(directory, "etc").mkdirs();
       new File(directory, "log").mkdirs();
       new File(directory, "tmp").mkdirs();
-      new File(directory, "data").mkdirs();
+      File dataFolder = new File(directory, "data");
+      dataFolder.mkdirs();
 
       if (javaOptions == null || javaOptions.length() == 0)
       {
@@ -638,7 +650,7 @@ public class Create extends InputAbstract
          filters.put("${bootstrap-web-settings}", applyFilters(readTextFile(ETC_BOOTSTRAP_WEB_SETTINGS_TXT), filters));
       }
 
-
+      performSyncCalc(filters, aio, dataFolder);
 
       write(ETC_BOOTSTRAP_XML, filters, false);
       write(ETC_BROKER_XML, filters, false);
@@ -692,6 +704,76 @@ public class Create extends InputAbstract
       }
 
       return null;
+   }
+
+   private void performSyncCalc(HashMap<String, String> filters, boolean aio, File dataFolder)
+   {
+      if (noSyncTest)
+      {
+         filters.put("${journal-buffer.settings}", "");
+      }
+      else
+      {
+         try
+         {
+            int writes = 250;
+            System.out.println("");
+            System.out.println("Performing write sync calculation...");
+
+            long time = SyncCalculation.syncTest(dataFolder, 4096, writes, 5, verbose, aio);
+            long nanoseconds = SyncCalculation.toNanos(time, writes);
+            double writesPerMillisecond = (double)writes / (double) time;
+
+            String writesPerMillisecondStr = new DecimalFormat("###.##").format(writesPerMillisecond);
+
+            HashMap<String, String> syncFilter = new HashMap<String, String>();
+            syncFilter.put("${nanoseconds}", Long.toString(nanoseconds));
+            syncFilter.put("${writesPerMillisecond}", writesPerMillisecondStr);
+
+            System.out.println("done! Your system can make " + writesPerMillisecondStr +
+                    " writes per millisecond, your journal-buffer-timeout will be " + nanoseconds);
+
+            filters.put("${journal-buffer.settings}", applyFilters(readTextFile(ETC_JOURNAL_BUFFER_SETTINGS), syncFilter));
+
+         }
+         catch (Exception e)
+         {
+            filters.put("${journal-buffer.settings}", "");
+            e.printStackTrace();
+            System.err.println("Couldn't perform sync calculation, using default values");
+         }
+      }
+   }
+
+   private boolean supportsLibaio()
+   {
+      if (LibaioContext.isLoaded())
+      {
+         try (LibaioContext context = new LibaioContext(1, true))
+         {
+            File tmpFile = new File(directory, "validateAIO.bin");
+            boolean supportsLibaio = true;
+            try
+            {
+               LibaioFile file = context.openFile(tmpFile, true);
+               file.close();
+            }
+            catch (Exception e)
+            {
+               supportsLibaio = false;
+            }
+            tmpFile.delete();
+            if (!supportsLibaio)
+            {
+               System.err.println("The filesystem used on " + directory + " doesn't support libAIO and O_DIRECT files, switching journal-type to NIO");
+            }
+            return supportsLibaio;
+         }
+      }
+      else
+      {
+         return false;
+      }
    }
 
    private void makeExec(String path) throws IOException

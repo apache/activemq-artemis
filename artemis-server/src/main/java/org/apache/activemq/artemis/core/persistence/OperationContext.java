@@ -16,7 +16,7 @@
  */
 package org.apache.activemq.artemis.core.persistence;
 
-import org.apache.activemq.artemis.core.journal.IOAsyncTask;
+import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.journal.IOCompletion;
 
 /**
@@ -28,7 +28,7 @@ public interface OperationContext extends IOCompletion
 {
    /** Execute the task when all IO operations are complete,
     *  Or execute it immediately if nothing is pending.  */
-   void executeOnCompletion(IOAsyncTask runnable);
+   void executeOnCompletion(IOCallback runnable);
 
    void replicationLineUp();
 

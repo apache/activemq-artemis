@@ -34,4 +34,9 @@ public final class ActiveMQNativeIOError extends ActiveMQException
    {
       super(ActiveMQExceptionType.NATIVE_ERROR_CANT_INITIALIZE_AIO, msg);
    }
+
+   public ActiveMQNativeIOError(String msg, Throwable e)
+   {
+      super(ActiveMQExceptionType.NATIVE_ERROR_CANT_INITIALIZE_AIO, msg, e);
+   }
 }

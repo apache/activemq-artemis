@@ -16,9 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import org.apache.activemq.artemis.jlibaio.LibaioContext;
 import org.junit.Test;
 
-import org.apache.activemq.artemis.core.asyncio.impl.AsynchronousFileImpl;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 
 /**
@@ -45,7 +45,7 @@ public class LibaioDependencyCheckTest extends ActiveMQTestBase
    {
       if (System.getProperties().get("os.name").equals("Linux"))
       {
-         assertTrue("Libaio is not available on this platform", AsynchronousFileImpl.isLoaded());
+         assertTrue("Libaio is not available on this platform", LibaioContext.isLoaded());
       }
    }
 

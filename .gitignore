@@ -17,4 +17,4 @@ ratReport.txt
 **/cmake_install.cmake
 
 # this file is generated
-artemis-native/src/main/c/org_apache_activemq_artemis_core_libaio_Native.h
+artemis-native/src/main/c/org_apache_activemq_artemis_jlibaio_LibaioContext.h

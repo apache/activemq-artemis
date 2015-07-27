@@ -58,8 +58,8 @@ import javax.transaction.xa.Xid;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.ActiveMQInternalErrorException;
+import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.exception.ActiveMQXAException;
-import org.apache.activemq.artemis.core.journal.IOAsyncTask;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CreateQueueMessage;
@@ -614,7 +614,7 @@ public class ServerSessionPacketHandler implements ChannelHandler
                              final boolean flush,
                              final boolean closeChannel)
    {
-      storageManager.afterCompleteOperations(new IOAsyncTask()
+      storageManager.afterCompleteOperations(new IOCallback()
       {
          public void onError(final int errorCode, final String errorMessage)
          {

@@ -32,7 +32,7 @@ import org.apache.activemq.artemis.core.journal.LoaderCallback;
 import org.apache.activemq.artemis.core.journal.PreparedTransactionInfo;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
 import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
-import org.apache.activemq.artemis.core.journal.impl.NIOSequentialFileFactory;
+import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
 import org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
@@ -297,7 +297,7 @@ public class RedeliveryConsumerTest extends ActiveMQTestBase
                                             2,
                                             0,
                                             0,
-                                            new NIOSequentialFileFactory(server.getConfiguration().getJournalLocation()),
+                                            new NIOSequentialFileFactory(server.getConfiguration().getJournalLocation(), 1),
                                             "activemq-data",
                                             "amq",
                                             1);

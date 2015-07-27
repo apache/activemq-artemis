@@ -53,22 +53,22 @@ import org.apache.activemq.artemis.api.core.ActiveMQInternalErrorException;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.journal.EncodingSupport;
-import org.apache.activemq.artemis.core.journal.IOAsyncTask;
-import org.apache.activemq.artemis.core.journal.IOCriticalErrorListener;
+import org.apache.activemq.artemis.core.io.IOCriticalErrorListener;
 import org.apache.activemq.artemis.core.journal.Journal;
 import org.apache.activemq.artemis.core.journal.JournalLoadInformation;
 import org.apache.activemq.artemis.core.journal.PreparedTransactionInfo;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
-import org.apache.activemq.artemis.core.journal.SequentialFile;
-import org.apache.activemq.artemis.core.journal.SequentialFileFactory;
+import org.apache.activemq.artemis.core.io.SequentialFile;
+import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.journal.TransactionFailureCallback;
-import org.apache.activemq.artemis.core.journal.impl.AIOSequentialFileFactory;
+import org.apache.activemq.artemis.core.io.aio.AIOSequentialFileFactory;
 import org.apache.activemq.artemis.core.journal.impl.JournalFile;
 import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
-import org.apache.activemq.artemis.core.journal.impl.NIOSequentialFileFactory;
+import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
 import org.apache.activemq.artemis.core.message.impl.MessageInternal;
 import org.apache.activemq.artemis.core.paging.PageTransactionInfo;
 import org.apache.activemq.artemis.core.paging.PagedMessage;
@@ -236,7 +236,9 @@ public class JournalStorageManager implements StorageManager
       }
 
 
-      SequentialFileFactory bindingsFF = new NIOSequentialFileFactory(config.getBindingsLocation(), criticalErrorListener);
+      SequentialFileFactory bindingsFF = new NIOSequentialFileFactory(config.getBindingsLocation(),
+                                                                      criticalErrorListener,
+                                                                      config.getJournalMaxIO_NIO());
 
       Journal localBindings = new JournalImpl(1024 * 1024,
                                               2,
@@ -261,6 +263,7 @@ public class JournalStorageManager implements StorageManager
          journalFF = new AIOSequentialFileFactory(config.getJournalLocation(),
                                                   config.getJournalBufferSize_AIO(),
                                                   config.getJournalBufferTimeout_AIO(),
+                                                  config.getJournalMaxIO_AIO(),
                                                   config.isLogJournalWriteRate(),
                                                   criticalErrorListener);
       }
@@ -271,6 +274,7 @@ public class JournalStorageManager implements StorageManager
                                                   true,
                                                   config.getJournalBufferSize_NIO(),
                                                   config.getJournalBufferTimeout_NIO(),
+                                                  config.getJournalMaxIO_NIO(),
                                                   config.isLogJournalWriteRate(),
                                                   criticalErrorListener);
       }
@@ -296,7 +300,8 @@ public class JournalStorageManager implements StorageManager
 
       largeMessagesDirectory = config.getLargeMessagesDirectory();
 
-      largeMessagesFactory = new NIOSequentialFileFactory(config.getLargeMessagesLocation(), false, criticalErrorListener);
+      largeMessagesFactory = new NIOSequentialFileFactory(config.getLargeMessagesLocation(), false, criticalErrorListener,
+                                                          1);
 
       perfBlastPages = config.getJournalPerfBlastPages();
 
@@ -572,7 +577,7 @@ public class JournalStorageManager implements StorageManager
          String fileName = entry.getValue().getA();
          final long id = entry.getKey();
          long size = entry.getValue().getB();
-         SequentialFile seqFile = largeMessagesFactory.createSequentialFile(fileName, 1);
+         SequentialFile seqFile = largeMessagesFactory.createSequentialFile(fileName);
          if (!seqFile.exists())
             continue;
          replicator.syncLargeMessageFile(seqFile, size, id);
@@ -608,7 +613,7 @@ public class JournalStorageManager implements StorageManager
          if (!largeMessagesToDelete.contains(id))
          {
             idList.add(id);
-            SequentialFile seqFile = largeMessagesFactory.createSequentialFile(filename, 1);
+            SequentialFile seqFile = largeMessagesFactory.createSequentialFile(filename);
             long size = seqFile.size();
             largeMessages.put(id, new Pair<String, Long>(filename, size));
          }
@@ -747,7 +752,7 @@ public class JournalStorageManager implements StorageManager
       return new OperationContextImpl(executor1);
    }
 
-   public void afterCompleteOperations(final IOAsyncTask run)
+   public void afterCompleteOperations(final IOCallback run)
    {
       getContext().executeOnCompletion(run);
    }
@@ -2498,7 +2503,7 @@ public class JournalStorageManager implements StorageManager
 
    public SequentialFile createFileForLargeMessage(final long messageID, LargeMessageExtension extension)
    {
-      return largeMessagesFactory.createSequentialFile(messageID + extension.getExtension(), -1);
+      return largeMessagesFactory.createSequentialFile(messageID + extension.getExtension());
    }
 
 
@@ -2788,7 +2793,7 @@ public class JournalStorageManager implements StorageManager
          List<String> tmpFiles = largeMessagesFactory.listFiles("tmp");
          for (String tmpFile : tmpFiles)
          {
-            SequentialFile file = largeMessagesFactory.createSequentialFile(tmpFile, -1);
+            SequentialFile file = largeMessagesFactory.createSequentialFile(tmpFile);
             file.delete();
          }
       }
@@ -2830,7 +2835,7 @@ public class JournalStorageManager implements StorageManager
          return DummyOperationContext.instance;
       }
 
-      public void executeOnCompletion(final IOAsyncTask runnable)
+      public void executeOnCompletion(final IOCallback runnable)
       {
          // There are no executeOnCompletion calls while using the DummyOperationContext
          // However we keep the code here for correctness

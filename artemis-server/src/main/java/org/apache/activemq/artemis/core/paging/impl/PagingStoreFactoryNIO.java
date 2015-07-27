@@ -29,9 +29,9 @@ import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.core.journal.IOCriticalErrorListener;
-import org.apache.activemq.artemis.core.journal.SequentialFileFactory;
-import org.apache.activemq.artemis.core.journal.impl.NIOSequentialFileFactory;
+import org.apache.activemq.artemis.core.io.IOCriticalErrorListener;
+import org.apache.activemq.artemis.core.io.SequentialFileFactory;
+import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
 import org.apache.activemq.artemis.core.paging.PagingManager;
 import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.paging.PagingStoreFactory;
@@ -208,6 +208,6 @@ public class PagingStoreFactoryNIO implements PagingStoreFactory
 
    private SequentialFileFactory newFileFactory(final String directoryName)
    {
-      return new NIOSequentialFileFactory(new File(directory, directoryName), false, critialErrorListener);
+      return new NIOSequentialFileFactory(new File(directory, directoryName), false, critialErrorListener, 1);
    }
 }

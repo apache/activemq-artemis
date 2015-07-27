@@ -25,10 +25,10 @@ import java.util.concurrent.Executor;
 
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.core.journal.IOAsyncTask;
+import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.journal.Journal;
 import org.apache.activemq.artemis.core.journal.JournalLoadInformation;
-import org.apache.activemq.artemis.core.journal.SequentialFile;
+import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.message.impl.MessageInternal;
 import org.apache.activemq.artemis.core.paging.PageTransactionInfo;
 import org.apache.activemq.artemis.core.paging.PagedMessage;
@@ -99,7 +99,7 @@ public interface StorageManager extends IDGenerator, ActiveMQComponent
 
    void pageWrite(PagedMessage message, int pageNumber);
 
-   void afterCompleteOperations(IOAsyncTask run);
+   void afterCompleteOperations(IOCallback run);
 
    /**
     * Block until the operations are done.

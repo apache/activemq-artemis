@@ -25,7 +25,7 @@ import org.apache.activemq.artemis.core.journal.Journal;
 import org.apache.activemq.artemis.core.journal.PreparedTransactionInfo;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
 import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
-import org.apache.activemq.artemis.core.journal.impl.NIOSequentialFileFactory;
+import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.persistence.impl.journal.BatchingIDGenerator;
 import org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds;
@@ -39,7 +39,7 @@ public class BatchIDGeneratorUnitTest extends ActiveMQTestBase
    @Test
    public void testSequence() throws Exception
    {
-      NIOSequentialFileFactory factory = new NIOSequentialFileFactory(new File(getTestDir()));
+      NIOSequentialFileFactory factory = new NIOSequentialFileFactory(new File(getTestDir()), 1);
       Journal journal = new JournalImpl(10 * 1024, 2, 0, 0, factory, "activemq-bindings", "bindings", 1);
 
       journal.start();

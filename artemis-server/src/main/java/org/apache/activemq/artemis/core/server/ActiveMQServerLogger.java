@@ -43,10 +43,10 @@ import io.netty.channel.Channel;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.client.impl.ServerLocatorInternal;
 import org.apache.activemq.artemis.core.config.Configuration;
-import org.apache.activemq.artemis.core.journal.IOAsyncTask;
-import org.apache.activemq.artemis.core.journal.SequentialFile;
+import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.journal.impl.JournalFile;
 import org.apache.activemq.artemis.core.paging.cursor.PagePosition;
 import org.apache.activemq.artemis.core.paging.cursor.PageSubscription;
@@ -522,8 +522,8 @@ public interface ActiveMQServerLogger extends BasicLogger
    void lareMessageErrorCopying(@Cause Exception e, LargeServerMessage largeServerMessage);
 
    @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 222054, value = "Error on executing IOAsyncTask", format = Message.Format.MESSAGE_FORMAT)
-   void errorExecutingIOAsyncTask(@Cause Throwable t);
+   @Message(id = 222054, value = "Error on executing IOCallback", format = Message.Format.MESSAGE_FORMAT)
+   void errorExecutingAIOCallback(@Cause Throwable t);
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 222055, value = "Error on deleting duplicate cache", format = Message.Format.MESSAGE_FORMAT)
@@ -1200,7 +1200,7 @@ public interface ActiveMQServerLogger extends BasicLogger
 
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 224007, value = "page subscription = {0} error={1}", format = Message.Format.MESSAGE_FORMAT)
-   void pageSubscriptionError(IOAsyncTask ioAsyncTask, String error);
+   void pageSubscriptionError(IOCallback IOCallback, String error);
 
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 224008, value = "Failed to store id", format = Message.Format.MESSAGE_FORMAT)

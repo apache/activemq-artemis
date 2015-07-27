@@ -16,7 +16,7 @@
  */
 package org.apache.activemq.artemis.core.journal.impl;
 
-import org.apache.activemq.artemis.core.journal.SequentialFile;
+import org.apache.activemq.artemis.core.io.SequentialFile;
 
 public interface JournalFile
 {

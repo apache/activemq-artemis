@@ -16,7 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.stress.journal;
 
-import org.apache.activemq.artemis.core.journal.impl.AIOSequentialFileFactory;
+import org.apache.activemq.artemis.core.io.aio.AIOSequentialFileFactory;
 import org.apache.activemq.artemis.core.server.JournalType;
 import org.junit.BeforeClass;
 

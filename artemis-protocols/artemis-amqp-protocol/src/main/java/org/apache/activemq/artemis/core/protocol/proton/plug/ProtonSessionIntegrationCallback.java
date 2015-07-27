@@ -20,6 +20,7 @@ package org.apache.activemq.artemis.core.protocol.proton.plug;
 import java.util.concurrent.Executor;
 
 import io.netty.buffer.ByteBuf;
+import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.qpid.proton.amqp.Binary;
 import org.apache.qpid.proton.amqp.transport.AmqpError;
 import org.apache.qpid.proton.amqp.transport.ErrorCondition;
@@ -30,7 +31,6 @@ import org.apache.qpid.proton.jms.EncodedMessage;
 import org.apache.qpid.proton.message.ProtonJMessage;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
-import org.apache.activemq.artemis.core.journal.IOAsyncTask;
 import org.apache.activemq.artemis.core.protocol.proton.ProtonProtocolManager;
 import org.apache.activemq.artemis.core.server.QueueQueryResult;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
@@ -275,7 +275,7 @@ public class ProtonSessionIntegrationCallback implements AMQPSessionCallback, Se
 
       serverSession.send(message, false);
 
-      manager.getServer().getStorageManager().afterCompleteOperations(new IOAsyncTask()
+      manager.getServer().getStorageManager().afterCompleteOperations(new IOCallback()
       {
          @Override
          public void done()

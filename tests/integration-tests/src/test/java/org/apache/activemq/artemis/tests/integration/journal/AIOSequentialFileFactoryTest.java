@@ -19,9 +19,9 @@ import java.io.File;
 import java.nio.ByteBuffer;
 
 import org.apache.activemq.artemis.tests.unit.core.journal.impl.SequentialFileFactoryTestBase;
-import org.apache.activemq.artemis.core.journal.SequentialFile;
-import org.apache.activemq.artemis.core.journal.SequentialFileFactory;
-import org.apache.activemq.artemis.core.journal.impl.AIOSequentialFileFactory;
+import org.apache.activemq.artemis.core.io.SequentialFile;
+import org.apache.activemq.artemis.core.io.SequentialFileFactory;
+import org.apache.activemq.artemis.core.io.aio.AIOSequentialFileFactory;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -38,13 +38,13 @@ public class AIOSequentialFileFactoryTest extends SequentialFileFactoryTestBase
    @Override
    protected SequentialFileFactory createFactory(String folder)
    {
-      return new AIOSequentialFileFactory(new File(folder));
+      return new AIOSequentialFileFactory(new File(folder), 10);
    }
 
    @Test
    public void testBuffer() throws Exception
    {
-      SequentialFile file = factory.createSequentialFile("filtetmp.log", 10);
+      SequentialFile file = factory.createSequentialFile("filtetmp.log");
       file.open();
       ByteBuffer buff = factory.newBuffer(10);
       Assert.assertEquals(512, buff.limit());

@@ -17,8 +17,8 @@
 package org.apache.activemq.artemis.tests.integration.journal;
 
 import org.apache.activemq.artemis.core.journal.EncodingSupport;
-import org.apache.activemq.artemis.core.journal.SequentialFileFactory;
-import org.apache.activemq.artemis.core.journal.impl.NIOSequentialFileFactory;
+import org.apache.activemq.artemis.core.io.SequentialFileFactory;
+import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
 import org.apache.activemq.artemis.tests.unit.core.journal.impl.JournalImplTestBase;
 import org.apache.activemq.artemis.tests.unit.core.journal.impl.fakes.SimpleEncoding;
 import org.junit.Test;
@@ -32,7 +32,7 @@ public class NIOImportExportTest extends JournalImplTestBase
    @Override
    protected SequentialFileFactory getFileFactory() throws Exception
    {
-      return new NIOSequentialFileFactory(getTestDirfile(), true);
+      return new NIOSequentialFileFactory(getTestDirfile(), true, 1);
    }
 
    // Constants -----------------------------------------------------

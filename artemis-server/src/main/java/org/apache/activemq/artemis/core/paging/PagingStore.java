@@ -158,7 +158,7 @@ public interface PagingStore extends ActiveMQComponent
    /**
     * Sends the pages with given IDs to the {@link ReplicationManager}.
     * <p>
-    * Sending is done here to avoid exposing the internal {@link org.apache.activemq.artemis.core.journal.SequentialFile}s.
+    * Sending is done here to avoid exposing the internal {@link SequentialFile}s.
     *
     * @param replicator
     * @param pageIds

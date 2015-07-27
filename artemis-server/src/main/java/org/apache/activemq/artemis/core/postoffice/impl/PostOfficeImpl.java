@@ -41,8 +41,8 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.management.CoreNotificationType;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
 import org.apache.activemq.artemis.api.core.management.NotificationType;
+import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.filter.Filter;
-import org.apache.activemq.artemis.core.journal.IOAsyncTask;
 import org.apache.activemq.artemis.core.message.impl.MessageImpl;
 import org.apache.activemq.artemis.core.paging.PagingManager;
 import org.apache.activemq.artemis.core.paging.PagingStore;
@@ -1179,7 +1179,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
       {
          // This will use the same thread if there are no pending operations
          // avoiding a context switch on this case
-         storageManager.afterCompleteOperations(new IOAsyncTask()
+         storageManager.afterCompleteOperations(new IOCallback()
          {
             public void onError(final int errorCode, final String errorMessage)
             {
@@ -1249,7 +1249,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
          queues.addAll(durableQueues);
          queues.addAll(nonDurableQueues);
 
-         storageManager.afterCompleteOperations(new IOAsyncTask()
+         storageManager.afterCompleteOperations(new IOCallback()
          {
 
             public void onError(int errorCode, String errorMessage)

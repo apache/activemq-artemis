@@ -16,11 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.unit.core.journal.impl;
 
-import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
-import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
-import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.Test;
-
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,11 +23,14 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
+import org.apache.activemq.artemis.core.io.IOCallback;
+import org.apache.activemq.artemis.core.io.buffer.TimedBuffer;
+import org.apache.activemq.artemis.core.io.buffer.TimedBufferObserver;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
-
-import org.apache.activemq.artemis.core.journal.IOAsyncTask;
-import org.apache.activemq.artemis.core.journal.impl.TimedBuffer;
-import org.apache.activemq.artemis.core.journal.impl.TimedBufferObserver;
+import org.junit.Test;
 
 public class TimedBufferTest extends ActiveMQTestBase
 {
@@ -49,7 +47,7 @@ public class TimedBufferTest extends ActiveMQTestBase
 
    // Public --------------------------------------------------------
 
-   IOAsyncTask dummyCallback = new IOAsyncTask()
+   IOCallback dummyCallback = new IOCallback()
    {
 
       public void done()
@@ -69,7 +67,7 @@ public class TimedBufferTest extends ActiveMQTestBase
       final AtomicInteger flushTimes = new AtomicInteger(0);
       class TestObserver implements TimedBufferObserver
       {
-         public void flushBuffer(final ByteBuffer buffer, final boolean sync, final List<IOAsyncTask> callbacks)
+         public void flushBuffer(final ByteBuffer buffer, final boolean sync, final List<IOCallback> callbacks)
          {
             buffers.add(buffer);
             flushTimes.incrementAndGet();
@@ -144,7 +142,7 @@ public class TimedBufferTest extends ActiveMQTestBase
       final AtomicInteger flushTimes = new AtomicInteger(0);
       class TestObserver implements TimedBufferObserver
       {
-         public void flushBuffer(final ByteBuffer buffer, final boolean sync, final List<IOAsyncTask> callbacks)
+         public void flushBuffer(final ByteBuffer buffer, final boolean sync, final List<IOCallback> callbacks)
          {
             buffers.add(buffer);
             flushTimes.incrementAndGet();
@@ -235,7 +233,7 @@ public class TimedBufferTest extends ActiveMQTestBase
    {
       class TestObserver implements TimedBufferObserver
       {
-         public void flushBuffer(final ByteBuffer buffer, final boolean sync, final List<IOAsyncTask> callbacks)
+         public void flushBuffer(final ByteBuffer buffer, final boolean sync, final List<IOCallback> callbacks)
          {
          }
 
@@ -321,7 +319,7 @@ public class TimedBufferTest extends ActiveMQTestBase
    {
       class TestObserver implements TimedBufferObserver
       {
-         public void flushBuffer(final ByteBuffer buffer, final boolean sync, final List<IOAsyncTask> callbacks)
+         public void flushBuffer(final ByteBuffer buffer, final boolean sync, final List<IOCallback> callbacks)
          {
          }
 

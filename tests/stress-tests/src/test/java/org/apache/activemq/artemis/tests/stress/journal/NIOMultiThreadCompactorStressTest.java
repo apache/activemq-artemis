@@ -32,14 +32,14 @@ import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.apache.activemq.artemis.core.asyncio.impl.AsynchronousFileImpl;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.journal.PreparedTransactionInfo;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
 import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
-import org.apache.activemq.artemis.core.journal.impl.NIOSequentialFileFactory;
+import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.JournalType;
+import org.apache.activemq.artemis.jlibaio.LibaioContext;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Before;
@@ -90,7 +90,7 @@ public class NIOMultiThreadCompactorStressTest extends ActiveMQTestBase
          internalTestProduceAndConsume();
          stopServer();
 
-         NIOSequentialFileFactory factory = new NIOSequentialFileFactory(new File(getJournalDir()));
+         NIOSequentialFileFactory factory = new NIOSequentialFileFactory(new File(getJournalDir()), 1);
          JournalImpl journal = new JournalImpl(ActiveMQDefaultConfiguration.getDefaultJournalFileSize(),
                                                2,
                                                0,
@@ -339,7 +339,7 @@ public class NIOMultiThreadCompactorStressTest extends ActiveMQTestBase
 
    private void setupServer(JournalType journalType) throws Exception
    {
-      if (!AsynchronousFileImpl.isLoaded())
+      if (!LibaioContext.isLoaded())
       {
          journalType = JournalType.NIO;
       }

@@ -33,7 +33,7 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.management.CoreNotificationType;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
-import org.apache.activemq.artemis.core.journal.IOAsyncTask;
+import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.postoffice.BindingType;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyServerConnection;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
@@ -357,7 +357,7 @@ class StompProtocolManager implements ProtocolManager<StompFrameInterceptor>, No
 
    public void sendReply(final StompConnection connection, final StompFrame frame)
    {
-      server.getStorageManager().afterCompleteOperations(new IOAsyncTask()
+      server.getStorageManager().afterCompleteOperations(new IOCallback()
       {
          public void onError(final int errorCode, final String errorMessage)
          {

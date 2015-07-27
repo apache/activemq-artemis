@@ -15,19 +15,16 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.timing.core.journal.impl;
-import org.apache.activemq.artemis.tests.unit.core.journal.impl.JournalImplTestBase;
-import org.junit.After;
-
-import org.junit.Test;
-
 import java.util.ArrayList;
 
-import org.junit.Assert;
-
-import org.apache.activemq.artemis.core.asyncio.impl.AsynchronousFileImpl;
 import org.apache.activemq.artemis.core.journal.PreparedTransactionInfo;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
+import org.apache.activemq.artemis.jlibaio.LibaioContext;
 import org.apache.activemq.artemis.tests.unit.UnitTestLogger;
+import org.apache.activemq.artemis.tests.unit.core.journal.impl.JournalImplTestBase;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Test;
 
 public abstract class JournalImplTestUnit extends JournalImplTestBase
 {
@@ -39,7 +36,7 @@ public abstract class JournalImplTestUnit extends JournalImplTestBase
    {
       super.tearDown();
 
-      Assert.assertEquals(0, AsynchronousFileImpl.getTotalMaxIO());
+      Assert.assertEquals(0, LibaioContext.getTotalMaxIO());
    }
 
    @Test

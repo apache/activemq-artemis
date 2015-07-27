@@ -27,10 +27,10 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.core.journal.IOAsyncTask;
+import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.journal.Journal;
 import org.apache.activemq.artemis.core.journal.JournalLoadInformation;
-import org.apache.activemq.artemis.core.journal.SequentialFile;
+import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.message.impl.MessageInternal;
 import org.apache.activemq.artemis.core.paging.PageTransactionInfo;
 import org.apache.activemq.artemis.core.paging.PagedMessage;
@@ -112,7 +112,7 @@ public class NullStorageManager implements StorageManager
       }
 
       @Override
-      public void executeOnCompletion(final IOAsyncTask runnable)
+      public void executeOnCompletion(final IOCallback runnable)
       {
          runnable.done();
       }
@@ -359,7 +359,7 @@ public class NullStorageManager implements StorageManager
    }
 
    @Override
-   public void afterCompleteOperations(final IOAsyncTask run)
+   public void afterCompleteOperations(final IOCallback run)
    {
       run.done();
    }

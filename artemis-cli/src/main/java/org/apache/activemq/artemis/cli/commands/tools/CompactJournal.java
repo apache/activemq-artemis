@@ -22,9 +22,9 @@ import io.airlift.airline.Command;
 import org.apache.activemq.artemis.cli.commands.Action;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.core.config.Configuration;
-import org.apache.activemq.artemis.core.journal.IOCriticalErrorListener;
+import org.apache.activemq.artemis.core.io.IOCriticalErrorListener;
 import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
-import org.apache.activemq.artemis.core.journal.impl.NIOSequentialFileFactory;
+import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
 
 @Command(name = "compact", description = "Compacts the journal of a non running server")
 public final class CompactJournal extends DataAbstract implements Action
@@ -54,7 +54,7 @@ public final class CompactJournal extends DataAbstract implements Action
                                      final int fileSize,
                                      final IOCriticalErrorListener listener) throws Exception
    {
-      NIOSequentialFileFactory nio = new NIOSequentialFileFactory(directory, listener);
+      NIOSequentialFileFactory nio = new NIOSequentialFileFactory(directory, listener, 1);
 
       JournalImpl journal = new JournalImpl(fileSize, minFiles, 0, 0, nio, journalPrefix, journalSuffix, 1);
 

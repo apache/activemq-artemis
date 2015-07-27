@@ -19,10 +19,10 @@ package org.apache.activemq.artemis.tests.unit.core.journal.impl;
 import java.io.File;
 import java.nio.ByteBuffer;
 
-import org.apache.activemq.artemis.core.asyncio.impl.AsynchronousFileImpl;
-import org.apache.activemq.artemis.core.journal.SequentialFileFactory;
-import org.apache.activemq.artemis.core.journal.impl.AIOSequentialFileFactory;
-import org.apache.activemq.artemis.core.journal.impl.NIOSequentialFileFactory;
+import org.apache.activemq.artemis.core.io.SequentialFileFactory;
+import org.apache.activemq.artemis.core.io.aio.AIOSequentialFileFactory;
+import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
+import org.apache.activemq.artemis.jlibaio.LibaioContext;
 import org.apache.activemq.artemis.tests.unit.core.journal.impl.fakes.FakeSequentialFileFactory;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
@@ -44,7 +44,7 @@ public class CleanBufferTest extends ActiveMQTestBase
    @Test
    public void testCleanOnNIO()
    {
-      SequentialFileFactory factory = new NIOSequentialFileFactory(new File("Whatever"));
+      SequentialFileFactory factory = new NIOSequentialFileFactory(new File("Whatever"), 1);
 
       testBuffer(factory);
    }
@@ -52,9 +52,9 @@ public class CleanBufferTest extends ActiveMQTestBase
    @Test
    public void testCleanOnAIO()
    {
-      if (AsynchronousFileImpl.isLoaded())
+      if (LibaioContext.isLoaded())
       {
-         SequentialFileFactory factory = new AIOSequentialFileFactory(new File("Whatever"));
+         SequentialFileFactory factory = new AIOSequentialFileFactory(new File("Whatever"), 50);
 
          testBuffer(factory);
       }
@@ -70,6 +70,7 @@ public class CleanBufferTest extends ActiveMQTestBase
 
    private void testBuffer(final SequentialFileFactory factory)
    {
+      factory.start();
       ByteBuffer buffer = factory.newBuffer(100);
 
       try
@@ -107,6 +108,7 @@ public class CleanBufferTest extends ActiveMQTestBase
       finally
       {
          factory.releaseBuffer(buffer);
+         factory.stop();
       }
    }
 

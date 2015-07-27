@@ -27,12 +27,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
-import org.apache.activemq.artemis.core.asyncio.BufferCallback;
+import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.journal.EncodingSupport;
-import org.apache.activemq.artemis.core.journal.IOAsyncTask;
-import org.apache.activemq.artemis.core.journal.SequentialFile;
-import org.apache.activemq.artemis.core.journal.SequentialFileFactory;
-import org.apache.activemq.artemis.core.journal.impl.TimedBuffer;
+import org.apache.activemq.artemis.core.io.SequentialFile;
+import org.apache.activemq.artemis.core.io.SequentialFileFactory;
+import org.apache.activemq.artemis.core.io.buffer.TimedBuffer;
 
 public class FakeSequentialFileFactory implements SequentialFileFactory
 {
@@ -63,9 +62,16 @@ public class FakeSequentialFileFactory implements SequentialFileFactory
       this(1, false);
    }
 
+   @Override
+   public int getMaxIO()
+   {
+      return 1;
+   }
+
+
    // Public --------------------------------------------------------
 
-   public SequentialFile createSequentialFile(final String fileName, final int maxAIO)
+   public SequentialFile createSequentialFile(final String fileName)
    {
       FakeSequentialFile sf = fileMap.get(fileName);
 
@@ -233,11 +239,11 @@ public class FakeSequentialFileFactory implements SequentialFileFactory
 
       final ByteBuffer bytes;
 
-      final IOAsyncTask callback;
+      final IOCallback callback;
 
       volatile boolean sendError;
 
-      CallbackRunnable(final FakeSequentialFile file, final ByteBuffer bytes, final IOAsyncTask callback)
+      CallbackRunnable(final FakeSequentialFile file, final ByteBuffer bytes, final IOCallback callback)
       {
          this.file = file;
          this.bytes = bytes;
@@ -259,11 +265,6 @@ public class FakeSequentialFileFactory implements SequentialFileFactory
                if (callback != null)
                {
                   callback.done();
-               }
-
-               if (file.bufferCallback != null)
-               {
-                  file.bufferCallback.bufferDone(bytes);
                }
             }
             catch (Throwable e)
@@ -287,8 +288,6 @@ public class FakeSequentialFileFactory implements SequentialFileFactory
       private String fileName;
 
       private ByteBuffer data;
-
-      private BufferCallback bufferCallback;
 
       public ByteBuffer getData()
       {
@@ -321,14 +320,6 @@ public class FakeSequentialFileFactory implements SequentialFileFactory
          notifyAll();
       }
 
-      public synchronized void waitForClose() throws Exception
-      {
-         while (open)
-         {
-            this.wait();
-         }
-      }
-
       public void delete()
       {
          if (open)
@@ -355,26 +346,21 @@ public class FakeSequentialFileFactory implements SequentialFileFactory
          checkAndResize(0);
       }
 
-      public void setBufferCallback(final BufferCallback callback)
-      {
-         bufferCallback = callback;
-      }
-
-      public void fill(final int pos, final int size, final byte fillCharacter) throws Exception
+      public void fill(final int size) throws Exception
       {
          if (!open)
          {
             throw new IllegalStateException("Is closed");
          }
 
-         checkAndResize(pos + size);
+         checkAndResize(size);
 
          // log.debug("size is " + size + " pos is " + pos);
 
-         for (int i = pos; i < size + pos; i++)
+         for (int i = 0; i < size; i++)
          {
             byte[] array = data.array();
-            array[i] = fillCharacter;
+            array[i] = 0;
 
             // log.debug("Filling " + pos + " with char " + fillCharacter);
          }
@@ -385,7 +371,7 @@ public class FakeSequentialFileFactory implements SequentialFileFactory
          return read(bytes, null);
       }
 
-      public int read(final ByteBuffer bytes, final IOAsyncTask callback) throws Exception
+      public int read(final ByteBuffer bytes, final IOCallback callback) throws Exception
       {
          if (!open)
          {
@@ -426,7 +412,7 @@ public class FakeSequentialFileFactory implements SequentialFileFactory
          return data.position();
       }
 
-      public synchronized void writeDirect(final ByteBuffer bytes, final boolean sync, final IOAsyncTask callback)
+      public synchronized void writeDirect(final ByteBuffer bytes, final boolean sync, final IOCallback callback)
       {
          if (!open)
          {
@@ -485,7 +471,7 @@ public class FakeSequentialFileFactory implements SequentialFileFactory
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq.artemis.core.journal.SequentialFile#writeInternal(java.nio.ByteBuffer)
+       * @see org.apache.activemq.artemis.core.io.SequentialFile#writeInternal(java.nio.ByteBuffer)
        */
       public void writeInternal(ByteBuffer bytes) throws Exception
       {
@@ -555,7 +541,7 @@ public class FakeSequentialFileFactory implements SequentialFileFactory
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq.artemis.core.journal.SequentialFile#renameTo(org.apache.activemq.artemis.core.journal.SequentialFile)
+       * @see org.apache.activemq.artemis.core.io.SequentialFile#renameTo(org.apache.activemq.artemis.core.io.SequentialFile)
        */
       public void renameTo(final String newFileName) throws Exception
       {
@@ -565,7 +551,7 @@ public class FakeSequentialFileFactory implements SequentialFileFactory
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq.artemis.core.journal.SequentialFile#fits(int)
+       * @see org.apache.activemq.artemis.core.io.SequentialFile#fits(int)
        */
       public boolean fits(final int size)
       {
@@ -573,21 +559,21 @@ public class FakeSequentialFileFactory implements SequentialFileFactory
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq.artemis.core.journal.SequentialFile#setBuffering(boolean)
+       * @see org.apache.activemq.artemis.core.io.SequentialFile#setBuffering(boolean)
        */
       public void setBuffering(final boolean buffering)
       {
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq.artemis.core.journal.SequentialFile#lockBuffer()
+       * @see org.apache.activemq.artemis.core.io.SequentialFile#lockBuffer()
        */
       public void disableAutoFlush()
       {
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq.artemis.core.journal.SequentialFile#unlockBuffer()
+       * @see org.apache.activemq.artemis.core.io.SequentialFile#unlockBuffer()
        */
       public void enableAutoFlush()
       {
@@ -599,9 +585,9 @@ public class FakeSequentialFileFactory implements SequentialFileFactory
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq.artemis.core.journal.SequentialFile#write(org.apache.activemq.artemis.spi.core.remoting.ActiveMQBuffer, boolean, org.apache.activemq.artemis.core.journal.IOCallback)
+       * @see org.apache.activemq.artemis.core.io.SequentialFile#write(org.apache.activemq.artemis.spi.core.remoting.ActiveMQBuffer, boolean, org.apache.activemq.artemis.core.journal.IOCallback)
        */
-      public void write(final ActiveMQBuffer bytes, final boolean sync, final IOAsyncTask callback) throws Exception
+      public void write(final ActiveMQBuffer bytes, final boolean sync, final IOCallback callback) throws Exception
       {
          bytes.writerIndex(bytes.capacity());
          bytes.readerIndex(0);
@@ -610,7 +596,7 @@ public class FakeSequentialFileFactory implements SequentialFileFactory
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq.artemis.core.journal.SequentialFile#write(org.apache.activemq.artemis.spi.core.remoting.ActiveMQBuffer, boolean)
+       * @see org.apache.activemq.artemis.core.io.SequentialFile#write(org.apache.activemq.artemis.spi.core.remoting.ActiveMQBuffer, boolean)
        */
       public void write(final ActiveMQBuffer bytes, final boolean sync) throws Exception
       {
@@ -620,9 +606,9 @@ public class FakeSequentialFileFactory implements SequentialFileFactory
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq.artemis.core.journal.SequentialFile#write(org.apache.activemq.artemis.core.journal.EncodingSupport, boolean, org.apache.activemq.artemis.core.journal.IOCompletion)
+       * @see org.apache.activemq.artemis.core.io.SequentialFile#write(org.apache.activemq.artemis.core.journal.EncodingSupport, boolean, org.apache.activemq.artemis.core.journal.IOCompletion)
        */
-      public void write(final EncodingSupport bytes, final boolean sync, final IOAsyncTask callback) throws Exception
+      public void write(final EncodingSupport bytes, final boolean sync, final IOCallback callback) throws Exception
       {
          ByteBuffer buffer = newBuffer(bytes.getEncodeSize());
          ActiveMQBuffer outbuffer = ActiveMQBuffers.wrappedBuffer(buffer);
@@ -631,7 +617,7 @@ public class FakeSequentialFileFactory implements SequentialFileFactory
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq.artemis.core.journal.SequentialFile#write(org.apache.activemq.artemis.core.journal.EncodingSupport, boolean)
+       * @see org.apache.activemq.artemis.core.io.SequentialFile#write(org.apache.activemq.artemis.core.journal.EncodingSupport, boolean)
        */
       public void write(final EncodingSupport bytes, final boolean sync) throws Exception
       {
@@ -642,7 +628,7 @@ public class FakeSequentialFileFactory implements SequentialFileFactory
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq.artemis.core.journal.SequentialFile#exists()
+       * @see org.apache.activemq.artemis.core.io.SequentialFile#exists()
        */
       public boolean exists()
       {
@@ -652,14 +638,14 @@ public class FakeSequentialFileFactory implements SequentialFileFactory
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq.artemis.core.journal.SequentialFile#setTimedBuffer(org.apache.activemq.artemis.core.journal.impl.TimedBuffer)
+       * @see org.apache.activemq.artemis.core.io.SequentialFile#setTimedBuffer(org.apache.activemq.artemis.core.io.buffer.TimedBuffer)
        */
       public void setTimedBuffer(final TimedBuffer buffer)
       {
       }
 
       /* (non-Javadoc)
-       * @see org.apache.activemq.artemis.core.journal.SequentialFile#copyTo(org.apache.activemq.artemis.core.journal.SequentialFile)
+       * @see org.apache.activemq.artemis.core.io.SequentialFile#copyTo(org.apache.activemq.artemis.core.io.SequentialFile)
        */
       public void copyTo(SequentialFile newFileName)
       {

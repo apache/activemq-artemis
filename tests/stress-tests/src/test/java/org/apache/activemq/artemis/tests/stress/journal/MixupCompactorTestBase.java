@@ -20,9 +20,9 @@ import java.io.File;
 import java.io.FilenameFilter;
 
 import org.apache.activemq.artemis.tests.unit.core.journal.impl.JournalImplTestBase;
-import org.apache.activemq.artemis.core.journal.SequentialFileFactory;
+import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
-import org.apache.activemq.artemis.core.journal.impl.NIOSequentialFileFactory;
+import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
 import org.apache.activemq.artemis.utils.ReusableLatch;
 import org.apache.activemq.artemis.utils.SimpleIDGenerator;
 import org.junit.After;
@@ -241,6 +241,6 @@ public abstract class MixupCompactorTestBase extends JournalImplTestBase
    @Override
    protected SequentialFileFactory getFileFactory() throws Exception
    {
-      return new NIOSequentialFileFactory(getTestDirfile());
+      return new NIOSequentialFileFactory(getTestDirfile(), 1);
    }
 }

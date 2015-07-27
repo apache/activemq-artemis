@@ -4,7 +4,7 @@ This file describes some minimum 'stuff one needs to know' to get started coding
 
 ## Source
 
-For details about the modifying the code, building the project, running tests, IDE integration, etc. see 
+For details about the modifying the code, building the project, running tests, IDE integration, etc. see
 our [Hacking Guide](./docs/hacking-guide/en/SUMMARY.md).
 
 ## Examples

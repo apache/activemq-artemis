@@ -28,11 +28,11 @@ import org.apache.activemq.artemis.cli.commands.Action;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.cli.commands.Configurable;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
-import org.apache.activemq.artemis.core.journal.SequentialFileFactory;
+import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.journal.impl.JournalFile;
 import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
 import org.apache.activemq.artemis.core.journal.impl.JournalReaderCallback;
-import org.apache.activemq.artemis.core.journal.impl.NIOSequentialFileFactory;
+import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
 import org.apache.activemq.artemis.utils.Base64;
 
 @Command(name = "encode", description = "Encode a set of journal files into an internal encoded data format")
@@ -113,7 +113,7 @@ public class EncodeJournal extends Configurable implements Action
                                     final int fileSize,
                                     final PrintStream out) throws Exception
    {
-      NIOSequentialFileFactory nio = new NIOSequentialFileFactory(new File(directory), null);
+      NIOSequentialFileFactory nio = new NIOSequentialFileFactory(new File(directory), null, 1);
 
       JournalImpl journal = new JournalImpl(fileSize, minFiles, 0, 0, nio, journalPrefix, journalSuffix, 1);
 

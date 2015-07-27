@@ -30,35 +30,21 @@ endif()
 
 # you may want to remove this next line for debugging
 # -O3 would make inline debug hard
+#ADD_DEFINITIONS("-O3 -Wall -z execstack")
 ADD_DEFINITIONS("-O3 -Wall")
-#ADD_DEFINITIONS("-fdump-tree-all -Wall -pg -g -mstack-protector-guard=guard")
+#ADD_DEFINITIONS("-fdump-tree-all -Wall -pg -g")
 
 find_library(LIBAIO NAMES aio)
 
 INCLUDE_DIRECTORIES(. ${JNI_INCLUDE_DIRS})
 
 ADD_CUSTOM_COMMAND(
-    OUTPUT org_apache_activemq_artemis_core_libaio_Native.h
-    COMMAND javah -cp ../java/ org.apache.activemq.artemis.core.libaio.Native
-    DEPENDS ../java/org/apache/activemq/artemis/core/libaio/Native.java
+    OUTPUT org_apache_activemq_artemis_jlibaio_LibaioContext.h
+    COMMAND javah -cp ../java/ org.apache.activemq.artemis.jlibaio.LibaioContext
+    DEPENDS ../java/org/apache/activemq/artemis/jlibaio/LibaioContext.java
 )
 
-ADD_LIBRARY(artemis-native SHARED
-                AIOController.cpp
-                AIOController.h
-                AIOException.h
-                AsyncFile.cpp
-                AsyncFile.h
-                CallbackAdapter.h
-                JAIODatatypes.h
-                JavaUtilities.cpp
-                JavaUtilities.h
-                JNI_AsynchronousFileImpl.cpp
-                JNICallbackAdapter.cpp
-                JNICallbackAdapter.h
-                LockClass.h
-                Version.h
-                org_apache_activemq_artemis_core_libaio_Native.h)
+ADD_LIBRARY(artemis-native SHARED org_apache_activemq_artemis_jlibaio_LibaioContext.c org_apache_activemq_artemis_jlibaio_LibaioContext.h exception_helper.h)
 
 target_link_libraries(artemis-native aio)
 

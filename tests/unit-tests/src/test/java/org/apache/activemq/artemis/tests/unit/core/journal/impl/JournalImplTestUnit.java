@@ -25,7 +25,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQIOErrorException;
 import org.apache.activemq.artemis.tests.unit.core.journal.impl.fakes.SimpleEncoding;
 import org.apache.activemq.artemis.core.journal.EncodingSupport;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
-import org.apache.activemq.artemis.core.journal.SequentialFile;
+import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
 import org.apache.activemq.artemis.tests.unit.UnitTestLogger;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
@@ -42,7 +42,7 @@ public abstract class JournalImplTestUnit extends JournalImplTestBase
 
       for (String file : files)
       {
-         SequentialFile seqFile = fileFactory.createSequentialFile(file, 1);
+         SequentialFile seqFile = fileFactory.createSequentialFile(file);
          Assert.assertEquals(fileSize, seqFile.size());
       }
 
@@ -222,7 +222,7 @@ public abstract class JournalImplTestUnit extends JournalImplTestBase
       for (String fileStr : files)
       {
 
-         SequentialFile file = fileFactory.createSequentialFile(fileStr, 1);
+         SequentialFile file = fileFactory.createSequentialFile(fileStr);
 
          ByteBuffer buffer = fileFactory.newBuffer(JournalImpl.SIZE_HEADER);
 
@@ -284,7 +284,7 @@ public abstract class JournalImplTestUnit extends JournalImplTestBase
       long fileID = Integer.MAX_VALUE;
       for (String fileStr : files)
       {
-         SequentialFile file = fileFactory.createSequentialFile(fileStr, 1);
+         SequentialFile file = fileFactory.createSequentialFile(fileStr);
 
          file.open();
 
@@ -2138,6 +2138,7 @@ public abstract class JournalImplTestUnit extends JournalImplTestBase
       createJournal();
       startJournal();
       loadAndCheck();
+      stopJournal();
    }
 
    @Test

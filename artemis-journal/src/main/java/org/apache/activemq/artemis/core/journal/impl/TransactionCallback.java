@@ -18,10 +18,10 @@ package org.apache.activemq.artemis.core.journal.impl;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq.artemis.core.journal.IOAsyncTask;
+import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.utils.ReusableLatch;
 
-public class TransactionCallback implements IOAsyncTask
+public class TransactionCallback implements IOCallback
 {
    private final ReusableLatch countLatch = new ReusableLatch();
 
@@ -33,7 +33,7 @@ public class TransactionCallback implements IOAsyncTask
 
    private int done = 0;
 
-   private volatile IOAsyncTask delegateCompletion;
+   private volatile IOCallback delegateCompletion;
 
    public void countUp()
    {
@@ -46,7 +46,7 @@ public class TransactionCallback implements IOAsyncTask
       countLatch.countDown();
       if (++done == up.get() && delegateCompletion != null)
       {
-         final IOAsyncTask delegateToCall = delegateCompletion;
+         final IOCallback delegateToCall = delegateCompletion;
          // We need to set the delegateCompletion to null first or blocking commits could miss a callback
          // What would affect mainly tests
          delegateCompletion = null;
@@ -81,7 +81,7 @@ public class TransactionCallback implements IOAsyncTask
    /**
     * @return the delegateCompletion
     */
-   public IOAsyncTask getDelegateCompletion()
+   public IOCallback getDelegateCompletion()
    {
       return delegateCompletion;
    }
@@ -89,7 +89,7 @@ public class TransactionCallback implements IOAsyncTask
    /**
     * @param delegateCompletion the delegateCompletion to set
     */
-   public void setDelegateCompletion(final IOAsyncTask delegateCompletion)
+   public void setDelegateCompletion(final IOCallback delegateCompletion)
    {
       this.delegateCompletion = delegateCompletion;
    }

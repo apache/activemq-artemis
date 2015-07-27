@@ -18,8 +18,8 @@ package org.apache.activemq.artemis.tests.timing.core.journal.impl;
 import java.io.File;
 
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.apache.activemq.artemis.core.journal.SequentialFileFactory;
-import org.apache.activemq.artemis.core.journal.impl.AIOSequentialFileFactory;
+import org.apache.activemq.artemis.core.io.SequentialFileFactory;
+import org.apache.activemq.artemis.core.io.aio.AIOSequentialFileFactory;
 import org.junit.BeforeClass;
 
 public class AIOJournalImplTest extends JournalImplTestUnit
@@ -39,7 +39,7 @@ public class AIOJournalImplTest extends JournalImplTestUnit
 
       file.mkdir();
 
-      return new AIOSequentialFileFactory(getTestDirfile());
+      return new AIOSequentialFileFactory(getTestDirfile(), 10);
    }
 
 }

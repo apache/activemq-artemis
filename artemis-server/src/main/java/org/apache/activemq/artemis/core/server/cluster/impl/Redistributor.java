@@ -22,8 +22,8 @@ import java.util.concurrent.Executor;
 
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.Pair;
+import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.filter.Filter;
-import org.apache.activemq.artemis.core.journal.IOAsyncTask;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.postoffice.PostOffice;
 import org.apache.activemq.artemis.core.server.Consumer;
@@ -247,7 +247,7 @@ public class Redistributor implements Consumer
 
       tx.commit();
 
-      storageManager.afterCompleteOperations(new IOAsyncTask()
+      storageManager.afterCompleteOperations(new IOCallback()
       {
 
          public void onError(final int errorCode, final String errorMessage)

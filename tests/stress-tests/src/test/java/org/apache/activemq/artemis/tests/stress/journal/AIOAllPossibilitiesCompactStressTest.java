@@ -18,8 +18,8 @@ package org.apache.activemq.artemis.tests.stress.journal;
 
 import java.io.File;
 
-import org.apache.activemq.artemis.core.journal.SequentialFileFactory;
-import org.apache.activemq.artemis.core.journal.impl.AIOSequentialFileFactory;
+import org.apache.activemq.artemis.core.io.SequentialFileFactory;
+import org.apache.activemq.artemis.core.io.aio.AIOSequentialFileFactory;
 import org.apache.activemq.artemis.core.journal.impl.JournalConstants;
 
 public class AIOAllPossibilitiesCompactStressTest extends AllPossibilitiesCompactStressTest
@@ -53,7 +53,7 @@ public class AIOAllPossibilitiesCompactStressTest extends AllPossibilitiesCompac
 
       return new AIOSequentialFileFactory(getTestDirfile(),
                                           JournalConstants.DEFAULT_JOURNAL_BUFFER_SIZE_AIO,
-                                          1000000,
+                                          1000000, 1000,
                                           false);
    }
 

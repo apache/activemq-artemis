@@ -17,10 +17,11 @@
 package org.apache.activemq.artemis.core.server.impl;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.channels.FileLock;
 
-import org.apache.activemq.artemis.core.asyncio.impl.AsynchronousFileImpl;
+import org.apache.activemq.artemis.core.io.aio.ActiveMQFileLock;
+import org.apache.activemq.artemis.jlibaio.LibaioContext;
+import org.apache.activemq.artemis.jlibaio.LibaioFile;
 
 /**
  * This is using the ActiveMQ Artemis Libaio Native to perform calls to flock on a Linux system. At the
@@ -56,19 +57,15 @@ public final class AIOFileLockNodeManager extends FileLockNodeManager
    {
       File file = newFileForRegionLock(lockPos);
 
-      int handle = AsynchronousFileImpl.openFile(file.getAbsolutePath());
+      LibaioFile fileControl = LibaioContext.openControlFile(file.getAbsolutePath(), false);
 
-      if (handle < 0)
+      if (!fileControl.lock())
       {
-         throw new IOException("couldn't open file " + file.getAbsolutePath());
+         fileControl.close();
+         return null;
       }
 
-      FileLock lock = AsynchronousFileImpl.lock(handle);
-
-      if (lock == null)
-      {
-         AsynchronousFileImpl.closeFile(handle);
-      }
+      FileLock lock = new ActiveMQFileLock(fileControl);
 
       return lock;
 
@@ -83,21 +80,13 @@ public final class AIOFileLockNodeManager extends FileLockNodeManager
 
       while (!interrupted)
       {
-         int handle = AsynchronousFileImpl.openFile(file.getAbsolutePath());
-
-         if (handle < 0)
-         {
-            throw new IOException("couldn't open file " + file.getAbsolutePath());
-         }
-
-         FileLock lockFile = AsynchronousFileImpl.lock(handle);
+         FileLock lockFile = tryLock(liveLockPos);
          if (lockFile != null)
          {
             return lockFile;
          }
          else
          {
-            AsynchronousFileImpl.closeFile(handle);
             try
             {
                Thread.sleep(500);

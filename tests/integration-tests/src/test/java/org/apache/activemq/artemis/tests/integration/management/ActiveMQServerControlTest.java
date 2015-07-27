@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.management;
 
+import javax.transaction.xa.XAResource;
+import javax.transaction.xa.Xid;
+import java.util.HashMap;
+
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
@@ -32,7 +36,6 @@ import org.apache.activemq.artemis.api.core.management.DivertControl;
 import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
 import org.apache.activemq.artemis.api.core.management.QueueControl;
 import org.apache.activemq.artemis.api.core.management.RoleInfo;
-import org.apache.activemq.artemis.core.asyncio.impl.AsynchronousFileImpl;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.messagecounter.impl.MessageCounterManagerImpl;
 import org.apache.activemq.artemis.core.remoting.impl.invm.InVMAcceptorFactory;
@@ -41,6 +44,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.core.settings.impl.SlowConsumerPolicy;
 import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
+import org.apache.activemq.artemis.jlibaio.LibaioContext;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.apache.activemq.artemis.utils.json.JSONArray;
@@ -48,10 +52,6 @@ import org.apache.activemq.artemis.utils.json.JSONObject;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import javax.transaction.xa.XAResource;
-import javax.transaction.xa.Xid;
-import java.util.HashMap;
 
 public class ActiveMQServerControlTest extends ManagementTestBase
 {
@@ -118,7 +118,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase
       Assert.assertEquals(conf.isJournalSyncNonTransactional(), serverControl.isJournalSyncNonTransactional());
       Assert.assertEquals(conf.getJournalFileSize(), serverControl.getJournalFileSize());
       Assert.assertEquals(conf.getJournalMinFiles(), serverControl.getJournalMinFiles());
-      if (AsynchronousFileImpl.isLoaded())
+      if (LibaioContext.isLoaded())
       {
          Assert.assertEquals(conf.getJournalMaxIO_AIO(), serverControl.getJournalMaxIO());
          Assert.assertEquals(conf.getJournalBufferSize_AIO(), serverControl.getJournalBufferSize());

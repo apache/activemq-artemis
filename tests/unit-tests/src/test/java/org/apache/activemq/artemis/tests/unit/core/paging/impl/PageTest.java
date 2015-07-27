@@ -22,9 +22,9 @@ import java.util.List;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.core.journal.SequentialFile;
-import org.apache.activemq.artemis.core.journal.SequentialFileFactory;
-import org.apache.activemq.artemis.core.journal.impl.NIOSequentialFileFactory;
+import org.apache.activemq.artemis.core.io.SequentialFile;
+import org.apache.activemq.artemis.core.io.SequentialFileFactory;
+import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
 import org.apache.activemq.artemis.core.paging.PagedMessage;
 import org.apache.activemq.artemis.core.paging.impl.Page;
 import org.apache.activemq.artemis.core.paging.impl.PagedMessageImpl;
@@ -52,14 +52,14 @@ public class PageTest extends ActiveMQTestBase
    public void testPageWithNIO() throws Exception
    {
       recreateDirectory(getTestDir());
-      testAdd(new NIOSequentialFileFactory(getTestDirfile()), 1000);
+      testAdd(new NIOSequentialFileFactory(getTestDirfile(), 1), 1000);
    }
 
    @Test
    public void testDamagedDataWithNIO() throws Exception
    {
       recreateDirectory(getTestDir());
-      testDamagedPage(new NIOSequentialFileFactory(getTestDirfile()), 1000);
+      testDamagedPage(new NIOSequentialFileFactory(getTestDirfile(), 1), 1000);
    }
 
    @Test
@@ -83,7 +83,7 @@ public class PageTest extends ActiveMQTestBase
    protected void testAdd(final SequentialFileFactory factory, final int numberOfElements) throws Exception
    {
 
-      SequentialFile file = factory.createSequentialFile("00010.page", 1);
+      SequentialFile file = factory.createSequentialFile("00010.page");
 
       Page impl = new Page(new SimpleString("something"), new NullStorageManager(), factory, file, 10);
 
@@ -100,7 +100,7 @@ public class PageTest extends ActiveMQTestBase
       impl.sync();
       impl.close();
 
-      file = factory.createSequentialFile("00010.page", 1);
+      file = factory.createSequentialFile("00010.page");
       file.open();
       impl = new Page(new SimpleString("something"), new NullStorageManager(), factory, file, 10);
 
@@ -130,7 +130,7 @@ public class PageTest extends ActiveMQTestBase
    protected void testDamagedPage(final SequentialFileFactory factory, final int numberOfElements) throws Exception
    {
 
-      SequentialFile file = factory.createSequentialFile("00010.page", 1);
+      SequentialFile file = factory.createSequentialFile("00010.page");
 
       Page impl = new Page(new SimpleString("something"), new NullStorageManager(), factory, file, 10);
 
@@ -172,7 +172,7 @@ public class PageTest extends ActiveMQTestBase
 
       impl.close();
 
-      file = factory.createSequentialFile("00010.page", 1);
+      file = factory.createSequentialFile("00010.page");
       file.open();
       impl = new Page(new SimpleString("something"), new NullStorageManager(), factory, file, 10);
 

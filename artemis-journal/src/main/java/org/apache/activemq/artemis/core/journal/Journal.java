@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.core.journal;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.journal.impl.JournalFile;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 
