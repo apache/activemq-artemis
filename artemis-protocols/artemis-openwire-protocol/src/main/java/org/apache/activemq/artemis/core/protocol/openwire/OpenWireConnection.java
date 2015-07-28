@@ -1356,6 +1356,7 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor
    @Override
    public Response processEndTransaction(TransactionInfo info) throws Exception
    {
+      protocolManager.endTransaction(info);
       TransactionId txId = info.getTransactionId();
 
       if (!txMap.containsKey(txId))

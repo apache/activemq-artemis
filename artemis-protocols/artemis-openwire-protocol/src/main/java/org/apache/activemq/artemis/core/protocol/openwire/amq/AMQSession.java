@@ -396,6 +396,19 @@ public class AMQSession implements SessionCallback
       this.isTx = true;
    }
 
+
+   public void endTransaction(TransactionInfo info) throws Exception
+   {
+      checkTx(info.getTransactionId());
+
+      if (txId.isXATransaction())
+      {
+         XATransactionId xid = (XATransactionId) txId;
+         XidImpl coreXid = new XidImpl(xid.getBranchQualifier(), xid.getFormatId(), xid.getGlobalTransactionId());
+         this.coreSession.xaEnd(coreXid);
+      }
+   }
+
    public void commitOnePhase(TransactionInfo info) throws Exception
    {
       checkTx(info.getTransactionId());

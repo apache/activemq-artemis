@@ -711,6 +711,17 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, No
       server.destroyQueue(new SimpleString(q));
    }
 
+
+   public void endTransaction(TransactionInfo info) throws Exception
+   {
+      AMQSession txSession = transactions.get(info.getTransactionId());
+
+      if (txSession != null)
+      {
+         txSession.endTransaction(info);
+      }
+   }
+
    public void commitTransactionOnePhase(TransactionInfo info) throws Exception
    {
       AMQSession txSession = transactions.get(info.getTransactionId());
