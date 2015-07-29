@@ -86,8 +86,12 @@ under the License.
                <backup-request-retry-interval>2000</backup-request-retry-interval>
                <max-backups>1</max-backups>
                <request-backup>true</request-backup>
-               <master/>
-               <slave/>
+               <master>
+                  <failover-on-shutdown>true</failover-on-shutdown>
+               </master>
+               <slave>
+                  <failover-on-shutdown>true</failover-on-shutdown>
+               </slave>
             </colocated>
          </shared-store>
       </ha-policy>
