@@ -164,6 +164,8 @@ public class Run extends Configurable
                }
                finally
                {
+                  System.out.println("Server stopped!");
+                  System.out.flush();
                   latchRunning.countDown();
                   if (!embedded)
                   {

@@ -28,25 +28,15 @@ under the License.
      <h1>JMS Message Consumer Rate Limiting</h1>
 
      <p>With ActiveMQ Artemis you can specify a maximum consume rate at which a JMS MessageConsumer will consume messages.
-     This can be specified when creating or deploying the connection factory. See <code>activemq-jms.xml</code></p>
+     This can be specified when creating or configuring the connection factory. See <code>jndi.properties</code>.</p>
      <p>If this value is specified then ActiveMQ Artemis will ensure that messages are never consumed at a rate higher than
-     the specified rate. This is a form of consumer <i>throttling</i>.</p>     
+     the specified rate. This is a form of consumer <i>throttling</i>.</p>
      <h2>Example step-by-step</h2>
-     <p>In this example we specify a <code>consumer-max-rate</code> of <code>10</code> messages per second in the <code>activemq-jms.xml</code>
-     file when deploying the connection factory:</p>
+     <p>In this example we specify a <code>consumer-max-rate</code> of <code>10</code> messages per second in the <code>jndi.properties</code>
+     file when configuring the connection factory:</p>
      <pre class="prettyprint">
      <code>
-   &lt;connection-factory name="ConnectionFactory"&gt;
-      &lt;connector-ref connector-name="netty-connector"/&gt;
-      &lt;entries&gt;
-         &lt;entry name="ConnectionFactory"/&gt;       
-      &lt;/entries&gt;
-      
-      &lt;!-- We limit consumers created on this connection factory to consume messages at a maximum rate
-      of 10 messages per sec --&gt;
-      &lt;consumer-max-rate&gt;50&lt;/producer-max-rate&gt;
-      
-   &lt;/connection-factory&gt;
+connectionFactory.ConnectionFactory=tcp://localhost:61616?consumerMaxRate=10
      </code>
      </pre>
      <p>We then simply consume as many messages as we can in 10 seconds and note how many messages are actually consumed.</p>
@@ -89,32 +79,32 @@ under the License.
         <pre class="prettyprint">
            <code>MessageConsumer consumer = session.createConsumer(queue);</code>
         </pre>
-        
+
         <li>Start the connection</li>
-        
+
         <pre class="prettyprint">
            <code>
      connection.start();
            </code>
         </pre>
-           
+
 
         <li>Send a bunch of messages</li>
         <pre class="prettyprint">
            <code>
      final int numMessages = 150;
-         
+
      for (int i = 0; i < numMessages; i++)
      {
         TextMessage message = session.createTextMessage("This is text message: " + i);
 
         producer.send(message);
-     }           
+     }
            </code>
         </pre>
-        
+
         <li>Consume as many messages as we can in 10 seconds</li>
-        
+
         <pre class="prettyprint">
            <code>
    final long duration = 10000;
@@ -131,7 +121,7 @@ under the License.
       {
          return false;
       }
-      
+
       i++;
    }
 
@@ -141,19 +131,19 @@ under the License.
 
    System.out.println("We consumed " + i + " messages in " + (end - start) + " milliseconds");
 
-   System.out.println("Actual consume rate was " + rate + " messages per second");           
+   System.out.println("Actual consume rate was " + rate + " messages per second");
            </code>
         </pre>
-        
+
         <li>This should produce output something like:</li>
-        
+
         <pre class="prettyprint">
            <code>
     [java] Sent messages
     [java] Will now try and consume as many as we can in 10 seconds ...
     [java] We consumed 100 messages in 10001 milliseconds
     [java] Actual consume rate was 9.99900009999 messages per second
-                 
+
            </code>
         </pre>
 
@@ -167,7 +157,7 @@ under the License.
               {
                 initialContext.close();
               }
-              
+
               if (connection != null)
               {
                  connection.close();

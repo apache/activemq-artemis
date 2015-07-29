@@ -16,8 +16,6 @@
  */
 package org.apache.activemq.artemis.jms.example;
 
-import java.util.Hashtable;
-
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -26,8 +24,7 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.jms.Topic;
 import javax.naming.InitialContext;
-
-import org.apache.activemq.artemis.common.example.ActiveMQExample;
+import java.util.Hashtable;
 
 /**
  * A simple example that shows a JMS Durable Subscription across two nodes of a cluster.
@@ -35,15 +32,9 @@ import org.apache.activemq.artemis.common.example.ActiveMQExample;
  * The same durable subscription can exist on more than one node of the cluster, and messages
  * sent to the topic will be load-balanced in a round-robin fashion between the two nodes
  */
-public class ClusteredDurableSubscriptionExample extends ActiveMQExample
+public class ClusteredDurableSubscriptionExample
 {
-   public static void main(final String[] args)
-   {
-      new ClusteredDurableSubscriptionExample().run(args);
-   }
-
-   @Override
-   public boolean runExample() throws Exception
+   public static void main(final String[] args) throws Exception
    {
       Connection connection0 = null;
 
@@ -58,7 +49,7 @@ public class ClusteredDurableSubscriptionExample extends ActiveMQExample
          // Step 1. Get an initial context for looking up JNDI from server 0
          Hashtable<String, Object> properties = new Hashtable<String, Object>();
          properties.put("java.naming.factory.initial", "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
-         properties.put("connectionFactory.ConnectionFactory", args[0]);
+         properties.put("connectionFactory.ConnectionFactory", "tcp://localhost:61616");
          properties.put("topic.topic/exampleTopic", "exampleTopic");
          ic0 = new InitialContext(properties);
 
@@ -72,7 +63,7 @@ public class ClusteredDurableSubscriptionExample extends ActiveMQExample
 
          properties = new Hashtable<String, Object>();
          properties.put("java.naming.factory.initial", "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
-         properties.put("connectionFactory.ConnectionFactory", args[1]);
+         properties.put("connectionFactory.ConnectionFactory", "tcp://localhost:61617");
          ic1 = new InitialContext(properties);
 
          // Step 5. Look-up a JMS Connection Factory object from JNDI on server 1
@@ -146,8 +137,6 @@ public class ClusteredDurableSubscriptionExample extends ActiveMQExample
 
             System.out.println("Got message: " + message1.getText() + " from node 1");
          }
-
-         return true;
       }
       finally
       {
@@ -173,5 +162,4 @@ public class ClusteredDurableSubscriptionExample extends ActiveMQExample
          }
       }
    }
-
 }

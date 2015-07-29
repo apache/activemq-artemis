@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.cli;
 import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.List;
 
 import io.airlift.airline.Cli;
 import org.apache.activemq.artemis.cli.commands.Action;
@@ -68,6 +69,11 @@ public class Artemis
    public static Object execute(String... args) throws Exception
    {
       return execute(null, null, args);
+   }
+
+   public static Object execute(File artemisHome, File artemisInstance, List<String> args) throws Exception
+   {
+      return execute(artemisHome, artemisInstance, (String[]) args.toArray(new String[args.size()]));
    }
 
    public static Object execute(File artemisHome, File artemisInstance, String... args) throws Exception

@@ -16,30 +16,27 @@
  */
 package org.apache.activemq.artemis.maven;
 
-import java.lang.reflect.Method;
-import java.util.Properties;
-
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
+
+import java.lang.reflect.Method;
+import java.util.Properties;
 
 /**
- *         Allows a Java Client to be run which must hve a static main(String[] args) method
+ * Allows a Java Client to be run which must hve a static main(String[] args) method
  */
 @Mojo(name = "runClient", defaultPhase = LifecyclePhase.VERIFY)
 public class ActiveMQClientPlugin extends AbstractMojo
 {
 
-   /**
-    * @parameter
-    */
+   @Parameter
    String clientClass;
 
-   /**
-    * @parameter
-    */
+   @Parameter
    String[] args;
 
    /**
@@ -61,7 +58,7 @@ public class ActiveMQClientPlugin extends AbstractMojo
       }
       catch (Exception e)
       {
-         e.printStackTrace();
+         getLog().error(e);
          throw new MojoFailureException(e.getMessage());
       }
    }

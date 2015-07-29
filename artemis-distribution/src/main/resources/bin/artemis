@@ -105,4 +105,4 @@ exec "$JAVACMD" $JAVA_ARGS $ARTEMIS_CLUSTER_PROPS \
     -Dartemis.home="$ARTEMIS_HOME" \
     -Djava.library.path="$ARTEMIS_HOME/bin/lib/linux-i686:$ARTEMIS_HOME/bin/lib/linux-x86_64" \
     $DEBUG_ARGS \
-    org.apache.activemq.artemis.boot.Artemis $@
+    org.apache.activemq.artemis.boot.Artemis "$@"

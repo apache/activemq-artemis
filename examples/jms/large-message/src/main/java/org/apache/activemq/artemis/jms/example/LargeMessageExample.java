@@ -16,13 +16,7 @@
  */
 package org.apache.activemq.artemis.jms.example;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import org.apache.activemq.artemis.util.ServerUtil;
 
 import javax.jms.BytesMessage;
 import javax.jms.Connection;
@@ -32,20 +26,20 @@ import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
 import javax.naming.InitialContext;
-
-import org.apache.activemq.artemis.common.example.ActiveMQExample;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 /**
  * This example demonstrates the ability of ActiveMQ Artemis to send and consume a very large message, much
  * bigger than can fit in RAM.
  */
-public class LargeMessageExample extends ActiveMQExample
+public class LargeMessageExample
 {
-   public static void main(final String[] args)
-   {
-      new LargeMessageExample().run(args);
-   }
-
    /**
     * The message we will send is size 2GiB, even though we are only running in 50MB of RAM on both
     * client and server.
@@ -55,14 +49,16 @@ public class LargeMessageExample extends ActiveMQExample
     */
    private static final long FILE_SIZE = 2L * 1024 * 1024 * 1024; // 2 GiB message
 
-   @Override
-   public boolean runExample() throws Exception
+   public static void main(final String[] args) throws Exception
    {
+      Process server = null;
       Connection connection = null;
       InitialContext initialContext = null;
 
       try
       {
+         server = ServerUtil.startServer(args[0], LargeMessageExample.class.getSimpleName(), 0, 5000);
+
          // Step 1. Create an initial context to perform the JNDI lookup.
          initialContext = new InitialContext();
 
@@ -84,8 +80,8 @@ public class LargeMessageExample extends ActiveMQExample
          // Step 5. Create a huge file - this will form the body of the message we will send.
 
          System.out.println("Creating a file to send of size " + FILE_SIZE +
-                            " bytes. This may take a little while... " +
-                            "If this is too big for your disk you can easily change the FILE_SIZE in the example.");
+                                    " bytes. This may take a little while... " +
+                                    "If this is too big for your disk you can easily change the FILE_SIZE in the example.");
 
          File fileInput = new File("huge_message_to_send.dat");
 
@@ -123,12 +119,9 @@ public class LargeMessageExample extends ActiveMQExample
 
          initialContext.close();
 
-         killServer(0);
+         ServerUtil.killServer(server);
 
-         // Give the server a little time to shutdown properly
-         Thread.sleep(5000);
-
-         reStartServer(0, 60000);
+         server = ServerUtil.startServer(args[0], "LargeMessageExample", 0, 5000);
 
          System.out.println("Server restarted.");
 
@@ -155,7 +148,7 @@ public class LargeMessageExample extends ActiveMQExample
          BytesMessage messageReceived = (BytesMessage)messageConsumer.receive(120000);
 
          System.out.println("Received message with: " + messageReceived.getLongProperty("_AMQ_LARGE_SIZE") +
-                            " bytes. Now streaming to file on disk.");
+                                    " bytes. Now streaming to file on disk.");
 
          // Step 13. We set an OutputStream on the message. This causes the message body to be written to the
          // OutputStream until there are no more bytes to be written.
@@ -175,8 +168,6 @@ public class LargeMessageExample extends ActiveMQExample
          fileOutputStream.close();
 
          System.out.println("File streamed to disk. Size of received file on disk is " + outputFile.length());
-
-         return true;
       }
       finally
       {
@@ -190,6 +181,8 @@ public class LargeMessageExample extends ActiveMQExample
          {
             connection.close();
          }
+
+         ServerUtil.killServer(server);
       }
    }
 
@@ -199,7 +192,7 @@ public class LargeMessageExample extends ActiveMQExample
     * @throws FileNotFoundException
     * @throws IOException
     */
-   private void createFile(final File file, final long fileSize) throws IOException
+   private static void createFile(final File file, final long fileSize) throws IOException
    {
       FileOutputStream fileOut = new FileOutputStream(file);
       BufferedOutputStream buffOut = new BufferedOutputStream(fileOut);

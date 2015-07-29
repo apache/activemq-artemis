@@ -27,24 +27,16 @@ import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.naming.InitialContext;
-
-import org.apache.activemq.artemis.common.example.ActiveMQExample;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * A simple JMS example that uses selectors with queue consumers.
  */
-public class QueueSelectorExample extends ActiveMQExample
+public class QueueSelectorExample
 {
-   private volatile boolean result = true;
-
-   public static void main(final String[] args)
+   public static void main(final String[] args) throws Exception
    {
-      new QueueSelectorExample().run(args);
-   }
-
-   @Override
-   public boolean runExample() throws Exception
-   {
+      AtomicBoolean result = new AtomicBoolean(true);
       Connection connection = null;
       InitialContext initialContext = null;
       try
@@ -65,33 +57,36 @@ public class QueueSelectorExample extends ActiveMQExample
          connection.start();
 
          // Step 5. Create a JMS Session
-         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         Session senderSession = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
          // Step 6. Create a JMS Message Producer
-         MessageProducer producer = session.createProducer(queue);
+         MessageProducer producer = senderSession.createProducer(queue);
 
          // Step 8. Prepare two selectors
          String redSelector = "color='red'";
          String greenSelector = "color='green'";
 
          // Step 9. Create a JMS Message Consumer that receives 'red' messages
-         MessageConsumer redConsumer = session.createConsumer(queue, redSelector);
-         redConsumer.setMessageListener(new SimpleMessageListener("red"));
+         Session redSession = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         MessageConsumer redConsumer = redSession.createConsumer(queue, redSelector);
+         redConsumer.setMessageListener(new SimpleMessageListener("red", result));
 
          // Step 10. Create a second JMS message consumer that receives 'green' messages
-         MessageConsumer greenConsumer = session.createConsumer(queue, greenSelector);
-         greenConsumer.setMessageListener(new SimpleMessageListener("green"));
+         Session greenSession = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         MessageConsumer greenConsumer = greenSession.createConsumer(queue, greenSelector);
+         greenConsumer.setMessageListener(new SimpleMessageListener("green", result));
 
          // Step 11. Create another JMS message consumer that receives any messages.
-         MessageConsumer anyConsumer = session.createConsumer(queue);
-         anyConsumer.setMessageListener(new SimpleMessageListener("any"));
+         Session blankSession = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         MessageConsumer anyConsumer = blankSession.createConsumer(queue);
+         anyConsumer.setMessageListener(new SimpleMessageListener("any", result));
 
          // Step 12. Create three messages, each has a color property
-         TextMessage redMessage = session.createTextMessage("Red");
+         TextMessage redMessage = senderSession.createTextMessage("Red");
          redMessage.setStringProperty("color", "red");
-         TextMessage greenMessage = session.createTextMessage("Green");
+         TextMessage greenMessage = senderSession.createTextMessage("Green");
          greenMessage.setStringProperty("color", "green");
-         TextMessage blueMessage = session.createTextMessage("Blue");
+         TextMessage blueMessage = senderSession.createTextMessage("Blue");
          blueMessage.setStringProperty("color", "blue");
 
          // Step 13. Send the Messages
@@ -104,7 +99,8 @@ public class QueueSelectorExample extends ActiveMQExample
 
          Thread.sleep(5000);
 
-         return result;
+         if (!result.get())
+            throw new IllegalStateException();
       }
       finally
       {
@@ -119,40 +115,39 @@ public class QueueSelectorExample extends ActiveMQExample
          }
       }
    }
+}
 
-   public class SimpleMessageListener implements MessageListener
+class SimpleMessageListener implements MessageListener
+{
+   private final String name;
+   private AtomicBoolean result;
+
+   public SimpleMessageListener(final String listener, AtomicBoolean result)
    {
-
-      private final String name;
-
-      public SimpleMessageListener(final String listener)
-      {
-         name = listener;
-      }
-
-      public void onMessage(final Message msg)
-      {
-         TextMessage textMessage = (TextMessage)msg;
-         try
-         {
-            String colorProp = msg.getStringProperty("color");
-            System.out.println("Receiver " + name +
-                               " receives message [" +
-                               textMessage.getText() +
-                               "] with color property: " +
-                               colorProp);
-            if (!colorProp.equals(name) && !name.equals("any"))
-            {
-               result = false;
-            }
-         }
-         catch (JMSException e)
-         {
-            e.printStackTrace();
-            result = false;
-         }
-      }
-
+      name = listener;
+      this.result = result;
    }
 
+   public void onMessage(final Message msg)
+   {
+      TextMessage textMessage = (TextMessage)msg;
+      try
+      {
+         String colorProp = msg.getStringProperty("color");
+         System.out.println("Receiver " + name +
+                                    " receives message [" +
+                                    textMessage.getText() +
+                                    "] with color property: " +
+                                    colorProp);
+         if (!colorProp.equals(name) && !name.equals("any"))
+         {
+            result.set(false);
+         }
+      }
+      catch (JMSException e)
+      {
+         e.printStackTrace();
+         result.set(false);
+      }
+   }
 }

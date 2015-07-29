@@ -16,8 +16,6 @@
  */
 package org.apache.activemq.artemis.jms.example;
 
-import org.apache.activemq.artemis.common.example.ActiveMQExample;
-
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
@@ -32,15 +30,9 @@ import javax.naming.InitialContext;
  * A simple example that demonstrates failover of the JMS connection from one node to another
  * when the live server crashes using a JMS <em>non-transacted</em> session.
  */
-public class StopServerFailoverExample extends ActiveMQExample
+public class StopServerFailoverExample
 {
-   public static void main(final String[] args)
-   {
-      new StopServerFailoverExample().run(args);
-   }
-
-   @Override
-   public boolean runExample() throws Exception
+   public static void main(final String[] args) throws Exception
    {
       final int numMessages = 10;
 
@@ -94,10 +86,9 @@ public class StopServerFailoverExample extends ActiveMQExample
             System.out.println("Got message: " + message0.getText());
          }
 
-         // Step 10. Crash server #1, the live server, and wait a little while to make sure
+         // Step 10. Crash server #0, the live server, and wait a little while to make sure
          // it has really crashed
-         Thread.sleep(5000);
-         System.out.println("stop the server by logging into jconsole");
+         System.out.println("Stop the live server by logging into JConsole and then press any key to continue...");
          System.in.read();
 
          // Step 11. Acknowledging the 2nd half of the sent messages will fail as failover to the
@@ -118,8 +109,6 @@ public class StopServerFailoverExample extends ActiveMQExample
             System.out.printf("Got message: %s (redelivered?: %s)\n", message0.getText(), message0.getJMSRedelivered());
          }
          message0.acknowledge();
-
-         return true;
       }
       finally
       {
@@ -136,5 +125,4 @@ public class StopServerFailoverExample extends ActiveMQExample
          }
       }
    }
-
 }

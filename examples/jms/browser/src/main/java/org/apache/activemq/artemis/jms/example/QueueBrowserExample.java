@@ -16,8 +16,6 @@
  */
 package org.apache.activemq.artemis.jms.example;
 
-import java.util.Enumeration;
-
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -27,21 +25,14 @@ import javax.jms.QueueBrowser;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.naming.InitialContext;
-
-import org.apache.activemq.artemis.common.example.ActiveMQExample;
+import java.util.Enumeration;
 
 /**
  * A simple example which shows how to use a QueueBrowser to look at messages of a queue without removing them from the queue
  */
-public class QueueBrowserExample extends ActiveMQExample
+public class QueueBrowserExample
 {
-   public static void main(final String[] args)
-   {
-      new QueueBrowserExample().run(args);
-   }
-
-   @Override
-   public boolean runExample() throws Exception
+   public static void main(final String[] args) throws Exception
    {
       Connection connection = null;
       InitialContext initialContext = null;
@@ -99,9 +90,6 @@ public class QueueBrowserExample extends ActiveMQExample
          System.out.println("Received message: " + messageReceived.getText());
          messageReceived = (TextMessage)messageConsumer.receive(5000);
          System.out.println("Received message: " + messageReceived.getText());
-
-         return true;
-
       }
       finally
       {

@@ -16,8 +16,6 @@
  */
 package org.apache.activemq.artemis.jms.example;
 
-import java.util.Hashtable;
-
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -26,18 +24,11 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.jms.Topic;
 import javax.naming.InitialContext;
+import java.util.Hashtable;
 
-import org.apache.activemq.artemis.common.example.ActiveMQExample;
-
-public class ClusteredStandaloneExample extends ActiveMQExample
+public class ClusteredStandaloneExample
 {
-   public static void main(final String[] args)
-   {
-      new ClusteredStandaloneExample().run(args);
-   }
-
-   @Override
-   public boolean runExample() throws Exception
+   public static void main(final String[] args) throws Exception
    {
       Connection connection0 = null;
 
@@ -53,18 +44,18 @@ public class ClusteredStandaloneExample extends ActiveMQExample
       {
          Hashtable<String, Object> properties = new Hashtable<String, Object>();
          properties.put("java.naming.factory.initial", "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
-         properties.put("connectionFactory.ConnectionFactory", args[0]);
+         properties.put("connectionFactory.ConnectionFactory", "tcp://localhost:61616");
          properties.put("topic.topic/exampleTopic", "exampleTopic");
          initialContext0 = new InitialContext(properties);
 
          properties = new Hashtable<String, Object>();
          properties.put("java.naming.factory.initial", "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
-         properties.put("connectionFactory.ConnectionFactory", args[1]);
+         properties.put("connectionFactory.ConnectionFactory", "tcp://localhost:61617");
          initialContext1 = new InitialContext(properties);
 
          properties = new Hashtable<String, Object>();
          properties.put("java.naming.factory.initial", "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
-         properties.put("connectionFactory.ConnectionFactory", args[2]);
+         properties.put("connectionFactory.ConnectionFactory", "tcp://localhost:61618");
          initialContext2 = new InitialContext(properties);
 
          // First we demonstrate a distributed topic.
@@ -126,7 +117,7 @@ public class ClusteredStandaloneExample extends ActiveMQExample
 
             if (message0 == null)
             {
-               return false;
+               throw new IllegalStateException();
             }
 
             // System.out.println("Received message " + message0.getText());
@@ -135,7 +126,7 @@ public class ClusteredStandaloneExample extends ActiveMQExample
 
             if (message1 == null)
             {
-               return false;
+               throw new IllegalStateException();
             }
 
             // System.out.println("Received message " + message1.getText());
@@ -144,10 +135,10 @@ public class ClusteredStandaloneExample extends ActiveMQExample
 
             if (message2 == null)
             {
-               return false;
+               throw new IllegalStateException();
             }
 
-           // System.out.println("Received message " + message2.getText());
+            System.out.println("Received message " + message2.getText());
          }
 
          producer.close();
@@ -157,8 +148,6 @@ public class ClusteredStandaloneExample extends ActiveMQExample
          messageConsumer1.close();
 
          messageConsumer2.close();
-
-         return true;
       }
       finally
       {
@@ -189,5 +178,4 @@ public class ClusteredStandaloneExample extends ActiveMQExample
          }
       }
    }
-
 }

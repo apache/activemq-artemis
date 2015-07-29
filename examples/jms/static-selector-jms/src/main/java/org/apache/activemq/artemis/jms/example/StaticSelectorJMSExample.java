@@ -27,24 +27,16 @@ import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.naming.InitialContext;
-
-import org.apache.activemq.artemis.common.example.ActiveMQExample;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * A simple JMS example that shows how static message selectors work when using JMS config.
  */
-public class StaticSelectorJMSExample extends ActiveMQExample
+public class StaticSelectorJMSExample
 {
-   private volatile boolean result = true;
-
-   public static void main(final String[] args)
+   public static void main(final String[] args) throws Exception
    {
-      new StaticSelectorJMSExample().run(args);
-   }
-
-   @Override
-   public boolean runExample() throws Exception
-   {
+      AtomicBoolean result = new AtomicBoolean(true);
       Connection connection = null;
       InitialContext initialContext = null;
       try
@@ -73,7 +65,7 @@ public class StaticSelectorJMSExample extends ActiveMQExample
 
          // Step 8. Create a JMS Message Consumer that receives 'red' messages
          MessageConsumer redConsumer = session.createConsumer(queue);
-         redConsumer.setMessageListener(new SimpleMessageListener("red"));
+         redConsumer.setMessageListener(new SimpleMessageListener("red", result));
 
          // Step 9. Create five messages with different 'color' properties
          TextMessage redMessage1 = session.createTextMessage("Red-1");
@@ -101,7 +93,8 @@ public class StaticSelectorJMSExample extends ActiveMQExample
          // Step 11. Waiting for the message listener to check the received messages.
          Thread.sleep(5000);
 
-         return result;
+         if (!result.get())
+            throw new IllegalStateException();
       }
       finally
       {
@@ -116,38 +109,39 @@ public class StaticSelectorJMSExample extends ActiveMQExample
          }
       }
    }
+}
 
-   public class SimpleMessageListener implements MessageListener
+class SimpleMessageListener implements MessageListener
+{
+   private final String name;
+   private AtomicBoolean result;
+
+   public SimpleMessageListener(final String listener, AtomicBoolean result)
    {
-      private final String name;
-
-      public SimpleMessageListener(final String listener)
-      {
-         name = listener;
-      }
-
-      public void onMessage(final Message msg)
-      {
-         TextMessage textMessage = (TextMessage)msg;
-         try
-         {
-            String colorProp = msg.getStringProperty("color");
-            System.out.println("Receiver " + name +
-                               " receives message [" +
-                               textMessage.getText() +
-                               "] with color property: " +
-                               colorProp);
-            if (colorProp != null && !colorProp.equals(name))
-            {
-               result = false;
-            }
-         }
-         catch (JMSException e)
-         {
-            e.printStackTrace();
-            result = false;
-         }
-      }
+      name = listener;
+      this.result = result;
    }
 
+   public void onMessage(final Message msg)
+   {
+      TextMessage textMessage = (TextMessage)msg;
+      try
+      {
+         String colorProp = msg.getStringProperty("color");
+         System.out.println("Receiver " + name +
+                                    " receives message [" +
+                                    textMessage.getText() +
+                                    "] with color property: " +
+                                    colorProp);
+         if (colorProp != null && !colorProp.equals(name))
+         {
+            result.set(false);
+         }
+      }
+      catch (JMSException e)
+      {
+         e.printStackTrace();
+         result.set(false);
+      }
+   }
 }

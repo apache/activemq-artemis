@@ -40,16 +40,13 @@ under the License.
 
    <core xmlns="urn:activemq:core">
 
-      <!-- We need to make it clustered otherwise the bridge won't deploy -->
+      <bindings-directory>${data.dir:../data}/bindings</bindings-directory>
 
+      <journal-directory>${data.dir:../data}/journal</journal-directory>
 
-      <bindings-directory>${data.dir}/server0/data/messaging/bindings</bindings-directory>
+      <large-messages-directory>${data.dir:../data}/largemessages</large-messages-directory>
 
-      <journal-directory>${data.dir}/server0/data/messaging/journal</journal-directory>
-
-      <large-messages-directory>${data.dir}/server0/data/messaging/largemessages</large-messages-directory>
-
-      <paging-directory>${data.dir}/server0/data/messaging/paging</paging-directory>
+      <paging-directory>${data.dir:../data}/paging</paging-directory>
 
       <!-- Connectors -->
 

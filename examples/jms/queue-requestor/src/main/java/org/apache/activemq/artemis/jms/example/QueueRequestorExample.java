@@ -26,20 +26,12 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.naming.InitialContext;
 
-import org.apache.activemq.artemis.common.example.ActiveMQExample;
-
 /**
  * A simple JMS example that shows how to use queues requestors.
  */
-public class QueueRequestorExample extends ActiveMQExample
+public class QueueRequestorExample
 {
-   public static void main(final String[] args)
-   {
-      new QueueRequestorExample().run(args);
-   }
-
-   @Override
-   public boolean runExample() throws Exception
+   public static void main(final String[] args) throws Exception
    {
       QueueConnection connection = null;
       InitialContext initialContext = null;
@@ -85,8 +77,6 @@ public class QueueRequestorExample extends ActiveMQExample
 
          // Step 13. close the text reverser service
          reverserService.close();
-
-         return true;
       }
       finally
       {

@@ -25,20 +25,12 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.naming.InitialContext;
 
-import org.apache.activemq.artemis.common.example.ActiveMQExample;
-
 /**
  * A simple JMS example that sends and consume message transactionally.
  */
-public class TransactionalExample extends ActiveMQExample
+public class TransactionalExample
 {
-   public static void main(final String[] args)
-   {
-      new TransactionalExample().run(args);
-   }
-
-   @Override
-   public boolean runExample() throws Exception
+   public static void main(final String[] args) throws Exception
    {
       Connection connection = null;
       InitialContext initialContext = null;
@@ -117,12 +109,10 @@ public class TransactionalExample extends ActiveMQExample
          if (receivedMessage != null)
          {
             // This was not supposed to happen
-            return false;
+            throw new IllegalStateException("Message is not null.");
          }
 
          System.out.println("Message received after receive commit: " + receivedMessage);
-
-         return true;
 
       }
       finally
@@ -139,5 +129,4 @@ public class TransactionalExample extends ActiveMQExample
          }
       }
    }
-
 }

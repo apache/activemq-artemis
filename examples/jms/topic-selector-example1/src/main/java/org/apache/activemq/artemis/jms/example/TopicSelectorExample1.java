@@ -25,20 +25,12 @@ import javax.jms.TextMessage;
 import javax.jms.Topic;
 import javax.naming.InitialContext;
 
-import org.apache.activemq.artemis.common.example.ActiveMQExample;
-
 /**
  * A simple JMS Topic example that creates a producer and consumer on a queue and sends and receives a message.
  */
-public class TopicSelectorExample1 extends ActiveMQExample
+public class TopicSelectorExample1
 {
-   public static void main(final String[] args)
-   {
-      new TopicSelectorExample1().run(args);
-   }
-
-   @Override
-   public boolean runExample() throws Exception
+   public static void main(final String[] args) throws Exception
    {
       Connection connection = null;
 
@@ -81,8 +73,8 @@ public class TopicSelectorExample1 extends ActiveMQExample
             {
                // Step 10.1 Create a text message
                TextMessage message1 = session.createTextMessage("This is a text message " + i +
-                                                                " sent for someID=" +
-                                                                someID);
+                                                                        " sent for someID=" +
+                                                                        someID);
 
                // Step 10.1 Set a property
                message1.setIntProperty("someID", someID);
@@ -110,8 +102,8 @@ public class TopicSelectorExample1 extends ActiveMQExample
             }
 
             System.out.println("messageConsumer1 received " + messageReceivedA.getText() +
-                               " someID = " +
-                               messageReceivedA.getIntProperty("someID"));
+                                       " someID = " +
+                                       messageReceivedA.getIntProperty("someID"));
          }
 
          // Step 13. Consume the messages from MessageConsumer2, filtering out someID=2
@@ -126,8 +118,8 @@ public class TopicSelectorExample1 extends ActiveMQExample
             }
 
             System.out.println("messageConsumer2 received " + messageReceivedB.getText() +
-                               " someID = " +
-                               messageReceivedB.getIntProperty("someID"));
+                                       " someID = " +
+                                       messageReceivedB.getIntProperty("someID"));
          }
 
          // Step 14. Consume the messages from MessageConsumer3, receiving the complete set of messages
@@ -141,17 +133,14 @@ public class TopicSelectorExample1 extends ActiveMQExample
                break;
             }
             System.out.println("messageConsumer3 received " + messageReceivedC.getText() +
-                               " someID = " +
-                               messageReceivedC.getIntProperty("someID"));
+                                       " someID = " +
+                                       messageReceivedC.getIntProperty("someID"));
          }
 
          // Step 15. Close the subscribers
          messageConsumer1.close();
          messageConsumer2.close();
          messageConsumer3.close();
-
-         return true;
-
       }
       finally
       {

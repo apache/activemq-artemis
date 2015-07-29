@@ -29,13 +29,13 @@ under the License.
 
    <core xmlns="urn:activemq:core">
 
-      <bindings-directory>target/server0/data/messaging/bindings</bindings-directory>
+      <bindings-directory>${data.dir}/server0/data/messaging/bindings</bindings-directory>
 
-      <journal-directory>target/server0/data/messaging/journal</journal-directory>
+      <journal-directory>${data.dir}/server0/data/messaging/journal</journal-directory>
 
-      <large-messages-directory>target/server0/data/messaging/largemessages</large-messages-directory>
+      <large-messages-directory>${data.dir}/server0/data/messaging/largemessages</large-messages-directory>
 
-      <paging-directory>target/server0/data/messaging/paging</paging-directory>
+      <paging-directory>${data.dir}/server0/data/messaging/paging</paging-directory>
       <!-- Connectors -->
 
       <connectors>

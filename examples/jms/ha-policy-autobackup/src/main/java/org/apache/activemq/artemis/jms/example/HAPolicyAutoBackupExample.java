@@ -16,7 +16,11 @@
  */
 package org.apache.activemq.artemis.jms.example;
 
-import java.util.Hashtable;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.client.ClusterTopologyListener;
+import org.apache.activemq.artemis.api.core.client.TopologyMember;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.util.ServerUtil;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -26,15 +30,8 @@ import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.naming.InitialContext;
-
-import org.apache.activemq.artemis.api.core.TransportConfiguration;
-import org.apache.activemq.artemis.api.core.client.ClusterTopologyListener;
-import org.apache.activemq.artemis.api.core.client.TopologyMember;
-import org.apache.activemq.artemis.common.example.ActiveMQExample;
-import org.apache.activemq.artemis.jms.client.ActiveMQConnection;
-import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
-
 import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -42,17 +39,14 @@ import java.util.concurrent.TimeUnit;
 /**
  * A simple example that demonstrates server side load-balancing of messages between the queue instances on different
  * nodes of the cluster.
- *
  */
-public class HAPolicyAutoBackupExample extends ActiveMQExample
+public class HAPolicyAutoBackupExample
 {
-   public static void main(final String[] args)
-   {
-      new HAPolicyAutoBackupExample().run(args);
-   }
+   private static Process server0;
 
-   @Override
-   public boolean runExample() throws Exception
+   private static Process server1;
+
+   public static void main(final String[] args) throws Exception
    {
       Connection connection0 = null;
 
@@ -64,16 +58,19 @@ public class HAPolicyAutoBackupExample extends ActiveMQExample
 
       try
       {
+         server0 = ServerUtil.startServer(args[0], HAPolicyAutoBackupExample.class.getSimpleName() + "0", 0, 5000);
+         server1 = ServerUtil.startServer(args[1], HAPolicyAutoBackupExample.class.getSimpleName() + "1", 1, 5000);
+
          // Step 1. Get an initial context for looking up JNDI from server 0 and 1
          Hashtable<String, Object> properties = new Hashtable<String, Object>();
          properties.put("java.naming.factory.initial", "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
-         properties.put("connectionFactory.ConnectionFactory", args[0] + "?ha=true&retryInterval=1000&retryIntervalMultiplier=1.0&reconnectAttempts=-1");
+         properties.put("connectionFactory.ConnectionFactory", "tcp://localhost:61616?ha=true&retryInterval=1000&retryIntervalMultiplier=1.0&reconnectAttempts=-1");
          properties.put("queue.queue/exampleQueue", "exampleQueue");
          ic0 = new InitialContext(properties);
 
          properties = new Hashtable<String, Object>();
          properties.put("java.naming.factory.initial", "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
-         properties.put("connectionFactory.ConnectionFactory", args[1] + "?ha=true&retryInterval=1000&retryIntervalMultiplier=1.0&reconnectAttempts=-1");
+         properties.put("connectionFactory.ConnectionFactory", "tcp://localhost:61617?ha=true&retryInterval=1000&retryIntervalMultiplier=1.0&reconnectAttempts=-1");
          ic1 = new InitialContext(properties);
 
          // Step 2. Look-up the JMS Queue object from JNDI
@@ -102,7 +99,6 @@ public class HAPolicyAutoBackupExample extends ActiveMQExample
          MessageConsumer consumer0 = session0.createConsumer(queue);
          MessageConsumer consumer1 = session1.createConsumer(queue);
 
-
          // Step 11. We create a JMS MessageProducer object on server 0
          MessageProducer producer = session0.createProducer(queue);
 
@@ -128,11 +124,12 @@ public class HAPolicyAutoBackupExample extends ActiveMQExample
             System.out.println("Got message: " + message0.getText() + " from node 0");
          }
 
-         // Step 14.now kill server1, messages will be scaled down to server0
-         killServer(1);
-
-         // Step 15.close the consumer so it doesnt get any messages
+         // Step 14.close the consumer so it doesnt get any messages
          consumer1.close();
+
+         // Step 15.now kill server1, messages will be scaled down to server0
+         ServerUtil.killServer(server1);
+         Thread.sleep(40000);
 
          // Step 16. we now receive the messages that were on server1 but were scaled down to server0
          for (int i = 0; i < numMessages / 2; i++)
@@ -141,8 +138,6 @@ public class HAPolicyAutoBackupExample extends ActiveMQExample
 
             System.out.println("Got message: " + message0.getText() + " from node 1");
          }
-
-         return true;
       }
       finally
       {
@@ -157,10 +152,13 @@ public class HAPolicyAutoBackupExample extends ActiveMQExample
          {
             connection1.close();
          }
+
+         ServerUtil.killServer(server0);
+         ServerUtil.killServer(server1);
       }
    }
 
-   private void waitForBackups(ConnectionFactory cf0, int backups) throws InterruptedException
+   private static void waitForBackups(ConnectionFactory cf0, int backups) throws InterruptedException
    {
       final CountDownLatch latch = new CountDownLatch(backups);
          ((ActiveMQConnectionFactory) cf0).getServerLocator().addClusterTopologyListener(new ClusterTopologyListener()
@@ -183,5 +181,4 @@ public class HAPolicyAutoBackupExample extends ActiveMQExample
       });
       latch.await(30000, TimeUnit.MILLISECONDS);
    }
-
 }

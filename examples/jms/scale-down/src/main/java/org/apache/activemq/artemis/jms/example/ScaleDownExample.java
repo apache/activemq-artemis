@@ -16,7 +16,7 @@
  */
 package org.apache.activemq.artemis.jms.example;
 
-import java.util.Hashtable;
+import org.apache.activemq.artemis.util.ServerUtil;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -26,22 +26,19 @@ import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.naming.InitialContext;
-
-import org.apache.activemq.artemis.common.example.ActiveMQExample;
+import java.util.Hashtable;
 
 /**
  * A simple example that demonstrates a colocated server
  *
  */
-public class ScaleDownExample extends ActiveMQExample
+public class ScaleDownExample
 {
-   public static void main(final String[] args)
-   {
-      new ScaleDownExample().run(args);
-   }
+   private static Process server0;
 
-   @Override
-   public boolean runExample() throws Exception
+   private static Process server1;
+
+   public static void main(final String[] args) throws Exception
    {
       final int numMessages = 30;
 
@@ -53,16 +50,19 @@ public class ScaleDownExample extends ActiveMQExample
 
       try
       {
+         server0 = ServerUtil.startServer(args[0], ScaleDownExample.class.getSimpleName() + "0", 0, 5000);
+         server1 = ServerUtil.startServer(args[1], ScaleDownExample.class.getSimpleName() + "1", 1, 5000);
+
          // Step 1. Get an initial context for looking up JNDI for both servers
          Hashtable<String, Object> properties = new Hashtable<String, Object>();
          properties.put("java.naming.factory.initial", "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
-         properties.put("connectionFactory.ConnectionFactory", args[0] + "?ha=true&retryInterval=1000&retryIntervalMultiplier=1.0&reconnectAttempts=-1");
+         properties.put("connectionFactory.ConnectionFactory", "tcp://localhost:61616?ha=true&retryInterval=1000&retryIntervalMultiplier=1.0&reconnectAttempts=-1");
          properties.put("queue.queue/exampleQueue", "exampleQueue");
          initialContext = new InitialContext(properties);
 
          properties = new Hashtable<String, Object>();
          properties.put("java.naming.factory.initial", "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
-         properties.put("connectionFactory.ConnectionFactory", args[1] + "?ha=true&retryInterval=1000&retryIntervalMultiplier=1.0&reconnectAttempts=-1");
+         properties.put("connectionFactory.ConnectionFactory", "tcp://localhost:61617?ha=true&retryInterval=1000&retryIntervalMultiplier=1.0&reconnectAttempts=-1");
          initialContext1 = new InitialContext(properties);
 
          // Step 2. Look up the JMS resources from JNDI
@@ -93,11 +93,8 @@ public class ScaleDownExample extends ActiveMQExample
             System.out.println("Sent message: " + message.getText());
          }
 
-         // Step 7. Crash server #1, the live server, and wait a little while to make sure
-         // it has really crashed
-         Thread.sleep(5000);
-         killServer(1);
-
+         // Step 7. Crash server #1
+         ServerUtil.killServer(server1);
 
          // Step 8. start the connection ready to receive messages
          connection.start();
@@ -114,8 +111,6 @@ public class ScaleDownExample extends ActiveMQExample
             System.out.println("Got message: " + message0.getText());
          }
          message0.acknowledge();
-
-         return true;
       }
       finally
       {
@@ -139,7 +134,9 @@ public class ScaleDownExample extends ActiveMQExample
          {
             initialContext1.close();
          }
+
+         ServerUtil.killServer(server0);
+         ServerUtil.killServer(server1);
       }
    }
-
 }

@@ -28,21 +28,13 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.naming.InitialContext;
 
-import org.apache.activemq.artemis.common.example.ActiveMQExample;
-
 /**
  * This example shows how to configure and use a <em>Last-Value</em> queues.
  * Only the last message with a well-defined property is hold by the queue.
  */
-public class LastValueQueueExample extends ActiveMQExample
+public class LastValueQueueExample
 {
-   public static void main(final String[] args)
-   {
-      new LastValueQueueExample().run(args);
-   }
-
-   @Override
-   public boolean runExample() throws Exception
+   public static void main(final String[] args) throws Exception
    {
       Connection connection = null;
       InitialContext initialContext = null;
@@ -108,8 +100,6 @@ public class LastValueQueueExample extends ActiveMQExample
          System.out.format("Received message: %s%n", messageReceived);
 
          initialContext.close();
-
-         return true;
       }
       finally
       {
@@ -124,5 +114,4 @@ public class LastValueQueueExample extends ActiveMQExample
          }
       }
    }
-
 }

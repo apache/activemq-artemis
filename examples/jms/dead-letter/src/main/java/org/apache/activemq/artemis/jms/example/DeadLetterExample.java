@@ -25,20 +25,12 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.naming.InitialContext;
 
-import org.apache.activemq.artemis.common.example.ActiveMQExample;
-
 /**
  * An example showing how messages are moved to dead letter destination when they are unsuccessfully delivered multiple times
  */
-public class DeadLetterExample extends ActiveMQExample
+public class DeadLetterExample
 {
-   public static void main(final String[] args)
-   {
-      new DeadLetterExample().run(args);
-   }
-
-   @Override
-   public boolean runExample() throws Exception
+   public static void main(final String[] args) throws Exception
    {
       Connection connection = null;
       InitialContext initialContext = null;
@@ -115,8 +107,8 @@ public class DeadLetterExample extends ActiveMQExample
 
          // Step 20. The message sent to the queue was moved to the dead letter queue after 3 unsuccessful deliveries
          System.out.println("Received message from " + deadLetterQueue.getQueueName() +
-                            ": " +
-                            messageReceived.getText());
+                                    ": " +
+                                    messageReceived.getText());
 
          // The message received from the dead letter queue has the same content than the undelivered message but its
          // JMS headers
@@ -132,8 +124,6 @@ public class DeadLetterExample extends ActiveMQExample
 
          // Step 23. This time, we commit the session, the delivery from the dead letter queue is successful!
          session.commit();
-
-         return true;
       }
       finally
       {
@@ -148,5 +138,4 @@ public class DeadLetterExample extends ActiveMQExample
          }
       }
    }
-
 }

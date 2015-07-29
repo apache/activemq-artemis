@@ -1850,7 +1850,8 @@ public class JMSServerManagerImpl implements JMSServerManager, ActivateCallback
       else
       {
          ActiveMQJMSServerLogger.LOGGER.serverCachingCommand(runnable);
-         cachedCommands.add(runnable);
+         if (!cachedCommands.contains(runnable))
+            cachedCommands.add(runnable);
          return false;
       }
    }

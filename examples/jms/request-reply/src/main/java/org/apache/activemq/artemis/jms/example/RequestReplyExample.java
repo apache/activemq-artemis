@@ -33,8 +33,6 @@ import javax.jms.TemporaryQueue;
 import javax.jms.TextMessage;
 import javax.naming.InitialContext;
 
-import org.apache.activemq.artemis.common.example.ActiveMQExample;
-
 /**
  * A simple JMS example that shows how to use Request/Replay style messaging.
  *
@@ -43,18 +41,11 @@ import org.apache.activemq.artemis.common.example.ActiveMQExample;
  *
  * Or better still use the correlation id, and just store the requests in a map, then you don't need a temporary queue at all
  */
-public class RequestReplyExample extends ActiveMQExample
+public class RequestReplyExample
 {
-   private final Map<String, TextMessage> requestMap = new HashMap<String, TextMessage>();
-
-   public static void main(final String[] args)
+   public static void main(final String[] args) throws Exception
    {
-      new RequestReplyExample().run(args);
-   }
-
-   @Override
-   public boolean runExample() throws Exception
-   {
+      final Map<String, TextMessage> requestMap = new HashMap<String, TextMessage>();
       Connection connection = null;
       InitialContext initialContext = null;
 
@@ -129,8 +120,6 @@ public class RequestReplyExample extends ActiveMQExample
 
          // Step 19. Shutdown the request server
          server.shutdown();
-
-         return true;
       }
       finally
       {
@@ -146,79 +135,78 @@ public class RequestReplyExample extends ActiveMQExample
          }
       }
    }
+}
 
-   private class SimpleRequestServer implements MessageListener
+class SimpleRequestServer implements MessageListener
+{
+   private Connection connection;
+
+   private Session session;
+
+   MessageProducer replyProducer;
+
+   MessageConsumer requestConsumer;
+
+   public void start() throws Exception
    {
-      private Connection connection;
+      // Get an initial context to perform the JNDI lookup.
+      InitialContext initialContext = new InitialContext();
 
-      private Session session;
+      // Lookup the queue to receive the request message
+      Queue requestQueue = (Queue)initialContext.lookup("queue/exampleQueue");
 
-      MessageProducer replyProducer;
+      // Lookup for the Connection Factory
+      ConnectionFactory cfact = (ConnectionFactory)initialContext.lookup("ConnectionFactory");
 
-      MessageConsumer requestConsumer;
+      // Create a connection
+      connection = cfact.createConnection();
 
-      public void start() throws Exception
+      // Start the connection;
+      connection.start();
+
+      // Create a session
+      session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+
+      // Create a producer to send the reply message
+      replyProducer = session.createProducer(null);
+
+      // Create the request comsumer
+      requestConsumer = session.createConsumer(requestQueue);
+
+      // register the listener
+      requestConsumer.setMessageListener(this);
+   }
+
+   public void onMessage(final Message request)
+   {
+      try
       {
-         // Get an initial context to perform the JNDI lookup.
-         InitialContext initialContext = new InitialContext();
+         System.out.println("Received request message: " + ((TextMessage)request).getText());
 
-         // Lookup the queue to receive the request message
-         Queue requestQueue = (Queue)initialContext.lookup("queue/exampleQueue");
+         // Extract the ReplyTo destination
+         Destination replyDestination = request.getJMSReplyTo();
 
-         // Lookup for the Connection Factory
-         ConnectionFactory cfact = (ConnectionFactory)initialContext.lookup("ConnectionFactory");
+         System.out.println("Reply to queue: " + replyDestination);
 
-         // Create a connection
-         connection = cfact.createConnection();
+         // Create the reply message
+         TextMessage replyMessage = session.createTextMessage("A reply message");
 
-         // Start the connection;
-         connection.start();
+         // Set the CorrelationID, using message id.
+         replyMessage.setJMSCorrelationID(request.getJMSMessageID());
 
-         // Create a session
-         session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         // Send out the reply message
+         replyProducer.send(replyDestination, replyMessage);
 
-         // Create a producer to send the reply message
-         replyProducer = session.createProducer(null);
-
-         // Create the request comsumer
-         requestConsumer = session.createConsumer(requestQueue);
-
-         // register the listener
-         requestConsumer.setMessageListener(this);
+         System.out.println("Reply sent");
       }
-
-      public void onMessage(final Message request)
+      catch (JMSException e)
       {
-         try
-         {
-            System.out.println("Received request message: " + ((TextMessage)request).getText());
-
-            // Extract the ReplyTo destination
-            Destination replyDestination = request.getJMSReplyTo();
-
-            System.out.println("Reply to queue: " + replyDestination);
-
-            // Create the reply message
-            TextMessage replyMessage = session.createTextMessage("A reply message");
-
-            // Set the CorrelationID, using message id.
-            replyMessage.setJMSCorrelationID(request.getJMSMessageID());
-
-            // Send out the reply message
-            replyProducer.send(replyDestination, replyMessage);
-
-            System.out.println("Reply sent");
-         }
-         catch (JMSException e)
-         {
-            e.printStackTrace();
-         }
-      }
-
-      public void shutdown() throws JMSException
-      {
-         connection.close();
+         e.printStackTrace();
       }
    }
 
+   public void shutdown() throws JMSException
+   {
+      connection.close();
+   }
 }

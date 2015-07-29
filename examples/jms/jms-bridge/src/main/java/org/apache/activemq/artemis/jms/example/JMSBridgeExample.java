@@ -16,14 +16,6 @@
  */
 package org.apache.activemq.artemis.jms.example;
 
-import org.apache.activemq.artemis.jms.bridge.JMSBridge;
-import org.apache.activemq.artemis.jms.bridge.QualityOfServiceMode;
-import org.apache.activemq.artemis.jms.bridge.impl.JMSBridgeImpl;
-import org.apache.activemq.artemis.jms.bridge.impl.JNDIConnectionFactoryFactory;
-import org.apache.activemq.artemis.jms.bridge.impl.JNDIDestinationFactory;
-
-import java.util.Hashtable;
-
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -33,6 +25,13 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.jms.Topic;
 import javax.naming.InitialContext;
+import java.util.Hashtable;
+
+import org.apache.activemq.artemis.jms.bridge.JMSBridge;
+import org.apache.activemq.artemis.jms.bridge.QualityOfServiceMode;
+import org.apache.activemq.artemis.jms.bridge.impl.JMSBridgeImpl;
+import org.apache.activemq.artemis.jms.bridge.impl.JNDIConnectionFactoryFactory;
+import org.apache.activemq.artemis.jms.bridge.impl.JNDIDestinationFactory;
 
 /**
  * An example which sends a message to a source topic and consume from a target queue.
@@ -43,16 +42,12 @@ public class JMSBridgeExample
 {
    public static void main(final String[] args) throws Exception
    {
-      if (args.length != 2)
-      {
-         throw new IllegalArgumentException("JMSBridgeExample needs 2 arguments: <source server> <target server>");
-      }
-      String sourceServer = args[0];
-      String targetServer = args[1];
+      String sourceServer = "tcp://localhost:61616";
+      String targetServer = "tcp://localhost:61617";
 
       System.out.println("client will publish messages to " + sourceServer +
-                         " and receives message from " +
-                         targetServer);
+                                 " and receives message from " +
+                                 targetServer);
 
       // Step 1. Create JNDI contexts for source and target servers
       InitialContext sourceContext = JMSBridgeExample.createContext(sourceServer);
@@ -63,23 +58,23 @@ public class JMSBridgeExample
       // Step 2. Create and start a JMS Bridge
       // Note, the Bridge needs a transaction manager, in this instance we will use the JBoss TM
       JMSBridge jmsBridge = new JMSBridgeImpl(
-               new JNDIConnectionFactoryFactory(sourceJndiParams, "ConnectionFactory"),
-               new JNDIConnectionFactoryFactory(targetJndiParams, "ConnectionFactory"),
-               new JNDIDestinationFactory(sourceJndiParams, "source/topic"),
-               new JNDIDestinationFactory(targetJndiParams, "target/queue"),
-               null,
-               null,
-               null,
-               null,
-               null,
-               5000,
-               10,
-               QualityOfServiceMode.DUPLICATES_OK,
-               1,
-               -1,
-               null,
-               null,
-               true);
+              new JNDIConnectionFactoryFactory(sourceJndiParams, "ConnectionFactory"),
+              new JNDIConnectionFactoryFactory(targetJndiParams, "ConnectionFactory"),
+              new JNDIDestinationFactory(sourceJndiParams, "source/topic"),
+              new JNDIDestinationFactory(targetJndiParams, "target/queue"),
+              null,
+              null,
+              null,
+              null,
+              null,
+              5000,
+              10,
+              QualityOfServiceMode.DUPLICATES_OK,
+              1,
+              -1,
+              null,
+              null,
+              true);
 
       Connection sourceConnection = null;
       Connection targetConnection = null;
@@ -133,7 +128,7 @@ public class JMSBridgeExample
          // Step 12. Be sure to close the resources!
          if(jmsBridge != null)
          {
-             jmsBridge.stop();
+            jmsBridge.stop();
          }
          if (sourceContext != null)
          {

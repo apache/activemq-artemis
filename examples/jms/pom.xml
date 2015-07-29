@@ -41,10 +41,9 @@ under the License.
       <profile>
          <id>release</id>
          <modules>
-            <module>common</module>
             <module>aerogear</module>
-            <module>artemis-ra-rar</module>
             <module>application-layer-failover</module>
+            <module>artemis-ra-rar</module>
             <module>bridge</module>
             <module>browser</module>
             <module>client-kickoff</module>
@@ -141,7 +140,6 @@ under the License.
             <activeByDefault>true</activeByDefault>
          </activation>
          <modules>
-            <module>common</module>
             <module>application-layer-failover</module>
             <module>bridge</module>
             <module>browser</module>
@@ -150,11 +148,14 @@ under the License.
             <module>client-side-failoverlistener</module>
             <module>clustered-durable-subscription</module>
             <module>clustered-grouping</module>
+            <module>clustered-jgroups</module>
             <module>clustered-queue</module>
             <module>clustered-standalone</module>
             <module>clustered-static-oneway</module>
             <module>clustered-static-discovery</module>
             <module>clustered-topic</module>
+            <module>colocated-failover</module>
+            <module>colocated-failover-scale-down</module>
             <module>consumer-rate-limit</module>
             <module>dead-letter</module>
             <module>delayed-redelivery</module>
@@ -163,10 +164,15 @@ under the License.
             <module>embedded</module>
             <module>embedded-simple</module>
             <module>expiry</module>
+            <module>ha-policy-autobackup</module>
             <module>http-transport</module>
             <module>interceptor</module>
+            <module>jms-auto-closeable</module>
             <module>instantiate-connection-factory</module>
             <module>jms-bridge</module>
+            <module>jms-completion-listener</module>
+            <module>jms-context</module>
+            <module>jms-shared-consumer</module>
             <module>jmx</module>
             <module>large-message</module>
             <module>last-value-queue</module>
@@ -180,27 +186,39 @@ under the License.
             <module>multiple-failover-failback</module>
             <module>no-consumer-buffering</module>
             <module>non-transaction-failover</module>
+            <module>openwire</module>
             <module>paging</module>
             <!--run this standalone-->
             <!--<module>perf</module>-->
+            <module>pre-acknowledge</module>
             <module>producer-rate-limit</module>
+            <module>proton-cpp</module>
+            <module>proton-j</module>
+            <module>proton-ruby</module>
             <module>queue</module>
             <module>queue-message-redistribution</module>
             <module>queue-requestor</module>
             <module>queue-selector</module>
             <module>reattach-node</module>
+            <module>replicated-failback</module>
+            <module>replicated-failback-static</module>
             <module>replicated-multiple-failover</module>
             <module>replicated-transaction-failover</module>
             <module>request-reply</module>
+            <module>rest</module>
+            <module>scale-down</module>
             <module>scheduled-message</module>
             <module>security</module>
             <module>send-acknowledgements</module>
             <module>spring-integration</module>
             <module>ssl-enabled</module>
+            <module>static-selector</module>
+            <module>static-selector-jms</module>
             <module>stomp</module>
             <!--this should be run standalone-->
             <!--<module>stomp-websockets</module>-->
             <module>stomp1.1</module>
+            <module>stomp1.2</module>
             <!--this needs to be run standalone as it needs manual intervention-->
             <!--<module>stop-server-failover</module>-->
             <module>symmetric-cluster</module>

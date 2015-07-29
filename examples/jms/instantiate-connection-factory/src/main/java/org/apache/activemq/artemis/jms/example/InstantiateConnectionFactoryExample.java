@@ -16,9 +16,6 @@
  */
 package org.apache.activemq.artemis.jms.example;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -26,11 +23,12 @@ import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.api.jms.JMSFactoryType;
-import org.apache.activemq.artemis.common.example.ActiveMQExample;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 
@@ -41,15 +39,9 @@ import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
  *
  * For more information please see the readme.html file.
  */
-public class InstantiateConnectionFactoryExample extends ActiveMQExample
+public class InstantiateConnectionFactoryExample
 {
-   public static void main(final String[] args)
-   {
-      new InstantiateConnectionFactoryExample().run(args);
-   }
-
-   @Override
-   public boolean runExample() throws Exception
+   public static void main(final String[] args) throws Exception
    {
       Connection connection = null;
       try
@@ -61,7 +53,7 @@ public class InstantiateConnectionFactoryExample extends ActiveMQExample
          // The server port etc.
 
          Map<String, Object> connectionParams = new HashMap<String, Object>();
-         connectionParams.put(TransportConstants.PORT_PROP_NAME, 61617);
+         connectionParams.put(TransportConstants.PORT_PROP_NAME, 61616);
 
          TransportConfiguration transportConfiguration = new TransportConfiguration(NettyConnectorFactory.class.getName(),
                                                                                     connectionParams);
@@ -96,8 +88,6 @@ public class InstantiateConnectionFactoryExample extends ActiveMQExample
          TextMessage messageReceived = (TextMessage)messageConsumer.receive(5000);
 
          System.out.println("Received message: " + messageReceived.getText());
-
-         return true;
       }
       finally
       {
@@ -107,5 +97,4 @@ public class InstantiateConnectionFactoryExample extends ActiveMQExample
          }
       }
    }
-
 }

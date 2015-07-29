@@ -25,20 +25,12 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.naming.InitialContext;
 
-import org.apache.activemq.artemis.common.example.ActiveMQExample;
-
 /**
  * A simple JMS Queue example that uses HTTP protocol.
  */
-public class HttpTransportExample extends ActiveMQExample
+public class HttpTransportExample
 {
-   public static void main(final String[] args)
-   {
-      new HttpTransportExample().run(args);
-   }
-
-   @Override
-   public boolean runExample() throws Exception
+   public static void main(final String[] args) throws Exception
    {
       Connection connection = null;
       InitialContext initialContext = null;
@@ -84,8 +76,6 @@ public class HttpTransportExample extends ActiveMQExample
          System.out.println("Received message: " + messageReceived.getText());
 
          initialContext.close();
-
-         return true;
       }
       finally
       {
@@ -100,5 +90,4 @@ public class HttpTransportExample extends ActiveMQExample
          }
       }
    }
-
 }

@@ -47,7 +47,8 @@ under the License.
          oob_thread_pool.queue_max_size="100"
          oob_thread_pool.rejection_policy="run"/>
 
-    <FILE_PING location="../file.ping.dir"/>
+   <!-- a location that can be found by both server's running -->
+    <FILE_PING location="../../file.ping.dir"/>
     <MERGE2 max_interval="30000"
               min_interval="10000"/>
     <FD_SOCK/>

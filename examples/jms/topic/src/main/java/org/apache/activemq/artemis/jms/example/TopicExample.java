@@ -25,20 +25,12 @@ import javax.jms.TextMessage;
 import javax.jms.Topic;
 import javax.naming.InitialContext;
 
-import org.apache.activemq.artemis.common.example.ActiveMQExample;
-
 /**
  * A simple JMS Topic example that creates a producer and consumer on a queue and sends and receives a message.
  */
-public class TopicExample extends ActiveMQExample
+public class TopicExample
 {
-   public static void main(final String[] args)
-   {
-      new TopicExample().run(args);
-   }
-
-   @Override
-   public boolean runExample() throws Exception
+   public static void main(final String[] args) throws Exception
    {
       Connection connection = null;
       InitialContext initialContext = null;
@@ -88,8 +80,6 @@ public class TopicExample extends ActiveMQExample
          messageReceived = (TextMessage)messageConsumer2.receive();
 
          System.out.println("Consumer 2 Received message: " + messageReceived.getText());
-
-         return true;
       }
       finally
       {

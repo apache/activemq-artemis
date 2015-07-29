@@ -37,11 +37,6 @@ under the License.
 
    <dependencies>
       <dependency>
-         <groupId>org.apache.activemq.examples.jms</groupId>
-         <artifactId>common</artifactId>
-         <version>${project.version}</version>
-      </dependency>
-      <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-server</artifactId>
          <version>${project.version}</version>
@@ -62,22 +57,52 @@ under the License.
                   <artifactId>artemis-maven-plugin</artifactId>
                   <executions>
                      <execution>
-                        <id>start0</id>
+                        <id>create0</id>
                         <goals>
-                           <goal>start</goal>
+                           <goal>create</goal>
                         </goals>
                         <configuration>
-                           <configurationDir>${basedir}/target/classes/activemq/server0</configurationDir>
+                           <instance>${basedir}/target/server0</instance>
+                           <configuration>${basedir}/target/classes/activemq/server0</configuration>
+                        </configuration>
+                     </execution>
+                     <execution>
+                        <id>create1</id>
+                        <goals>
+                           <goal>create</goal>
+                        </goals>
+                        <configuration>
+                           <instance>${basedir}/target/server1</instance>
+                           <configuration>${basedir}/target/classes/activemq/server1</configuration>
+                        </configuration>
+                     </execution>
+                     <execution>
+                        <id>start0</id>
+                        <goals>
+                           <goal>cli</goal>
+                        </goals>
+                        <configuration>
+                           <spawn>true</spawn>
+                           <testURI>tcp://localhost:61616</testURI>
+                           <args>
+                              <param>run</param>
+                           </args>
+                           <name>server0</name>
                         </configuration>
                      </execution>
                      <execution>
                         <id>start1</id>
                         <goals>
-                           <goal>start</goal>
+                           <goal>cli</goal>
                         </goals>
                         <configuration>
-                           <configurationDir>${basedir}/target/classes/activemq/server1</configurationDir>
-                           <fork>true</fork>
+                           <spawn>true</spawn>
+                           <location>${basedir}/target/server1</location>
+                           <testURI>tcp://localhost:61617</testURI>
+                           <args>
+                              <param>run</param>
+                           </args>
+                           <name>server1</name>
                         </configuration>
                      </execution>
                      <execution>
@@ -87,34 +112,30 @@ under the License.
                         </goals>
                         <configuration>
                            <clientClass>org.apache.activemq.artemis.jms.example.DivertExample</clientClass>
-                           <args>
-                              <param>tcp://localhost:61616</param>
-                              <param>tcp://localhost:61617</param>
-                           </args>
-                           <systemProperties>
-                              <property>
-                                 <name>exampleConfigDir</name>
-                                 <value>${basedir}/target/classes/activemq</value>
-                              </property>
-                           </systemProperties>
                         </configuration>
                      </execution>
                      <execution>
                         <id>stop0</id>
                         <goals>
-                           <goal>stop</goal>
+                           <goal>cli</goal>
                         </goals>
                         <configuration>
-                           <configurationDir>${basedir}/target/classes/activemq/server0</configurationDir>
+                           <location>${basedir}/target/server0</location>
+                           <args>
+                              <param>stop</param>
+                           </args>
                         </configuration>
                      </execution>
                      <execution>
                         <id>stop1</id>
                         <goals>
-                           <goal>stop</goal>
+                           <goal>cli</goal>
                         </goals>
                         <configuration>
-                           <configurationDir>${basedir}/target/classes/activemq/server1</configurationDir>
+                           <location>${basedir}/target/server1</location>
+                           <args>
+                              <param>stop</param>
+                           </args>
                         </configuration>
                      </execution>
                   </executions>
@@ -124,46 +145,7 @@ under the License.
                         <artifactId>artemis-jms-divert-example</artifactId>
                         <version>${project.version}</version>
                      </dependency>
-                     <dependency>
-                        <groupId>org.apache.activemq</groupId>
-                        <artifactId>artemis-core-client</artifactId>
-                        <version>${project.version}</version>
-                     </dependency>
-                     <dependency>
-                        <groupId>org.apache.activemq</groupId>
-                        <artifactId>artemis-server</artifactId>
-                        <version>${project.version}</version>
-                     </dependency>
-                     <dependency>
-                        <groupId>org.apache.activemq</groupId>
-                        <artifactId>artemis-jms-client</artifactId>
-                        <version>${project.version}</version>
-                     </dependency>
-                     <dependency>
-                        <groupId>org.apache.activemq</groupId>
-                        <artifactId>artemis-jms-server</artifactId>
-                        <version>${project.version}</version>
-                     </dependency>
-                     <dependency>
-                        <groupId>io.netty</groupId>
-                        <artifactId>netty-all</artifactId>
-                        <version>${netty.version}</version>
-                     </dependency>
-                     <dependency>
-                        <groupId>org.apache.geronimo.specs</groupId>
-                        <artifactId>geronimo-jms_2.0_spec</artifactId>
-                        <version>${geronimo.jms.2.spec.version}</version>
-                     </dependency>
                   </dependencies>
-                  <configuration>
-                     <waitOnStart>false</waitOnStart>
-                     <systemProperties>
-                        <property>
-                           <name>data.dir</name>
-                           <value>${basedir}/target/</value>
-                        </property>
-                     </systemProperties>
-                  </configuration>
                </plugin>
             </plugins>
          </build>

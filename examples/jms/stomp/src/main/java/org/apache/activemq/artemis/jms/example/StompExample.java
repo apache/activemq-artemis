@@ -29,24 +29,15 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.naming.InitialContext;
 
-
-import org.apache.activemq.artemis.common.example.ActiveMQExample;
-
 /**
  * An example where a client will send a Stomp message on a TCP socket
  * and consume it from a JMS MessageConsumer.
  */
-public class StompExample extends ActiveMQExample
+public class StompExample
 {
    private static final String END_OF_FRAME = "\u0000";
 
-   public static void main(final String[] args)
-   {
-      new StompExample().run(args);
-   }
-
-   @Override
-   public boolean runExample() throws Exception
+   public static void main(final String[] args) throws Exception
    {
       Connection connection = null;
       InitialContext initialContext = null;
@@ -58,11 +49,11 @@ public class StompExample extends ActiveMQExample
 
          // Step 2. Send a CONNECT frame to connect to the server
          String connectFrame = "CONNECT\n" +
-            "login: guest\n" +
-            "passcode: guest\n" +
-            "request-id: 1\n" +
-            "\n" +
-            END_OF_FRAME;
+                 "login: guest\n" +
+                 "passcode: guest\n" +
+                 "request-id: 1\n" +
+                 "\n" +
+                 END_OF_FRAME;
          sendFrame(socket, connectFrame);
 
          readFrame(socket);
@@ -71,17 +62,17 @@ public class StompExample extends ActiveMQExample
          // jms.queue.exampleQueue address with a text body
          String text = "Hello, world from Stomp!";
          String message = "SEND\n" +
-            "destination: jms.queue.exampleQueue\n" +
-            "\n" +
-            text +
-            END_OF_FRAME;
+                 "destination: jms.queue.exampleQueue\n" +
+                 "\n" +
+                 text +
+                 END_OF_FRAME;
          sendFrame(socket, message);
          System.out.println("Sent Stomp message: " + text);
 
          // Step 4. Send a DISCONNECT frame to disconnect from the server
          String disconnectFrame = "DISCONNECT\n" +
-            "\n" +
-            END_OF_FRAME;
+                 "\n" +
+                 END_OF_FRAME;
          sendFrame(socket, disconnectFrame);
 
          // Step 5. Slose the TCP socket
@@ -107,8 +98,6 @@ public class StompExample extends ActiveMQExample
          // Step 10. Receive the message
          TextMessage messageReceived = (TextMessage)consumer.receive(5000);
          System.out.println("Received JMS message: " + messageReceived.getText());
-
-         return true;
       }
       finally
       {

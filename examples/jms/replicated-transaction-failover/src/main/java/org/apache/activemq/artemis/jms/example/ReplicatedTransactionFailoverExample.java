@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.jms.example;
 
+import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.util.ServerUtil;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -26,29 +29,23 @@ import javax.jms.TextMessage;
 import javax.jms.TransactionRolledBackException;
 import javax.naming.InitialContext;
 
-import org.apache.activemq.artemis.api.core.Message;
-import org.apache.activemq.artemis.common.example.ActiveMQExample;
-
 /**
  * A simple example that demonstrates failover of the JMS connection from one node to another
  * when the live server crashes using a JMS <em>transacted</em> session and replication.
  */
-public class ReplicatedTransactionFailoverExample extends ActiveMQExample
+public class ReplicatedTransactionFailoverExample
 {
+   private static Process server0;
+
+   private static Process server1;
 
    // You need to guarantee uniqueIDs when using duplicate detection
    // It needs to be unique even after a restart
    // as these IDs are stored on the journal for control
    // We recommend some sort of UUID, but for this example the Current Time as string would be enough
-   String uniqueID = Long.toString(System.currentTimeMillis());
+   private static String uniqueID = Long.toString(System.currentTimeMillis());
 
-   public static void main(final String[] args)
-   {
-      new ReplicatedTransactionFailoverExample().run(args);
-   }
-
-   @Override
-   public boolean runExample() throws Exception
+   public static void main(final String[] args) throws Exception
    {
       final int numMessages = 10;
 
@@ -58,6 +55,9 @@ public class ReplicatedTransactionFailoverExample extends ActiveMQExample
 
       try
       {
+         server0 = ServerUtil.startServer(args[0], ReplicatedTransactionFailoverExample.class.getSimpleName() + "0", 0, 5000);
+         server1 = ServerUtil.startServer(args[1], ReplicatedTransactionFailoverExample.class.getSimpleName() + "1", 1, 5000);
+
          // Step 1. Get an initial context for looking up JNDI from the server #1
          initialContext = new InitialContext();
 
@@ -108,9 +108,7 @@ public class ReplicatedTransactionFailoverExample extends ActiveMQExample
 
             if (message0 == null)
             {
-               System.err.println("Example failed - message wasn't received");
-
-               return false;
+               throw new IllegalStateException("Example failed - message wasn't received");
             }
 
             System.out.println("Got message: " + message0.getText());
@@ -119,8 +117,6 @@ public class ReplicatedTransactionFailoverExample extends ActiveMQExample
          session.commit();
 
          System.out.println("Other message on the server? " + consumer.receive(5000));
-
-         return true;
       }
       finally
       {
@@ -135,10 +131,13 @@ public class ReplicatedTransactionFailoverExample extends ActiveMQExample
          {
             initialContext.close();
          }
+
+         ServerUtil.killServer(server0);
+         ServerUtil.killServer(server1);
       }
    }
 
-   private void sendMessages(final Session session,
+   private static void sendMessages(final Session session,
                              final MessageProducer producer,
                              final int numMessages,
                              final boolean killServer) throws Exception
@@ -160,10 +159,7 @@ public class ReplicatedTransactionFailoverExample extends ActiveMQExample
 
       if (killServer)
       {
-         Thread.sleep(5000);
-
-         killServer(0);
-
+         ServerUtil.killServer(server0);
       }
 
       // We send the remaining half of messages

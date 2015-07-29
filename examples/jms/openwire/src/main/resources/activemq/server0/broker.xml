@@ -43,7 +43,9 @@ under the License.
 
       <!-- Acceptors -->
       <acceptors>
-         <acceptor name="openwire-acceptor">tcp://localhost:61616?protocols=OPENWIRE</acceptor>
+         <!-- the same acceptor can deal with more than one protocol. We are adding CORE here as some of
+              the example super classes will check for if the server is alive after starting it -->
+         <acceptor name="openwire-acceptor">tcp://localhost:61616?protocols=OPENWIRE,CORE</acceptor>
       </acceptors>
 
       <!-- Other config -->

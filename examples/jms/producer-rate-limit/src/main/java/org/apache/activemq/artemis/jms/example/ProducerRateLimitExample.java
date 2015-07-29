@@ -25,21 +25,13 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.naming.InitialContext;
 
-import org.apache.activemq.artemis.common.example.ActiveMQExample;
-
 /**
  * This example demonstrates how a message producer can be limited to produce messages at a maximum rate
  * specified in messages per sec.
  */
-public class ProducerRateLimitExample extends ActiveMQExample
+public class ProducerRateLimitExample
 {
-   public static void main(final String[] args)
-   {
-      new ProducerRateLimitExample().run(args);
-   }
-
-   @Override
-   public boolean runExample() throws Exception
+   public static void main(final String[] args) throws Exception
    {
       Connection connection = null;
       InitialContext initialContext = null;
@@ -110,8 +102,6 @@ public class ProducerRateLimitExample extends ActiveMQExample
          }
 
          System.out.println("Received " + i + " messages");
-
-         return true;
       }
       finally
       {
@@ -126,5 +116,4 @@ public class ProducerRateLimitExample extends ActiveMQExample
          }
       }
    }
-
 }

@@ -5,22 +5,18 @@
 Running the Soak Tests
 =======================
 
-The default soak tests with start a ActiveMQ Artemis instance, 1 producer and 1 consumer.  To run the default suite.
-
-  $mvn verify
-
 Run The Server Standalone
 ==========================
 
-If would like to run a number of servers or run the server on a different machine:
+Use the Profile server
+   mvn -Pserver verify
 
-To run server using the default configuration (server0, using localhost):
-   $ mvn verify -Pserver
+That will create a server under ./target/server0
 
-To run multiple servers, you can specify the server configuration directory using server.dir 
-system property (which defaults to server0). To run a 2nd server with a configuration stored in server1:
 
-   $ mvn verify -Pserver -Dserver.dir=server1
+You can define the property server.dir under the same Profile to create other servers. or you could do it manually if desired using the regular ./artemis create
+
+   $ mvn -Dserver.dir=server1 -Pserver verify
 
 server1 should contain a copy of configuration equivalent to that found under the server0 director with different
 settings.
@@ -31,6 +27,9 @@ change:
 * bindAddress and rmiBindAddress properties in activemq-beans.xml
 
   $ mvn verify -P server
+
+
+To run the server just start it manually
 
 Configure Server Dump
 =====================
@@ -61,7 +60,7 @@ The clients can be run separate from the server using:
 
 Parameters are specified in soak.properties.
 
-The duration of the tests is configured by duration-in-minutes (defaults to 2 minutes, set to 
+The duration of the tests is configured by duration-in-minutes (defaults to 2 minutes, set to
 -1 to run the test indefinitely).
 
 To configure the soak properties different to the defaults for the clients, use the system property

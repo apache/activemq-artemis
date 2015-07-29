@@ -37,22 +37,15 @@ import javax.naming.InitialContext;
 import org.apache.activemq.artemis.api.core.management.MessageCounterInfo;
 import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
 import org.apache.activemq.artemis.api.jms.management.JMSQueueControl;
-import org.apache.activemq.artemis.common.example.ActiveMQExample;
 
 /**
  * An example showing how to use message counters to have information on a queue.
  */
-public class MessageCounterExample extends ActiveMQExample
+public class MessageCounterExample
 {
    private static final String JMX_URL = "service:jmx:rmi:///jndi/rmi://localhost:3001/jmxrmi";
 
-   public static void main(final String[] args)
-   {
-      new MessageCounterExample().run(args);
-   }
-
-   @Override
-   public boolean runExample() throws Exception
+   public static void main(final String[] args) throws Exception
    {
       QueueConnection connection = null;
       InitialContext initialContext = null;
@@ -84,7 +77,7 @@ public class MessageCounterExample extends ActiveMQExample
          // Step 7. Use JMX to retrieve the message counters using the JMSQueueControl
          ObjectName on = ObjectNameBuilder.DEFAULT.getJMSQueueObjectName(queue.getQueueName());
          JMXConnector connector =
-                  JMXConnectorFactory.connect(new JMXServiceURL(JMX_URL), new HashMap<String, Object>());
+                 JMXConnectorFactory.connect(new JMXServiceURL(JMX_URL), new HashMap<String, Object>());
          MBeanServerConnection mbsc = connector.getMBeanServerConnection();
          JMSQueueControl queueControl = MBeanServerInvocationHandler.newProxyInstance(mbsc,
                                                                                       on,
@@ -125,8 +118,6 @@ public class MessageCounterExample extends ActiveMQExample
          counters = queueControl.listMessageCounter();
          messageCounter = MessageCounterInfo.fromJSON(counters);
          displayMessageCounter(messageCounter);
-
-         return true;
       }
       finally
       {
@@ -142,7 +133,7 @@ public class MessageCounterExample extends ActiveMQExample
       }
    }
 
-   private void displayMessageCounter(final MessageCounterInfo counter)
+   private static void displayMessageCounter(final MessageCounterInfo counter)
    {
       System.out.format("%s (sample updated at %s)%n", counter.getName(), counter.getUdpateTimestamp());
       System.out.format("   %s message(s) added to the queue (since last sample: %s)%n",

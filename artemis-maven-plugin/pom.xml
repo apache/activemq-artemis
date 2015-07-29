@@ -43,6 +43,16 @@
          <version>2.0</version>
       </dependency>
       <dependency>
+         <groupId>org.eclipse.aether</groupId>
+         <artifactId>aether-api</artifactId>
+         <version>1.0.2.v20150114</version>
+      </dependency>
+      <dependency>
+         <groupId>org.eclipse.aether</groupId>
+         <artifactId>aether-util</artifactId>
+         <version>1.0.2.v20150114</version>
+      </dependency>
+      <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-server</artifactId>
          <version>${project.version}</version>
@@ -50,6 +60,16 @@
       <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-jms-server</artifactId>
+         <version>${project.version}</version>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>artemis-boot</artifactId>
+         <version>${project.version}</version>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>artemis-cli</artifactId>
          <version>${project.version}</version>
       </dependency>
       <dependency>

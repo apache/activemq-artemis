@@ -36,22 +36,15 @@ import javax.naming.InitialContext;
 
 import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
 import org.apache.activemq.artemis.api.jms.management.JMSQueueControl;
-import org.apache.activemq.artemis.common.example.ActiveMQExample;
 
 /**
  * An example that shows how to manage ActiveMQ Artemis using JMX.
  */
-public class JMXExample extends ActiveMQExample
+public class JMXExample
 {
    private static final String JMX_URL = "service:jmx:rmi:///jndi/rmi://localhost:3000/jmxrmi";
 
-   public static void main(final String[] args)
-   {
-      new JMXExample().run(args);
-   }
-
-   @Override
-   public boolean runExample() throws Exception
+   public static void main(final String[] args) throws Exception
    {
       QueueConnection connection = null;
       InitialContext initialContext = null;
@@ -94,7 +87,7 @@ public class JMXExample extends ActiveMQExample
          // Step 12. Create a JMSQueueControl proxy to manage the queue on the server
          JMSQueueControl queueControl = MBeanServerInvocationHandler.newProxyInstance(mbsc,
                                                                                       on,
-                                                                                       JMSQueueControl.class,
+                                                                                      JMSQueueControl.class,
                                                                                       false);
          // Step 13. Display the number of messages in the queue
          System.out.println(queueControl.getName() + " contains " + queueControl.getMessageCount() + " messages");
@@ -119,8 +112,6 @@ public class JMXExample extends ActiveMQExample
          // The call will timeout after 5000ms and messageReceived will be null
          TextMessage messageReceived = (TextMessage)messageConsumer.receive(5000);
          System.out.println("Received message: " + messageReceived);
-
-         return true;
       }
       finally
       {
@@ -135,5 +126,4 @@ public class JMXExample extends ActiveMQExample
          }
       }
    }
-
 }

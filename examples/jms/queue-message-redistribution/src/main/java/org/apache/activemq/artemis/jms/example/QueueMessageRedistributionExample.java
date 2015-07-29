@@ -16,8 +16,6 @@
  */
 package org.apache.activemq.artemis.jms.example;
 
-import java.util.Hashtable;
-
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -26,8 +24,7 @@ import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.naming.InitialContext;
-
-import org.apache.activemq.artemis.common.example.ActiveMQExample;
+import java.util.Hashtable;
 
 /**
  * This example demonstrates a queue with the same name deployed on two nodes of a cluster.
@@ -35,15 +32,9 @@ import org.apache.activemq.artemis.common.example.ActiveMQExample;
  * The consumer on one of the nodes is then closed, and we demonstrate that the "stranded" messages
  * are redistributed to the other node which has a consumer so they can be consumed.
  */
-public class QueueMessageRedistributionExample extends ActiveMQExample
+public class QueueMessageRedistributionExample
 {
-   public static void main(final String[] args)
-   {
-      new QueueMessageRedistributionExample().run(args);
-   }
-
-   @Override
-   public boolean runExample() throws Exception
+   public static void main(final String[] args) throws Exception
    {
       Connection connection0 = null;
 
@@ -58,7 +49,7 @@ public class QueueMessageRedistributionExample extends ActiveMQExample
          // Step 1. Get an initial context for looking up JNDI from server 0
          Hashtable<String, Object> properties = new Hashtable<String, Object>();
          properties.put("java.naming.factory.initial", "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
-         properties.put("connectionFactory.ConnectionFactory", args[0]);
+         properties.put("connectionFactory.ConnectionFactory", "tcp://localhost:61616");
          properties.put("queue.queue/exampleQueue", "exampleQueue");
          ic0 = new InitialContext(properties);
 
@@ -71,7 +62,7 @@ public class QueueMessageRedistributionExample extends ActiveMQExample
          // Step 4. Get an initial context for looking up JNDI from server 1
          properties = new Hashtable<String, Object>();
          properties.put("java.naming.factory.initial", "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
-         properties.put("connectionFactory.ConnectionFactory", args[1]);
+         properties.put("connectionFactory.ConnectionFactory", "tcp://localhost:61617");
          ic1 = new InitialContext(properties);
 
          // Step 5. Look-up a JMS Connection Factory object from JNDI on server 1
@@ -159,8 +150,6 @@ public class QueueMessageRedistributionExample extends ActiveMQExample
 
          // Step 18. We ack the messages.
          message0.acknowledge();
-
-         return true;
       }
       finally
       {
@@ -187,5 +176,4 @@ public class QueueMessageRedistributionExample extends ActiveMQExample
          }
       }
    }
-
 }

@@ -25,23 +25,15 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.naming.InitialContext;
 
-import org.apache.activemq.artemis.common.example.ActiveMQExample;
-
 /**
  * This example demonstrates how ActiveMQ Artemis can be configured with a redelivery delay in the event a message
  * is redelivered.
  *
  * Please see the readme.html for more information
  */
-public class DelayedRedeliveryExample extends ActiveMQExample
+public class DelayedRedeliveryExample
 {
-   public static void main(final String[] args)
-   {
-      new DelayedRedeliveryExample().run(args);
-   }
-
-   @Override
-   public boolean runExample() throws Exception
+   public static void main(final String[] args) throws Exception
    {
       Connection connection = null;
       InitialContext initialContext = null;
@@ -96,7 +88,7 @@ public class DelayedRedeliveryExample extends ActiveMQExample
 
          if (messageReceived != null)
          {
-            return false;
+            throw new IllegalStateException("Expected to recieve message.");
          }
 
          System.out.println("Redelivery has been delayed so received message is " + messageReceived);
@@ -118,13 +110,11 @@ public class DelayedRedeliveryExample extends ActiveMQExample
          long end = System.currentTimeMillis();
 
          System.out.println("3nd delivery from " + queue.getQueueName() +
-                            ": " +
-                            messageReceived.getText() +
-                            " after " +
-                            (end - start) +
-                            " milliseconds.");
-
-         return true;
+                                    ": " +
+                                    messageReceived.getText() +
+                                    " after " +
+                                    (end - start) +
+                                    " milliseconds.");
       }
       finally
       {
@@ -139,5 +129,4 @@ public class DelayedRedeliveryExample extends ActiveMQExample
          }
       }
    }
-
 }

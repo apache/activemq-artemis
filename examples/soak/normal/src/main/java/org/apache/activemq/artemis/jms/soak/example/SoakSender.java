@@ -16,10 +16,6 @@
  */
 package org.apache.activemq.artemis.jms.soak.example;
 
-import java.util.Hashtable;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.logging.Logger;
-
 import javax.jms.BytesMessage;
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -31,6 +27,8 @@ import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.logging.Logger;
 
 import org.apache.activemq.artemis.utils.TokenBucketLimiter;
 import org.apache.activemq.artemis.utils.TokenBucketLimiterImpl;
@@ -41,24 +39,12 @@ public class SoakSender
 
    public static void main(final String[] args)
    {
-      String jndiURL = System.getProperty("jndi.address");
-      if(jndiURL == null)
-      {
-         jndiURL = args.length > 0 ? args[0] : "tcp://localhost:61616";
-      }
-
-      System.out.println("Connecting to JNDI at " + jndiURL);
       try
       {
          String fileName = SoakBase.getPerfFileName();
 
          SoakParams params = SoakBase.getParams(fileName);
-
-         Hashtable<String, String> jndiProps = new Hashtable<String, String>();
-         jndiProps.put("connectionFactory.ConnectionFactory", jndiURL);
-         jndiProps.put("java.naming.factory.initial", "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
-
-         final SoakSender sender = new SoakSender(jndiProps, params);
+         final SoakSender sender = new SoakSender(params);
 
          Runtime.getRuntime().addShutdownHook(new Thread()
          {
@@ -79,8 +65,6 @@ public class SoakSender
 
    private final SoakParams perfParams;
 
-   private final Hashtable<String, String> jndiProps;
-
    private Connection connection;
 
    private Session session;
@@ -98,9 +82,8 @@ public class SoakSender
 
    };
 
-   private SoakSender(final Hashtable<String, String> jndiProps, final SoakParams perfParams)
+   private SoakSender(final SoakParams perfParams)
    {
-      this.jndiProps = jndiProps;
       this.perfParams = perfParams;
    }
 
@@ -207,7 +190,7 @@ public class SoakSender
       InitialContext ic = null;
       try
       {
-         ic = new InitialContext(jndiProps);
+         ic = new InitialContext();
 
          ConnectionFactory factory = (ConnectionFactory)ic.lookup(perfParams.getConnectionFactoryLookup());
 

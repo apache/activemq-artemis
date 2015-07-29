@@ -26,20 +26,12 @@ import javax.jms.Queue;
 import javax.jms.Session;
 import javax.naming.InitialContext;
 
-import org.apache.activemq.artemis.common.example.ActiveMQExample;
-
 /**
  * A simple JMS Queue example that creates a producer and consumer on a queue and sends then receives a message.
  */
-public class PagingExample extends ActiveMQExample
+public class PagingExample
 {
-   public static void main(final String[] args)
-   {
-      new PagingExample().run(args);
-   }
-
-   @Override
-   public boolean runExample() throws Exception
+   public static void main(final String[] args) throws Exception
    {
       Connection connection = null;
 
@@ -133,9 +125,6 @@ public class PagingExample extends ActiveMQExample
 
             message.acknowledge();
          }
-
-         return true;
-
       }
       finally
       {
@@ -153,5 +142,4 @@ public class PagingExample extends ActiveMQExample
          }
       }
    }
-
 }

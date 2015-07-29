@@ -18,21 +18,14 @@ package org.apache.activemq.artemis.jms.example;
 
 import javax.jms.*;
 import javax.naming.InitialContext;
-
-import org.apache.activemq.artemis.common.example.ActiveMQExample;
+import java.lang.Exception;
 
 /**
  * A simple JMS example that shows how AutoCloseable is used by JMS 2 resources.
  */
-public class JMSAutoCloseableExample extends ActiveMQExample
+public class JMSAutoCloseableExample
 {
-   public static void main(final String[] args)
-   {
-      new JMSAutoCloseableExample().run(args);
-   }
-
-   @Override
-   public boolean runExample() throws Exception
+   public static void main(final String[] args) throws Exception
    {
       InitialContext initialContext = null;
       try
@@ -48,9 +41,9 @@ public class JMSAutoCloseableExample extends ActiveMQExample
 
          // Step 4.Create a JMS Context using the try-with-resources statement
          try
-         (
-            JMSContext jmsContext = cf.createContext()
-         )
+                 (
+                         JMSContext jmsContext = cf.createContext()
+                 )
          {
             // Step 5. create a jms producer
             JMSProducer jmsProducer = jmsContext.createProducer();
@@ -64,8 +57,6 @@ public class JMSAutoCloseableExample extends ActiveMQExample
             //JMSCcontext will have been closed by the time we get to this point
             System.out.println("expected exception from jmsProducer.send: " + e.getMessage());
          }
-
-         return true;
       }
       finally
       {

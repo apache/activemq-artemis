@@ -41,6 +41,7 @@ under the License.
       <!-- Acceptors -->
       <acceptors>
          <acceptor name="proton-acceptor">tcp://localhost:5672</acceptor>
+         <acceptor name="netty-acceptor">tcp://localhost:61616</acceptor>
       </acceptors>
 
       <queues>

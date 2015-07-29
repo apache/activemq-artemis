@@ -24,22 +24,15 @@ import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.naming.InitialContext;
-
-import org.apache.activemq.artemis.common.example.ActiveMQExample;
+import java.lang.Exception;
 
 /**
  * This example demonstrates how a message consumer can be limited to consumer messages at a maximum rate
  * specified in messages per sec.
  */
-public class ConsumerRateLimitExample extends ActiveMQExample
+public class ConsumerRateLimitExample
 {
-   public static void main(final String[] args)
-   {
-      new ConsumerRateLimitExample().run(args);
-   }
-
-   @Override
-   public boolean runExample() throws Exception
+   public static void main(final String[] args) throws Exception
    {
       Connection connection = null;
       InitialContext initialContext = null;
@@ -100,7 +93,7 @@ public class ConsumerRateLimitExample extends ActiveMQExample
 
             if (message == null)
             {
-               return false;
+               throw new RuntimeException("Message was null");
             }
 
             i++;
@@ -113,8 +106,6 @@ public class ConsumerRateLimitExample extends ActiveMQExample
          System.out.println("We consumed " + i + " messages in " + (end - start) + " milliseconds");
 
          System.out.println("Actual consume rate was " + rate + " messages per second");
-
-         return true;
       }
       finally
       {
@@ -130,5 +121,4 @@ public class ConsumerRateLimitExample extends ActiveMQExample
          }
       }
    }
-
 }

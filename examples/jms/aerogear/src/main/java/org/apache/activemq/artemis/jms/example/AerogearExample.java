@@ -19,27 +19,17 @@ package org.apache.activemq.artemis.jms.example;
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Message;
-import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
-import javax.jms.TextMessage;
 import javax.naming.InitialContext;
-
-import org.apache.activemq.artemis.common.example.ActiveMQExample;
 
 /**
  * A simple JMS Queue example that creates a producer and consumer on a queue and sends then receives a message.
  */
-public class AerogearExample extends ActiveMQExample
+public class AerogearExample
 {
-   public static void main(final String[] args)
-   {
-      new AerogearExample().run(args);
-   }
-
-   @Override
-   public boolean runExample() throws Exception
+   public static void main(final String[] args) throws Exception
    {
       Connection connection = null;
       InitialContext initialContext = null;
@@ -75,8 +65,6 @@ public class AerogearExample extends ActiveMQExample
          System.out.println("now check your mobile app and press enter");
 
          System.in.read();
-
-         return true;
       }
       finally
       {

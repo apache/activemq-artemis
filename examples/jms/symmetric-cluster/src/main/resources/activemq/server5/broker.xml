@@ -30,23 +30,22 @@ under the License.
 
    <core xmlns="urn:activemq:core">
 
+      <bindings-directory>${data.dir:./data}/bindings</bindings-directory>
 
-      <bindings-directory>${data.dir}/server5/data/messaging/bindings</bindings-directory>
+      <journal-directory>${data.dir:./data}/journal</journal-directory>
 
-      <journal-directory>${data.dir}/server5/data/messaging/journal</journal-directory>
+      <large-messages-directory>${data.dir:./data}/largemessages</large-messages-directory>
 
-      <large-messages-directory>${data.dir}/server5/data/messaging/largemessages</large-messages-directory>
-
-      <paging-directory>${data.dir}/server5/data/messaging/paging</paging-directory>
+      <paging-directory>${data.dir:./data}/paging</paging-directory>
 
       <!-- Connectors -->
       <connectors>
-         <connector name="netty-connector">tcp://localhost:5450</connector>
+         <connector name="netty-connector">tcp://localhost:61621</connector>
       </connectors>
 
       <!-- Acceptors -->
       <acceptors>
-         <acceptor name="netty-acceptor">tcp://localhost:5450</acceptor>
+         <acceptor name="netty-acceptor">tcp://localhost:61621</acceptor>
       </acceptors>
 
       <!-- Clustering configuration -->
