@@ -44,18 +44,18 @@ import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.config.ClusterConnectionConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.ha.SharedStoreSlavePolicyConfiguration;
 import org.apache.activemq.artemis.core.journal.EncodingSupport;
-import org.apache.activemq.artemis.core.journal.IOAsyncTask;
 import org.apache.activemq.artemis.core.journal.IOCompletion;
 import org.apache.activemq.artemis.core.journal.Journal;
 import org.apache.activemq.artemis.core.journal.JournalLoadInformation;
 import org.apache.activemq.artemis.core.journal.LoaderCallback;
 import org.apache.activemq.artemis.core.journal.PreparedTransactionInfo;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
-import org.apache.activemq.artemis.core.journal.SequentialFileFactory;
+import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.journal.TransactionFailureCallback;
 import org.apache.activemq.artemis.core.journal.impl.JournalFile;
 import org.apache.activemq.artemis.core.paging.PagedMessage;
@@ -377,7 +377,7 @@ public final class ReplicationTest extends ActiveMQTestBase
 
       final CountDownLatch latch = new CountDownLatch(1);
 
-      ctx.executeOnCompletion(new IOAsyncTask()
+      ctx.executeOnCompletion(new IOCallback()
       {
          public void onError(final int errorCode, final String errorMessage)
          {
@@ -402,7 +402,7 @@ public final class ReplicationTest extends ActiveMQTestBase
       final CountDownLatch latch2 = new CountDownLatch(1);
 
       // Adding the Task after the exception should still throw an exception
-      ctx.executeOnCompletion(new IOAsyncTask()
+      ctx.executeOnCompletion(new IOCallback()
       {
          public void onError(final int errorCode, final String errorMessage)
          {
@@ -426,7 +426,7 @@ public final class ReplicationTest extends ActiveMQTestBase
 
       final CountDownLatch latch3 = new CountDownLatch(1);
 
-      ctx.executeOnCompletion(new IOAsyncTask()
+      ctx.executeOnCompletion(new IOCallback()
       {
          public void onError(final int errorCode, final String errorMessage)
          {
@@ -488,7 +488,7 @@ public final class ReplicationTest extends ActiveMQTestBase
    private void blockOnReplication(final StorageManager storage, final ReplicationManager manager1) throws Exception
    {
       final CountDownLatch latch = new CountDownLatch(1);
-      storage.afterCompleteOperations(new IOAsyncTask()
+      storage.afterCompleteOperations(new IOCallback()
       {
 
          public void onError(final int errorCode, final String errorMessage)
@@ -518,7 +518,7 @@ public final class ReplicationTest extends ActiveMQTestBase
       replicatedJournal.appendPrepareRecord(1, new FakeData(), false);
 
       final CountDownLatch latch = new CountDownLatch(1);
-      storage.afterCompleteOperations(new IOAsyncTask()
+      storage.afterCompleteOperations(new IOCallback()
       {
 
          public void onError(final int errorCode, final String errorMessage)
@@ -563,7 +563,7 @@ public final class ReplicationTest extends ActiveMQTestBase
             replicatedJournal.appendPrepareRecord(i, new FakeData(), false);
          }
 
-         ctx.executeOnCompletion(new IOAsyncTask()
+         ctx.executeOnCompletion(new IOCallback()
          {
 
             public void onError(final int errorCode, final String errorMessage)

@@ -16,7 +16,9 @@
  */
 package org.apache.activemq.artemis.core.journal;
 
-public interface IOCompletion extends IOAsyncTask
+import org.apache.activemq.artemis.core.io.IOCallback;
+
+public interface IOCompletion extends IOCallback
 {
    void storeLineUp();
 }

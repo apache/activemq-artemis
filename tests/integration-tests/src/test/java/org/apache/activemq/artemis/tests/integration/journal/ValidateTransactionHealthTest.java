@@ -20,17 +20,17 @@ import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.apache.activemq.artemis.jlibaio.LibaioContext;
 import org.apache.activemq.artemis.tests.util.SpawnedVMSupport;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.apache.activemq.artemis.core.asyncio.impl.AsynchronousFileImpl;
 import org.apache.activemq.artemis.core.journal.LoaderCallback;
 import org.apache.activemq.artemis.core.journal.PreparedTransactionInfo;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
-import org.apache.activemq.artemis.core.journal.SequentialFileFactory;
-import org.apache.activemq.artemis.core.journal.impl.AIOSequentialFileFactory;
+import org.apache.activemq.artemis.core.io.SequentialFileFactory;
+import org.apache.activemq.artemis.core.io.aio.AIOSequentialFileFactory;
 import org.apache.activemq.artemis.core.journal.impl.JournalConstants;
 import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
-import org.apache.activemq.artemis.core.journal.impl.NIOSequentialFileFactory;
+import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -126,7 +126,7 @@ public class ValidateTransactionHealthTest extends ActiveMQTestBase
    {
       try
       {
-         if (type.equals("aio") && !AsynchronousFileImpl.isLoaded())
+         if (type.equals("aio") && !LibaioContext.isLoaded())
          {
             // Using System.out as this output will go towards junit report
             System.out.println("AIO not found, test being ignored on this platform");
@@ -381,15 +381,16 @@ public class ValidateTransactionHealthTest extends ActiveMQTestBase
          return new AIOSequentialFileFactory(new File(directory),
                                              JournalConstants.DEFAULT_JOURNAL_BUFFER_SIZE_AIO,
                                              JournalConstants.DEFAULT_JOURNAL_BUFFER_TIMEOUT_AIO,
+                                             10,
                                              false);
       }
       else if (factoryType.equals("nio2"))
       {
-         return new NIOSequentialFileFactory(new File(directory), true);
+         return new NIOSequentialFileFactory(new File(directory), true, 1);
       }
       else
       {
-         return new NIOSequentialFileFactory(new File(directory), false);
+         return new NIOSequentialFileFactory(new File(directory), false, 1);
       }
    }
 

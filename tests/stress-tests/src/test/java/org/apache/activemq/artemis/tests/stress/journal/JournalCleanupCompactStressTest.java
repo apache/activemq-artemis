@@ -16,26 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.stress.journal;
 
-import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
-import org.apache.activemq.artemis.core.asyncio.impl.AsynchronousFileImpl;
-import org.apache.activemq.artemis.core.journal.IOAsyncTask;
-import org.apache.activemq.artemis.core.journal.PreparedTransactionInfo;
-import org.apache.activemq.artemis.core.journal.RecordInfo;
-import org.apache.activemq.artemis.core.journal.SequentialFileFactory;
-import org.apache.activemq.artemis.core.journal.TransactionFailureCallback;
-import org.apache.activemq.artemis.core.journal.impl.AIOSequentialFileFactory;
-import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
-import org.apache.activemq.artemis.core.journal.impl.NIOSequentialFileFactory;
-import org.apache.activemq.artemis.core.persistence.impl.journal.OperationContextImpl;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
-import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
-import org.apache.activemq.artemis.utils.OrderedExecutorFactory;
-import org.apache.activemq.artemis.utils.SimpleIDGenerator;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -51,6 +31,26 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+
+import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
+import org.apache.activemq.artemis.core.io.IOCallback;
+import org.apache.activemq.artemis.core.journal.PreparedTransactionInfo;
+import org.apache.activemq.artemis.core.journal.RecordInfo;
+import org.apache.activemq.artemis.core.io.SequentialFileFactory;
+import org.apache.activemq.artemis.core.journal.TransactionFailureCallback;
+import org.apache.activemq.artemis.core.io.aio.AIOSequentialFileFactory;
+import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
+import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
+import org.apache.activemq.artemis.core.persistence.impl.journal.OperationContextImpl;
+import org.apache.activemq.artemis.jlibaio.LibaioContext;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
+import org.apache.activemq.artemis.utils.OrderedExecutorFactory;
+import org.apache.activemq.artemis.utils.SimpleIDGenerator;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 public class JournalCleanupCompactStressTest extends ActiveMQTestBase
 {
@@ -112,14 +112,14 @@ public class JournalCleanupCompactStressTest extends ActiveMQTestBase
       SequentialFileFactory factory;
 
       int maxAIO;
-      if (AsynchronousFileImpl.isLoaded())
+      if (LibaioContext.isLoaded())
       {
-         factory = new AIOSequentialFileFactory(dir);
+         factory = new AIOSequentialFileFactory(dir, 10);
          maxAIO = ActiveMQDefaultConfiguration.getDefaultJournalMaxIoAio();
       }
       else
       {
-         factory = new NIOSequentialFileFactory(dir, true);
+         factory = new NIOSequentialFileFactory(dir, true, 1);
          maxAIO = ActiveMQDefaultConfiguration.getDefaultJournalMaxIoNio();
       }
 
@@ -380,7 +380,7 @@ public class JournalCleanupCompactStressTest extends ActiveMQTestBase
                }
                journal.appendCommitRecord(txID, true, ctx);
 
-               ctx.executeOnCompletion(new IOAsyncTask()
+               ctx.executeOnCompletion(new IOCallback()
                {
 
                   public void onError(final int errorCode, final String errorMessage)
@@ -493,7 +493,7 @@ public class JournalCleanupCompactStressTest extends ActiveMQTestBase
       }
    }
 
-   class DeleteTask implements IOAsyncTask
+   class DeleteTask implements IOCallback
    {
       final long[] ids;
 

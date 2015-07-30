@@ -22,9 +22,10 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.core.io.IOCallback;
+import org.apache.activemq.artemis.jlibaio.LibaioContext;
+import org.apache.activemq.artemis.jlibaio.LibaioFile;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.apache.activemq.artemis.core.asyncio.AIOCallback;
-import org.apache.activemq.artemis.core.asyncio.impl.AsynchronousFileImpl;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -37,25 +38,24 @@ public abstract class AIOTestBase extends ActiveMQTestBase
    // The AIO Test must use a local filesystem. Sometimes $HOME is on a NFS on
    // most enterprise systems
 
-   protected String fileName;
+   protected String fileName = "fileUsedOnNativeTests.log";
 
    @Override
    @Before
    public void setUp() throws Exception
    {
       super.setUp();
-      fileName = getTestDir() + "/fileUsedOnNativeTests.log";
 
       Assert.assertTrue(String.format("libAIO is not loaded on %s %s %s", System.getProperty("os.name"),
                                       System.getProperty("os.arch"), System.getProperty("os.version")),
-                        AsynchronousFileImpl.isLoaded());
+                        LibaioContext.isLoaded());
    }
 
    @Override
    @After
    public void tearDown() throws Exception
    {
-      Assert.assertEquals(0, AsynchronousFileImpl.getTotalMaxIO());
+      Assert.assertEquals(0, LibaioContext.getTotalMaxIO());
 
       super.tearDown();
    }
@@ -73,12 +73,12 @@ public abstract class AIOTestBase extends ActiveMQTestBase
 
    }
 
-   protected void preAlloc(final AsynchronousFileImpl controller, final long size) throws ActiveMQException
+   protected void preAlloc(final LibaioFile controller, final long size) throws ActiveMQException
    {
-      controller.fill(0L, 1, size, (byte)0);
+      controller.fill(size);
    }
 
-   protected static class CountDownCallback implements AIOCallback
+   protected static class CountDownCallback implements IOCallback
    {
       private final CountDownLatch latch;
 

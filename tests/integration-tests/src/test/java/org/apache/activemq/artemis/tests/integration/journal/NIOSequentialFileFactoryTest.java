@@ -17,8 +17,8 @@
 package org.apache.activemq.artemis.tests.integration.journal;
 import java.io.File;
 
-import org.apache.activemq.artemis.core.journal.SequentialFileFactory;
-import org.apache.activemq.artemis.core.journal.impl.NIOSequentialFileFactory;
+import org.apache.activemq.artemis.core.io.SequentialFileFactory;
+import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
 import org.apache.activemq.artemis.tests.unit.core.journal.impl.SequentialFileFactoryTestBase;
 
 public class NIOSequentialFileFactoryTest extends SequentialFileFactoryTestBase
@@ -27,7 +27,7 @@ public class NIOSequentialFileFactoryTest extends SequentialFileFactoryTestBase
    @Override
    protected SequentialFileFactory createFactory(String folder)
    {
-      return new NIOSequentialFileFactory(new File(folder), true);
+      return new NIOSequentialFileFactory(new File(folder), true, 1);
    }
 
 }

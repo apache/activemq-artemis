@@ -25,6 +25,8 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.cli.Artemis;
 import org.apache.activemq.artemis.cli.commands.Run;
+import org.apache.activemq.artemis.cli.commands.util.SyncCalculation;
+import org.apache.activemq.artemis.jlibaio.LibaioContext;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 import org.junit.After;
@@ -69,15 +71,29 @@ public class ArtemisTest
    }
 
    @Test
+   public void testSync() throws Exception
+   {
+      int writes = 2560;
+      int tries = 10;
+      long totalAvg = SyncCalculation.syncTest(temporaryFolder.getRoot(), 4096, writes, tries, true, true);
+      System.out.println();
+      System.out.println("TotalAvg = " + totalAvg);
+      long nanoTime = SyncCalculation.toNanos(totalAvg, writes);
+      System.out.println("nanoTime avg = " + nanoTime);
+      Assert.assertEquals(0, LibaioContext.getTotalMaxIO());
+
+   }
+
+   @Test
    public void testSimpleRun() throws Exception
    {
       Run.setEmbedded(true);
       Artemis.main("create", temporaryFolder.getRoot().getAbsolutePath(), "--force", "--silent-input", "--no-web");
       System.setProperty("artemis.instance", temporaryFolder.getRoot().getAbsolutePath());
       // Some exceptions may happen on the initialization, but they should be ok on start the basic core protocol
-      Artemis.main("run");
-      Assert.assertEquals(Integer.valueOf(70), Artemis.execute("producer", "--txt-size", "50", "--message-count", "70", "--verbose"));
-      Assert.assertEquals(Integer.valueOf(70), Artemis.execute("consumer", "--txt-size", "50", "--verbose", "--break-on-null", "--receive-timeout", "100"));
+      Artemis.execute("run");
+      Assert.assertEquals(Integer.valueOf(1000), Artemis.execute("producer", "--message-count", "1000", "--verbose"));
+      Assert.assertEquals(Integer.valueOf(1000), Artemis.execute("consumer", "--verbose", "--break-on-null", "--receive-timeout", "100"));
 
       ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory("tcp://localhost:61616");
       Connection connection = cf.createConnection();
@@ -116,6 +132,7 @@ public class ArtemisTest
 
       Artemis.execute("stop");
       Assert.assertTrue(Run.latchRunning.await(5, TimeUnit.SECONDS));
+      Assert.assertEquals(0, LibaioContext.getTotalMaxIO());
 
    }
 

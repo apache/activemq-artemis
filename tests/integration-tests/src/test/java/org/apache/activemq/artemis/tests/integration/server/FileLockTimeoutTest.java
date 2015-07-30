@@ -21,9 +21,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.activemq.artemis.jlibaio.LibaioContext;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.apache.activemq.artemis.core.asyncio.impl.AsynchronousFileImpl;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.ha.SharedStoreMasterPolicyConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
@@ -53,7 +53,7 @@ public class FileLockTimeoutTest extends ActiveMQTestBase
       {
          Assert.assertTrue(String.format("libAIO is not loaded on %s %s %s", System.getProperty("os.name"),
                                          System.getProperty("os.arch"), System.getProperty("os.version")),
-                           AsynchronousFileImpl.isLoaded()
+                           LibaioContext.isLoaded()
          );
       }
       Configuration config = super.createDefaultInVMConfig()

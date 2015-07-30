@@ -67,7 +67,6 @@ import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.apache.activemq.artemis.core.asyncio.impl.AsynchronousFileImpl;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryImpl;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal;
 import org.apache.activemq.artemis.core.client.impl.ServerLocatorImpl;
@@ -78,11 +77,11 @@ import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.artemis.core.journal.PreparedTransactionInfo;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
-import org.apache.activemq.artemis.core.journal.SequentialFileFactory;
+import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.journal.impl.JournalFile;
 import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
 import org.apache.activemq.artemis.core.journal.impl.JournalReaderCallback;
-import org.apache.activemq.artemis.core.journal.impl.NIOSequentialFileFactory;
+import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
 import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.persistence.impl.journal.OperationContextImpl;
 import org.apache.activemq.artemis.core.postoffice.Binding;
@@ -117,6 +116,7 @@ import org.apache.activemq.artemis.core.server.impl.SharedNothingBackupActivatio
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
+import org.apache.activemq.artemis.jlibaio.LibaioContext;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManagerImpl;
 import org.apache.activemq.artemis.utils.OrderedExecutorFactory;
@@ -574,7 +574,7 @@ public abstract class ActiveMQTestBase extends Assert
 
    public static JournalType getDefaultJournalType()
    {
-      if (AsynchronousFileImpl.isLoaded())
+      if (LibaioContext.isLoaded())
       {
          return JournalType.ASYNCIO;
       }
@@ -1894,7 +1894,7 @@ public abstract class ActiveMQTestBase extends Assert
       JournalImpl messagesJournal = null;
       try
       {
-         SequentialFileFactory messagesFF = new NIOSequentialFileFactory(new File(getJournalDir()), null);
+         SequentialFileFactory messagesFF = new NIOSequentialFileFactory(new File(getJournalDir()), null, 1);
 
          messagesJournal = new JournalImpl(config.getJournalFileSize(),
                                            config.getJournalMinFiles(),
@@ -1940,7 +1940,7 @@ public abstract class ActiveMQTestBase extends Assert
    protected HashMap<Integer, AtomicInteger> countJournal(Configuration config) throws Exception
    {
       final HashMap<Integer, AtomicInteger> recordsType = new HashMap<Integer, AtomicInteger>();
-      SequentialFileFactory messagesFF = new NIOSequentialFileFactory(config.getJournalLocation(), null);
+      SequentialFileFactory messagesFF = new NIOSequentialFileFactory(config.getJournalLocation(), null, 1);
 
       JournalImpl messagesJournal = new JournalImpl(config.getJournalFileSize(),
                                                     config.getJournalMinFiles(),
@@ -1988,7 +1988,7 @@ public abstract class ActiveMQTestBase extends Assert
 
       if (messageJournal)
       {
-         ff = new NIOSequentialFileFactory(config.getJournalLocation(), null);
+         ff = new NIOSequentialFileFactory(config.getJournalLocation(), null, 1);
          journal = new JournalImpl(config.getJournalFileSize(),
                                    config.getJournalMinFiles(),
                                    0,
@@ -2000,7 +2000,7 @@ public abstract class ActiveMQTestBase extends Assert
       }
       else
       {
-         ff = new NIOSequentialFileFactory(config.getBindingsLocation(), null);
+         ff = new NIOSequentialFileFactory(config.getBindingsLocation(), null, 1);
          journal = new JournalImpl(1024 * 1024,
                                    2,
                                    config.getJournalCompactMinFiles(),
@@ -2403,31 +2403,31 @@ public abstract class ActiveMQTestBase extends Assert
 
       long timeout = System.currentTimeMillis() + 15000;
 
-      while (AsynchronousFileImpl.getTotalMaxIO() != 0 && System.currentTimeMillis() > timeout)
-      {
-         try
-         {
-            Thread.sleep(100);
-         }
-         catch (Exception ignored)
-         {
-         }
-      }
-
-      int invmSize = InVMRegistry.instance.size();
-      if (invmSize > 0)
-      {
-         InVMRegistry.instance.clear();
-         log.info(threadDump("Thread dump"));
-         fail("invm registry still had acceptors registered");
-      }
-
-      final int totalMaxIO = AsynchronousFileImpl.getTotalMaxIO();
-      if (totalMaxIO != 0)
-      {
-         AsynchronousFileImpl.resetMaxAIO();
-         Assert.fail("test did not close all its files " + totalMaxIO);
-      }
+//      while (AsynchronousFileImpl.getTotalMaxIO() != 0 && System.currentTimeMillis() > timeout)
+//      {
+//         try
+//         {
+//            Thread.sleep(100);
+//         }
+//         catch (Exception ignored)
+//         {
+//         }
+//      }
+//
+//      int invmSize = InVMRegistry.instance.size();
+//      if (invmSize > 0)
+//      {
+//         InVMRegistry.instance.clear();
+//         log.info(threadDump("Thread dump"));
+//         fail("invm registry still had acceptors registered");
+//      }
+//
+//      final int totalMaxIO = AsynchronousFileImpl.getTotalMaxIO();
+//      if (totalMaxIO != 0)
+//      {
+//         AsynchronousFileImpl.resetMaxAIO();
+//         Assert.fail("test did not close all its files " + totalMaxIO);
+//      }
    }
 
    private void cleanupPools()

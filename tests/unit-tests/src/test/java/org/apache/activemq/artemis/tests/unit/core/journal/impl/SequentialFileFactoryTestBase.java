@@ -23,9 +23,9 @@ import java.util.UUID;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
-import org.apache.activemq.artemis.core.asyncio.impl.AsynchronousFileImpl;
-import org.apache.activemq.artemis.core.journal.SequentialFile;
-import org.apache.activemq.artemis.core.journal.SequentialFileFactory;
+import org.apache.activemq.artemis.core.io.SequentialFile;
+import org.apache.activemq.artemis.core.io.SequentialFileFactory;
+import org.apache.activemq.artemis.jlibaio.LibaioContext;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.After;
 import org.junit.Assert;
@@ -49,13 +49,13 @@ public abstract class SequentialFileFactoryTestBase extends ActiveMQTestBase
    @After
    public void tearDown() throws Exception
    {
-      Assert.assertEquals(0, AsynchronousFileImpl.getTotalMaxIO());
-
       factory.stop();
 
       factory = null;
 
       ActiveMQTestBase.forceGC();
+
+      Assert.assertEquals(0, LibaioContext.getTotalMaxIO());
 
       super.tearDown();
    }
@@ -86,7 +86,7 @@ public abstract class SequentialFileFactoryTestBase extends ActiveMQTestBase
 
          expectedFiles.add(fileName);
 
-         SequentialFile sf = factory.createSequentialFile(fileName, 1);
+         SequentialFile sf = factory.createSequentialFile(fileName);
 
          sf.open();
 
@@ -98,10 +98,10 @@ public abstract class SequentialFileFactoryTestBase extends ActiveMQTestBase
       // Create a couple with a different extension - they shouldn't be picked
       // up
 
-      SequentialFile sf1 = factory.createSequentialFile("different.file", 1);
+      SequentialFile sf1 = factory.createSequentialFile("different.file");
       sf1.open();
 
-      SequentialFile sf2 = factory.createSequentialFile("different.cheese", 1);
+      SequentialFile sf2 = factory.createSequentialFile("different.cheese");
       sf2.open();
 
       List<String> fileNames = factory.listFiles("amq");
@@ -132,22 +132,18 @@ public abstract class SequentialFileFactoryTestBase extends ActiveMQTestBase
    @Test
    public void testFill() throws Exception
    {
-      SequentialFile sf = factory.createSequentialFile("fill.amq", 1);
+      SequentialFile sf = factory.createSequentialFile("fill.amq");
 
       sf.open();
 
       try
       {
 
-         checkFill(sf, 0, 2048, (byte)'X');
+         checkFill(sf, 2048);
 
-         checkFill(sf, 512, 512, (byte)'Y');
+         checkFill(sf, 512);
 
-         checkFill(sf, 0, 1, (byte)'Z');
-
-         checkFill(sf, 512, 1, (byte)'A');
-
-         checkFill(sf, 1024, 512 * 4, (byte)'B');
+         checkFill(sf, 512 * 4);
       }
       finally
       {
@@ -158,11 +154,11 @@ public abstract class SequentialFileFactoryTestBase extends ActiveMQTestBase
    @Test
    public void testDelete() throws Exception
    {
-      SequentialFile sf = factory.createSequentialFile("delete-me.amq", 1);
+      SequentialFile sf = factory.createSequentialFile("delete-me.amq");
 
       sf.open();
 
-      SequentialFile sf2 = factory.createSequentialFile("delete-me2.amq", 1);
+      SequentialFile sf2 = factory.createSequentialFile("delete-me2.amq");
 
       sf2.open();
 
@@ -189,7 +185,7 @@ public abstract class SequentialFileFactoryTestBase extends ActiveMQTestBase
    @Test
    public void testRename() throws Exception
    {
-      SequentialFile sf = factory.createSequentialFile("test1.amq", 1);
+      SequentialFile sf = factory.createSequentialFile("test1.amq");
 
       sf.open();
 
@@ -222,7 +218,7 @@ public abstract class SequentialFileFactoryTestBase extends ActiveMQTestBase
    @Test
    public void testWriteandRead() throws Exception
    {
-      SequentialFile sf = factory.createSequentialFile("write.amq", 1);
+      SequentialFile sf = factory.createSequentialFile("write.amq");
 
       sf.open();
 
@@ -291,14 +287,14 @@ public abstract class SequentialFileFactoryTestBase extends ActiveMQTestBase
    @Test
    public void testPosition() throws Exception
    {
-      SequentialFile sf = factory.createSequentialFile("position.amq", 1);
+      SequentialFile sf = factory.createSequentialFile("position.amq");
 
       sf.open();
 
       try
       {
 
-         sf.fill(0, 3 * 512, (byte)0);
+         sf.fill(3 * 512);
 
          String s1 = "orange";
          byte[] bytes1 = s1.getBytes(StandardCharsets.UTF_8);
@@ -376,11 +372,11 @@ public abstract class SequentialFileFactoryTestBase extends ActiveMQTestBase
    @Test
    public void testOpenClose() throws Exception
    {
-      SequentialFile sf = factory.createSequentialFile("openclose.amq", 1);
+      SequentialFile sf = factory.createSequentialFile("openclose.amq");
 
       sf.open();
 
-      sf.fill(0, 512, (byte)0);
+      sf.fill(512);
 
       String s1 = "cheesecake";
       byte[] bytes1 = s1.getBytes(StandardCharsets.UTF_8);
@@ -418,15 +414,15 @@ public abstract class SequentialFileFactoryTestBase extends ActiveMQTestBase
       return ActiveMQBuffers.wrappedBuffer(bytes);
    }
 
-   protected void checkFill(final SequentialFile file, final int pos, final int size, final byte fillChar) throws Exception
+   protected void checkFill(final SequentialFile file, final int size) throws Exception
    {
-      file.fill(pos, size, fillChar);
+      file.fill(size);
 
       file.close();
 
       file.open();
 
-      file.position(pos);
+      file.position(0);
 
       ByteBuffer bb = factory.newBuffer(size);
 
@@ -437,7 +433,7 @@ public abstract class SequentialFileFactoryTestBase extends ActiveMQTestBase
       for (int i = 0; i < size; i++)
       {
          // log.debug(" i is " + i);
-         Assert.assertEquals(fillChar, bb.get(i));
+         Assert.assertEquals(0, bb.get(i));
       }
 
    }

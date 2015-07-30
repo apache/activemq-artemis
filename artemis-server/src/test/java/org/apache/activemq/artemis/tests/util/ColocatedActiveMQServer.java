@@ -17,18 +17,17 @@
 package org.apache.activemq.artemis.tests.util;
 
 import javax.management.MBeanServer;
-
 import java.io.File;
 
-import org.apache.activemq.artemis.core.asyncio.impl.AsynchronousFileImpl;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.impl.FileConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.server.NodeManager;
 import org.apache.activemq.artemis.core.server.impl.AIOFileLockNodeManager;
-import org.apache.activemq.artemis.core.server.impl.FileLockNodeManager;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
+import org.apache.activemq.artemis.core.server.impl.FileLockNodeManager;
+import org.apache.activemq.artemis.jlibaio.LibaioContext;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
 
 
@@ -69,7 +68,7 @@ public class ColocatedActiveMQServer extends ActiveMQServerImpl
       if (replicatingBackup)
       {
          NodeManager manager;
-         if (getConfiguration().getJournalType() == JournalType.ASYNCIO && AsynchronousFileImpl.isLoaded())
+         if (getConfiguration().getJournalType() == JournalType.ASYNCIO && LibaioContext.isLoaded())
          {
             return new AIOFileLockNodeManager(directory, replicatingBackup, getConfiguration().getJournalLockAcquisitionTimeout());
          }

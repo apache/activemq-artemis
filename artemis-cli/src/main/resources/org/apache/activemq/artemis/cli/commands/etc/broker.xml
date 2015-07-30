@@ -42,6 +42,7 @@ under the License.
       <large-messages-directory>${data.dir}/large-messages</large-messages-directory>
 
       <journal-min-files>10</journal-min-files>
+${journal-buffer.settings}
 ${connector-config.settings}
       <acceptors>
          <!-- Default ActiveMQ Artemis Acceptor.  Multi-protocol adapter.  Currently supports Core, OpenWire, Stomp and AMQP. -->

@@ -16,7 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.performance.journal;
 
-import org.apache.activemq.artemis.core.journal.SequentialFileFactory;
+import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.tests.unit.core.journal.impl.fakes.FakeSequentialFileFactory;
 
 /**

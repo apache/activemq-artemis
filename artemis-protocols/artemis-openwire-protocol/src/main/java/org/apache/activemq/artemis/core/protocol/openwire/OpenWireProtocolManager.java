@@ -36,6 +36,7 @@ import org.apache.activemq.artemis.api.core.BaseInterceptor;
 import org.apache.activemq.artemis.api.core.Interceptor;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.management.CoreNotificationType;
+import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
 import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQConsumer;
 import org.apache.activemq.artemis.core.server.management.ManagementService;
@@ -62,7 +63,6 @@ import org.apache.activemq.command.TransactionId;
 import org.apache.activemq.command.TransactionInfo;
 import org.apache.activemq.command.WireFormatInfo;
 import org.apache.activemq.command.XATransactionId;
-import org.apache.activemq.artemis.core.journal.IOAsyncTask;
 import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQConnectionContext;
 import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQPersistenceAdapter;
 import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQProducerBrokerExchange;
@@ -261,7 +261,7 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, No
    public void sendReply(final OpenWireConnection connection,
                          final Command command)
    {
-      server.getStorageManager().afterCompleteOperations(new IOAsyncTask()
+      server.getStorageManager().afterCompleteOperations(new IOCallback()
       {
          public void onError(final int errorCode, final String errorMessage)
          {

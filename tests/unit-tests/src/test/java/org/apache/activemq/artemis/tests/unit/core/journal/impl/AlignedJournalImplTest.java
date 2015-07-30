@@ -37,8 +37,8 @@ import org.apache.activemq.artemis.core.journal.EncodingSupport;
 import org.apache.activemq.artemis.core.journal.LoaderCallback;
 import org.apache.activemq.artemis.core.journal.PreparedTransactionInfo;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
-import org.apache.activemq.artemis.core.journal.SequentialFile;
-import org.apache.activemq.artemis.core.journal.SequentialFileFactory;
+import org.apache.activemq.artemis.core.io.SequentialFile;
+import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.journal.TransactionFailureCallback;
 import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
 import org.apache.activemq.artemis.tests.unit.UnitTestLogger;
@@ -100,7 +100,7 @@ public class AlignedJournalImplTest extends ActiveMQTestBase
 
       FakeSequentialFileFactory factory = new FakeSequentialFileFactory(200, true);
 
-      SequentialFile file = factory.createSequentialFile("test1", 1);
+      SequentialFile file = factory.createSequentialFile("test1");
 
       file.open();
 
@@ -590,7 +590,7 @@ public class AlignedJournalImplTest extends ActiveMQTestBase
 
       System.out.println("Files = " + factory.listFiles("tt"));
 
-      SequentialFile file = factory.createSequentialFile("tt-1.tt", 1);
+      SequentialFile file = factory.createSequentialFile("tt-1.tt");
 
       file.open();
 
@@ -656,7 +656,7 @@ public class AlignedJournalImplTest extends ActiveMQTestBase
 
       journalImpl.appendCommitRecord(2L, false);
 
-      SequentialFile file = factory.createSequentialFile("tt-1.tt", 1);
+      SequentialFile file = factory.createSequentialFile("tt-1.tt");
 
       file.open();
 
@@ -761,7 +761,7 @@ public class AlignedJournalImplTest extends ActiveMQTestBase
 
       journalImpl.appendCommitRecord(1L, false);
 
-      SequentialFile file = factory.createSequentialFile("tt-1.tt", 1);
+      SequentialFile file = factory.createSequentialFile("tt-1.tt");
 
       file.open();
 
@@ -1046,7 +1046,7 @@ public class AlignedJournalImplTest extends ActiveMQTestBase
       Assert.assertEquals(0, records.size());
       Assert.assertEquals(1, transactions.size());
 
-      SequentialFile file = factory.createSequentialFile("tt-1.tt", 1);
+      SequentialFile file = factory.createSequentialFile("tt-1.tt");
 
       file.open();
 

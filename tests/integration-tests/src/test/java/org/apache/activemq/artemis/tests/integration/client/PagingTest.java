@@ -46,15 +46,15 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.MessageHandler;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.client.impl.ClientConsumerInternal;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.DivertConfiguration;
 import org.apache.activemq.artemis.core.filter.Filter;
-import org.apache.activemq.artemis.core.journal.IOAsyncTask;
 import org.apache.activemq.artemis.core.journal.PreparedTransactionInfo;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
 import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
-import org.apache.activemq.artemis.core.journal.impl.NIOSequentialFileFactory;
+import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
 import org.apache.activemq.artemis.core.paging.PagedMessage;
 import org.apache.activemq.artemis.core.paging.PagingManager;
 import org.apache.activemq.artemis.core.paging.PagingStore;
@@ -1734,7 +1734,7 @@ public class PagingTest extends ActiveMQTestBase
                                         2,
                                         0,
                                         0,
-                                        new NIOSequentialFileFactory(server.getConfiguration().getJournalLocation()),
+                                        new NIOSequentialFileFactory(server.getConfiguration().getJournalLocation(), 1),
                                         "activemq-data",
                                         "amq",
                                         1);
@@ -6454,7 +6454,7 @@ public class PagingTest extends ActiveMQTestBase
          pageDone.countDown();
       }
 
-      public void executeOnCompletion(IOAsyncTask runnable)
+      public void executeOnCompletion(IOCallback runnable)
       {
 
       }

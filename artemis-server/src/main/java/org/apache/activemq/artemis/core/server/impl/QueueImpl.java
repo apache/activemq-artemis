@@ -45,8 +45,8 @@ import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.management.CoreNotificationType;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
+import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.filter.Filter;
-import org.apache.activemq.artemis.core.journal.IOAsyncTask;
 import org.apache.activemq.artemis.core.message.impl.MessageImpl;
 import org.apache.activemq.artemis.core.paging.cursor.PageSubscription;
 import org.apache.activemq.artemis.core.paging.cursor.PagedReference;
@@ -2524,7 +2524,7 @@ public class QueueImpl implements Queue
 
       acknowledge(tx, ref);
 
-      storageManager.afterCompleteOperations(new IOAsyncTask()
+      storageManager.afterCompleteOperations(new IOCallback()
       {
 
          public void onError(final int errorCode, final String errorMessage)

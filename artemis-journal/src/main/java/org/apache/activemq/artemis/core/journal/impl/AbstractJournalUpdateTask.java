@@ -24,8 +24,8 @@ import java.util.Set;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.Pair;
-import org.apache.activemq.artemis.core.journal.SequentialFile;
-import org.apache.activemq.artemis.core.journal.SequentialFileFactory;
+import org.apache.activemq.artemis.core.io.SequentialFile;
+import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.journal.impl.dataformat.ByteArrayEncoding;
 import org.apache.activemq.artemis.core.journal.impl.dataformat.JournalAddRecord;
 import org.apache.activemq.artemis.core.journal.impl.dataformat.JournalInternalRecord;
@@ -87,7 +87,7 @@ public abstract class AbstractJournalUpdateTask implements JournalReaderCallback
                                                  final List<Pair<String, String>> renames) throws Exception
    {
 
-      SequentialFile controlFile = fileFactory.createSequentialFile(AbstractJournalUpdateTask.FILE_COMPACT_CONTROL, 1);
+      SequentialFile controlFile = fileFactory.createSequentialFile(AbstractJournalUpdateTask.FILE_COMPACT_CONTROL);
 
       try
       {
@@ -182,7 +182,7 @@ public abstract class AbstractJournalUpdateTask implements JournalReaderCallback
          // To Fix the size of the file
          writingChannel.writerIndex(writingChannel.capacity());
 
-         sequentialFile.writeInternal(writingChannel.toByteBuffer());
+         sequentialFile.writeDirect(writingChannel.toByteBuffer(), true);
          sequentialFile.close();
          newDataFiles.add(currentFile);
       }

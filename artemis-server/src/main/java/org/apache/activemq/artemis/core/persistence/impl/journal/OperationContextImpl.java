@@ -25,7 +25,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
-import org.apache.activemq.artemis.core.journal.IOAsyncTask;
+import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.journal.impl.SimpleWaitIOCallback;
 import org.apache.activemq.artemis.core.persistence.OperationContext;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
@@ -134,7 +134,7 @@ public class OperationContextImpl implements OperationContext
       checkTasks();
    }
 
-   public void executeOnCompletion(final IOAsyncTask completion)
+   public void executeOnCompletion(final IOCallback completion)
    {
       if (errorCode != -1)
       {
@@ -219,7 +219,7 @@ public class OperationContextImpl implements OperationContext
    /**
     * @param task
     */
-   private void execute(final IOAsyncTask task)
+   private void execute(final IOCallback task)
    {
       executorsPending.incrementAndGet();
       try
@@ -243,7 +243,7 @@ public class OperationContextImpl implements OperationContext
       }
       catch (Throwable e)
       {
-         ActiveMQServerLogger.LOGGER.errorExecutingIOAsyncTask(e);
+         ActiveMQServerLogger.LOGGER.errorExecutingAIOCallback(e);
          executorsPending.decrementAndGet();
          task.onError(ActiveMQExceptionType.INTERNAL_ERROR.getCode(),
                       "It wasn't possible to complete IO operation - " + e.getMessage());
@@ -296,9 +296,9 @@ public class OperationContextImpl implements OperationContext
       final int replicationLined;
       final int pageLined;
 
-      final IOAsyncTask task;
+      final IOCallback task;
 
-      TaskHolder(final IOAsyncTask task)
+      TaskHolder(final IOCallback task)
       {
          storeLined = storeLineUp.intValue();
          replicationLined = replicationLineUp.intValue();

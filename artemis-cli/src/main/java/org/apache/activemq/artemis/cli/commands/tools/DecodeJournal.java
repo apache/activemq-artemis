@@ -35,7 +35,7 @@ import org.apache.activemq.artemis.cli.commands.Configurable;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
 import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
 import org.apache.activemq.artemis.core.journal.impl.JournalRecord;
-import org.apache.activemq.artemis.core.journal.impl.NIOSequentialFileFactory;
+import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
 import org.apache.activemq.artemis.utils.Base64;
 
 @Command(name = "decode", description = "Decode a journal's internal format into a new journal set of files")
@@ -117,7 +117,7 @@ public class DecodeJournal extends Configurable implements Action
             System.err.println("Could not create directory " + directory);
       }
 
-      NIOSequentialFileFactory nio = new NIOSequentialFileFactory(new File(directory), null);
+      NIOSequentialFileFactory nio = new NIOSequentialFileFactory(new File(directory), null, 1);
 
       JournalImpl journal = new JournalImpl(fileSize, minFiles, 0, 0, nio, journalPrefix, journalSuffix, 1);
 

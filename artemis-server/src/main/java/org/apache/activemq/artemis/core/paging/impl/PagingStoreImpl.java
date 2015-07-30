@@ -37,8 +37,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.core.journal.SequentialFile;
-import org.apache.activemq.artemis.core.journal.SequentialFileFactory;
+import org.apache.activemq.artemis.core.io.SequentialFile;
+import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.paging.PageTransactionInfo;
 import org.apache.activemq.artemis.core.paging.PagedMessage;
 import org.apache.activemq.artemis.core.paging.PagingManager;
@@ -576,7 +576,7 @@ public class PagingStoreImpl implements PagingStore
    public boolean checkPageFileExists(final int pageNumber)
    {
       String fileName = createFileName(pageNumber);
-      SequentialFile file = fileFactory.createSequentialFile(fileName, 1);
+      SequentialFile file = fileFactory.createSequentialFile(fileName);
       return file.exists();
    }
 
@@ -589,7 +589,7 @@ public class PagingStoreImpl implements PagingStore
          fileFactory = storeFactory.newFileFactory(getStoreName());
       }
 
-      SequentialFile file = fileFactory.createSequentialFile(fileName, 1000);
+      SequentialFile file = fileFactory.createSequentialFile(fileName);
 
       Page page = new Page(storeName, storageManager, fileFactory, file, pageNumber);
 
@@ -1227,7 +1227,7 @@ public class PagingStoreImpl implements PagingStore
       {
          for (Integer id : pageIds)
          {
-            SequentialFile sFile = fileFactory.createSequentialFile(createFileName(id), 1);
+            SequentialFile sFile = fileFactory.createSequentialFile(createFileName(id));
             if (!sFile.exists())
             {
                continue;

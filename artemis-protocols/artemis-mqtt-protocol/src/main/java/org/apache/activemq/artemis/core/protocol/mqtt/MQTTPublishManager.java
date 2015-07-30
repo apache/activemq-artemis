@@ -22,7 +22,7 @@ import io.netty.buffer.EmptyByteBuf;
 import io.netty.handler.codec.mqtt.MqttMessageType;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.core.journal.IOAsyncTask;
+import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.server.impl.ServerMessageImpl;
@@ -183,7 +183,7 @@ public class MQTTPublishManager
 
    private void createMessageAck(final int messageId, final int qos)
    {
-      session.getServer().getStorageManager().afterCompleteOperations(new IOAsyncTask()
+      session.getServer().getStorageManager().afterCompleteOperations(new IOCallback()
       {
          @Override
          public void done()

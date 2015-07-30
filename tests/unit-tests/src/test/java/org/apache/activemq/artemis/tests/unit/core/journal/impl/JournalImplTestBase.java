@@ -30,7 +30,7 @@ import org.apache.activemq.artemis.cli.commands.tools.EncodeJournal;
 import org.apache.activemq.artemis.core.journal.EncodingSupport;
 import org.apache.activemq.artemis.core.journal.PreparedTransactionInfo;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
-import org.apache.activemq.artemis.core.journal.SequentialFileFactory;
+import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.journal.TestableJournal;
 import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
@@ -104,6 +104,10 @@ public abstract class JournalImplTestBase extends ActiveMQTestBase
 
    protected void resetFileFactory() throws Exception
    {
+      if (fileFactory != null)
+      {
+         fileFactory.stop();
+      }
       fileFactory = getFileFactory();
    }
 

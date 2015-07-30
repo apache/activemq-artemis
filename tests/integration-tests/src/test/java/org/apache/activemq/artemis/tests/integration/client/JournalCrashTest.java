@@ -33,7 +33,7 @@ import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.journal.PreparedTransactionInfo;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
 import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
-import org.apache.activemq.artemis.core.journal.impl.NIOSequentialFileFactory;
+import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
@@ -221,7 +221,7 @@ public class JournalCrashTest extends ActiveMQTestBase
     */
    private void printJournal() throws Exception
    {
-      NIOSequentialFileFactory factory = new NIOSequentialFileFactory(new File(getJournalDir()));
+      NIOSequentialFileFactory factory = new NIOSequentialFileFactory(new File(getJournalDir()), 100);
       JournalImpl journal = new JournalImpl(ActiveMQDefaultConfiguration.getDefaultJournalFileSize(),
                                             2,
                                             0,

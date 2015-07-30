@@ -20,7 +20,7 @@ import java.nio.ByteBuffer;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Message;
-import org.apache.activemq.artemis.core.journal.SequentialFile;
+import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.persistence.StorageManager.LargeMessageExtension;
 import org.apache.activemq.artemis.core.replication.ReplicatedLargeMessage;
@@ -62,7 +62,7 @@ public final class LargeServerMessageInSync implements ReplicatedLargeMessage
             buffer.rewind();
             int bytesRead = appendFile.read(buffer);
             if (bytesRead > 0)
-               mainSeqFile.writeInternal(buffer);
+               mainSeqFile.writeDirect(buffer, false);
             if (bytesRead < buffer.capacity())
             {
                break;

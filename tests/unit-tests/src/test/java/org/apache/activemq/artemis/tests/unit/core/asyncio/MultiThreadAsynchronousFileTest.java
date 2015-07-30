@@ -16,10 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.unit.core.asyncio;
 
-import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
-import org.apache.activemq.artemis.core.asyncio.AIOCallback;
-import org.apache.activemq.artemis.core.asyncio.impl.AsynchronousFileImpl;
-import org.apache.activemq.artemis.core.journal.impl.AIOSequentialFileFactory;
+import org.apache.activemq.artemis.core.io.IOCallback;
+import org.apache.activemq.artemis.core.io.aio.AIOSequentialFile;
+import org.apache.activemq.artemis.core.io.aio.AIOSequentialFileFactory;
+import org.apache.activemq.artemis.jlibaio.LibaioContext;
 import org.apache.activemq.artemis.tests.unit.UnitTestLogger;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
@@ -55,7 +55,7 @@ public class MultiThreadAsynchronousFileTest extends AIOTestBase
 
    static final int SIZE = 1024;
 
-   static final int NUMBER_OF_THREADS = 10;
+   static final int NUMBER_OF_THREADS = 1;
 
    static final int NUMBER_OF_LINES = 1000;
 
@@ -65,7 +65,7 @@ public class MultiThreadAsynchronousFileTest extends AIOTestBase
 
    private static void debug(final String msg)
    {
-      UnitTestLogger.LOGGER.debug(msg);
+      UnitTestLogger.LOGGER.info(msg);
    }
 
    @Override
@@ -102,16 +102,18 @@ public class MultiThreadAsynchronousFileTest extends AIOTestBase
    private void executeTest(final boolean sync) throws Throwable
    {
       MultiThreadAsynchronousFileTest.debug(sync ? "Sync test:" : "Async test");
-      AsynchronousFileImpl jlibAIO = new AsynchronousFileImpl(executor, pollerExecutor);
-      jlibAIO.open(fileName, 21000);
+      AIOSequentialFileFactory factory = new AIOSequentialFileFactory(getTestDirfile(), 21000);
+      factory.start();
+      factory.disableBufferReuse();
+
+      AIOSequentialFile file = (AIOSequentialFile)factory.createSequentialFile(fileName);
+      file.open();
       try
       {
          MultiThreadAsynchronousFileTest.debug("Preallocating file");
 
-         jlibAIO.fill(0L,
-                      MultiThreadAsynchronousFileTest.NUMBER_OF_THREADS,
-                      MultiThreadAsynchronousFileTest.SIZE * MultiThreadAsynchronousFileTest.NUMBER_OF_LINES,
-                      (byte) 0);
+         file.fill(MultiThreadAsynchronousFileTest.NUMBER_OF_THREADS *
+                      MultiThreadAsynchronousFileTest.SIZE * MultiThreadAsynchronousFileTest.NUMBER_OF_LINES);
          MultiThreadAsynchronousFileTest.debug("Done Preallocating file");
 
          CountDownLatch latchStart = new CountDownLatch(MultiThreadAsynchronousFileTest.NUMBER_OF_THREADS + 1);
@@ -119,7 +121,7 @@ public class MultiThreadAsynchronousFileTest extends AIOTestBase
          ArrayList<ThreadProducer> list = new ArrayList<ThreadProducer>(MultiThreadAsynchronousFileTest.NUMBER_OF_THREADS);
          for (int i = 0; i < MultiThreadAsynchronousFileTest.NUMBER_OF_THREADS; i++)
          {
-            ThreadProducer producer = new ThreadProducer("Thread " + i, latchStart, jlibAIO, sync);
+            ThreadProducer producer = new ThreadProducer("Thread " + i, latchStart, file, sync);
             list.add(producer);
             producer.start();
          }
@@ -152,7 +154,8 @@ public class MultiThreadAsynchronousFileTest extends AIOTestBase
       }
       finally
       {
-         jlibAIO.close();
+         file.close();
+         factory.stop();
       }
 
    }
@@ -170,11 +173,11 @@ public class MultiThreadAsynchronousFileTest extends AIOTestBase
 
       boolean sync;
 
-      AsynchronousFileImpl libaio;
+      AIOSequentialFile libaio;
 
       public ThreadProducer(final String name,
                             final CountDownLatch latchStart,
-                            final AsynchronousFileImpl libaio,
+                            final AIOSequentialFile libaio,
                             final boolean sync)
       {
          super(name);
@@ -190,10 +193,7 @@ public class MultiThreadAsynchronousFileTest extends AIOTestBase
 
          ByteBuffer buffer = null;
 
-         synchronized (MultiThreadAsynchronousFileTest.class)
-         {
-            buffer = AsynchronousFileImpl.newBuffer(MultiThreadAsynchronousFileTest.SIZE);
-         }
+         buffer = LibaioContext.newAlignedBuffer(MultiThreadAsynchronousFileTest.SIZE, 512);
 
          try
          {
@@ -268,7 +268,7 @@ public class MultiThreadAsynchronousFileTest extends AIOTestBase
          {
             synchronized (MultiThreadAsynchronousFileTest.class)
             {
-               AsynchronousFileImpl.destroyBuffer(buffer);
+               LibaioContext.freeBuffer(buffer);
             }
          }
 
@@ -281,44 +281,9 @@ public class MultiThreadAsynchronousFileTest extends AIOTestBase
       buffer.put(bytes);
    }
 
-   private void addData(final AsynchronousFileImpl aio, final ByteBuffer buffer, final AIOCallback callback) throws Exception
+   private void addData(final AIOSequentialFile aio, final ByteBuffer buffer, final IOCallback callback) throws Exception
    {
-      executor.execute(new WriteRunnable(aio, buffer, callback));
-   }
-
-   private class WriteRunnable implements Runnable
-   {
-
-      AsynchronousFileImpl aio;
-
-      ByteBuffer buffer;
-
-      AIOCallback callback;
-
-      public WriteRunnable(final AsynchronousFileImpl aio, final ByteBuffer buffer, final AIOCallback callback)
-      {
-         this.aio = aio;
-         this.buffer = buffer;
-         this.callback = callback;
-      }
-
-      public void run()
-      {
-         try
-         {
-            aio.write(getNewPosition() * MultiThreadAsynchronousFileTest.SIZE,
-                      MultiThreadAsynchronousFileTest.SIZE,
-                      buffer,
-                      callback);
-
-         }
-         catch (Exception e)
-         {
-            callback.onError(ActiveMQExceptionType.GENERIC_EXCEPTION.getCode(), e.toString());
-            e.printStackTrace();
-         }
-      }
-
+      aio.writeDirect(buffer, true, callback);
    }
 
 }

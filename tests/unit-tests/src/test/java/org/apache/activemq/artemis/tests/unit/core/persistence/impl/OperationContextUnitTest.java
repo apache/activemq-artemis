@@ -23,8 +23,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
+import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.apache.activemq.artemis.core.journal.IOAsyncTask;
 import org.apache.activemq.artemis.core.persistence.impl.journal.OperationContextImpl;
 import org.junit.Assert;
 import org.junit.Test;
@@ -52,7 +52,7 @@ public class OperationContextUnitTest extends ActiveMQTestBase
          final CountDownLatch latch1 = new CountDownLatch(1);
          final CountDownLatch latch2 = new CountDownLatch(1);
 
-         impl.executeOnCompletion(new IOAsyncTask()
+         impl.executeOnCompletion(new IOCallback()
          {
 
             public void onError(int errorCode, String errorMessage)
@@ -70,7 +70,7 @@ public class OperationContextUnitTest extends ActiveMQTestBase
          for (int i = 0; i < 10; i++) impl.storeLineUp();
          for (int i = 0; i < 3; i++) impl.pageSyncLineUp();
 
-         impl.executeOnCompletion(new IOAsyncTask()
+         impl.executeOnCompletion(new IOCallback()
          {
 
             public void onError(int errorCode, String errorMessage)
@@ -213,7 +213,7 @@ public class OperationContextUnitTest extends ActiveMQTestBase
       final AtomicInteger operations = new AtomicInteger(0);
 
       // We should be up to date with lineUps and executions. this should now just finish processing
-      context.executeOnCompletion(new IOAsyncTask()
+      context.executeOnCompletion(new IOCallback()
       {
 
          public void done()

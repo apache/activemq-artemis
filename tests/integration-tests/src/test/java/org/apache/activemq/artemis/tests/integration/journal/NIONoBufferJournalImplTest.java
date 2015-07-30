@@ -19,8 +19,8 @@ package org.apache.activemq.artemis.tests.integration.journal;
 import java.io.File;
 
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
-import org.apache.activemq.artemis.core.journal.SequentialFileFactory;
-import org.apache.activemq.artemis.core.journal.impl.NIOSequentialFileFactory;
+import org.apache.activemq.artemis.core.io.SequentialFileFactory;
+import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
 import org.apache.activemq.artemis.tests.unit.core.journal.impl.JournalImplTestUnit;
 
 public class NIONoBufferJournalImplTest extends JournalImplTestUnit
@@ -38,7 +38,7 @@ public class NIONoBufferJournalImplTest extends JournalImplTestUnit
 
       file.mkdir();
 
-      return new NIOSequentialFileFactory(new File(getTestDir()), false);
+      return new NIOSequentialFileFactory(new File(getTestDir()), false, 1);
    }
 
    @Override

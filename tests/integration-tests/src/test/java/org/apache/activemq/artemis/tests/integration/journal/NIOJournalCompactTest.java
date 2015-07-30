@@ -31,18 +31,18 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.activemq.artemis.api.core.Pair;
+import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.config.Configuration;
-import org.apache.activemq.artemis.core.journal.IOAsyncTask;
 import org.apache.activemq.artemis.core.journal.PreparedTransactionInfo;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
-import org.apache.activemq.artemis.core.journal.SequentialFile;
-import org.apache.activemq.artemis.core.journal.SequentialFileFactory;
+import org.apache.activemq.artemis.core.io.SequentialFile;
+import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.journal.impl.AbstractJournalUpdateTask;
 import org.apache.activemq.artemis.core.journal.impl.JournalCompactor;
 import org.apache.activemq.artemis.core.journal.impl.JournalFile;
 import org.apache.activemq.artemis.core.journal.impl.JournalFileImpl;
 import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
-import org.apache.activemq.artemis.core.journal.impl.NIOSequentialFileFactory;
+import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
 import org.apache.activemq.artemis.core.persistence.impl.journal.JournalStorageManager;
 import org.apache.activemq.artemis.core.persistence.impl.journal.OperationContextImpl;
 import org.apache.activemq.artemis.core.server.impl.ServerMessageImpl;
@@ -72,7 +72,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase
 
       for (int i = 0; i < 5; i++)
       {
-         SequentialFile file = fileFactory.createSequentialFile("file-" + i + ".tst", 1);
+         SequentialFile file = fileFactory.createSequentialFile("file-" + i + ".tst");
          dataFiles.add(new JournalFileImpl(file, 0, JournalImpl.FORMAT_VERSION));
       }
 
@@ -80,7 +80,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase
 
       for (int i = 0; i < 3; i++)
       {
-         SequentialFile file = fileFactory.createSequentialFile("file-" + i + ".tst.new", 1);
+         SequentialFile file = fileFactory.createSequentialFile("file-" + i + ".tst.new");
          newFiles.add(new JournalFileImpl(file, 0, JournalImpl.FORMAT_VERSION));
       }
 
@@ -1825,7 +1825,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase
 
                   storage.commit(tx);
 
-                  ctx.executeOnCompletion(new IOAsyncTask()
+                  ctx.executeOnCompletion(new IOCallback()
                   {
                      public void onError(int errorCode, String errorMessage)
                      {
@@ -1939,7 +1939,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase
    @Override
    protected SequentialFileFactory getFileFactory() throws Exception
    {
-      return new NIOSequentialFileFactory(getTestDirfile());
+      return new NIOSequentialFileFactory(getTestDirfile(), 1);
    }
 
 }

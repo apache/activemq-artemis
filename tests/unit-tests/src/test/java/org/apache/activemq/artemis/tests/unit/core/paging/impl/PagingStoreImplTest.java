@@ -34,9 +34,9 @@ import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.core.journal.SequentialFile;
-import org.apache.activemq.artemis.core.journal.SequentialFileFactory;
-import org.apache.activemq.artemis.core.journal.impl.NIOSequentialFileFactory;
+import org.apache.activemq.artemis.core.io.SequentialFile;
+import org.apache.activemq.artemis.core.io.SequentialFileFactory;
+import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
 import org.apache.activemq.artemis.core.paging.PageTransactionInfo;
 import org.apache.activemq.artemis.core.paging.PagedMessage;
 import org.apache.activemq.artemis.core.paging.PagingManager;
@@ -129,7 +129,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase
    public void testPageWithNIO() throws Exception
    {
       ActiveMQTestBase.recreateDirectory(getTestDir());
-      testConcurrentPaging(new NIOSequentialFileFactory(new File(getTestDir())), 1);
+      testConcurrentPaging(new NIOSequentialFileFactory(new File(getTestDir()), 1), 1);
    }
 
    @Test
@@ -565,7 +565,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase
 
       for (String file : files)
       {
-         SequentialFile fileTmp = factory.createSequentialFile(file, 1);
+         SequentialFile fileTmp = factory.createSequentialFile(file);
          fileTmp.open();
          Assert.assertTrue("The page file size (" + fileTmp.size() + ") shouldn't be > " + MAX_SIZE,
                            fileTmp.size() <= MAX_SIZE);
@@ -645,7 +645,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase
    public void testRestartPage() throws Throwable
    {
       clearDataRecreateServerDirs();
-      SequentialFileFactory factory = new NIOSequentialFileFactory(new File(getPageDir()));
+      SequentialFileFactory factory = new NIOSequentialFileFactory(new File(getPageDir()), 1);
 
       PagingStoreFactory storeFactory = new FakeStoreFactory(factory);
 
@@ -682,7 +682,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase
    public void testOrderOnPaging() throws Throwable
    {
       clearDataRecreateServerDirs();
-      SequentialFileFactory factory = new NIOSequentialFileFactory(new File(getPageDir()));
+      SequentialFileFactory factory = new NIOSequentialFileFactory(new File(getPageDir()), 1);
 
       PagingStoreFactory storeFactory = new FakeStoreFactory(factory);
 

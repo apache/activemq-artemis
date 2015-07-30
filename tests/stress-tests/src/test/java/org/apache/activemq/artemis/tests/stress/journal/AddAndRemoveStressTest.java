@@ -23,8 +23,8 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.core.journal.LoaderCallback;
 import org.apache.activemq.artemis.core.journal.PreparedTransactionInfo;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
-import org.apache.activemq.artemis.core.journal.SequentialFileFactory;
-import org.apache.activemq.artemis.core.journal.impl.AIOSequentialFileFactory;
+import org.apache.activemq.artemis.core.io.SequentialFileFactory;
+import org.apache.activemq.artemis.core.io.aio.AIOSequentialFileFactory;
 import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
 import org.junit.Assert;
 import org.junit.Test;
@@ -76,7 +76,7 @@ public class AddAndRemoveStressTest extends ActiveMQTestBase
    public void testInsertAndLoad() throws Exception
    {
 
-      SequentialFileFactory factory = new AIOSequentialFileFactory(getTestDirfile());
+      SequentialFileFactory factory = new AIOSequentialFileFactory(getTestDirfile(), 1000);
       JournalImpl impl = new JournalImpl(10 * 1024 * 1024,
                                          AddAndRemoveStressTest.NUMBER_OF_FILES_ON_JOURNAL,
                                          0,
@@ -101,7 +101,7 @@ public class AddAndRemoveStressTest extends ActiveMQTestBase
 
       impl.stop();
 
-      factory = new AIOSequentialFileFactory(getTestDirfile());
+      factory = new AIOSequentialFileFactory(getTestDirfile(), 1000);
       impl = new JournalImpl(10 * 1024 * 1024,
                              AddAndRemoveStressTest.NUMBER_OF_FILES_ON_JOURNAL,
                              0,
@@ -127,7 +127,7 @@ public class AddAndRemoveStressTest extends ActiveMQTestBase
 
       impl.stop();
 
-      factory = new AIOSequentialFileFactory(getTestDirfile());
+      factory = new AIOSequentialFileFactory(getTestDirfile(), 1000);
       impl = new JournalImpl(10 * 1024 * 1024,
                              AddAndRemoveStressTest.NUMBER_OF_FILES_ON_JOURNAL,
                              0,
@@ -164,7 +164,7 @@ public class AddAndRemoveStressTest extends ActiveMQTestBase
    public void testInsertUpdateAndLoad() throws Exception
    {
 
-      SequentialFileFactory factory = new AIOSequentialFileFactory(getTestDirfile());
+      SequentialFileFactory factory = new AIOSequentialFileFactory(getTestDirfile(), 1000);
       JournalImpl impl = new JournalImpl(10 * 1024 * 1024,
                                          AddAndRemoveStressTest.NUMBER_OF_FILES_ON_JOURNAL,
                                          0,
@@ -190,7 +190,7 @@ public class AddAndRemoveStressTest extends ActiveMQTestBase
 
       impl.stop();
 
-      factory = new AIOSequentialFileFactory(getTestDirfile());
+      factory = new AIOSequentialFileFactory(getTestDirfile(), 1000);
       impl = new JournalImpl(10 * 1024 * 1024, 10, 0, 0, factory, "amq", "amq", 1000);
 
       impl.start();
@@ -209,7 +209,7 @@ public class AddAndRemoveStressTest extends ActiveMQTestBase
 
       impl.stop();
 
-      factory = new AIOSequentialFileFactory(getTestDirfile());
+      factory = new AIOSequentialFileFactory(getTestDirfile(), 1000);
       impl = new JournalImpl(10 * 1024 * 1024,
                              AddAndRemoveStressTest.NUMBER_OF_FILES_ON_JOURNAL,
                              0,

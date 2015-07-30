@@ -31,8 +31,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.apache.activemq.artemis.core.journal.SequentialFile;
-import org.apache.activemq.artemis.core.journal.SequentialFileFactory;
+import org.apache.activemq.artemis.core.io.SequentialFile;
+import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.journal.ActiveMQJournalLogger;
 
 /**
@@ -662,13 +662,13 @@ public class JournalFilesRepository
 
       String tmpFileName = fileName + ".tmp";
 
-      SequentialFile sequentialFile = fileFactory.createSequentialFile(tmpFileName, maxAIO);
+      SequentialFile sequentialFile = fileFactory.createSequentialFile(tmpFileName);
 
       sequentialFile.open(1, false);
 
       if (init)
       {
-         sequentialFile.fill(0, fileSize, JournalImpl.FILL_CHARACTER);
+         sequentialFile.fill(fileSize);
 
          JournalImpl.initFileHeader(fileFactory, sequentialFile, userVersion, fileID);
       }

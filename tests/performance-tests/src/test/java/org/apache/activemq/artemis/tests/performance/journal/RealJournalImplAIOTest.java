@@ -17,8 +17,8 @@
 package org.apache.activemq.artemis.tests.performance.journal;
 import java.io.File;
 
-import org.apache.activemq.artemis.core.journal.SequentialFileFactory;
-import org.apache.activemq.artemis.core.journal.impl.AIOSequentialFileFactory;
+import org.apache.activemq.artemis.core.io.SequentialFileFactory;
+import org.apache.activemq.artemis.core.io.aio.AIOSequentialFileFactory;
 import org.apache.activemq.artemis.tests.unit.UnitTestLogger;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -51,7 +51,7 @@ public class RealJournalImplAIOTest extends JournalImplTestUnit
 
       file.mkdir();
 
-      return new AIOSequentialFileFactory(getTestDirfile());
+      return new AIOSequentialFileFactory(getTestDirfile(), 1);
    }
 
 }

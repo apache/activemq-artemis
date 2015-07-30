@@ -250,6 +250,7 @@ public class ActiveMQCreatePlugin extends AbstractMojo
          add(listCommands, "--failover-on-shutdown");
       }
 
+      add(listCommands, "--no-sync-test");
       add(listCommands, "--verbose");
 
       add(listCommands, instance.getAbsolutePath());

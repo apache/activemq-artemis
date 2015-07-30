@@ -23,7 +23,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
-import org.apache.activemq.artemis.core.journal.IOAsyncTask;
+import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.Queue;
@@ -197,7 +197,7 @@ public class TransactionImpl implements Transaction
             // We use the Callback even for non persistence
             // If we are using non-persistence with replication, the replication manager will have
             // to execute this runnable in the correct order
-            storageManager.afterCompleteOperations(new IOAsyncTask()
+            storageManager.afterCompleteOperations(new IOCallback()
             {
 
                public void onError(final int errorCode, final String errorMessage)
@@ -266,7 +266,7 @@ public class TransactionImpl implements Transaction
          // to execute this runnable in the correct order
          // This also will only use a different thread if there are any IO pending.
          // If the IO finished early by the time we got here, we won't need an executor
-         storageManager.afterCompleteOperations(new IOAsyncTask()
+         storageManager.afterCompleteOperations(new IOCallback()
          {
 
             public void onError(final int errorCode, final String errorMessage)
@@ -323,7 +323,7 @@ public class TransactionImpl implements Transaction
          // We use the Callback even for non persistence
          // If we are using non-persistence with replication, the replication manager will have
          // to execute this runnable in the correct order
-         storageManager.afterCompleteOperations(new IOAsyncTask()
+         storageManager.afterCompleteOperations(new IOCallback()
          {
 
             public void onError(final int errorCode, final String errorMessage)

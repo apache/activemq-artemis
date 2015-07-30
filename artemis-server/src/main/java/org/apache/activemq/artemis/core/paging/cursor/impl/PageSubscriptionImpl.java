@@ -32,8 +32,8 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.filter.Filter;
-import org.apache.activemq.artemis.core.journal.IOAsyncTask;
 import org.apache.activemq.artemis.core.paging.PageTransactionInfo;
 import org.apache.activemq.artemis.core.paging.PagedMessage;
 import org.apache.activemq.artemis.core.paging.PagingStore;
@@ -521,7 +521,7 @@ final class PageSubscriptionImpl implements PageSubscription
          store.storeCursorAcknowledge(cursorId, position);
       }
 
-      store.afterCompleteOperations(new IOAsyncTask()
+      store.afterCompleteOperations(new IOCallback()
       {
          volatile String error = "";
 
@@ -541,7 +541,7 @@ final class PageSubscriptionImpl implements PageSubscription
          @Override
          public String toString()
          {
-            return IOAsyncTask.class.getSimpleName() + "(" + PageSubscriptionImpl.class.getSimpleName() + ") " + error;
+            return IOCallback.class.getSimpleName() + "(" + PageSubscriptionImpl.class.getSimpleName() + ") " + error;
          }
       });
    }
