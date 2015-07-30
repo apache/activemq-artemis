@@ -26,7 +26,6 @@ import java.util.Set;
 import java.util.concurrent.ThreadPoolExecutor;
 
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
-import org.apache.activemq.artemis.core.asyncio.impl.AsynchronousFileImpl;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.artemis.core.remoting.impl.invm.InVMAcceptorFactory;
@@ -37,6 +36,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.jlibaio.LibaioContext;
 import org.apache.activemq.broker.Broker;
 import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.broker.Connection;
@@ -590,7 +590,7 @@ public abstract class ArtemisBrokerBase implements Broker {
 	}
 
 	protected static JournalType getDefaultJournalType() {
-		if (AsynchronousFileImpl.isLoaded()) {
+		if (LibaioContext.isLoaded()) {
 			return JournalType.ASYNCIO;
 		} else {
 			return JournalType.NIO;
