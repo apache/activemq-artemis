@@ -111,6 +111,12 @@ public class MQTTTestSupport extends ActiveMQTestBase
    @After
    public void tearDown() throws Exception
    {
+      System.clearProperty("javax.net.ssl.trustStore");
+      System.clearProperty("javax.net.ssl.trustStorePassword");
+      System.clearProperty("javax.net.ssl.trustStoreType");
+      System.clearProperty("javax.net.ssl.keyStore");
+      System.clearProperty("javax.net.ssl.keyStorePassword");
+      System.clearProperty("javax.net.ssl.keyStoreType");
       stopBroker();
    }
 
