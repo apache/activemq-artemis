@@ -89,7 +89,9 @@ under the License.
                <master>
                   <failover-on-shutdown>true</failover-on-shutdown>
                </master>
-               <slave/>
+               <slave>
+                  <failover-on-shutdown>true</failover-on-shutdown>
+               </slave>
             </colocated>
          </shared-store>
       </ha-policy>

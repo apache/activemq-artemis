@@ -97,6 +97,7 @@ public class ColocatedFailoverExample
          // Step 7. Crash server #0, the live server, and wait a little while to make sure
          // it has really crashed
          ServerUtil.killServer(server0);
+         Thread.sleep(10000);
 
          // Step 8. start the connection ready to receive messages
          connection.start();
