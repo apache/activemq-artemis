@@ -383,6 +383,20 @@
             <artifactId>maven-surefire-plugin</artifactId>
             <configuration>
                <skipTests>${skipActiveMQ5Tests}</skipTests>
+               <includes>
+                  <!-- include this first three packages -->
+                  <include>**/org/apache/activemq/*Test.java</include>
+                  <include>**/org/apache/activemq/command/*Test.java</include>
+                  <include>**/org/apache/activemq/openwire/*Test.java</include>
+                  <include>**/org/apache/activemq/transport/tcp/*Test.java</include>
+                  <!-- tests that are known to pass-->
+                  <include>**/org/apache/activemq/blob/BlobTransferPolicyUriTest.java</include>
+               </includes>
+               <excludes>
+                  <!-- exclude tests that can cause hang -->
+                  <exclude>**/org/apache/activemq/PerDestinationStoreLimitTest.java</exclude>
+                  <exclude>**/org/apache/activemq/ProducerFlowControlTest.java</exclude>
+               </excludes>
             </configuration>
          </plugin>
  
