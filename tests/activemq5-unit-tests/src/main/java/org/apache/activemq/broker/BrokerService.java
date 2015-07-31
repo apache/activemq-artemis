@@ -27,6 +27,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.WeakHashMap;
 
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
@@ -96,6 +97,8 @@ public class BrokerService implements Service
    private PolicyMap destinationPolicy;
    private SystemUsage systemUsage;
 
+   public static WeakHashMap<Broker, Exception> map = new WeakHashMap<>();
+
    static
    {
       InputStream in;
@@ -135,7 +138,10 @@ public class BrokerService implements Service
    @Override
    public void start() throws Exception
    {
+      Exception e = new Exception();
+      e.fillInStackTrace();
       startBroker(startAsync);
+      map.put(broker, e);
    }
 
    private void startBroker(boolean async) throws Exception
@@ -605,7 +611,7 @@ public class BrokerService implements Service
 
    public boolean isStopped()
    {
-      return broker.isStopped();
+      return broker != null ? broker.isStopped() : true;
    }
 
    public void setBrokerId(String brokerId)
@@ -743,6 +749,30 @@ public class BrokerService implements Service
    public String getDefaultUri()
    {
       return "tcp://localhost:61616";
+   }
+
+   public static boolean checkStopped()
+   {
+      boolean runningBrokers = false;
+      for (Map.Entry<Broker, Exception> brokerExceptionEntry : map.entrySet())
+      {
+         Broker b = brokerExceptionEntry.getKey();
+         if (!b.isStopped())
+         {
+            try
+            {
+               b.stop();
+            }
+            catch (Exception e)
+            {
+               e.printStackTrace();
+            }
+            brokerExceptionEntry.getValue().printStackTrace();
+            runningBrokers = true;
+         }
+      }
+      map.clear();
+      return runningBrokers;
    }
 }
 

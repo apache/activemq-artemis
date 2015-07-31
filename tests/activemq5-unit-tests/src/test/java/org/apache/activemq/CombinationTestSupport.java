@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.net.ServerSocket;
 import java.security.ProtectionDomain;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -35,6 +36,9 @@ import java.util.Map;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
+import org.apache.activemq.artemiswrapper.ArtemisBrokerHelper;
+import org.apache.activemq.broker.BrokerService;
+import org.apache.activemq.transport.tcp.TcpTransportFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -98,6 +102,44 @@ public abstract class CombinationTestSupport extends AutoFailTestSupport {
             this.comboOptions.put(attribute, new ComboOption(attribute, Arrays.asList(options)));
         } else {
             co.values.addAll(Arrays.asList(options));
+        }
+    }
+
+    @Override
+    protected void tearDown() throws Exception
+    {
+        super.tearDown();
+        checkStopped();
+    }
+
+    public static void checkStopped() throws Exception
+    {
+        ArtemisBrokerHelper.stopArtemisBroker();
+        boolean notStopped = BrokerService.checkStopped();
+        TcpTransportFactory.setBrokerName(null);
+        if (notStopped)
+        {
+            fail("brokers not stopped see exceptions above");
+        }
+        ServerSocket socket = null;
+        try
+        {
+            socket = new ServerSocket(61616);
+        }
+        catch (IOException e)
+        {
+            fail("61616 port not released");
+        }
+        finally
+        {
+            if (socket != null)
+            try
+            {
+                socket.close();
+            }
+            catch (IOException e)
+            {
+            }
         }
     }
 

@@ -59,6 +59,7 @@ public class JmsRedeliveredTest extends TestCase {
             connection.close();
             connection = null;
         }
+        CombinationTestSupport.checkStopped();
     }
 
     /**

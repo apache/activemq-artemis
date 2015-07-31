@@ -71,6 +71,7 @@ public class ActiveMQXAConnectionFactoryTest extends CombinationTestSupport {
             broker.stop();
         } catch (Throwable ignore) {
         }
+        super.tearDown();
     }
 
     public void testCopy() throws URISyntaxException, JMSException {
