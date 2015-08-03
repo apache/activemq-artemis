@@ -22,16 +22,11 @@ import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.ha.LiveOnlyPolicyConfiguration;
 import org.apache.activemq.artemis.core.journal.impl.JournalConstants;
 import org.apache.activemq.artemis.core.server.JournalType;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 
 public class ConfigurationImplTest extends ActiveMQTestBase
 {
@@ -497,14 +492,9 @@ public class ConfigurationImplTest extends ActiveMQTestBase
       conf.setClusterPassword(s);
       Assert.assertEquals(s, conf.getClusterPassword());
 
-      ByteArrayOutputStream baos = new ByteArrayOutputStream();
-      ObjectOutputStream oos = new ObjectOutputStream(baos);
-      oos.writeObject(conf);
-      oos.flush();
+      // This will use serialization to perform a deep copy of the object
+      Configuration conf2 = conf.copy();
 
-      ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
-      ObjectInputStream ois = new ObjectInputStream(bais);
-      Configuration conf2 = (Configuration)ois.readObject();
 
       Assert.assertTrue(conf.equals(conf2));
    }
