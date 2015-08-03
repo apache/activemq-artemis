@@ -155,7 +155,6 @@ public class ClusterConnectionBridge extends BridgeImpl
 
       if (factory == null)
       {
-         ActiveMQServerLogger.LOGGER.nodeNotAvailable(targetNodeID);
          return null;
       }
       factory.setReconnectAttempts(0);

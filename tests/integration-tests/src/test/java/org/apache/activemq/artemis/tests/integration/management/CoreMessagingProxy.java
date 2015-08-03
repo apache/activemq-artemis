@@ -94,13 +94,20 @@ public class CoreMessagingProxy
       ClientMessage m = session.createMessage(false);
       ManagementHelper.putOperationInvocation(m, resourceName, operationName, args);
       ClientMessage reply = requestor.request(m);
-      if (ManagementHelper.hasOperationSucceeded(reply))
+      if (reply != null)
       {
-         return ManagementHelper.getResult(reply);
+         if (ManagementHelper.hasOperationSucceeded(reply))
+         {
+            return ManagementHelper.getResult(reply);
+         }
+         else
+         {
+            throw new Exception((String) ManagementHelper.getResult(reply));
+         }
       }
       else
       {
-         throw new Exception((String)ManagementHelper.getResult(reply));
+         return null;
       }
    }
 

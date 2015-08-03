@@ -97,7 +97,8 @@ public class ColocatedFailoverScaleDownExample
          // Step 7. Crash server #0, the live server, and wait a little while to make sure
          // it has really crashed
          ServerUtil.killServer(server0);
-         Thread.sleep(5000);
+         System.out.println("Waiting for scale-down to complete...");
+         Thread.sleep(10000);
 
          // Step 8. start the connection ready to receive messages
          connection1.start();
