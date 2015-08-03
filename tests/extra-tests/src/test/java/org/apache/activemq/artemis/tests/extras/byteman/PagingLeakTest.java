@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.extras.byteman;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -37,10 +41,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 @RunWith(BMUnitRunner.class)
 public class PagingLeakTest extends ActiveMQTestBase
@@ -122,7 +122,7 @@ public class PagingLeakTest extends ActiveMQTestBase
       // A backup that will be waiting to be activated
       Configuration config = createDefaultNettyConfig();
 
-      config.setJournalBufferTimeout_AIO(0).setJournalBufferTimeout_NIO(0);
+      config.setJournalBufferTimeout_AIO(10).setJournalBufferTimeout_NIO(10);
 
       final ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(config, true));
 

@@ -1345,7 +1345,7 @@ public class BridgeTest extends ActiveMQTestBase
          Map<String, Object> server1Params = new HashMap<String, Object>();
          addTargetParameters(server1Params);
          server1 = createClusteredServerWithParams(isNetty(), 1, true, PAGE_SIZE, PAGE_MAX, server1Params);
-         server1.getConfiguration().setJournalBufferTimeout_AIO(0).setJournalBufferTimeout_NIO(0);
+         server1.getConfiguration().setJournalBufferTimeout_AIO(10).setJournalBufferTimeout_NIO(10);
 
          final String testAddress = "testAddress";
          final String queueName0 = "queue0";
@@ -1360,7 +1360,7 @@ public class BridgeTest extends ActiveMQTestBase
 
          server0.getConfiguration().setConnectorConfigurations(connectors);
 
-         server0.getConfiguration().setIDCacheSize(20000).setJournalBufferTimeout_NIO(0).setJournalBufferTimeout_AIO(0);
+         server0.getConfiguration().setIDCacheSize(20000).setJournalBufferTimeout_NIO(10).setJournalBufferTimeout_AIO(10);
 
          ArrayList<String> staticConnectors = new ArrayList<String>();
          staticConnectors.add(server1tc.getName());
