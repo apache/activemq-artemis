@@ -80,8 +80,14 @@ public class MessageEvictionTest {
 
     @After
     public void tearDown() throws Exception {
-        connection.stop();
-        broker.stop();
+        if (connection != null)
+        {
+            connection.stop();
+        }
+        if (broker != null)
+        {
+            broker.stop();
+        }
     }
 
     @Test
