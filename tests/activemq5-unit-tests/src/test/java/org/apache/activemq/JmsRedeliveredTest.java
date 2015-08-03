@@ -32,6 +32,7 @@ import javax.jms.Topic;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+import org.apache.activemq.transport.tcp.TcpTransport;
 import org.apache.activemq.transport.vm.VMTransport;
 import org.apache.activemq.util.Wait;
 
@@ -426,8 +427,7 @@ public class JmsRedeliveredTest extends TestCase {
             }
         });
 
-        // whack the connection - like a rebalance or tcp drop
-        ((ActiveMQConnection)connection).getTransport().narrow(VMTransport.class).stop();
+        connection.close();
 
         session = keepBrokerAliveConnection.createSession(true, Session.CLIENT_ACKNOWLEDGE);
         MessageConsumer messageConsumer = session.createConsumer(queue);
@@ -436,6 +436,7 @@ public class JmsRedeliveredTest extends TestCase {
         msg.acknowledge();
 
         assertFalse("Message should not be redelivered.", msg.getJMSRedelivered());
+        session.commit();
         session.close();
         keepBrokerAliveConnection.close();
     }
@@ -460,6 +461,7 @@ public class JmsRedeliveredTest extends TestCase {
         assertNotNull(msg);
 
         assertFalse("Message should not be redelivered.", msg.getJMSRedelivered());
+        session.commit();
         session.close();
     }
 
@@ -483,6 +485,8 @@ public class JmsRedeliveredTest extends TestCase {
         assertNotNull(msg);
 
         assertFalse("Message should not be redelivered.", msg.getJMSRedelivered());
+
+        session.commit();
         session.close();
     }
 
