@@ -57,6 +57,7 @@ import org.apache.activemq.command.MessageDispatch;
 import org.apache.activemq.command.MessageId;
 import org.apache.activemq.command.ProducerId;
 import org.apache.activemq.command.ProducerInfo;
+import org.apache.activemq.command.RemoveSubscriptionInfo;
 import org.apache.activemq.command.SessionId;
 import org.apache.activemq.command.SessionInfo;
 import org.apache.activemq.command.TransactionId;
@@ -855,5 +856,13 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, No
 
          fireAdvisory(conn.getConext(), topic, advisoryMessage, consumer.getId());
       }
+   }
+
+   public void removeSubscription(RemoveSubscriptionInfo subInfo) throws Exception
+   {
+      SimpleString subQueueName = new SimpleString(
+              org.apache.activemq.artemis.jms.client.ActiveMQDestination.createQueueNameForDurableSubscription(
+                      true, subInfo.getClientId(), subInfo.getSubscriptionName()));
+      server.destroyQueue(subQueueName);
    }
 }
