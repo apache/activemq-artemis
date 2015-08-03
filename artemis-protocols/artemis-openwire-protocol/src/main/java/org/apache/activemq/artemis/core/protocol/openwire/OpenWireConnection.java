@@ -258,7 +258,8 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor
                   || command.getClass() == MessageAck.class
                   || command.getClass() == TransactionInfo.class
                   || command.getClass() == DestinationInfo.class
-                  || command.getClass() == ShutdownInfo.class)
+                  || command.getClass() == ShutdownInfo.class
+                  || command.getClass() == RemoveSubscriptionInfo.class)
             {
                Response response = null;
 
@@ -1706,9 +1707,10 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor
    }
 
    @Override
-   public Response processRemoveSubscription(RemoveSubscriptionInfo arg0) throws Exception
+   public Response processRemoveSubscription(RemoveSubscriptionInfo subInfo) throws Exception
    {
-      throw new IllegalStateException("not implemented! ");
+      protocolManager.removeSubscription(subInfo);
+      return null;
    }
 
    @Override
