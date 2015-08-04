@@ -125,7 +125,7 @@ public class ClosingConnectionTest extends ActiveMQTestBase
                @BMRule
                   (
                      name = "rule to kill connection",
-                     targetClass = "org.apache.activemq.artemis.core.journal.impl.NIOSequentialFile",
+                     targetClass = "org.apache.activemq.artemis.core.io.nio.NIOSequentialFile",
                      targetMethod = "open(int, boolean)",
                      targetLocation = "AT INVOKE java.nio.channels.FileChannel.size()",
                      action = "org.apache.activemq.artemis.tests.extras.byteman.ClosingConnectionTest.killConnection();"

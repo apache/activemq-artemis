@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.connection;
 
+import javax.jms.Queue;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -23,19 +24,19 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
-import javax.jms.Queue;
-
 import org.apache.activemq.artemis.api.core.BroadcastEndpoint;
 import org.apache.activemq.artemis.api.core.BroadcastEndpointFactory;
 import org.apache.activemq.artemis.api.core.ChannelBroadcastEndpointFactory;
 import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
 import org.apache.activemq.artemis.api.core.JGroupsFileBroadcastEndpointFactory;
 import org.apache.activemq.artemis.api.jms.JMSFactoryType;
+import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
 import org.jgroups.JChannel;
 import org.jgroups.conf.PlainConfigurator;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -166,6 +167,14 @@ public class ConnectionFactoryWithJGroupsSerializationTest extends JMSTestBase
       assertNotNull(jmsCf2Copy);
       BroadcastEndpointFactory broadcastEndpoint = jmsCf2Copy.getDiscoveryGroupConfiguration().getBroadcastEndpointFactory();
       assertTrue(broadcastEndpoint instanceof JGroupsFileBroadcastEndpointFactory);
+   }
+
+   @Test
+   public void testCopyConfiguration() throws Exception
+   {
+      Assert.assertEquals(2, jmsServer.getActiveMQServer().getConfiguration().getDiscoveryGroupConfigurations().size());
+      Configuration copiedconfig = jmsServer.getActiveMQServer().getConfiguration().copy();
+      Assert.assertEquals(2, copiedconfig.getDiscoveryGroupConfigurations().size());
    }
 
    @Override

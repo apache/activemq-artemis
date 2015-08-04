@@ -23,6 +23,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.net.URI;
+import java.security.AccessController;
+import java.security.PrivilegedExceptionAction;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -50,6 +52,7 @@ import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.server.group.impl.GroupingHandlerConfiguration;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.settings.impl.ResourceLimitSettings;
+import org.apache.activemq.artemis.utils.ObjectInputStreamWithClassLoader;
 
 public class ConfigurationImpl implements Configuration, Serializable
 {
@@ -114,9 +117,9 @@ public class ConfigurationImpl implements Configuration, Serializable
 
    private List<CoreQueueConfiguration> queueConfigurations = new ArrayList<CoreQueueConfiguration>();
 
-   protected List<BroadcastGroupConfiguration> broadcastGroupConfigurations = new ArrayList<BroadcastGroupConfiguration>();
+   protected transient List<BroadcastGroupConfiguration> broadcastGroupConfigurations = new ArrayList<BroadcastGroupConfiguration>();
 
-   protected Map<String, DiscoveryGroupConfiguration> discoveryGroupConfigurations = new LinkedHashMap<String, DiscoveryGroupConfiguration>();
+   protected transient Map<String, DiscoveryGroupConfiguration> discoveryGroupConfigurations = new LinkedHashMap<String, DiscoveryGroupConfiguration>();
 
    // Paging related attributes ------------------------------------------------------------
 
@@ -1586,11 +1589,28 @@ public class ConfigurationImpl implements Configuration, Serializable
    @Override
    public Configuration copy() throws Exception
    {
-      ByteArrayOutputStream bos = new ByteArrayOutputStream();
-      ObjectOutputStream os = new ObjectOutputStream(bos);
-      os.writeObject(this);
-      ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(bos.toByteArray()));
-      return (Configuration) ois.readObject();
+
+      return AccessController.doPrivileged(new PrivilegedExceptionAction<Configuration>()
+      {
+         @Override
+         public Configuration run() throws Exception
+         {
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            ObjectOutputStream os = new ObjectOutputStream(bos);
+            os.writeObject(ConfigurationImpl.this);
+            ObjectInputStream ois = new ObjectInputStreamWithClassLoader(new ByteArrayInputStream(bos.toByteArray()));
+            Configuration config = (Configuration) ois.readObject();
+
+            // this is transient because of possible jgroups integration, we need to copy it manually
+            config.setBroadcastGroupConfigurations(ConfigurationImpl.this.getBroadcastGroupConfigurations());
+
+            // this is transient because of possible jgroups integration, we need to copy it manually
+            config.setDiscoveryGroupConfigurations(ConfigurationImpl.this.getDiscoveryGroupConfigurations());
+
+            return config;
+         }
+      });
+
    }
 
    @Override
