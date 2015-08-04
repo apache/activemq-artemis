@@ -33,15 +33,14 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class SessionClosedOnRemotingConnectionFailureTest extends ActiveMQTestBase
-{
+public class SessionClosedOnRemotingConnectionFailureTest extends ActiveMQTestBase {
+
    private ActiveMQServer server;
 
    private ClientSessionFactory sf;
 
    @Test
-   public void testSessionClosedOnRemotingConnectionFailure() throws Exception
-   {
+   public void testSessionClosedOnRemotingConnectionFailure() throws Exception {
       ClientSession session = addClientSession(sf.createSession());
 
       session.createQueue("fooaddress", "fooqueue");
@@ -70,33 +69,27 @@ public class SessionClosedOnRemotingConnectionFailureTest extends ActiveMQTestBa
 
       // Now try and use the producer
 
-      try
-      {
+      try {
          prod.send(session.createMessage(false));
 
          Assert.fail("Should throw exception");
       }
-      catch (ActiveMQObjectClosedException oce)
-      {
+      catch (ActiveMQObjectClosedException oce) {
          //ok
       }
-      catch (ActiveMQException e)
-      {
+      catch (ActiveMQException e) {
          fail("Invalid Exception type:" + e.getType());
       }
 
-      try
-      {
+      try {
          cons.receive();
 
          Assert.fail("Should throw exception");
       }
-      catch (ActiveMQObjectClosedException oce)
-      {
+      catch (ActiveMQObjectClosedException oce) {
          //ok
       }
-      catch (ActiveMQException e)
-      {
+      catch (ActiveMQException e) {
          fail("Invalid Exception type:" + e.getType());
       }
 
@@ -105,8 +98,7 @@ public class SessionClosedOnRemotingConnectionFailureTest extends ActiveMQTestBa
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
       Configuration config = createDefaultInVMConfig();
       server = createServer(false, config);

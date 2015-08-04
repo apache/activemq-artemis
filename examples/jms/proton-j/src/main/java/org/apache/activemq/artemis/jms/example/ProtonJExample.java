@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.jms.example;
 
-
 import org.apache.qpid.amqp_1_0.client.Connection;
 import org.apache.qpid.amqp_1_0.client.Message;
 import org.apache.qpid.amqp_1_0.client.Receiver;
@@ -24,16 +23,14 @@ import org.apache.qpid.amqp_1_0.client.Sender;
 import org.apache.qpid.amqp_1_0.client.Session;
 import org.apache.qpid.amqp_1_0.type.UnsignedInteger;
 
-public class ProtonJExample
-{
-   public static void main(String[] args) throws Exception
-   {
+public class ProtonJExample {
+
+   public static void main(String[] args) throws Exception {
       Connection connection = null;
 
-      try
-      {
+      try {
          // Step 1. Create an amqp qpid 1.0 connection
-         connection= new Connection("localhost", 5672, null, null);
+         connection = new Connection("localhost", 5672, null, null);
 
          // Step 2. Create a session
          Session session = connection.createSession();
@@ -57,10 +54,8 @@ public class ProtonJExample
          // Step 8. acknowledge the message
          rec.acknowledge(m);
       }
-      finally
-      {
-         if(connection != null)
-         {
+      finally {
+         if (connection != null) {
             // Step 9. close the connection
             connection.close();
          }

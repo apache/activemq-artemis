@@ -17,6 +17,7 @@
 package org.apache.activemq.transport.failover;
 
 import junit.framework.Test;
+
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.broker.region.policy.PolicyEntry;
@@ -24,65 +25,65 @@ import org.apache.activemq.broker.region.policy.PolicyMap;
 
 public class FailoverRedeliveryTransactionTest extends FailoverTransactionTest {
 
-    public static Test suite() {
-        return suite(FailoverRedeliveryTransactionTest.class);
-    }
+   public static Test suite() {
+      return suite(FailoverRedeliveryTransactionTest.class);
+   }
 
-    @Override
-    public void configureConnectionFactory(ActiveMQConnectionFactory factory) {
-        super.configureConnectionFactory(factory);
-        factory.setTransactedIndividualAck(true);
-    }
+   @Override
+   public void configureConnectionFactory(ActiveMQConnectionFactory factory) {
+      super.configureConnectionFactory(factory);
+      factory.setTransactedIndividualAck(true);
+   }
 
-    @Override
-    public BrokerService createBroker(boolean deleteAllMessagesOnStartup, String bindAddress) throws Exception {
-        BrokerService brokerService = super.createBroker(deleteAllMessagesOnStartup, bindAddress);
-        PolicyMap policyMap = new PolicyMap();
-        PolicyEntry defaultEntry = new PolicyEntry();
-        defaultEntry.setPersistJMSRedelivered(true);
-        policyMap.setDefaultEntry(defaultEntry);
-        brokerService.setDestinationPolicy(policyMap);
-        return brokerService;
-    }
+   @Override
+   public BrokerService createBroker(boolean deleteAllMessagesOnStartup, String bindAddress) throws Exception {
+      BrokerService brokerService = super.createBroker(deleteAllMessagesOnStartup, bindAddress);
+      PolicyMap policyMap = new PolicyMap();
+      PolicyEntry defaultEntry = new PolicyEntry();
+      defaultEntry.setPersistJMSRedelivered(true);
+      policyMap.setDefaultEntry(defaultEntry);
+      brokerService.setDestinationPolicy(policyMap);
+      return brokerService;
+   }
 
-    // no point rerunning these
-    @Override
-    public void testFailoverProducerCloseBeforeTransaction() throws Exception {
-    }
+   // no point rerunning these
+   @Override
+   public void testFailoverProducerCloseBeforeTransaction() throws Exception {
+   }
 
-    @Override
-    public void initCombosForTestFailoverCommitReplyLost() {
-    }
+   @Override
+   public void initCombosForTestFailoverCommitReplyLost() {
+   }
 
-    @Override
-    public void testFailoverCommitReplyLost() throws Exception {
-    }
+   @Override
+   public void testFailoverCommitReplyLost() throws Exception {
+   }
 
-    @Override
-    public void testFailoverCommitReplyLostWithDestinationPathSeparator() throws Exception {
-    }
+   @Override
+   public void testFailoverCommitReplyLostWithDestinationPathSeparator() throws Exception {
+   }
 
-    @Override
-    public void initCombosForTestFailoverSendReplyLost() {
-    }
+   @Override
+   public void initCombosForTestFailoverSendReplyLost() {
+   }
 
-    @Override
-    public void testFailoverSendReplyLost() throws Exception {
-    }
+   @Override
+   public void testFailoverSendReplyLost() throws Exception {
+   }
 
-    @Override
-    public void initCombosForTestFailoverConnectionSendReplyLost() {
-    }
+   @Override
+   public void initCombosForTestFailoverConnectionSendReplyLost() {
+   }
 
-    @Override
-    public void testFailoverConnectionSendReplyLost() throws Exception {
-    }
+   @Override
+   public void testFailoverConnectionSendReplyLost() throws Exception {
+   }
 
-    @Override
-    public void testFailoverProducerCloseBeforeTransactionFailWhenDisabled() throws Exception {
-    }
+   @Override
+   public void testFailoverProducerCloseBeforeTransactionFailWhenDisabled() throws Exception {
+   }
 
-    @Override
-    public void testFailoverMultipleProducerCloseBeforeTransaction() throws Exception {
-    }
+   @Override
+   public void testFailoverMultipleProducerCloseBeforeTransaction() throws Exception {
+   }
 }

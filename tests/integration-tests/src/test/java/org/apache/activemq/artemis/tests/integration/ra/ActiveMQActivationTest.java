@@ -22,8 +22,7 @@ import org.junit.Test;
 import org.apache.activemq.artemis.ra.ActiveMQResourceAdapter;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 
-public class ActiveMQActivationTest extends ActiveMQTestBase
-{
+public class ActiveMQActivationTest extends ActiveMQTestBase {
 
    // Constants -----------------------------------------------------
 
@@ -36,8 +35,7 @@ public class ActiveMQActivationTest extends ActiveMQTestBase
    // Public --------------------------------------------------------
 
    @Test
-   public void testValidateJNDIParameters() throws Exception
-   {
+   public void testValidateJNDIParameters() throws Exception {
       ActiveMQResourceAdapter qResourceAdapter = new ActiveMQResourceAdapter();
       ActiveMQActivationSpec spec = new ActiveMQActivationSpec();
       spec.setResourceAdapter(qResourceAdapter);
@@ -49,9 +47,7 @@ public class ActiveMQActivationTest extends ActiveMQTestBase
       assertEquals("d", spec.getParsedJndiParams().get("c"));
       assertEquals("a1,a2,a3", spec.getParsedJndiParams().get("url"));
 
-
    }
-
 
    // Package protected ---------------------------------------------
 

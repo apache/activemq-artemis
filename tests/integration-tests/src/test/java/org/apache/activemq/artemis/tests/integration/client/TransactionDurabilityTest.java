@@ -28,8 +28,7 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class TransactionDurabilityTest extends ActiveMQTestBase
-{
+public class TransactionDurabilityTest extends ActiveMQTestBase {
 
    /*
     * This tests the following situation:
@@ -47,8 +46,7 @@ public class TransactionDurabilityTest extends ActiveMQTestBase
     *
     */
    @Test
-   public void testRolledBackAcknowledgeWithSameMessageAckedByOtherSession() throws Exception
-   {
+   public void testRolledBackAcknowledgeWithSameMessageAckedByOtherSession() throws Exception {
       final SimpleString testAddress = new SimpleString("testAddress");
 
       final SimpleString queue1 = new SimpleString("queue1");

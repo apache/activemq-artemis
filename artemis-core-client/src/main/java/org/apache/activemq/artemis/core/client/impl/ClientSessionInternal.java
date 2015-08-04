@@ -25,8 +25,8 @@ import org.apache.activemq.artemis.api.core.client.SendAcknowledgementHandler;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.remoting.ConsumerContext;
 
-public interface ClientSessionInternal extends ClientSession
-{
+public interface ClientSessionInternal extends ClientSession {
+
    String getName();
 
    void acknowledge(ClientConsumer consumer, Message message) throws ActiveMQException;
@@ -51,9 +51,14 @@ public interface ClientSessionInternal extends ClientSession
 
    void handleReceiveMessage(ConsumerContext consumerID, ClientMessageInternal message) throws Exception;
 
-   void handleReceiveLargeMessage(ConsumerContext consumerID, ClientLargeMessageInternal clientLargeMessage, long largeMessageSize) throws Exception;
+   void handleReceiveLargeMessage(ConsumerContext consumerID,
+                                  ClientLargeMessageInternal clientLargeMessage,
+                                  long largeMessageSize) throws Exception;
 
-   void handleReceiveContinuation(ConsumerContext consumerID, byte[] chunk, int flowControlSize, boolean isContinues) throws Exception;
+   void handleReceiveContinuation(ConsumerContext consumerID,
+                                  byte[] chunk,
+                                  int flowControlSize,
+                                  boolean isContinues) throws Exception;
 
    void handleConsumerDisconnect(ConsumerContext consumerContext) throws ActiveMQException;
 

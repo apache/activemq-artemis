@@ -64,306 +64,300 @@ import org.slf4j.LoggerFactory;
 
 @RunWith(value = Parameterized.class)
 public class ConcurrentProducerDurableConsumerTest extends TestSupport {
-    private static final Logger LOG = LoggerFactory.getLogger(ConcurrentProducerDurableConsumerTest.class);
-    private final int consumerCount = 5;
-    BrokerService broker;
-    protected List<Connection> connections = Collections.synchronizedList(new ArrayList<Connection>());
-    protected Map<MessageConsumer, TimedMessageListener> consumers = new HashMap<MessageConsumer, TimedMessageListener>();
-    protected MessageIdList allMessagesList = new MessageIdList();
-    private final int messageSize = 1024;
 
-    private final TestSupport.PersistenceAdapterChoice persistenceAdapterChoice;
+   private static final Logger LOG = LoggerFactory.getLogger(ConcurrentProducerDurableConsumerTest.class);
+   private final int consumerCount = 5;
+   BrokerService broker;
+   protected List<Connection> connections = Collections.synchronizedList(new ArrayList<Connection>());
+   protected Map<MessageConsumer, TimedMessageListener> consumers = new HashMap<MessageConsumer, TimedMessageListener>();
+   protected MessageIdList allMessagesList = new MessageIdList();
+   private final int messageSize = 1024;
 
-    @Parameterized.Parameters
-    public static Collection<TestSupport.PersistenceAdapterChoice[]> getTestParameters() {
-        TestSupport.PersistenceAdapterChoice[] kahaDb = {TestSupport.PersistenceAdapterChoice.KahaDB};
-        TestSupport.PersistenceAdapterChoice[] levelDb = {TestSupport.PersistenceAdapterChoice.LevelDB};
-        TestSupport.PersistenceAdapterChoice[] mem = {TestSupport.PersistenceAdapterChoice.MEM};
-        List<TestSupport.PersistenceAdapterChoice[]> choices = new ArrayList<TestSupport.PersistenceAdapterChoice[]>();
-        choices.add(kahaDb);
-        choices.add(levelDb);
-        choices.add(mem);
-        return choices;
-    }
+   private final TestSupport.PersistenceAdapterChoice persistenceAdapterChoice;
 
-    public ConcurrentProducerDurableConsumerTest(TestSupport.PersistenceAdapterChoice choice) {
-        this.persistenceAdapterChoice = choice;
-    }
+   @Parameterized.Parameters
+   public static Collection<TestSupport.PersistenceAdapterChoice[]> getTestParameters() {
+      TestSupport.PersistenceAdapterChoice[] kahaDb = {TestSupport.PersistenceAdapterChoice.KahaDB};
+      TestSupport.PersistenceAdapterChoice[] levelDb = {TestSupport.PersistenceAdapterChoice.LevelDB};
+      TestSupport.PersistenceAdapterChoice[] mem = {TestSupport.PersistenceAdapterChoice.MEM};
+      List<TestSupport.PersistenceAdapterChoice[]> choices = new ArrayList<TestSupport.PersistenceAdapterChoice[]>();
+      choices.add(kahaDb);
+      choices.add(levelDb);
+      choices.add(mem);
+      return choices;
+   }
 
-    @Test(timeout = 120000)
-    public void testSendRateWithActivatingConsumers() throws Exception {
-        final Destination destination = createDestination();
-        final ConnectionFactory factory = createConnectionFactory();
-        startInactiveConsumers(factory, destination);
+   public ConcurrentProducerDurableConsumerTest(TestSupport.PersistenceAdapterChoice choice) {
+      this.persistenceAdapterChoice = choice;
+   }
 
-        Connection connection = factory.createConnection();
-        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        MessageProducer producer = createMessageProducer(session, destination);
+   @Test(timeout = 120000)
+   public void testSendRateWithActivatingConsumers() throws Exception {
+      final Destination destination = createDestination();
+      final ConnectionFactory factory = createConnectionFactory();
+      startInactiveConsumers(factory, destination);
 
-        // preload the durable consumers
-        double[] inactiveConsumerStats = produceMessages(destination, 500, 10, session, producer, null);
-        LOG.info("With inactive consumers: ave: " + inactiveConsumerStats[1]
-                + ", max: " + inactiveConsumerStats[0] + ", multiplier: " + (inactiveConsumerStats[0]/inactiveConsumerStats[1]));
+      Connection connection = factory.createConnection();
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      MessageProducer producer = createMessageProducer(session, destination);
 
-        // periodically start a durable sub that has a backlog
-        final int consumersToActivate = 5;
-        final CountDownLatch addConsumerSignal = new CountDownLatch(1);
-        Executors.newCachedThreadPool(new ThreadFactory() {
-            @Override
-            public Thread newThread(Runnable r) {
-                return new Thread(r, "ActivateConsumer" + this);
-            }
-        }).execute(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    MessageConsumer consumer = null;
-                    for (int i = 0; i < consumersToActivate; i++) {
-                        LOG.info("Waiting for add signal from producer...");
-                        addConsumerSignal.await(30, TimeUnit.MINUTES);
-                        TimedMessageListener listener = new TimedMessageListener();
-                        consumer = createDurableSubscriber(factory.createConnection(), destination, "consumer" + (i + 1));
-                        LOG.info("Created consumer " + consumer);
-                        consumer.setMessageListener(listener);
-                        consumers.put(consumer, listener);
-                    }
-                } catch (Exception e) {
-                    LOG.error("failed to start consumer", e);
-                }
-            }
-        });
+      // preload the durable consumers
+      double[] inactiveConsumerStats = produceMessages(destination, 500, 10, session, producer, null);
+      LOG.info("With inactive consumers: ave: " + inactiveConsumerStats[1] + ", max: " + inactiveConsumerStats[0] + ", multiplier: " + (inactiveConsumerStats[0] / inactiveConsumerStats[1]));
 
-        double[] statsWithActive = produceMessages(destination, 500, 10, session, producer, addConsumerSignal);
-
-        LOG.info(" with concurrent activate, ave: " + statsWithActive[1] + ", max: " + statsWithActive[0] + ", multiplier: " + (statsWithActive[0]/ statsWithActive[1]));
-
-        while(consumers.size() < consumersToActivate) {
-            TimeUnit.SECONDS.sleep(2);
-        }
-
-        long timeToFirstAccumulator = 0;
-        for (TimedMessageListener listener : consumers.values()) {
-            long time = listener.getFirstReceipt();
-            timeToFirstAccumulator += time;
-            LOG.info("Time to first " + time);
-        }
-        LOG.info("Ave time to first message =" + timeToFirstAccumulator/consumers.size());
-
-        for (TimedMessageListener listener : consumers.values()) {
-            LOG.info("Ave batch receipt time: " + listener.waitForReceivedLimit(10000) + " max receipt: " + listener.maxReceiptTime);
-        }
-
-        //assertTrue("max (" + statsWithActive[0] + ") within reasonable multiplier of ave (" + statsWithActive[1] + ")",
-        //        statsWithActive[0] < 5 * statsWithActive[1]);
-
-        // compare no active to active
-        LOG.info("Ave send time with active: " + statsWithActive[1]
-                + " as multiplier of ave with none active: " + inactiveConsumerStats[1]
-                + ", multiplier=" + (statsWithActive[1]/inactiveConsumerStats[1]));
-
-        assertTrue("Ave send time with active: " + statsWithActive[1]
-                + " within reasonable multpler of ave with none active: " + inactiveConsumerStats[1]
-                + ", multiplier " + (statsWithActive[1]/inactiveConsumerStats[1]),
-                statsWithActive[1] < 15 * inactiveConsumerStats[1]);
-    }
-
-    public void x_testSendWithInactiveAndActiveConsumers() throws Exception {
-        Destination destination = createDestination();
-        ConnectionFactory factory = createConnectionFactory();
-        startInactiveConsumers(factory, destination);
-
-        Connection connection = factory.createConnection();
-        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        MessageProducer producer = session.createProducer(destination);
-        producer.setDeliveryMode(DeliveryMode.PERSISTENT);
-
-        final int toSend = 100;
-        final int numIterations = 5;
-
-        double[] noConsumerStats = produceMessages(destination, toSend, numIterations, session, producer, null);
-
-        startConsumers(factory, destination);
-        LOG.info("Activated consumer");
-
-        double[] withConsumerStats = produceMessages(destination, toSend, numIterations, session, producer, null);
-
-        LOG.info("With consumer: " + withConsumerStats[1] + " , with noConsumer: " + noConsumerStats[1]
-                + ", multiplier: " + (withConsumerStats[1]/noConsumerStats[1]));
-        final int reasonableMultiplier = 15; // not so reasonable but improving
-        assertTrue("max X times as slow with consumer: " + withConsumerStats[1] + ", with no Consumer: "
-                + noConsumerStats[1] + ", multiplier: " + (withConsumerStats[1]/noConsumerStats[1]),
-                withConsumerStats[1] < noConsumerStats[1] * reasonableMultiplier);
-
-        final int toReceive = toSend * numIterations * consumerCount * 2;
-        Wait.waitFor(new Wait.Condition() {
-            @Override
-            public boolean isSatisified() throws Exception {
-                LOG.info("count: " + allMessagesList.getMessageCount());
-                return toReceive == allMessagesList.getMessageCount();
-            }
-        }, 60 * 1000);
-
-        assertEquals("got all messages", toReceive, allMessagesList.getMessageCount());
-    }
-
-    private MessageProducer createMessageProducer(Session session, Destination destination) throws JMSException {
-        MessageProducer producer = session.createProducer(destination);
-        producer.setDeliveryMode(DeliveryMode.PERSISTENT);
-        return producer;
-    }
-
-    private void startInactiveConsumers(ConnectionFactory factory, Destination destination) throws Exception {
-        // create off line consumers
-        startConsumers(factory, destination);
-        for (Connection connection: connections) {
-            connection.close();
-        }
-        connections.clear();
-        consumers.clear();
-    }
-
-    protected void startConsumers(ConnectionFactory factory, Destination dest) throws Exception {
-        MessageConsumer consumer;
-        for (int i = 0; i < consumerCount; i++) {
-            TimedMessageListener list = new TimedMessageListener();
-            consumer = createDurableSubscriber(factory.createConnection(), dest, "consumer" + (i + 1));
-            consumer.setMessageListener(list);
-            consumers.put(consumer, list);
-        }
-    }
-
-    protected TopicSubscriber createDurableSubscriber(Connection conn, Destination dest, String name) throws Exception {
-        conn.setClientID(name);
-        connections.add(conn);
-        conn.start();
-
-        Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        final TopicSubscriber consumer = sess.createDurableSubscriber((javax.jms.Topic)dest, name);
-
-        return consumer;
-    }
-
-    /**
-     * @return max and ave send time
-     * @throws Exception
-     */
-    private double[] produceMessages(Destination destination,
-                                     final int toSend,
-                                     final int numIterations,
-                                     Session session,
-                                     MessageProducer producer,
-                                     CountDownLatch addConsumerSignal) throws Exception {
-        long start;
-        long count = 0;
-        double batchMax = 0, max = 0, sum = 0;
-        for (int i=0; i<numIterations; i++) {
-            start = System.currentTimeMillis();
-            for (int j=0; j < toSend; j++) {
-                long singleSendstart = System.currentTimeMillis();
-                TextMessage msg = createTextMessage(session, "" + j);
-                // rotate
-                int priority = ((int)count%10);
-                producer.send(msg, DeliveryMode.PERSISTENT, priority, 0);
-                max = Math.max(max, (System.currentTimeMillis() - singleSendstart));
-                if (++count % 500 == 0) {
-                    if (addConsumerSignal != null) {
-                        addConsumerSignal.countDown();
-                        LOG.info("Signalled add consumer");
-                    }
-                };
-                if (count % 5000 == 0) {
-                    LOG.info("Sent " + count + ", singleSendMax:" + max);
-                }
-
-            }
-            long duration = System.currentTimeMillis() - start;
-            batchMax = Math.max(batchMax, duration);
-            sum += duration;
-            LOG.info("Iteration " + i + ", sent " + toSend + ", time: "
-                    + duration + ", batchMax:" + batchMax + ", singleSendMax:" + max);
-        }
-
-        LOG.info("Sent: " + toSend * numIterations + ", batchMax: " + batchMax + " singleSendMax: " + max);
-        return new double[]{batchMax, sum/numIterations};
-    }
-
-    protected TextMessage createTextMessage(Session session, String initText) throws Exception {
-        TextMessage msg = session.createTextMessage();
-
-        // Pad message text
-        if (initText.length() < messageSize) {
-            char[] data = new char[messageSize - initText.length()];
-            Arrays.fill(data, '*');
-            String str = new String(data);
-            msg.setText(initText + str);
-
-            // Do not pad message text
-        } else {
-            msg.setText(initText);
-        }
-
-        return msg;
-    }
-
-    @Override
-    @Before
-    public void setUp() throws Exception {
-        topic = true;
-        super.setUp();
-        broker = createBroker();
-        broker.start();
-    }
-
-    @Override
-    @After
-    public void tearDown() throws Exception {
-        for (Iterator<Connection> iter = connections.iterator(); iter.hasNext();) {
-            Connection conn = iter.next();
+      // periodically start a durable sub that has a backlog
+      final int consumersToActivate = 5;
+      final CountDownLatch addConsumerSignal = new CountDownLatch(1);
+      Executors.newCachedThreadPool(new ThreadFactory() {
+         @Override
+         public Thread newThread(Runnable r) {
+            return new Thread(r, "ActivateConsumer" + this);
+         }
+      }).execute(new Runnable() {
+         @Override
+         public void run() {
             try {
-                conn.close();
-            } catch (Throwable e) {
+               MessageConsumer consumer = null;
+               for (int i = 0; i < consumersToActivate; i++) {
+                  LOG.info("Waiting for add signal from producer...");
+                  addConsumerSignal.await(30, TimeUnit.MINUTES);
+                  TimedMessageListener listener = new TimedMessageListener();
+                  consumer = createDurableSubscriber(factory.createConnection(), destination, "consumer" + (i + 1));
+                  LOG.info("Created consumer " + consumer);
+                  consumer.setMessageListener(listener);
+                  consumers.put(consumer, listener);
+               }
             }
-        }
-        broker.stop();
-        allMessagesList.flushMessages();
-        consumers.clear();
-        super.tearDown();
-    }
+            catch (Exception e) {
+               LOG.error("failed to start consumer", e);
+            }
+         }
+      });
 
-    protected BrokerService createBroker() throws Exception {
-        BrokerService brokerService = new BrokerService();
-        brokerService.setEnableStatistics(false);
-        brokerService.addConnector("tcp://0.0.0.0:0");
-        brokerService.setDeleteAllMessagesOnStartup(true);
+      double[] statsWithActive = produceMessages(destination, 500, 10, session, producer, addConsumerSignal);
 
-        PolicyEntry policy = new PolicyEntry();
-        policy.setPrioritizedMessages(true);
-        policy.setMaxPageSize(500);
+      LOG.info(" with concurrent activate, ave: " + statsWithActive[1] + ", max: " + statsWithActive[0] + ", multiplier: " + (statsWithActive[0] / statsWithActive[1]));
 
-        StorePendingDurableSubscriberMessageStoragePolicy durableSubPending =
-                new StorePendingDurableSubscriberMessageStoragePolicy();
-        durableSubPending.setImmediatePriorityDispatch(true);
-        durableSubPending.setUseCache(true);
-        policy.setPendingDurableSubscriberPolicy(durableSubPending);
+      while (consumers.size() < consumersToActivate) {
+         TimeUnit.SECONDS.sleep(2);
+      }
 
-        PolicyMap policyMap = new PolicyMap();
-        policyMap.setDefaultEntry(policy);
-        brokerService.setDestinationPolicy(policyMap);
+      long timeToFirstAccumulator = 0;
+      for (TimedMessageListener listener : consumers.values()) {
+         long time = listener.getFirstReceipt();
+         timeToFirstAccumulator += time;
+         LOG.info("Time to first " + time);
+      }
+      LOG.info("Ave time to first message =" + timeToFirstAccumulator / consumers.size());
 
-//        if (false) {
-//            // external mysql works a lot faster
-//            //
-//            JDBCPersistenceAdapter jdbc = new JDBCPersistenceAdapter();
-//            BasicDataSource ds = new BasicDataSource();
-//            com.mysql.jdbc.Driver d = new com.mysql.jdbc.Driver();
-//            ds.setDriverClassName("com.mysql.jdbc.Driver");
-//            ds.setUrl("jdbc:mysql://localhost/activemq?relaxAutoCommit=true");
-//            ds.setMaxActive(200);
-//            ds.setUsername("root");
-//            ds.setPassword("");
-//            ds.setPoolPreparedStatements(true);
-//            jdbc.setDataSource(ds);
-//            brokerService.setPersistenceAdapter(jdbc);
+      for (TimedMessageListener listener : consumers.values()) {
+         LOG.info("Ave batch receipt time: " + listener.waitForReceivedLimit(10000) + " max receipt: " + listener.maxReceiptTime);
+      }
+
+      //assertTrue("max (" + statsWithActive[0] + ") within reasonable multiplier of ave (" + statsWithActive[1] + ")",
+      //        statsWithActive[0] < 5 * statsWithActive[1]);
+
+      // compare no active to active
+      LOG.info("Ave send time with active: " + statsWithActive[1] + " as multiplier of ave with none active: " + inactiveConsumerStats[1] + ", multiplier=" + (statsWithActive[1] / inactiveConsumerStats[1]));
+
+      assertTrue("Ave send time with active: " + statsWithActive[1] + " within reasonable multpler of ave with none active: " + inactiveConsumerStats[1] + ", multiplier " + (statsWithActive[1] / inactiveConsumerStats[1]), statsWithActive[1] < 15 * inactiveConsumerStats[1]);
+   }
+
+   public void x_testSendWithInactiveAndActiveConsumers() throws Exception {
+      Destination destination = createDestination();
+      ConnectionFactory factory = createConnectionFactory();
+      startInactiveConsumers(factory, destination);
+
+      Connection connection = factory.createConnection();
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      MessageProducer producer = session.createProducer(destination);
+      producer.setDeliveryMode(DeliveryMode.PERSISTENT);
+
+      final int toSend = 100;
+      final int numIterations = 5;
+
+      double[] noConsumerStats = produceMessages(destination, toSend, numIterations, session, producer, null);
+
+      startConsumers(factory, destination);
+      LOG.info("Activated consumer");
+
+      double[] withConsumerStats = produceMessages(destination, toSend, numIterations, session, producer, null);
+
+      LOG.info("With consumer: " + withConsumerStats[1] + " , with noConsumer: " + noConsumerStats[1] + ", multiplier: " + (withConsumerStats[1] / noConsumerStats[1]));
+      final int reasonableMultiplier = 15; // not so reasonable but improving
+      assertTrue("max X times as slow with consumer: " + withConsumerStats[1] + ", with no Consumer: " + noConsumerStats[1] + ", multiplier: " + (withConsumerStats[1] / noConsumerStats[1]), withConsumerStats[1] < noConsumerStats[1] * reasonableMultiplier);
+
+      final int toReceive = toSend * numIterations * consumerCount * 2;
+      Wait.waitFor(new Wait.Condition() {
+         @Override
+         public boolean isSatisified() throws Exception {
+            LOG.info("count: " + allMessagesList.getMessageCount());
+            return toReceive == allMessagesList.getMessageCount();
+         }
+      }, 60 * 1000);
+
+      assertEquals("got all messages", toReceive, allMessagesList.getMessageCount());
+   }
+
+   private MessageProducer createMessageProducer(Session session, Destination destination) throws JMSException {
+      MessageProducer producer = session.createProducer(destination);
+      producer.setDeliveryMode(DeliveryMode.PERSISTENT);
+      return producer;
+   }
+
+   private void startInactiveConsumers(ConnectionFactory factory, Destination destination) throws Exception {
+      // create off line consumers
+      startConsumers(factory, destination);
+      for (Connection connection : connections) {
+         connection.close();
+      }
+      connections.clear();
+      consumers.clear();
+   }
+
+   protected void startConsumers(ConnectionFactory factory, Destination dest) throws Exception {
+      MessageConsumer consumer;
+      for (int i = 0; i < consumerCount; i++) {
+         TimedMessageListener list = new TimedMessageListener();
+         consumer = createDurableSubscriber(factory.createConnection(), dest, "consumer" + (i + 1));
+         consumer.setMessageListener(list);
+         consumers.put(consumer, list);
+      }
+   }
+
+   protected TopicSubscriber createDurableSubscriber(Connection conn, Destination dest, String name) throws Exception {
+      conn.setClientID(name);
+      connections.add(conn);
+      conn.start();
+
+      Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      final TopicSubscriber consumer = sess.createDurableSubscriber((javax.jms.Topic) dest, name);
+
+      return consumer;
+   }
+
+   /**
+    * @return max and ave send time
+    * @throws Exception
+    */
+   private double[] produceMessages(Destination destination,
+                                    final int toSend,
+                                    final int numIterations,
+                                    Session session,
+                                    MessageProducer producer,
+                                    CountDownLatch addConsumerSignal) throws Exception {
+      long start;
+      long count = 0;
+      double batchMax = 0, max = 0, sum = 0;
+      for (int i = 0; i < numIterations; i++) {
+         start = System.currentTimeMillis();
+         for (int j = 0; j < toSend; j++) {
+            long singleSendstart = System.currentTimeMillis();
+            TextMessage msg = createTextMessage(session, "" + j);
+            // rotate
+            int priority = ((int) count % 10);
+            producer.send(msg, DeliveryMode.PERSISTENT, priority, 0);
+            max = Math.max(max, (System.currentTimeMillis() - singleSendstart));
+            if (++count % 500 == 0) {
+               if (addConsumerSignal != null) {
+                  addConsumerSignal.countDown();
+                  LOG.info("Signalled add consumer");
+               }
+            }
+            ;
+            if (count % 5000 == 0) {
+               LOG.info("Sent " + count + ", singleSendMax:" + max);
+            }
+
+         }
+         long duration = System.currentTimeMillis() - start;
+         batchMax = Math.max(batchMax, duration);
+         sum += duration;
+         LOG.info("Iteration " + i + ", sent " + toSend + ", time: " + duration + ", batchMax:" + batchMax + ", singleSendMax:" + max);
+      }
+
+      LOG.info("Sent: " + toSend * numIterations + ", batchMax: " + batchMax + " singleSendMax: " + max);
+      return new double[]{batchMax, sum / numIterations};
+   }
+
+   protected TextMessage createTextMessage(Session session, String initText) throws Exception {
+      TextMessage msg = session.createTextMessage();
+
+      // Pad message text
+      if (initText.length() < messageSize) {
+         char[] data = new char[messageSize - initText.length()];
+         Arrays.fill(data, '*');
+         String str = new String(data);
+         msg.setText(initText + str);
+
+         // Do not pad message text
+      }
+      else {
+         msg.setText(initText);
+      }
+
+      return msg;
+   }
+
+   @Override
+   @Before
+   public void setUp() throws Exception {
+      topic = true;
+      super.setUp();
+      broker = createBroker();
+      broker.start();
+   }
+
+   @Override
+   @After
+   public void tearDown() throws Exception {
+      for (Iterator<Connection> iter = connections.iterator(); iter.hasNext(); ) {
+         Connection conn = iter.next();
+         try {
+            conn.close();
+         }
+         catch (Throwable e) {
+         }
+      }
+      broker.stop();
+      allMessagesList.flushMessages();
+      consumers.clear();
+      super.tearDown();
+   }
+
+   protected BrokerService createBroker() throws Exception {
+      BrokerService brokerService = new BrokerService();
+      brokerService.setEnableStatistics(false);
+      brokerService.addConnector("tcp://0.0.0.0:0");
+      brokerService.setDeleteAllMessagesOnStartup(true);
+
+      PolicyEntry policy = new PolicyEntry();
+      policy.setPrioritizedMessages(true);
+      policy.setMaxPageSize(500);
+
+      StorePendingDurableSubscriberMessageStoragePolicy durableSubPending = new StorePendingDurableSubscriberMessageStoragePolicy();
+      durableSubPending.setImmediatePriorityDispatch(true);
+      durableSubPending.setUseCache(true);
+      policy.setPendingDurableSubscriberPolicy(durableSubPending);
+
+      PolicyMap policyMap = new PolicyMap();
+      policyMap.setDefaultEntry(policy);
+      brokerService.setDestinationPolicy(policyMap);
+
+      //        if (false) {
+      //            // external mysql works a lot faster
+      //            //
+      //            JDBCPersistenceAdapter jdbc = new JDBCPersistenceAdapter();
+      //            BasicDataSource ds = new BasicDataSource();
+      //            com.mysql.jdbc.Driver d = new com.mysql.jdbc.Driver();
+      //            ds.setDriverClassName("com.mysql.jdbc.Driver");
+      //            ds.setUrl("jdbc:mysql://localhost/activemq?relaxAutoCommit=true");
+      //            ds.setMaxActive(200);
+      //            ds.setUsername("root");
+      //            ds.setPassword("");
+      //            ds.setPoolPreparedStatements(true);
+      //            jdbc.setDataSource(ds);
+      //            brokerService.setPersistenceAdapter(jdbc);
 
             /* add mysql bits to the pom in the testing dependencies
                     <dependency>
@@ -379,109 +373,113 @@ public class ConcurrentProducerDurableConsumerTest extends TestSupport {
                         <scope>test</scope>
                     </dependency>
              */
-//        } else {
-            setPersistenceAdapter(brokerService, persistenceAdapterChoice);
-//        }
-        return brokerService;
-    }
+      //        } else {
+      setPersistenceAdapter(brokerService, persistenceAdapterChoice);
+      //        }
+      return brokerService;
+   }
 
-    @Override
-    protected ActiveMQConnectionFactory createConnectionFactory() throws Exception {
-        ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(
-            broker.getTransportConnectors().get(0).getPublishableConnectString());
-        ActiveMQPrefetchPolicy prefetchPolicy = new ActiveMQPrefetchPolicy();
-        prefetchPolicy.setAll(1);
-        factory.setPrefetchPolicy(prefetchPolicy);
+   @Override
+   protected ActiveMQConnectionFactory createConnectionFactory() throws Exception {
+      ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(broker.getTransportConnectors().get(0).getPublishableConnectString());
+      ActiveMQPrefetchPolicy prefetchPolicy = new ActiveMQPrefetchPolicy();
+      prefetchPolicy.setAll(1);
+      factory.setPrefetchPolicy(prefetchPolicy);
 
-        factory.setDispatchAsync(true);
-        return factory;
-    }
+      factory.setDispatchAsync(true);
+      return factory;
+   }
 
-    class TimedMessageListener implements MessageListener {
-        final int batchSize = 1000;
-        CountDownLatch firstReceiptLatch = new CountDownLatch(1);
-        long mark = System.currentTimeMillis();
-        long firstReceipt = 0L;
-        long receiptAccumulator = 0;
-        long batchReceiptAccumulator = 0;
-        long maxReceiptTime = 0;
-        AtomicLong count = new AtomicLong(0);
-        Map<Integer, MessageIdList> messageLists = new ConcurrentHashMap<Integer, MessageIdList>(new HashMap<Integer, MessageIdList>());
+   class TimedMessageListener implements MessageListener {
 
-        @Override
-        public void onMessage(Message message) {
-            final long current = System.currentTimeMillis();
-            final long duration = current - mark;
-            receiptAccumulator += duration;
-            int priority = 0;
-            try {
-                priority = message.getJMSPriority();
-            } catch (JMSException ignored) {}
-            if (!messageLists.containsKey(priority)) {
-                MessageIdList perPriorityList =  new MessageIdList();
-                perPriorityList.setParent(allMessagesList);
-                messageLists.put(priority, perPriorityList);
+      final int batchSize = 1000;
+      CountDownLatch firstReceiptLatch = new CountDownLatch(1);
+      long mark = System.currentTimeMillis();
+      long firstReceipt = 0L;
+      long receiptAccumulator = 0;
+      long batchReceiptAccumulator = 0;
+      long maxReceiptTime = 0;
+      AtomicLong count = new AtomicLong(0);
+      Map<Integer, MessageIdList> messageLists = new ConcurrentHashMap<Integer, MessageIdList>(new HashMap<Integer, MessageIdList>());
+
+      @Override
+      public void onMessage(Message message) {
+         final long current = System.currentTimeMillis();
+         final long duration = current - mark;
+         receiptAccumulator += duration;
+         int priority = 0;
+         try {
+            priority = message.getJMSPriority();
+         }
+         catch (JMSException ignored) {
+         }
+         if (!messageLists.containsKey(priority)) {
+            MessageIdList perPriorityList = new MessageIdList();
+            perPriorityList.setParent(allMessagesList);
+            messageLists.put(priority, perPriorityList);
+         }
+         messageLists.get(priority).onMessage(message);
+         if (count.incrementAndGet() == 1) {
+            firstReceipt = duration;
+            firstReceiptLatch.countDown();
+            LOG.info("First receipt in " + firstReceipt + "ms");
+         }
+         else if (count.get() % batchSize == 0) {
+            LOG.info("Consumed " + count.get() + " in " + batchReceiptAccumulator + "ms" + ", priority:" + priority);
+            batchReceiptAccumulator = 0;
+         }
+         maxReceiptTime = Math.max(maxReceiptTime, duration);
+         receiptAccumulator += duration;
+         batchReceiptAccumulator += duration;
+         mark = current;
+      }
+
+      long getMessageCount() {
+         return count.get();
+      }
+
+      long getFirstReceipt() throws Exception {
+         firstReceiptLatch.await(30, TimeUnit.SECONDS);
+         return firstReceipt;
+      }
+
+      public long waitForReceivedLimit(long limit) throws Exception {
+         final long expiry = System.currentTimeMillis() + 30 * 60 * 1000;
+         while (count.get() < limit) {
+            if (System.currentTimeMillis() > expiry) {
+               throw new RuntimeException("Expired waiting for X messages, " + limit);
             }
-            messageLists.get(priority).onMessage(message);
-            if (count.incrementAndGet() == 1) {
-                firstReceipt = duration;
-                firstReceiptLatch.countDown();
-                LOG.info("First receipt in " + firstReceipt + "ms");
-            } else if (count.get() % batchSize == 0) {
-                LOG.info("Consumed " + count.get() + " in " + batchReceiptAccumulator + "ms" + ", priority:" + priority);
-                batchReceiptAccumulator=0;
+            TimeUnit.SECONDS.sleep(2);
+            String missing = findFirstMissingMessage();
+            if (missing != null) {
+               LOG.info("first missing = " + missing);
+               throw new RuntimeException("We have a missing message. " + missing);
             }
-            maxReceiptTime = Math.max(maxReceiptTime, duration);
-            receiptAccumulator += duration;
-            batchReceiptAccumulator += duration;
-            mark = current;
-        }
 
-        long getMessageCount() {
-            return count.get();
-        }
+         }
+         return receiptAccumulator / (limit / batchSize);
+      }
 
-        long getFirstReceipt() throws Exception {
-            firstReceiptLatch.await(30, TimeUnit.SECONDS);
-            return firstReceipt;
-        }
-
-        public long waitForReceivedLimit(long limit) throws Exception {
-            final long expiry = System.currentTimeMillis() + 30*60*1000;
-            while (count.get() < limit) {
-                if (System.currentTimeMillis() > expiry) {
-                    throw new RuntimeException("Expired waiting for X messages, " + limit);
-                }
-                TimeUnit.SECONDS.sleep(2);
-                String missing = findFirstMissingMessage();
-                if (missing != null) {
-                    LOG.info("first missing = " + missing);
-                    throw new RuntimeException("We have a missing message. " + missing);
-                }
-
+      private String findFirstMissingMessage() {
+         MessageId current = new MessageId();
+         for (MessageIdList priorityList : messageLists.values()) {
+            MessageId previous = null;
+            for (String id : priorityList.getMessageIds()) {
+               current.setValue(id);
+               if (previous == null) {
+                  previous = current.copy();
+               }
+               else {
+                  if (current.getProducerSequenceId() - 1 != previous.getProducerSequenceId() && current.getProducerSequenceId() - 10 != previous.getProducerSequenceId()) {
+                     return "Missing next after: " + previous + ", got: " + current;
+                  }
+                  else {
+                     previous = current.copy();
+                  }
+               }
             }
-            return receiptAccumulator/(limit/batchSize);
-        }
-
-        private String findFirstMissingMessage() {
-            MessageId current = new MessageId();
-            for (MessageIdList priorityList : messageLists.values()) {
-                MessageId previous = null;
-                for (String id : priorityList.getMessageIds()) {
-                    current.setValue(id);
-                    if (previous == null) {
-                        previous = current.copy();
-                    } else {
-                        if (current.getProducerSequenceId() - 1 != previous.getProducerSequenceId() &&
-                            current.getProducerSequenceId() - 10 !=  previous.getProducerSequenceId()) {
-                                return "Missing next after: " + previous + ", got: " + current;
-                        } else {
-                            previous = current.copy();
-                        }
-                    }
-                }
-            }
-            return null;
-        }
-    }
+         }
+         return null;
+      }
+   }
 }

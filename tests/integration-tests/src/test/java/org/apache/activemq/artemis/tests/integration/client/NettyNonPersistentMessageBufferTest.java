@@ -16,17 +16,15 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
-public class NettyNonPersistentMessageBufferTest extends InVMNonPersistentMessageBufferTest
-{
+public class NettyNonPersistentMessageBufferTest extends InVMNonPersistentMessageBufferTest {
+
    @Override
-   public boolean isPersistent()
-   {
+   public boolean isPersistent() {
       return false;
    }
 
    @Override
-   public boolean isNetty()
-   {
+   public boolean isNetty() {
       return true;
    }
 }

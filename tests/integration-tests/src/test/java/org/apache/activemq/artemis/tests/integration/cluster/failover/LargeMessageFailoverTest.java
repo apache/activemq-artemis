@@ -20,21 +20,18 @@ import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.core.client.impl.ServerLocatorInternal;
 import org.junit.Test;
 
-public class LargeMessageFailoverTest extends FailoverTest
-{
+public class LargeMessageFailoverTest extends FailoverTest {
 
    @Override
    @Test
-   public void testLiveAndBackupLiveComesBackNewFactory() throws Exception
-   {
+   public void testLiveAndBackupLiveComesBackNewFactory() throws Exception {
       // skip test because it triggers OutOfMemoryError.
       Thread.sleep(1000);
    }
 
    @Override
    @Test
-   public void testLiveAndBackupBackupComesBackNewFactory() throws Exception
-   {
+   public void testLiveAndBackupBackupComesBackNewFactory() throws Exception {
       // skip test because it triggers OutOfMemoryError.
       Thread.sleep(1000);
    }
@@ -44,17 +41,13 @@ public class LargeMessageFailoverTest extends FailoverTest
     * @param message
     */
    @Override
-   protected void assertMessageBody(final int i, final ClientMessage message)
-   {
+   protected void assertMessageBody(final int i, final ClientMessage message) {
       assertLargeMessageBody(i, message);
    }
 
-
    @Override
-   protected ServerLocatorInternal getServerLocator() throws Exception
-   {
-      return (ServerLocatorInternal) super.getServerLocator()
-              .setMinLargeMessageSize(MIN_LARGE_MESSAGE);
+   protected ServerLocatorInternal getServerLocator() throws Exception {
+      return (ServerLocatorInternal) super.getServerLocator().setMinLargeMessageSize(MIN_LARGE_MESSAGE);
    }
 
    /**
@@ -62,8 +55,7 @@ public class LargeMessageFailoverTest extends FailoverTest
     * @param message
     */
    @Override
-   protected void setBody(final int i, final ClientMessage message)
-   {
+   protected void setBody(final int i, final ClientMessage message) {
       setLargeMessageBody(i, message);
    }
 }

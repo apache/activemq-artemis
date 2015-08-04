@@ -18,18 +18,18 @@ package org.apache.activemq.artemis.jms.bridge;
 
 /**
  * <h3>Quality of server (QoS) levels</h3>
- *
+ * <br>
  * <h4>QOS_AT_MOST_ONCE</h4>
- *
+ * <br>
  * With this QoS mode messages will reach the destination from the source at
  * most once. The messages are consumed from the source and acknowledged before
  * sending to the destination. Therefore there is a possibility that if failure
  * occurs between removing them from the source and them arriving at the
  * destination they could be lost. Hence delivery will occur at most once. This
  * mode is available for both persistent and non persistent messages.
- *
+ * <br>
  * <h4>QOS_DUPLICATES_OK</h4>
- *
+ * <br>
  * With this QoS mode, the messages are consumed from the source and then
  * acknowledged after they have been successfully sent to the destination.
  * Therefore there is a possibility that if failure occurs after sending to the
@@ -37,9 +37,9 @@ package org.apache.activemq.artemis.jms.bridge;
  * system recovers. I.e. the destination might receive duplicates after a
  * failure. This mode is available for both persistent and non persistent
  * messages.
- *
+ * <br>
  * <h4>QOS_ONCE_AND_ONLY_ONCE</h4>
- *
+ * <br>
  * This QoS mode ensures messages will reach the destination from the source
  * once and only once. (Sometimes this mode is known as "exactly once"). If both
  * the source and the destination are on the same ActiveMQ Artemis server
@@ -52,7 +52,7 @@ package org.apache.activemq.artemis.jms.bridge;
  * supplied connection factories need to be XAConnectionFactory implementations.
  * This mode is only available for persistent messages. This is likely to be the
  * slowest mode since it requires extra persistence for the transaction logging.
- *
+ * <br>
  * Note: For a specific application it may possible to provide once and only
  * once semantics without using the QOS_ONCE_AND_ONLY_ONCE QoS level. This can
  * be done by using the QOS_DUPLICATES_OK mode and then checking for duplicates
@@ -64,34 +64,27 @@ package org.apache.activemq.artemis.jms.bridge;
  * using QOS_ONCE_AND_ONLY_ONCE but may be a good choice depending on your
  * specific application.
  */
-public enum QualityOfServiceMode
-{
+public enum QualityOfServiceMode {
    AT_MOST_ONCE(0), DUPLICATES_OK(1), ONCE_AND_ONLY_ONCE(2);
 
    private final int value;
 
-   QualityOfServiceMode(final int value)
-   {
+   QualityOfServiceMode(final int value) {
       this.value = value;
    }
 
-   public int intValue()
-   {
+   public int intValue() {
       return value;
    }
 
-   public static QualityOfServiceMode valueOf(final int value)
-   {
-      if (value == AT_MOST_ONCE.value)
-      {
+   public static QualityOfServiceMode valueOf(final int value) {
+      if (value == AT_MOST_ONCE.value) {
          return AT_MOST_ONCE;
       }
-      if (value == DUPLICATES_OK.value)
-      {
+      if (value == DUPLICATES_OK.value) {
          return DUPLICATES_OK;
       }
-      if (value == ONCE_AND_ONLY_ONCE.value)
-      {
+      if (value == ONCE_AND_ONLY_ONCE.value) {
          return ONCE_AND_ONLY_ONCE;
       }
       throw new IllegalArgumentException("invalid QualityOfServiceMode value: " + value);

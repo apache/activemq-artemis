@@ -36,8 +36,7 @@ import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.utils.json.JSONArray;
 import org.apache.activemq.artemis.utils.json.JSONObject;
 
-public class AddressControlImpl extends AbstractControl implements AddressControl
-{
+public class AddressControlImpl extends AbstractControl implements AddressControl {
 
    // Constants -----------------------------------------------------
 
@@ -59,8 +58,7 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
                              final PostOffice postOffice,
                              final PagingManager pagingManager,
                              final StorageManager storageManager,
-                             final HierarchicalRepository<Set<Role>> securityRepository) throws Exception
-   {
+                             final HierarchicalRepository<Set<Role>> securityRepository) throws Exception {
       super(AddressControl.class, storageManager);
       this.address = address;
       this.postOffice = postOffice;
@@ -72,203 +70,153 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
 
    // AddressControlMBean implementation ----------------------------
 
-   public String getAddress()
-   {
+   public String getAddress() {
       return address.toString();
    }
 
-   public String[] getQueueNames() throws Exception
-   {
+   public String[] getQueueNames() throws Exception {
       clearIO();
-      try
-      {
+      try {
          Bindings bindings = postOffice.getBindingsForAddress(address);
          List<String> queueNames = new ArrayList<String>();
-         for (Binding binding : bindings.getBindings())
-         {
-            if (binding instanceof QueueBinding)
-            {
+         for (Binding binding : bindings.getBindings()) {
+            if (binding instanceof QueueBinding) {
                queueNames.add(binding.getUniqueName().toString());
             }
          }
          return queueNames.toArray(new String[queueNames.size()]);
       }
-      catch (Throwable t)
-      {
+      catch (Throwable t) {
          throw new IllegalStateException(t.getMessage());
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public String[] getBindingNames() throws Exception
-   {
+   public String[] getBindingNames() throws Exception {
       clearIO();
-      try
-      {
+      try {
          Bindings bindings = postOffice.getBindingsForAddress(address);
          String[] bindingNames = new String[bindings.getBindings().size()];
          int i = 0;
-         for (Binding binding : bindings.getBindings())
-         {
+         for (Binding binding : bindings.getBindings()) {
             bindingNames[i++] = binding.getUniqueName().toString();
          }
          return bindingNames;
       }
-      catch (Throwable t)
-      {
+      catch (Throwable t) {
          throw new IllegalStateException(t.getMessage());
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public Object[] getRoles() throws Exception
-   {
+   public Object[] getRoles() throws Exception {
       clearIO();
-      try
-      {
+      try {
          Set<Role> roles = securityRepository.getMatch(address.toString());
 
          Object[] objRoles = new Object[roles.size()];
 
          int i = 0;
-         for (Role role : roles)
-         {
-            objRoles[i++] = new Object[]{
-               role.getName(),
-               CheckType.SEND.hasRole(role),
-               CheckType.CONSUME.hasRole(role),
-               CheckType.CREATE_DURABLE_QUEUE.hasRole(role),
-               CheckType.DELETE_DURABLE_QUEUE.hasRole(role),
-               CheckType.CREATE_NON_DURABLE_QUEUE.hasRole(role),
-               CheckType.DELETE_NON_DURABLE_QUEUE.hasRole(role),
-               CheckType.MANAGE.hasRole(role)};
+         for (Role role : roles) {
+            objRoles[i++] = new Object[]{role.getName(), CheckType.SEND.hasRole(role), CheckType.CONSUME.hasRole(role), CheckType.CREATE_DURABLE_QUEUE.hasRole(role), CheckType.DELETE_DURABLE_QUEUE.hasRole(role), CheckType.CREATE_NON_DURABLE_QUEUE.hasRole(role), CheckType.DELETE_NON_DURABLE_QUEUE.hasRole(role), CheckType.MANAGE.hasRole(role)};
          }
          return objRoles;
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public String getRolesAsJSON() throws Exception
-   {
+   public String getRolesAsJSON() throws Exception {
       clearIO();
-      try
-      {
+      try {
          JSONArray json = new JSONArray();
          Set<Role> roles = securityRepository.getMatch(address.toString());
 
-         for (Role role : roles)
-         {
+         for (Role role : roles) {
             json.put(new JSONObject(role));
          }
          return json.toString();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public long getNumberOfBytesPerPage() throws Exception
-   {
+   public long getNumberOfBytesPerPage() throws Exception {
       clearIO();
-      try
-      {
+      try {
          return pagingManager.getPageStore(address).getPageSizeBytes();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public long getAddressSize() throws Exception
-   {
+   public long getAddressSize() throws Exception {
       clearIO();
-      try
-      {
+      try {
          return pagingManager.getPageStore(address).getAddressSize();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public long getNumberOfMessages() throws Exception
-   {
+   public long getNumberOfMessages() throws Exception {
       clearIO();
       long totalMsgs = 0;
-      try
-      {
+      try {
          Bindings bindings = postOffice.getBindingsForAddress(address);
          List<String> queueNames = new ArrayList<String>();
-         for (Binding binding : bindings.getBindings())
-         {
-            if (binding instanceof QueueBinding)
-            {
+         for (Binding binding : bindings.getBindings()) {
+            if (binding instanceof QueueBinding) {
                totalMsgs += ((QueueBinding) binding).getQueue().getMessageCount();
             }
          }
          return totalMsgs;
       }
-      catch (Throwable t)
-      {
+      catch (Throwable t) {
          throw new IllegalStateException(t.getMessage());
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-
-   public boolean isPaging() throws Exception
-   {
+   public boolean isPaging() throws Exception {
       clearIO();
-      try
-      {
+      try {
          return pagingManager.getPageStore(address).isPaging();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public int getNumberOfPages() throws Exception
-   {
+   public int getNumberOfPages() throws Exception {
       clearIO();
-      try
-      {
+      try {
          PagingStore pageStore = pagingManager.getPageStore(address);
 
-         if (!pageStore.isPaging())
-         {
+         if (!pageStore.isPaging()) {
             return 0;
          }
-         else
-         {
+         else {
             return pagingManager.getPageStore(address).getNumberOfPages();
          }
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
    @Override
-   protected MBeanOperationInfo[] fillMBeanOperationInfo()
-   {
+   protected MBeanOperationInfo[] fillMBeanOperationInfo() {
       return MBeanInfoHelper.getMBeanOperationsInfo(AddressControl.class);
    }
 

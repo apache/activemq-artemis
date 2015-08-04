@@ -39,22 +39,20 @@ import org.junit.rules.ExpectedException;
 
 import java.util.concurrent.TimeUnit;
 
-public class SimpleOpenWireTest extends BasicOpenWireTest
-{
+public class SimpleOpenWireTest extends BasicOpenWireTest {
+
    @Rule
    public ExpectedException thrown = ExpectedException.none();
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       this.realStore = true;
       super.setUp();
    }
 
    @Test
-   public void testSimpleQueue() throws Exception
-   {
+   public void testSimpleQueue() throws Exception {
       connection.start();
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
@@ -66,8 +64,7 @@ public class SimpleOpenWireTest extends BasicOpenWireTest
 
       final int num = 1;
       final String msgBase = "MfromAMQ-";
-      for (int i = 0; i < num; i++)
-      {
+      for (int i = 0; i < num; i++) {
          TextMessage msg = session.createTextMessage("MfromAMQ-" + i);
          producer.send(msg);
          System.out.println("sent: ");
@@ -77,8 +74,7 @@ public class SimpleOpenWireTest extends BasicOpenWireTest
       MessageConsumer consumer = session.createConsumer(dest);
 
       System.out.println("receiving messages...");
-      for (int i = 0; i < num; i++)
-      {
+      for (int i = 0; i < num; i++) {
          TextMessage msg = (TextMessage) consumer.receive(5000);
          System.out.println("received: " + msg);
          String content = msg.getText();
@@ -92,8 +88,7 @@ public class SimpleOpenWireTest extends BasicOpenWireTest
    }
 
    @Test
-   public void testSimpleTopic() throws Exception
-   {
+   public void testSimpleTopic() throws Exception {
       connection.start();
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
@@ -107,8 +102,7 @@ public class SimpleOpenWireTest extends BasicOpenWireTest
 
       final int num = 1;
       final String msgBase = "MfromAMQ-";
-      for (int i = 0; i < num; i++)
-      {
+      for (int i = 0; i < num; i++) {
          TextMessage msg = session.createTextMessage("MfromAMQ-" + i);
          producer.send(msg);
          System.out.println("Sent a message");
@@ -116,8 +110,7 @@ public class SimpleOpenWireTest extends BasicOpenWireTest
 
       //receive
       System.out.println("receiving messages...");
-      for (int i = 0; i < num; i++)
-      {
+      for (int i = 0; i < num; i++) {
          TextMessage msg = (TextMessage) consumer1.receive(5000);
          System.out.println("received: " + msg);
          String content = msg.getText();
@@ -127,8 +120,7 @@ public class SimpleOpenWireTest extends BasicOpenWireTest
       assertNull(consumer1.receive(500));
 
       System.out.println("receiving messages...");
-      for (int i = 0; i < num; i++)
-      {
+      for (int i = 0; i < num; i++) {
          TextMessage msg = (TextMessage) consumer2.receive(5000);
          System.out.println("received: " + msg);
          String content = msg.getText();
@@ -140,8 +132,7 @@ public class SimpleOpenWireTest extends BasicOpenWireTest
    }
 
    @Test
-   public void testSimpleTempTopic() throws Exception
-   {
+   public void testSimpleTempTopic() throws Exception {
       connection.start();
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
@@ -159,8 +150,7 @@ public class SimpleOpenWireTest extends BasicOpenWireTest
       System.out.println("sending messages");
       final int num = 1;
       final String msgBase = "MfromAMQ-";
-      for (int i = 0; i < num; i++)
-      {
+      for (int i = 0; i < num; i++) {
          TextMessage msg = session.createTextMessage("MfromAMQ-" + i);
          producer.send(msg);
          System.out.println("Sent a message");
@@ -168,8 +158,7 @@ public class SimpleOpenWireTest extends BasicOpenWireTest
 
       //receive
       System.out.println("receiving messages...");
-      for (int i = 0; i < num; i++)
-      {
+      for (int i = 0; i < num; i++) {
          TextMessage msg = (TextMessage) consumer1.receive(5000);
          System.out.println("received: " + msg);
          String content = msg.getText();
@@ -179,8 +168,7 @@ public class SimpleOpenWireTest extends BasicOpenWireTest
       assertNull(consumer1.receive(500));
 
       System.out.println("receiving messages...");
-      for (int i = 0; i < num; i++)
-      {
+      for (int i = 0; i < num; i++) {
          TextMessage msg = (TextMessage) consumer2.receive(5000);
          System.out.println("received: " + msg);
          String content = msg.getText();
@@ -192,8 +180,7 @@ public class SimpleOpenWireTest extends BasicOpenWireTest
    }
 
    @Test
-   public void testSimpleTempQueue() throws Exception
-   {
+   public void testSimpleTempQueue() throws Exception {
       connection.start();
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
@@ -209,8 +196,7 @@ public class SimpleOpenWireTest extends BasicOpenWireTest
       System.out.println("sending messages");
       final int num = 1;
       final String msgBase = "MfromAMQ-";
-      for (int i = 0; i < num; i++)
-      {
+      for (int i = 0; i < num; i++) {
          TextMessage msg = session.createTextMessage("MfromAMQ-" + i);
          producer.send(msg);
          System.out.println("Sent a message");
@@ -218,8 +204,7 @@ public class SimpleOpenWireTest extends BasicOpenWireTest
 
       //receive
       System.out.println("receiving messages...");
-      for (int i = 0; i < num; i++)
-      {
+      for (int i = 0; i < num; i++) {
          TextMessage msg = (TextMessage) consumer1.receive(5000);
          System.out.println("received: " + msg);
          String content = msg.getText();
@@ -231,8 +216,7 @@ public class SimpleOpenWireTest extends BasicOpenWireTest
    }
 
    @Test
-   public void testInvalidDestinationExceptionWhenNoQueueExistsOnCreateProducer() throws Exception
-   {
+   public void testInvalidDestinationExceptionWhenNoQueueExistsOnCreateProducer() throws Exception {
       AddressSettings addressSetting = new AddressSettings();
       addressSetting.setAutoCreateJmsQueues(false);
 
@@ -249,8 +233,7 @@ public class SimpleOpenWireTest extends BasicOpenWireTest
    }
 
    @Test
-   public void testAutoDestinationCreationOnProducerSend() throws JMSException
-   {
+   public void testAutoDestinationCreationOnProducerSend() throws JMSException {
       AddressSettings addressSetting = new AddressSettings();
       addressSetting.setAutoCreateJmsQueues(true);
 
@@ -272,8 +255,7 @@ public class SimpleOpenWireTest extends BasicOpenWireTest
    }
 
    @Test
-   public void testAutoDestinationCreationOnConsumer() throws JMSException
-   {
+   public void testAutoDestinationCreationOnConsumer() throws JMSException {
       AddressSettings addressSetting = new AddressSettings();
       addressSetting.setAutoCreateJmsQueues(true);
 
@@ -296,8 +278,7 @@ public class SimpleOpenWireTest extends BasicOpenWireTest
    }
 
    @Test
-   public void testAutoDestinationNoCreationOnConsumer() throws JMSException
-   {
+   public void testAutoDestinationNoCreationOnConsumer() throws JMSException {
       AddressSettings addressSetting = new AddressSettings();
       addressSetting.setAutoCreateJmsQueues(false);
 
@@ -310,13 +291,11 @@ public class SimpleOpenWireTest extends BasicOpenWireTest
       TextMessage message = session.createTextMessage("bar");
       Queue queue = new ActiveMQQueue(address);
 
-      try
-      {
+      try {
          MessageConsumer consumer = session.createConsumer(queue);
          fail("supposed to throw an exception here");
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
 
       }
    }
@@ -327,12 +306,10 @@ public class SimpleOpenWireTest extends BasicOpenWireTest
     * @throws Exception
     */
    @Test
-   public void testOpenWireExample() throws Exception
-   {
+   public void testOpenWireExample() throws Exception {
       Connection exConn = null;
 
-      try
-      {
+      try {
          String urlString = "tcp://" + OWHOST + ":" + OWPORT + "?wireFormat.cacheEnabled=true";
          ActiveMQConnectionFactory exFact = new ActiveMQConnectionFactory(urlString);
 
@@ -369,10 +346,8 @@ public class SimpleOpenWireTest extends BasicOpenWireTest
 
          assertEquals("This is a text message", messageReceived.getText());
       }
-      finally
-      {
-         if (exConn != null)
-         {
+      finally {
+         if (exConn != null) {
             exConn.close();
          }
       }
@@ -380,12 +355,10 @@ public class SimpleOpenWireTest extends BasicOpenWireTest
    }
 
    @Test
-   public void testFailoverTransportReconnect() throws Exception
-   {
+   public void testFailoverTransportReconnect() throws Exception {
       Connection exConn = null;
 
-      try
-      {
+      try {
          String urlString = "failover:(tcp://" + OWHOST + ":" + OWPORT + ")";
          ActiveMQConnectionFactory exFact = new ActiveMQConnectionFactory(urlString);
 
@@ -410,10 +383,8 @@ public class SimpleOpenWireTest extends BasicOpenWireTest
          messageProducer.send(session.createTextMessage("Test2"));
          assertNotNull(consumer.receive(5000));
       }
-      finally
-      {
-         if (exConn != null)
-         {
+      finally {
+         if (exConn != null) {
             exConn.close();
          }
       }

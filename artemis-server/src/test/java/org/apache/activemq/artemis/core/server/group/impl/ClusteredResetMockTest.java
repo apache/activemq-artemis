@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.core.server.group.impl;
 
-
 import org.apache.activemq.artemis.api.core.BroadcastGroupConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
@@ -65,14 +64,12 @@ import java.util.concurrent.TimeUnit;
  * There is a small window where you could receive notifications wrongly
  * this test will make sure the component would play well with that notification
  */
-public class ClusteredResetMockTest extends ActiveMQTestBase
-{
+public class ClusteredResetMockTest extends ActiveMQTestBase {
 
    public static final SimpleString ANYCLUSTER = SimpleString.toSimpleString("anycluster");
 
    @Test
-   public void testMultipleSenders() throws Throwable
-   {
+   public void testMultipleSenders() throws Throwable {
 
       int NUMBER_OF_SENDERS = 100;
       ReusableLatch latchSends = new ReusableLatch(NUMBER_OF_SENDERS);
@@ -81,26 +78,20 @@ public class ClusteredResetMockTest extends ActiveMQTestBase
       RemoteGroupingHandler handler = new RemoteGroupingHandler(fake, SimpleString.toSimpleString("tst1"), SimpleString.toSimpleString("tst2"), 50000, 499);
       handler.start();
 
-
       Sender[] sn = new Sender[NUMBER_OF_SENDERS];
 
-      for (int i = 0; i < sn.length; i++)
-      {
+      for (int i = 0; i < sn.length; i++) {
          sn[i] = new Sender("grp" + i, handler);
          sn[i].start();
       }
 
-
-      try
-      {
+      try {
 
          // Waiting two requests to arrive
          Assert.assertTrue(latchSends.await(1, TimeUnit.MINUTES));
 
-
          // we will ask a resend.. need to add 2 back
-         for (int i = 0; i < NUMBER_OF_SENDERS; i++)
-         {
+         for (int i = 0; i < NUMBER_OF_SENDERS; i++) {
             // There is no countUp(NUMBER_OF_SENDERS); adding two back on the reusable latch
             latchSends.countUp();
          }
@@ -113,82 +104,64 @@ public class ClusteredResetMockTest extends ActiveMQTestBase
 
          HashSet<SimpleString> codesAsked = new HashSet<SimpleString>();
 
-         for (Notification notification : fake.pendingNotifications)
-         {
+         for (Notification notification : fake.pendingNotifications) {
             codesAsked.add(notification.getProperties().getSimpleStringProperty(ManagementHelper.HDR_PROPOSAL_GROUP_ID));
          }
 
-         for (Sender snItem : sn)
-         {
+         for (Sender snItem : sn) {
             assertTrue(codesAsked.contains(snItem.code));
          }
 
-
-         for (int i = NUMBER_OF_SENDERS - 1; i >= 0; i--)
-         {
+         for (int i = NUMBER_OF_SENDERS - 1; i >= 0; i--) {
 
             // Sending back the response as Notifications would be doing
             Response response = new Response(sn[i].code, ANYCLUSTER);
             handler.proposed(response);
          }
 
-
-         for (Sender sni : sn)
-         {
+         for (Sender sni : sn) {
             sni.join();
-            if (sni.ex != null)
-            {
+            if (sni.ex != null) {
                throw sni.ex;
             }
          }
       }
-      finally
-      {
+      finally {
 
-         for (Sender sni : sn)
-         {
+         for (Sender sni : sn) {
             sni.interrupt();
          }
       }
 
-
    }
 
+   class Sender extends Thread {
 
-   class Sender extends Thread
-   {
       SimpleString code;
       public RemoteGroupingHandler handler;
 
       Throwable ex;
 
-      Sender(String code, RemoteGroupingHandler handler)
-      {
+      Sender(String code, RemoteGroupingHandler handler) {
          super("Sender::" + code);
          this.code = SimpleString.toSimpleString(code);
          this.handler = handler;
       }
 
-
-      public void run()
-      {
+      public void run() {
          Proposal proposal = new Proposal(code, ANYCLUSTER);
 
-         try
-         {
+         try {
             Response response = handler.propose(proposal);
-            if (response == null)
-            {
+            if (response == null) {
                ex = new NullPointerException("expected value on " + getName());
             }
 
-            if (!response.getGroupId().equals(code))
-            {
+            if (!response.getGroupId().equals(code)) {
                ex = new IllegalStateException("expected code=" + code + " but it was " + response.getGroupId());
             }
          }
-         catch (Throwable ex)
-         {
+         catch (Throwable ex) {
             ex.printStackTrace();
             this.ex = ex;
          }
@@ -196,229 +169,204 @@ public class ClusteredResetMockTest extends ActiveMQTestBase
       }
    }
 
+   class FakeManagement implements ManagementService {
 
-   class FakeManagement implements ManagementService
-   {
       public ConcurrentHashSet<Notification> pendingNotifications = new ConcurrentHashSet<Notification>();
 
       final ReusableLatch latch;
 
-      FakeManagement(ReusableLatch latch)
-      {
+      FakeManagement(ReusableLatch latch) {
          this.latch = latch;
       }
 
       @Override
-      public MessageCounterManager getMessageCounterManager()
-      {
+      public MessageCounterManager getMessageCounterManager() {
          return null;
       }
 
       @Override
-      public SimpleString getManagementAddress()
-      {
+      public SimpleString getManagementAddress() {
          return null;
       }
 
       @Override
-      public SimpleString getManagementNotificationAddress()
-      {
+      public SimpleString getManagementNotificationAddress() {
          return null;
       }
 
       @Override
-      public ObjectNameBuilder getObjectNameBuilder()
-      {
+      public ObjectNameBuilder getObjectNameBuilder() {
          return null;
       }
 
       @Override
-      public void setStorageManager(StorageManager storageManager)
-      {
+      public void setStorageManager(StorageManager storageManager) {
 
       }
 
       @Override
-      public ActiveMQServerControlImpl registerServer(PostOffice postOffice, StorageManager storageManager, Configuration configuration, HierarchicalRepository<AddressSettings> addressSettingsRepository, HierarchicalRepository<Set<Role>> securityRepository, ResourceManager resourceManager, RemotingService remotingService, ActiveMQServer messagingServer, QueueFactory queueFactory, ScheduledExecutorService scheduledThreadPool, PagingManager pagingManager, boolean backup) throws Exception
-      {
+      public ActiveMQServerControlImpl registerServer(PostOffice postOffice,
+                                                      StorageManager storageManager,
+                                                      Configuration configuration,
+                                                      HierarchicalRepository<AddressSettings> addressSettingsRepository,
+                                                      HierarchicalRepository<Set<Role>> securityRepository,
+                                                      ResourceManager resourceManager,
+                                                      RemotingService remotingService,
+                                                      ActiveMQServer messagingServer,
+                                                      QueueFactory queueFactory,
+                                                      ScheduledExecutorService scheduledThreadPool,
+                                                      PagingManager pagingManager,
+                                                      boolean backup) throws Exception {
          return null;
       }
 
       @Override
-      public void unregisterServer() throws Exception
-      {
+      public void unregisterServer() throws Exception {
 
       }
 
       @Override
-      public void registerInJMX(ObjectName objectName, Object managedResource) throws Exception
-      {
+      public void registerInJMX(ObjectName objectName, Object managedResource) throws Exception {
 
       }
 
       @Override
-      public void unregisterFromJMX(ObjectName objectName) throws Exception
-      {
+      public void unregisterFromJMX(ObjectName objectName) throws Exception {
 
       }
 
       @Override
-      public void registerInRegistry(String resourceName, Object managedResource)
-      {
+      public void registerInRegistry(String resourceName, Object managedResource) {
 
       }
 
       @Override
-      public void unregisterFromRegistry(String resourceName)
-      {
+      public void unregisterFromRegistry(String resourceName) {
 
       }
 
       @Override
-      public void registerAddress(SimpleString address) throws Exception
-      {
+      public void registerAddress(SimpleString address) throws Exception {
 
       }
 
       @Override
-      public void unregisterAddress(SimpleString address) throws Exception
-      {
+      public void unregisterAddress(SimpleString address) throws Exception {
 
       }
 
       @Override
-      public void registerQueue(Queue queue, SimpleString address, StorageManager storageManager) throws Exception
-      {
+      public void registerQueue(Queue queue, SimpleString address, StorageManager storageManager) throws Exception {
 
       }
 
       @Override
-      public void unregisterQueue(SimpleString name, SimpleString address) throws Exception
-      {
+      public void unregisterQueue(SimpleString name, SimpleString address) throws Exception {
 
       }
 
       @Override
-      public void registerAcceptor(Acceptor acceptor, TransportConfiguration configuration) throws Exception
-      {
+      public void registerAcceptor(Acceptor acceptor, TransportConfiguration configuration) throws Exception {
 
       }
 
       @Override
-      public void unregisterAcceptors()
-      {
+      public void unregisterAcceptors() {
 
       }
 
       @Override
-      public void registerDivert(Divert divert, DivertConfiguration config) throws Exception
-      {
+      public void registerDivert(Divert divert, DivertConfiguration config) throws Exception {
 
       }
 
       @Override
-      public void unregisterDivert(SimpleString name) throws Exception
-      {
+      public void unregisterDivert(SimpleString name) throws Exception {
 
       }
 
       @Override
-      public void registerBroadcastGroup(BroadcastGroup broadcastGroup, BroadcastGroupConfiguration configuration) throws Exception
-      {
+      public void registerBroadcastGroup(BroadcastGroup broadcastGroup,
+                                         BroadcastGroupConfiguration configuration) throws Exception {
 
       }
 
       @Override
-      public void unregisterBroadcastGroup(String name) throws Exception
-      {
+      public void unregisterBroadcastGroup(String name) throws Exception {
 
       }
 
       @Override
-      public void registerBridge(Bridge bridge, BridgeConfiguration configuration) throws Exception
-      {
+      public void registerBridge(Bridge bridge, BridgeConfiguration configuration) throws Exception {
 
       }
 
       @Override
-      public void unregisterBridge(String name) throws Exception
-      {
+      public void unregisterBridge(String name) throws Exception {
 
       }
 
       @Override
-      public void registerCluster(ClusterConnection cluster, ClusterConnectionConfiguration configuration) throws Exception
-      {
+      public void registerCluster(ClusterConnection cluster,
+                                  ClusterConnectionConfiguration configuration) throws Exception {
 
       }
 
       @Override
-      public void unregisterCluster(String name) throws Exception
-      {
+      public void unregisterCluster(String name) throws Exception {
 
       }
 
       @Override
-      public Object getResource(String resourceName)
-      {
+      public Object getResource(String resourceName) {
          return null;
       }
 
       @Override
-      public Object[] getResources(Class<?> resourceType)
-      {
+      public Object[] getResources(Class<?> resourceType) {
          return new Object[0];
       }
 
       @Override
-      public ServerMessage handleMessage(ServerMessage message) throws Exception
-      {
+      public ServerMessage handleMessage(ServerMessage message) throws Exception {
          return null;
       }
 
       @Override
-      public void start() throws Exception
-      {
+      public void start() throws Exception {
 
       }
 
       @Override
-      public void stop() throws Exception
-      {
+      public void stop() throws Exception {
 
       }
 
       @Override
-      public boolean isStarted()
-      {
+      public boolean isStarted() {
          return false;
       }
 
       @Override
-      public void sendNotification(Notification notification) throws Exception
-      {
+      public void sendNotification(Notification notification) throws Exception {
          pendingNotifications.add(notification);
          latch.countDown();
       }
 
       @Override
-      public void enableNotifications(boolean enable)
-      {
+      public void enableNotifications(boolean enable) {
 
       }
 
       @Override
-      public void addNotificationListener(NotificationListener listener)
-      {
+      public void addNotificationListener(NotificationListener listener) {
 
       }
 
       @Override
-      public void removeNotificationListener(NotificationListener listener)
-      {
+      public void removeNotificationListener(NotificationListener listener) {
 
       }
    }
-
 
 }

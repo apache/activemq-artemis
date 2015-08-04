@@ -22,15 +22,17 @@ import org.apache.activemq.artemis.core.server.ServerMessage;
 
 /**
  * A Paged message.
- * <p>
+ * <br>
  * We can't just record the ServerMessage as we need other information (such as the TransactionID
  * used during paging)
  */
-public interface PagedMessage extends EncodingSupport
-{
+public interface PagedMessage extends EncodingSupport {
+
    ServerMessage getMessage();
 
-   /** The queues that were routed during paging */
+   /**
+    * The queues that were routed during paging
+    */
    long[] getQueueIDs();
 
    void initMessage(StorageManager storageManager);

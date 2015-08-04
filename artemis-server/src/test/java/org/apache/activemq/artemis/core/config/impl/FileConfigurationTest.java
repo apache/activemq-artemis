@@ -44,15 +44,13 @@ import org.apache.activemq.artemis.core.settings.impl.SlowConsumerPolicy;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class FileConfigurationTest extends ConfigurationImplTest
-{
+public class FileConfigurationTest extends ConfigurationImplTest {
 
    private final String fullConfigurationName = "ConfigurationTest-full-config.xml";
 
    @Override
    @Test
-   public void testDefaults()
-   {
+   public void testDefaults() {
       // Check they match the values from the test file
       Assert.assertEquals("SomeNameForUseOnTheApplicationServer", conf.getName());
       Assert.assertEquals(false, conf.isPersistenceEnabled());
@@ -104,11 +102,8 @@ public class FileConfigurationTest extends ConfigurationImplTest
       Assert.assertEquals(95, conf.getMemoryWarningThreshold());
 
       Assert.assertEquals(2, conf.getIncomingInterceptorClassNames().size());
-      Assert.assertTrue(conf.getIncomingInterceptorClassNames()
-                           .contains("org.apache.activemq.artemis.tests.unit.core.config.impl.TestInterceptor1"));
-      Assert.assertTrue(conf.getIncomingInterceptorClassNames()
-                           .contains("org.apache.activemq.artemis.tests.unit.core.config.impl.TestInterceptor2"));
-
+      Assert.assertTrue(conf.getIncomingInterceptorClassNames().contains("org.apache.activemq.artemis.tests.unit.core.config.impl.TestInterceptor1"));
+      Assert.assertTrue(conf.getIncomingInterceptorClassNames().contains("org.apache.activemq.artemis.tests.unit.core.config.impl.TestInterceptor2"));
 
       Assert.assertEquals(2, conf.getConnectorConfigurations().size());
 
@@ -126,29 +121,23 @@ public class FileConfigurationTest extends ConfigurationImplTest
       Assert.assertEquals("5", tc.getParams().get("serverId"));
 
       Assert.assertEquals(2, conf.getAcceptorConfigurations().size());
-      for (TransportConfiguration ac : conf.getAcceptorConfigurations())
-      {
-         if (ac.getFactoryClassName().equals("org.apache.activemq.artemis.core.remoting.impl.netty.NettyAcceptorFactory"))
-         {
+      for (TransportConfiguration ac : conf.getAcceptorConfigurations()) {
+         if (ac.getFactoryClassName().equals("org.apache.activemq.artemis.core.remoting.impl.netty.NettyAcceptorFactory")) {
             Assert.assertEquals("456", ac.getParams().get("tcpNoDelay"));
             Assert.assertEquals("44", ac.getParams().get("connectionTtl"));
             Assert.assertEquals("92", ac.getParams().get(TransportConstants.CONNECTIONS_ALLOWED));
          }
-         else
-         {
-            Assert.assertEquals("org.apache.activemq.artemis.core.remoting.impl.invm.InVMAcceptorFactory",
-                                ac.getFactoryClassName());
+         else {
+            Assert.assertEquals("org.apache.activemq.artemis.core.remoting.impl.invm.InVMAcceptorFactory", ac.getFactoryClassName());
             Assert.assertEquals("0", ac.getParams().get("serverId"));
             Assert.assertEquals("87", ac.getParams().get(org.apache.activemq.artemis.core.remoting.impl.invm.TransportConstants.CONNECTIONS_ALLOWED));
          }
       }
 
       Assert.assertEquals(2, conf.getBroadcastGroupConfigurations().size());
-      for (BroadcastGroupConfiguration bc : conf.getBroadcastGroupConfigurations())
-      {
+      for (BroadcastGroupConfiguration bc : conf.getBroadcastGroupConfigurations()) {
          UDPBroadcastEndpointFactory udpBc = (UDPBroadcastEndpointFactory) bc.getEndpointFactory();
-         if (bc.getName().equals("bg1"))
-         {
+         if (bc.getName().equals("bg1")) {
             Assert.assertEquals("bg1", bc.getName());
             Assert.assertEquals(10999, udpBc.getLocalBindPort());
             Assert.assertEquals("192.168.0.120", udpBc.getGroupAddress());
@@ -156,8 +145,7 @@ public class FileConfigurationTest extends ConfigurationImplTest
             Assert.assertEquals(12345, bc.getBroadcastPeriod());
             Assert.assertEquals("connector1", bc.getConnectorInfos().get(0));
          }
-         else
-         {
+         else {
             Assert.assertEquals("bg2", bc.getName());
             Assert.assertEquals(12999, udpBc.getLocalBindPort());
             Assert.assertEquals("192.168.0.121", udpBc.getGroupAddress());
@@ -183,10 +171,8 @@ public class FileConfigurationTest extends ConfigurationImplTest
       Assert.assertEquals(23456, dc.getRefreshTimeout());
 
       Assert.assertEquals(2, conf.getDivertConfigurations().size());
-      for (DivertConfiguration dic : conf.getDivertConfigurations())
-      {
-         if (dic.getName().equals("divert1"))
-         {
+      for (DivertConfiguration dic : conf.getDivertConfigurations()) {
+         if (dic.getName().equals("divert1")) {
             Assert.assertEquals("divert1", dic.getName());
             Assert.assertEquals("routing-name1", dic.getRoutingName());
             Assert.assertEquals("address1", dic.getAddress());
@@ -195,8 +181,7 @@ public class FileConfigurationTest extends ConfigurationImplTest
             Assert.assertEquals("org.foo.Transformer", dic.getTransformerClassName());
             Assert.assertEquals(true, dic.isExclusive());
          }
-         else
-         {
+         else {
             Assert.assertEquals("divert2", dic.getName());
             Assert.assertEquals("routing-name2", dic.getRoutingName());
             Assert.assertEquals("address2", dic.getAddress());
@@ -208,10 +193,8 @@ public class FileConfigurationTest extends ConfigurationImplTest
       }
 
       Assert.assertEquals(2, conf.getBridgeConfigurations().size());
-      for (BridgeConfiguration bc : conf.getBridgeConfigurations())
-      {
-         if (bc.getName().equals("bridge1"))
-         {
+      for (BridgeConfiguration bc : conf.getBridgeConfigurations()) {
+         if (bc.getName().equals("bridge1")) {
             Assert.assertEquals("bridge1", bc.getName());
             Assert.assertEquals("queue1", bc.getQueueName());
             Assert.assertEquals("minLargeMessageSize", 4, bc.getMinLargeMessageSize());
@@ -228,8 +211,7 @@ public class FileConfigurationTest extends ConfigurationImplTest
             Assert.assertEquals("connector1", bc.getStaticConnectors().get(0));
             Assert.assertEquals(null, bc.getDiscoveryGroupName());
          }
-         else
-         {
+         else {
             Assert.assertEquals("bridge2", bc.getName());
             Assert.assertEquals("queue2", bc.getQueueName());
             Assert.assertEquals("bridge-forwarding-address2", bc.getForwardingAddress());
@@ -250,10 +232,8 @@ public class FileConfigurationTest extends ConfigurationImplTest
       assertEquals(lopc.getScaleDownConfiguration().getGroupName(), "boo!");
       assertEquals(lopc.getScaleDownConfiguration().getDiscoveryGroup(), "dg1");
 
-      for (ClusterConnectionConfiguration ccc : conf.getClusterConfigurations())
-      {
-         if (ccc.getName().equals("cluster-connection1"))
-         {
+      for (ClusterConnectionConfiguration ccc : conf.getClusterConfigurations()) {
+         if (ccc.getName().equals("cluster-connection1")) {
             Assert.assertEquals("cluster-connection1", ccc.getName());
             Assert.assertEquals("clusterConnectionConf minLargeMessageSize", 321, ccc.getMinLargeMessageSize());
             assertEquals("check-period", 331, ccc.getClientFailureCheckPeriod());
@@ -272,8 +252,7 @@ public class FileConfigurationTest extends ConfigurationImplTest
             Assert.assertEquals("connector2", ccc.getStaticConnectors().get(1));
             Assert.assertEquals(null, ccc.getDiscoveryGroupName());
          }
-         else
-         {
+         else {
             Assert.assertEquals("cluster-connection2", ccc.getName());
             Assert.assertEquals("queues2", ccc.getAddress());
             Assert.assertEquals(4, ccc.getRetryInterval());
@@ -286,7 +265,6 @@ public class FileConfigurationTest extends ConfigurationImplTest
             Assert.assertEquals("dg1", ccc.getDiscoveryGroupName());
          }
       }
-
 
       assertEquals(2, conf.getAddressesSettings().size());
 
@@ -361,16 +339,14 @@ public class FileConfigurationTest extends ConfigurationImplTest
       assertTrue(a2Role.isDeleteNonDurableQueue());
       assertFalse(a2Role.isManage());
 
-
    }
+
    @Test
-   public void testContextClassLoaderUsage() throws Exception
-   {
+   public void testContextClassLoaderUsage() throws Exception {
 
       final File customConfiguration = File.createTempFile("hornetq-unittest", ".xml");
 
-      try
-      {
+      try {
 
          // copy working configuration to a location where the standard classloader cannot find it
          final Path workingConfiguration = new File(getClass().getResource("/" + fullConfigurationName).toURI()).toPath();
@@ -387,28 +363,24 @@ public class FileConfigurationTest extends ConfigurationImplTest
             expect no exception in this thread when the class loading works as expected
           */
 
-         final class ThrowableHolder
-         {
+         final class ThrowableHolder {
+
             volatile Exception t;
          }
 
          final ThrowableHolder holder = new ThrowableHolder();
 
-         final Thread webappContextThread = new Thread(new Runnable()
-         {
+         final Thread webappContextThread = new Thread(new Runnable() {
             @Override
-            public void run()
-            {
+            public void run() {
                FileConfiguration fileConfiguration = new FileConfiguration();
 
-               try
-               {
+               try {
                   FileDeploymentManager deploymentManager = new FileDeploymentManager(customConfiguration.getName());
                   deploymentManager.addDeployable(fileConfiguration);
                   deploymentManager.readConfiguration();
                }
-               catch (Exception e)
-               {
+               catch (Exception e) {
                   holder.t = e;
                }
             }
@@ -419,22 +391,18 @@ public class FileConfigurationTest extends ConfigurationImplTest
          webappContextThread.start();
          webappContextThread.join();
 
-         if (holder.t != null)
-         {
+         if (holder.t != null) {
             fail("Exception caught while loading configuration with the context class loader: " + holder.t.getMessage());
          }
 
       }
-      finally
-      {
+      finally {
          customConfiguration.delete();
       }
    }
 
-
    @Override
-   protected Configuration createConfiguration() throws Exception
-   {
+   protected Configuration createConfiguration() throws Exception {
       FileConfiguration fc = new FileConfiguration();
       FileDeploymentManager deploymentManager = new FileDeploymentManager(fullConfigurationName);
       deploymentManager.addDeployable(fc);

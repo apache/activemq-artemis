@@ -48,12 +48,10 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.proton.plug.util.NettyWritable;
 
-public class TestConversions extends Assert
-{
+public class TestConversions extends Assert {
 
    @Test
-   public void testSimpleConversionBytes() throws Exception
-   {
+   public void testSimpleConversionBytes() throws Exception {
       Map<String, Object> mapprop = createPropertiesMap();
       ApplicationProperties properties = new ApplicationProperties(mapprop);
       MessageImpl message = (MessageImpl) Message.Factory.create();
@@ -61,22 +59,18 @@ public class TestConversions extends Assert
 
       byte[] bodyBytes = new byte[4];
 
-      for (int i = 0; i < bodyBytes.length; i++)
-      {
+      for (int i = 0; i < bodyBytes.length; i++) {
          bodyBytes[i] = (byte) 0xff;
       }
 
       message.setBody(new Data(new Binary(bodyBytes)));
 
-
       EncodedMessage encodedMessage = encodeMessage(message);
 
-
       ProtonMessageConverter converter = new ProtonMessageConverter(new SimpleIDGenerator(0));
-      ServerJMSBytesMessage serverMessage = (ServerJMSBytesMessage)converter.inboundJMSType(encodedMessage);
+      ServerJMSBytesMessage serverMessage = (ServerJMSBytesMessage) converter.inboundJMSType(encodedMessage);
 
       verifyProperties(serverMessage);
-
 
       assertEquals(bodyBytes.length, serverMessage.getBodyLength());
 
@@ -84,25 +78,21 @@ public class TestConversions extends Assert
 
       serverMessage.readBytes(newBodyBytes);
 
-
       Assert.assertArrayEquals(bodyBytes, newBodyBytes);
 
-
-      Object obj = converter.outbound((ServerMessage)serverMessage.getInnerMessage(), 0);
+      Object obj = converter.outbound((ServerMessage) serverMessage.getInnerMessage(), 0);
 
       System.out.println("output = " + obj);
 
    }
 
-   private void verifyProperties(javax.jms.Message message) throws Exception
-   {
+   private void verifyProperties(javax.jms.Message message) throws Exception {
       assertEquals(true, message.getBooleanProperty("true"));
       assertEquals(false, message.getBooleanProperty("false"));
       assertEquals("bar", message.getStringProperty("foo"));
    }
 
-   private Map<String, Object> createPropertiesMap()
-   {
+   private Map<String, Object> createPropertiesMap() {
       Map<String, Object> mapprop = new HashMap<>();
 
       mapprop.put("true", Boolean.TRUE);
@@ -112,8 +102,7 @@ public class TestConversions extends Assert
    }
 
    @Test
-   public void testSimpleConversionMap() throws Exception
-   {
+   public void testSimpleConversionMap() throws Exception {
       Map<String, Object> mapprop = createPropertiesMap();
       ApplicationProperties properties = new ApplicationProperties(mapprop);
       MessageImpl message = (MessageImpl) Message.Factory.create();
@@ -128,33 +117,29 @@ public class TestConversions extends Assert
       EncodedMessage encodedMessage = encodeMessage(message);
 
       ProtonMessageConverter converter = new ProtonMessageConverter(new SimpleIDGenerator(0));
-      ServerJMSMapMessage serverMessage = (ServerJMSMapMessage)converter.inboundJMSType(encodedMessage);
+      ServerJMSMapMessage serverMessage = (ServerJMSMapMessage) converter.inboundJMSType(encodedMessage);
 
       verifyProperties(serverMessage);
 
       Assert.assertEquals(1, serverMessage.getInt("someint"));
       Assert.assertEquals("value", serverMessage.getString("somestr"));
 
-      Object obj = converter.outbound((ServerMessage)serverMessage.getInnerMessage(), 0);
+      Object obj = converter.outbound((ServerMessage) serverMessage.getInnerMessage(), 0);
 
       reEncodeMsg(obj);
 
-
       MessageImpl outMessage = (MessageImpl) obj;
-      AmqpValue value = (AmqpValue)outMessage.getBody();
-      Map mapoutput = (Map)value.getValue();
+      AmqpValue value = (AmqpValue) outMessage.getBody();
+      Map mapoutput = (Map) value.getValue();
 
       assertEquals(Integer.valueOf(1), (Integer) mapoutput.get("someint"));
-
 
       System.out.println("output = " + obj);
 
    }
 
-
    @Test
-   public void testSimpleConversionStream() throws Exception
-   {
+   public void testSimpleConversionStream() throws Exception {
       Map<String, Object> mapprop = createPropertiesMap();
       ApplicationProperties properties = new ApplicationProperties(mapprop);
       MessageImpl message = (MessageImpl) Message.Factory.create();
@@ -169,7 +154,7 @@ public class TestConversions extends Assert
       EncodedMessage encodedMessage = encodeMessage(message);
 
       ProtonMessageConverter converter = new ProtonMessageConverter(new SimpleIDGenerator(0));
-      ServerJMSStreamMessage serverMessage = (ServerJMSStreamMessage)converter.inboundJMSType(encodedMessage);
+      ServerJMSStreamMessage serverMessage = (ServerJMSStreamMessage) converter.inboundJMSType(encodedMessage);
 
       simulatePersistence(serverMessage);
 
@@ -180,20 +165,19 @@ public class TestConversions extends Assert
       assertEquals(10, serverMessage.readInt());
       assertEquals("10", serverMessage.readString());
 
-      Object obj = converter.outbound((ServerMessage)serverMessage.getInnerMessage(), 0);
+      Object obj = converter.outbound((ServerMessage) serverMessage.getInnerMessage(), 0);
 
       reEncodeMsg(obj);
 
-      MessageImpl outMessage = (MessageImpl)obj;
-      List list = ((AmqpSequence)outMessage.getBody()).getValue();
+      MessageImpl outMessage = (MessageImpl) obj;
+      List list = ((AmqpSequence) outMessage.getBody()).getValue();
       Assert.assertEquals(Integer.valueOf(10), list.get(0));
       Assert.assertEquals("10", list.get(1));
 
    }
 
    @Test
-   public void testSimpleConversionText() throws Exception
-   {
+   public void testSimpleConversionText() throws Exception {
       Map<String, Object> mapprop = createPropertiesMap();
       ApplicationProperties properties = new ApplicationProperties(mapprop);
       MessageImpl message = (MessageImpl) Message.Factory.create();
@@ -205,24 +189,21 @@ public class TestConversions extends Assert
       EncodedMessage encodedMessage = encodeMessage(message);
 
       ProtonMessageConverter converter = new ProtonMessageConverter(new SimpleIDGenerator(0));
-      ServerJMSTextMessage serverMessage = (ServerJMSTextMessage)converter.inboundJMSType(encodedMessage);
+      ServerJMSTextMessage serverMessage = (ServerJMSTextMessage) converter.inboundJMSType(encodedMessage);
 
       simulatePersistence(serverMessage);
-
 
       verifyProperties(serverMessage);
 
       Assert.assertEquals(text, serverMessage.getText());
 
-
-      Object obj = converter.outbound((ServerMessage)serverMessage.getInnerMessage(), 0);
-
+      Object obj = converter.outbound((ServerMessage) serverMessage.getInnerMessage(), 0);
 
       reEncodeMsg(obj);
 
       MessageImpl outMessage = (MessageImpl) obj;
-      AmqpValue value = (AmqpValue)outMessage.getBody();
-      String textValue = (String)value.getValue();
+      AmqpValue value = (AmqpValue) outMessage.getBody();
+      String textValue = (String) value.getValue();
 
       Assert.assertEquals(text, textValue);
 
@@ -230,17 +211,15 @@ public class TestConversions extends Assert
 
    }
 
-   private void simulatePersistence(ServerJMSMessage serverMessage)
-   {
+   private void simulatePersistence(ServerJMSMessage serverMessage) {
       serverMessage.getInnerMessage().setAddress(new SimpleString("jms.queue.SomeAddress"));
       // This is just to simulate what would happen during the persistence of the message
       // We need to still be able to recover the message when we read it back
-      ((EncodingSupport)serverMessage.getInnerMessage()).encode(new EmptyBuffer());
+      ((EncodingSupport) serverMessage.getInnerMessage()).encode(new EmptyBuffer());
    }
 
-   private ProtonJMessage reEncodeMsg(Object obj)
-   {
-      ProtonJMessage objOut = (ProtonJMessage)obj;
+   private ProtonJMessage reEncodeMsg(Object obj) {
+      ProtonJMessage objOut = (ProtonJMessage) obj;
 
       ByteBuf nettyBuffer = PooledByteBufAllocator.DEFAULT.heapBuffer(1024);
 
@@ -248,9 +227,7 @@ public class TestConversions extends Assert
       return objOut;
    }
 
-
-   private EncodedMessage encodeMessage(MessageImpl message)
-   {
+   private EncodedMessage encodeMessage(MessageImpl message) {
       ByteBuf buf = PooledByteBufAllocator.DEFAULT.heapBuffer(1024 * 1024);
       message.encode(new NettyWritable(buf));
       byte[] bytesConvert = new byte[buf.writerIndex()];
@@ -258,582 +235,485 @@ public class TestConversions extends Assert
       return new EncodedMessage(0, bytesConvert, 0, bytesConvert.length);
    }
 
+   class EmptyBuffer implements ActiveMQBuffer {
 
-   class EmptyBuffer implements ActiveMQBuffer
-   {
       @Override
-      public ByteBuf byteBuf()
-      {
+      public ByteBuf byteBuf() {
          return null;
       }
 
       @Override
-      public int capacity()
-      {
+      public int capacity() {
          return 0;
       }
 
       @Override
-      public int readerIndex()
-      {
+      public int readerIndex() {
          return 0;
       }
 
       @Override
-      public void readerIndex(int readerIndex)
-      {
+      public void readerIndex(int readerIndex) {
 
       }
 
       @Override
-      public int writerIndex()
-      {
+      public int writerIndex() {
          return 0;
       }
 
       @Override
-      public void writerIndex(int writerIndex)
-      {
+      public void writerIndex(int writerIndex) {
 
       }
 
       @Override
-      public void setIndex(int readerIndex, int writerIndex)
-      {
+      public void setIndex(int readerIndex, int writerIndex) {
 
       }
 
       @Override
-      public int readableBytes()
-      {
+      public int readableBytes() {
          return 0;
       }
 
       @Override
-      public int writableBytes()
-      {
+      public int writableBytes() {
          return 0;
       }
 
       @Override
-      public boolean readable()
-      {
+      public boolean readable() {
          return false;
       }
 
       @Override
-      public boolean writable()
-      {
+      public boolean writable() {
          return false;
       }
 
       @Override
-      public void clear()
-      {
+      public void clear() {
 
       }
 
       @Override
-      public void markReaderIndex()
-      {
+      public void markReaderIndex() {
 
       }
 
       @Override
-      public void resetReaderIndex()
-      {
+      public void resetReaderIndex() {
 
       }
 
       @Override
-      public void markWriterIndex()
-      {
+      public void markWriterIndex() {
 
       }
 
       @Override
-      public void resetWriterIndex()
-      {
+      public void resetWriterIndex() {
 
       }
 
       @Override
-      public void discardReadBytes()
-      {
+      public void discardReadBytes() {
 
       }
 
       @Override
-      public byte getByte(int index)
-      {
+      public byte getByte(int index) {
          return 0;
       }
 
       @Override
-      public short getUnsignedByte(int index)
-      {
+      public short getUnsignedByte(int index) {
          return 0;
       }
 
       @Override
-      public short getShort(int index)
-      {
+      public short getShort(int index) {
          return 0;
       }
 
       @Override
-      public int getUnsignedShort(int index)
-      {
+      public int getUnsignedShort(int index) {
          return 0;
       }
 
       @Override
-      public int getInt(int index)
-      {
+      public int getInt(int index) {
          return 0;
       }
 
       @Override
-      public long getUnsignedInt(int index)
-      {
+      public long getUnsignedInt(int index) {
          return 0;
       }
 
       @Override
-      public long getLong(int index)
-      {
+      public long getLong(int index) {
          return 0;
       }
 
       @Override
-      public void getBytes(int index, ActiveMQBuffer dst)
-      {
+      public void getBytes(int index, ActiveMQBuffer dst) {
 
       }
 
       @Override
-      public void getBytes(int index, ActiveMQBuffer dst, int length)
-      {
+      public void getBytes(int index, ActiveMQBuffer dst, int length) {
 
       }
 
       @Override
-      public void getBytes(int index, ActiveMQBuffer dst, int dstIndex, int length)
-      {
+      public void getBytes(int index, ActiveMQBuffer dst, int dstIndex, int length) {
 
       }
 
       @Override
-      public void getBytes(int index, byte[] dst)
-      {
+      public void getBytes(int index, byte[] dst) {
 
       }
 
       @Override
-      public void getBytes(int index, byte[] dst, int dstIndex, int length)
-      {
+      public void getBytes(int index, byte[] dst, int dstIndex, int length) {
 
       }
 
       @Override
-      public void getBytes(int index, ByteBuffer dst)
-      {
+      public void getBytes(int index, ByteBuffer dst) {
 
       }
 
       @Override
-      public char getChar(int index)
-      {
+      public char getChar(int index) {
          return 0;
       }
 
       @Override
-      public float getFloat(int index)
-      {
+      public float getFloat(int index) {
          return 0;
       }
 
       @Override
-      public double getDouble(int index)
-      {
+      public double getDouble(int index) {
          return 0;
       }
 
       @Override
-      public void setByte(int index, byte value)
-      {
+      public void setByte(int index, byte value) {
 
       }
 
       @Override
-      public void setShort(int index, short value)
-      {
+      public void setShort(int index, short value) {
 
       }
 
       @Override
-      public void setInt(int index, int value)
-      {
+      public void setInt(int index, int value) {
 
       }
 
       @Override
-      public void setLong(int index, long value)
-      {
+      public void setLong(int index, long value) {
 
       }
 
       @Override
-      public void setBytes(int index, ActiveMQBuffer src)
-      {
+      public void setBytes(int index, ActiveMQBuffer src) {
 
       }
 
       @Override
-      public void setBytes(int index, ActiveMQBuffer src, int length)
-      {
+      public void setBytes(int index, ActiveMQBuffer src, int length) {
 
       }
 
       @Override
-      public void setBytes(int index, ActiveMQBuffer src, int srcIndex, int length)
-      {
+      public void setBytes(int index, ActiveMQBuffer src, int srcIndex, int length) {
 
       }
 
       @Override
-      public void setBytes(int index, byte[] src)
-      {
+      public void setBytes(int index, byte[] src) {
 
       }
 
       @Override
-      public void setBytes(int index, byte[] src, int srcIndex, int length)
-      {
+      public void setBytes(int index, byte[] src, int srcIndex, int length) {
 
       }
 
       @Override
-      public void setBytes(int index, ByteBuffer src)
-      {
+      public void setBytes(int index, ByteBuffer src) {
 
       }
 
       @Override
-      public void setChar(int index, char value)
-      {
+      public void setChar(int index, char value) {
 
       }
 
       @Override
-      public void setFloat(int index, float value)
-      {
+      public void setFloat(int index, float value) {
 
       }
 
       @Override
-      public void setDouble(int index, double value)
-      {
+      public void setDouble(int index, double value) {
 
       }
 
       @Override
-      public byte readByte()
-      {
+      public byte readByte() {
          return 0;
       }
 
       @Override
-      public short readUnsignedByte()
-      {
+      public short readUnsignedByte() {
          return 0;
       }
 
       @Override
-      public short readShort()
-      {
+      public short readShort() {
          return 0;
       }
 
       @Override
-      public int readUnsignedShort()
-      {
+      public int readUnsignedShort() {
          return 0;
       }
 
       @Override
-      public int readInt()
-      {
+      public int readInt() {
          return 0;
       }
 
       @Override
-      public long readUnsignedInt()
-      {
+      public long readUnsignedInt() {
          return 0;
       }
 
       @Override
-      public long readLong()
-      {
+      public long readLong() {
          return 0;
       }
 
       @Override
-      public char readChar()
-      {
+      public char readChar() {
          return 0;
       }
 
       @Override
-      public float readFloat()
-      {
+      public float readFloat() {
          return 0;
       }
 
       @Override
-      public double readDouble()
-      {
+      public double readDouble() {
          return 0;
       }
 
       @Override
-      public boolean readBoolean()
-      {
+      public boolean readBoolean() {
          return false;
       }
 
       @Override
-      public SimpleString readNullableSimpleString()
-      {
+      public SimpleString readNullableSimpleString() {
          return null;
       }
 
       @Override
-      public String readNullableString()
-      {
+      public String readNullableString() {
          return null;
       }
 
       @Override
-      public SimpleString readSimpleString()
-      {
+      public SimpleString readSimpleString() {
          return null;
       }
 
       @Override
-      public String readString()
-      {
+      public String readString() {
          return null;
       }
 
       @Override
-      public String readUTF()
-      {
+      public String readUTF() {
          return null;
       }
 
       @Override
-      public ActiveMQBuffer readBytes(int length)
-      {
+      public ActiveMQBuffer readBytes(int length) {
          return null;
       }
 
       @Override
-      public ActiveMQBuffer readSlice(int length)
-      {
+      public ActiveMQBuffer readSlice(int length) {
          return null;
       }
 
       @Override
-      public void readBytes(ActiveMQBuffer dst)
-      {
+      public void readBytes(ActiveMQBuffer dst) {
 
       }
 
       @Override
-      public void readBytes(ActiveMQBuffer dst, int length)
-      {
+      public void readBytes(ActiveMQBuffer dst, int length) {
 
       }
 
       @Override
-      public void readBytes(ActiveMQBuffer dst, int dstIndex, int length)
-      {
+      public void readBytes(ActiveMQBuffer dst, int dstIndex, int length) {
 
       }
 
       @Override
-      public void readBytes(byte[] dst)
-      {
+      public void readBytes(byte[] dst) {
 
       }
 
       @Override
-      public void readBytes(byte[] dst, int dstIndex, int length)
-      {
+      public void readBytes(byte[] dst, int dstIndex, int length) {
 
       }
 
       @Override
-      public void readBytes(ByteBuffer dst)
-      {
+      public void readBytes(ByteBuffer dst) {
 
       }
 
       @Override
-      public void skipBytes(int length)
-      {
+      public void skipBytes(int length) {
 
       }
 
       @Override
-      public void writeByte(byte value)
-      {
+      public void writeByte(byte value) {
 
       }
 
       @Override
-      public void writeShort(short value)
-      {
+      public void writeShort(short value) {
 
       }
 
       @Override
-      public void writeInt(int value)
-      {
+      public void writeInt(int value) {
 
       }
 
       @Override
-      public void writeLong(long value)
-      {
+      public void writeLong(long value) {
 
       }
 
       @Override
-      public void writeChar(char chr)
-      {
+      public void writeChar(char chr) {
 
       }
 
       @Override
-      public void writeFloat(float value)
-      {
+      public void writeFloat(float value) {
 
       }
 
       @Override
-      public void writeDouble(double value)
-      {
+      public void writeDouble(double value) {
 
       }
 
       @Override
-      public void writeBoolean(boolean val)
-      {
+      public void writeBoolean(boolean val) {
 
       }
 
       @Override
-      public void writeNullableSimpleString(SimpleString val)
-      {
+      public void writeNullableSimpleString(SimpleString val) {
 
       }
 
       @Override
-      public void writeNullableString(String val)
-      {
+      public void writeNullableString(String val) {
 
       }
 
       @Override
-      public void writeSimpleString(SimpleString val)
-      {
+      public void writeSimpleString(SimpleString val) {
 
       }
 
       @Override
-      public void writeString(String val)
-      {
+      public void writeString(String val) {
 
       }
 
       @Override
-      public void writeUTF(String utf)
-      {
+      public void writeUTF(String utf) {
 
       }
 
       @Override
-      public void writeBytes(ActiveMQBuffer src, int length)
-      {
+      public void writeBytes(ActiveMQBuffer src, int length) {
 
       }
 
       @Override
-      public void writeBytes(ActiveMQBuffer src, int srcIndex, int length)
-      {
+      public void writeBytes(ActiveMQBuffer src, int srcIndex, int length) {
 
       }
 
       @Override
-      public void writeBytes(byte[] src)
-      {
+      public void writeBytes(byte[] src) {
 
       }
 
       @Override
-      public void writeBytes(byte[] src, int srcIndex, int length)
-      {
+      public void writeBytes(byte[] src, int srcIndex, int length) {
 
       }
 
       @Override
-      public void writeBytes(ByteBuffer src)
-      {
+      public void writeBytes(ByteBuffer src) {
 
       }
 
       @Override
-      public ActiveMQBuffer copy()
-      {
+      public ActiveMQBuffer copy() {
          return null;
       }
 
       @Override
-      public ActiveMQBuffer copy(int index, int length)
-      {
+      public ActiveMQBuffer copy(int index, int length) {
          return null;
       }
 
       @Override
-      public ActiveMQBuffer slice()
-      {
+      public ActiveMQBuffer slice() {
          return null;
       }
 
       @Override
-      public ActiveMQBuffer slice(int index, int length)
-      {
+      public ActiveMQBuffer slice(int index, int length) {
          return null;
       }
 
       @Override
-      public ActiveMQBuffer duplicate()
-      {
+      public ActiveMQBuffer duplicate() {
          return null;
       }
 
       @Override
-      public ByteBuffer toByteBuffer()
-      {
+      public ByteBuffer toByteBuffer() {
          return null;
       }
 
       @Override
-      public ByteBuffer toByteBuffer(int index, int length)
-      {
+      public ByteBuffer toByteBuffer(int index, int length) {
          return null;
       }
    }

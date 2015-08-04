@@ -19,8 +19,7 @@ package org.apache.activemq.artemis.core.client.impl;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 
-public class QueueQueryImpl implements ClientSession.QueueQuery
-{
+public class QueueQueryImpl implements ClientSession.QueueQuery {
 
    private final boolean exists;
 
@@ -47,8 +46,7 @@ public class QueueQueryImpl implements ClientSession.QueueQuery
                          final SimpleString filterString,
                          final SimpleString address,
                          final SimpleString name,
-                         final boolean exists)
-   {
+                         final boolean exists) {
       this(durable, temporary, consumerCount, messageCount, filterString, address, name, exists, false);
    }
 
@@ -60,8 +58,7 @@ public class QueueQueryImpl implements ClientSession.QueueQuery
                          final SimpleString address,
                          final SimpleString name,
                          final boolean exists,
-                         final boolean autoCreateJmsQueues)
-   {
+                         final boolean autoCreateJmsQueues) {
       this.durable = durable;
       this.temporary = temporary;
       this.consumerCount = consumerCount;
@@ -73,48 +70,39 @@ public class QueueQueryImpl implements ClientSession.QueueQuery
       this.autoCreateJmsQueues = autoCreateJmsQueues;
    }
 
-   public SimpleString getName()
-   {
+   public SimpleString getName() {
       return name;
    }
 
-   public SimpleString getAddress()
-   {
+   public SimpleString getAddress() {
       return address;
    }
 
-   public int getConsumerCount()
-   {
+   public int getConsumerCount() {
       return consumerCount;
    }
 
-   public SimpleString getFilterString()
-   {
+   public SimpleString getFilterString() {
       return filterString;
    }
 
-   public long getMessageCount()
-   {
+   public long getMessageCount() {
       return messageCount;
    }
 
-   public boolean isDurable()
-   {
+   public boolean isDurable() {
       return durable;
    }
 
-   public boolean isAutoCreateJmsQueues()
-   {
+   public boolean isAutoCreateJmsQueues() {
       return autoCreateJmsQueues;
    }
 
-   public boolean isTemporary()
-   {
+   public boolean isTemporary() {
       return temporary;
    }
 
-   public boolean isExists()
-   {
+   public boolean isExists() {
       return exists;
    }
 

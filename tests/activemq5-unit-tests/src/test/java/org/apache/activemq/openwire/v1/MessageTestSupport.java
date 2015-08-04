@@ -30,63 +30,61 @@ import org.apache.activemq.util.MarshallingSupport;
  * generated - do not modify! if you need to make a change, please see the
  * modify the groovy scripts in the under src/gram/script and then use maven
  * openwire:generate to regenerate this file.
- * 
- * 
  */
 public abstract class MessageTestSupport extends BaseCommandTestSupport {
 
-    protected void populateObject(Object object) throws Exception {
-        super.populateObject(object);
-        Message info = (Message)object;
-        info.setProducerId(createProducerId("ProducerId:1"));
-        info.setDestination(createActiveMQDestination("Destination:2"));
-        info.setTransactionId(createTransactionId("TransactionId:3"));
-        info.setOriginalDestination(createActiveMQDestination("OriginalDestination:4"));
-        info.setMessageId(createMessageId("MessageId:5"));
-        info.setOriginalTransactionId(createTransactionId("OriginalTransactionId:6"));
-        info.setGroupID("GroupID:7");
-        info.setGroupSequence(1);
-        info.setCorrelationId("CorrelationId:8");
-        info.setPersistent(true);
-        info.setExpiration(1);
-        info.setPriority((byte)1);
-        info.setReplyTo(createActiveMQDestination("ReplyTo:9"));
-        info.setTimestamp(2);
-        info.setType("Type:10");
+   protected void populateObject(Object object) throws Exception {
+      super.populateObject(object);
+      Message info = (Message) object;
+      info.setProducerId(createProducerId("ProducerId:1"));
+      info.setDestination(createActiveMQDestination("Destination:2"));
+      info.setTransactionId(createTransactionId("TransactionId:3"));
+      info.setOriginalDestination(createActiveMQDestination("OriginalDestination:4"));
+      info.setMessageId(createMessageId("MessageId:5"));
+      info.setOriginalTransactionId(createTransactionId("OriginalTransactionId:6"));
+      info.setGroupID("GroupID:7");
+      info.setGroupSequence(1);
+      info.setCorrelationId("CorrelationId:8");
+      info.setPersistent(true);
+      info.setExpiration(1);
+      info.setPriority((byte) 1);
+      info.setReplyTo(createActiveMQDestination("ReplyTo:9"));
+      info.setTimestamp(2);
+      info.setType("Type:10");
 
-        {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            DataOutputStream dataOut = new DataOutputStream(baos);
-            MarshallingSupport.writeUTF8(dataOut, "Content:11");
-            dataOut.close();
-            info.setContent(baos.toByteSequence());
-        }
+      {
+         ByteArrayOutputStream baos = new ByteArrayOutputStream();
+         DataOutputStream dataOut = new DataOutputStream(baos);
+         MarshallingSupport.writeUTF8(dataOut, "Content:11");
+         dataOut.close();
+         info.setContent(baos.toByteSequence());
+      }
 
-        {
-        	Map map = new HashMap();
-        	map.put("MarshalledProperties", 12);
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            DataOutputStream os = new DataOutputStream(baos);
-            MarshallingSupport.marshalPrimitiveMap(map, os);
-            os.close();
-            info.setMarshalledProperties(baos.toByteSequence());
-        }
+      {
+         Map map = new HashMap();
+         map.put("MarshalledProperties", 12);
+         ByteArrayOutputStream baos = new ByteArrayOutputStream();
+         DataOutputStream os = new DataOutputStream(baos);
+         MarshallingSupport.marshalPrimitiveMap(map, os);
+         os.close();
+         info.setMarshalledProperties(baos.toByteSequence());
+      }
 
-        info.setDataStructure(createDataStructure("DataStructure:13"));
-        info.setTargetConsumerId(createConsumerId("TargetConsumerId:14"));
-        info.setCompressed(false);
-        info.setRedeliveryCounter(2);
+      info.setDataStructure(createDataStructure("DataStructure:13"));
+      info.setTargetConsumerId(createConsumerId("TargetConsumerId:14"));
+      info.setCompressed(false);
+      info.setRedeliveryCounter(2);
 
-        {
-            BrokerId value[] = new BrokerId[2];
-            for (int i = 0; i < 2; i++) {
-                value[i] = createBrokerId("BrokerPath:15");
-            }
-            info.setBrokerPath(value);
-        }
-        info.setArrival(3);
-        info.setUserID("UserID:16");
-        info.setRecievedByDFBridge(true);
+      {
+         BrokerId value[] = new BrokerId[2];
+         for (int i = 0; i < 2; i++) {
+            value[i] = createBrokerId("BrokerPath:15");
+         }
+         info.setBrokerPath(value);
+      }
+      info.setArrival(3);
+      info.setUserID("UserID:16");
+      info.setRecievedByDFBridge(true);
 
-    }
+   }
 }

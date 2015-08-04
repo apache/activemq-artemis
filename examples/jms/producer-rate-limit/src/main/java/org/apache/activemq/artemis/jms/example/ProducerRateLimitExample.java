@@ -29,22 +29,20 @@ import javax.naming.InitialContext;
  * This example demonstrates how a message producer can be limited to produce messages at a maximum rate
  * specified in messages per sec.
  */
-public class ProducerRateLimitExample
-{
-   public static void main(final String[] args) throws Exception
-   {
+public class ProducerRateLimitExample {
+
+   public static void main(final String[] args) throws Exception {
       Connection connection = null;
       InitialContext initialContext = null;
-      try
-      {
+      try {
          // Step 1. Create an initial context to perform the JNDI lookup.
          initialContext = new InitialContext();
 
          // Step 2. Perfom a lookup on the queue
-         Queue queue = (Queue)initialContext.lookup("queue/exampleQueue");
+         Queue queue = (Queue) initialContext.lookup("queue/exampleQueue");
 
          // Step 3. Perform a lookup on the Connection Factory
-         ConnectionFactory cf = (ConnectionFactory)initialContext.lookup("ConnectionFactory");
+         ConnectionFactory cf = (ConnectionFactory) initialContext.lookup("ConnectionFactory");
 
          // Step 4. Create a JMS Connection
          connection = cf.createConnection();
@@ -65,8 +63,7 @@ public class ProducerRateLimitExample
 
          long start = System.currentTimeMillis();
 
-         while (System.currentTimeMillis() - start <= duration)
-         {
+         while (System.currentTimeMillis() - start <= duration) {
             TextMessage message = session.createTextMessage("This is text message: " + i++);
 
             producer.send(message);
@@ -74,7 +71,7 @@ public class ProducerRateLimitExample
 
          long end = System.currentTimeMillis();
 
-         double rate = 1000 * (double)i / (end - start);
+         double rate = 1000 * (double) i / (end - start);
 
          System.out.println("We sent " + i + " messages in " + (end - start) + " milliseconds");
 
@@ -89,12 +86,10 @@ public class ProducerRateLimitExample
          System.out.println("Now consuming the messages...");
 
          i = 0;
-         while (true)
-         {
-            TextMessage messageReceived = (TextMessage)messageConsumer.receive(5000);
+         while (true) {
+            TextMessage messageReceived = (TextMessage) messageConsumer.receive(5000);
 
-            if (messageReceived == null)
-            {
+            if (messageReceived == null) {
                break;
             }
 
@@ -103,15 +98,12 @@ public class ProducerRateLimitExample
 
          System.out.println("Received " + i + " messages");
       }
-      finally
-      {
+      finally {
          // Step 9. Be sure to close our resources!
-         if (initialContext != null)
-         {
+         if (initialContext != null) {
             initialContext.close();
          }
-         if (connection != null)
-         {
+         if (connection != null) {
             connection.close();
          }
       }

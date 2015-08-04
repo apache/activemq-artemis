@@ -22,8 +22,8 @@ import java.util.List;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 
-public class QueueInfo implements Serializable
-{
+public class QueueInfo implements Serializable {
+
    private static final long serialVersionUID = 3451892849198803182L;
 
    private final SimpleString routingName;
@@ -47,18 +47,14 @@ public class QueueInfo implements Serializable
                     final SimpleString address,
                     final SimpleString filterString,
                     final long id,
-                    final int distance)
-   {
-      if (routingName == null)
-      {
+                    final int distance) {
+      if (routingName == null) {
          throw ActiveMQMessageBundle.BUNDLE.routeNameIsNull();
       }
-      if (clusterName == null)
-      {
+      if (clusterName == null) {
          throw ActiveMQMessageBundle.BUNDLE.clusterNameIsNull();
       }
-      if (address == null)
-      {
+      if (address == null) {
          throw ActiveMQMessageBundle.BUNDLE.addressIsNull();
       }
 
@@ -70,74 +66,59 @@ public class QueueInfo implements Serializable
       this.distance = distance;
    }
 
-   public SimpleString getRoutingName()
-   {
+   public SimpleString getRoutingName() {
       return routingName;
    }
 
-   public SimpleString getClusterName()
-   {
+   public SimpleString getClusterName() {
       return clusterName;
    }
 
-   public SimpleString getAddress()
-   {
+   public SimpleString getAddress() {
       return address;
    }
 
-   public SimpleString getFilterString()
-   {
+   public SimpleString getFilterString() {
       return filterString;
    }
 
-   public int getDistance()
-   {
+   public int getDistance() {
       return distance;
    }
 
-   public long getID()
-   {
+   public long getID() {
       return id;
    }
 
-   public List<SimpleString> getFilterStrings()
-   {
+   public List<SimpleString> getFilterStrings() {
       return filterStrings;
    }
 
-   public void setFilterStrings(final List<SimpleString> filterStrings)
-   {
+   public void setFilterStrings(final List<SimpleString> filterStrings) {
       this.filterStrings = filterStrings;
    }
 
-   public int getNumberOfConsumers()
-   {
+   public int getNumberOfConsumers() {
       return numberOfConsumers;
    }
 
-   public void incrementConsumers()
-   {
+   public void incrementConsumers() {
       numberOfConsumers++;
    }
 
-   public void decrementConsumers()
-   {
+   public void decrementConsumers() {
       numberOfConsumers--;
    }
 
-   public boolean matchesAddress(SimpleString address)
-   {
+   public boolean matchesAddress(SimpleString address) {
       boolean containsAddress = false;
 
-      if (address != null)
-      {
+      if (address != null) {
          SimpleString[] split = address.split(',');
-         for (SimpleString addressPart : split)
-         {
+         for (SimpleString addressPart : split) {
             containsAddress = address.startsWith(addressPart);
 
-            if (containsAddress)
-            {
+            if (containsAddress) {
                break;
             }
          }
@@ -150,23 +131,22 @@ public class QueueInfo implements Serializable
     * @see java.lang.Object#toString()
     */
    @Override
-   public String toString()
-   {
+   public String toString() {
       return "QueueInfo [routingName=" + routingName +
-             ", clusterName=" +
-             clusterName +
-             ", address=" +
-             address +
-             ", filterString=" +
-             filterString +
-             ", id=" +
-             id +
-             ", filterStrings=" +
-             filterStrings +
-             ", numberOfConsumers=" +
-             numberOfConsumers +
-             ", distance=" +
-             distance +
-             "]";
+         ", clusterName=" +
+         clusterName +
+         ", address=" +
+         address +
+         ", filterString=" +
+         filterString +
+         ", id=" +
+         id +
+         ", filterStrings=" +
+         filterStrings +
+         ", numberOfConsumers=" +
+         numberOfConsumers +
+         ", distance=" +
+         distance +
+         "]";
    }
 }

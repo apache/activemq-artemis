@@ -57,28 +57,24 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ExtraStompTest extends StompTestBase
-{
+public class ExtraStompTest extends StompTestBase {
+
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       autoCreateServer = false;
       super.setUp();
    }
 
    @Test
-   public void testConnectionTTL() throws Exception
-   {
-      try
-      {
+   public void testConnectionTTL() throws Exception {
+      try {
          server = createServerWithTTL("2000");
          server.start();
 
          setUpAfterServer();
 
-         String connect_frame = "CONNECT\n" + "login: brianm\n"
-            + "passcode: wombats\n" + "request-id: 1\n" + "\n" + Stomp.NULL;
+         String connect_frame = "CONNECT\n" + "login: brianm\n" + "passcode: wombats\n" + "request-id: 1\n" + "\n" + Stomp.NULL;
          sendFrame(connect_frame);
 
          String f = receiveFrame(10000);
@@ -98,44 +94,37 @@ public class ExtraStompTest extends StompTestBase
          message = (TextMessage) consumer.receiveNoWait();
          Assert.assertNull(message);
       }
-      finally
-      {
+      finally {
          cleanUp();
          server.stop();
       }
    }
 
    @Test
-   public void testEnableMessageID() throws Exception
-   {
+   public void testEnableMessageID() throws Exception {
       enableMessageIDTest(true);
    }
 
    @Test
-   public void testDisableMessageID() throws Exception
-   {
+   public void testDisableMessageID() throws Exception {
       enableMessageIDTest(false);
    }
 
    @Test
-   public void testDefaultEnableMessageID() throws Exception
-   {
+   public void testDefaultEnableMessageID() throws Exception {
       enableMessageIDTest(null);
    }
 
    //stomp sender -> large -> stomp receiver
    @Test
-   public void testSendReceiveLargePersistentMessages() throws Exception
-   {
-      try
-      {
+   public void testSendReceiveLargePersistentMessages() throws Exception {
+      try {
          server = createPersistentServerWithStompMinLargeSize(2048);
          server.start();
 
          setUpAfterServer();
 
-         String frame = "CONNECT\n" + "login: brianm\n"
-            + "passcode: wombats\n\n" + Stomp.NULL;
+         String frame = "CONNECT\n" + "login: brianm\n" + "passcode: wombats\n\n" + Stomp.NULL;
          sendFrame(frame);
          frame = receiveFrame(10000);
 
@@ -143,26 +132,21 @@ public class ExtraStompTest extends StompTestBase
          int count = 10;
          int szBody = 1024 * 1024;
          char[] contents = new char[szBody];
-         for (int i = 0; i < szBody; i++)
-         {
+         for (int i = 0; i < szBody; i++) {
             contents[i] = 'A';
          }
          String body = new String(contents);
 
-         frame = "SEND\n" + "destination:" + getQueuePrefix() + getQueueName() + "\n"
-            + "persistent:true\n"
-            + "\n\n" + body + Stomp.NULL;
+         frame = "SEND\n" + "destination:" + getQueuePrefix() + getQueueName() + "\n" + "persistent:true\n" + "\n\n" + body + Stomp.NULL;
 
-         for (int i = 0; i < count; i++)
-         {
+         for (int i = 0; i < count; i++) {
             sendFrame(frame);
          }
 
          frame = "SUBSCRIBE\n" + "destination:" + getQueuePrefix() + getQueueName() + "\n" + "ack:auto\n\nfff" + Stomp.NULL;
          sendFrame(frame);
 
-         for (int i = 0; i < count; i++)
-         {
+         for (int i = 0; i < count; i++) {
             frame = receiveFrame(60000);
             Assert.assertNotNull(frame);
             System.out.println("part of frame: " + frame.substring(0, 200));
@@ -186,13 +170,11 @@ public class ExtraStompTest extends StompTestBase
          frame = "DISCONNECT\n" + "\n\n" + Stomp.NULL;
          sendFrame(frame);
       }
-      catch (Exception ex)
-      {
+      catch (Exception ex) {
          ex.printStackTrace();
          throw ex;
       }
-      finally
-      {
+      finally {
          cleanUp();
          server.stop();
       }
@@ -200,10 +182,8 @@ public class ExtraStompTest extends StompTestBase
 
    //core sender -> large -> stomp receiver
    @Test
-   public void testReceiveLargePersistentMessagesFromCore() throws Exception
-   {
-      try
-      {
+   public void testReceiveLargePersistentMessagesFromCore() throws Exception {
+      try {
          server = createPersistentServerWithStompMinLargeSize(2048);
          server.start();
 
@@ -211,20 +191,17 @@ public class ExtraStompTest extends StompTestBase
 
          int msgSize = 3 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE;
          char[] contents = new char[msgSize];
-         for (int i = 0; i < msgSize; i++)
-         {
+         for (int i = 0; i < msgSize; i++) {
             contents[i] = 'B';
          }
          String msg = new String(contents);
 
          int count = 10;
-         for (int i = 0; i < count; i++)
-         {
+         for (int i = 0; i < count; i++) {
             this.sendMessage(msg);
          }
 
-         String frame = "CONNECT\n" + "login: brianm\n"
-            + "passcode: wombats\n\n" + Stomp.NULL;
+         String frame = "CONNECT\n" + "login: brianm\n" + "passcode: wombats\n\n" + Stomp.NULL;
          sendFrame(frame);
          frame = receiveFrame(10000);
 
@@ -233,8 +210,7 @@ public class ExtraStompTest extends StompTestBase
          frame = "SUBSCRIBE\n" + "destination:" + getQueuePrefix() + getQueueName() + "\n" + "ack:auto\n\nfff" + Stomp.NULL;
          sendFrame(frame);
 
-         for (int i = 0; i < count; i++)
-         {
+         for (int i = 0; i < count; i++) {
             frame = receiveFrame(60000);
             Assert.assertNotNull(frame);
             System.out.println("part of frame: " + frame.substring(0, 250));
@@ -258,13 +234,11 @@ public class ExtraStompTest extends StompTestBase
          frame = "DISCONNECT\n" + "\n\n" + Stomp.NULL;
          sendFrame(frame);
       }
-      catch (Exception ex)
-      {
+      catch (Exception ex) {
          ex.printStackTrace();
          throw ex;
       }
-      finally
-      {
+      finally {
          cleanUp();
          server.stop();
       }
@@ -272,10 +246,8 @@ public class ExtraStompTest extends StompTestBase
 
    //stomp v12 sender -> large -> stomp v12 receiver
    @Test
-   public void testSendReceiveLargePersistentMessagesV12() throws Exception
-   {
-      try
-      {
+   public void testSendReceiveLargePersistentMessagesV12() throws Exception {
+      try {
          server = createPersistentServerWithStompMinLargeSize(2048);
          server.start();
 
@@ -287,8 +259,7 @@ public class ExtraStompTest extends StompTestBase
          int count = 10;
          int szBody = 1024 * 1024;
          char[] contents = new char[szBody];
-         for (int i = 0; i < szBody; i++)
-         {
+         for (int i = 0; i < szBody; i++) {
             contents[i] = 'A';
          }
          String body = new String(contents);
@@ -298,8 +269,7 @@ public class ExtraStompTest extends StompTestBase
          frame.addHeader("persistent", "true");
          frame.setBody(body);
 
-         for (int i = 0; i < count; i++)
-         {
+         for (int i = 0; i < count; i++) {
             connV12.sendFrame(frame);
          }
 
@@ -310,8 +280,7 @@ public class ExtraStompTest extends StompTestBase
 
          connV12.sendFrame(subFrame);
 
-         for (int i = 0; i < count; i++)
-         {
+         for (int i = 0; i < count; i++) {
             ClientStompFrame receiveFrame = connV12.receiveFrame(30000);
 
             Assert.assertNotNull(receiveFrame);
@@ -328,13 +297,11 @@ public class ExtraStompTest extends StompTestBase
 
          connV12.disconnect();
       }
-      catch (Exception ex)
-      {
+      catch (Exception ex) {
          ex.printStackTrace();
          throw ex;
       }
-      finally
-      {
+      finally {
          cleanUp();
          server.stop();
       }
@@ -342,10 +309,8 @@ public class ExtraStompTest extends StompTestBase
 
    //core sender -> large -> stomp v12 receiver
    @Test
-   public void testReceiveLargePersistentMessagesFromCoreV12() throws Exception
-   {
-      try
-      {
+   public void testReceiveLargePersistentMessagesFromCoreV12() throws Exception {
+      try {
          server = createPersistentServerWithStompMinLargeSize(2048);
          server.start();
 
@@ -353,15 +318,13 @@ public class ExtraStompTest extends StompTestBase
 
          int msgSize = 3 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE;
          char[] contents = new char[msgSize];
-         for (int i = 0; i < msgSize; i++)
-         {
+         for (int i = 0; i < msgSize; i++) {
             contents[i] = 'B';
          }
          String msg = new String(contents);
 
          int count = 10;
-         for (int i = 0; i < count; i++)
-         {
+         for (int i = 0; i < count; i++) {
             this.sendMessage(msg);
          }
 
@@ -375,8 +338,7 @@ public class ExtraStompTest extends StompTestBase
 
          connV12.sendFrame(subFrame);
 
-         for (int i = 0; i < count; i++)
-         {
+         for (int i = 0; i < count; i++) {
             ClientStompFrame receiveFrame = connV12.receiveFrame(30000);
 
             Assert.assertNotNull(receiveFrame);
@@ -393,13 +355,11 @@ public class ExtraStompTest extends StompTestBase
 
          connV12.disconnect();
       }
-      catch (Exception ex)
-      {
+      catch (Exception ex) {
          ex.printStackTrace();
          throw ex;
       }
-      finally
-      {
+      finally {
          cleanUp();
          server.stop();
       }
@@ -407,10 +367,8 @@ public class ExtraStompTest extends StompTestBase
 
    //core sender -> large (compressed regular) -> stomp v10 receiver
    @Test
-   public void testReceiveLargeCompressedToRegularPersistentMessagesFromCore() throws Exception
-   {
-      try
-      {
+   public void testReceiveLargeCompressedToRegularPersistentMessagesFromCore() throws Exception {
+      try {
          server = createPersistentServerWithStompMinLargeSize(2048);
          server.start();
 
@@ -425,13 +383,11 @@ public class ExtraStompTest extends StompTestBase
          String leadingPart = msg.substring(0, 100);
 
          int count = 10;
-         for (int i = 0; i < count; i++)
-         {
+         for (int i = 0; i < count; i++) {
             this.sendMessage(msg);
          }
 
-         String frame = "CONNECT\n" + "login: brianm\n"
-            + "passcode: wombats\n\n" + Stomp.NULL;
+         String frame = "CONNECT\n" + "login: brianm\n" + "passcode: wombats\n\n" + Stomp.NULL;
          sendFrame(frame);
          frame = receiveFrame(10000);
 
@@ -440,8 +396,7 @@ public class ExtraStompTest extends StompTestBase
          frame = "SUBSCRIBE\n" + "destination:" + getQueuePrefix() + getQueueName() + "\n" + "ack:auto\n\nfff" + Stomp.NULL;
          sendFrame(frame);
 
-         for (int i = 0; i < count; i++)
-         {
+         for (int i = 0; i < count; i++) {
             frame = receiveFrame(60000);
             Assert.assertNotNull(frame);
             System.out.println("part of frame: " + frame.substring(0, 250));
@@ -465,13 +420,11 @@ public class ExtraStompTest extends StompTestBase
          frame = "DISCONNECT\n" + "\n\n" + Stomp.NULL;
          sendFrame(frame);
       }
-      catch (Exception ex)
-      {
+      catch (Exception ex) {
          ex.printStackTrace();
          throw ex;
       }
-      finally
-      {
+      finally {
          cleanUp();
          server.stop();
       }
@@ -479,10 +432,8 @@ public class ExtraStompTest extends StompTestBase
 
    //core sender -> large (compressed regular) -> stomp v12 receiver
    @Test
-   public void testReceiveLargeCompressedToRegularPersistentMessagesFromCoreV12() throws Exception
-   {
-      try
-      {
+   public void testReceiveLargeCompressedToRegularPersistentMessagesFromCoreV12() throws Exception {
+      try {
          server = createPersistentServerWithStompMinLargeSize(2048);
          server.start();
 
@@ -495,8 +446,7 @@ public class ExtraStompTest extends StompTestBase
          String msg = new String(contents);
 
          int count = 10;
-         for (int i = 0; i < count; i++)
-         {
+         for (int i = 0; i < count; i++) {
             this.sendMessage(msg);
          }
 
@@ -510,8 +460,7 @@ public class ExtraStompTest extends StompTestBase
 
          connV12.sendFrame(subFrame);
 
-         for (int i = 0; i < count; i++)
-         {
+         for (int i = 0; i < count; i++) {
             ClientStompFrame receiveFrame = connV12.receiveFrame(30000);
 
             Assert.assertNotNull(receiveFrame);
@@ -528,13 +477,11 @@ public class ExtraStompTest extends StompTestBase
 
          connV12.disconnect();
       }
-      catch (Exception ex)
-      {
+      catch (Exception ex) {
          ex.printStackTrace();
          throw ex;
       }
-      finally
-      {
+      finally {
          cleanUp();
          server.stop();
       }
@@ -542,10 +489,8 @@ public class ExtraStompTest extends StompTestBase
 
    //core sender -> large (compressed large) -> stomp v12 receiver
    @Test
-   public void testReceiveLargeCompressedToLargePersistentMessagesFromCoreV12() throws Exception
-   {
-      try
-      {
+   public void testReceiveLargeCompressedToLargePersistentMessagesFromCoreV12() throws Exception {
+      try {
          server = createPersistentServerWithStompMinLargeSize(2048);
          server.start();
 
@@ -559,8 +504,7 @@ public class ExtraStompTest extends StompTestBase
          String msg = new String(contents);
 
          int count = 10;
-         for (int i = 0; i < count; i++)
-         {
+         for (int i = 0; i < count; i++) {
             this.sendMessage(msg);
          }
 
@@ -574,8 +518,7 @@ public class ExtraStompTest extends StompTestBase
 
          connV12.sendFrame(subFrame);
 
-         for (int i = 0; i < count; i++)
-         {
+         for (int i = 0; i < count; i++) {
             ClientStompFrame receiveFrame = connV12.receiveFrame(30000);
 
             Assert.assertNotNull(receiveFrame);
@@ -592,13 +535,11 @@ public class ExtraStompTest extends StompTestBase
 
          connV12.disconnect();
       }
-      catch (Exception ex)
-      {
+      catch (Exception ex) {
          ex.printStackTrace();
          throw ex;
       }
-      finally
-      {
+      finally {
          cleanUp();
          server.stop();
       }
@@ -606,10 +547,8 @@ public class ExtraStompTest extends StompTestBase
 
    //core sender -> large (compressed large) -> stomp v10 receiver
    @Test
-   public void testReceiveLargeCompressedToLargePersistentMessagesFromCore() throws Exception
-   {
-      try
-      {
+   public void testReceiveLargeCompressedToLargePersistentMessagesFromCore() throws Exception {
+      try {
          server = createPersistentServerWithStompMinLargeSize(2048);
          server.start();
 
@@ -625,13 +564,11 @@ public class ExtraStompTest extends StompTestBase
          String leadingPart = msg.substring(0, 100);
 
          int count = 10;
-         for (int i = 0; i < count; i++)
-         {
+         for (int i = 0; i < count; i++) {
             this.sendMessage(msg);
          }
 
-         String frame = "CONNECT\n" + "login: brianm\n"
-            + "passcode: wombats\n\n" + Stomp.NULL;
+         String frame = "CONNECT\n" + "login: brianm\n" + "passcode: wombats\n\n" + Stomp.NULL;
          sendFrame(frame);
          frame = receiveFrame(10000);
 
@@ -640,8 +577,7 @@ public class ExtraStompTest extends StompTestBase
          frame = "SUBSCRIBE\n" + "destination:" + getQueuePrefix() + getQueueName() + "\n" + "ack:auto\n\nfff" + Stomp.NULL;
          sendFrame(frame);
 
-         for (int i = 0; i < count; i++)
-         {
+         for (int i = 0; i < count; i++) {
             frame = receiveFrame(60000);
             Assert.assertNotNull(frame);
             System.out.println("part of frame: " + frame.substring(0, 250));
@@ -665,20 +601,17 @@ public class ExtraStompTest extends StompTestBase
          frame = "DISCONNECT\n" + "\n\n" + Stomp.NULL;
          sendFrame(frame);
       }
-      catch (Exception ex)
-      {
+      catch (Exception ex) {
          ex.printStackTrace();
          throw ex;
       }
-      finally
-      {
+      finally {
          cleanUp();
          server.stop();
       }
    }
 
-   protected JMSServerManager createPersistentServerWithStompMinLargeSize(int sz) throws Exception
-   {
+   protected JMSServerManager createPersistentServerWithStompMinLargeSize(int sz) throws Exception {
       Map<String, Object> params = new HashMap<String, Object>();
       params.put(TransportConstants.PROTOCOLS_PROP_NAME, StompProtocolManagerFactory.STOMP_PROTOCOL_NAME);
       params.put(TransportConstants.PORT_PROP_NAME, TransportConstants.DEFAULT_STOMP_PORT);
@@ -686,48 +619,36 @@ public class ExtraStompTest extends StompTestBase
       params.put(TransportConstants.STOMP_MIN_LARGE_MESSAGE_SIZE, sz);
       TransportConfiguration stompTransport = new TransportConfiguration(NettyAcceptorFactory.class.getName(), params);
 
-      Configuration config = createBasicConfig()
-         .setPersistenceEnabled(true)
-         .addAcceptorConfiguration(stompTransport)
-         .addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName()));
+      Configuration config = createBasicConfig().setPersistenceEnabled(true).addAcceptorConfiguration(stompTransport).addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName()));
 
       ActiveMQServer activeMQServer = addServer(ActiveMQServers.newActiveMQServer(config, defUser, defPass));
 
       JMSConfiguration jmsConfig = new JMSConfigurationImpl();
-      jmsConfig.getQueueConfigurations().add(new JMSQueueConfigurationImpl()
-                                                .setName(getQueueName())
-                                                .setBindings(getQueueName()));
-      jmsConfig.getTopicConfigurations().add(new TopicConfigurationImpl()
-                                                .setName(getTopicName())
-                                                .setBindings(getTopicName()));
+      jmsConfig.getQueueConfigurations().add(new JMSQueueConfigurationImpl().setName(getQueueName()).setBindings(getQueueName()));
+      jmsConfig.getTopicConfigurations().add(new TopicConfigurationImpl().setName(getTopicName()).setBindings(getTopicName()));
       server = new JMSServerManagerImpl(activeMQServer, jmsConfig);
       server.setRegistry(new JndiBindingRegistry((new InVMNamingContext())));
       return server;
    }
 
-   private void enableMessageIDTest(Boolean enable) throws Exception
-   {
-      try
-      {
+   private void enableMessageIDTest(Boolean enable) throws Exception {
+      try {
          server = createServerWithExtraStompOptions(null, enable);
          server.start();
 
          setUpAfterServer();
 
-         String connect_frame = "CONNECT\n" + "login: brianm\n"
-            + "passcode: wombats\n" + "request-id: 1\n" + "\n" + Stomp.NULL;
+         String connect_frame = "CONNECT\n" + "login: brianm\n" + "passcode: wombats\n" + "request-id: 1\n" + "\n" + Stomp.NULL;
          sendFrame(connect_frame);
 
          String f = receiveFrame(10000);
          Assert.assertTrue(f.startsWith("CONNECTED"));
          Assert.assertTrue(f.indexOf("response-id:1") >= 0);
 
-         String frame = "SEND\n" + "destination:" + getQueuePrefix()
-            + getQueueName() + "\n\n" + "Hello World 1" + Stomp.NULL;
+         String frame = "SEND\n" + "destination:" + getQueuePrefix() + getQueueName() + "\n\n" + "Hello World 1" + Stomp.NULL;
          sendFrame(frame);
 
-         frame = "SEND\n" + "destination:" + getQueuePrefix() + getQueueName()
-            + "\n\n" + "Hello World 2" + Stomp.NULL;
+         frame = "SEND\n" + "destination:" + getQueuePrefix() + getQueueName() + "\n\n" + "Hello World 2" + Stomp.NULL;
 
          sendFrame(frame);
 
@@ -735,17 +656,14 @@ public class ExtraStompTest extends StompTestBase
 
          Enumeration enu = browser.getEnumeration();
 
-         while (enu.hasMoreElements())
-         {
+         while (enu.hasMoreElements()) {
             Message msg = (Message) enu.nextElement();
             String msgId = msg.getStringProperty("amqMessageId");
-            if (enable != null && enable.booleanValue())
-            {
+            if (enable != null && enable.booleanValue()) {
                assertNotNull(msgId);
                assertTrue(msgId.indexOf("STOMP") == 0);
             }
-            else
-            {
+            else {
                assertNull(msgId);
             }
          }
@@ -763,92 +681,72 @@ public class ExtraStompTest extends StompTestBase
          message = (TextMessage) consumer.receive(2000);
          Assert.assertNull(message);
       }
-      finally
-      {
+      finally {
          cleanUp();
          server.stop();
       }
    }
 
-   protected JMSServerManager createServerWithTTL(String ttl) throws Exception
-   {
+   protected JMSServerManager createServerWithTTL(String ttl) throws Exception {
       return createServerWithExtraStompOptions(ttl, null);
    }
 
-   protected JMSServerManager createServerWithExtraStompOptions(String ttl, Boolean enableMessageID) throws Exception
-   {
+   protected JMSServerManager createServerWithExtraStompOptions(String ttl, Boolean enableMessageID) throws Exception {
 
       Map<String, Object> params = new HashMap<String, Object>();
       params.put(TransportConstants.PROTOCOLS_PROP_NAME, StompProtocolManagerFactory.STOMP_PROTOCOL_NAME);
       params.put(TransportConstants.PORT_PROP_NAME, TransportConstants.DEFAULT_STOMP_PORT);
-      if (ttl != null)
-      {
+      if (ttl != null) {
          params.put(TransportConstants.CONNECTION_TTL, ttl);
       }
-      if (enableMessageID != null)
-      {
+      if (enableMessageID != null) {
          params.put(TransportConstants.STOMP_ENABLE_MESSAGE_ID, enableMessageID);
       }
       params.put(TransportConstants.STOMP_CONSUMERS_CREDIT, "-1");
       TransportConfiguration stompTransport = new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, params);
 
-      Configuration config = createBasicConfig()
-         .setPersistenceEnabled(false)
-         .addAcceptorConfiguration(stompTransport)
-         .addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY));
+      Configuration config = createBasicConfig().setPersistenceEnabled(false).addAcceptorConfiguration(stompTransport).addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY));
 
       ActiveMQServer activeMQServer = addServer(ActiveMQServers.newActiveMQServer(config, defUser, defPass));
 
       JMSConfiguration jmsConfig = new JMSConfigurationImpl();
-      jmsConfig.getQueueConfigurations().add(new JMSQueueConfigurationImpl()
-                                                .setName(getQueueName())
-                                                .setDurable(false)
-                                                .setBindings(getQueueName()));
-      jmsConfig.getTopicConfigurations().add(new TopicConfigurationImpl()
-                                                .setName(getTopicName())
-                                                .setBindings(getTopicName()));
+      jmsConfig.getQueueConfigurations().add(new JMSQueueConfigurationImpl().setName(getQueueName()).setDurable(false).setBindings(getQueueName()));
+      jmsConfig.getTopicConfigurations().add(new TopicConfigurationImpl().setName(getTopicName()).setBindings(getTopicName()));
       server = new JMSServerManagerImpl(activeMQServer, jmsConfig);
       server.setRegistry(new JndiBindingRegistry(new InVMNamingContext()));
       return server;
    }
 
+   public static class MyCoreInterceptor implements Interceptor {
 
-   public static class MyCoreInterceptor implements Interceptor
-   {
       static List<Packet> incomingInterceptedFrames = new ArrayList<Packet>();
 
       @Override
-      public boolean intercept(Packet packet, RemotingConnection connection)
-      {
+      public boolean intercept(Packet packet, RemotingConnection connection) {
          incomingInterceptedFrames.add(packet);
          return true;
       }
 
    }
 
+   public static class MyIncomingStompFrameInterceptor implements StompFrameInterceptor {
 
-   public static class MyIncomingStompFrameInterceptor implements StompFrameInterceptor
-   {
       static List<StompFrame> incomingInterceptedFrames = new ArrayList<StompFrame>();
 
       @Override
-      public boolean intercept(StompFrame stompFrame, RemotingConnection connection)
-      {
+      public boolean intercept(StompFrame stompFrame, RemotingConnection connection) {
          incomingInterceptedFrames.add(stompFrame);
          stompFrame.addHeader("incomingInterceptedProp", "incomingInterceptedVal");
          return true;
       }
    }
 
-
-   public static class MyOutgoingStompFrameInterceptor implements StompFrameInterceptor
-   {
+   public static class MyOutgoingStompFrameInterceptor implements StompFrameInterceptor {
 
       static List<StompFrame> outgoingInterceptedFrames = new ArrayList<StompFrame>();
 
       @Override
-      public boolean intercept(StompFrame stompFrame, RemotingConnection connection)
-      {
+      public boolean intercept(StompFrame stompFrame, RemotingConnection connection) {
          outgoingInterceptedFrames.add(stompFrame);
          stompFrame.addHeader("outgoingInterceptedProp", "outgoingInterceptedVal");
          return true;
@@ -856,12 +754,10 @@ public class ExtraStompTest extends StompTestBase
    }
 
    @Test
-   public void stompFrameInterceptor() throws Exception
-   {
+   public void stompFrameInterceptor() throws Exception {
       MyIncomingStompFrameInterceptor.incomingInterceptedFrames.clear();
       MyOutgoingStompFrameInterceptor.outgoingInterceptedFrames.clear();
-      try
-      {
+      try {
          List<String> incomingInterceptorList = new ArrayList<String>();
          incomingInterceptorList.add("org.apache.activemq.artemis.tests.integration.stomp.ExtraStompTest$MyIncomingStompFrameInterceptor");
          incomingInterceptorList.add("org.apache.activemq.artemis.tests.integration.stomp.ExtraStompTest$MyCoreInterceptor");
@@ -907,8 +803,7 @@ public class ExtraStompTest extends StompTestBase
          sendFrame(frame);
 
       }
-      finally
-      {
+      finally {
          cleanUp();
          server.stop();
       }
@@ -929,22 +824,19 @@ public class ExtraStompTest extends StompTestBase
       // Things are async, giving some time to things arrive before we actually assert
       while (MyIncomingStompFrameInterceptor.incomingInterceptedFrames.size() < 4 &&
          MyOutgoingStompFrameInterceptor.outgoingInterceptedFrames.size() < 3 &&
-         timeout > System.currentTimeMillis())
-      {
+         timeout > System.currentTimeMillis()) {
          Thread.sleep(10);
       }
 
       Assert.assertEquals(4, MyIncomingStompFrameInterceptor.incomingInterceptedFrames.size());
       Assert.assertEquals(3, MyOutgoingStompFrameInterceptor.outgoingInterceptedFrames.size());
 
-      for (int i = 0; i < MyIncomingStompFrameInterceptor.incomingInterceptedFrames.size(); i++)
-      {
+      for (int i = 0; i < MyIncomingStompFrameInterceptor.incomingInterceptedFrames.size(); i++) {
          Assert.assertEquals(incomingCommands.get(i), MyIncomingStompFrameInterceptor.incomingInterceptedFrames.get(i).getCommand());
          Assert.assertEquals("incomingInterceptedVal", MyIncomingStompFrameInterceptor.incomingInterceptedFrames.get(i).getHeader("incomingInterceptedProp"));
       }
 
-      for (int i = 0; i < MyOutgoingStompFrameInterceptor.outgoingInterceptedFrames.size(); i++)
-      {
+      for (int i = 0; i < MyOutgoingStompFrameInterceptor.outgoingInterceptedFrames.size(); i++) {
          Assert.assertEquals(outgoingCommands.get(i), MyOutgoingStompFrameInterceptor.outgoingInterceptedFrames.get(i).getCommand());
       }
 
@@ -952,8 +844,8 @@ public class ExtraStompTest extends StompTestBase
       Assert.assertEquals("outgoingInterceptedVal", MyOutgoingStompFrameInterceptor.outgoingInterceptedFrames.get(2).getHeader("outgoingInterceptedProp"));
    }
 
-   protected JMSServerManager createServerWithStompInterceptor(List<String> stompIncomingInterceptor, List<String> stompOutgoingInterceptor) throws Exception
-   {
+   protected JMSServerManager createServerWithStompInterceptor(List<String> stompIncomingInterceptor,
+                                                               List<String> stompOutgoingInterceptor) throws Exception {
 
       Map<String, Object> params = new HashMap<String, Object>();
       params.put(TransportConstants.PROTOCOLS_PROP_NAME, StompProtocolManagerFactory.STOMP_PROTOCOL_NAME);
@@ -961,23 +853,13 @@ public class ExtraStompTest extends StompTestBase
       params.put(TransportConstants.STOMP_CONSUMERS_CREDIT, "-1");
       TransportConfiguration stompTransport = new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, params);
 
-      Configuration config = createBasicConfig()
-         .setPersistenceEnabled(false)
-         .addAcceptorConfiguration(stompTransport)
-         .addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY))
-         .setIncomingInterceptorClassNames(stompIncomingInterceptor)
-         .setOutgoingInterceptorClassNames(stompOutgoingInterceptor);
+      Configuration config = createBasicConfig().setPersistenceEnabled(false).addAcceptorConfiguration(stompTransport).addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY)).setIncomingInterceptorClassNames(stompIncomingInterceptor).setOutgoingInterceptorClassNames(stompOutgoingInterceptor);
 
       ActiveMQServer hornetQServer = addServer(ActiveMQServers.newActiveMQServer(config, defUser, defPass));
 
       JMSConfiguration jmsConfig = new JMSConfigurationImpl();
-      jmsConfig.getQueueConfigurations().add(new JMSQueueConfigurationImpl()
-                                                .setName(getQueueName())
-                                                .setDurable(false)
-                                                .setBindings(getQueueName()));
-      jmsConfig.getTopicConfigurations().add(new TopicConfigurationImpl()
-                                                .setName(getTopicName())
-                                                .setBindings(getTopicName()));
+      jmsConfig.getQueueConfigurations().add(new JMSQueueConfigurationImpl().setName(getQueueName()).setDurable(false).setBindings(getQueueName()));
+      jmsConfig.getTopicConfigurations().add(new TopicConfigurationImpl().setName(getTopicName()).setBindings(getTopicName()));
       server = new JMSServerManagerImpl(hornetQServer, jmsConfig);
       server.setRegistry(new JndiBindingRegistry(new InVMNamingContext()));
       return server;

@@ -28,63 +28,62 @@ import org.springframework.core.io.Resource;
 
 /**
  * Test Publish/Consume queue using the release activemq.xml configuration file
- *
- * 
  */
 public class PublishOnQueueConsumedMessageUsingActivemqXMLTest extends PublishOnTopicConsumedMessageTest {
-    protected static final String JOURNAL_ROOT = "../data/";
-    private static final transient Logger LOG = LoggerFactory.getLogger(PublishOnQueueConsumedMessageUsingActivemqXMLTest.class);
-    BrokerService broker;
 
-    /**
-     * Use the transportConnector uri configured on the activemq.xml
-     *
-     * @return ActiveMQConnectionFactory
-     * @throws Exception
-     */
-    protected ActiveMQConnectionFactory createConnectionFactory() throws Exception {
-        return new ActiveMQConnectionFactory("tcp://localhost:61616");
-    }
+   protected static final String JOURNAL_ROOT = "../data/";
+   private static final transient Logger LOG = LoggerFactory.getLogger(PublishOnQueueConsumedMessageUsingActivemqXMLTest.class);
+   BrokerService broker;
 
-    /**
-     * Sets up a test where the producer and consumer have their own connection.
-     *
-     * @see junit.framework.TestCase#setUp()
-     */
-    protected void setUp() throws Exception {
-        File journalFile = new File(JOURNAL_ROOT);
-        recursiveDelete(journalFile);
-        // Create broker from resource
-        LOG.info("Creating broker... ");
-        broker = createBroker("org/apache/activemq/usecases/activemq.xml");
-        LOG.info("Success");
-        super.setUp();
-    }
-
-    /*
-    * Stops the Broker
-    * @see junit.framework.TestCase#tearDown()
+   /**
+    * Use the transportConnector uri configured on the activemq.xml
+    *
+    * @return ActiveMQConnectionFactory
+    * @throws Exception
     */
-    protected void tearDown() throws Exception {
-        LOG.info("Closing Broker");
-        if (broker != null) {
-            broker.stop();
-        }
-        LOG.info("Broker closed...");
-    }
+   protected ActiveMQConnectionFactory createConnectionFactory() throws Exception {
+      return new ActiveMQConnectionFactory("tcp://localhost:61616");
+   }
 
-    protected BrokerService createBroker(String resource) throws Exception {
-        return createBroker(new ClassPathResource(resource));
-    }
+   /**
+    * Sets up a test where the producer and consumer have their own connection.
+    *
+    * @see junit.framework.TestCase#setUp()
+    */
+   protected void setUp() throws Exception {
+      File journalFile = new File(JOURNAL_ROOT);
+      recursiveDelete(journalFile);
+      // Create broker from resource
+      LOG.info("Creating broker... ");
+      broker = createBroker("org/apache/activemq/usecases/activemq.xml");
+      LOG.info("Success");
+      super.setUp();
+   }
 
-    protected BrokerService createBroker(Resource resource) throws Exception {
-        BrokerFactoryBean factory = new BrokerFactoryBean(resource);
-        factory.afterPropertiesSet();
+   /*
+   * Stops the Broker
+   * @see junit.framework.TestCase#tearDown()
+   */
+   protected void tearDown() throws Exception {
+      LOG.info("Closing Broker");
+      if (broker != null) {
+         broker.stop();
+      }
+      LOG.info("Broker closed...");
+   }
 
-        BrokerService broker = factory.getBroker();
+   protected BrokerService createBroker(String resource) throws Exception {
+      return createBroker(new ClassPathResource(resource));
+   }
 
-        //assertTrue("Should have a broker!", broker != null);
+   protected BrokerService createBroker(Resource resource) throws Exception {
+      BrokerFactoryBean factory = new BrokerFactoryBean(resource);
+      factory.afterPropertiesSet();
 
-        return broker;
-    }
+      BrokerService broker = factory.getBroker();
+
+      //assertTrue("Should have a broker!", broker != null);
+
+      return broker;
+   }
 }

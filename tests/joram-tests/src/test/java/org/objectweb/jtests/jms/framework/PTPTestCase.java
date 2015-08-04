@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 package org.objectweb.jtests.jms.framework;
+
 import javax.jms.Queue;
 import javax.jms.QueueConnection;
 import javax.jms.QueueConnectionFactory;
@@ -41,8 +42,7 @@ import org.junit.Before;
  * Classes which want that convenience should extend <code>PTPTestCase</code> instead of
  * <code>JMSTestCase</code>.
  */
-public abstract class PTPTestCase extends JMSTestCase
-{
+public abstract class PTPTestCase extends JMSTestCase {
 
    protected Context ctx;
 
@@ -107,30 +107,28 @@ public abstract class PTPTestCase extends JMSTestCase
     */
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
-      try
-      {
+      try {
          // ...and creates administrated objects and binds them
          admin.createQueueConnectionFactory(PTPTestCase.QCF_NAME);
          admin.createQueue(PTPTestCase.QUEUE_NAME);
 
          Hashtable props = new Hashtable<>();
          props.put(Context.INITIAL_CONTEXT_FACTORY, ActiveMQInitialContextFactory.class.getCanonicalName());
-         props.put("connectionFactory." +  PTPTestCase.QCF_NAME, "tcp://127.0.0.1:61616?type=QUEUE_CF");
+         props.put("connectionFactory." + PTPTestCase.QCF_NAME, "tcp://127.0.0.1:61616?type=QUEUE_CF");
          props.put("queue." + PTPTestCase.QUEUE_NAME, PTPTestCase.QUEUE_NAME);
          Context ctx = new InitialContext(props);
 
-         senderQCF = (QueueConnectionFactory)ctx.lookup(PTPTestCase.QCF_NAME);
-         senderQueue = (Queue)ctx.lookup(PTPTestCase.QUEUE_NAME);
+         senderQCF = (QueueConnectionFactory) ctx.lookup(PTPTestCase.QCF_NAME);
+         senderQueue = (Queue) ctx.lookup(PTPTestCase.QUEUE_NAME);
          senderConnection = senderQCF.createQueueConnection();
          senderSession = senderConnection.createQueueSession(false, Session.AUTO_ACKNOWLEDGE);
          sender = senderSession.createSender(senderQueue);
 
-         receiverQCF = (QueueConnectionFactory)ctx.lookup(PTPTestCase.QCF_NAME);
-         receiverQueue = (Queue)ctx.lookup(PTPTestCase.QUEUE_NAME);
+         receiverQCF = (QueueConnectionFactory) ctx.lookup(PTPTestCase.QCF_NAME);
+         receiverQueue = (Queue) ctx.lookup(PTPTestCase.QUEUE_NAME);
          receiverConnection = receiverQCF.createQueueConnection();
          receiverSession = receiverConnection.createQueueSession(false, Session.AUTO_ACKNOWLEDGE);
          receiver = receiverSession.createReceiver(receiverQueue);
@@ -139,33 +137,28 @@ public abstract class PTPTestCase extends JMSTestCase
          receiverConnection.start();
          // end of client step
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          throw new RuntimeException(e);
       }
    }
 
    /**
-    *  Close connections and delete administrated objects
+    * Close connections and delete administrated objects
     */
    @Override
    @After
-   public void tearDown() throws Exception
-   {
-      try
-      {
+   public void tearDown() throws Exception {
+      try {
          senderConnection.close();
          receiverConnection.close();
 
          admin.deleteQueueConnectionFactory(PTPTestCase.QCF_NAME);
          admin.deleteQueue(PTPTestCase.QUEUE_NAME);
       }
-      catch (Exception ignored)
-      {
+      catch (Exception ignored) {
          ignored.printStackTrace();
       }
-      finally
-      {
+      finally {
          senderQueue = null;
          sender = null;
          senderQCF = null;

@@ -31,8 +31,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class DelayedMessageTest extends ActiveMQTestBase
-{
+public class DelayedMessageTest extends ActiveMQTestBase {
+
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
    private ActiveMQServer server;
@@ -45,8 +45,7 @@ public class DelayedMessageTest extends ActiveMQTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
       initServer();
    }
@@ -54,8 +53,7 @@ public class DelayedMessageTest extends ActiveMQTestBase
    /**
     * @throws Exception
     */
-   protected void initServer() throws Exception
-   {
+   protected void initServer() throws Exception {
       server = createServer(true, createDefaultInVMConfig());
       server.start();
 
@@ -67,8 +65,7 @@ public class DelayedMessageTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testDelayedRedeliveryDefaultOnClose() throws Exception
-   {
+   public void testDelayedRedeliveryDefaultOnClose() throws Exception {
       ClientSessionFactory sessionFactory = createSessionFactory(locator);
       ClientSession session = sessionFactory.createSession(false, false, false);
 
@@ -82,8 +79,7 @@ public class DelayedMessageTest extends ActiveMQTestBase
 
       ActiveMQTestBase.forceGC();
 
-      for (int i = 0; i < NUM_MESSAGES; i++)
-      {
+      for (int i = 0; i < NUM_MESSAGES; i++) {
          ClientMessage tm = createDurableMessage(session1, "message" + i);
          producer.send(tm);
       }
@@ -95,8 +91,7 @@ public class DelayedMessageTest extends ActiveMQTestBase
       ClientConsumer consumer2 = session2.createConsumer(qName);
       session2.start();
 
-      for (int i = 0; i < NUM_MESSAGES; i++)
-      {
+      for (int i = 0; i < NUM_MESSAGES; i++) {
          ClientMessage tm = consumer2.receive(500);
 
          tm.acknowledge();
@@ -117,8 +112,7 @@ public class DelayedMessageTest extends ActiveMQTestBase
 
       ClientConsumer consumer3 = session3.createConsumer(qName);
       session3.start();
-      for (int i = 0; i < NUM_MESSAGES; i++)
-      {
+      for (int i = 0; i < NUM_MESSAGES; i++) {
          ClientMessage tm = consumer3.receive(DelayedMessageTest.DELAY + 1000);
 
          Assert.assertNotNull(tm);
@@ -130,19 +124,16 @@ public class DelayedMessageTest extends ActiveMQTestBase
          Assert.assertTrue(time - now >= DelayedMessageTest.DELAY);
 
          // Hudson can introduce a large degree of indeterminism
-         Assert.assertTrue(time - now + ">" + (DelayedMessageTest.DELAY + 1000),
-                           time - now < DelayedMessageTest.DELAY + 1000);
+         Assert.assertTrue(time - now + ">" + (DelayedMessageTest.DELAY + 1000), time - now < DelayedMessageTest.DELAY + 1000);
       }
 
       session3.commit();
       session3.close();
 
-
    }
 
    @Test
-   public void testDelayedRedeliveryDefaultOnRollback() throws Exception
-   {
+   public void testDelayedRedeliveryDefaultOnRollback() throws Exception {
       ClientSessionFactory sessionFactory = createSessionFactory(locator);
       ClientSession session = sessionFactory.createSession(false, false, false);
 
@@ -154,8 +145,7 @@ public class DelayedMessageTest extends ActiveMQTestBase
 
       final int NUM_MESSAGES = 5;
 
-      for (int i = 0; i < NUM_MESSAGES; i++)
-      {
+      for (int i = 0; i < NUM_MESSAGES; i++) {
          ClientMessage tm = createDurableMessage(session1, "message" + i);
          producer.send(tm);
       }
@@ -166,8 +156,7 @@ public class DelayedMessageTest extends ActiveMQTestBase
 
       session2.start();
 
-      for (int i = 0; i < NUM_MESSAGES; i++)
-      {
+      for (int i = 0; i < NUM_MESSAGES; i++) {
          ClientMessage tm = consumer2.receive(500);
          Assert.assertNotNull(tm);
          Assert.assertEquals("message" + i, tm.getBodyBuffer().readString());
@@ -180,8 +169,7 @@ public class DelayedMessageTest extends ActiveMQTestBase
 
       // This should redeliver with a delayed redelivery
 
-      for (int i = 0; i < NUM_MESSAGES; i++)
-      {
+      for (int i = 0; i < NUM_MESSAGES; i++) {
          ClientMessage tm = consumer2.receive(DelayedMessageTest.DELAY + 1000);
          Assert.assertNotNull(tm);
 
@@ -190,19 +178,16 @@ public class DelayedMessageTest extends ActiveMQTestBase
          Assert.assertTrue(time - now >= DelayedMessageTest.DELAY);
 
          // Hudson can introduce a large degree of indeterminism
-         Assert.assertTrue(time - now + ">" + (DelayedMessageTest.DELAY + 1000),
-                           time - now < DelayedMessageTest.DELAY + 1000);
+         Assert.assertTrue(time - now + ">" + (DelayedMessageTest.DELAY + 1000), time - now < DelayedMessageTest.DELAY + 1000);
       }
 
       session2.commit();
       session2.close();
 
-
    }
 
    @Test
-   public void testDelayedRedeliveryWithStart() throws Exception
-   {
+   public void testDelayedRedeliveryWithStart() throws Exception {
       ClientSessionFactory sessionFactory = createSessionFactory(locator);
       ClientSession session = sessionFactory.createSession(false, false, false);
 
@@ -214,8 +199,7 @@ public class DelayedMessageTest extends ActiveMQTestBase
 
       final int NUM_MESSAGES = 1;
 
-      for (int i = 0; i < NUM_MESSAGES; i++)
-      {
+      for (int i = 0; i < NUM_MESSAGES; i++) {
          ClientMessage tm = createDurableMessage(session1, "message" + i);
          producer.send(tm);
       }
@@ -226,8 +210,7 @@ public class DelayedMessageTest extends ActiveMQTestBase
 
       session2.start();
 
-      for (int i = 0; i < NUM_MESSAGES; i++)
-      {
+      for (int i = 0; i < NUM_MESSAGES; i++) {
          ClientMessage tm = consumer2.receive(500);
          Assert.assertNotNull(tm);
          Assert.assertEquals("message" + i, tm.getBodyBuffer().readString());
@@ -235,7 +218,6 @@ public class DelayedMessageTest extends ActiveMQTestBase
 
       // Now rollback
       long now = System.currentTimeMillis();
-
 
       session2.rollback();
 
@@ -261,8 +243,7 @@ public class DelayedMessageTest extends ActiveMQTestBase
 
       // This should redeliver with a delayed redelivery
 
-      for (int i = 0; i < NUM_MESSAGES; i++)
-      {
+      for (int i = 0; i < NUM_MESSAGES; i++) {
          ClientMessage tm = consumer2.receive(DelayedMessageTest.DELAY + 1000);
          Assert.assertNotNull(tm);
 
@@ -276,18 +257,12 @@ public class DelayedMessageTest extends ActiveMQTestBase
       session2.commit();
       session2.close();
 
-
    }
 
    // Private -------------------------------------------------------
 
-   private ClientMessage createDurableMessage(final ClientSession session, final String body)
-   {
-      ClientMessage message = session.createMessage(ActiveMQTextMessage.TYPE,
-                                                    true,
-                                                    0,
-                                                    System.currentTimeMillis(),
-                                                    (byte)1);
+   private ClientMessage createDurableMessage(final ClientSession session, final String body) {
+      ClientMessage message = session.createMessage(ActiveMQTextMessage.TYPE, true, 0, System.currentTimeMillis(), (byte) 1);
       message.getBodyBuffer().writeString(body);
       return message;
    }

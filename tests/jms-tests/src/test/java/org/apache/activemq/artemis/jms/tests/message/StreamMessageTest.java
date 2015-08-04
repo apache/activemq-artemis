@@ -28,8 +28,7 @@ import org.junit.Test;
 /**
  * A test that sends/receives stream messages to the JMS provider and verifies their integrity.
  */
-public class StreamMessageTest extends MessageTestBase
-{
+public class StreamMessageTest extends MessageTestBase {
    // Constants -----------------------------------------------------
 
    // Static --------------------------------------------------------
@@ -42,23 +41,20 @@ public class StreamMessageTest extends MessageTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
       message = session.createStreamMessage();
    }
 
    @Override
    @After
-   public void tearDown() throws Exception
-   {
+   public void tearDown() throws Exception {
       message = null;
       super.tearDown();
    }
 
    @Test
-   public void testNullValue() throws Exception
-   {
+   public void testNullValue() throws Exception {
       StreamMessage m = session.createStreamMessage();
 
       m.writeString(null);
@@ -75,8 +71,7 @@ public class StreamMessageTest extends MessageTestBase
    // Protected -----------------------------------------------------
 
    @Override
-   protected void prepareMessage(final Message m) throws JMSException
-   {
+   protected void prepareMessage(final Message m) throws JMSException {
       super.prepareMessage(m);
 
       StreamMessage sm = (StreamMessage) m;
@@ -95,8 +90,7 @@ public class StreamMessageTest extends MessageTestBase
    }
 
    @Override
-   protected void assertEquivalent(final Message m, final int mode, final boolean redelivery) throws JMSException
-   {
+   protected void assertEquivalent(final Message m, final int mode, final boolean redelivery) throws JMSException {
       super.assertEquivalent(m, mode, redelivery);
 
       StreamMessage sm = (StreamMessage) m;

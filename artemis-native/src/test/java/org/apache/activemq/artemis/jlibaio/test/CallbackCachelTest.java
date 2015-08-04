@@ -24,16 +24,13 @@ import org.apache.activemq.artemis.jlibaio.SubmitInfo;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class CallbackCachelTest
-{
+public class CallbackCachelTest {
+
    @Test
-   public void testPartiallyInitialized()
-   {
+   public void testPartiallyInitialized() {
       CallbackCache<MyPool> pool = new CallbackCache(100);
 
-
-      for (int i = 0; i < 50; i++)
-      {
+      for (int i = 0; i < 50; i++) {
          pool.put(new MyPool(i));
       }
 
@@ -43,69 +40,59 @@ public class CallbackCachelTest
 
       pool.put(value);
 
-
       // add and remove immediately
-      for (int i = 0; i < 777; i++)
-      {
+      for (int i = 0; i < 777; i++) {
          pool.put(pool.get());
       }
 
-
       HashSet<MyPool> hashValues = new HashSet<>();
 
-
       MyPool getValue;
-      while ((getValue = pool.get()) != null)
-      {
+      while ((getValue = pool.get()) != null) {
          hashValues.add(getValue);
       }
-
 
       Assert.assertEquals(50, hashValues.size());
    }
 
-   static class MyPool implements SubmitInfo
-   {
+   static class MyPool implements SubmitInfo {
+
       public final int i;
 
-      MyPool(int i)
-      {
+      MyPool(int i) {
          this.i = i;
       }
 
-
-      public int getI()
-      {
+      public int getI() {
          return i;
       }
 
       @Override
-      public void onError(int errno, String message)
-      {
+      public void onError(int errno, String message) {
       }
 
       @Override
-      public void done()
-      {
+      public void done() {
 
       }
 
       @Override
-      public boolean equals(Object o)
-      {
-         if (this == o) return true;
-         if (o == null || getClass() != o.getClass()) return false;
+      public boolean equals(Object o) {
+         if (this == o)
+            return true;
+         if (o == null || getClass() != o.getClass())
+            return false;
 
          MyPool myPool = (MyPool) o;
 
-         if (i != myPool.i) return false;
+         if (i != myPool.i)
+            return false;
 
          return true;
       }
 
       @Override
-      public int hashCode()
-      {
+      public int hashCode() {
          return i;
       }
    }

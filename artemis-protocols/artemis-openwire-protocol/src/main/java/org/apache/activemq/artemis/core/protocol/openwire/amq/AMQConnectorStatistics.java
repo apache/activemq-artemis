@@ -20,8 +20,7 @@ import org.apache.activemq.management.CountStatisticImpl;
 import org.apache.activemq.management.PollCountStatisticImpl;
 import org.apache.activemq.management.StatsImpl;
 
-public class AMQConnectorStatistics extends StatsImpl
-{
+public class AMQConnectorStatistics extends StatsImpl {
 
    protected CountStatisticImpl enqueues;
    protected CountStatisticImpl dequeues;
@@ -29,20 +28,13 @@ public class AMQConnectorStatistics extends StatsImpl
    protected CountStatisticImpl messages;
    protected PollCountStatisticImpl messagesCached;
 
-   public AMQConnectorStatistics()
-   {
+   public AMQConnectorStatistics() {
 
-      enqueues = new CountStatisticImpl("enqueues",
-            "The number of messages that have been sent to the destination");
-      dequeues = new CountStatisticImpl("dequeues",
-            "The number of messages that have been dispatched from the destination");
-      consumers = new CountStatisticImpl(
-            "consumers",
-            "The number of consumers that that are subscribing to messages from the destination");
-      messages = new CountStatisticImpl("messages",
-            "The number of messages that that are being held by the destination");
-      messagesCached = new PollCountStatisticImpl("messagesCached",
-            "The number of messages that are held in the destination's memory cache");
+      enqueues = new CountStatisticImpl("enqueues", "The number of messages that have been sent to the destination");
+      dequeues = new CountStatisticImpl("dequeues", "The number of messages that have been dispatched from the destination");
+      consumers = new CountStatisticImpl("consumers", "The number of consumers that that are subscribing to messages from the destination");
+      messages = new CountStatisticImpl("messages", "The number of messages that that are being held by the destination");
+      messagesCached = new PollCountStatisticImpl("messagesCached", "The number of messages that are held in the destination's memory cache");
 
       addStatistic("enqueues", enqueues);
       addStatistic("dequeues", dequeues);
@@ -51,40 +43,33 @@ public class AMQConnectorStatistics extends StatsImpl
       addStatistic("messagesCached", messagesCached);
    }
 
-   public CountStatisticImpl getEnqueues()
-   {
+   public CountStatisticImpl getEnqueues() {
       return enqueues;
    }
 
-   public CountStatisticImpl getDequeues()
-   {
+   public CountStatisticImpl getDequeues() {
       return dequeues;
    }
 
-   public CountStatisticImpl getConsumers()
-   {
+   public CountStatisticImpl getConsumers() {
       return consumers;
    }
 
-   public PollCountStatisticImpl getMessagesCached()
-   {
+   public PollCountStatisticImpl getMessagesCached() {
       return messagesCached;
    }
 
-   public CountStatisticImpl getMessages()
-   {
+   public CountStatisticImpl getMessages() {
       return messages;
    }
 
-   public void reset()
-   {
+   public void reset() {
       super.reset();
       enqueues.reset();
       dequeues.reset();
    }
 
-   public void setEnabled(boolean enabled)
-   {
+   public void setEnabled(boolean enabled) {
       super.setEnabled(enabled);
       enqueues.setEnabled(enabled);
       dequeues.setEnabled(enabled);
@@ -93,18 +78,15 @@ public class AMQConnectorStatistics extends StatsImpl
       messagesCached.setEnabled(enabled);
    }
 
-   public void setParent(AMQConnectorStatistics parent)
-   {
-      if (parent != null)
-      {
+   public void setParent(AMQConnectorStatistics parent) {
+      if (parent != null) {
          enqueues.setParent(parent.enqueues);
          dequeues.setParent(parent.dequeues);
          consumers.setParent(parent.consumers);
          messagesCached.setParent(parent.messagesCached);
          messages.setParent(parent.messages);
       }
-      else
-      {
+      else {
          enqueues.setParent(null);
          dequeues.setParent(null);
          consumers.setParent(null);
@@ -113,8 +95,7 @@ public class AMQConnectorStatistics extends StatsImpl
       }
    }
 
-   public void setMessagesCached(PollCountStatisticImpl messagesCached)
-   {
+   public void setMessagesCached(PollCountStatisticImpl messagesCached) {
       this.messagesCached = messagesCached;
    }
 }

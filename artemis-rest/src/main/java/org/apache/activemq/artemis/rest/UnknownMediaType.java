@@ -16,12 +16,11 @@
  */
 package org.apache.activemq.artemis.rest;
 
-public class UnknownMediaType extends RuntimeException
-{
+public class UnknownMediaType extends RuntimeException {
+
    private static final long serialVersionUID = -1445038845165315001L;
 
-   public UnknownMediaType(String s)
-   {
+   public UnknownMediaType(String s) {
       super(s);
    }
 }

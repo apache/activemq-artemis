@@ -20,8 +20,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ActiveMQStompException extends Exception
-{
+public class ActiveMQStompException extends Exception {
+
    public static final int NONE = 0;
    public static final int INVALID_EOL_V10 = 1;
    public static final int INVALID_COMMAND = 2;
@@ -34,103 +34,86 @@ public class ActiveMQStompException extends Exception
    private VersionedStompFrameHandler handler;
    private boolean disconnect;
 
-   public ActiveMQStompException(StompConnection connection, String msg)
-   {
+   public ActiveMQStompException(StompConnection connection, String msg) {
       super(msg);
       handler = connection.getFrameHandler();
    }
 
-   public ActiveMQStompException(String msg)
-   {
+   public ActiveMQStompException(String msg) {
       super(msg);
       handler = null;
    }
 
-   public ActiveMQStompException(String msg, Throwable t)
-   {
+   public ActiveMQStompException(String msg, Throwable t) {
       super(msg, t);
       this.body = t.getMessage();
       handler = null;
    }
 
    //used for version control logic
-   public ActiveMQStompException(int code, String details)
-   {
+   public ActiveMQStompException(int code, String details) {
       super(details);
       this.code = code;
       this.body = details;
       handler = null;
    }
 
-   void addHeader(String header, String value)
-   {
+   void addHeader(String header, String value) {
       headers.add(new Header(header, value));
    }
 
-   public void setBody(String body)
-   {
+   public void setBody(String body) {
       this.body = body;
    }
 
-   public StompFrame getFrame()
-   {
+   public StompFrame getFrame() {
       StompFrame frame = null;
-      if (handler == null)
-      {
+      if (handler == null) {
          frame = new StompFrame(Stomp.Responses.ERROR);
       }
-      else
-      {
+      else {
          frame = handler.createStompFrame(Stomp.Responses.ERROR);
       }
       frame.addHeader(Stomp.Headers.Error.MESSAGE, this.getMessage());
-      for (Header header : headers)
-      {
+      for (Header header : headers) {
          frame.addHeader(header.key, header.val);
       }
 
-      if (body != null)
-      {
+      if (body != null) {
          frame.addHeader(Stomp.Headers.CONTENT_TYPE, "text/plain");
          frame.setByteBody(body.getBytes(StandardCharsets.UTF_8));
       }
-      else
-      {
+      else {
          frame.setByteBody(new byte[0]);
       }
       frame.setNeedsDisconnect(disconnect);
       return frame;
    }
 
-   private static final class Header
-   {
+   private static final class Header {
+
       public final String key;
       public final String val;
 
-      public Header(String key, String val)
-      {
+      public Header(String key, String val) {
          this.key = key;
          this.val = val;
       }
    }
 
-   public void setDisconnect(boolean b)
-   {
+   public void setDisconnect(boolean b) {
       disconnect = b;
    }
 
-   public int getCode()
-   {
+   public int getCode() {
       return code;
    }
 
-   public void setCode(int newCode)
-   {
+   public void setCode(int newCode) {
       code = newCode;
    }
 
-   public ActiveMQStompException setHandler(VersionedStompFrameHandler frameHandler)
-   {
+   public ActiveMQStompException setHandler(VersionedStompFrameHandler frameHandler) {
       this.handler = frameHandler;
       return this;
    }

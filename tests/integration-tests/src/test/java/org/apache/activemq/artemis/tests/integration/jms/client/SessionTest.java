@@ -26,18 +26,15 @@ import org.apache.activemq.artemis.tests.util.JMSTestBase;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.junit.Test;
 
-public class SessionTest extends JMSTestBase
-{
+public class SessionTest extends JMSTestBase {
 
    @Test
-   public void testIillegalStateException() throws Exception
-   {
+   public void testIillegalStateException() throws Exception {
       Connection defaultConn = null;
       QueueConnection qConn = null;
       Connection connClientID = null;
       ActiveMQConnectionFactory activeMQConnectionFactory = (ActiveMQConnectionFactory) cf;
-      try
-      {
+      try {
          String clientID = "somethingElse" + name.getMethodName();
          defaultConn = cf.createConnection();
          qConn = activeMQConnectionFactory.createQueueConnection();
@@ -48,112 +45,88 @@ public class SessionTest extends JMSTestBase
          Topic topic = createTopic("topic");
 
          QueueSession qSess = qConn.createQueueSession(false, Session.AUTO_ACKNOWLEDGE);
-         try
-         {
+         try {
             qSess.createDurableConsumer(topic, "mySub1");
          }
-         catch (javax.jms.IllegalStateException ex)
-         {
+         catch (javax.jms.IllegalStateException ex) {
             //ok expected.
          }
 
-         try
-         {
+         try {
             qSess.createDurableConsumer(topic, "mySub1", "TEST = 'test'", false);
          }
-         catch (javax.jms.IllegalStateException ex)
-         {
+         catch (javax.jms.IllegalStateException ex) {
             //ok expected.
          }
 
-         try
-         {
+         try {
             qSess.createSharedConsumer(topic, "mySub1");
          }
-         catch (javax.jms.IllegalStateException ex)
-         {
+         catch (javax.jms.IllegalStateException ex) {
             //ok expected.
          }
 
-         try
-         {
+         try {
             qSess.createSharedConsumer(topic, "mySub1", "TEST = 'test'");
          }
-         catch (javax.jms.IllegalStateException ex)
-         {
+         catch (javax.jms.IllegalStateException ex) {
             //ok expected.
          }
 
-         try
-         {
+         try {
             qSess.createSharedDurableConsumer(topic, "mySub1");
          }
-         catch (javax.jms.IllegalStateException ex)
-         {
+         catch (javax.jms.IllegalStateException ex) {
             //ok expected.
          }
 
-         try
-         {
+         try {
             qSess.createSharedDurableConsumer(topic, "mySub1", "TEST = 'test'");
          }
-         catch (javax.jms.IllegalStateException ex)
-         {
+         catch (javax.jms.IllegalStateException ex) {
             //ok expected.
          }
 
          Session defaultSess = defaultConn.createSession();
 
-         try
-         {
+         try {
             defaultSess.createDurableSubscriber(topic, "mySub1");
          }
-         catch (javax.jms.IllegalStateException ex)
-         {
+         catch (javax.jms.IllegalStateException ex) {
             //ok expected.
          }
 
-         try
-         {
+         try {
             defaultSess.createDurableSubscriber(topic, "mySub1", "TEST = 'test'", true);
          }
-         catch (javax.jms.IllegalStateException ex)
-         {
+         catch (javax.jms.IllegalStateException ex) {
             //ok expected.
          }
 
-         try
-         {
+         try {
             defaultSess.createDurableConsumer(topic, "mySub1");
          }
-         catch (javax.jms.IllegalStateException ex)
-         {
+         catch (javax.jms.IllegalStateException ex) {
             //ok expected.
          }
 
-         try
-         {
+         try {
             defaultSess.createDurableConsumer(topic, "mySub1", "TEST = 'test'", true);
          }
-         catch (javax.jms.IllegalStateException ex)
-         {
+         catch (javax.jms.IllegalStateException ex) {
             //ok expected.
          }
 
       }
-      finally
-      {
-         if (defaultConn != null)
-         {
+      finally {
+         if (defaultConn != null) {
             defaultConn.close();
          }
 
-         if (qConn != null)
-         {
+         if (qConn != null) {
             qConn.close();
          }
-         if (connClientID != null)
-         {
+         if (connClientID != null) {
             connClientID.close();
          }
       }

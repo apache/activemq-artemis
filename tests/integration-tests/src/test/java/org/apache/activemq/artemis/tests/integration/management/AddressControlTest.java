@@ -41,8 +41,7 @@ import java.util.Set;
 
 import static org.apache.activemq.artemis.tests.util.RandomUtil.randomString;
 
-public class AddressControlTest extends ManagementTestBase
-{
+public class AddressControlTest extends ManagementTestBase {
 
    private ActiveMQServer server;
    protected ClientSession session;
@@ -50,8 +49,7 @@ public class AddressControlTest extends ManagementTestBase
    private ClientSessionFactory sf;
 
    @Test
-   public void testGetAddress() throws Exception
-   {
+   public void testGetAddress() throws Exception {
       SimpleString address = RandomUtil.randomSimpleString();
       SimpleString queue = RandomUtil.randomSimpleString();
 
@@ -65,8 +63,7 @@ public class AddressControlTest extends ManagementTestBase
    }
 
    @Test
-   public void testGetQueueNames() throws Exception
-   {
+   public void testGetQueueNames() throws Exception {
       SimpleString address = RandomUtil.randomSimpleString();
       SimpleString queue = RandomUtil.randomSimpleString();
       SimpleString anotherQueue = RandomUtil.randomSimpleString();
@@ -92,8 +89,7 @@ public class AddressControlTest extends ManagementTestBase
    }
 
    @Test
-   public void testGetBindingNames() throws Exception
-   {
+   public void testGetBindingNames() throws Exception {
       SimpleString address = RandomUtil.randomSimpleString();
       SimpleString queue = RandomUtil.randomSimpleString();
       String divertName = RandomUtil.randomString();
@@ -118,18 +114,10 @@ public class AddressControlTest extends ManagementTestBase
    }
 
    @Test
-   public void testGetRoles() throws Exception
-   {
+   public void testGetRoles() throws Exception {
       SimpleString address = RandomUtil.randomSimpleString();
       SimpleString queue = RandomUtil.randomSimpleString();
-      Role role = new Role(RandomUtil.randomString(),
-                           RandomUtil.randomBoolean(),
-                           RandomUtil.randomBoolean(),
-                           RandomUtil.randomBoolean(),
-                           RandomUtil.randomBoolean(),
-                           RandomUtil.randomBoolean(),
-                           RandomUtil.randomBoolean(),
-                           RandomUtil.randomBoolean());
+      Role role = new Role(RandomUtil.randomString(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean());
 
       session.createQueue(address, queue, true);
 
@@ -157,18 +145,10 @@ public class AddressControlTest extends ManagementTestBase
    }
 
    @Test
-   public void testGetRolesAsJSON() throws Exception
-   {
+   public void testGetRolesAsJSON() throws Exception {
       SimpleString address = RandomUtil.randomSimpleString();
       SimpleString queue = RandomUtil.randomSimpleString();
-      Role role = new Role(RandomUtil.randomString(),
-                           RandomUtil.randomBoolean(),
-                           RandomUtil.randomBoolean(),
-                           RandomUtil.randomBoolean(),
-                           RandomUtil.randomBoolean(),
-                           RandomUtil.randomBoolean(),
-                           RandomUtil.randomBoolean(),
-                           RandomUtil.randomBoolean());
+      Role role = new Role(RandomUtil.randomString(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean());
 
       session.createQueue(address, queue, true);
 
@@ -200,17 +180,14 @@ public class AddressControlTest extends ManagementTestBase
    }
 
    @Test
-   public void testGetNumberOfPages() throws Exception
-   {
+   public void testGetNumberOfPages() throws Exception {
       session.close();
       server.stop();
       server.getConfiguration().setPersistenceEnabled(true);
 
       SimpleString address = RandomUtil.randomSimpleString();
 
-      AddressSettings addressSettings = new AddressSettings()
-              .setPageSizeBytes(1024)
-              .setMaxSizeBytes(10 * 1024);
+      AddressSettings addressSettings = new AddressSettings().setPageSizeBytes(1024).setMaxSizeBytes(10 * 1024);
       final int NUMBER_MESSAGES_BEFORE_PAGING = 5;
 
       server.getAddressSettingsRepository().addMatch(address.toString(), addressSettings);
@@ -227,8 +204,7 @@ public class AddressControlTest extends ManagementTestBase
 
       ClientProducer producer = session.createProducer(address);
 
-      for (int i = 0; i < NUMBER_MESSAGES_BEFORE_PAGING; i++)
-      {
+      for (int i = 0; i < NUMBER_MESSAGES_BEFORE_PAGING; i++) {
          ClientMessage msg = session.createMessage(true);
          msg.getBodyBuffer().writeBytes(new byte[512]);
          producer.send(msg);
@@ -266,8 +242,7 @@ public class AddressControlTest extends ManagementTestBase
    }
 
    @Test
-   public void testGetNumberOfBytesPerPage() throws Exception
-   {
+   public void testGetNumberOfBytesPerPage() throws Exception {
       SimpleString address = RandomUtil.randomSimpleString();
       session.createQueue(address, address, true);
 
@@ -296,26 +271,22 @@ public class AddressControlTest extends ManagementTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
-      Configuration config = createDefaultInVMConfig()
-              .setJMXManagementEnabled(true);
+      Configuration config = createDefaultInVMConfig().setJMXManagementEnabled(true);
       server = createServer(false, config);
       server.setMBeanServer(mbeanServer);
       server.start();
 
-      locator = createInVMNonHALocator()
-              .setBlockOnNonDurableSend(true);
+      locator = createInVMNonHALocator().setBlockOnNonDurableSend(true);
       sf = createSessionFactory(locator);
       session = sf.createSession(false, true, false);
       session.start();
       addClientSession(session);
    }
 
-   protected AddressControl createManagementControl(final SimpleString address) throws Exception
-   {
+   protected AddressControl createManagementControl(final SimpleString address) throws Exception {
       return ManagementControlHelper.createAddressControl(address, mbeanServer);
    }
 

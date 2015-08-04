@@ -16,61 +16,46 @@
  */
 package org.apache.activemq.artemis.core.security;
 
-public enum CheckType
-{
-   SEND
-   {
+public enum CheckType {
+   SEND {
       @Override
-      public boolean hasRole(final Role role)
-      {
+      public boolean hasRole(final Role role) {
          return role.isSend();
       }
    },
-   CONSUME
-   {
+   CONSUME {
       @Override
-      public boolean hasRole(final Role role)
-      {
+      public boolean hasRole(final Role role) {
          return role.isConsume();
       }
    },
-   CREATE_DURABLE_QUEUE
-   {
+   CREATE_DURABLE_QUEUE {
       @Override
-      public boolean hasRole(final Role role)
-      {
+      public boolean hasRole(final Role role) {
          return role.isCreateDurableQueue();
       }
    },
-   DELETE_DURABLE_QUEUE
-   {
+   DELETE_DURABLE_QUEUE {
       @Override
-      public boolean hasRole(final Role role)
-      {
+      public boolean hasRole(final Role role) {
          return role.isDeleteDurableQueue();
       }
    },
-   CREATE_NON_DURABLE_QUEUE
-   {
+   CREATE_NON_DURABLE_QUEUE {
       @Override
-      public boolean hasRole(final Role role)
-      {
+      public boolean hasRole(final Role role) {
          return role.isCreateNonDurableQueue();
       }
    },
-   DELETE_NON_DURABLE_QUEUE
-   {
+   DELETE_NON_DURABLE_QUEUE {
       @Override
-      public boolean hasRole(final Role role)
-      {
+      public boolean hasRole(final Role role) {
          return role.isDeleteNonDurableQueue();
       }
    },
-   MANAGE
-   {
+   MANAGE {
       @Override
-      public boolean hasRole(final Role role)
-      {
+      public boolean hasRole(final Role role) {
          return role.isManage();
       }
    };

@@ -21,14 +21,12 @@ import javax.jms.DeliveryMode;
 /**
  * adapted from: org.apache.activemq.JmsDurableTopicTransactionTest
  */
-public class JmsDurableTopicTransactionTest extends JmsTopicTransactionTest
-{
+public class JmsDurableTopicTransactionTest extends JmsTopicTransactionTest {
 
    /**
     * @see JmsTransactionTestSupport#getJmsResourceProvider()
     */
-   protected JmsResourceProvider getJmsResourceProvider()
-   {
+   protected JmsResourceProvider getJmsResourceProvider() {
       JmsResourceProvider provider = new JmsResourceProvider();
       provider.setTopic(true);
       provider.setDeliveryMode(DeliveryMode.PERSISTENT);

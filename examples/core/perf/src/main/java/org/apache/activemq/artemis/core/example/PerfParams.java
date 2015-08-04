@@ -21,8 +21,8 @@ import java.io.Serializable;
 /**
  * Class that holds the parameters used in the performance examples
  */
-public class PerfParams implements Serializable
-{
+public class PerfParams implements Serializable {
+
    private static final long serialVersionUID = -4336539641012356002L;
 
    private int noOfMessagesToSend = 1000;
@@ -67,234 +67,191 @@ public class PerfParams implements Serializable
 
    private boolean useSendAcks;
 
-   public boolean isBlockOnPersistent()
-   {
+   public boolean isBlockOnPersistent() {
       return blockOnPersistent;
    }
 
-   public void setBlockOnPersistent(final boolean blockOnPersistent)
-   {
+   public void setBlockOnPersistent(final boolean blockOnPersistent) {
       this.blockOnPersistent = blockOnPersistent;
    }
 
-   public boolean isBlockOnACK()
-   {
+   public boolean isBlockOnACK() {
       return blockOnACK;
    }
 
-   public void setBlockOnACK(final boolean blockOnACK)
-   {
+   public void setBlockOnACK(final boolean blockOnACK) {
       this.blockOnACK = blockOnACK;
    }
 
-   public int getNoOfMessagesToSend()
-   {
+   public int getNoOfMessagesToSend() {
       return noOfMessagesToSend;
    }
 
-   public void setNoOfMessagesToSend(final int noOfMessagesToSend)
-   {
+   public void setNoOfMessagesToSend(final int noOfMessagesToSend) {
       this.noOfMessagesToSend = noOfMessagesToSend;
    }
 
-   public int getNoOfWarmupMessages()
-   {
+   public int getNoOfWarmupMessages() {
       return noOfWarmupMessages;
    }
 
-   public void setNoOfWarmupMessages(final int noOfWarmupMessages)
-   {
+   public void setNoOfWarmupMessages(final int noOfWarmupMessages) {
       this.noOfWarmupMessages = noOfWarmupMessages;
    }
 
-   public int getMessageSize()
-   {
+   public int getMessageSize() {
       return messageSize;
    }
 
-   public void setMessageSize(final int messageSize)
-   {
+   public void setMessageSize(final int messageSize) {
       this.messageSize = messageSize;
    }
 
-   public boolean isDurable()
-   {
+   public boolean isDurable() {
       return durable;
    }
 
-   public void setDurable(final boolean durable)
-   {
+   public void setDurable(final boolean durable) {
       this.durable = durable;
    }
 
-   public boolean isSessionTransacted()
-   {
+   public boolean isSessionTransacted() {
       return isSessionTransacted;
    }
 
-   public void setSessionTransacted(final boolean sessionTransacted)
-   {
+   public void setSessionTransacted(final boolean sessionTransacted) {
       isSessionTransacted = sessionTransacted;
    }
 
-   public int getBatchSize()
-   {
+   public int getBatchSize() {
       return batchSize;
    }
 
-   public void setBatchSize(final int batchSize)
-   {
+   public void setBatchSize(final int batchSize) {
       this.batchSize = batchSize;
    }
 
-   public boolean isDrainQueue()
-   {
+   public boolean isDrainQueue() {
       return drainQueue;
    }
 
-   public void setDrainQueue(final boolean drainQueue)
-   {
+   public void setDrainQueue(final boolean drainQueue) {
       this.drainQueue = drainQueue;
    }
 
-   public String getQueueName()
-   {
+   public String getQueueName() {
       return queueName;
    }
 
-   public void setQueueName(final String queueName)
-   {
+   public void setQueueName(final String queueName) {
       this.queueName = queueName;
    }
 
-   public String getAddress()
-   {
+   public String getAddress() {
       return address;
    }
 
-   public void setAddress(final String address)
-   {
+   public void setAddress(final String address) {
       this.address = address;
    }
 
-   public int getThrottleRate()
-   {
+   public int getThrottleRate() {
       return throttleRate;
    }
 
-   public void setThrottleRate(final int throttleRate)
-   {
+   public void setThrottleRate(final int throttleRate) {
       this.throttleRate = throttleRate;
    }
 
    @Override
-   public String toString()
-   {
+   public String toString() {
       return "message to send = " + noOfMessagesToSend +
-             ", Durable = " +
-             durable +
-             ", session transacted = " +
-             isSessionTransacted +
-             (isSessionTransacted ? ", transaction batch size = " + batchSize : "") +
-             ", drain queue = " +
-             drainQueue +
-             ", queue name = " +
-             queueName +
-             ", Throttle rate = " +
-             throttleRate +
-             ", blockOnPersistent = " +
-             blockOnPersistent +
-             ". blockOnACK = " +
-             blockOnACK;
+         ", Durable = " +
+         durable +
+         ", session transacted = " +
+         isSessionTransacted +
+         (isSessionTransacted ? ", transaction batch size = " + batchSize : "") +
+         ", drain queue = " +
+         drainQueue +
+         ", queue name = " +
+         queueName +
+         ", Throttle rate = " +
+         throttleRate +
+         ", blockOnPersistent = " +
+         blockOnPersistent +
+         ". blockOnACK = " +
+         blockOnACK;
    }
 
-   public synchronized String getHost()
-   {
+   public synchronized String getHost() {
       return host;
    }
 
-   public synchronized void setHost(final String host)
-   {
+   public synchronized void setHost(final String host) {
       this.host = host;
    }
 
-   public synchronized int getPort()
-   {
+   public synchronized int getPort() {
       return port;
    }
 
-   public synchronized void setPort(final int port)
-   {
+   public synchronized void setPort(final int port) {
       this.port = port;
    }
 
-   public synchronized int getTcpBufferSize()
-   {
+   public synchronized int getTcpBufferSize() {
       return tcpBufferSize;
    }
 
-   public synchronized void setTcpBufferSize(final int tcpBufferSize)
-   {
+   public synchronized void setTcpBufferSize(final int tcpBufferSize) {
       this.tcpBufferSize = tcpBufferSize;
    }
 
-   public synchronized boolean isTcpNoDelay()
-   {
+   public synchronized boolean isTcpNoDelay() {
       return tcpNoDelay;
    }
 
-   public synchronized void setTcpNoDelay(final boolean tcpNoDelay)
-   {
+   public synchronized void setTcpNoDelay(final boolean tcpNoDelay) {
       this.tcpNoDelay = tcpNoDelay;
    }
 
-   public synchronized boolean isPreAck()
-   {
+   public synchronized boolean isPreAck() {
       return preAck;
    }
 
-   public synchronized void setPreAck(final boolean preAck)
-   {
+   public synchronized void setPreAck(final boolean preAck) {
       this.preAck = preAck;
    }
 
-   public synchronized int getConfirmationWindow()
-   {
+   public synchronized int getConfirmationWindow() {
       return confirmationWindow;
    }
 
-   public synchronized void setConfirmationWindow(final int confirmationWindow)
-   {
+   public synchronized void setConfirmationWindow(final int confirmationWindow) {
       this.confirmationWindow = confirmationWindow;
    }
 
-   public int getProducerWindow()
-   {
+   public int getProducerWindow() {
       return producerWindow;
    }
 
-   public void setProducerWindow(final int producerWindow)
-   {
+   public void setProducerWindow(final int producerWindow) {
       this.producerWindow = producerWindow;
    }
 
-   public int getConsumerWindow()
-   {
+   public int getConsumerWindow() {
       return consumerWindow;
    }
 
-   public void setConsumerWindow(final int consumerWindow)
-   {
+   public void setConsumerWindow(final int consumerWindow) {
       this.consumerWindow = consumerWindow;
    }
 
-   public boolean isUseSendAcks()
-   {
+   public boolean isUseSendAcks() {
       return useSendAcks;
    }
 
-   public void setUseSendAcks(boolean useSendAcks)
-   {
+   public void setUseSendAcks(boolean useSendAcks) {
       this.useSendAcks = useSendAcks;
    }
 }

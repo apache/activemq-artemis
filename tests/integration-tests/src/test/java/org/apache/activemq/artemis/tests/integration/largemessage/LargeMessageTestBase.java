@@ -47,8 +47,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
-public abstract class LargeMessageTestBase extends ActiveMQTestBase
-{
+public abstract class LargeMessageTestBase extends ActiveMQTestBase {
 
    // Constants -----------------------------------------------------
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
@@ -79,23 +78,8 @@ public abstract class LargeMessageTestBase extends ActiveMQTestBase
                              final int numberOfMessages,
                              final long numberOfBytes,
                              final int waitOnConsumer,
-                             final long delayDelivery) throws Exception
-   {
-      testChunks(isXA,
-                 restartOnXA,
-                 rollbackFirstSend,
-                 useStreamOnConsume,
-                 realFiles,
-                 preAck,
-                 sendingBlocking,
-                 testBrowser,
-                 useMessageConsumer,
-                 numberOfMessages,
-                 numberOfBytes,
-                 waitOnConsumer,
-                 delayDelivery,
-                 -1,
-                 10 * 1024);
+                             final long delayDelivery) throws Exception {
+      testChunks(isXA, restartOnXA, rollbackFirstSend, useStreamOnConsume, realFiles, preAck, sendingBlocking, testBrowser, useMessageConsumer, numberOfMessages, numberOfBytes, waitOnConsumer, delayDelivery, -1, 10 * 1024);
    }
 
    protected void testChunks(final boolean isXA,
@@ -112,26 +96,20 @@ public abstract class LargeMessageTestBase extends ActiveMQTestBase
                              final int waitOnConsumer,
                              final long delayDelivery,
                              final int producerWindow,
-                             final int minSize) throws Exception
-   {
+                             final int minSize) throws Exception {
       clearDataRecreateServerDirs();
 
       ActiveMQServer server = createServer(realFiles);
       server.start();
 
       ServerLocator locator = createInVMNonHALocator();
-      try
-      {
+      try {
 
-         if (sendingBlocking)
-         {
-            locator.setBlockOnNonDurableSend(true)
-                    .setBlockOnDurableSend(true)
-                    .setBlockOnAcknowledge(true);
+         if (sendingBlocking) {
+            locator.setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setBlockOnAcknowledge(true);
          }
 
-         if (producerWindow > 0)
-         {
+         if (producerWindow > 0) {
             locator.setConfirmationWindowSize(producerWindow);
          }
 
@@ -144,8 +122,7 @@ public abstract class LargeMessageTestBase extends ActiveMQTestBase
          Xid xid = null;
          session = sf.createSession(null, null, isXA, false, false, preAck, 0);
 
-         if (isXA)
-         {
+         if (isXA) {
             xid = newXID();
             session.start(xid, XAResource.TMNOFLAGS);
          }
@@ -154,19 +131,16 @@ public abstract class LargeMessageTestBase extends ActiveMQTestBase
 
          ClientProducer producer = session.createProducer(ADDRESS);
 
-         if (rollbackFirstSend)
-         {
+         if (rollbackFirstSend) {
             sendMessages(numberOfMessages, numberOfBytes, delayDelivery, session, producer);
 
-            if (isXA)
-            {
+            if (isXA) {
                session.end(xid, XAResource.TMSUCCESS);
                session.prepare(xid);
 
                session.close();
 
-               if (realFiles && restartOnXA)
-               {
+               if (realFiles && restartOnXA) {
                   server.stop();
                   server.start();
                   sf = locator.createSessionFactory();
@@ -183,8 +157,7 @@ public abstract class LargeMessageTestBase extends ActiveMQTestBase
                xid = newXID();
                session.start(xid, XAResource.TMNOFLAGS);
             }
-            else
-            {
+            else {
                session.rollback();
             }
 
@@ -193,15 +166,13 @@ public abstract class LargeMessageTestBase extends ActiveMQTestBase
 
          sendMessages(numberOfMessages, numberOfBytes, delayDelivery, session, producer);
 
-         if (isXA)
-         {
+         if (isXA) {
             session.end(xid, XAResource.TMSUCCESS);
             session.prepare(xid);
 
             session.close();
 
-            if (realFiles && restartOnXA)
-            {
+            if (realFiles && restartOnXA) {
                server.stop();
                server.start();
                //we need to recreate sf's
@@ -220,15 +191,13 @@ public abstract class LargeMessageTestBase extends ActiveMQTestBase
             xid = newXID();
             session.start(xid, XAResource.TMNOFLAGS);
          }
-         else
-         {
+         else {
             session.commit();
          }
 
          session.close();
 
-         if (realFiles)
-         {
+         if (realFiles) {
             server.stop();
 
             server = createServer(realFiles);
@@ -239,86 +208,67 @@ public abstract class LargeMessageTestBase extends ActiveMQTestBase
 
          session = sf.createSession(null, null, isXA, false, false, preAck, 0);
 
-         if (isXA)
-         {
+         if (isXA) {
             xid = newXID();
             session.start(xid, XAResource.TMNOFLAGS);
          }
 
          ClientConsumer consumer = null;
 
-         for (int iteration = testBrowser ? 0 : 1; iteration < 2; iteration++)
-         {
+         for (int iteration = testBrowser ? 0 : 1; iteration < 2; iteration++) {
             session.stop();
 
             // first time with a browser
             consumer = session.createConsumer(ADDRESS, null, iteration == 0);
 
-            if (useMessageConsumer)
-            {
+            if (useMessageConsumer) {
                final CountDownLatch latchDone = new CountDownLatch(numberOfMessages);
                final AtomicInteger errors = new AtomicInteger(0);
 
-               MessageHandler handler = new MessageHandler()
-               {
+               MessageHandler handler = new MessageHandler() {
                   int msgCounter;
 
-                  public void onMessage(final ClientMessage message)
-                  {
-                     try
-                     {
-                        if (delayDelivery > 0)
-                        {
+                  public void onMessage(final ClientMessage message) {
+                     try {
+                        if (delayDelivery > 0) {
                            long originalTime = (Long) message.getObjectProperty(new SimpleString("original-time"));
-                           Assert.assertTrue(System.currentTimeMillis() - originalTime + "<" + delayDelivery,
-                                             System.currentTimeMillis() - originalTime >= delayDelivery);
+                           Assert.assertTrue(System.currentTimeMillis() - originalTime + "<" + delayDelivery, System.currentTimeMillis() - originalTime >= delayDelivery);
                         }
 
-                        if (!preAck)
-                        {
+                        if (!preAck) {
                            message.acknowledge();
                         }
 
                         Assert.assertNotNull(message);
 
-                        if (delayDelivery <= 0)
-                        {
+                        if (delayDelivery <= 0) {
                            // right now there is no guarantee of ordered delivered on multiple scheduledMessages with
                            // the same
                            // scheduled delivery time
-                           Assert.assertEquals(msgCounter,
-                                               ((Integer) message.getObjectProperty(new SimpleString("counter-message"))).intValue());
+                           Assert.assertEquals(msgCounter, ((Integer) message.getObjectProperty(new SimpleString("counter-message"))).intValue());
                         }
 
-                        if (useStreamOnConsume)
-                        {
+                        if (useStreamOnConsume) {
                            final AtomicLong bytesRead = new AtomicLong(0);
-                           message.saveToOutputStream(new OutputStream()
-                           {
+                           message.saveToOutputStream(new OutputStream() {
 
                               @Override
-                              public void write(final byte[] b) throws IOException
-                              {
-                                 if (b[0] == ActiveMQTestBase.getSamplebyte(bytesRead.get()))
-                                 {
+                              public void write(final byte[] b) throws IOException {
+                                 if (b[0] == ActiveMQTestBase.getSamplebyte(bytesRead.get())) {
                                     bytesRead.addAndGet(b.length);
                                     LargeMessageTestBase.log.debug("Read position " + bytesRead.get() + " on consumer");
                                  }
-                                 else
-                                 {
+                                 else {
                                     LargeMessageTestBase.log.warn("Received invalid packet at position " + bytesRead.get());
                                  }
                               }
 
                               @Override
-                              public void write(final int b) throws IOException
-                              {
-                                 if (b == ActiveMQTestBase.getSamplebyte(bytesRead.get()))
-                                 {
+                              public void write(final int b) throws IOException {
+                                 if (b == ActiveMQTestBase.getSamplebyte(bytesRead.get())) {
                                     bytesRead.incrementAndGet();
                                  }
-                                 else
-                                 {
+                                 else {
                                     LargeMessageTestBase.log.warn("byte not as expected!");
                                  }
                               }
@@ -326,39 +276,32 @@ public abstract class LargeMessageTestBase extends ActiveMQTestBase
 
                            Assert.assertEquals(numberOfBytes, bytesRead.get());
                         }
-                        else
-                        {
+                        else {
 
                            ActiveMQBuffer buffer = message.getBodyBuffer();
                            buffer.resetReaderIndex();
-                           for (long b = 0; b < numberOfBytes; b++)
-                           {
-                              if (b % (1024L * 1024L) == 0)
-                              {
+                           for (long b = 0; b < numberOfBytes; b++) {
+                              if (b % (1024L * 1024L) == 0) {
                                  LargeMessageTestBase.log.debug("Read " + b + " bytes");
                               }
 
                               Assert.assertEquals(ActiveMQTestBase.getSamplebyte(b), buffer.readByte());
                            }
 
-                           try
-                           {
+                           try {
                               buffer.readByte();
                               Assert.fail("Supposed to throw an exception");
                            }
-                           catch (Exception e)
-                           {
+                           catch (Exception e) {
                            }
                         }
                      }
-                     catch (Throwable e)
-                     {
+                     catch (Throwable e) {
                         e.printStackTrace();
                         LargeMessageTestBase.log.warn("Got an error", e);
                         errors.incrementAndGet();
                      }
-                     finally
-                     {
+                     finally {
                         latchDone.countDown();
                         msgCounter++;
                      }
@@ -372,13 +315,11 @@ public abstract class LargeMessageTestBase extends ActiveMQTestBase
                Assert.assertTrue(latchDone.await(waitOnConsumer, TimeUnit.MILLISECONDS));
                Assert.assertEquals(0, errors.get());
             }
-            else
-            {
+            else {
 
                session.start();
 
-               for (int i = 0; i < numberOfMessages; i++)
-               {
+               for (int i = 0; i < numberOfMessages; i++) {
                   System.currentTimeMillis();
 
                   ClientMessage message = consumer.receive(waitOnConsumer + delayDelivery);
@@ -387,61 +328,47 @@ public abstract class LargeMessageTestBase extends ActiveMQTestBase
 
                   System.currentTimeMillis();
 
-                  if (delayDelivery > 0)
-                  {
+                  if (delayDelivery > 0) {
                      long originalTime = (Long) message.getObjectProperty(new SimpleString("original-time"));
-                     Assert.assertTrue(System.currentTimeMillis() - originalTime + "<" + delayDelivery,
-                                       System.currentTimeMillis() - originalTime >= delayDelivery);
+                     Assert.assertTrue(System.currentTimeMillis() - originalTime + "<" + delayDelivery, System.currentTimeMillis() - originalTime >= delayDelivery);
                   }
 
-                  if (!preAck)
-                  {
+                  if (!preAck) {
                      message.acknowledge();
                   }
 
                   Assert.assertNotNull(message);
 
-                  if (delayDelivery <= 0)
-                  {
+                  if (delayDelivery <= 0) {
                      // right now there is no guarantee of ordered delivered on multiple scheduledMessages with the same
                      // scheduled delivery time
-                     Assert.assertEquals(i,
-                                         ((Integer) message.getObjectProperty(new SimpleString("counter-message"))).intValue());
+                     Assert.assertEquals(i, ((Integer) message.getObjectProperty(new SimpleString("counter-message"))).intValue());
                   }
 
-                  if (useStreamOnConsume)
-                  {
+                  if (useStreamOnConsume) {
                      final AtomicLong bytesRead = new AtomicLong(0);
-                     message.saveToOutputStream(new OutputStream()
-                     {
+                     message.saveToOutputStream(new OutputStream() {
 
                         @Override
-                        public void write(final byte[] b) throws IOException
-                        {
-                           if (b[0] == ActiveMQTestBase.getSamplebyte(bytesRead.get()))
-                           {
+                        public void write(final byte[] b) throws IOException {
+                           if (b[0] == ActiveMQTestBase.getSamplebyte(bytesRead.get())) {
                               bytesRead.addAndGet(b.length);
                            }
-                           else
-                           {
+                           else {
                               LargeMessageTestBase.log.warn("Received invalid packet at position " + bytesRead.get());
                            }
 
                         }
 
                         @Override
-                        public void write(final int b) throws IOException
-                        {
-                           if (bytesRead.get() % (1024L * 1024L) == 0)
-                           {
+                        public void write(final int b) throws IOException {
+                           if (bytesRead.get() % (1024L * 1024L) == 0) {
                               LargeMessageTestBase.log.debug("Read " + bytesRead.get() + " bytes");
                            }
-                           if (b == (byte) 'a')
-                           {
+                           if (b == (byte) 'a') {
                               bytesRead.incrementAndGet();
                            }
-                           else
-                           {
+                           else {
                               LargeMessageTestBase.log.warn("byte not as expected!");
                            }
                         }
@@ -449,15 +376,12 @@ public abstract class LargeMessageTestBase extends ActiveMQTestBase
 
                      Assert.assertEquals(numberOfBytes, bytesRead.get());
                   }
-                  else
-                  {
+                  else {
                      ActiveMQBuffer buffer = message.getBodyBuffer();
                      buffer.resetReaderIndex();
 
-                     for (long b = 0; b < numberOfBytes; b++)
-                     {
-                        if (b % (1024L * 1024L) == 0L)
-                        {
+                     for (long b = 0; b < numberOfBytes; b++) {
+                        if (b % (1024L * 1024L) == 0L) {
                            LargeMessageTestBase.log.debug("Read " + b + " bytes");
                         }
                         Assert.assertEquals(ActiveMQTestBase.getSamplebyte(b), buffer.readByte());
@@ -469,31 +393,25 @@ public abstract class LargeMessageTestBase extends ActiveMQTestBase
             }
             consumer.close();
 
-            if (iteration == 0)
-            {
-               if (isXA)
-               {
+            if (iteration == 0) {
+               if (isXA) {
                   session.end(xid, XAResource.TMSUCCESS);
                   session.rollback(xid);
                   xid = newXID();
                   session.start(xid, XAResource.TMNOFLAGS);
                }
-               else
-               {
+               else {
                   session.rollback();
                }
             }
-            else
-            {
-               if (isXA)
-               {
+            else {
+               if (isXA) {
                   session.end(xid, XAResource.TMSUCCESS);
                   session.commit(xid, true);
                   xid = newXID();
                   session.start(xid, XAResource.TMNOFLAGS);
                }
-               else
-               {
+               else {
                   session.commit();
                }
             }
@@ -507,15 +425,12 @@ public abstract class LargeMessageTestBase extends ActiveMQTestBase
          validateNoFilesOnLargeDir();
 
       }
-      finally
-      {
+      finally {
          locator.close();
-         try
-         {
+         try {
             server.stop();
          }
-         catch (Throwable ignored)
-         {
+         catch (Throwable ignored) {
          }
       }
    }
@@ -534,52 +449,43 @@ public abstract class LargeMessageTestBase extends ActiveMQTestBase
                              final long numberOfBytes,
                              final long delayDelivery,
                              final ClientSession session,
-                             final ClientProducer producer) throws Exception
-   {
+                             final ClientProducer producer) throws Exception {
       LargeMessageTestBase.log.debug("NumberOfBytes = " + numberOfBytes);
-      for (int i = 0; i < numberOfMessages; i++)
-      {
+      for (int i = 0; i < numberOfMessages; i++) {
          ClientMessage message = session.createMessage(true);
 
          // If the test is using more than 1M, we will only use the Streaming, as it require too much memory from the
          // test
-         if (numberOfBytes > 1024 * 1024 || i % 2 == 0)
-         {
+         if (numberOfBytes > 1024 * 1024 || i % 2 == 0) {
             LargeMessageTestBase.log.debug("Sending message (stream)" + i);
             message.setBodyInputStream(ActiveMQTestBase.createFakeLargeStream(numberOfBytes));
          }
-         else
-         {
+         else {
             LargeMessageTestBase.log.debug("Sending message (array)" + i);
             byte[] bytes = new byte[(int) numberOfBytes];
-            for (int j = 0; j < bytes.length; j++)
-            {
+            for (int j = 0; j < bytes.length; j++) {
                bytes[j] = ActiveMQTestBase.getSamplebyte(j);
             }
             message.getBodyBuffer().writeBytes(bytes);
          }
          message.putIntProperty(new SimpleString("counter-message"), i);
-         if (delayDelivery > 0)
-         {
+         if (delayDelivery > 0) {
             long time = System.currentTimeMillis();
             message.putLongProperty(new SimpleString("original-time"), time);
             message.putLongProperty(Message.HDR_SCHEDULED_DELIVERY_TIME, time + delayDelivery);
 
             producer.send(message);
          }
-         else
-         {
+         else {
             producer.send(message);
          }
       }
    }
 
-   protected ActiveMQBuffer createLargeBuffer(final int numberOfIntegers)
-   {
+   protected ActiveMQBuffer createLargeBuffer(final int numberOfIntegers) {
       ActiveMQBuffer body = ActiveMQBuffers.fixedBuffer(DataConstants.SIZE_INT * numberOfIntegers);
 
-      for (int i = 0; i < numberOfIntegers; i++)
-      {
+      for (int i = 0; i < numberOfIntegers; i++) {
          body.writeInt(i);
       }
 
@@ -587,13 +493,14 @@ public abstract class LargeMessageTestBase extends ActiveMQTestBase
 
    }
 
-   protected ClientMessage createLargeClientMessageStreaming(final ClientSession session, final int numberOfBytes) throws Exception
-   {
+   protected ClientMessage createLargeClientMessageStreaming(final ClientSession session,
+                                                             final int numberOfBytes) throws Exception {
       return createLargeClientMessageStreaming(session, numberOfBytes, true);
    }
 
-   protected ClientMessage createLargeClientMessage(final ClientSession session, final byte[] buffer, final boolean durable) throws Exception
-   {
+   protected ClientMessage createLargeClientMessage(final ClientSession session,
+                                                    final byte[] buffer,
+                                                    final boolean durable) throws Exception {
       ClientMessage msgs = session.createMessage(durable);
       msgs.getBodyBuffer().writeBytes(buffer);
       return msgs;
@@ -601,8 +508,7 @@ public abstract class LargeMessageTestBase extends ActiveMQTestBase
 
    protected ClientMessage createLargeClientMessageStreaming(final ClientSession session,
                                                              final long numberOfBytes,
-                                                             final boolean persistent) throws Exception
-   {
+                                                             final boolean persistent) throws Exception {
 
       ClientMessage clientMessage = session.createMessage(persistent);
 
@@ -619,9 +525,9 @@ public abstract class LargeMessageTestBase extends ActiveMQTestBase
     * @throws FileNotFoundException
     * @throws IOException
     */
-   protected void readMessage(final ClientSession session, final SimpleString queueToRead, final int numberOfBytes) throws ActiveMQException,
-      IOException
-   {
+   protected void readMessage(final ClientSession session,
+                              final SimpleString queueToRead,
+                              final int numberOfBytes) throws ActiveMQException, IOException {
       session.start();
 
       ClientConsumer consumer = session.createConsumer(queueToRead);
@@ -637,31 +543,25 @@ public abstract class LargeMessageTestBase extends ActiveMQTestBase
       consumer.close();
    }
 
-   protected OutputStream createFakeOutputStream() throws Exception
-   {
+   protected OutputStream createFakeOutputStream() throws Exception {
 
-      return new OutputStream()
-      {
+      return new OutputStream() {
          private boolean closed = false;
 
          private int count;
 
          @Override
-         public void close() throws IOException
-         {
+         public void close() throws IOException {
             super.close();
             closed = true;
          }
 
          @Override
-         public void write(final int b) throws IOException
-         {
-            if (count++ % 1024 * 1024 == 0)
-            {
+         public void write(final int b) throws IOException {
+            if (count++ % 1024 * 1024 == 0) {
                LargeMessageTestBase.log.debug("OutputStream received " + count + " bytes");
             }
-            if (closed)
-            {
+            if (closed) {
                throw new IOException("Stream was closed");
             }
          }
@@ -673,133 +573,113 @@ public abstract class LargeMessageTestBase extends ActiveMQTestBase
    //depending on the value of regular argument, it can produce a text stream
    //whose size is above minLargeMessageSize but whose compressed size is either
    //below minLargeMessageSize (regular = true) or above it (regular = false)
-   public static void adjustLargeCompression(boolean regular, TestLargeMessageInputStream stream, int step) throws IOException
-   {
+   public static void adjustLargeCompression(boolean regular,
+                                             TestLargeMessageInputStream stream,
+                                             int step) throws IOException {
       int absoluteStep = Math.abs(step);
-      while (true)
-      {
+      while (true) {
          DeflaterReader compressor = new DeflaterReader(stream, new AtomicLong());
-         try
-         {
+         try {
             byte[] buffer = new byte[1048 * 50];
 
             int totalCompressed = 0;
             int n = compressor.read(buffer);
-            while (n != -1)
-            {
+            while (n != -1) {
                totalCompressed += n;
                n = compressor.read(buffer);
             }
 
             // check compressed size
-            if (regular && (totalCompressed < stream.getMinLarge()))
-            {
+            if (regular && (totalCompressed < stream.getMinLarge())) {
                // ok it can be sent as regular
                stream.resetAdjust(0);
                break;
             }
-            else if ((!regular) && (totalCompressed > stream.getMinLarge()))
-            {
+            else if ((!regular) && (totalCompressed > stream.getMinLarge())) {
                // now it cannot be sent as regular
                stream.resetAdjust(0);
                break;
             }
-            else
-            {
+            else {
                stream.resetAdjust(regular ? -absoluteStep : absoluteStep);
             }
          }
-         finally
-         {
+         finally {
             compressor.close();
          }
       }
    }
 
-   public static class TestLargeMessageInputStream extends InputStream
-   {
+   public static class TestLargeMessageInputStream extends InputStream {
+
       private final int minLarge;
       private int size;
       private int pos;
       private boolean random;
 
-      public TestLargeMessageInputStream(int minLarge)
-      {
+      public TestLargeMessageInputStream(int minLarge) {
          this(minLarge, false);
       }
 
-      public TestLargeMessageInputStream(int minLarge, boolean random)
-      {
+      public TestLargeMessageInputStream(int minLarge, boolean random) {
          pos = 0;
          this.minLarge = minLarge;
          this.size = minLarge + 1024;
          this.random = random;
       }
 
-      public int getChar(int index)
-      {
-         if (random)
-         {
+      public int getChar(int index) {
+         if (random) {
             Random r = new Random();
             return 'A' + r.nextInt(26);
          }
-         else
-         {
+         else {
             return 'A' + index % 26;
          }
       }
 
-      public void setSize(int size)
-      {
+      public void setSize(int size) {
          this.size = size;
       }
 
-      public TestLargeMessageInputStream(TestLargeMessageInputStream other)
-      {
+      public TestLargeMessageInputStream(TestLargeMessageInputStream other) {
          this.minLarge = other.minLarge;
          this.size = other.size;
          this.pos = other.pos;
       }
 
-      public int getSize()
-      {
+      public int getSize() {
          return size;
       }
 
-      public int getMinLarge()
-      {
+      public int getMinLarge() {
          return this.minLarge;
       }
 
       @Override
-      public int read() throws IOException
-      {
-         if (pos == size) return -1;
+      public int read() throws IOException {
+         if (pos == size)
+            return -1;
          pos++;
 
          return getChar(pos - 1);
       }
 
-      public void resetAdjust(int step)
-      {
+      public void resetAdjust(int step) {
          size += step;
-         if (size <= minLarge)
-         {
+         if (size <= minLarge) {
             throw new IllegalStateException("Couldn't adjust anymore, size smaller than minLarge " + minLarge);
          }
          pos = 0;
       }
 
-      public TestLargeMessageInputStream clone()
-      {
+      public TestLargeMessageInputStream clone() {
          return new TestLargeMessageInputStream(this);
       }
 
-      public char[] toArray() throws IOException
-      {
+      public char[] toArray() throws IOException {
          char[] result = new char[size];
-         for (int i = 0; i < result.length; i++)
-         {
+         for (int i = 0; i < result.length; i++) {
             result[i] = (char) read();
          }
          return result;

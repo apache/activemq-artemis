@@ -30,132 +30,132 @@ import javax.jms.TextMessage;
  */
 public class JMSIndividualAckTest extends TestSupport {
 
-    private Connection connection;
+   private Connection connection;
 
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
-        connection = createConnection();
-    }
+   @Override
+   protected void setUp() throws Exception {
+      super.setUp();
+      connection = createConnection();
+   }
 
-    /**
-     * @see junit.framework.TestCase#tearDown()
-     */
-    @Override
-    protected void tearDown() throws Exception {
-        if (connection != null) {
-            connection.close();
-            connection = null;
-        }
-        super.tearDown();
-    }
+   /**
+    * @see junit.framework.TestCase#tearDown()
+    */
+   @Override
+   protected void tearDown() throws Exception {
+      if (connection != null) {
+         connection.close();
+         connection = null;
+      }
+      super.tearDown();
+   }
 
-    /**
-     * Tests if acknowledged messages are being consumed.
-     *
-     * @throws JMSException
-     */
-    public void testAckedMessageAreConsumed() throws JMSException {
-        connection.start();
-        Session session = connection.createSession(false, ActiveMQSession.INDIVIDUAL_ACKNOWLEDGE);
-        Queue queue = session.createQueue(getQueueName());
-        MessageProducer producer = session.createProducer(queue);
-        producer.send(session.createTextMessage("Hello"));
+   /**
+    * Tests if acknowledged messages are being consumed.
+    *
+    * @throws JMSException
+    */
+   public void testAckedMessageAreConsumed() throws JMSException {
+      connection.start();
+      Session session = connection.createSession(false, ActiveMQSession.INDIVIDUAL_ACKNOWLEDGE);
+      Queue queue = session.createQueue(getQueueName());
+      MessageProducer producer = session.createProducer(queue);
+      producer.send(session.createTextMessage("Hello"));
 
-        // Consume the message...
-        MessageConsumer consumer = session.createConsumer(queue);
-        Message msg = consumer.receive(1000);
-        assertNotNull(msg);
-        msg.acknowledge();
+      // Consume the message...
+      MessageConsumer consumer = session.createConsumer(queue);
+      Message msg = consumer.receive(1000);
+      assertNotNull(msg);
+      msg.acknowledge();
 
-        // Reset the session.
-        session.close();
-        session = connection.createSession(false, ActiveMQSession.INDIVIDUAL_ACKNOWLEDGE);
+      // Reset the session.
+      session.close();
+      session = connection.createSession(false, ActiveMQSession.INDIVIDUAL_ACKNOWLEDGE);
 
-        // Attempt to Consume the message...
-        consumer = session.createConsumer(queue);
-        msg = consumer.receive(1000);
-        assertNull(msg);
+      // Attempt to Consume the message...
+      consumer = session.createConsumer(queue);
+      msg = consumer.receive(1000);
+      assertNull(msg);
 
-        session.close();
-    }
+      session.close();
+   }
 
-    /**
-     * Tests if acknowledged messages are being consumed.
-     *
-     * @throws JMSException
-     */
-    public void testLastMessageAcked() throws JMSException {
-        connection.start();
-        Session session = connection.createSession(false, ActiveMQSession.INDIVIDUAL_ACKNOWLEDGE);
-        Queue queue = session.createQueue(getQueueName());
-        MessageProducer producer = session.createProducer(queue);
-        TextMessage msg1 = session.createTextMessage("msg1");
-        TextMessage msg2 = session.createTextMessage("msg2");
-        TextMessage msg3 = session.createTextMessage("msg3");
-        producer.send(msg1);
-        producer.send(msg2);
-        producer.send(msg3);
+   /**
+    * Tests if acknowledged messages are being consumed.
+    *
+    * @throws JMSException
+    */
+   public void testLastMessageAcked() throws JMSException {
+      connection.start();
+      Session session = connection.createSession(false, ActiveMQSession.INDIVIDUAL_ACKNOWLEDGE);
+      Queue queue = session.createQueue(getQueueName());
+      MessageProducer producer = session.createProducer(queue);
+      TextMessage msg1 = session.createTextMessage("msg1");
+      TextMessage msg2 = session.createTextMessage("msg2");
+      TextMessage msg3 = session.createTextMessage("msg3");
+      producer.send(msg1);
+      producer.send(msg2);
+      producer.send(msg3);
 
-        // Consume the message...
-        MessageConsumer consumer = session.createConsumer(queue);
-        Message msg = consumer.receive(1000);
-        assertNotNull(msg);
-        msg = consumer.receive(1000);
-        assertNotNull(msg);
-        msg = consumer.receive(1000);
-        assertNotNull(msg);
-        msg.acknowledge();
+      // Consume the message...
+      MessageConsumer consumer = session.createConsumer(queue);
+      Message msg = consumer.receive(1000);
+      assertNotNull(msg);
+      msg = consumer.receive(1000);
+      assertNotNull(msg);
+      msg = consumer.receive(1000);
+      assertNotNull(msg);
+      msg.acknowledge();
 
-        // Reset the session.
-        session.close();
-        session = connection.createSession(false, ActiveMQSession.INDIVIDUAL_ACKNOWLEDGE);
+      // Reset the session.
+      session.close();
+      session = connection.createSession(false, ActiveMQSession.INDIVIDUAL_ACKNOWLEDGE);
 
-        // Attempt to Consume the message...
-        consumer = session.createConsumer(queue);
-        msg = consumer.receive(1000);
-        assertNotNull(msg);
-        assertEquals(msg1,msg);
-        msg = consumer.receive(1000);
-        assertNotNull(msg);
-        assertEquals(msg2,msg);
-        msg = consumer.receive(1000);
-        assertNull(msg);
-        session.close();
-    }
+      // Attempt to Consume the message...
+      consumer = session.createConsumer(queue);
+      msg = consumer.receive(1000);
+      assertNotNull(msg);
+      assertEquals(msg1, msg);
+      msg = consumer.receive(1000);
+      assertNotNull(msg);
+      assertEquals(msg2, msg);
+      msg = consumer.receive(1000);
+      assertNull(msg);
+      session.close();
+   }
 
-    /**
-     * Tests if unacknowledged messages are being re-delivered when the consumer connects again.
-     *
-     * @throws JMSException
-     */
-    public void testUnAckedMessageAreNotConsumedOnSessionClose() throws JMSException {
-        connection.start();
-        Session session = connection.createSession(false, ActiveMQSession.INDIVIDUAL_ACKNOWLEDGE);
-        Queue queue = session.createQueue(getQueueName());
-        MessageProducer producer = session.createProducer(queue);
-        producer.send(session.createTextMessage("Hello"));
+   /**
+    * Tests if unacknowledged messages are being re-delivered when the consumer connects again.
+    *
+    * @throws JMSException
+    */
+   public void testUnAckedMessageAreNotConsumedOnSessionClose() throws JMSException {
+      connection.start();
+      Session session = connection.createSession(false, ActiveMQSession.INDIVIDUAL_ACKNOWLEDGE);
+      Queue queue = session.createQueue(getQueueName());
+      MessageProducer producer = session.createProducer(queue);
+      producer.send(session.createTextMessage("Hello"));
 
-        // Consume the message...
-        MessageConsumer consumer = session.createConsumer(queue);
-        Message msg = consumer.receive(1000);
-        assertNotNull(msg);
-        // Don't ack the message.
+      // Consume the message...
+      MessageConsumer consumer = session.createConsumer(queue);
+      Message msg = consumer.receive(1000);
+      assertNotNull(msg);
+      // Don't ack the message.
 
-        // Reset the session.  This should cause the unacknowledged message to be re-delivered.
-        session.close();
-        session = connection.createSession(false, ActiveMQSession.INDIVIDUAL_ACKNOWLEDGE);
+      // Reset the session.  This should cause the unacknowledged message to be re-delivered.
+      session.close();
+      session = connection.createSession(false, ActiveMQSession.INDIVIDUAL_ACKNOWLEDGE);
 
-        // Attempt to Consume the message...
-        consumer = session.createConsumer(queue);
-        msg = consumer.receive(2000);
-        assertNotNull(msg);
-        msg.acknowledge();
+      // Attempt to Consume the message...
+      consumer = session.createConsumer(queue);
+      msg = consumer.receive(2000);
+      assertNotNull(msg);
+      msg.acknowledge();
 
-        session.close();
-    }
+      session.close();
+   }
 
-    protected String getQueueName() {
-        return getClass().getName() + "." + getName();
-    }
+   protected String getQueueName() {
+      return getClass().getName() + "." + getName();
+   }
 }

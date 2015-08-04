@@ -38,8 +38,7 @@ import org.junit.Test;
 import java.util.HashMap;
 import java.util.Map;
 
-public class DirectDeliverTest extends ActiveMQTestBase
-{
+public class DirectDeliverTest extends ActiveMQTestBase {
 
    private ActiveMQServer server;
 
@@ -47,8 +46,7 @@ public class DirectDeliverTest extends ActiveMQTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       Map<String, Object> params = new HashMap<String, Object>();
@@ -56,8 +54,7 @@ public class DirectDeliverTest extends ActiveMQTestBase
 
       TransportConfiguration tc = new TransportConfiguration(NettyAcceptorFactory.class.getName(), params);
 
-      Configuration config = createBasicConfig()
-         .addAcceptorConfiguration(tc);
+      Configuration config = createBasicConfig().addAcceptorConfiguration(tc);
       server = createServer(false, config);
       server.start();
 
@@ -66,8 +63,7 @@ public class DirectDeliverTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testDirectDeliver() throws Exception
-   {
+   public void testDirectDeliver() throws Exception {
       final String foo = "foo";
 
       ClientSessionFactory sf = createSessionFactory(locator);
@@ -78,7 +74,7 @@ public class DirectDeliverTest extends ActiveMQTestBase
 
       Binding binding = server.getPostOffice().getBinding(new SimpleString(foo));
 
-      Queue queue = (Queue)binding.getBindable();
+      Queue queue = (Queue) binding.getBindable();
 
       assertTrue(queue.isDirectDeliver());
 
@@ -88,8 +84,7 @@ public class DirectDeliverTest extends ActiveMQTestBase
 
       final int numMessages = 100;
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage msg = session.createMessage(true);
 
          prod.send(msg);
@@ -102,8 +97,7 @@ public class DirectDeliverTest extends ActiveMQTestBase
 
       session.start();
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage msg = cons.receive(10000);
 
          assertNotNull(msg);
@@ -111,7 +105,7 @@ public class DirectDeliverTest extends ActiveMQTestBase
          msg.acknowledge();
       }
 
-      Thread.sleep((long)(QueueImpl.CHECK_QUEUE_SIZE_PERIOD * 1.5));
+      Thread.sleep((long) (QueueImpl.CHECK_QUEUE_SIZE_PERIOD * 1.5));
 
       //Add another message, should go direct
       ClientMessage msg = session.createMessage(true);
@@ -123,15 +117,13 @@ public class DirectDeliverTest extends ActiveMQTestBase
       assertTrue(queue.isDirectDeliver());
 
       //Send some more
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          msg = session.createMessage(true);
 
          prod.send(msg);
       }
 
-      for (int i = 0; i < numMessages + 1; i++)
-      {
+      for (int i = 0; i < numMessages + 1; i++) {
          msg = cons.receive(10000);
 
          assertNotNull(msg);
@@ -143,8 +135,7 @@ public class DirectDeliverTest extends ActiveMQTestBase
 
       session.stop();
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          msg = session.createMessage(true);
 
          prod.send(msg);

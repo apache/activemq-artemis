@@ -21,8 +21,8 @@ import org.jboss.logging.Logger;
 import org.jboss.logging.annotations.MessageLogger;
 
 @MessageLogger(projectCode = "AMQTEST")
-public interface ExtrasTestLogger extends BasicLogger
-{
+public interface ExtrasTestLogger extends BasicLogger {
+
    /**
     * The integration test logger.
     */

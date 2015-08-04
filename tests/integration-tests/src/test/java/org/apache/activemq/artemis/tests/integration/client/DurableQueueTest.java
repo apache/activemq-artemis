@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.integration.client;
+
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.junit.Before;
 
@@ -33,8 +34,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 
-public class DurableQueueTest extends ActiveMQTestBase
-{
+public class DurableQueueTest extends ActiveMQTestBase {
 
    // Constants -----------------------------------------------------
 
@@ -55,8 +55,7 @@ public class DurableQueueTest extends ActiveMQTestBase
    // Public --------------------------------------------------------
 
    @Test
-   public void testConsumeFromDurableQueue() throws Exception
-   {
+   public void testConsumeFromDurableQueue() throws Exception {
       SimpleString queue = RandomUtil.randomSimpleString();
       SimpleString address = RandomUtil.randomSimpleString();
 
@@ -76,8 +75,7 @@ public class DurableQueueTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testConsumeFromDurableQueueAfterServerRestart() throws Exception
-   {
+   public void testConsumeFromDurableQueueAfterServerRestart() throws Exception {
       SimpleString queue = RandomUtil.randomSimpleString();
       SimpleString address = RandomUtil.randomSimpleString();
 
@@ -105,8 +103,7 @@ public class DurableQueueTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testUserEncoding() throws Exception
-   {
+   public void testUserEncoding() throws Exception {
       final String userName = "myUser";
       session.close();
       session = sf.createSession(userName, "myPass", false, true, true, false, 0);
@@ -125,8 +122,7 @@ public class DurableQueueTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testProduceAndConsumeFromDurableQueueAfterServerRestart() throws Exception
-   {
+   public void testProduceAndConsumeFromDurableQueueAfterServerRestart() throws Exception {
       SimpleString queue = RandomUtil.randomSimpleString();
       SimpleString address = RandomUtil.randomSimpleString();
 
@@ -160,8 +156,7 @@ public class DurableQueueTest extends ActiveMQTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       server = createServer(true);

@@ -21,14 +21,13 @@ import java.util.List;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 
 /**
- *
  * A ServerConsumer
  */
-public interface ServerConsumer extends Consumer
-{
+public interface ServerConsumer extends Consumer {
+
    /**
-    * @see #getProtocolContext()
     * @param protocolContext
+    * @see #getProtocolContext()
     */
    void setProtocolContext(Object protocolContext);
 
@@ -48,6 +47,7 @@ public interface ServerConsumer extends Consumer
     * This method is just to remove itself from Queues.
     * If for any reason during a close an exception occurred, the exception treatment
     * will call removeItself what should take the consumer out of any queues.
+    *
     * @throws Exception
     */
    void removeItself() throws Exception;

@@ -21,12 +21,11 @@ import org.junit.Before;
 /**
  * adapted from: org.apache.activemq.JMSQueueRedeliverTest
  */
-public class JMSQueueRedeliverTest extends JmsTopicRedeliverTest
-{
+public class JMSQueueRedeliverTest extends JmsTopicRedeliverTest {
+
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       topic = false;
       super.setUp();
    }

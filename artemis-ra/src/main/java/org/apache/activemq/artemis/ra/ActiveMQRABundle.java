@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.ra;
 
-
 import org.apache.activemq.artemis.api.core.ActiveMQIllegalStateException;
 import org.jboss.logging.annotations.Cause;
 import org.jboss.logging.annotations.Message;
@@ -28,15 +27,17 @@ import javax.resource.NotSupportedException;
 
 /**
  * Logger Code 15
- *
+ * <br>
  * each message id must be 6 digits long starting with 15, the 3rd digit should be 9
- *
+ * <br>
  * so 159000 to 159999
  */
 @MessageBundle(projectCode = "AMQ")
-public interface ActiveMQRABundle
-{
-   /** Error message for strict behaviour */
+public interface ActiveMQRABundle {
+
+   /**
+    * Error message for strict behaviour
+    */
    String ISE = "This method is not applicable inside the application server. See the JEE spec, e.g. JEE 7 Section 6.7";
 
    ActiveMQRABundle BUNDLE = Messages.getBundle(ActiveMQRABundle.class);

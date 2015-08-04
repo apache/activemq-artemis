@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.jms;
+
 import java.io.IOException;
 import java.util.Properties;
 
@@ -47,34 +48,15 @@ import org.objectweb.jtests.jms.conform.topic.TemporaryTopicTest;
 import org.objectweb.jtests.jms.framework.JMSTestCase;
 
 @RunWith(Suite.class)
-@SuiteClasses({
-TopicConnectionTest.class,
-               ConnectionTest.class,
-               MessageBodyTest.class,
-               MessageDefaultTest.class,
-               MessageTypeTest.class,
-               MessageHeaderTest.class,
-               JMSXPropertyTest.class,
-               MessagePropertyConversionTest.class,
-               MessagePropertyTest.class,
-               QueueBrowserTest.class,
-               TemporaryQueueTest.class,
-               SelectorSyntaxTest.class,
-               SelectorTest.class,
-               QueueSessionTest.class,
-               SessionTest.class,
-               TopicSessionTest.class,
-               UnifiedSessionTest.class,
-               TemporaryTopicTest.class,
-    })
-public class JoramAggregationTest extends Assert
-{
+@SuiteClasses({TopicConnectionTest.class, ConnectionTest.class, MessageBodyTest.class, MessageDefaultTest.class, MessageTypeTest.class, MessageHeaderTest.class, JMSXPropertyTest.class, MessagePropertyConversionTest.class, MessagePropertyTest.class, QueueBrowserTest.class, TemporaryQueueTest.class, SelectorSyntaxTest.class, SelectorTest.class, QueueSessionTest.class, SessionTest.class, TopicSessionTest.class, UnifiedSessionTest.class, TemporaryTopicTest.class,})
+public class JoramAggregationTest extends Assert {
+
    /**
     * Should be overridden
+    *
     * @return
     */
-   protected static Properties getProviderProperties() throws IOException
-   {
+   protected static Properties getProviderProperties() throws IOException {
       Properties props = new Properties();
       props.load(ClassLoader.getSystemResourceAsStream(JMSTestCase.PROP_FILE_NAME));
       return props;
@@ -83,8 +65,7 @@ public class JoramAggregationTest extends Assert
    static Admin admin;
 
    @BeforeClass
-   public static void setUpServer() throws Exception
-   {
+   public static void setUpServer() throws Exception {
       JMSTestCase.startServer = false;
       // Admin step
       // gets the provider administration wrapper...
@@ -94,8 +75,7 @@ public class JoramAggregationTest extends Assert
    }
 
    @AfterClass
-   public static void tearDownServer() throws Exception
-   {
+   public static void tearDownServer() throws Exception {
       admin.stopServer();
       JMSTestCase.startServer = true;
    }

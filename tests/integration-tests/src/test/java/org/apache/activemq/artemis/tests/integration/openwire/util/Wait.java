@@ -21,33 +21,31 @@ import java.util.concurrent.TimeUnit;
 /**
  * Utility adapted from: org.apache.activemq.util.Wait
  */
-public class Wait
-{
+public class Wait {
+
    public static final long MAX_WAIT_MILLIS = 30 * 1000;
    public static final int SLEEP_MILLIS = 1000;
 
-   public interface Condition
-   {
+   public interface Condition {
+
       boolean isSatisified() throws Exception;
    }
 
-   public static boolean waitFor(Condition condition) throws Exception
-   {
+   public static boolean waitFor(Condition condition) throws Exception {
       return waitFor(condition, MAX_WAIT_MILLIS);
    }
 
-   public static boolean waitFor(final Condition condition, final long duration) throws Exception
-   {
+   public static boolean waitFor(final Condition condition, final long duration) throws Exception {
       return waitFor(condition, duration, SLEEP_MILLIS);
    }
 
-   public static boolean waitFor(final Condition condition, final long duration, final int sleepMillis) throws Exception
-   {
+   public static boolean waitFor(final Condition condition,
+                                 final long duration,
+                                 final int sleepMillis) throws Exception {
 
       final long expiry = System.currentTimeMillis() + duration;
       boolean conditionSatisified = condition.isSatisified();
-      while (!conditionSatisified && System.currentTimeMillis() < expiry)
-      {
+      while (!conditionSatisified && System.currentTimeMillis() < expiry) {
          TimeUnit.MILLISECONDS.sleep(sleepMillis);
          conditionSatisified = condition.isSatisified();
       }

@@ -16,20 +16,19 @@
  */
 package org.apache.activemq.artemis.integration.bootstrap;
 
-
 import org.jboss.logging.Messages;
 import org.jboss.logging.annotations.MessageBundle;
 
 /**
  * Logger Code 10
- *
+ * <br>
  * each message id must be 6 digits long starting with 10, the 3rd digit should be 9
- *
+ * <br>
  * so 109000 to 109999
  */
 @MessageBundle(projectCode = "AMQ")
-public interface ActiveMQBootstrapBundle
-{
+public interface ActiveMQBootstrapBundle {
+
    ActiveMQBootstrapBundle BUNDLE = Messages.getBundle(ActiveMQBootstrapBundle.class);
 
 }

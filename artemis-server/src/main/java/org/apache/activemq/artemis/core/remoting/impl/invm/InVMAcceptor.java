@@ -40,8 +40,8 @@ import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.OrderedExecutorFactory;
 import org.apache.activemq.artemis.utils.TypedProperties;
 
-public final class InVMAcceptor implements Acceptor
-{
+public final class InVMAcceptor implements Acceptor {
+
    private final int id;
 
    private final BufferHandler handler;
@@ -70,8 +70,7 @@ public final class InVMAcceptor implements Acceptor
                        final Map<String, Object> configuration,
                        final BufferHandler handler,
                        final ConnectionLifeCycleListener listener,
-                       final Executor threadPool)
-   {
+                       final Executor threadPool) {
       this.clusterConnection = clusterConnection;
 
       this.configuration = configuration;
@@ -84,45 +83,35 @@ public final class InVMAcceptor implements Acceptor
 
       executorFactory = new OrderedExecutorFactory(threadPool);
 
-      connectionsAllowed = ConfigurationHelper.getLongProperty(TransportConstants.CONNECTIONS_ALLOWED,
-                                                               TransportConstants.DEFAULT_CONNECTIONS_ALLOWED,
-                                                               configuration);
+      connectionsAllowed = ConfigurationHelper.getLongProperty(TransportConstants.CONNECTIONS_ALLOWED, TransportConstants.DEFAULT_CONNECTIONS_ALLOWED, configuration);
    }
 
-   public Map<String, Object> getConfiguration()
-   {
+   public Map<String, Object> getConfiguration() {
       return configuration;
    }
 
-   public ClusterConnection getClusterConnection()
-   {
+   public ClusterConnection getClusterConnection() {
       return clusterConnection;
    }
 
-   public long getConnectionsAllowed()
-   {
+   public long getConnectionsAllowed() {
       return connectionsAllowed;
    }
 
-   public int getConnectionCount()
-   {
+   public int getConnectionCount() {
       return connections.size();
    }
 
-   public synchronized void start() throws Exception
-   {
-      if (started)
-      {
+   public synchronized void start() throws Exception {
+      if (started) {
          return;
       }
 
       InVMRegistry.instance.registerAcceptor(id, this);
 
-      if (notificationService != null)
-      {
+      if (notificationService != null) {
          TypedProperties props = new TypedProperties();
-         props.putSimpleStringProperty(new SimpleString("factory"),
-                                       new SimpleString(InVMAcceptorFactory.class.getName()));
+         props.putSimpleStringProperty(new SimpleString("factory"), new SimpleString(InVMAcceptorFactory.class.getName()));
          props.putIntProperty(new SimpleString("id"), id);
          Notification notification = new Notification(null, CoreNotificationType.ACCEPTOR_STARTED, props);
          notificationService.sendNotification(notification);
@@ -133,38 +122,30 @@ public final class InVMAcceptor implements Acceptor
       paused = false;
    }
 
-   public synchronized void stop()
-   {
-      if (!started)
-      {
+   public synchronized void stop() {
+      if (!started) {
          return;
       }
 
-      if (!paused)
-      {
+      if (!paused) {
          InVMRegistry.instance.unregisterAcceptor(id);
       }
 
-      for (Connection connection : connections.values())
-      {
+      for (Connection connection : connections.values()) {
          listener.connectionDestroyed(connection.getID());
       }
 
       connections.clear();
 
-      if (notificationService != null)
-      {
+      if (notificationService != null) {
          TypedProperties props = new TypedProperties();
-         props.putSimpleStringProperty(new SimpleString("factory"),
-                                       new SimpleString(InVMAcceptorFactory.class.getName()));
+         props.putSimpleStringProperty(new SimpleString("factory"), new SimpleString(InVMAcceptorFactory.class.getName()));
          props.putIntProperty(new SimpleString("id"), id);
          Notification notification = new Notification(null, CoreNotificationType.ACCEPTOR_STOPPED, props);
-         try
-         {
+         try {
             notificationService.sendNotification(notification);
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
          }
@@ -175,18 +156,15 @@ public final class InVMAcceptor implements Acceptor
       paused = false;
    }
 
-   public synchronized boolean isStarted()
-   {
+   public synchronized boolean isStarted() {
       return started;
    }
 
    /*
     * Stop accepting new connections
     */
-   public synchronized void pause()
-   {
-      if (!started || paused)
-      {
+   public synchronized void pause() {
+      if (!started || paused) {
          return;
       }
 
@@ -195,33 +173,27 @@ public final class InVMAcceptor implements Acceptor
       paused = true;
    }
 
-   public synchronized void setNotificationService(final NotificationService notificationService)
-   {
+   public synchronized void setNotificationService(final NotificationService notificationService) {
       this.notificationService = notificationService;
    }
 
-   public BufferHandler getHandler()
-   {
-      if (!started)
-      {
+   public BufferHandler getHandler() {
+      if (!started) {
          throw new IllegalStateException("Acceptor is not started");
       }
 
       return handler;
    }
 
-   public ExecutorFactory getExecutorFactory()
-   {
+   public ExecutorFactory getExecutorFactory() {
       return executorFactory;
    }
 
    public void connect(final String connectionID,
                        final BufferHandler remoteHandler,
                        final InVMConnector connector,
-                       final Executor clientExecutor)
-   {
-      if (!started)
-      {
+                       final Executor clientExecutor) {
+      if (!started) {
          throw new IllegalStateException("Acceptor is not started");
       }
 
@@ -232,17 +204,14 @@ public final class InVMAcceptor implements Acceptor
       connectionListener.connectionCreated(this, inVMConnection, ActiveMQClient.DEFAULT_CORE_PROTOCOL);
    }
 
-   public void disconnect(final String connectionID)
-   {
-      if (!started)
-      {
+   public void disconnect(final String connectionID) {
+      if (!started) {
          return;
       }
 
       Connection conn = connections.get(connectionID);
 
-      if (conn != null)
-      {
+      if (conn != null) {
          conn.close();
       }
    }
@@ -252,51 +221,43 @@ public final class InVMAcceptor implements Acceptor
     *
     * @return true
     */
-   public boolean isUnsecurable()
-   {
+   public boolean isUnsecurable() {
       return true;
    }
 
-   public void setDefaultActiveMQPrincipal(ActiveMQPrincipal defaultActiveMQPrincipal)
-   {
+   public void setDefaultActiveMQPrincipal(ActiveMQPrincipal defaultActiveMQPrincipal) {
       this.defaultActiveMQPrincipal = defaultActiveMQPrincipal;
    }
 
-   private class Listener implements ConnectionLifeCycleListener
-   {
+   private class Listener implements ConnectionLifeCycleListener {
       //private static Listener instance = new Listener();
 
       private final InVMConnector connector;
 
-      Listener(final InVMConnector connector)
-      {
+      Listener(final InVMConnector connector) {
          this.connector = connector;
       }
 
-      public void connectionCreated(final ActiveMQComponent component, final Connection connection, final String protocol)
-      {
-         if (connections.putIfAbsent((String) connection.getID(), connection) != null)
-         {
+      public void connectionCreated(final ActiveMQComponent component,
+                                    final Connection connection,
+                                    final String protocol) {
+         if (connections.putIfAbsent((String) connection.getID(), connection) != null) {
             throw ActiveMQMessageBundle.BUNDLE.connectionExists(connection.getID());
          }
 
          listener.connectionCreated(component, connection, protocol);
       }
 
-      public void connectionDestroyed(final Object connectionID)
-      {
+      public void connectionDestroyed(final Object connectionID) {
          InVMConnection connection = (InVMConnection) connections.remove(connectionID);
 
-         if (connection != null)
-         {
+         if (connection != null) {
 
             listener.connectionDestroyed(connectionID);
 
             // Execute on different thread after all the packets are sent, to avoid deadlocks
-            connection.getExecutor().execute(new Runnable()
-            {
-               public void run()
-               {
+            connection.getExecutor().execute(new Runnable() {
+               public void run() {
                   // Remove on the other side too
                   connector.disconnect((String) connectionID);
                }
@@ -304,13 +265,11 @@ public final class InVMAcceptor implements Acceptor
          }
       }
 
-      public void connectionException(final Object connectionID, final ActiveMQException me)
-      {
+      public void connectionException(final Object connectionID, final ActiveMQException me) {
          listener.connectionException(connectionID, me);
       }
 
-      public void connectionReadyForWrites(Object connectionID, boolean ready)
-      {
+      public void connectionReadyForWrites(Object connectionID, boolean ready) {
       }
    }
 

@@ -18,22 +18,22 @@ package org.apache.activemq.artemis.core.protocol.hornetq;
 
 import java.util.List;
 
-
 import org.apache.activemq.artemis.api.core.Interceptor;
 import org.apache.activemq.artemis.core.protocol.core.impl.CoreProtocolManagerFactory;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.spi.core.protocol.ProtocolManager;
 
-public class HornetQProtocolManagerFactory extends CoreProtocolManagerFactory
-{
+public class HornetQProtocolManagerFactory extends CoreProtocolManagerFactory {
+
    public static final String HORNETQ_PROTOCOL_NAME = "HORNETQ";
 
    private static final String MODULE_NAME = "artemis-hornetq-protocol";
 
    private static String[] SUPPORTED_PROTOCOLS = {HORNETQ_PROTOCOL_NAME};
 
-   public ProtocolManager createProtocolManager(final ActiveMQServer server, final List<Interceptor> incomingInterceptors, List<Interceptor> outgoingInterceptors)
-   {
+   public ProtocolManager createProtocolManager(final ActiveMQServer server,
+                                                final List<Interceptor> incomingInterceptors,
+                                                List<Interceptor> outgoingInterceptors) {
       Interceptor propertyConversionInterceptor = new HQPropertiesConversionInterceptor();
       incomingInterceptors.add(propertyConversionInterceptor);
       outgoingInterceptors.add(propertyConversionInterceptor);
@@ -41,14 +41,12 @@ public class HornetQProtocolManagerFactory extends CoreProtocolManagerFactory
    }
 
    @Override
-   public String[] getProtocols()
-   {
+   public String[] getProtocols() {
       return SUPPORTED_PROTOCOLS;
    }
 
    @Override
-   public String getModuleName()
-   {
+   public String getModuleName() {
       return MODULE_NAME;
    }
 }

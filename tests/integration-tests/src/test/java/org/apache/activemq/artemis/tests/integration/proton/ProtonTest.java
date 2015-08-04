@@ -64,38 +64,28 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 @RunWith(Parameterized.class)
-public class ProtonTest extends ActiveMQTestBase
-{
+public class ProtonTest extends ActiveMQTestBase {
 
    // this will ensure that all tests in this class are run twice,
    // once with "true" passed to the class' constructor and once with "false"
    @Parameterized.Parameters(name = "{0}")
-   public static Collection getParameters()
-   {
+   public static Collection getParameters() {
 
       // these 3 are for comparison
-      return Arrays.asList(new Object[][]{
-         {"AMQP", 0},
-         {"ActiveMQ (InVM)", 1},
-         {"ActiveMQ (Netty)", 2},
-         {"AMQP_ANONYMOUS", 3}
-      });
+      return Arrays.asList(new Object[][]{{"AMQP", 0}, {"ActiveMQ (InVM)", 1}, {"ActiveMQ (Netty)", 2}, {"AMQP_ANONYMOUS", 3}});
    }
 
    ConnectionFactory factory;
 
    private final int protocol;
 
-   public ProtonTest(String name, int protocol)
-   {
+   public ProtonTest(String name, int protocol) {
       this.coreAddress = "jms.queue.exampleQueue";
       this.protocol = protocol;
-      if (protocol == 0 || protocol == 3)
-      {
+      if (protocol == 0 || protocol == 3) {
          this.address = coreAddress;
       }
-      else
-      {
+      else {
          this.address = "exampleQueue";
       }
    }
@@ -107,8 +97,7 @@ public class ProtonTest extends ActiveMQTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
       disableCheckThread();
       server = this.createServer(true, true);
@@ -147,33 +136,26 @@ public class ProtonTest extends ActiveMQTestBase
 
    @Override
    @After
-   public void tearDown() throws Exception
-   {
-      try
-      {
-         if (connection != null)
-         {
+   public void tearDown() throws Exception {
+      try {
+         if (connection != null) {
             connection.close();
          }
 
-         for (long timeout = System.currentTimeMillis() + 1000; timeout > System.currentTimeMillis() && server.getRemotingService().getConnections().size() != 0; )
-         {
+         for (long timeout = System.currentTimeMillis() + 1000; timeout > System.currentTimeMillis() && server.getRemotingService().getConnections().size() != 0; ) {
             Thread.sleep(1);
          }
 
          Assert.assertEquals("The remoting connection wasn't removed after connection.close()", 0, server.getRemotingService().getConnections().size());
          server.stop();
       }
-      finally
-      {
+      finally {
          super.tearDown();
       }
    }
 
-
    @Test
-   public void testTemporaryQueue() throws Throwable
-   {
+   public void testTemporaryQueue() throws Throwable {
 
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       TemporaryQueue queue = session.createTemporaryQueue();
@@ -187,7 +169,7 @@ public class ProtonTest extends ActiveMQTestBase
       MessageConsumer cons = session.createConsumer(queue);
       connection.start();
 
-      message = (TextMessage)cons.receive(5000);
+      message = (TextMessage) cons.receive(5000);
       Assert.assertNotNull(message);
 
    }
@@ -206,35 +188,28 @@ public class ProtonTest extends ActiveMQTestBase
       }
    } */
 
-
    /**
     * This test eventually fails because of: https://issues.apache.org/jira/browse/QPID-4901
     *
     * @throws Throwable
     */
    // @Test TODO: re-enable this when we can get a version free of QPID-4901 bug
-   public void testBrowser() throws Throwable
-   {
+   public void testBrowser() throws Throwable {
 
       boolean success = false;
 
-
-      for (int i = 0; i < 10; i++)
-      {
+      for (int i = 0; i < 10; i++) {
          // As this test was hunging, we added a protection here to fail it instead.
          // it seems something on the qpid client, so this failure belongs to them and we can ignore it on
          // our side (ActiveMQ)
-         success = runWithTimeout(new RunnerWithEX()
-         {
+         success = runWithTimeout(new RunnerWithEX() {
             @Override
-            public void run() throws Throwable
-            {
+            public void run() throws Throwable {
                int numMessages = 50;
                javax.jms.Queue queue = createQueue(address);
                Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
                MessageProducer p = session.createProducer(queue);
-               for (int i = 0; i < numMessages; i++)
-               {
+               for (int i = 0; i < numMessages; i++) {
                   TextMessage message = session.createTextMessage();
                   message.setText("msg:" + i);
                   p.send(message);
@@ -249,8 +224,7 @@ public class ProtonTest extends ActiveMQTestBase
                QueueBrowser browser = session.createBrowser(queue);
                Enumeration enumeration = browser.getEnumeration();
                int count = 0;
-               while (enumeration.hasMoreElements())
-               {
+               while (enumeration.hasMoreElements()) {
                   Message msg = (Message) enumeration.nextElement();
                   Assert.assertNotNull("" + count, msg);
                   Assert.assertTrue("" + msg, msg instanceof TextMessage);
@@ -263,18 +237,15 @@ public class ProtonTest extends ActiveMQTestBase
             }
          }, 1000);
 
-         if (success)
-         {
+         if (success) {
             break;
          }
-         else
-         {
+         else {
             System.err.println("Had to make it fail!!!");
             tearDown();
             setUp();
          }
       }
-
 
       // There is a bug on the qpid client library currently, we can expect having to interrupt the thread on browsers.
       // but we can't have it on 10 iterations... something must be broken if that's the case
@@ -282,8 +253,7 @@ public class ProtonTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testConnection() throws Exception
-   {
+   public void testConnection() throws Exception {
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
       MessageConsumer cons = session.createConsumer(createQueue(address));
@@ -301,16 +271,14 @@ public class ProtonTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testMessagesSentTransactional() throws Exception
-   {
+   public void testMessagesSentTransactional() throws Exception {
       int numMessages = 1000;
       javax.jms.Queue queue = createQueue(address);
       Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
       MessageProducer p = session.createProducer(queue);
       byte[] bytes = new byte[2048];
       new Random().nextBytes(bytes);
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          TextMessage message = session.createTextMessage();
          message.setText("msg:" + i);
          p.send(message);
@@ -318,24 +286,21 @@ public class ProtonTest extends ActiveMQTestBase
       session.commit();
       connection.close();
       Queue q = (Queue) server.getPostOffice().getBinding(new SimpleString(coreAddress)).getBindable();
-      for (long timeout = System.currentTimeMillis() + 5000; timeout > System.currentTimeMillis() && getMessageCount(q) != numMessages; )
-      {
+      for (long timeout = System.currentTimeMillis() + 5000; timeout > System.currentTimeMillis() && getMessageCount(q) != numMessages; ) {
          Thread.sleep(1);
       }
       Assert.assertEquals(numMessages, getMessageCount(q));
    }
 
    @Test
-   public void testMessagesSentTransactionalRolledBack() throws Exception
-   {
+   public void testMessagesSentTransactionalRolledBack() throws Exception {
       int numMessages = 1;
       javax.jms.Queue queue = createQueue(address);
       Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
       MessageProducer p = session.createProducer(queue);
       byte[] bytes = new byte[2048];
       new Random().nextBytes(bytes);
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          TextMessage message = session.createTextMessage();
          message.setText("msg:" + i);
          p.send(message);
@@ -347,8 +312,7 @@ public class ProtonTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testCancelMessages() throws Exception
-   {
+   public void testCancelMessages() throws Exception {
       int numMessages = 10;
       long time = System.currentTimeMillis();
       javax.jms.Queue queue = createQueue(address);
@@ -356,8 +320,7 @@ public class ProtonTest extends ActiveMQTestBase
       MessageProducer p = session.createProducer(queue);
       byte[] bytes = new byte[2048];
       new Random().nextBytes(bytes);
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          TextMessage message = session.createTextMessage();
          message.setText("msg:" + i);
          p.send(message);
@@ -365,9 +328,7 @@ public class ProtonTest extends ActiveMQTestBase
       connection.close();
       Queue q = (Queue) server.getPostOffice().getBinding(new SimpleString(coreAddress)).getBindable();
 
-
-      for (long timeout = System.currentTimeMillis() + 5000; timeout > System.currentTimeMillis() && getMessageCount(q) != numMessages; )
-      {
+      for (long timeout = System.currentTimeMillis() + 5000; timeout > System.currentTimeMillis() && getMessageCount(q) != numMessages; ) {
          Thread.sleep(1);
       }
 
@@ -385,8 +346,7 @@ public class ProtonTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testClientAckMessages() throws Exception
-   {
+   public void testClientAckMessages() throws Exception {
       int numMessages = 10;
       long time = System.currentTimeMillis();
       javax.jms.Queue queue = createQueue(address);
@@ -394,8 +354,7 @@ public class ProtonTest extends ActiveMQTestBase
       MessageProducer p = session.createProducer(queue);
       byte[] bytes = new byte[2048];
       new Random().nextBytes(bytes);
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          TextMessage message = session.createTextMessage();
          message.setText("msg:" + i);
          p.send(message);
@@ -403,8 +362,7 @@ public class ProtonTest extends ActiveMQTestBase
       connection.close();
       Queue q = (Queue) server.getPostOffice().getBinding(new SimpleString(coreAddress)).getBindable();
 
-      for (long timeout = System.currentTimeMillis() + 5000; timeout > System.currentTimeMillis() && getMessageCount(q) != numMessages; )
-      {
+      for (long timeout = System.currentTimeMillis() + 5000; timeout > System.currentTimeMillis() && getMessageCount(q) != numMessages; ) {
          Thread.sleep(1);
       }
       Assert.assertEquals(numMessages, getMessageCount(q));
@@ -412,11 +370,9 @@ public class ProtonTest extends ActiveMQTestBase
       connection = createConnection();
       session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
       MessageConsumer consumer = session.createConsumer(queue);
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          Message msg = consumer.receive(5000);
-         if (msg == null)
-         {
+         if (msg == null) {
             System.out.println("ProtonTest.testManyMessages");
          }
          Assert.assertNotNull("" + i, msg);
@@ -436,37 +392,30 @@ public class ProtonTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testMessagesReceivedInParallel() throws Throwable
-   {
+   public void testMessagesReceivedInParallel() throws Throwable {
       final int numMessages = 50000;
       long time = System.currentTimeMillis();
       final javax.jms.Queue queue = createQueue(address);
 
       final ArrayList<Throwable> exceptions = new ArrayList<>();
 
-      Thread t = new Thread(new Runnable()
-      {
+      Thread t = new Thread(new Runnable() {
          @Override
-         public void run()
-         {
+         public void run() {
             Connection connectionConsumer = null;
-            try
-            {
+            try {
                // TODO the test may starve if using the same connection (dead lock maybe?)
                connectionConsumer = createConnection();
-//               connectionConsumer = connection;
+               //               connectionConsumer = connection;
                connectionConsumer.start();
                Session sessionConsumer = connectionConsumer.createSession(false, Session.AUTO_ACKNOWLEDGE);
                final MessageConsumer consumer = sessionConsumer.createConsumer(queue);
 
                long n = 0;
                int count = numMessages;
-               while (count > 0)
-               {
-                  try
-                  {
-                     if (++n % 1000 == 0)
-                     {
+               while (count > 0) {
+                  try {
+                     if (++n % 1000 == 0) {
                         System.out.println("received " + n + " messages");
                      }
 
@@ -474,30 +423,24 @@ public class ProtonTest extends ActiveMQTestBase
                      Assert.assertNotNull("Could not receive message count=" + count + " on consumer", m);
                      count--;
                   }
-                  catch (JMSException e)
-                  {
+                  catch (JMSException e) {
                      e.printStackTrace();
                      break;
                   }
                }
             }
-            catch (Throwable e)
-            {
+            catch (Throwable e) {
                exceptions.add(e);
                e.printStackTrace();
             }
-            finally
-            {
-               try
-               {
+            finally {
+               try {
                   // if the createconnecion wasn't commented out
-                  if (connectionConsumer != connection)
-                  {
+                  if (connectionConsumer != connection) {
                      connectionConsumer.close();
                   }
                }
-               catch (Throwable ignored)
-               {
+               catch (Throwable ignored) {
                   // NO OP
                }
             }
@@ -510,8 +453,7 @@ public class ProtonTest extends ActiveMQTestBase
 
       MessageProducer p = session.createProducer(queue);
       p.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          BytesMessage message = session.createBytesMessage();
          message.writeUTF("Hello world!!!!" + i);
          message.setIntProperty("count", i);
@@ -519,15 +461,13 @@ public class ProtonTest extends ActiveMQTestBase
       }
       t.join();
 
-      for (Throwable e : exceptions)
-      {
+      for (Throwable e : exceptions) {
          throw e;
       }
       Queue q = (Queue) server.getPostOffice().getBinding(new SimpleString(coreAddress)).getBindable();
 
       connection.close();
       Assert.assertEquals(0, getMessageCount(q));
-
 
       long taken = (System.currentTimeMillis() - time);
       System.out.println("Microbenchamrk ran in " + taken + " milliseconds, sending/receiving " + numMessages);
@@ -538,10 +478,8 @@ public class ProtonTest extends ActiveMQTestBase
 
    }
 
-
    @Test
-   public void testSimpleBinary() throws Throwable
-   {
+   public void testSimpleBinary() throws Throwable {
       final int numMessages = 500;
       long time = System.currentTimeMillis();
       final javax.jms.Queue queue = createQueue(address);
@@ -549,14 +487,12 @@ public class ProtonTest extends ActiveMQTestBase
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
       byte[] bytes = new byte[0xf + 1];
-      for (int i = 0; i <= 0xf; i++)
-      {
+      for (int i = 0; i <= 0xf; i++) {
          bytes[i] = (byte) i;
       }
 
       MessageProducer p = session.createProducer(queue);
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          System.out.println("Sending " + i);
          BytesMessage message = session.createBytesMessage();
 
@@ -568,9 +504,7 @@ public class ProtonTest extends ActiveMQTestBase
       Session sessionConsumer = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       final MessageConsumer consumer = sessionConsumer.createConsumer(queue);
 
-
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          BytesMessage m = (BytesMessage) consumer.receive(5000);
          Assert.assertNotNull("Could not receive message count=" + i + " on consumer", m);
 
@@ -580,21 +514,18 @@ public class ProtonTest extends ActiveMQTestBase
          byte[] bytesReceived = new byte[(int) size];
          m.readBytes(bytesReceived);
 
-
          System.out.println("Received " + ByteUtil.bytesToHex(bytesReceived, 1) + " count - " + m.getIntProperty("count"));
 
          Assert.assertArrayEquals(bytes, bytesReceived);
       }
 
-//      assertEquals(0, q.getMessageCount());
+      //      assertEquals(0, q.getMessageCount());
       long taken = (System.currentTimeMillis() - time) / 1000;
       System.out.println("taken = " + taken);
    }
 
-
    @Test
-   public void testSimpleDefault() throws Throwable
-   {
+   public void testSimpleDefault() throws Throwable {
       final int numMessages = 500;
       long time = System.currentTimeMillis();
       final javax.jms.Queue queue = createQueue(address);
@@ -602,14 +533,12 @@ public class ProtonTest extends ActiveMQTestBase
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
       byte[] bytes = new byte[0xf + 1];
-      for (int i = 0; i <= 0xf; i++)
-      {
+      for (int i = 0; i <= 0xf; i++) {
          bytes[i] = (byte) i;
       }
 
       MessageProducer p = session.createProducer(queue);
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          System.out.println("Sending " + i);
          Message message = session.createMessage();
 
@@ -620,22 +549,18 @@ public class ProtonTest extends ActiveMQTestBase
       Session sessionConsumer = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       final MessageConsumer consumer = sessionConsumer.createConsumer(queue);
 
-
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          Message m = consumer.receive(5000);
          Assert.assertNotNull("Could not receive message count=" + i + " on consumer", m);
       }
 
-//      assertEquals(0, q.getMessageCount());
+      //      assertEquals(0, q.getMessageCount());
       long taken = (System.currentTimeMillis() - time) / 1000;
       System.out.println("taken = " + taken);
    }
 
-
    @Test
-   public void testSimpleMap() throws Throwable
-   {
+   public void testSimpleMap() throws Throwable {
       final int numMessages = 100;
       long time = System.currentTimeMillis();
       final javax.jms.Queue queue = createQueue(address);
@@ -643,8 +568,7 @@ public class ProtonTest extends ActiveMQTestBase
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
       MessageProducer p = session.createProducer(queue);
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          System.out.println("Sending " + i);
          MapMessage message = session.createMapMessage();
 
@@ -653,13 +577,10 @@ public class ProtonTest extends ActiveMQTestBase
          p.send(message);
       }
 
-
       Session sessionConsumer = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       final MessageConsumer consumer = sessionConsumer.createConsumer(queue);
 
-
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          MapMessage m = (MapMessage) consumer.receive(5000);
          Assert.assertNotNull("Could not receive message count=" + i + " on consumer", m);
 
@@ -667,23 +588,20 @@ public class ProtonTest extends ActiveMQTestBase
          Assert.assertEquals(i, m.getIntProperty("count"));
       }
 
-//      assertEquals(0, q.getMessageCount());
+      //      assertEquals(0, q.getMessageCount());
       long taken = (System.currentTimeMillis() - time) / 1000;
       System.out.println("taken = " + taken);
    }
 
-
    @Test
-   public void testSimpleStream() throws Throwable
-   {
+   public void testSimpleStream() throws Throwable {
       final int numMessages = 100;
       final javax.jms.Queue queue = createQueue(address);
 
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
       MessageProducer p = session.createProducer(queue);
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          StreamMessage message = session.createStreamMessage();
          message.writeInt(i);
          message.writeBoolean(true);
@@ -691,13 +609,10 @@ public class ProtonTest extends ActiveMQTestBase
          p.send(message);
       }
 
-
       Session sessionConsumer = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       final MessageConsumer consumer = sessionConsumer.createConsumer(queue);
 
-
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          StreamMessage m = (StreamMessage) consumer.receive(5000);
          Assert.assertNotNull("Could not receive message count=" + i + " on consumer", m);
 
@@ -709,8 +624,7 @@ public class ProtonTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testSimpleText() throws Throwable
-   {
+   public void testSimpleText() throws Throwable {
       final int numMessages = 100;
       long time = System.currentTimeMillis();
       final javax.jms.Queue queue = createQueue(address);
@@ -718,34 +632,28 @@ public class ProtonTest extends ActiveMQTestBase
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
       MessageProducer p = session.createProducer(queue);
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          System.out.println("Sending " + i);
          TextMessage message = session.createTextMessage("text" + i);
          p.send(message);
       }
 
-
       Session sessionConsumer = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       final MessageConsumer consumer = sessionConsumer.createConsumer(queue);
 
-
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          TextMessage m = (TextMessage) consumer.receive(5000);
          Assert.assertNotNull("Could not receive message count=" + i + " on consumer", m);
          Assert.assertEquals("text" + i, m.getText());
       }
 
-//      assertEquals(0, q.getMessageCount());
+      //      assertEquals(0, q.getMessageCount());
       long taken = (System.currentTimeMillis() - time) / 1000;
       System.out.println("taken = " + taken);
    }
 
-
    @Test
-   public void testSimpleObject() throws Throwable
-   {
+   public void testSimpleObject() throws Throwable {
       final int numMessages = 1;
       long time = System.currentTimeMillis();
       final javax.jms.Queue queue = createQueue(address);
@@ -753,20 +661,16 @@ public class ProtonTest extends ActiveMQTestBase
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
       MessageProducer p = session.createProducer(queue);
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          System.out.println("Sending " + i);
          ObjectMessage message = session.createObjectMessage(new AnythingSerializable(i));
          p.send(message);
       }
 
-
       Session sessionConsumer = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       final MessageConsumer consumer = sessionConsumer.createConsumer(queue);
 
-
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ObjectMessage msg = (ObjectMessage) consumer.receive(5000);
          Assert.assertNotNull("Could not receive message count=" + i + " on consumer", msg);
 
@@ -774,15 +678,13 @@ public class ProtonTest extends ActiveMQTestBase
          Assert.assertEquals(i, someSerialThing.getCount());
       }
 
-//      assertEquals(0, q.getMessageCount());
+      //      assertEquals(0, q.getMessageCount());
       long taken = (System.currentTimeMillis() - time) / 1000;
       System.out.println("taken = " + taken);
    }
 
-
    @Test
-   public void testSelector() throws Exception
-   {
+   public void testSelector() throws Exception {
       javax.jms.Queue queue = createQueue(address);
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       MessageProducer p = session.createProducer(queue);
@@ -803,8 +705,7 @@ public class ProtonTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testProperties() throws Exception
-   {
+   public void testProperties() throws Exception {
       javax.jms.Queue queue = createQueue(address);
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       MessageProducer p = session.createProducer(queue);
@@ -836,19 +737,15 @@ public class ProtonTest extends ActiveMQTestBase
       connection.close();
    }
 
-
    @Test
-   public void testUsingPlainAMQP() throws Exception
-   {
-      if (this.protocol != 0 && protocol != 3)
-      {
+   public void testUsingPlainAMQP() throws Exception {
+      if (this.protocol != 0 && protocol != 3) {
          return;
       }
 
       org.apache.qpid.amqp_1_0.client.Connection connection = null;
 
-      try
-      {
+      try {
          // Step 1. Create an amqp qpid 1.0 connection
          connection = new org.apache.qpid.amqp_1_0.client.Connection("localhost", 5672, null, null);
 
@@ -874,22 +771,17 @@ public class ProtonTest extends ActiveMQTestBase
          // Step 8. acknowledge the message
          rec.acknowledge(m);
       }
-      finally
-      {
-         if (connection != null)
-         {
+      finally {
+         if (connection != null) {
             // Step 9. close the connection
             connection.close();
          }
       }
    }
 
-
    @Test
-   public void testUsingPlainAMQPSenderWithNonExistentQueue() throws Exception
-   {
-      if (this.protocol != 0 && protocol != 3)
-      {
+   public void testUsingPlainAMQPSenderWithNonExistentQueue() throws Exception {
+      if (this.protocol != 0 && protocol != 3) {
          return;
       }
 
@@ -897,8 +789,7 @@ public class ProtonTest extends ActiveMQTestBase
 
       org.apache.qpid.amqp_1_0.client.Connection connection = null;
 
-      try
-      {
+      try {
          // Step 1. Create an amqp qpid 1.0 connection
          connection = new org.apache.qpid.amqp_1_0.client.Connection("localhost", 5672, null, null);
 
@@ -926,22 +817,17 @@ public class ProtonTest extends ActiveMQTestBase
          // Step 8. acknowledge the message
          rec.acknowledge(m);
       }
-      finally
-      {
-         if (connection != null)
-         {
+      finally {
+         if (connection != null) {
             // Step 9. close the connection
             connection.close();
          }
       }
    }
 
-
    @Test
-   public void testUsingPlainAMQPReceiverWithNonExistentQueue() throws Exception
-   {
-      if (this.protocol != 0 && protocol != 3)
-      {
+   public void testUsingPlainAMQPReceiverWithNonExistentQueue() throws Exception {
+      if (this.protocol != 0 && protocol != 3) {
          return;
       }
 
@@ -949,8 +835,7 @@ public class ProtonTest extends ActiveMQTestBase
 
       org.apache.qpid.amqp_1_0.client.Connection connection = null;
 
-      try
-      {
+      try {
          // Step 1. Create an amqp qpid 1.0 connection
          connection = new org.apache.qpid.amqp_1_0.client.Connection("localhost", 5672, null, null);
 
@@ -978,82 +863,62 @@ public class ProtonTest extends ActiveMQTestBase
          // Step 8. acknowledge the message
          rec.acknowledge(m);
       }
-      finally
-      {
-         if (connection != null)
-         {
+      finally {
+         if (connection != null) {
             // Step 9. close the connection
             connection.close();
          }
       }
    }
 
-
-   private javax.jms.Queue createQueue(String address)
-   {
-      if (protocol == 0 || protocol == 3)
-      {
+   private javax.jms.Queue createQueue(String address) {
+      if (protocol == 0 || protocol == 3) {
          return new QueueImpl(address);
       }
-      else
-      {
+      else {
          return ActiveMQJMSClient.createQueue(address);
       }
    }
 
-
-   private javax.jms.Connection createConnection() throws JMSException
-   {
+   private javax.jms.Connection createConnection() throws JMSException {
       Connection connection;
-      if (protocol == 3)
-      {
+      if (protocol == 3) {
          factory = new ConnectionFactoryImpl("localhost", 5672, null, null);
          connection = factory.createConnection();
-         connection.setExceptionListener(new ExceptionListener()
-         {
+         connection.setExceptionListener(new ExceptionListener() {
             @Override
-            public void onException(JMSException exception)
-            {
+            public void onException(JMSException exception) {
                exception.printStackTrace();
             }
          });
          connection.start();
       }
-      else if (protocol == 0)
-      {
+      else if (protocol == 0) {
          factory = new ConnectionFactoryImpl("localhost", 5672, "guest", "guest");
          connection = factory.createConnection();
-         connection.setExceptionListener(new ExceptionListener()
-         {
+         connection.setExceptionListener(new ExceptionListener() {
             @Override
-            public void onException(JMSException exception)
-            {
+            public void onException(JMSException exception) {
                exception.printStackTrace();
             }
          });
          connection.start();
       }
-      else
-      {
+      else {
          TransportConfiguration transport;
 
-
-         if (protocol == 1)
-         {
+         if (protocol == 1) {
             transport = new TransportConfiguration(INVM_CONNECTOR_FACTORY);
          }
-         else
-         {
+         else {
             transport = new TransportConfiguration(NETTY_CONNECTOR_FACTORY);
          }
 
          factory = new ActiveMQConnectionFactory(false, transport);
          connection = factory.createConnection("guest", "guest");
-         connection.setExceptionListener(new ExceptionListener()
-         {
+         connection.setExceptionListener(new ExceptionListener() {
             @Override
-            public void onException(JMSException exception)
-            {
+            public void onException(JMSException exception) {
                exception.printStackTrace();
             }
          });
@@ -1063,18 +928,15 @@ public class ProtonTest extends ActiveMQTestBase
       return connection;
    }
 
+   public static class AnythingSerializable implements Serializable {
 
-   public static class AnythingSerializable implements Serializable
-   {
       private int count;
 
-      public AnythingSerializable(int count)
-      {
+      public AnythingSerializable(int count) {
          this.count = count;
       }
 
-      public int getCount()
-      {
+      public int getCount() {
          return count;
       }
    }

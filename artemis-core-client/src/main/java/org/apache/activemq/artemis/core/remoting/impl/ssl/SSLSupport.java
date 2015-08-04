@@ -40,13 +40,15 @@ import org.apache.activemq.artemis.utils.ClassloadingUtil;
  * (see java.security.Security#getProviders()).  The main thing to keep in mind is that PKCS#11 keystores will have a
  * null keystore path.
  */
-public class SSLSupport
-{
+public class SSLSupport {
    // Public --------------------------------------------------------
 
-   public static SSLContext createContext(final String keystoreProvider, final String keystorePath, final String keystorePassword,
-                                          final String trustStoreProvider, final String trustStorePath, final String trustStorePassword) throws Exception
-   {
+   public static SSLContext createContext(final String keystoreProvider,
+                                          final String keystorePath,
+                                          final String keystorePassword,
+                                          final String trustStoreProvider,
+                                          final String trustStorePath,
+                                          final String trustStorePassword) throws Exception {
       SSLContext context = SSLContext.getInstance("TLS");
       KeyManager[] keyManagers = SSLSupport.loadKeyManagers(keystoreProvider, keystorePath, keystorePassword);
       TrustManager[] trustManagers = SSLSupport.loadTrustManager(trustStoreProvider, trustStorePath, trustStorePassword);
@@ -54,22 +56,18 @@ public class SSLSupport
       return context;
    }
 
-   public static String[] parseCommaSeparatedListIntoArray(String suites)
-   {
+   public static String[] parseCommaSeparatedListIntoArray(String suites) {
       String[] cipherSuites = suites.split(",");
-      for (int i = 0; i < cipherSuites.length; i++)
-      {
+      for (int i = 0; i < cipherSuites.length; i++) {
          cipherSuites[i] = cipherSuites[i].trim();
       }
       return cipherSuites;
    }
 
-   public static String parseArrayIntoCommandSeparatedList(String[] suites)
-   {
+   public static String parseArrayIntoCommandSeparatedList(String[] suites) {
       StringBuilder supportedSuites = new StringBuilder();
 
-      for (int i = 0; i < suites.length; i++)
-      {
+      for (int i = 0; i < suites.length; i++) {
          supportedSuites.append(suites[i]);
          supportedSuites.append(", ");
       }
@@ -82,14 +80,11 @@ public class SSLSupport
 
    private static TrustManager[] loadTrustManager(final String trustStoreProvider,
                                                   final String trustStorePath,
-                                                  final String trustStorePassword) throws Exception
-   {
-      if (trustStorePath == null && (trustStoreProvider == null || (trustStoreProvider != null && !"PKCS11".equals(trustStoreProvider.toUpperCase()))))
-      {
+                                                  final String trustStorePassword) throws Exception {
+      if (trustStorePath == null && (trustStoreProvider == null || (trustStoreProvider != null && !"PKCS11".equals(trustStoreProvider.toUpperCase())))) {
          return null;
       }
-      else
-      {
+      else {
          TrustManagerFactory trustMgrFactory;
          KeyStore trustStore = SSLSupport.loadKeystore(trustStoreProvider, trustStorePath, trustStorePassword);
          trustMgrFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
@@ -98,43 +93,37 @@ public class SSLSupport
       }
    }
 
-   private static KeyStore loadKeystore(final String keystoreProvider, final String keystorePath, final String keystorePassword) throws Exception
-   {
+   private static KeyStore loadKeystore(final String keystoreProvider,
+                                        final String keystorePath,
+                                        final String keystorePassword) throws Exception {
       KeyStore ks = KeyStore.getInstance(keystoreProvider);
       InputStream in = null;
-      try
-      {
-         if (keystorePath != null)
-         {
+      try {
+         if (keystorePath != null) {
             URL keystoreURL = SSLSupport.validateStoreURL(keystorePath);
             in = keystoreURL.openStream();
          }
          ks.load(in, keystorePassword.toCharArray());
       }
-      finally
-      {
-         if (in != null)
-         {
-            try
-            {
+      finally {
+         if (in != null) {
+            try {
                in.close();
             }
-            catch (IOException ignored)
-            {
+            catch (IOException ignored) {
             }
          }
       }
       return ks;
    }
 
-   private static KeyManager[] loadKeyManagers(final String keyStoreProvider, final String keystorePath, final String keystorePassword) throws Exception
-   {
-      if (keystorePath == null && (keyStoreProvider == null || (keyStoreProvider != null && !"PKCS11".equals(keyStoreProvider.toUpperCase()))))
-      {
+   private static KeyManager[] loadKeyManagers(final String keyStoreProvider,
+                                               final String keystorePath,
+                                               final String keystorePassword) throws Exception {
+      if (keystorePath == null && (keyStoreProvider == null || (keyStoreProvider != null && !"PKCS11".equals(keyStoreProvider.toUpperCase())))) {
          return null;
       }
-      else
-      {
+      else {
          KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
          KeyStore ks = SSLSupport.loadKeystore(keyStoreProvider, keystorePath, keystorePassword);
          kmf.init(ks, keystorePassword.toCharArray());
@@ -143,27 +132,21 @@ public class SSLSupport
       }
    }
 
-   private static URL validateStoreURL(final String storePath) throws Exception
-   {
+   private static URL validateStoreURL(final String storePath) throws Exception {
       assert storePath != null;
 
       // First see if this is a URL
-      try
-      {
+      try {
          return new URL(storePath);
       }
-      catch (MalformedURLException e)
-      {
+      catch (MalformedURLException e) {
          File file = new File(storePath);
-         if (file.exists() == true && file.isFile())
-         {
+         if (file.exists() == true && file.isFile()) {
             return file.toURI().toURL();
          }
-         else
-         {
+         else {
             URL url = findResource(storePath);
-            if (url != null)
-            {
+            if (url != null) {
                return url;
             }
          }
@@ -172,16 +155,14 @@ public class SSLSupport
       throw new Exception("Failed to find a store at " + storePath);
    }
 
-   /** This seems duplicate code all over the place, but for security reasons we can't let something like this to be open in a
-    *  utility class, as it would be a door to load anything you like in a safe VM.
-    *  For that reason any class trying to do a privileged block should do with the AccessController directly.
+   /**
+    * This seems duplicate code all over the place, but for security reasons we can't let something like this to be open in a
+    * utility class, as it would be a door to load anything you like in a safe VM.
+    * For that reason any class trying to do a privileged block should do with the AccessController directly.
     */
-   private static URL findResource(final String resourceName)
-   {
-      return AccessController.doPrivileged(new PrivilegedAction<URL>()
-      {
-         public URL run()
-         {
+   private static URL findResource(final String resourceName) {
+      return AccessController.doPrivileged(new PrivilegedAction<URL>() {
+         public URL run() {
             return ClassloadingUtil.findResource(resourceName);
          }
       });

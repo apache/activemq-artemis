@@ -22,9 +22,7 @@ import org.apache.activemq.artemis.core.journal.EncodingSupport;
 import org.apache.activemq.artemis.utils.BufferHelper;
 import org.apache.activemq.artemis.utils.DataConstants;
 
-public class PersistedDestination implements EncodingSupport
-{
-
+public class PersistedDestination implements EncodingSupport {
 
    // Constants -----------------------------------------------------
 
@@ -43,17 +41,17 @@ public class PersistedDestination implements EncodingSupport
 
    // Constructors --------------------------------------------------
 
-   public PersistedDestination()
-   {
+   public PersistedDestination() {
    }
 
-   public PersistedDestination(final PersistedType type, final String name)
-   {
+   public PersistedDestination(final PersistedType type, final String name) {
       this(type, name, null, true);
    }
 
-   public PersistedDestination(final PersistedType type, final String name, final String selector, final boolean durable)
-   {
+   public PersistedDestination(final PersistedType type,
+                               final String name,
+                               final String selector,
+                               final boolean durable) {
       this.type = type;
       this.name = name;
       this.selector = selector;
@@ -69,55 +67,45 @@ public class PersistedDestination implements EncodingSupport
 
    // Inner classes -------------------------------------------------
 
-
-   public long getId()
-   {
+   public long getId() {
       return id;
    }
 
-   public void setId(final long id)
-   {
+   public void setId(final long id) {
       this.id = id;
    }
 
-   public String getName()
-   {
+   public String getName() {
       return name;
    }
 
-   public PersistedType getType()
-   {
+   public PersistedType getType() {
       return type;
    }
 
-   public String getSelector()
-   {
+   public String getSelector() {
       return selector;
    }
 
-   public boolean isDurable()
-   {
+   public boolean isDurable() {
       return durable;
    }
 
-   public int getEncodeSize()
-   {
+   public int getEncodeSize() {
       return DataConstants.SIZE_BYTE +
-            BufferHelper.sizeOfSimpleString(name) +
-            BufferHelper.sizeOfNullableSimpleString(selector) +
-            DataConstants.SIZE_BOOLEAN;
+         BufferHelper.sizeOfSimpleString(name) +
+         BufferHelper.sizeOfNullableSimpleString(selector) +
+         DataConstants.SIZE_BOOLEAN;
    }
 
-   public void encode(final ActiveMQBuffer buffer)
-   {
+   public void encode(final ActiveMQBuffer buffer) {
       buffer.writeByte(type.getType());
       buffer.writeSimpleString(SimpleString.toSimpleString(name));
       buffer.writeNullableSimpleString(SimpleString.toSimpleString(selector));
       buffer.writeBoolean(durable);
    }
 
-   public void decode(final ActiveMQBuffer buffer)
-   {
+   public void decode(final ActiveMQBuffer buffer) {
       type = PersistedType.getType(buffer.readByte());
       name = buffer.readSimpleString().toString();
       SimpleString selectorStr = buffer.readNullableSimpleString();

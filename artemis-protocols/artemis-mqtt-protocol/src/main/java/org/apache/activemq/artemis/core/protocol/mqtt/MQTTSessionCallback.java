@@ -23,26 +23,22 @@ import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.spi.core.protocol.SessionCallback;
 import org.apache.activemq.artemis.spi.core.remoting.ReadyListener;
 
-public class MQTTSessionCallback implements SessionCallback
-{
+public class MQTTSessionCallback implements SessionCallback {
+
    private MQTTSession session;
 
    private MQTTLogger log = MQTTLogger.LOGGER;
 
-   public MQTTSessionCallback(MQTTSession session) throws Exception
-   {
+   public MQTTSessionCallback(MQTTSession session) throws Exception {
       this.session = session;
    }
 
    @Override
-   public int sendMessage(ServerMessage message, ServerConsumer consumer, int deliveryCount)
-   {
-      try
-      {
+   public int sendMessage(ServerMessage message, ServerConsumer consumer, int deliveryCount) {
+      try {
          session.getMqttPublishManager().sendMessage(message, consumer, deliveryCount);
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          e.printStackTrace();
          log.warn("Unable to send message: " + message.getMessageID() + " Cause: " + e.getMessage());
       }
@@ -50,62 +46,54 @@ public class MQTTSessionCallback implements SessionCallback
    }
 
    @Override
-   public int sendLargeMessageContinuation(ServerConsumer consumerID, byte[] body, boolean continues, boolean requiresResponse)
-   {
+   public int sendLargeMessageContinuation(ServerConsumer consumerID,
+                                           byte[] body,
+                                           boolean continues,
+                                           boolean requiresResponse) {
       log.warn("Sending LARGE MESSAGE");
       return 1;
    }
 
    @Override
-   public void addReadyListener(ReadyListener listener)
-   {
+   public void addReadyListener(ReadyListener listener) {
       session.getConnection().getTransportConnection().addReadyListener(listener);
    }
 
    @Override
-   public void removeReadyListener(ReadyListener listener)
-   {
+   public void removeReadyListener(ReadyListener listener) {
       session.getConnection().getTransportConnection().removeReadyListener(listener);
    }
 
    @Override
-   public int sendLargeMessage(ServerMessage message, ServerConsumer consumer, long bodySize, int deliveryCount)
-   {
+   public int sendLargeMessage(ServerMessage message, ServerConsumer consumer, long bodySize, int deliveryCount) {
       return sendMessage(message, consumer, deliveryCount);
    }
 
    @Override
-   public void disconnect(ServerConsumer consumer, String queueName)
-   {
-      try
-      {
+   public void disconnect(ServerConsumer consumer, String queueName) {
+      try {
          consumer.removeItself();
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          log.error(e.getMessage());
       }
    }
 
    @Override
-   public boolean hasCredits(ServerConsumer consumerID)
-   {
+   public boolean hasCredits(ServerConsumer consumerID) {
       return true;
    }
 
    @Override
-   public void sendProducerCreditsMessage(int credits, SimpleString address)
-   {
+   public void sendProducerCreditsMessage(int credits, SimpleString address) {
    }
 
    @Override
-   public void sendProducerCreditsFailMessage(int credits, SimpleString address)
-   {
+   public void sendProducerCreditsFailMessage(int credits, SimpleString address) {
    }
 
    @Override
-   public void closed()
-   {
+   public void closed() {
    }
 
 }

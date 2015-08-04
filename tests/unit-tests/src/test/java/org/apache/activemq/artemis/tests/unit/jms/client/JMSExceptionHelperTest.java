@@ -33,8 +33,7 @@ import org.apache.activemq.artemis.jms.client.JMSExceptionHelper;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class JMSExceptionHelperTest extends ActiveMQTestBase
-{
+public class JMSExceptionHelperTest extends ActiveMQTestBase {
    // Constants -----------------------------------------------------
 
    // Attributes ----------------------------------------------------
@@ -46,74 +45,62 @@ public class JMSExceptionHelperTest extends ActiveMQTestBase
    // Public --------------------------------------------------------
 
    @Test
-   public void testCONNECTION_TIMEDOUT() throws Exception
-   {
+   public void testCONNECTION_TIMEDOUT() throws Exception {
       doConvertException(CONNECTION_TIMEDOUT, JMSException.class);
    }
 
    @Test
-   public void testILLEGAL_STATE() throws Exception
-   {
+   public void testILLEGAL_STATE() throws Exception {
       doConvertException(ActiveMQExceptionType.ILLEGAL_STATE, IllegalStateException.class);
    }
 
    @Test
-   public void testINTERNAL_ERROR() throws Exception
-   {
+   public void testINTERNAL_ERROR() throws Exception {
       doConvertException(ActiveMQExceptionType.INTERNAL_ERROR, JMSException.class);
    }
 
    @Test
-   public void testINVALID_FILTER_EXPRESSION() throws Exception
-   {
+   public void testINVALID_FILTER_EXPRESSION() throws Exception {
       doConvertException(INVALID_FILTER_EXPRESSION, InvalidSelectorException.class);
    }
 
    @Test
-   public void testNOT_CONNECTED() throws Exception
-   {
+   public void testNOT_CONNECTED() throws Exception {
       doConvertException(ActiveMQExceptionType.NOT_CONNECTED, JMSException.class);
    }
 
    @Test
-   public void testOBJECT_CLOSED() throws Exception
-   {
+   public void testOBJECT_CLOSED() throws Exception {
       doConvertException(ActiveMQExceptionType.OBJECT_CLOSED, IllegalStateException.class);
    }
 
    @Test
-   public void testQUEUE_DOES_NOT_EXIST() throws Exception
-   {
+   public void testQUEUE_DOES_NOT_EXIST() throws Exception {
       doConvertException(ActiveMQExceptionType.QUEUE_DOES_NOT_EXIST, InvalidDestinationException.class);
    }
 
    @Test
-   public void testQUEUE_EXISTS() throws Exception
-   {
+   public void testQUEUE_EXISTS() throws Exception {
       doConvertException(ActiveMQExceptionType.QUEUE_EXISTS, InvalidDestinationException.class);
    }
 
    @Test
-   public void testSECURITY_EXCEPTION() throws Exception
-   {
+   public void testSECURITY_EXCEPTION() throws Exception {
       doConvertException(ActiveMQExceptionType.SECURITY_EXCEPTION, JMSSecurityException.class);
    }
 
    @Test
-   public void testUNSUPPORTED_PACKET() throws Exception
-   {
+   public void testUNSUPPORTED_PACKET() throws Exception {
       doConvertException(ActiveMQExceptionType.UNSUPPORTED_PACKET, IllegalStateException.class);
    }
 
    @Test
-   public void testDefault() throws Exception
-   {
+   public void testDefault() throws Exception {
       doConvertException(GENERIC_EXCEPTION, JMSException.class);
    }
 
    private void doConvertException(final ActiveMQExceptionType errorCode,
-                                   final Class<? extends Throwable> expectedException)
-   {
+                                   final Class<? extends Throwable> expectedException) {
       ActiveMQException me = new ActiveMQException(errorCode);
       Exception e = JMSExceptionHelper.convertFromActiveMQException(me);
       Assert.assertNotNull(e);

@@ -18,6 +18,7 @@ package org.apache.activemq.usecases;
 
 import java.net.URI;
 import javax.jms.MessageConsumer;
+
 import org.apache.activemq.JmsMultipleBrokersTestSupport;
 import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.command.ActiveMQDestination;
@@ -27,70 +28,68 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class BacklogNetworkCrossTalkTest extends JmsMultipleBrokersTestSupport {
-    private static final Logger LOG = LoggerFactory.getLogger(BacklogNetworkCrossTalkTest.class);
 
-    protected BrokerService createBroker(String brokerName) throws Exception {
-        BrokerService broker = new BrokerService();
-        broker.setDeleteAllMessagesOnStartup(true);
-        broker.setPersistent(true);
-        broker.setUseJmx(false);
-        broker.setBrokerName(brokerName);
-        broker.addConnector(new URI(AUTO_ASSIGN_TRANSPORT));
-        brokers.put(brokerName, new BrokerItem(broker));
+   private static final Logger LOG = LoggerFactory.getLogger(BacklogNetworkCrossTalkTest.class);
 
-        return broker;
-    }
+   protected BrokerService createBroker(String brokerName) throws Exception {
+      BrokerService broker = new BrokerService();
+      broker.setDeleteAllMessagesOnStartup(true);
+      broker.setPersistent(true);
+      broker.setUseJmx(false);
+      broker.setBrokerName(brokerName);
+      broker.addConnector(new URI(AUTO_ASSIGN_TRANSPORT));
+      brokers.put(brokerName, new BrokerItem(broker));
 
-    public void testProduceConsume() throws Exception {
-        createBroker("A");
-        createBroker("B");
+      return broker;
+   }
 
-        NetworkConnector nc = bridgeBrokers("A", "B");
-        nc.setDuplex(true);
-        nc.setDispatchAsync(false);
-        startAllBrokers();
+   public void testProduceConsume() throws Exception {
+      createBroker("A");
+      createBroker("B");
 
-        waitForBridgeFormation();
+      NetworkConnector nc = bridgeBrokers("A", "B");
+      nc.setDuplex(true);
+      nc.setDispatchAsync(false);
+      startAllBrokers();
 
-        final int numMessages = 10000;
-        // Create queue
-        ActiveMQDestination destA = createDestination("AAA", false);
-        sendMessages("A", destA, numMessages);
+      waitForBridgeFormation();
 
-        ActiveMQDestination destB = createDestination("BBB", false);
-        sendMessages("B", destB, numMessages);
+      final int numMessages = 10000;
+      // Create queue
+      ActiveMQDestination destA = createDestination("AAA", false);
+      sendMessages("A", destA, numMessages);
 
-        // consume across network
-        LOG.info("starting consumers..");
+      ActiveMQDestination destB = createDestination("BBB", false);
+      sendMessages("B", destB, numMessages);
 
-        // Setup consumers
-        MessageConsumer clientA = createConsumer("A", destB);
-        // Setup consumers
-        MessageConsumer clientB = createConsumer("B", destA);
+      // consume across network
+      LOG.info("starting consumers..");
 
+      // Setup consumers
+      MessageConsumer clientA = createConsumer("A", destB);
+      // Setup consumers
+      MessageConsumer clientB = createConsumer("B", destA);
 
-        final long maxWait = 5 * 60 * 1000L;
-        MessageIdList listA = getConsumerMessages("A", clientA);
-        listA.setMaximumDuration(maxWait);
-        listA.waitForMessagesToArrive(numMessages);
+      final long maxWait = 5 * 60 * 1000L;
+      MessageIdList listA = getConsumerMessages("A", clientA);
+      listA.setMaximumDuration(maxWait);
+      listA.waitForMessagesToArrive(numMessages);
 
-        MessageIdList listB = getConsumerMessages("B", clientB);
-        listB.setMaximumDuration(maxWait);
-        listB.waitForMessagesToArrive(numMessages);
+      MessageIdList listB = getConsumerMessages("B", clientB);
+      listB.setMaximumDuration(maxWait);
+      listB.waitForMessagesToArrive(numMessages);
 
-        assertEquals("got all on A" + listA.getMessageCount(),
-                numMessages, listA.getMessageCount());
+      assertEquals("got all on A" + listA.getMessageCount(), numMessages, listA.getMessageCount());
 
-        assertEquals("got all on B" + listB.getMessageCount(),
-                numMessages, listB.getMessageCount());
+      assertEquals("got all on B" + listB.getMessageCount(), numMessages, listB.getMessageCount());
 
-    }
+   }
 
-    @Override
-    public void setUp() throws Exception {
-        messageSize = 5000;
-        super.setMaxTestTime(10*60*1000);
-        super.setAutoFail(true);
-        super.setUp();
-    }
+   @Override
+   public void setUp() throws Exception {
+      messageSize = 5000;
+      super.setMaxTestTime(10 * 60 * 1000);
+      super.setAutoFail(true);
+      super.setUp();
+   }
 }

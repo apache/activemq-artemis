@@ -56,202 +56,171 @@ import org.apache.activemq.artemis.core.server.impl.JournalLoader;
 import org.apache.activemq.artemis.core.transaction.ResourceManager;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 
-public class NullStorageManager implements StorageManager
-{
+public class NullStorageManager implements StorageManager {
+
    private final AtomicLong idSequence = new AtomicLong(0);
 
    private volatile boolean started;
 
-   private static final OperationContext dummyContext = new OperationContext()
-   {
+   private static final OperationContext dummyContext = new OperationContext() {
 
       @Override
-      public void onError(final int errorCode, final String errorMessage)
-      {
+      public void onError(final int errorCode, final String errorMessage) {
       }
 
       @Override
-      public void done()
-      {
+      public void done() {
       }
 
       @Override
-      public void storeLineUp()
-      {
+      public void storeLineUp() {
       }
 
       @Override
-      public boolean waitCompletion(final long timeout) throws Exception
-      {
+      public boolean waitCompletion(final long timeout) throws Exception {
          return true;
       }
 
       @Override
-      public void waitCompletion() throws Exception
-      {
+      public void waitCompletion() throws Exception {
       }
 
       @Override
-      public void replicationLineUp()
-      {
+      public void replicationLineUp() {
       }
 
       @Override
-      public void replicationDone()
-      {
+      public void replicationDone() {
       }
 
       @Override
-      public void pageSyncLineUp()
-      {
+      public void pageSyncLineUp() {
       }
 
       @Override
-      public void pageSyncDone()
-      {
+      public void pageSyncDone() {
       }
 
       @Override
-      public void executeOnCompletion(final IOCallback runnable)
-      {
+      public void executeOnCompletion(final IOCallback runnable) {
          runnable.done();
       }
    };
 
    @Override
-   public void deleteQueueBinding(long tx, final long queueBindingID) throws Exception
-   {
+   public void deleteQueueBinding(long tx, final long queueBindingID) throws Exception {
    }
 
    @Override
-   public void commit(final long txID) throws Exception
-   {
+   public void commit(final long txID) throws Exception {
    }
 
    @Override
    public JournalLoadInformation loadBindingJournal(final List<QueueBindingInfo> queueBindingInfos,
-                                                    final List<GroupingInfo> groupingInfos) throws Exception
-   {
+                                                    final List<GroupingInfo> groupingInfos) throws Exception {
       return new JournalLoadInformation();
    }
 
    @Override
-   public void prepare(final long txID, final Xid xid) throws Exception
-   {
+   public void prepare(final long txID, final Xid xid) throws Exception {
    }
 
    @Override
-   public void rollback(final long txID) throws Exception
-   {
+   public void rollback(final long txID) throws Exception {
    }
 
    @Override
-   public void rollbackBindings(final long txID) throws Exception
-   {
+   public void rollbackBindings(final long txID) throws Exception {
    }
 
    @Override
-   public void commitBindings(final long txID) throws Exception
-   {
+   public void commitBindings(final long txID) throws Exception {
    }
 
    @Override
-   public void storeReference(final long queueID, final long messageID, final boolean last) throws Exception
-   {
+   public void storeReference(final long queueID, final long messageID, final boolean last) throws Exception {
    }
 
    @Override
-   public void storeReferenceTransactional(final long txID, final long queueID, final long messageID) throws Exception
-   {
+   public void storeReferenceTransactional(final long txID, final long queueID, final long messageID) throws Exception {
    }
 
    @Override
-   public void storeAcknowledge(final long queueID, final long messageID) throws Exception
-   {
+   public void storeAcknowledge(final long queueID, final long messageID) throws Exception {
    }
 
    @Override
-   public void storeAcknowledgeTransactional(final long txID, final long queueID, final long messageiD) throws Exception
-   {
+   public void storeAcknowledgeTransactional(final long txID,
+                                             final long queueID,
+                                             final long messageiD) throws Exception {
    }
 
    @Override
-   public void deleteMessage(final long messageID) throws Exception
-   {
+   public void deleteMessage(final long messageID) throws Exception {
    }
 
    @Override
-   public void storeMessage(final ServerMessage message) throws Exception
-   {
+   public void storeMessage(final ServerMessage message) throws Exception {
    }
 
    @Override
-   public void storeMessageTransactional(final long txID, final ServerMessage message) throws Exception
-   {
+   public void storeMessageTransactional(final long txID, final ServerMessage message) throws Exception {
    }
 
    @Override
-   public void updateScheduledDeliveryTime(final MessageReference ref) throws Exception
-   {
+   public void updateScheduledDeliveryTime(final MessageReference ref) throws Exception {
    }
 
    @Override
-   public void updateScheduledDeliveryTimeTransactional(final long txID, final MessageReference ref) throws Exception
-   {
+   public void updateScheduledDeliveryTimeTransactional(final long txID, final MessageReference ref) throws Exception {
    }
 
    @Override
-   public void storePageTransaction(final long txID, final PageTransactionInfo pageTransaction) throws Exception
-   {
+   public void storePageTransaction(final long txID, final PageTransactionInfo pageTransaction) throws Exception {
    }
 
    @Override
-   public void updateDeliveryCount(final MessageReference ref) throws Exception
-   {
+   public void updateDeliveryCount(final MessageReference ref) throws Exception {
    }
 
    @Override
-   public void storeDuplicateID(final SimpleString address, final byte[] duplID, final long recordID) throws Exception
-   {
+   public void storeDuplicateID(final SimpleString address, final byte[] duplID, final long recordID) throws Exception {
    }
 
    @Override
-   public void storeDuplicateIDTransactional(final long txID, final SimpleString address, final byte[] duplID,
-                                             final long recordID) throws Exception
-   {
+   public void storeDuplicateIDTransactional(final long txID,
+                                             final SimpleString address,
+                                             final byte[] duplID,
+                                             final long recordID) throws Exception {
    }
 
    @Override
-   public void updateDuplicateIDTransactional(final long txID, final SimpleString address, final byte[] duplID,
-                                              final long recordID) throws Exception
-   {
+   public void updateDuplicateIDTransactional(final long txID,
+                                              final SimpleString address,
+                                              final byte[] duplID,
+                                              final long recordID) throws Exception {
    }
 
    @Override
-   public long storeHeuristicCompletion(final Xid xid, final boolean isCommit) throws Exception
-   {
+   public long storeHeuristicCompletion(final Xid xid, final boolean isCommit) throws Exception {
       return generateID();
    }
 
    @Override
-   public void deleteHeuristicCompletion(final long txID) throws Exception
-   {
+   public void deleteHeuristicCompletion(final long txID) throws Exception {
    }
 
    @Override
-   public void addQueueBinding(final long tx, final Binding binding) throws Exception
-   {
+   public void addQueueBinding(final long tx, final Binding binding) throws Exception {
    }
 
    @Override
-   public LargeServerMessage createLargeMessage()
-   {
+   public LargeServerMessage createLargeMessage() {
       return new NullStorageLargeServerMessage();
    }
 
    @Override
-   public LargeServerMessage createLargeMessage(final long id, final MessageInternal message)
-   {
+   public LargeServerMessage createLargeMessage(final long id, final MessageInternal message) {
       NullStorageLargeServerMessage largeMessage = new NullStorageLargeServerMessage();
 
       largeMessage.copyHeadersAndProperties(message);
@@ -262,24 +231,20 @@ public class NullStorageManager implements StorageManager
    }
 
    @Override
-   public long generateID()
-   {
+   public long generateID() {
       long id = idSequence.getAndIncrement();
 
       return id;
    }
 
    @Override
-   public long getCurrentID()
-   {
+   public long getCurrentID() {
       return idSequence.get();
    }
 
    @Override
-   public synchronized void start() throws Exception
-   {
-      if (started)
-      {
+   public synchronized void start() throws Exception {
+      if (started) {
          throw new IllegalStateException("Already started");
       }
 
@@ -287,10 +252,8 @@ public class NullStorageManager implements StorageManager
    }
 
    @Override
-   public synchronized void stop() throws Exception
-   {
-      if (!started)
-      {
+   public synchronized void stop() throws Exception {
+      if (!started) {
          throw new IllegalStateException("Not started");
       }
 
@@ -300,335 +263,283 @@ public class NullStorageManager implements StorageManager
    }
 
    @Override
-   public synchronized boolean isStarted()
-   {
+   public synchronized boolean isStarted() {
       return started;
    }
 
    @Override
-   public JournalLoadInformation loadMessageJournal(final PostOffice postOffice, final PagingManager pagingManager,
+   public JournalLoadInformation loadMessageJournal(final PostOffice postOffice,
+                                                    final PagingManager pagingManager,
                                                     final ResourceManager resourceManager,
                                                     final Map<Long, QueueBindingInfo> queueInfos,
                                                     final Map<SimpleString, List<Pair<byte[], Long>>> duplicateIDMap,
                                                     final Set<Pair<Long, Long>> pendingLargeMessages,
                                                     List<PageCountPending> pendingNonTXPageCounter,
-                                                    final JournalLoader journalLoader) throws Exception
-   {
+                                                    final JournalLoader journalLoader) throws Exception {
       return new JournalLoadInformation();
    }
 
    @Override
-   public void deleteDuplicateIDTransactional(final long txID, final long recordID) throws Exception
-   {
+   public void deleteDuplicateIDTransactional(final long txID, final long recordID) throws Exception {
    }
 
    @Override
-   public void deleteDuplicateID(final long recordID) throws Exception
-   {
+   public void deleteDuplicateID(final long recordID) throws Exception {
    }
 
    @Override
-   public void pageClosed(final SimpleString storeName, final int pageNumber)
-   {
+   public void pageClosed(final SimpleString storeName, final int pageNumber) {
    }
 
    @Override
-   public void pageDeleted(final SimpleString storeName, final int pageNumber)
-   {
+   public void pageDeleted(final SimpleString storeName, final int pageNumber) {
    }
 
    @Override
-   public void pageWrite(final PagedMessage message, final int pageNumber)
-   {
+   public void pageWrite(final PagedMessage message, final int pageNumber) {
    }
 
    @Override
-   public void addGrouping(final GroupBinding groupBinding) throws Exception
-   {
+   public void addGrouping(final GroupBinding groupBinding) throws Exception {
    }
 
    @Override
-   public void deleteGrouping(final long tx, final GroupBinding groupBinding) throws Exception
-   {
+   public void deleteGrouping(final long tx, final GroupBinding groupBinding) throws Exception {
    }
 
    @Override
-   public boolean waitOnOperations(final long timeout) throws Exception
-   {
+   public boolean waitOnOperations(final long timeout) throws Exception {
       return true;
    }
 
    @Override
-   public void afterCompleteOperations(final IOCallback run)
-   {
+   public void afterCompleteOperations(final IOCallback run) {
       run.done();
    }
 
    @Override
-   public void waitOnOperations() throws Exception
-   {
+   public void waitOnOperations() throws Exception {
    }
 
    @Override
-   public OperationContext getContext()
-   {
+   public OperationContext getContext() {
       return NullStorageManager.dummyContext;
    }
 
    @Override
-   public OperationContext newContext(final Executor executor)
-   {
+   public OperationContext newContext(final Executor executor) {
       return NullStorageManager.dummyContext;
    }
 
    @Override
-   public OperationContext newSingleThreadContext()
-   {
+   public OperationContext newSingleThreadContext() {
       return NullStorageManager.dummyContext;
    }
 
    @Override
-   public void setContext(final OperationContext context)
-   {
+   public void setContext(final OperationContext context) {
    }
 
    @Override
-   public void clearContext()
-   {
+   public void clearContext() {
    }
 
    @Override
-   public List<PersistedAddressSetting> recoverAddressSettings() throws Exception
-   {
+   public List<PersistedAddressSetting> recoverAddressSettings() throws Exception {
       return Collections.emptyList();
    }
 
    @Override
-   public void storeAddressSetting(final PersistedAddressSetting addressSetting) throws Exception
-   {
+   public void storeAddressSetting(final PersistedAddressSetting addressSetting) throws Exception {
    }
 
    @Override
-   public List<PersistedRoles> recoverPersistedRoles() throws Exception
-   {
+   public List<PersistedRoles> recoverPersistedRoles() throws Exception {
       return Collections.emptyList();
    }
 
    @Override
-   public void storeSecurityRoles(final PersistedRoles persistedRoles) throws Exception
-   {
+   public void storeSecurityRoles(final PersistedRoles persistedRoles) throws Exception {
    }
 
    @Override
-   public void deleteAddressSetting(final SimpleString addressMatch) throws Exception
-   {
+   public void deleteAddressSetting(final SimpleString addressMatch) throws Exception {
    }
 
    @Override
-   public void deleteSecurityRoles(final SimpleString addressMatch) throws Exception
-   {
+   public void deleteSecurityRoles(final SimpleString addressMatch) throws Exception {
    }
 
    @Override
-   public void deletePageTransactional(final long recordID) throws Exception
-   {
+   public void deletePageTransactional(final long recordID) throws Exception {
    }
 
    @Override
-   public void
-   updatePageTransaction(final long txID, final PageTransactionInfo pageTransaction, final int depage) throws Exception
-   {
+   public void updatePageTransaction(final long txID,
+                                     final PageTransactionInfo pageTransaction,
+                                     final int depage) throws Exception {
    }
 
    @Override
-   public void storeCursorAcknowledge(final long queueID, final PagePosition position)
-   {
+   public void storeCursorAcknowledge(final long queueID, final PagePosition position) {
    }
 
    @Override
-   public void storeCursorAcknowledgeTransactional(final long txID, final long queueID, final PagePosition position)
-   {
+   public void storeCursorAcknowledgeTransactional(final long txID, final long queueID, final PagePosition position) {
    }
 
    @Override
-   public void deleteCursorAcknowledgeTransactional(final long txID, final long ackID) throws Exception
-   {
+   public void deleteCursorAcknowledgeTransactional(final long txID, final long ackID) throws Exception {
    }
 
    @Override
-   public void deleteCursorAcknowledge(long ackID) throws Exception
-   {
+   public void deleteCursorAcknowledge(long ackID) throws Exception {
    }
 
-   public void storePageCompleteTransactional(long txID, long queueID, PagePosition position) throws Exception
-   {
+   public void storePageCompleteTransactional(long txID, long queueID, PagePosition position) throws Exception {
    }
 
-   public void deletePageComplete(long ackID) throws Exception
-   {
+   public void deletePageComplete(long ackID) throws Exception {
    }
 
    @Override
-   public void updatePageTransaction(final PageTransactionInfo pageTransaction, final int depage) throws Exception
-   {
+   public void updatePageTransaction(final PageTransactionInfo pageTransaction, final int depage) throws Exception {
    }
 
    @Override
-   public long storePageCounter(final long txID, final long queueID, final long value) throws Exception
-   {
+   public long storePageCounter(final long txID, final long queueID, final long value) throws Exception {
       return 0;
    }
 
    @Override
-   public long storePendingCounter(long queueID, long pageID, int inc) throws Exception
-   {
+   public long storePendingCounter(long queueID, long pageID, int inc) throws Exception {
       return -1;
    }
 
    @Override
-   public void deleteIncrementRecord(final long txID, final long recordID) throws Exception
-   {
+   public void deleteIncrementRecord(final long txID, final long recordID) throws Exception {
    }
 
    @Override
-   public void deletePageCounter(final long txID, final long recordID) throws Exception
-   {
+   public void deletePageCounter(final long txID, final long recordID) throws Exception {
    }
 
-   public void deletePendingPageCounter(long txID, long recordID) throws Exception
-   {
+   public void deletePendingPageCounter(long txID, long recordID) throws Exception {
    }
 
    @Override
-   public long storePageCounterInc(final long txID, final long queueID, final int add) throws Exception
-   {
+   public long storePageCounterInc(final long txID, final long queueID, final int add) throws Exception {
       return 0;
    }
 
    @Override
-   public long storePageCounterInc(final long queueID, final int add) throws Exception
-   {
+   public long storePageCounterInc(final long queueID, final int add) throws Exception {
       return 0;
    }
 
    @Override
-   public void commit(final long txID, final boolean lineUpContext) throws Exception
-   {
+   public void commit(final long txID, final boolean lineUpContext) throws Exception {
    }
 
    @Override
-   public void lineUpContext()
-   {
+   public void lineUpContext() {
    }
 
    @Override
-   public void
-   confirmPendingLargeMessageTX(final Transaction transaction, final long messageID, final long recordID) throws Exception
-   {
+   public void confirmPendingLargeMessageTX(final Transaction transaction,
+                                            final long messageID,
+                                            final long recordID) throws Exception {
    }
 
    @Override
-   public void confirmPendingLargeMessage(final long recordID) throws Exception
-   {
+   public void confirmPendingLargeMessage(final long recordID) throws Exception {
    }
 
    @Override
-   public void stop(final boolean ioCriticalError) throws Exception
-   {
+   public void stop(final boolean ioCriticalError) throws Exception {
    }
 
    @Override
-   public Journal getBindingsJournal()
-   {
+   public Journal getBindingsJournal() {
       return null;
    }
 
    @Override
-   public Journal getMessageJournal()
-   {
+   public Journal getMessageJournal() {
       return null;
    }
 
    @Override
-   public void startReplication(final ReplicationManager replicationManager, final PagingManager pagingManager,
-                                final String nodeID, final boolean autoFailBack) throws Exception
-   {
+   public void startReplication(final ReplicationManager replicationManager,
+                                final PagingManager pagingManager,
+                                final String nodeID,
+                                final boolean autoFailBack) throws Exception {
       // no-op
    }
 
    @Override
-   public boolean addToPage(PagingStore s, ServerMessage msg, Transaction tx, RouteContextList listCtx) throws Exception
-   {
+   public boolean addToPage(PagingStore s,
+                            ServerMessage msg,
+                            Transaction tx,
+                            RouteContextList listCtx) throws Exception {
       return false;
    }
 
    @Override
-   public void stopReplication()
-   {
+   public void stopReplication() {
       // no-op
    }
 
    @Override
-   public SequentialFile createFileForLargeMessage(final long messageID, final LargeMessageExtension extension)
-   {
+   public SequentialFile createFileForLargeMessage(final long messageID, final LargeMessageExtension extension) {
       throw new UnsupportedOperationException();
    }
 
    @Override
-   public void addBytesToLargeMessage(SequentialFile appendFile, long messageID, byte[] bytes) throws Exception
-   {
+   public void addBytesToLargeMessage(SequentialFile appendFile, long messageID, byte[] bytes) throws Exception {
       // no-op
    }
 
    @Override
-   public void beforePageRead() throws Exception
-   {
+   public void beforePageRead() throws Exception {
    }
 
    @Override
-   public void afterPageRead() throws Exception
-   {
+   public void afterPageRead() throws Exception {
    }
 
    @Override
-   public ByteBuffer allocateDirectBuffer(final int size)
-   {
+   public ByteBuffer allocateDirectBuffer(final int size) {
       return ByteBuffer.allocateDirect(size);
    }
 
    @Override
-   public void freeDirectBuffer(final ByteBuffer buffer)
-   {
+   public void freeDirectBuffer(final ByteBuffer buffer) {
       // We can just have hope on GC here :-)
    }
 
    @Override
-   public void storeID(final long journalID, final long id) throws Exception
-   {
+   public void storeID(final long journalID, final long id) throws Exception {
       // no-op
    }
 
    @Override
-   public void readLock()
-   {
+   public void readLock() {
       // no-op
    }
 
    @Override
-   public void readUnLock()
-   {
+   public void readUnLock() {
       // no-op
    }
 
    @Override
-   public void persistIdGenerator()
-   {
+   public void persistIdGenerator() {
       // no-op
    }
 
    @Override
-   public void deleteID(long journalD) throws Exception
-   {
+   public void deleteID(long journalD) throws Exception {
 
    }
 }

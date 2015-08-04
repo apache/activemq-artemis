@@ -22,10 +22,9 @@ import org.apache.activemq.artemis.utils.uri.URIFactory;
 
 import java.util.List;
 
-public class AcceptorTransportConfigurationParser extends URIFactory<List<TransportConfiguration>, String>
-{
-   public AcceptorTransportConfigurationParser()
-   {
+public class AcceptorTransportConfigurationParser extends URIFactory<List<TransportConfiguration>, String> {
+
+   public AcceptorTransportConfigurationParser() {
       registerSchema(new TCPAcceptorTransportConfigurationSchema(TransportConstants.ALLOWABLE_ACCEPTOR_KEYS));
       registerSchema(new InVMAcceptorTransportConfigurationSchema());
    }

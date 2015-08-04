@@ -19,16 +19,15 @@ package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 
-public class SessionXAResponseMessage extends PacketImpl
-{
+public class SessionXAResponseMessage extends PacketImpl {
+
    private boolean error;
 
    private int responseCode;
 
    private String message;
 
-   public SessionXAResponseMessage(final boolean isError, final int responseCode, final String message)
-   {
+   public SessionXAResponseMessage(final boolean isError, final int responseCode, final String message) {
       super(SESS_XA_RESP);
 
       error = isError;
@@ -38,53 +37,45 @@ public class SessionXAResponseMessage extends PacketImpl
       this.message = message;
    }
 
-   public SessionXAResponseMessage()
-   {
+   public SessionXAResponseMessage() {
       super(SESS_XA_RESP);
    }
 
    // Public --------------------------------------------------------
 
    @Override
-   public boolean isResponse()
-   {
+   public boolean isResponse() {
       return true;
    }
 
-   public boolean isError()
-   {
+   public boolean isError() {
       return error;
    }
 
-   public int getResponseCode()
-   {
+   public int getResponseCode() {
       return responseCode;
    }
 
-   public String getMessage()
-   {
+   public String getMessage() {
       return message;
    }
 
    @Override
-   public void encodeRest(final ActiveMQBuffer buffer)
-   {
+   public void encodeRest(final ActiveMQBuffer buffer) {
       buffer.writeBoolean(error);
       buffer.writeInt(responseCode);
       buffer.writeNullableString(message);
    }
 
    @Override
-   public void decodeRest(final ActiveMQBuffer buffer)
-   {
+   public void decodeRest(final ActiveMQBuffer buffer) {
       error = buffer.readBoolean();
       responseCode = buffer.readInt();
       message = buffer.readNullableString();
    }
 
    @Override
-   public int hashCode()
-   {
+   public int hashCode() {
       final int prime = 31;
       int result = super.hashCode();
       result = prime * result + (error ? 1231 : 1237);
@@ -94,19 +85,17 @@ public class SessionXAResponseMessage extends PacketImpl
    }
 
    @Override
-   public boolean equals(Object obj)
-   {
+   public boolean equals(Object obj) {
       if (this == obj)
          return true;
       if (!super.equals(obj))
          return false;
       if (!(obj instanceof SessionXAResponseMessage))
          return false;
-      SessionXAResponseMessage other = (SessionXAResponseMessage)obj;
+      SessionXAResponseMessage other = (SessionXAResponseMessage) obj;
       if (error != other.error)
          return false;
-      if (message == null)
-      {
+      if (message == null) {
          if (other.message != null)
             return false;
       }

@@ -61,8 +61,8 @@ import java.util.Arrays;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-public class JMSServerControl2Test extends ManagementTestBase
-{
+public class JMSServerControl2Test extends ManagementTestBase {
+
    private static final long CONNECTION_TTL = 1000;
 
    private static final long PING_PERIOD = JMSServerControl2Test.CONNECTION_TTL / 2;
@@ -75,10 +75,8 @@ public class JMSServerControl2Test extends ManagementTestBase
 
    // Static --------------------------------------------------------
 
-   private void startActiveMQServer(final String acceptorFactory) throws Exception
-   {
-      Configuration config = createBasicConfig()
-         .addAcceptorConfiguration(new TransportConfiguration(acceptorFactory));
+   private void startActiveMQServer(final String acceptorFactory) throws Exception {
+      Configuration config = createBasicConfig().addAcceptorConfiguration(new TransportConfiguration(acceptorFactory));
       server = addServer(ActiveMQServers.newActiveMQServer(config, mbeanServer, true));
       server.start();
 
@@ -91,120 +89,100 @@ public class JMSServerControl2Test extends ManagementTestBase
    }
 
    @Test
-   public void testListClientConnectionsForInVM() throws Exception
-   {
+   public void testListClientConnectionsForInVM() throws Exception {
       doListClientConnections(InVMAcceptorFactory.class.getName(), InVMConnectorFactory.class.getName());
    }
 
    @Test
-   public void testListClientConnectionsForNetty() throws Exception
-   {
+   public void testListClientConnectionsForNetty() throws Exception {
       doListClientConnections(NettyAcceptorFactory.class.getName(), NettyConnectorFactory.class.getName());
    }
 
    @Test
-   public void testCloseConnectionsForAddressForInVM() throws Exception
-   {
+   public void testCloseConnectionsForAddressForInVM() throws Exception {
       doCloseConnectionsForAddress(InVMAcceptorFactory.class.getName(), InVMConnectorFactory.class.getName());
    }
 
    @Test
-   public void testCloseConnectionsForAddressForNetty() throws Exception
-   {
+   public void testCloseConnectionsForAddressForNetty() throws Exception {
       doCloseConnectionsForAddress(NettyAcceptorFactory.class.getName(), NettyConnectorFactory.class.getName());
    }
 
    @Test
-   public void testCloseConnectionsForUnknownAddressForInVM() throws Exception
-   {
+   public void testCloseConnectionsForUnknownAddressForInVM() throws Exception {
       doCloseConnectionsForUnknownAddress(InVMAcceptorFactory.class.getName(), InVMConnectorFactory.class.getName());
    }
 
    @Test
-   public void testCloseConnectionsForUnknownAddressForNetty() throws Exception
-   {
+   public void testCloseConnectionsForUnknownAddressForNetty() throws Exception {
       doCloseConnectionsForUnknownAddress(NettyAcceptorFactory.class.getName(), NettyConnectorFactory.class.getName());
    }
 
    @Test
-   public void testCloseConsumerConnectionsForAddressForInVM() throws Exception
-   {
+   public void testCloseConsumerConnectionsForAddressForInVM() throws Exception {
       doCloseConsumerConnectionsForAddress(InVMAcceptorFactory.class.getName(), InVMConnectorFactory.class.getName());
    }
 
    @Test
-   public void testCloseConsumerConnectionsForAddressForNetty() throws Exception
-   {
+   public void testCloseConsumerConnectionsForAddressForNetty() throws Exception {
       doCloseConsumerConnectionsForAddress(NettyAcceptorFactory.class.getName(), NettyConnectorFactory.class.getName());
    }
 
    @Test
-   public void testCloseConsumerConnectionsForWildcardAddressForInVM() throws Exception
-   {
+   public void testCloseConsumerConnectionsForWildcardAddressForInVM() throws Exception {
       doCloseConsumerConnectionsForWildcardAddress(InVMAcceptorFactory.class.getName(), InVMConnectorFactory.class.getName());
    }
 
    @Test
-   public void testCloseConsumerConnectionsForWildcardAddressForNetty() throws Exception
-   {
+   public void testCloseConsumerConnectionsForWildcardAddressForNetty() throws Exception {
       doCloseConsumerConnectionsForWildcardAddress(NettyAcceptorFactory.class.getName(), NettyConnectorFactory.class.getName());
    }
 
    @Test
-   public void testCloseConnectionsForUserForInVM() throws Exception
-   {
+   public void testCloseConnectionsForUserForInVM() throws Exception {
       doCloseConnectionsForUser(InVMAcceptorFactory.class.getName(), InVMConnectorFactory.class.getName());
    }
 
    @Test
-   public void testCloseConnectionsForUserForNetty() throws Exception
-   {
+   public void testCloseConnectionsForUserForNetty() throws Exception {
       doCloseConnectionsForUser(NettyAcceptorFactory.class.getName(), NettyConnectorFactory.class.getName());
    }
 
    @Test
-   public void testListSessionsForInVM() throws Exception
-   {
+   public void testListSessionsForInVM() throws Exception {
       doListSessions(InVMAcceptorFactory.class.getName(), InVMConnectorFactory.class.getName());
    }
 
    @Test
-   public void testListSessionsForNetty() throws Exception
-   {
+   public void testListSessionsForNetty() throws Exception {
       doListSessions(NettyAcceptorFactory.class.getName(), NettyConnectorFactory.class.getName());
    }
 
    @Test
-   public void testListConnectionIDsForInVM() throws Exception
-   {
+   public void testListConnectionIDsForInVM() throws Exception {
       doListConnectionIDs(InVMAcceptorFactory.class.getName(), InVMConnectorFactory.class.getName());
    }
 
    @Test
-   public void testListConnectionIDsForNetty() throws Exception
-   {
+   public void testListConnectionIDsForNetty() throws Exception {
       doListConnectionIDs(NettyAcceptorFactory.class.getName(), NettyConnectorFactory.class.getName());
    }
 
    @Test
-   public void testListConnectionsAsJSONForNetty() throws Exception
-   {
+   public void testListConnectionsAsJSONForNetty() throws Exception {
       doListConnectionsAsJSON(NettyAcceptorFactory.class.getName(), NettyConnectorFactory.class.getName());
    }
 
    @Test
-   public void testListConnectionsAsJSONForInVM() throws Exception
-   {
+   public void testListConnectionsAsJSONForInVM() throws Exception {
       doListConnectionsAsJSON(InVMAcceptorFactory.class.getName(), InVMConnectorFactory.class.getName());
    }
 
    @Test
-   public void testListConsumersAsJSON() throws Exception
-   {
+   public void testListConsumersAsJSON() throws Exception {
       String queueName = RandomUtil.randomString();
 
-      try
-      {
+      try {
          startActiveMQServer(NETTY_ACCEPTOR_FACTORY);
          serverManager.createQueue(false, queueName, null, true, queueName);
          Queue queue = ActiveMQJMSClient.createQueue(queueName);
@@ -218,9 +196,7 @@ public class JMSServerControl2Test extends ManagementTestBase
          JMSConnectionInfo[] infos = JMSConnectionInfo.from(jsonStr);
          assertEquals(0, infos.length);
 
-         ConnectionFactory cf1 = JMSUtil.createFactory(NettyConnectorFactory.class.getName(),
-                                                       JMSServerControl2Test.CONNECTION_TTL,
-                                                       JMSServerControl2Test.PING_PERIOD);
+         ConnectionFactory cf1 = JMSUtil.createFactory(NettyConnectorFactory.class.getName(), JMSServerControl2Test.CONNECTION_TTL, JMSServerControl2Test.PING_PERIOD);
          Connection connection = cf1.createConnection();
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
          TemporaryTopic temporaryTopic = session.createTemporaryTopic();
@@ -300,16 +276,13 @@ public class JMSServerControl2Test extends ManagementTestBase
 
          connection.close();
       }
-      finally
-      {
-         if (serverManager != null)
-         {
+      finally {
+         if (serverManager != null) {
             serverManager.destroyQueue(queueName);
             serverManager.stop();
          }
 
-         if (server != null)
-         {
+         if (server != null) {
             server.stop();
          }
       }
@@ -319,14 +292,12 @@ public class JMSServerControl2Test extends ManagementTestBase
     * test for durable subscriber
     */
    @Test
-   public void testListConsumersAsJSON2() throws Exception
-   {
+   public void testListConsumersAsJSON2() throws Exception {
       String topicName = RandomUtil.randomString();
       String clientID = RandomUtil.randomString();
       String subName = RandomUtil.randomString();
 
-      try
-      {
+      try {
          startActiveMQServer(NettyAcceptorFactory.class.getName());
          serverManager.createTopic(false, topicName, topicName);
          Topic topic = ActiveMQJMSClient.createTopic(topicName);
@@ -340,9 +311,7 @@ public class JMSServerControl2Test extends ManagementTestBase
          JMSConnectionInfo[] infos = JMSConnectionInfo.from(jsonStr);
          assertEquals(0, infos.length);
 
-         ConnectionFactory cf1 = JMSUtil.createFactory(NettyConnectorFactory.class.getName(),
-                                                       JMSServerControl2Test.CONNECTION_TTL,
-                                                       JMSServerControl2Test.PING_PERIOD);
+         ConnectionFactory cf1 = JMSUtil.createFactory(NettyConnectorFactory.class.getName(), JMSServerControl2Test.CONNECTION_TTL, JMSServerControl2Test.PING_PERIOD);
          Connection connection = cf1.createConnection();
          connection.setClientID(clientID);
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -374,16 +343,13 @@ public class JMSServerControl2Test extends ManagementTestBase
 
          connection.close();
       }
-      finally
-      {
-         if (serverManager != null)
-         {
+      finally {
+         if (serverManager != null) {
             serverManager.destroyTopic(topicName);
             serverManager.stop();
          }
 
-         if (server != null)
-         {
+         if (server != null) {
             server.stop();
          }
       }
@@ -391,16 +357,14 @@ public class JMSServerControl2Test extends ManagementTestBase
 
    //https://jira.jboss.org/browse/HORNETQ-416
    @Test
-   public void testProducerInfo() throws Exception
-   {
+   public void testProducerInfo() throws Exception {
       String queueName = RandomUtil.randomString();
 
       System.out.println("queueName is: " + queueName);
 
       Connection connection = null;
 
-      try
-      {
+      try {
          startActiveMQServer(NettyAcceptorFactory.class.getName());
          serverManager.createQueue(false, queueName, null, true, queueName);
          Queue queue = ActiveMQJMSClient.createQueue(queueName);
@@ -409,22 +373,18 @@ public class JMSServerControl2Test extends ManagementTestBase
 
          long startTime = System.currentTimeMillis();
 
-         ConnectionFactory cf1 = JMSUtil.createFactory(NettyConnectorFactory.class.getName(),
-                                                       JMSServerControl2Test.CONNECTION_TTL,
-                                                       JMSServerControl2Test.PING_PERIOD);
+         ConnectionFactory cf1 = JMSUtil.createFactory(NettyConnectorFactory.class.getName(), JMSServerControl2Test.CONNECTION_TTL, JMSServerControl2Test.PING_PERIOD);
          connection = cf1.createConnection();
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
          MessageProducer producer = session.createProducer(queue);
 
          TextMessage msgSent = null;
-         for (int i = 0; i < 10; i++)
-         {
+         for (int i = 0; i < 10; i++) {
             msgSent = session.createTextMessage("mymessage-" + i);
             producer.send(msgSent);
             System.out.println("sending msgID " + msgSent.getJMSMessageID());
          }
-
 
          connection.start();
 
@@ -432,8 +392,7 @@ public class JMSServerControl2Test extends ManagementTestBase
          MessageConsumer consumer = session.createConsumer(queue);
 
          TextMessage receivedMsg = null;
-         for (int i = 0; i < 10; i++)
-         {
+         for (int i = 0; i < 10; i++) {
             receivedMsg = (TextMessage) consumer.receive(3000);
             assertNotNull(receivedMsg);
          }
@@ -453,15 +412,13 @@ public class JMSServerControl2Test extends ManagementTestBase
 
          assertTrue(sessInfos.length > 0);
          boolean lastMsgFound = false;
-         for (JMSSessionInfo sInfo : sessInfos)
-         {
+         for (JMSSessionInfo sInfo : sessInfos) {
             System.out.println("Session name: " + sInfo.getSessionID());
             assertNotNull(sInfo.getSessionID());
             long createTime = sInfo.getCreationTime();
             assertTrue(startTime <= createTime && createTime <= System.currentTimeMillis());
             String lastID = control.getLastSentMessageID(sInfo.getSessionID(), "jms.queue." + queueName);
-            if (lastID != null)
-            {
+            if (lastID != null) {
                assertEquals(lastMsgID, lastID);
                lastMsgFound = true;
             }
@@ -472,47 +429,37 @@ public class JMSServerControl2Test extends ManagementTestBase
 
          connection.close();
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          e.printStackTrace();
          throw e;
       }
-      finally
-      {
-         try
-         {
-            if (connection != null)
-            {
+      finally {
+         try {
+            if (connection != null) {
                connection.close();
             }
 
-            if (serverManager != null)
-            {
+            if (serverManager != null) {
                serverManager.destroyQueue(queueName);
                serverManager.stop();
             }
          }
-         catch (Throwable ignored)
-         {
+         catch (Throwable ignored) {
             ignored.printStackTrace();
          }
 
-         if (server != null)
-         {
+         if (server != null) {
             server.stop();
          }
       }
    }
 
-
    @Test
-   public void testStartActivationListConnections() throws Exception
-   {
+   public void testStartActivationListConnections() throws Exception {
       ActiveMQActivation activation = null;
       ActiveMQResourceAdapter ra = null;
 
-      try
-      {
+      try {
          startActiveMQServer(InVMAcceptorFactory.class.getName());
          ActiveMQJMSClient.createQueue("test");
          serverManager.createQueue(false, "test", null, true, "test");
@@ -559,47 +506,40 @@ public class JMSServerControl2Test extends ManagementTestBase
 
          assertEquals("my-client-id", jmsConnectionInfos[0].getClientID());
       }
-      finally
-      {
+      finally {
          if (activation != null)
             activation.stop();
 
          if (ra != null)
             ra.stop();
 
-         try
-         {
+         try {
             /*if (connection != null)
             {
                connection.close();
             }*/
 
-            if (serverManager != null)
-            {
+            if (serverManager != null) {
                //serverManager.destroyQueue(queueName);
                serverManager.stop();
             }
          }
-         catch (Throwable ignored)
-         {
+         catch (Throwable ignored) {
             ignored.printStackTrace();
          }
 
-         if (server != null)
-         {
+         if (server != null) {
             server.stop();
          }
       }
    }
 
    @Test
-   public void testStartActivationOverrideListConnections() throws Exception
-   {
+   public void testStartActivationOverrideListConnections() throws Exception {
       ActiveMQActivation activation = null;
       ActiveMQResourceAdapter ra = null;
 
-      try
-      {
+      try {
          startActiveMQServer(InVMAcceptorFactory.class.getName());
          ActiveMQJMSClient.createQueue("test");
          serverManager.createQueue(false, "test", null, true, "test");
@@ -648,34 +588,29 @@ public class JMSServerControl2Test extends ManagementTestBase
 
          assertEquals("my-client-id", jmsConnectionInfos[0].getClientID());
       }
-      finally
-      {
+      finally {
          if (activation != null)
             activation.stop();
 
          if (ra != null)
             ra.stop();
 
-         try
-         {
+         try {
             /*if (connection != null)
             {
                connection.close();
             }*/
 
-            if (serverManager != null)
-            {
+            if (serverManager != null) {
                //serverManager.destroyQueue(queueName);
                serverManager.stop();
             }
          }
-         catch (Throwable ignored)
-         {
+         catch (Throwable ignored) {
             ignored.printStackTrace();
          }
 
-         if (server != null)
-         {
+         if (server != null) {
             server.stop();
          }
       }
@@ -684,34 +619,27 @@ public class JMSServerControl2Test extends ManagementTestBase
 
    // Protected -----------------------------------------------------
 
-   protected JMSServerControl createManagementControl() throws Exception
-   {
+   protected JMSServerControl createManagementControl() throws Exception {
       return ManagementControlHelper.createJMSServerControl(mbeanServer);
    }
 
    // Private -------------------------------------------------------
 
-   private void doListConnectionIDs(final String acceptorFactory, final String connectorFactory) throws Exception
-   {
-      try
-      {
+   private void doListConnectionIDs(final String acceptorFactory, final String connectorFactory) throws Exception {
+      try {
          startActiveMQServer(acceptorFactory);
 
          JMSServerControl control = createManagementControl();
 
          Assert.assertEquals(0, control.listConnectionIDs().length);
 
-         ConnectionFactory cf1 = JMSUtil.createFactory(connectorFactory,
-                                                       JMSServerControl2Test.CONNECTION_TTL,
-                                                       JMSServerControl2Test.PING_PERIOD);
+         ConnectionFactory cf1 = JMSUtil.createFactory(connectorFactory, JMSServerControl2Test.CONNECTION_TTL, JMSServerControl2Test.PING_PERIOD);
          Connection connection = cf1.createConnection();
 
          String[] connectionIDs = control.listConnectionIDs();
          Assert.assertEquals(1, connectionIDs.length);
 
-         ConnectionFactory cf2 = JMSUtil.createFactory(connectorFactory,
-                                                       JMSServerControl2Test.CONNECTION_TTL,
-                                                       JMSServerControl2Test.PING_PERIOD);
+         ConnectionFactory cf2 = JMSUtil.createFactory(connectorFactory, JMSServerControl2Test.CONNECTION_TTL, JMSServerControl2Test.PING_PERIOD);
          Connection connection2 = cf2.createConnection();
          Assert.assertEquals(2, control.listConnectionIDs().length);
 
@@ -723,24 +651,19 @@ public class JMSServerControl2Test extends ManagementTestBase
 
          waitForConnectionIDs(0, control);
       }
-      finally
-      {
-         if (serverManager != null)
-         {
+      finally {
+         if (serverManager != null) {
             serverManager.stop();
          }
 
-         if (server != null)
-         {
+         if (server != null) {
             server.stop();
          }
       }
    }
 
-   private void doListConnectionsAsJSON(final String acceptorFactory, final String connectorFactory) throws Exception
-   {
-      try
-      {
+   private void doListConnectionsAsJSON(final String acceptorFactory, final String connectorFactory) throws Exception {
+      try {
          startActiveMQServer(acceptorFactory);
 
          JMSServerControl control = createManagementControl();
@@ -752,33 +675,27 @@ public class JMSServerControl2Test extends ManagementTestBase
          JMSConnectionInfo[] infos = JMSConnectionInfo.from(jsonStr);
          assertEquals(0, infos.length);
 
-         ConnectionFactory cf1 = JMSUtil.createFactory(connectorFactory,
-                                                       JMSServerControl2Test.CONNECTION_TTL,
-                                                       JMSServerControl2Test.PING_PERIOD);
+         ConnectionFactory cf1 = JMSUtil.createFactory(connectorFactory, JMSServerControl2Test.CONNECTION_TTL, JMSServerControl2Test.PING_PERIOD);
          Connection connection = cf1.createConnection();
 
          jsonStr = control.listConnectionsAsJSON();
          assertNotNull(jsonStr);
          infos = JMSConnectionInfo.from(jsonStr);
          assertEquals(1, infos.length);
-         for (JMSConnectionInfo info : infos)
-         {
+         for (JMSConnectionInfo info : infos) {
             assertNotNull(info.getConnectionID());
             assertNotNull(info.getClientAddress());
             assertTrue(startTime <= info.getCreationTime() && info.getCreationTime() <= System.currentTimeMillis());
          }
 
-         ConnectionFactory cf2 = JMSUtil.createFactory(connectorFactory,
-                                                       JMSServerControl2Test.CONNECTION_TTL,
-                                                       JMSServerControl2Test.PING_PERIOD);
+         ConnectionFactory cf2 = JMSUtil.createFactory(connectorFactory, JMSServerControl2Test.CONNECTION_TTL, JMSServerControl2Test.PING_PERIOD);
          Connection connection2 = cf2.createConnection();
 
          jsonStr = control.listConnectionsAsJSON();
          assertNotNull(jsonStr);
          infos = JMSConnectionInfo.from(jsonStr);
          assertEquals(2, infos.length);
-         for (JMSConnectionInfo info : infos)
-         {
+         for (JMSConnectionInfo info : infos) {
             assertNotNull(info.getConnectionID());
             assertNotNull(info.getClientAddress());
             assertTrue(startTime <= info.getCreationTime() && info.getCreationTime() <= System.currentTimeMillis());
@@ -812,33 +729,26 @@ public class JMSServerControl2Test extends ManagementTestBase
          infos = JMSConnectionInfo.from(jsonStr);
          assertEquals(0, infos.length);
       }
-      finally
-      {
-         if (serverManager != null)
-         {
+      finally {
+         if (serverManager != null) {
             serverManager.stop();
          }
 
-         if (server != null)
-         {
+         if (server != null) {
             server.stop();
          }
       }
    }
 
-   private void waitForConnectionIDs(final int num, final JMSServerControl control) throws Exception
-   {
+   private void waitForConnectionIDs(final int num, final JMSServerControl control) throws Exception {
       final long timeout = 10000;
       long start = System.currentTimeMillis();
-      while (true)
-      {
-         if (control.listConnectionIDs().length == num)
-         {
+      while (true) {
+         if (control.listConnectionIDs().length == num) {
             return;
          }
 
-         if (System.currentTimeMillis() - start > timeout)
-         {
+         if (System.currentTimeMillis() - start > timeout) {
             throw new IllegalStateException("Timed out waiting for number of connections");
          }
 
@@ -846,19 +756,15 @@ public class JMSServerControl2Test extends ManagementTestBase
       }
    }
 
-   private void doListSessions(final String acceptorFactory, final String connectorFactory) throws Exception
-   {
-      try
-      {
+   private void doListSessions(final String acceptorFactory, final String connectorFactory) throws Exception {
+      try {
          startActiveMQServer(acceptorFactory);
 
          JMSServerControl control = createManagementControl();
 
          Assert.assertEquals(0, control.listConnectionIDs().length);
 
-         ConnectionFactory cf = JMSUtil.createFactory(connectorFactory,
-                                                      JMSServerControl2Test.CONNECTION_TTL,
-                                                      JMSServerControl2Test.PING_PERIOD);
+         ConnectionFactory cf = JMSUtil.createFactory(connectorFactory, JMSServerControl2Test.CONNECTION_TTL, JMSServerControl2Test.PING_PERIOD);
          Connection connection = cf.createConnection();
 
          String[] connectionIDs = control.listConnectionIDs();
@@ -877,40 +783,32 @@ public class JMSServerControl2Test extends ManagementTestBase
 
          Assert.assertEquals(0, control.listConnectionIDs().length);
       }
-      finally
-      {
-         if (serverManager != null)
-         {
+      finally {
+         if (serverManager != null) {
             serverManager.stop();
          }
 
-         if (server != null)
-         {
+         if (server != null) {
             server.stop();
          }
       }
    }
 
-   private void doListClientConnections(final String acceptorFactory, final String connectorFactory) throws Exception
-   {
-      try
-      {
+   private void doListClientConnections(final String acceptorFactory, final String connectorFactory) throws Exception {
+      try {
          startActiveMQServer(acceptorFactory);
 
          JMSServerControl control = createManagementControl();
 
          Assert.assertEquals(0, control.listRemoteAddresses().length);
 
-         ConnectionFactory cf = JMSUtil.createFactory(connectorFactory,
-                                                      JMSServerControl2Test.CONNECTION_TTL,
-                                                      JMSServerControl2Test.PING_PERIOD);
+         ConnectionFactory cf = JMSUtil.createFactory(connectorFactory, JMSServerControl2Test.CONNECTION_TTL, JMSServerControl2Test.PING_PERIOD);
          Connection connection = cf.createConnection();
 
          String[] remoteAddresses = control.listRemoteAddresses();
          Assert.assertEquals(1, remoteAddresses.length);
 
-         for (String remoteAddress : remoteAddresses)
-         {
+         for (String remoteAddress : remoteAddresses) {
             System.out.println(remoteAddress);
          }
 
@@ -921,24 +819,20 @@ public class JMSServerControl2Test extends ManagementTestBase
          remoteAddresses = control.listRemoteAddresses();
          Assert.assertEquals("got " + Arrays.asList(remoteAddresses), 0, remoteAddresses.length);
       }
-      finally
-      {
-         if (serverManager != null)
-         {
+      finally {
+         if (serverManager != null) {
             serverManager.stop();
          }
 
-         if (server != null)
-         {
+         if (server != null) {
             server.stop();
          }
       }
    }
 
-   private void doCloseConnectionsForAddress(final String acceptorFactory, final String connectorFactory) throws Exception
-   {
-      try
-      {
+   private void doCloseConnectionsForAddress(final String acceptorFactory,
+                                             final String connectorFactory) throws Exception {
+      try {
          startActiveMQServer(acceptorFactory);
 
          JMSServerControl control = createManagementControl();
@@ -946,9 +840,7 @@ public class JMSServerControl2Test extends ManagementTestBase
          Assert.assertEquals(0, server.getConnectionCount());
          Assert.assertEquals(0, control.listRemoteAddresses().length);
 
-         ConnectionFactory cf = JMSUtil.createFactory(connectorFactory,
-                                                      JMSServerControl2Test.CONNECTION_TTL,
-                                                      JMSServerControl2Test.PING_PERIOD);
+         ConnectionFactory cf = JMSUtil.createFactory(connectorFactory, JMSServerControl2Test.CONNECTION_TTL, JMSServerControl2Test.PING_PERIOD);
          Connection connection = cf.createConnection();
 
          Assert.assertEquals(1, server.getConnectionCount());
@@ -958,10 +850,8 @@ public class JMSServerControl2Test extends ManagementTestBase
          String remoteAddress = remoteAddresses[0];
 
          final CountDownLatch exceptionLatch = new CountDownLatch(1);
-         connection.setExceptionListener(new ExceptionListener()
-         {
-            public void onException(final JMSException e)
-            {
+         connection.setExceptionListener(new ExceptionListener() {
+            public void onException(final JMSException e) {
                exceptionLatch.countDown();
             }
          });
@@ -977,26 +867,22 @@ public class JMSServerControl2Test extends ManagementTestBase
 
          connection.close();
       }
-      finally
-      {
-         if (serverManager != null)
-         {
+      finally {
+         if (serverManager != null) {
             serverManager.stop();
          }
 
-         if (server != null)
-         {
+         if (server != null) {
             server.stop();
          }
       }
    }
 
-   private void doCloseConnectionsForUnknownAddress(final String acceptorFactory, final String connectorFactory) throws Exception
-   {
+   private void doCloseConnectionsForUnknownAddress(final String acceptorFactory,
+                                                    final String connectorFactory) throws Exception {
       String unknownAddress = RandomUtil.randomString();
 
-      try
-      {
+      try {
          startActiveMQServer(acceptorFactory);
 
          JMSServerControl control = createManagementControl();
@@ -1004,9 +890,7 @@ public class JMSServerControl2Test extends ManagementTestBase
          Assert.assertEquals(0, server.getConnectionCount());
          Assert.assertEquals(0, control.listRemoteAddresses().length);
 
-         ConnectionFactory cf = JMSUtil.createFactory(connectorFactory,
-                                                      JMSServerControl2Test.CONNECTION_TTL,
-                                                      JMSServerControl2Test.PING_PERIOD);
+         ConnectionFactory cf = JMSUtil.createFactory(connectorFactory, JMSServerControl2Test.CONNECTION_TTL, JMSServerControl2Test.PING_PERIOD);
          Connection connection = cf.createConnection();
 
          Assert.assertEquals(1, server.getConnectionCount());
@@ -1014,10 +898,8 @@ public class JMSServerControl2Test extends ManagementTestBase
          Assert.assertEquals(1, remoteAddresses.length);
 
          final CountDownLatch exceptionLatch = new CountDownLatch(1);
-         connection.setExceptionListener(new ExceptionListener()
-         {
-            public void onException(final JMSException e)
-            {
+         connection.setExceptionListener(new ExceptionListener() {
+            public void onException(final JMSException e) {
                exceptionLatch.countDown();
             }
          });
@@ -1033,27 +915,23 @@ public class JMSServerControl2Test extends ManagementTestBase
          connection.close();
 
       }
-      finally
-      {
-         if (serverManager != null)
-         {
+      finally {
+         if (serverManager != null) {
             serverManager.stop();
          }
 
-         if (server != null)
-         {
+         if (server != null) {
             server.stop();
          }
       }
    }
 
-   private void doCloseConsumerConnectionsForAddress(final String acceptorFactory, final String connectorFactory) throws Exception
-   {
+   private void doCloseConsumerConnectionsForAddress(final String acceptorFactory,
+                                                     final String connectorFactory) throws Exception {
       String queueName = RandomUtil.randomString();
       String queueName2 = RandomUtil.randomString();
 
-      try
-      {
+      try {
          startActiveMQServer(acceptorFactory);
          serverManager.createQueue(false, queueName, null, true, queueName);
          Queue queue = ActiveMQJMSClient.createQueue(queueName);
@@ -1069,9 +947,7 @@ public class JMSServerControl2Test extends ManagementTestBase
          Assert.assertEquals(0, queueControl.getConsumerCount());
          Assert.assertEquals(0, queueControl2.getConsumerCount());
 
-         ConnectionFactory cf = JMSUtil.createFactory(connectorFactory,
-                                                      JMSServerControl2Test.CONNECTION_TTL,
-                                                      JMSServerControl2Test.PING_PERIOD);
+         ConnectionFactory cf = JMSUtil.createFactory(connectorFactory, JMSServerControl2Test.CONNECTION_TTL, JMSServerControl2Test.PING_PERIOD);
          Connection connection = cf.createConnection();
          Session session = connection.createSession();
          MessageConsumer messageConsumer = session.createConsumer(queue);
@@ -1089,10 +965,8 @@ public class JMSServerControl2Test extends ManagementTestBase
          Assert.assertEquals(1, queueControl2.getConsumerCount());
 
          final CountDownLatch exceptionLatch = new CountDownLatch(1);
-         connection.setExceptionListener(new ExceptionListener()
-         {
-            public void onException(final JMSException e)
-            {
+         connection.setExceptionListener(new ExceptionListener() {
+            public void onException(final JMSException e) {
                exceptionLatch.countDown();
             }
          });
@@ -1111,28 +985,24 @@ public class JMSServerControl2Test extends ManagementTestBase
 
          connection2.close();
       }
-      finally
-      {
-         if (serverManager != null)
-         {
+      finally {
+         if (serverManager != null) {
             serverManager.stop();
          }
 
-         if (server != null)
-         {
+         if (server != null) {
             server.stop();
          }
       }
    }
 
-   private void doCloseConsumerConnectionsForWildcardAddress(final String acceptorFactory, final String connectorFactory) throws Exception
-   {
+   private void doCloseConsumerConnectionsForWildcardAddress(final String acceptorFactory,
+                                                             final String connectorFactory) throws Exception {
       String queueName1 = "x." + RandomUtil.randomString();
       String queueName2 = "x." + RandomUtil.randomString();
       String queueName3 = "y." + RandomUtil.randomString();
 
-      try
-      {
+      try {
          startActiveMQServer(acceptorFactory);
          serverManager.createQueue(false, queueName1, null, true, queueName1);
          Queue queue = ActiveMQJMSClient.createQueue(queueName1);
@@ -1152,9 +1022,7 @@ public class JMSServerControl2Test extends ManagementTestBase
          Assert.assertEquals(0, queueControl2.getConsumerCount());
          Assert.assertEquals(0, queueControl3.getConsumerCount());
 
-         ConnectionFactory cf = JMSUtil.createFactory(connectorFactory,
-                                                      JMSServerControl2Test.CONNECTION_TTL,
-                                                      JMSServerControl2Test.PING_PERIOD);
+         ConnectionFactory cf = JMSUtil.createFactory(connectorFactory, JMSServerControl2Test.CONNECTION_TTL, JMSServerControl2Test.PING_PERIOD);
          Connection connection = cf.createConnection();
          Session session = connection.createSession();
          MessageConsumer messageConsumer = session.createConsumer(queue);
@@ -1177,18 +1045,14 @@ public class JMSServerControl2Test extends ManagementTestBase
          Assert.assertEquals(1, queueControl3.getConsumerCount());
 
          final CountDownLatch exceptionLatch = new CountDownLatch(2);
-         connection.setExceptionListener(new ExceptionListener()
-         {
-            public void onException(final JMSException e)
-            {
+         connection.setExceptionListener(new ExceptionListener() {
+            public void onException(final JMSException e) {
                exceptionLatch.countDown();
             }
          });
 
-         connection2.setExceptionListener(new ExceptionListener()
-         {
-            public void onException(final JMSException e)
-            {
+         connection2.setExceptionListener(new ExceptionListener() {
+            public void onException(final JMSException e) {
                exceptionLatch.countDown();
             }
          });
@@ -1210,27 +1074,23 @@ public class JMSServerControl2Test extends ManagementTestBase
          connection2.close();
          connection3.close();
       }
-      finally
-      {
-         if (serverManager != null)
-         {
+      finally {
+         if (serverManager != null) {
             serverManager.stop();
          }
 
-         if (server != null)
-         {
+         if (server != null) {
             server.stop();
          }
       }
    }
 
-   private void doCloseConnectionsForUser(final String acceptorFactory, final String connectorFactory) throws Exception
-   {
+   private void doCloseConnectionsForUser(final String acceptorFactory,
+                                          final String connectorFactory) throws Exception {
       String queueName = RandomUtil.randomString();
       String queueName2 = RandomUtil.randomString();
 
-      try
-      {
+      try {
          startActiveMQServer(acceptorFactory);
          serverManager.createQueue(false, queueName, null, true, queueName);
          Queue queue = ActiveMQJMSClient.createQueue(queueName);
@@ -1246,9 +1106,7 @@ public class JMSServerControl2Test extends ManagementTestBase
          Assert.assertEquals(0, queueControl.getConsumerCount());
          Assert.assertEquals(0, queueControl2.getConsumerCount());
 
-         ConnectionFactory cf = JMSUtil.createFactory(connectorFactory,
-                                                      JMSServerControl2Test.CONNECTION_TTL,
-                                                      JMSServerControl2Test.PING_PERIOD);
+         ConnectionFactory cf = JMSUtil.createFactory(connectorFactory, JMSServerControl2Test.CONNECTION_TTL, JMSServerControl2Test.PING_PERIOD);
          Connection connection = cf.createConnection("fakeUser", "fakePassword");
          Session session = connection.createSession();
          MessageConsumer messageConsumer = session.createConsumer(queue);
@@ -1266,10 +1124,8 @@ public class JMSServerControl2Test extends ManagementTestBase
          Assert.assertEquals(1, queueControl2.getConsumerCount());
 
          final CountDownLatch exceptionLatch = new CountDownLatch(1);
-         connection.setExceptionListener(new ExceptionListener()
-         {
-            public void onException(final JMSException e)
-            {
+         connection.setExceptionListener(new ExceptionListener() {
+            public void onException(final JMSException e) {
                exceptionLatch.countDown();
             }
          });
@@ -1288,15 +1144,12 @@ public class JMSServerControl2Test extends ManagementTestBase
 
          connection2.close();
       }
-      finally
-      {
-         if (serverManager != null)
-         {
+      finally {
+         if (serverManager != null) {
             serverManager.stop();
          }
 
-         if (server != null)
-         {
+         if (server != null) {
             server.stop();
          }
       }

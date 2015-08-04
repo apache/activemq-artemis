@@ -45,133 +45,130 @@ import org.slf4j.LoggerFactory;
 
 public class AMQ4407Test {
 
-    static final Logger LOG = LoggerFactory.getLogger(AMQ4407Test.class);
-    private final static int maxFileLength = 1024*1024*32;
+   static final Logger LOG = LoggerFactory.getLogger(AMQ4407Test.class);
+   private final static int maxFileLength = 1024 * 1024 * 32;
 
-    private final static String PREFIX_DESTINATION_NAME = "queue";
+   private final static String PREFIX_DESTINATION_NAME = "queue";
 
-    private final static String DESTINATION_NAME = PREFIX_DESTINATION_NAME + ".test";
-    private final static String DESTINATION_NAME_2 = PREFIX_DESTINATION_NAME + "2.test";
-    private final static String DESTINATION_NAME_3 = PREFIX_DESTINATION_NAME + "3.test";
+   private final static String DESTINATION_NAME = PREFIX_DESTINATION_NAME + ".test";
+   private final static String DESTINATION_NAME_2 = PREFIX_DESTINATION_NAME + "2.test";
+   private final static String DESTINATION_NAME_3 = PREFIX_DESTINATION_NAME + "3.test";
 
-    BrokerService broker;
+   BrokerService broker;
 
-    @Before
-    public void setUp() throws Exception {
-        prepareBrokerWithMultiStore(true);
-        broker.start();
-        broker.waitUntilStarted();
-    }
+   @Before
+   public void setUp() throws Exception {
+      prepareBrokerWithMultiStore(true);
+      broker.start();
+      broker.waitUntilStarted();
+   }
 
-    @After
-    public void tearDown() throws Exception {
-        broker.stop();
-    }
+   @After
+   public void tearDown() throws Exception {
+      broker.stop();
+   }
 
-    protected BrokerService createBroker(PersistenceAdapter kaha) throws Exception {
-        BrokerService broker = new BrokerService();
-        broker.setUseJmx(true);
-        broker.setBrokerName("localhost");
-        broker.setPersistenceAdapter(kaha);
-        return broker;
-    }
+   protected BrokerService createBroker(PersistenceAdapter kaha) throws Exception {
+      BrokerService broker = new BrokerService();
+      broker.setUseJmx(true);
+      broker.setBrokerName("localhost");
+      broker.setPersistenceAdapter(kaha);
+      return broker;
+   }
 
-    @Test
-    public void testRestartAfterQueueDelete() throws Exception {
+   @Test
+   public void testRestartAfterQueueDelete() throws Exception {
 
-        // Ensure we have an Admin View.
-        assertTrue("Broker doesn't have an Admin View.", Wait.waitFor(new Wait.Condition() {
-            @Override
-            public boolean isSatisified() throws Exception {
-                return (broker.getAdminView()) != null;
-            }
-        }));
+      // Ensure we have an Admin View.
+      assertTrue("Broker doesn't have an Admin View.", Wait.waitFor(new Wait.Condition() {
+         @Override
+         public boolean isSatisified() throws Exception {
+            return (broker.getAdminView()) != null;
+         }
+      }));
 
+      LOG.info("Adding destinations: {}, {}, {}", new Object[]{DESTINATION_NAME, DESTINATION_NAME_3, DESTINATION_NAME_3});
+      sendMessage(DESTINATION_NAME, "test 1");
+      sendMessage(DESTINATION_NAME_2, "test 1");
+      sendMessage(DESTINATION_NAME_3, "test 1");
 
-        LOG.info("Adding destinations: {}, {}, {}", new Object[] {DESTINATION_NAME, DESTINATION_NAME_3, DESTINATION_NAME_3});
-        sendMessage(DESTINATION_NAME, "test 1");
-        sendMessage(DESTINATION_NAME_2, "test 1");
-        sendMessage(DESTINATION_NAME_3, "test 1");
+      assertNotNull(broker.getDestination(new ActiveMQQueue(DESTINATION_NAME)));
+      assertNotNull(broker.getDestination(new ActiveMQQueue(DESTINATION_NAME_2)));
+      assertNotNull(broker.getDestination(new ActiveMQQueue(DESTINATION_NAME_3)));
 
-        assertNotNull(broker.getDestination(new ActiveMQQueue(DESTINATION_NAME)));
-        assertNotNull(broker.getDestination(new ActiveMQQueue(DESTINATION_NAME_2)));
-        assertNotNull(broker.getDestination(new ActiveMQQueue(DESTINATION_NAME_3)));
+      LOG.info("Removing destination: {}", DESTINATION_NAME_2);
+      broker.getAdminView().removeQueue(DESTINATION_NAME_2);
 
+      LOG.info("Recreating destination: {}", DESTINATION_NAME_2);
+      sendMessage(DESTINATION_NAME_2, "test 1");
 
-        LOG.info("Removing destination: {}", DESTINATION_NAME_2);
-        broker.getAdminView().removeQueue(DESTINATION_NAME_2);
+      Destination destination2 = broker.getDestination(new ActiveMQQueue(DESTINATION_NAME_2));
+      assertNotNull(destination2);
+      assertEquals(1, destination2.getMessageStore().getMessageCount());
+   }
 
-        LOG.info("Recreating destination: {}", DESTINATION_NAME_2);
-        sendMessage(DESTINATION_NAME_2, "test 1");
+   protected KahaDBPersistenceAdapter createStore(boolean delete) throws IOException {
+      KahaDBPersistenceAdapter kaha = new KahaDBPersistenceAdapter();
+      kaha.setJournalMaxFileLength(maxFileLength);
+      kaha.setCleanupInterval(5000);
+      if (delete) {
+         kaha.deleteAllMessages();
+      }
+      return kaha;
+   }
 
-        Destination destination2 = broker.getDestination(new ActiveMQQueue(DESTINATION_NAME_2));
-        assertNotNull(destination2);
-        assertEquals(1, destination2.getMessageStore().getMessageCount());
-    }
+   public void prepareBrokerWithMultiStore(boolean deleteAllMessages) throws Exception {
 
-    protected KahaDBPersistenceAdapter createStore(boolean delete) throws IOException {
-        KahaDBPersistenceAdapter kaha = new KahaDBPersistenceAdapter();
-        kaha.setJournalMaxFileLength(maxFileLength);
-        kaha.setCleanupInterval(5000);
-        if (delete) {
-            kaha.deleteAllMessages();
-        }
-        return kaha;
-    }
+      MultiKahaDBPersistenceAdapter multiKahaDBPersistenceAdapter = new MultiKahaDBPersistenceAdapter();
+      if (deleteAllMessages) {
+         multiKahaDBPersistenceAdapter.deleteAllMessages();
+      }
+      ArrayList<FilteredKahaDBPersistenceAdapter> adapters = new ArrayList<FilteredKahaDBPersistenceAdapter>();
 
-    public void prepareBrokerWithMultiStore(boolean deleteAllMessages) throws Exception {
+      adapters.add(createFilteredKahaDBByDestinationPrefix(PREFIX_DESTINATION_NAME, deleteAllMessages));
+      adapters.add(createFilteredKahaDBByDestinationPrefix(PREFIX_DESTINATION_NAME + "2", deleteAllMessages));
+      adapters.add(createFilteredKahaDBByDestinationPrefix(null, deleteAllMessages));
 
-        MultiKahaDBPersistenceAdapter multiKahaDBPersistenceAdapter = new MultiKahaDBPersistenceAdapter();
-        if (deleteAllMessages) {
-            multiKahaDBPersistenceAdapter.deleteAllMessages();
-        }
-        ArrayList<FilteredKahaDBPersistenceAdapter> adapters = new ArrayList<FilteredKahaDBPersistenceAdapter>();
+      multiKahaDBPersistenceAdapter.setFilteredPersistenceAdapters(adapters);
+      broker = createBroker(multiKahaDBPersistenceAdapter);
+   }
 
-        adapters.add(createFilteredKahaDBByDestinationPrefix(PREFIX_DESTINATION_NAME, deleteAllMessages));
-        adapters.add(createFilteredKahaDBByDestinationPrefix(PREFIX_DESTINATION_NAME + "2", deleteAllMessages));
-        adapters.add(createFilteredKahaDBByDestinationPrefix(null, deleteAllMessages));
+   /**
+    * Create filtered KahaDB adapter by destination prefix.
+    *
+    * @param destinationPrefix
+    * @param deleteAllMessages
+    * @return
+    * @throws IOException
+    */
+   private FilteredKahaDBPersistenceAdapter createFilteredKahaDBByDestinationPrefix(String destinationPrefix,
+                                                                                    boolean deleteAllMessages) throws IOException {
+      FilteredKahaDBPersistenceAdapter template = new FilteredKahaDBPersistenceAdapter();
+      template.setPersistenceAdapter(createStore(deleteAllMessages));
+      if (destinationPrefix != null) {
+         template.setQueue(destinationPrefix + ".>");
+      }
+      return template;
+   }
 
-        multiKahaDBPersistenceAdapter.setFilteredPersistenceAdapters(adapters);
-        broker = createBroker(multiKahaDBPersistenceAdapter);
-    }
-
-    /**
-     * Create filtered KahaDB adapter by destination prefix.
-     *
-     * @param destinationPrefix
-     * @param deleteAllMessages
-     * @return
-     * @throws IOException
-     */
-	private FilteredKahaDBPersistenceAdapter createFilteredKahaDBByDestinationPrefix(String destinationPrefix, boolean deleteAllMessages)
-			throws IOException {
-		FilteredKahaDBPersistenceAdapter template = new FilteredKahaDBPersistenceAdapter();
-        template.setPersistenceAdapter(createStore(deleteAllMessages));
-        if (destinationPrefix != null) {
-        	template.setQueue(destinationPrefix + ".>");
-        }
-		return template;
-	}
-
-
-	/**
-	 * Send message to particular destination.
-	 *
-	 * @param destinationName
-	 * @param message
-	 * @throws JMSException
-	 */
-	private void sendMessage(String destinationName, String message) throws JMSException {
-        ActiveMQConnectionFactory f = new ActiveMQConnectionFactory("vm://localhost");
-        f.setAlwaysSyncSend(true);
-        Connection c = f.createConnection();
-        c.start();
-        Session s = c.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        MessageProducer producer = s.createProducer(new ActiveMQQueue(destinationName));
-        producer.send(s.createTextMessage(message));
-        producer.close();
-        s.close();
-        c.stop();
-	}
+   /**
+    * Send message to particular destination.
+    *
+    * @param destinationName
+    * @param message
+    * @throws JMSException
+    */
+   private void sendMessage(String destinationName, String message) throws JMSException {
+      ActiveMQConnectionFactory f = new ActiveMQConnectionFactory("vm://localhost");
+      f.setAlwaysSyncSend(true);
+      Connection c = f.createConnection();
+      c.start();
+      Session s = c.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      MessageProducer producer = s.createProducer(new ActiveMQQueue(destinationName));
+      producer.send(s.createTextMessage(message));
+      producer.close();
+      s.close();
+      c.stop();
+   }
 
 }

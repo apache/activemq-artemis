@@ -21,23 +21,25 @@ import javax.security.auth.login.AppConfigurationEntry;
 import javax.security.auth.login.Configuration;
 
 public class StubDualJaasConfiguration extends Configuration {
-    private AppConfigurationEntry nonSslConfigEntry;
-    private AppConfigurationEntry sslConfigEntry;
 
-    public StubDualJaasConfiguration(AppConfigurationEntry nonSslConfigEntry, AppConfigurationEntry sslConfigEntry) {
-        this.nonSslConfigEntry = nonSslConfigEntry;
-        this.sslConfigEntry = sslConfigEntry;
-    }
+   private AppConfigurationEntry nonSslConfigEntry;
+   private AppConfigurationEntry sslConfigEntry;
 
-    public AppConfigurationEntry[] getAppConfigurationEntry(String name) {
-        if ("activemq-domain".equals(name)) {
-            return new AppConfigurationEntry[] {nonSslConfigEntry};
-        } else {
-            return new AppConfigurationEntry[] {sslConfigEntry};            
-        }
-    }
+   public StubDualJaasConfiguration(AppConfigurationEntry nonSslConfigEntry, AppConfigurationEntry sslConfigEntry) {
+      this.nonSslConfigEntry = nonSslConfigEntry;
+      this.sslConfigEntry = sslConfigEntry;
+   }
 
-    public void refresh() {
-    }
+   public AppConfigurationEntry[] getAppConfigurationEntry(String name) {
+      if ("activemq-domain".equals(name)) {
+         return new AppConfigurationEntry[]{nonSslConfigEntry};
+      }
+      else {
+         return new AppConfigurationEntry[]{sslConfigEntry};
+      }
+   }
+
+   public void refresh() {
+   }
 
 }

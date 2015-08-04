@@ -24,73 +24,61 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.rest.queue.push.PushStore;
 import org.apache.activemq.artemis.rest.queue.push.FilePushStore;
 
-public class QueueServiceManager extends DestinationServiceManager
-{
+public class QueueServiceManager extends DestinationServiceManager {
+
    protected PushStore pushStore;
    protected List<QueueDeployment> queues = new ArrayList<QueueDeployment>();
    protected QueueDestinationsResource destination;
 
-   public List<QueueDeployment> getQueues()
-   {
+   public List<QueueDeployment> getQueues() {
       return queues;
    }
 
-   public void setQueues(List<QueueDeployment> queues)
-   {
+   public void setQueues(List<QueueDeployment> queues) {
       this.queues = queues;
    }
 
-   public PushStore getPushStore()
-   {
+   public PushStore getPushStore() {
       return pushStore;
    }
 
-   public void setPushStore(PushStore pushStore)
-   {
+   public void setPushStore(PushStore pushStore) {
       this.pushStore = pushStore;
    }
 
-   public QueueDestinationsResource getDestination()
-   {
+   public QueueDestinationsResource getDestination() {
       return destination;
    }
 
-   public void setDestination(QueueDestinationsResource destination)
-   {
+   public void setDestination(QueueDestinationsResource destination) {
       this.destination = destination;
    }
 
    @Override
-   public void start() throws Exception
-   {
+   public void start() throws Exception {
       initDefaults();
 
       destination = new QueueDestinationsResource(this);
 
       started = true;
 
-      if (pushStoreFile != null && pushStore == null)
-      {
+      if (pushStoreFile != null && pushStore == null) {
          pushStore = new FilePushStore(pushStoreFile);
       }
 
-      for (QueueDeployment queueDeployment : queues)
-      {
+      for (QueueDeployment queueDeployment : queues) {
          deploy(queueDeployment);
       }
    }
 
-   public void deploy(QueueDeployment queueDeployment) throws Exception
-   {
-      if (!started)
-      {
+   public void deploy(QueueDeployment queueDeployment) throws Exception {
+      if (!started) {
          throw new Exception("You must start() this class instance before deploying");
       }
       String queueName = queueDeployment.getName();
       ClientSession session = sessionFactory.createSession(false, false, false);
       ClientSession.QueueQuery query = session.queueQuery(new SimpleString(queueName));
-      if (!query.isExists())
-      {
+      if (!query.isExists()) {
          session.createQueue(queueName, queueName, queueDeployment.isDurableSend());
       }
       session.close();
@@ -100,20 +88,17 @@ public class QueueServiceManager extends DestinationServiceManager
    }
 
    @Override
-   public void stop()
-   {
-      if (started == false) return;
-      for (QueueResource queue : destination.getQueues().values())
-      {
+   public void stop() {
+      if (started == false)
+         return;
+      for (QueueResource queue : destination.getQueues().values()) {
          queue.stop();
       }
-      try
-      {
+      try {
          timeoutTask.stop();
          sessionFactory.close();
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
       }
    }
 }

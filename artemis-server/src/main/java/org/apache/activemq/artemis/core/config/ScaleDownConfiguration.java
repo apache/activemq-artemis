@@ -22,8 +22,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ScaleDownConfiguration implements Serializable
-{
+public class ScaleDownConfiguration implements Serializable {
+
    private List<String> connectors = new ArrayList<>();
 
    private String discoveryGroup = null;
@@ -34,63 +34,52 @@ public class ScaleDownConfiguration implements Serializable
 
    private boolean enabled = ActiveMQDefaultConfiguration.isDefaultScaleDownEnabled();
 
-   public List<String> getConnectors()
-   {
+   public List<String> getConnectors() {
       return connectors;
    }
 
-   public ScaleDownConfiguration setConnectors(List<String> connectors)
-   {
+   public ScaleDownConfiguration setConnectors(List<String> connectors) {
       this.connectors = connectors;
       return this;
    }
 
-   public ScaleDownConfiguration addConnector(String connector)
-   {
+   public ScaleDownConfiguration addConnector(String connector) {
       connectors.add(connector);
       return this;
    }
 
-   public String getDiscoveryGroup()
-   {
+   public String getDiscoveryGroup() {
       return discoveryGroup;
    }
 
-   public ScaleDownConfiguration setDiscoveryGroup(String discoveryGroup)
-   {
+   public ScaleDownConfiguration setDiscoveryGroup(String discoveryGroup) {
       this.discoveryGroup = discoveryGroup;
       return this;
    }
 
-   public String getGroupName()
-   {
+   public String getGroupName() {
       return groupName;
    }
 
-   public ScaleDownConfiguration setGroupName(String groupName)
-   {
+   public ScaleDownConfiguration setGroupName(String groupName) {
       this.groupName = groupName;
       return this;
    }
 
-   public String getClusterName()
-   {
+   public String getClusterName() {
       return clusterName;
    }
 
-   public ScaleDownConfiguration setClusterName(String clusterName)
-   {
+   public ScaleDownConfiguration setClusterName(String clusterName) {
       this.clusterName = clusterName;
       return this;
    }
 
-   public boolean isEnabled()
-   {
+   public boolean isEnabled() {
       return enabled;
    }
 
-   public ScaleDownConfiguration setEnabled(boolean enabled)
-   {
+   public ScaleDownConfiguration setEnabled(boolean enabled) {
       this.enabled = enabled;
       return this;
    }

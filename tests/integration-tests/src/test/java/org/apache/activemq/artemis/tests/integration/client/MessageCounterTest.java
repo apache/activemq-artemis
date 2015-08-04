@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.integration.client;
+
 import org.junit.Before;
 
 import org.junit.Test;
@@ -31,8 +32,8 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 
-public class MessageCounterTest extends ActiveMQTestBase
-{
+public class MessageCounterTest extends ActiveMQTestBase {
+
    private ActiveMQServer server;
 
    private final SimpleString QUEUE = new SimpleString("ConsumerTestQueue");
@@ -41,8 +42,7 @@ public class MessageCounterTest extends ActiveMQTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       server = createServer(false);
@@ -52,10 +52,8 @@ public class MessageCounterTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testMessageCounter() throws Exception
-   {
-      locator.setBlockOnNonDurableSend(true)
-              .setBlockOnDurableSend(true);
+   public void testMessageCounter() throws Exception {
+      locator.setBlockOnNonDurableSend(true).setBlockOnDurableSend(true);
 
       ClientSessionFactory sf = createSessionFactory(locator);
       ClientSession session = sf.createSession(null, null, false, false, false, false, 0);
@@ -66,8 +64,7 @@ public class MessageCounterTest extends ActiveMQTestBase
 
       final int numMessages = 100;
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = createTextMessage(session, "m" + i);
          producer.send(message);
       }
@@ -79,8 +76,7 @@ public class MessageCounterTest extends ActiveMQTestBase
 
       ClientConsumer consumer = session.createConsumer(QUEUE, null, false);
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = consumer.receive(1000);
 
          Assert.assertNotNull(message);

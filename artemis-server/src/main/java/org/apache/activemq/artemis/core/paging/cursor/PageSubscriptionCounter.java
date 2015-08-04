@@ -19,8 +19,7 @@ package org.apache.activemq.artemis.core.paging.cursor;
 import org.apache.activemq.artemis.core.paging.impl.Page;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 
-public interface PageSubscriptionCounter
-{
+public interface PageSubscriptionCounter {
 
    long getValue();
 
@@ -32,11 +31,12 @@ public interface PageSubscriptionCounter
 
    void applyIncrementOnTX(Transaction tx, long recordID, int add);
 
-   /** This will process the reload */
+   /**
+    * This will process the reload
+    */
    void processReload();
 
    /**
-    *
     * @param id
     * @param variance
     */

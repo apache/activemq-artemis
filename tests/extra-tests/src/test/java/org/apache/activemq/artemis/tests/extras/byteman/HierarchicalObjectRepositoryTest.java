@@ -32,12 +32,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(BMUnitRunner.class)
-@BMRules(rules = { @BMRule(name = "modify map during iteration",
-         targetClass = "org.apache.activemq.artemis.core.settings.impl.HierarchicalObjectRepository",
-         targetMethod = "getPossibleMatches(String)", targetLocation = "AT INVOKE java.util.HashMap.put",
-         action = "org.apache.activemq.artemis.tests.extras.byteman.HierarchicalObjectRepositoryTest.bum()"), })
-public class HierarchicalObjectRepositoryTest
-{
+@BMRules(rules = {@BMRule(name = "modify map during iteration",
+   targetClass = "org.apache.activemq.artemis.core.settings.impl.HierarchicalObjectRepository",
+   targetMethod = "getPossibleMatches(String)", targetLocation = "AT INVOKE java.util.HashMap.put",
+   action = "org.apache.activemq.artemis.tests.extras.byteman.HierarchicalObjectRepositoryTest.bum()"),})
+public class HierarchicalObjectRepositoryTest {
+
    private static final String A = "a.";
    private static final int TOTAL = 100;
    private static CountDownLatch latch;
@@ -46,8 +46,7 @@ public class HierarchicalObjectRepositoryTest
    private HierarchicalObjectRepository<String> repo;
 
    @Before
-   public void setUp()
-   {
+   public void setUp() {
       latch = new CountDownLatch(1);
       latch2 = new CountDownLatch(1);
       executor = Executors.newSingleThreadExecutor();
@@ -55,46 +54,38 @@ public class HierarchicalObjectRepositoryTest
       addToRepo(repo, A);
    }
 
-   static void addToRepo(HierarchicalObjectRepository<String> repo0, String pattern)
-   {
-      for (int i = 0; i < TOTAL; i++)
-      {
+   static void addToRepo(HierarchicalObjectRepository<String> repo0, String pattern) {
+      for (int i = 0; i < TOTAL; i++) {
          repo0.addMatch(pattern + i + ".*", String.valueOf(i));
       }
    }
 
    @After
-   public void tearDown() throws InterruptedException
-   {
+   public void tearDown() throws InterruptedException {
       latch.countDown();
       latch2.countDown();
       executor.shutdown();
       executor.awaitTermination(1, TimeUnit.SECONDS);
    }
 
-   private class Clearer implements Runnable
-   {
+   private class Clearer implements Runnable {
+
       private final int code;
 
-      public Clearer(int code)
-      {
+      public Clearer(int code) {
          this.code = code;
       }
 
       @Override
-      public void run()
-      {
-         try
-         {
+      public void run() {
+         try {
             latch.await();
          }
-         catch (InterruptedException e)
-         {
+         catch (InterruptedException e) {
             throw new RuntimeException(e);
          }
 
-         switch (code)
-         {
+         switch (code) {
             case 0:
                repo.clear();
                break;
@@ -102,8 +93,7 @@ public class HierarchicalObjectRepositoryTest
                addToRepo(repo, "bb.");
                break;
             case 2:
-               for (int i = TOTAL / 2; i < TOTAL; i++)
-               {
+               for (int i = TOTAL / 2; i < TOTAL; i++) {
                   repo.removeMatch(A + i + ".*");
                }
                break;
@@ -116,38 +106,32 @@ public class HierarchicalObjectRepositoryTest
    }
 
    @Test
-   public void testConcurrentModificationsClear()
-   {
+   public void testConcurrentModificationsClear() {
       executor.execute(new Clearer(0));
       repo.getMatch(A + (TOTAL - 10) + ".foobar");
       Assert.assertEquals("Byteman rule failed?", 0, latch.getCount());
    }
 
    @Test
-   public void testConcurrentModificationsAdd()
-   {
+   public void testConcurrentModificationsAdd() {
       executor.execute(new Clearer(1));
       repo.getMatch(A + (TOTAL - 10) + ".foobar");
       Assert.assertEquals("Byteman rule failed?", 0, latch.getCount());
    }
 
    @Test
-   public void testConcurrentModificationsRemove()
-   {
+   public void testConcurrentModificationsRemove() {
       executor.execute(new Clearer(2));
       repo.getMatch(A + (TOTAL - 10) + ".foobar");
       Assert.assertEquals("Byteman rule failed?", 0, latch.getCount());
    }
 
-   public static void bum()
-   {
+   public static void bum() {
       latch.countDown();
-      try
-      {
+      try {
          latch2.await(3, TimeUnit.SECONDS);
       }
-      catch (InterruptedException e)
-      {
+      catch (InterruptedException e) {
          // no op
       }
    }

@@ -29,12 +29,10 @@ import org.junit.Test;
 /**
  * adapted from: org.apache.activemq.TimeStampTest
  */
-public class TimeStampTest extends BasicOpenWireTest
-{
+public class TimeStampTest extends BasicOpenWireTest {
 
    @Test
-   public void testTimestamp() throws Exception
-   {
+   public void testTimestamp() throws Exception {
       // Create a Session
       connection.start();
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -56,8 +54,7 @@ public class TimeStampTest extends BasicOpenWireTest
       long afterSend = System.currentTimeMillis();
 
       // assert message timestamp is in window
-      assertTrue(beforeSend <= sentMessage.getJMSTimestamp()
-            && sentMessage.getJMSTimestamp() <= afterSend);
+      assertTrue(beforeSend <= sentMessage.getJMSTimestamp() && sentMessage.getJMSTimestamp() <= afterSend);
 
       // Create a MessageConsumer from the Session to the Topic or Queue
       MessageConsumer consumer = session.createConsumer(destination);
@@ -69,18 +66,10 @@ public class TimeStampTest extends BasicOpenWireTest
       assertEquals(sentMessage.getJMSMessageID(), receivedMessage.getJMSMessageID());
 
       // assert message timestamp is in window
-      assertTrue(
-            "JMS Message Timestamp should be set during the send method: \n"
-                  + "        beforeSend = " + beforeSend + "\n"
-                  + "   getJMSTimestamp = " + receivedMessage.getJMSTimestamp()
-                  + "\n" + "         afterSend = " + afterSend + "\n",
-            beforeSend <= receivedMessage.getJMSTimestamp()
-                  && receivedMessage.getJMSTimestamp() <= afterSend);
+      assertTrue("JMS Message Timestamp should be set during the send method: \n" + "        beforeSend = " + beforeSend + "\n" + "   getJMSTimestamp = " + receivedMessage.getJMSTimestamp() + "\n" + "         afterSend = " + afterSend + "\n", beforeSend <= receivedMessage.getJMSTimestamp() && receivedMessage.getJMSTimestamp() <= afterSend);
 
       // assert message timestamp is unchanged
-      assertEquals(
-            "JMS Message Timestamp of received message should be the same as the sent message\n        ",
-            sentMessage.getJMSTimestamp(), receivedMessage.getJMSTimestamp());
+      assertEquals("JMS Message Timestamp of received message should be the same as the sent message\n        ", sentMessage.getJMSTimestamp(), receivedMessage.getJMSTimestamp());
 
       // Clean up
       producer.close();

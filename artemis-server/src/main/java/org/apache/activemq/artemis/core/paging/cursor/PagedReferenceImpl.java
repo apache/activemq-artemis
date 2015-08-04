@@ -26,8 +26,8 @@ import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.ServerMessage;
 
-public class PagedReferenceImpl implements PagedReference
-{
+public class PagedReferenceImpl implements PagedReference {
+
    private static final boolean isTrace = ActiveMQServerLogger.LOGGER.isTraceEnabled();
 
    private final PagePosition position;
@@ -48,21 +48,18 @@ public class PagedReferenceImpl implements PagedReference
 
    private boolean alreadyAcked;
 
-   public ServerMessage getMessage()
-   {
+   public ServerMessage getMessage() {
       return getPagedMessage().getMessage();
    }
 
-   public synchronized PagedMessage getPagedMessage()
-   {
+   public synchronized PagedMessage getPagedMessage() {
       PagedMessage returnMessage = message != null ? message.get() : null;
 
       // We only keep a few references on the Queue from paging...
       // Besides those references are SoftReferenced on page cache...
       // So, this will unlikely be null,
       // unless the Queue has stalled for some time after paging
-      if (returnMessage == null)
-      {
+      if (returnMessage == null) {
          // reference is gone, we will reconstruct it
          returnMessage = subscription.queryMessage(position);
          message = new WeakReference<PagedMessage>(returnMessage);
@@ -70,74 +67,58 @@ public class PagedReferenceImpl implements PagedReference
       return returnMessage;
    }
 
-   public PagePosition getPosition()
-   {
+   public PagePosition getPosition() {
       return position;
    }
 
    public PagedReferenceImpl(final PagePosition position,
                              final PagedMessage message,
-                             final PageSubscription subscription)
-   {
+                             final PageSubscription subscription) {
       this.position = position;
 
-      if (message == null)
-      {
+      if (message == null) {
          this.messageEstimate = -1;
       }
-      else
-      {
+      else {
          this.messageEstimate = message.getMessage().getMemoryEstimate();
       }
       this.message = new WeakReference<PagedMessage>(message);
       this.subscription = subscription;
    }
 
-   public boolean isPaged()
-   {
+   public boolean isPaged() {
       return true;
    }
 
-   public void setPersistedCount(int count)
-   {
+   public void setPersistedCount(int count) {
       this.persistedCount = count;
    }
 
-   public int getPersistedCount()
-   {
+   public int getPersistedCount() {
       return persistedCount;
    }
 
-
    @Override
-   public int getMessageMemoryEstimate()
-   {
-      if (messageEstimate < 0)
-      {
+   public int getMessageMemoryEstimate() {
+      if (messageEstimate < 0) {
          messageEstimate = getMessage().getMemoryEstimate();
       }
       return messageEstimate;
    }
 
-
    @Override
-   public MessageReference copy(final Queue queue)
-   {
+   public MessageReference copy(final Queue queue) {
       return new PagedReferenceImpl(this.position, this.getPagedMessage(), this.subscription);
    }
 
    @Override
-   public long getScheduledDeliveryTime()
-   {
-      if (deliveryTime == null)
-      {
+   public long getScheduledDeliveryTime() {
+      if (deliveryTime == null) {
          ServerMessage msg = getMessage();
-         if (msg.containsProperty(Message.HDR_SCHEDULED_DELIVERY_TIME))
-         {
+         if (msg.containsProperty(Message.HDR_SCHEDULED_DELIVERY_TIME)) {
             deliveryTime = getMessage().getLongProperty(Message.HDR_SCHEDULED_DELIVERY_TIME);
          }
-         else
-         {
+         else {
             deliveryTime = 0L;
          }
       }
@@ -145,71 +126,59 @@ public class PagedReferenceImpl implements PagedReference
    }
 
    @Override
-   public void setScheduledDeliveryTime(final long scheduledDeliveryTime)
-   {
+   public void setScheduledDeliveryTime(final long scheduledDeliveryTime) {
       deliveryTime = scheduledDeliveryTime;
    }
 
    @Override
-   public int getDeliveryCount()
-   {
+   public int getDeliveryCount() {
       return deliveryCount.get();
    }
 
    @Override
-   public void setDeliveryCount(final int deliveryCount)
-   {
+   public void setDeliveryCount(final int deliveryCount) {
       this.deliveryCount.set(deliveryCount);
    }
 
    @Override
-   public void incrementDeliveryCount()
-   {
+   public void incrementDeliveryCount() {
       deliveryCount.incrementAndGet();
-      if (isTrace)
-      {
+      if (isTrace) {
          ActiveMQServerLogger.LOGGER.trace("++deliveryCount = " + deliveryCount + " for " + this, new Exception("trace"));
       }
 
    }
 
    @Override
-   public void decrementDeliveryCount()
-   {
+   public void decrementDeliveryCount() {
       deliveryCount.decrementAndGet();
-      if (isTrace)
-      {
+      if (isTrace) {
          ActiveMQServerLogger.LOGGER.trace("--deliveryCount = " + deliveryCount + " for " + this, new Exception("trace"));
       }
    }
 
    @Override
-   public Queue getQueue()
-   {
+   public Queue getQueue() {
       return subscription.getQueue();
    }
 
    @Override
-   public void handled()
-   {
+   public void handled() {
       getQueue().referenceHandled();
    }
 
    @Override
-   public void setAlreadyAcked()
-   {
+   public void setAlreadyAcked() {
       alreadyAcked = true;
    }
 
    @Override
-   public boolean isAlreadyAcked()
-   {
+   public boolean isAlreadyAcked() {
       return alreadyAcked;
    }
 
    @Override
-   public void acknowledge() throws Exception
-   {
+   public void acknowledge() throws Exception {
       subscription.ack(this);
    }
 
@@ -217,15 +186,12 @@ public class PagedReferenceImpl implements PagedReference
     * @see java.lang.Object#toString()
     */
    @Override
-   public String toString()
-   {
+   public String toString() {
       String msgToString;
-      try
-      {
+      try {
          msgToString = getPagedMessage().toString();
       }
-      catch (Throwable e)
-      {
+      catch (Throwable e) {
          // in case of an exception because of a missing page, we just want toString to return null
          msgToString = "error:" + e.getMessage();
       }
@@ -247,8 +213,7 @@ public class PagedReferenceImpl implements PagedReference
     * @see org.apache.activemq.artemis.core.server.MessageReference#setConsumerId(java.lang.Long)
     */
    @Override
-   public void setConsumerId(Long consumerID)
-   {
+   public void setConsumerId(Long consumerID) {
       this.consumerId = consumerID;
    }
 
@@ -256,8 +221,7 @@ public class PagedReferenceImpl implements PagedReference
     * @see org.apache.activemq.artemis.core.server.MessageReference#getConsumerId()
     */
    @Override
-   public Long getConsumerId()
-   {
+   public Long getConsumerId() {
       return this.consumerId;
    }
 

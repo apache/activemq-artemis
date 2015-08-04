@@ -26,38 +26,37 @@ import java.util.Set;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public abstract class AbstractCachedLDAPAuthorizationModuleTest 
-    extends AbstractCachedLDAPAuthorizationMapLegacyTest {
+public abstract class AbstractCachedLDAPAuthorizationModuleTest extends AbstractCachedLDAPAuthorizationMapLegacyTest {
 
-    static final UserPrincipal JDOE = new UserPrincipal("jdoe");
+   static final UserPrincipal JDOE = new UserPrincipal("jdoe");
 
-    @Test
-    public void testQuery() throws Exception {
-        map.query();
-        Set<?> readACLs = map.getReadACLs(new ActiveMQQueue("TEST.FOOBAR"));
-        assertEquals("set size: " + readACLs, 3, readACLs.size());
-        assertTrue("Contains admin group", readACLs.contains(ADMINS));
-        assertTrue("Contains users group", readACLs.contains(USERS));
-        assertTrue("Contains jdoe user", readACLs.contains(JDOE));
+   @Test
+   public void testQuery() throws Exception {
+      map.query();
+      Set<?> readACLs = map.getReadACLs(new ActiveMQQueue("TEST.FOOBAR"));
+      assertEquals("set size: " + readACLs, 3, readACLs.size());
+      assertTrue("Contains admin group", readACLs.contains(ADMINS));
+      assertTrue("Contains users group", readACLs.contains(USERS));
+      assertTrue("Contains jdoe user", readACLs.contains(JDOE));
 
-        Set<?> failedACLs = map.getReadACLs(new ActiveMQQueue("FAILED"));
-        assertEquals("set size: " + failedACLs, 0, failedACLs.size());
-        
-        super.testQuery();
-    }
+      Set<?> failedACLs = map.getReadACLs(new ActiveMQQueue("FAILED"));
+      assertEquals("set size: " + failedACLs, 0, failedACLs.size());
 
-    @Override
-    protected final void setupModifyRequest(ModifyRequest request) {
-        request.remove("member", getMemberAttributeValueForModifyRequest());
-    }
-    
-    protected abstract String getMemberAttributeValueForModifyRequest();
+      super.testQuery();
+   }
 
-    @Override
-    protected SimpleCachedLDAPAuthorizationMap createMap() {
-        SimpleCachedLDAPAuthorizationMap map = super.createMap();
-        map.setLegacyGroupMapping(false);
-        return map;
-    }
+   @Override
+   protected final void setupModifyRequest(ModifyRequest request) {
+      request.remove("member", getMemberAttributeValueForModifyRequest());
+   }
+
+   protected abstract String getMemberAttributeValueForModifyRequest();
+
+   @Override
+   protected SimpleCachedLDAPAuthorizationMap createMap() {
+      SimpleCachedLDAPAuthorizationMap map = super.createMap();
+      map.setLegacyGroupMapping(false);
+      return map;
+   }
 }
 

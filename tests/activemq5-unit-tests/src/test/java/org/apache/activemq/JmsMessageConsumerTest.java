@@ -41,130 +41,131 @@ import org.junit.rules.TestName;
 
 public class JmsMessageConsumerTest {
 
-    private BrokerService brokerService;
-    private String brokerURI;
+   private BrokerService brokerService;
+   private String brokerURI;
 
-    @Rule public TestName name = new TestName();
+   @Rule
+   public TestName name = new TestName();
 
-    @Before
-    public void startBroker() throws Exception {
-        brokerService = new BrokerService();
-        brokerService.setPersistent(false);
-        brokerService.setUseJmx(false);
-        brokerService.start();
-        brokerService.waitUntilStarted();
+   @Before
+   public void startBroker() throws Exception {
+      brokerService = new BrokerService();
+      brokerService.setPersistent(false);
+      brokerService.setUseJmx(false);
+      brokerService.start();
+      brokerService.waitUntilStarted();
 
-        brokerURI = "vm://localhost?create=false";
-    }
+      brokerURI = "vm://localhost?create=false";
+   }
 
-    @After
-    public void stopBroker() throws Exception {
-        if (brokerService != null) {
-            brokerService.stop();
-        }
-    }
+   @After
+   public void stopBroker() throws Exception {
+      if (brokerService != null) {
+         brokerService.stop();
+      }
+   }
 
-    @Test
-    public void testSyncReceiveWithExpirationChecks() throws Exception {
-        ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(brokerURI);
+   @Test
+   public void testSyncReceiveWithExpirationChecks() throws Exception {
+      ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(brokerURI);
 
-        Connection connection = factory.createConnection();
-        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        Destination destination = session.createQueue(name.getMethodName());
-        MessageConsumer consumer = session.createConsumer(destination);
-        MessageProducer producer = session.createProducer(destination);
-        producer.setTimeToLive(TimeUnit.SECONDS.toMillis(2));
-        connection.start();
+      Connection connection = factory.createConnection();
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      Destination destination = session.createQueue(name.getMethodName());
+      MessageConsumer consumer = session.createConsumer(destination);
+      MessageProducer producer = session.createProducer(destination);
+      producer.setTimeToLive(TimeUnit.SECONDS.toMillis(2));
+      connection.start();
 
-        producer.send(session.createTextMessage("test"));
+      producer.send(session.createTextMessage("test"));
 
-        // Allow message to expire in the prefetch buffer
-        TimeUnit.SECONDS.sleep(4);
+      // Allow message to expire in the prefetch buffer
+      TimeUnit.SECONDS.sleep(4);
 
-        assertNull(consumer.receive(1000));
-        connection.close();
-    }
+      assertNull(consumer.receive(1000));
+      connection.close();
+   }
 
-    @Test
-    public void testSyncReceiveWithIgnoreExpirationChecks() throws Exception {
-        ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(brokerURI);
-        factory.setConsumerExpiryCheckEnabled(false);
+   @Test
+   public void testSyncReceiveWithIgnoreExpirationChecks() throws Exception {
+      ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(brokerURI);
+      factory.setConsumerExpiryCheckEnabled(false);
 
-        Connection connection = factory.createConnection();
-        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        Destination destination = session.createQueue(name.getMethodName());
-        MessageConsumer consumer = session.createConsumer(destination);
-        MessageProducer producer = session.createProducer(destination);
-        producer.setTimeToLive(TimeUnit.SECONDS.toMillis(2));
-        connection.start();
+      Connection connection = factory.createConnection();
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      Destination destination = session.createQueue(name.getMethodName());
+      MessageConsumer consumer = session.createConsumer(destination);
+      MessageProducer producer = session.createProducer(destination);
+      producer.setTimeToLive(TimeUnit.SECONDS.toMillis(2));
+      connection.start();
 
-        producer.send(session.createTextMessage("test"));
+      producer.send(session.createTextMessage("test"));
 
-        // Allow message to expire in the prefetch buffer
-        TimeUnit.SECONDS.sleep(4);
+      // Allow message to expire in the prefetch buffer
+      TimeUnit.SECONDS.sleep(4);
 
-        assertNotNull(consumer.receive(1000));
-        connection.close();
-    }
+      assertNotNull(consumer.receive(1000));
+      connection.close();
+   }
 
-    @Test
-    public void testAsyncReceiveWithExpirationChecks() throws Exception {
-        ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(brokerURI);
+   @Test
+   public void testAsyncReceiveWithExpirationChecks() throws Exception {
+      ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(brokerURI);
 
-        final CountDownLatch received = new CountDownLatch(1);
+      final CountDownLatch received = new CountDownLatch(1);
 
-        Connection connection = factory.createConnection();
-        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        Destination destination = session.createQueue(name.getMethodName());
-        MessageConsumer consumer = session.createConsumer(destination);
-        consumer.setMessageListener(new MessageListener() {
+      Connection connection = factory.createConnection();
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      Destination destination = session.createQueue(name.getMethodName());
+      MessageConsumer consumer = session.createConsumer(destination);
+      consumer.setMessageListener(new MessageListener() {
 
-            @Override
-            public void onMessage(Message message) {
-                received.countDown();
-            }
-        });
-        MessageProducer producer = session.createProducer(destination);
-        producer.setTimeToLive(TimeUnit.SECONDS.toMillis(2));
+         @Override
+         public void onMessage(Message message) {
+            received.countDown();
+         }
+      });
+      MessageProducer producer = session.createProducer(destination);
+      producer.setTimeToLive(TimeUnit.SECONDS.toMillis(2));
 
-        producer.send(session.createTextMessage("test"));
+      producer.send(session.createTextMessage("test"));
 
-        // Allow message to expire in the prefetch buffer
-        TimeUnit.SECONDS.sleep(4);
-        connection.start();
+      // Allow message to expire in the prefetch buffer
+      TimeUnit.SECONDS.sleep(4);
+      connection.start();
 
-        assertFalse(received.await(1, TimeUnit.SECONDS));
-        connection.close();
-    }
+      assertFalse(received.await(1, TimeUnit.SECONDS));
+      connection.close();
+   }
 
-    @Test
-    public void testAsyncReceiveWithoutExpirationChecks() throws Exception {
-        ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(brokerURI);
-        factory.setConsumerExpiryCheckEnabled(false);
+   @Test
+   public void testAsyncReceiveWithoutExpirationChecks() throws Exception {
+      ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(brokerURI);
+      factory.setConsumerExpiryCheckEnabled(false);
 
-        final CountDownLatch received = new CountDownLatch(1);
+      final CountDownLatch received = new CountDownLatch(1);
 
-        Connection connection = factory.createConnection();
-        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        Destination destination = session.createQueue(name.getMethodName());
-        MessageConsumer consumer = session.createConsumer(destination);
-        consumer.setMessageListener(new MessageListener() {
+      Connection connection = factory.createConnection();
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      Destination destination = session.createQueue(name.getMethodName());
+      MessageConsumer consumer = session.createConsumer(destination);
+      consumer.setMessageListener(new MessageListener() {
 
-            @Override
-            public void onMessage(Message message) {
-                received.countDown();
-            }
-        });
-        MessageProducer producer = session.createProducer(destination);
-        producer.setTimeToLive(TimeUnit.SECONDS.toMillis(2));
+         @Override
+         public void onMessage(Message message) {
+            received.countDown();
+         }
+      });
+      MessageProducer producer = session.createProducer(destination);
+      producer.setTimeToLive(TimeUnit.SECONDS.toMillis(2));
 
-        producer.send(session.createTextMessage("test"));
+      producer.send(session.createTextMessage("test"));
 
-        // Allow message to expire in the prefetch buffer
-        TimeUnit.SECONDS.sleep(4);
-        connection.start();
+      // Allow message to expire in the prefetch buffer
+      TimeUnit.SECONDS.sleep(4);
+      connection.start();
 
-        assertTrue(received.await(5, TimeUnit.SECONDS));
-        connection.close();
-    }
+      assertTrue(received.await(5, TimeUnit.SECONDS));
+      connection.close();
+   }
 }

@@ -26,21 +26,18 @@ import org.junit.Test;
 /**
  * Validate if the embedded server will start even with AIO selected
  */
-public class ValidateAIOTest extends ActiveMQTestBase
-{
+public class ValidateAIOTest extends ActiveMQTestBase {
+
    @Test
-   public void testValidateAIO() throws Exception
-   {
+   public void testValidateAIO() throws Exception {
       Configuration config = createDefaultInVMConfig()
          // This will force AsyncIO
          .setJournalType(JournalType.ASYNCIO);
       ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(config, true));
-      try
-      {
+      try {
          server.start();
       }
-      finally
-      {
+      finally {
          server.stop();
       }
    }

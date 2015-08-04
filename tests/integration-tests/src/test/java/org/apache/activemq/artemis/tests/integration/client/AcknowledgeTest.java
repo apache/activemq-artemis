@@ -44,8 +44,8 @@ import org.apache.activemq.artemis.utils.UUID;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class AcknowledgeTest extends ActiveMQTestBase
-{
+public class AcknowledgeTest extends ActiveMQTestBase {
+
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
    public final SimpleString addressA = new SimpleString("addressA");
@@ -57,13 +57,10 @@ public class AcknowledgeTest extends ActiveMQTestBase
    public final SimpleString queueC = new SimpleString("queueC");
 
    @Test
-   public void testReceiveAckLastMessageOnly() throws Exception
-   {
+   public void testReceiveAckLastMessageOnly() throws Exception {
       ActiveMQServer server = createServer(false);
       server.start();
-      ServerLocator locator = createInVMNonHALocator()
-              .setAckBatchSize(0)
-              .setBlockOnAcknowledge(true);
+      ServerLocator locator = createInVMNonHALocator().setAckBatchSize(0).setBlockOnAcknowledge(true);
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession sendSession = cf.createSession(false, true, true);
       ClientSession session = cf.createSession(false, true, true);
@@ -71,14 +68,12 @@ public class AcknowledgeTest extends ActiveMQTestBase
       ClientProducer cp = sendSession.createProducer(addressA);
       ClientConsumer cc = session.createConsumer(queueA);
       int numMessages = 100;
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          cp.send(sendSession.createMessage(false));
       }
       session.start();
       ClientMessage cm = null;
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          cm = cc.receive(5000);
          Assert.assertNotNull(cm);
       }
@@ -91,8 +86,7 @@ public class AcknowledgeTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testAsyncConsumerNoAck() throws Exception
-   {
+   public void testAsyncConsumerNoAck() throws Exception {
       ActiveMQServer server = createServer(false);
 
       server.start();
@@ -104,8 +98,7 @@ public class AcknowledgeTest extends ActiveMQTestBase
       ClientProducer cp = sendSession.createProducer(addressA);
       ClientConsumer cc = session.createConsumer(queueA);
       int numMessages = 3;
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          cp.send(sendSession.createMessage(false));
       }
 
@@ -114,12 +107,10 @@ public class AcknowledgeTest extends ActiveMQTestBase
 
       final CountDownLatch latch = new CountDownLatch(numMessages);
       session.start();
-      cc.setMessageHandler(new MessageHandler()
-      {
+      cc.setMessageHandler(new MessageHandler() {
          int c = 0;
 
-         public void onMessage(final ClientMessage message)
-         {
+         public void onMessage(final ClientMessage message) {
             log.info("Got message " + c++);
             latch.countDown();
          }
@@ -132,13 +123,10 @@ public class AcknowledgeTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testAsyncConsumerAck() throws Exception
-   {
+   public void testAsyncConsumerAck() throws Exception {
       ActiveMQServer server = createServer(false);
       server.start();
-      ServerLocator locator = createInVMNonHALocator()
-              .setBlockOnAcknowledge(true)
-              .setAckBatchSize(0);
+      ServerLocator locator = createInVMNonHALocator().setBlockOnAcknowledge(true).setAckBatchSize(0);
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession sendSession = cf.createSession(false, true, true);
       final ClientSession session = cf.createSession(false, true, true);
@@ -146,28 +134,21 @@ public class AcknowledgeTest extends ActiveMQTestBase
       ClientProducer cp = sendSession.createProducer(addressA);
       ClientConsumer cc = session.createConsumer(queueA);
       int numMessages = 100;
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          cp.send(sendSession.createMessage(false));
       }
       final CountDownLatch latch = new CountDownLatch(numMessages);
       session.start();
-      cc.setMessageHandler(new MessageHandler()
-      {
-         public void onMessage(final ClientMessage message)
-         {
-            try
-            {
+      cc.setMessageHandler(new MessageHandler() {
+         public void onMessage(final ClientMessage message) {
+            try {
                message.acknowledge();
             }
-            catch (ActiveMQException e)
-            {
-               try
-               {
+            catch (ActiveMQException e) {
+               try {
                   session.close();
                }
-               catch (ActiveMQException e1)
-               {
+               catch (ActiveMQException e1) {
                   e1.printStackTrace();
                }
             }
@@ -181,21 +162,17 @@ public class AcknowledgeTest extends ActiveMQTestBase
       session.close();
    }
 
-
    /**
     * This is validating a case where a consumer will try to ack a message right after failover, but the consumer at the target server didn't
     * receive the message yet.
     * on that case the system should rollback any acks done and redeliver any messages
     */
    @Test
-   public void testInvalidACK() throws Exception
-   {
+   public void testInvalidACK() throws Exception {
       ActiveMQServer server = createServer(false);
       server.start();
 
-      ServerLocator locator = createInVMNonHALocator()
-              .setAckBatchSize(0)
-              .setBlockOnAcknowledge(true);
+      ServerLocator locator = createInVMNonHALocator().setAckBatchSize(0).setBlockOnAcknowledge(true);
 
       ClientSessionFactory cf = createSessionFactory(locator);
 
@@ -215,8 +192,7 @@ public class AcknowledgeTest extends ActiveMQTestBase
 
          ClientProducer cp = sendSession.createProducer(addressA);
 
-         for (int i = 0; i < numMessages; i++)
-         {
+         for (int i = 0; i < numMessages; i++) {
             ClientMessage msg = sendSession.createMessage(true);
             msg.putIntProperty("seq", i);
             cp.send(msg);
@@ -233,24 +209,20 @@ public class AcknowledgeTest extends ActiveMQTestBase
          // as we need to guarantee the order on cancellation on this test
          Thread.sleep(1000);
 
-         try
-         {
+         try {
             // pretending to be an unbehaved client doing an invalid ack right after failover
             ((ClientSessionInternal) sessionConsumer).acknowledge(new FakeConsumerWithID(0), new FakeMessageWithID(12343));
             fail("supposed to throw an exception here");
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
          }
 
-         try
-         {
+         try {
             // pretending to be an unbehaved client doing an invalid ack right after failover
             ((ClientSessionInternal) sessionConsumer).acknowledge(new FakeConsumerWithID(3), new FakeMessageWithID(12343));
             fail("supposed to throw an exception here");
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             e.printStackTrace();
          }
 
@@ -258,9 +230,7 @@ public class AcknowledgeTest extends ActiveMQTestBase
 
          consumer = sessionConsumer.createConsumer(queueA);
 
-
-         for (int i = 0; i < numMessages; i++)
-         {
+         for (int i = 0; i < numMessages; i++) {
             msg = consumer.receive(5000);
             assertNotNull(msg);
             assertEquals(i, msg.getIntProperty("seq").intValue());
@@ -269,15 +239,11 @@ public class AcknowledgeTest extends ActiveMQTestBase
       }
    }
 
-
    @Test
-   public void testAsyncConsumerAckLastMessageOnly() throws Exception
-   {
+   public void testAsyncConsumerAckLastMessageOnly() throws Exception {
       ActiveMQServer server = createServer(false);
       server.start();
-      ServerLocator locator = createInVMNonHALocator()
-              .setBlockOnAcknowledge(true)
-              .setAckBatchSize(0);
+      ServerLocator locator = createInVMNonHALocator().setBlockOnAcknowledge(true).setAckBatchSize(0);
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession sendSession = cf.createSession(false, true, true);
       final ClientSession session = cf.createSession(false, true, true);
@@ -285,30 +251,22 @@ public class AcknowledgeTest extends ActiveMQTestBase
       ClientProducer cp = sendSession.createProducer(addressA);
       ClientConsumer cc = session.createConsumer(queueA);
       int numMessages = 100;
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          cp.send(sendSession.createMessage(false));
       }
       final CountDownLatch latch = new CountDownLatch(numMessages);
       session.start();
-      cc.setMessageHandler(new MessageHandler()
-      {
-         public void onMessage(final ClientMessage message)
-         {
-            if (latch.getCount() == 1)
-            {
-               try
-               {
+      cc.setMessageHandler(new MessageHandler() {
+         public void onMessage(final ClientMessage message) {
+            if (latch.getCount() == 1) {
+               try {
                   message.acknowledge();
                }
-               catch (ActiveMQException e)
-               {
-                  try
-                  {
+               catch (ActiveMQException e) {
+                  try {
                      session.close();
                   }
-                  catch (ActiveMQException e1)
-                  {
+                  catch (ActiveMQException e1) {
                      e1.printStackTrace();
                   }
                }
@@ -323,504 +281,420 @@ public class AcknowledgeTest extends ActiveMQTestBase
       session.close();
    }
 
+   class FakeConsumerWithID implements ClientConsumer {
 
-   class FakeConsumerWithID implements ClientConsumer
-   {
       final long id;
 
-      FakeConsumerWithID(long id)
-      {
+      FakeConsumerWithID(long id) {
          this.id = id;
       }
 
       @Override
-      public ConsumerContext getConsumerContext()
-      {
+      public ConsumerContext getConsumerContext() {
          return new ActiveMQConsumerContext(this.id);
       }
 
       @Override
-      public ClientMessage receive() throws ActiveMQException
-      {
+      public ClientMessage receive() throws ActiveMQException {
          return null;
       }
 
       @Override
-      public ClientMessage receive(long timeout) throws ActiveMQException
-      {
+      public ClientMessage receive(long timeout) throws ActiveMQException {
          return null;
       }
 
       @Override
-      public ClientMessage receiveImmediate() throws ActiveMQException
-      {
+      public ClientMessage receiveImmediate() throws ActiveMQException {
          return null;
       }
 
       @Override
-      public MessageHandler getMessageHandler() throws ActiveMQException
-      {
+      public MessageHandler getMessageHandler() throws ActiveMQException {
          return null;
       }
 
       @Override
-      public FakeConsumerWithID setMessageHandler(MessageHandler handler) throws ActiveMQException
-      {
+      public FakeConsumerWithID setMessageHandler(MessageHandler handler) throws ActiveMQException {
          return this;
       }
 
       @Override
-      public void close() throws ActiveMQException
-      {
+      public void close() throws ActiveMQException {
 
       }
 
       @Override
-      public boolean isClosed()
-      {
+      public boolean isClosed() {
          return false;
       }
 
       @Override
-      public Exception getLastException()
-      {
+      public Exception getLastException() {
          return null;
       }
    }
 
-   class FakeMessageWithID implements Message
-   {
+   class FakeMessageWithID implements Message {
 
       final long id;
 
-      FakeMessageWithID(final long id)
-      {
+      FakeMessageWithID(final long id) {
          this.id = id;
       }
 
       @Override
-      public long getMessageID()
-      {
+      public long getMessageID() {
          return id;
       }
 
       @Override
-      public UUID getUserID()
-      {
+      public UUID getUserID() {
          return null;
       }
 
       @Override
-      public FakeMessageWithID setUserID(UUID userID)
-      {
+      public FakeMessageWithID setUserID(UUID userID) {
          return this;
       }
 
       @Override
-      public SimpleString getAddress()
-      {
+      public SimpleString getAddress() {
          return null;
       }
 
       @Override
-      public Message setAddress(SimpleString address)
-      {
+      public Message setAddress(SimpleString address) {
          return null;
       }
 
       @Override
-      public byte getType()
-      {
+      public byte getType() {
          return 0;
       }
 
       @Override
-      public boolean isDurable()
-      {
+      public boolean isDurable() {
          return false;
       }
 
       @Override
-      public FakeMessageWithID setDurable(boolean durable)
-      {
+      public FakeMessageWithID setDurable(boolean durable) {
          return this;
       }
 
       @Override
-      public long getExpiration()
-      {
+      public long getExpiration() {
          return 0;
       }
 
       @Override
-      public boolean isExpired()
-      {
+      public boolean isExpired() {
          return false;
       }
 
       @Override
-      public FakeMessageWithID setExpiration(long expiration)
-      {
+      public FakeMessageWithID setExpiration(long expiration) {
          return this;
       }
 
       @Override
-      public long getTimestamp()
-      {
+      public long getTimestamp() {
          return 0;
       }
 
       @Override
-      public FakeMessageWithID setTimestamp(long timestamp)
-      {
+      public FakeMessageWithID setTimestamp(long timestamp) {
          return this;
       }
 
       @Override
-      public byte getPriority()
-      {
+      public byte getPriority() {
          return 0;
       }
 
       @Override
-      public FakeMessageWithID setPriority(byte priority)
-      {
+      public FakeMessageWithID setPriority(byte priority) {
          return this;
       }
 
       @Override
-      public int getEncodeSize()
-      {
+      public int getEncodeSize() {
          return 0;
       }
 
       @Override
-      public boolean isLargeMessage()
-      {
+      public boolean isLargeMessage() {
          return false;
       }
 
       @Override
-      public ActiveMQBuffer getBodyBuffer()
-      {
+      public ActiveMQBuffer getBodyBuffer() {
          return null;
       }
 
       @Override
-      public ActiveMQBuffer getBodyBufferCopy()
-      {
+      public ActiveMQBuffer getBodyBufferCopy() {
          return null;
       }
 
       @Override
-      public Message putBooleanProperty(SimpleString key, boolean value)
-      {
+      public Message putBooleanProperty(SimpleString key, boolean value) {
          return null;
       }
 
       @Override
-      public Message putBooleanProperty(String key, boolean value)
-      {
+      public Message putBooleanProperty(String key, boolean value) {
          return null;
       }
 
       @Override
-      public Message putByteProperty(SimpleString key, byte value)
-      {
+      public Message putByteProperty(SimpleString key, byte value) {
          return null;
       }
 
       @Override
-      public Message putByteProperty(String key, byte value)
-      {
+      public Message putByteProperty(String key, byte value) {
          return null;
       }
 
       @Override
-      public Message putBytesProperty(SimpleString key, byte[] value)
-      {
+      public Message putBytesProperty(SimpleString key, byte[] value) {
          return null;
       }
 
       @Override
-      public Message putBytesProperty(String key, byte[] value)
-      {
+      public Message putBytesProperty(String key, byte[] value) {
          return null;
       }
 
       @Override
-      public Message putShortProperty(SimpleString key, short value)
-      {
+      public Message putShortProperty(SimpleString key, short value) {
          return null;
       }
 
       @Override
-      public Message putShortProperty(String key, short value)
-      {
+      public Message putShortProperty(String key, short value) {
          return null;
       }
 
       @Override
-      public Message putCharProperty(SimpleString key, char value)
-      {
+      public Message putCharProperty(SimpleString key, char value) {
          return null;
       }
 
       @Override
-      public Message putCharProperty(String key, char value)
-      {
+      public Message putCharProperty(String key, char value) {
          return null;
       }
 
       @Override
-      public Message putIntProperty(SimpleString key, int value)
-      {
+      public Message putIntProperty(SimpleString key, int value) {
          return null;
       }
 
       @Override
-      public Message putIntProperty(String key, int value)
-      {
+      public Message putIntProperty(String key, int value) {
          return null;
       }
 
       @Override
-      public Message putLongProperty(SimpleString key, long value)
-      {
+      public Message putLongProperty(SimpleString key, long value) {
          return null;
       }
 
       @Override
-      public Message putLongProperty(String key, long value)
-      {
+      public Message putLongProperty(String key, long value) {
          return null;
       }
 
       @Override
-      public Message putFloatProperty(SimpleString key, float value)
-      {
+      public Message putFloatProperty(SimpleString key, float value) {
          return null;
       }
 
       @Override
-      public Message putFloatProperty(String key, float value)
-      {
+      public Message putFloatProperty(String key, float value) {
          return null;
       }
 
       @Override
-      public Message putDoubleProperty(SimpleString key, double value)
-      {
+      public Message putDoubleProperty(SimpleString key, double value) {
          return null;
       }
 
       @Override
-      public Message putDoubleProperty(String key, double value)
-      {
+      public Message putDoubleProperty(String key, double value) {
          return null;
       }
 
       @Override
-      public Message putStringProperty(SimpleString key, SimpleString value)
-      {
+      public Message putStringProperty(SimpleString key, SimpleString value) {
          return null;
       }
 
       @Override
-      public Message putStringProperty(String key, String value)
-      {
+      public Message putStringProperty(String key, String value) {
          return null;
       }
 
       @Override
-      public Message putObjectProperty(SimpleString key, Object value) throws ActiveMQPropertyConversionException
-      {
+      public Message putObjectProperty(SimpleString key, Object value) throws ActiveMQPropertyConversionException {
          return null;
       }
 
       @Override
-      public Message putObjectProperty(String key, Object value) throws ActiveMQPropertyConversionException
-      {
+      public Message putObjectProperty(String key, Object value) throws ActiveMQPropertyConversionException {
          return null;
       }
 
       @Override
-      public Object removeProperty(SimpleString key)
-      {
+      public Object removeProperty(SimpleString key) {
          return null;
       }
 
       @Override
-      public Object removeProperty(String key)
-      {
+      public Object removeProperty(String key) {
          return null;
       }
 
       @Override
-      public boolean containsProperty(SimpleString key)
-      {
+      public boolean containsProperty(SimpleString key) {
          return false;
       }
 
       @Override
-      public boolean containsProperty(String key)
-      {
+      public boolean containsProperty(String key) {
          return false;
       }
 
       @Override
-      public Boolean getBooleanProperty(SimpleString key) throws ActiveMQPropertyConversionException
-      {
+      public Boolean getBooleanProperty(SimpleString key) throws ActiveMQPropertyConversionException {
          return null;
       }
 
       @Override
-      public Boolean getBooleanProperty(String key) throws ActiveMQPropertyConversionException
-      {
+      public Boolean getBooleanProperty(String key) throws ActiveMQPropertyConversionException {
          return null;
       }
 
       @Override
-      public Byte getByteProperty(SimpleString key) throws ActiveMQPropertyConversionException
-      {
+      public Byte getByteProperty(SimpleString key) throws ActiveMQPropertyConversionException {
          return null;
       }
 
       @Override
-      public Byte getByteProperty(String key) throws ActiveMQPropertyConversionException
-      {
+      public Byte getByteProperty(String key) throws ActiveMQPropertyConversionException {
          return null;
       }
 
       @Override
-      public Double getDoubleProperty(SimpleString key) throws ActiveMQPropertyConversionException
-      {
+      public Double getDoubleProperty(SimpleString key) throws ActiveMQPropertyConversionException {
          return null;
       }
 
       @Override
-      public Double getDoubleProperty(String key) throws ActiveMQPropertyConversionException
-      {
+      public Double getDoubleProperty(String key) throws ActiveMQPropertyConversionException {
          return null;
       }
 
       @Override
-      public Integer getIntProperty(SimpleString key) throws ActiveMQPropertyConversionException
-      {
+      public Integer getIntProperty(SimpleString key) throws ActiveMQPropertyConversionException {
          return null;
       }
 
       @Override
-      public Integer getIntProperty(String key) throws ActiveMQPropertyConversionException
-      {
+      public Integer getIntProperty(String key) throws ActiveMQPropertyConversionException {
          return null;
       }
 
       @Override
-      public Long getLongProperty(SimpleString key) throws ActiveMQPropertyConversionException
-      {
+      public Long getLongProperty(SimpleString key) throws ActiveMQPropertyConversionException {
          return null;
       }
 
       @Override
-      public Long getLongProperty(String key) throws ActiveMQPropertyConversionException
-      {
+      public Long getLongProperty(String key) throws ActiveMQPropertyConversionException {
          return null;
       }
 
       @Override
-      public Object getObjectProperty(SimpleString key)
-      {
+      public Object getObjectProperty(SimpleString key) {
          return null;
       }
 
       @Override
-      public Object getObjectProperty(String key)
-      {
+      public Object getObjectProperty(String key) {
          return null;
       }
 
       @Override
-      public Short getShortProperty(SimpleString key) throws ActiveMQPropertyConversionException
-      {
+      public Short getShortProperty(SimpleString key) throws ActiveMQPropertyConversionException {
          return null;
       }
 
       @Override
-      public Short getShortProperty(String key) throws ActiveMQPropertyConversionException
-      {
+      public Short getShortProperty(String key) throws ActiveMQPropertyConversionException {
          return null;
       }
 
       @Override
-      public Float getFloatProperty(SimpleString key) throws ActiveMQPropertyConversionException
-      {
+      public Float getFloatProperty(SimpleString key) throws ActiveMQPropertyConversionException {
          return null;
       }
 
       @Override
-      public Float getFloatProperty(String key) throws ActiveMQPropertyConversionException
-      {
+      public Float getFloatProperty(String key) throws ActiveMQPropertyConversionException {
          return null;
       }
 
       @Override
-      public String getStringProperty(SimpleString key) throws ActiveMQPropertyConversionException
-      {
+      public String getStringProperty(SimpleString key) throws ActiveMQPropertyConversionException {
          return null;
       }
 
       @Override
-      public String getStringProperty(String key) throws ActiveMQPropertyConversionException
-      {
+      public String getStringProperty(String key) throws ActiveMQPropertyConversionException {
          return null;
       }
 
       @Override
-      public SimpleString getSimpleStringProperty(SimpleString key) throws ActiveMQPropertyConversionException
-      {
+      public SimpleString getSimpleStringProperty(SimpleString key) throws ActiveMQPropertyConversionException {
          return null;
       }
 
       @Override
-      public SimpleString getSimpleStringProperty(String key) throws ActiveMQPropertyConversionException
-      {
+      public SimpleString getSimpleStringProperty(String key) throws ActiveMQPropertyConversionException {
          return null;
       }
 
       @Override
-      public byte[] getBytesProperty(SimpleString key) throws ActiveMQPropertyConversionException
-      {
+      public byte[] getBytesProperty(SimpleString key) throws ActiveMQPropertyConversionException {
          return new byte[0];
       }
 
       @Override
-      public byte[] getBytesProperty(String key) throws ActiveMQPropertyConversionException
-      {
+      public byte[] getBytesProperty(String key) throws ActiveMQPropertyConversionException {
          return new byte[0];
       }
 
       @Override
-      public Set<SimpleString> getPropertyNames()
-      {
+      public Set<SimpleString> getPropertyNames() {
          return null;
       }
 
       @Override
-      public Map<String, Object> toMap()
-      {
+      public Map<String, Object> toMap() {
          return null;
       }
 
       @Override
-      public FakeMessageWithID writeBodyBufferBytes(byte[] bytes)
-      {
+      public FakeMessageWithID writeBodyBufferBytes(byte[] bytes) {
          return this;
       }
 
       @Override
-      public FakeMessageWithID writeBodyBufferString(String string)
-      {
+      public FakeMessageWithID writeBodyBufferString(String string) {
          return this;
       }
    }

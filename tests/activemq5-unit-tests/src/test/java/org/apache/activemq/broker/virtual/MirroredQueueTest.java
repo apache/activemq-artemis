@@ -36,81 +36,81 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class MirroredQueueTest extends EmbeddedBrokerTestSupport {
-    private static final transient Logger LOG = LoggerFactory.getLogger(MirroredQueueTest.class);
-    private Connection connection;
 
-    public void testSendingToQueueIsMirrored() throws Exception {
-        if (connection == null) {
-            connection = createConnection();
-        }
-        connection.start();
+   private static final transient Logger LOG = LoggerFactory.getLogger(MirroredQueueTest.class);
+   private Connection connection;
 
-        ConsumerBean messageList = new ConsumerBean();
-        messageList.setVerbose(true);
+   public void testSendingToQueueIsMirrored() throws Exception {
+      if (connection == null) {
+         connection = createConnection();
+      }
+      connection.start();
 
-        Destination consumeDestination = createConsumeDestination();
+      ConsumerBean messageList = new ConsumerBean();
+      messageList.setVerbose(true);
 
-        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        LOG.info("Consuming from: " + consumeDestination);
+      Destination consumeDestination = createConsumeDestination();
 
-        MessageConsumer c1 = session.createConsumer(consumeDestination);
-        c1.setMessageListener(messageList);
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      LOG.info("Consuming from: " + consumeDestination);
 
-        // create topic producer
-        ActiveMQQueue sendDestination = new ActiveMQQueue(getQueueName());
-        LOG.info("Sending to: " + sendDestination);
+      MessageConsumer c1 = session.createConsumer(consumeDestination);
+      c1.setMessageListener(messageList);
 
-        MessageProducer producer = session.createProducer(sendDestination);
-        assertNotNull(producer);
+      // create topic producer
+      ActiveMQQueue sendDestination = new ActiveMQQueue(getQueueName());
+      LOG.info("Sending to: " + sendDestination);
 
-        int total = 10;
-        for (int i = 0; i < total; i++) {
-            producer.send(session.createTextMessage("message: " + i));
-        }
+      MessageProducer producer = session.createProducer(sendDestination);
+      assertNotNull(producer);
 
-        ///Thread.sleep(1000000);
+      int total = 10;
+      for (int i = 0; i < total; i++) {
+         producer.send(session.createTextMessage("message: " + i));
+      }
 
-        messageList.assertMessagesArrived(total);
+      ///Thread.sleep(1000000);
 
-        LOG.info("Received: " + messageList);
-    }
+      messageList.assertMessagesArrived(total);
 
-    public void testTempMirroredQueuesClearDown() throws Exception{
-        if (connection == null) {
-            connection = createConnection();
-        }
-        connection.start();
-        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        TemporaryQueue tempQueue = session.createTemporaryQueue();
-        RegionBroker rb = (RegionBroker) broker.getBroker().getAdaptor(
-                RegionBroker.class);
-        assertTrue(rb.getDestinationMap().size()==5);
-        tempQueue.delete();
-        assertTrue(rb.getDestinationMap().size()==4);
-    }
+      LOG.info("Received: " + messageList);
+   }
 
-    protected Destination createConsumeDestination() {
-        return new ActiveMQTopic("VirtualTopic.Mirror." + getQueueName());
-    }
+   public void testTempMirroredQueuesClearDown() throws Exception {
+      if (connection == null) {
+         connection = createConnection();
+      }
+      connection.start();
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      TemporaryQueue tempQueue = session.createTemporaryQueue();
+      RegionBroker rb = (RegionBroker) broker.getBroker().getAdaptor(RegionBroker.class);
+      assertTrue(rb.getDestinationMap().size() == 5);
+      tempQueue.delete();
+      assertTrue(rb.getDestinationMap().size() == 4);
+   }
 
-    protected String getQueueName() {
-        return "My.Queue";
-    }
+   protected Destination createConsumeDestination() {
+      return new ActiveMQTopic("VirtualTopic.Mirror." + getQueueName());
+   }
 
-    @Override
-    protected BrokerService createBroker() throws Exception {
-        BrokerService answer = new BrokerService();
-        answer.setUseMirroredQueues(true);
-        answer.setPersistent(isPersistent());
-        answer.addConnector(bindAddress);
-        return answer;
-    }
+   protected String getQueueName() {
+      return "My.Queue";
+   }
 
-    @Override
-    protected void tearDown() throws Exception {
-        if (connection != null) {
-            connection.close();
-        }
-        super.tearDown();
-    }
+   @Override
+   protected BrokerService createBroker() throws Exception {
+      BrokerService answer = new BrokerService();
+      answer.setUseMirroredQueues(true);
+      answer.setPersistent(isPersistent());
+      answer.addConnector(bindAddress);
+      return answer;
+   }
+
+   @Override
+   protected void tearDown() throws Exception {
+      if (connection != null) {
+         connection.close();
+      }
+      super.tearDown();
+   }
 }

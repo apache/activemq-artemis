@@ -16,8 +16,8 @@
  */
 package org.proton.plug;
 
-public interface ClientSASL
-{
+public interface ClientSASL {
+
    byte[] getBytes();
 
    String getName();

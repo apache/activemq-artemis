@@ -20,30 +20,25 @@ import org.apache.activemq.artemis.core.remoting.impl.netty.NettyAcceptorFactory
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 
-public class NettyNetworkAddressTest extends NetworkAddressTestBase
-{
+public class NettyNetworkAddressTest extends NetworkAddressTestBase {
 
    @Override
-   protected String getAcceptorFactoryClassName()
-   {
+   protected String getAcceptorFactoryClassName() {
       return NettyAcceptorFactory.class.getName();
    }
 
    @Override
-   protected String getConnectorFactoryClassName()
-   {
+   protected String getConnectorFactoryClassName() {
       return NettyConnectorFactory.class.getName();
    }
 
    @Override
-   protected String getHostPropertyKey()
-   {
+   protected String getHostPropertyKey() {
       return TransportConstants.HOST_PROP_NAME;
    }
 
    @Override
-   protected String getLocalPortProperty()
-   {
+   protected String getLocalPortProperty() {
       return TransportConstants.LOCAL_PORT_PROP_NAME;
    }
 

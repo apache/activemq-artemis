@@ -19,55 +19,46 @@ package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 
-public class RollbackMessage extends PacketImpl
-{
+public class RollbackMessage extends PacketImpl {
 
-   public RollbackMessage()
-   {
+   public RollbackMessage() {
       super(SESS_ROLLBACK);
    }
 
-   public RollbackMessage(final boolean considerLastMessageAsDelivered)
-   {
+   public RollbackMessage(final boolean considerLastMessageAsDelivered) {
       super(SESS_ROLLBACK);
 
       this.considerLastMessageAsDelivered = considerLastMessageAsDelivered;
    }
-
 
    private boolean considerLastMessageAsDelivered;
 
    /**
     * @return the considerLastMessageAsDelivered
     */
-   public boolean isConsiderLastMessageAsDelivered()
-   {
+   public boolean isConsiderLastMessageAsDelivered() {
       return considerLastMessageAsDelivered;
    }
 
    /**
     * @param isLastMessageAsDelivered the considerLastMessageAsDelivered to set
     */
-   public void setConsiderLastMessageAsDelivered(final boolean isLastMessageAsDelivered)
-   {
+   public void setConsiderLastMessageAsDelivered(final boolean isLastMessageAsDelivered) {
       considerLastMessageAsDelivered = isLastMessageAsDelivered;
    }
 
    @Override
-   public void encodeRest(final ActiveMQBuffer buffer)
-   {
+   public void encodeRest(final ActiveMQBuffer buffer) {
       buffer.writeBoolean(considerLastMessageAsDelivered);
    }
 
    @Override
-   public void decodeRest(final ActiveMQBuffer buffer)
-   {
+   public void decodeRest(final ActiveMQBuffer buffer) {
       considerLastMessageAsDelivered = buffer.readBoolean();
    }
 
    @Override
-   public int hashCode()
-   {
+   public int hashCode() {
       final int prime = 31;
       int result = super.hashCode();
       result = prime * result + (considerLastMessageAsDelivered ? 1231 : 1237);
@@ -75,15 +66,14 @@ public class RollbackMessage extends PacketImpl
    }
 
    @Override
-   public boolean equals(Object obj)
-   {
+   public boolean equals(Object obj) {
       if (this == obj)
          return true;
       if (!super.equals(obj))
          return false;
       if (!(obj instanceof RollbackMessage))
          return false;
-      RollbackMessage other = (RollbackMessage)obj;
+      RollbackMessage other = (RollbackMessage) obj;
       if (considerLastMessageAsDelivered != other.considerLastMessageAsDelivered)
          return false;
       return true;

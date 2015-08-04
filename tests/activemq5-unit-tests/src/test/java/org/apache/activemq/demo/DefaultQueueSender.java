@@ -42,70 +42,71 @@ import org.slf4j.LoggerFactory;
 
 /**
  * A simple queue sender which does not use JNDI
- * 
- * 
  */
 public final class DefaultQueueSender {
 
-    private static final Logger LOG = LoggerFactory.getLogger(DefaultQueueSender.class);
+   private static final Logger LOG = LoggerFactory.getLogger(DefaultQueueSender.class);
 
-    private DefaultQueueSender() {    
-    }
+   private DefaultQueueSender() {
+   }
 
-    public static void main(String[] args) {
+   public static void main(String[] args) {
 
-        String uri = "tcp://localhost:61616";
-        String text = "Hello World!";
+      String uri = "tcp://localhost:61616";
+      String text = "Hello World!";
 
-        Connection connection = null;
+      Connection connection = null;
 
-        if (args.length < 1) {
+      if (args.length < 1) {
+         printUsage();
+         System.exit(1);
+      }
+
+      int idx = 0;
+      String arg = args[0];
+      if (arg.equals("-uri")) {
+         if (args.length == 1) {
             printUsage();
             System.exit(1);
-        }
+         }
+         uri = args[1];
+         idx += 2;
+      }
+      String queueName = args[idx];
+      LOG.info("Connecting to: " + uri);
+      LOG.info("Queue name is " + queueName);
 
-        int idx = 0;
-        String arg = args[0];
-        if (arg.equals("-uri")) {
-            if (args.length == 1) {
-                printUsage();
-                System.exit(1);
+      if (++idx < args.length) {
+         text = args[idx];
+      }
+
+      try {
+         ConnectionFactory factory = new ActiveMQConnectionFactory(uri);
+         connection = factory.createConnection();
+         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         Destination destination = session.createQueue(queueName);
+         MessageProducer producer = session.createProducer(destination);
+
+         Message message = session.createTextMessage(text);
+         producer.send(message);
+      }
+      catch (JMSException e) {
+         LOG.info("Exception occurred: " + e.toString());
+      }
+      finally {
+         if (connection != null) {
+            try {
+               connection.close();
             }
-            uri = args[1];
-            idx += 2;
-        }
-        String queueName = args[idx];
-        LOG.info("Connecting to: " + uri);
-        LOG.info("Queue name is " + queueName);
-
-        if (++idx < args.length) {
-            text = args[idx];
-        }
-
-        try {
-            ConnectionFactory factory = new ActiveMQConnectionFactory(uri);
-            connection = factory.createConnection();
-            Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-            Destination destination = session.createQueue(queueName);
-            MessageProducer producer = session.createProducer(destination);
-
-            Message message = session.createTextMessage(text);
-            producer.send(message);
-        } catch (JMSException e) {
-            LOG.info("Exception occurred: " + e.toString());
-        } finally {
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (JMSException e) {
-                }
+            catch (JMSException e) {
             }
-        }
-    }
+         }
+      }
+   }
 
-    protected static void printUsage() {
-        System.out.println("Usage: java DefaultQueueSender [-uri <connection-uri>] " + "<queue-name> [<message-body>]");
-    }
+   protected static void printUsage() {
+      System.out.println("Usage: java DefaultQueueSender [-uri <connection-uri>] " + "<queue-name> [<message-body>]");
+   }
 }
 
 // END SNIPPET: demo

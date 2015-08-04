@@ -32,26 +32,23 @@ import org.junit.Test;
 /**
  * Tests the delivery/receipt of a foreign message
  */
-public class ForeignMessageTest extends MessageTestBase
-{
+public class ForeignMessageTest extends MessageTestBase {
+
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
       message = createForeignMessage();
    }
 
    @Override
    @After
-   public void tearDown() throws Exception
-   {
+   public void tearDown() throws Exception {
       super.tearDown();
       message = null;
    }
 
-   protected Message createForeignMessage() throws Exception
-   {
+   protected Message createForeignMessage() throws Exception {
       SimpleJMSMessage m = new SimpleJMSMessage();
       log.debug("creating JMS Message type " + m.getClass().getName());
 
@@ -59,8 +56,7 @@ public class ForeignMessageTest extends MessageTestBase
    }
 
    @Test
-   public void testForeignMessageSetDestination() throws Exception
-   {
+   public void testForeignMessageSetDestination() throws Exception {
       // create a Bytes foreign message
       SimpleJMSTextMessage txt = new SimpleJMSTextMessage("hello from Brazil!");
       txt.setJMSDestination(null);
@@ -74,10 +70,8 @@ public class ForeignMessageTest extends MessageTestBase
       ProxyAssertSupport.assertEquals("hello from Brazil!", txt.getText());
    }
 
-
    @Test
-   public void testForeignMessageCorrelationIDBytesDisabled() throws Exception
-   {
+   public void testForeignMessageCorrelationIDBytesDisabled() throws Exception {
       System.setProperty(ActiveMQJMSConstants.JMS_ACTIVEMQ_ENABLE_BYTE_ARRAY_JMS_CORRELATION_ID_PROPERTY_NAME, "false");
 
       SimpleJMSMessage msg = new SimpleJMSMessage();
@@ -97,8 +91,7 @@ public class ForeignMessageTest extends MessageTestBase
    }
 
    @Test
-   public void testForeignMessageCorrelationID() throws Exception
-   {
+   public void testForeignMessageCorrelationID() throws Exception {
       System.setProperty(ActiveMQJMSConstants.JMS_ACTIVEMQ_ENABLE_BYTE_ARRAY_JMS_CORRELATION_ID_PROPERTY_NAME, "true");
 
       SimpleJMSMessage msg = new SimpleJMSMessage();
@@ -120,20 +113,16 @@ public class ForeignMessageTest extends MessageTestBase
       Assert.assertNull(rec.getJMSCorrelationID());
    }
 
-   private void assertByteArraysEqual(final byte[] bytes1, final byte[] bytes2)
-   {
-      if (bytes1 == null | bytes2 == null)
-      {
+   private void assertByteArraysEqual(final byte[] bytes1, final byte[] bytes2) {
+      if (bytes1 == null | bytes2 == null) {
          ProxyAssertSupport.fail();
       }
 
-      if (bytes1.length != bytes2.length)
-      {
+      if (bytes1.length != bytes2.length) {
          ProxyAssertSupport.fail();
       }
 
-      for (int i = 0; i < bytes1.length; i++)
-      {
+      for (int i = 0; i < bytes1.length; i++) {
          ProxyAssertSupport.assertEquals(bytes1[i], bytes2[i]);
       }
 

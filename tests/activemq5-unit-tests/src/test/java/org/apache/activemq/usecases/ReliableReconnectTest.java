@@ -39,141 +39,143 @@ import org.apache.activemq.store.PersistenceAdapter;
 import org.apache.activemq.util.IdGenerator;
 
 public class ReliableReconnectTest extends org.apache.activemq.TestSupport {
-    
-    protected static final int MESSAGE_COUNT = 100;
-    protected static final String DEFAULT_BROKER_URL = ActiveMQConnectionFactory.DEFAULT_BROKER_BIND_URL;
-    private static final int RECEIVE_TIMEOUT = 10000;
-    
-    protected int deliveryMode = DeliveryMode.PERSISTENT;
-    protected String consumerClientId;
-    protected Destination destination;
-    protected final AtomicBoolean closeBroker = new AtomicBoolean(false);
-    protected final AtomicInteger messagesReceived = new AtomicInteger(0);
-    protected BrokerService broker;
-    protected int firstBatch = MESSAGE_COUNT / 10;
-    private IdGenerator idGen = new IdGenerator();
 
-    public ReliableReconnectTest() {
-    }
+   protected static final int MESSAGE_COUNT = 100;
+   protected static final String DEFAULT_BROKER_URL = ActiveMQConnectionFactory.DEFAULT_BROKER_BIND_URL;
+   private static final int RECEIVE_TIMEOUT = 10000;
 
-    protected void setUp() throws Exception {
-        this.setAutoFail(true);
-        consumerClientId = idGen.generateId();
-        super.setUp();
-        topic = true;
-        destination = createDestination(getClass().getName());
-    }
-    
-    protected void tearDown() throws Exception {
-        if (broker!=null) {
-            broker.stop();
-        }
-    }
+   protected int deliveryMode = DeliveryMode.PERSISTENT;
+   protected String consumerClientId;
+   protected Destination destination;
+   protected final AtomicBoolean closeBroker = new AtomicBoolean(false);
+   protected final AtomicInteger messagesReceived = new AtomicInteger(0);
+   protected BrokerService broker;
+   protected int firstBatch = MESSAGE_COUNT / 10;
+   private IdGenerator idGen = new IdGenerator();
 
-    public ActiveMQConnectionFactory getConnectionFactory() throws Exception {
-        return new ActiveMQConnectionFactory();
-    }
+   public ReliableReconnectTest() {
+   }
 
-    protected void startBroker(boolean deleteOnStart) throws JMSException {
-        try {
-            broker = BrokerFactory.createBroker(new URI("broker://()/localhost"));
-            broker.setUseShutdownHook(false);
-            broker.setDeleteAllMessagesOnStartup(deleteOnStart);
-           
-            broker.setUseJmx(false);
-            broker.addConnector(DEFAULT_BROKER_URL);
-            broker.start();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+   protected void setUp() throws Exception {
+      this.setAutoFail(true);
+      consumerClientId = idGen.generateId();
+      super.setUp();
+      topic = true;
+      destination = createDestination(getClass().getName());
+   }
 
-    protected Connection createConsumerConnection() throws Exception {
-        Connection consumerConnection = getConnectionFactory().createConnection();
-        consumerConnection.setClientID(consumerClientId);
-        consumerConnection.start();
-        return consumerConnection;
-    }
+   protected void tearDown() throws Exception {
+      if (broker != null) {
+         broker.stop();
+      }
+   }
 
-    protected MessageConsumer createConsumer(Connection con) throws Exception {
-        Session s = con.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        return s.createDurableSubscriber((Topic)destination, "TestFred");
-    }
+   public ActiveMQConnectionFactory getConnectionFactory() throws Exception {
+      return new ActiveMQConnectionFactory();
+   }
 
-    protected void spawnConsumer() {
-        Thread thread = new Thread(new Runnable() {
-            public void run() {
-                try {
-                    Connection consumerConnection = createConsumerConnection();
-                    MessageConsumer consumer = createConsumer(consumerConnection);
-                    // consume some messages
+   protected void startBroker(boolean deleteOnStart) throws JMSException {
+      try {
+         broker = BrokerFactory.createBroker(new URI("broker://()/localhost"));
+         broker.setUseShutdownHook(false);
+         broker.setDeleteAllMessagesOnStartup(deleteOnStart);
 
-                    for (int i = 0; i < firstBatch; i++) {
-                        Message msg = consumer.receive(RECEIVE_TIMEOUT);
-                        if (msg != null) {
-                            // log.info("GOT: " + msg);
-                            messagesReceived.incrementAndGet();
-                        }
-                    }
-                    synchronized (closeBroker) {
-                        closeBroker.set(true);
-                        closeBroker.notify();
-                    }
-                    Thread.sleep(2000);
-                    for (int i = firstBatch; i < MESSAGE_COUNT; i++) {
-                        Message msg = consumer.receive(RECEIVE_TIMEOUT);
-                        // log.info("GOT: " + msg);
-                        if (msg != null) {
-                            messagesReceived.incrementAndGet();
-                        }
-                    }
-                    consumerConnection.close();
-                    synchronized (messagesReceived) {
-                        messagesReceived.notify();
-                    }
-                } catch (Throwable e) {
-                    e.printStackTrace();
-                }
+         broker.setUseJmx(false);
+         broker.addConnector(DEFAULT_BROKER_URL);
+         broker.start();
+      }
+      catch (Exception e) {
+         e.printStackTrace();
+      }
+   }
+
+   protected Connection createConsumerConnection() throws Exception {
+      Connection consumerConnection = getConnectionFactory().createConnection();
+      consumerConnection.setClientID(consumerClientId);
+      consumerConnection.start();
+      return consumerConnection;
+   }
+
+   protected MessageConsumer createConsumer(Connection con) throws Exception {
+      Session s = con.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      return s.createDurableSubscriber((Topic) destination, "TestFred");
+   }
+
+   protected void spawnConsumer() {
+      Thread thread = new Thread(new Runnable() {
+         public void run() {
+            try {
+               Connection consumerConnection = createConsumerConnection();
+               MessageConsumer consumer = createConsumer(consumerConnection);
+               // consume some messages
+
+               for (int i = 0; i < firstBatch; i++) {
+                  Message msg = consumer.receive(RECEIVE_TIMEOUT);
+                  if (msg != null) {
+                     // log.info("GOT: " + msg);
+                     messagesReceived.incrementAndGet();
+                  }
+               }
+               synchronized (closeBroker) {
+                  closeBroker.set(true);
+                  closeBroker.notify();
+               }
+               Thread.sleep(2000);
+               for (int i = firstBatch; i < MESSAGE_COUNT; i++) {
+                  Message msg = consumer.receive(RECEIVE_TIMEOUT);
+                  // log.info("GOT: " + msg);
+                  if (msg != null) {
+                     messagesReceived.incrementAndGet();
+                  }
+               }
+               consumerConnection.close();
+               synchronized (messagesReceived) {
+                  messagesReceived.notify();
+               }
             }
-        });
-        thread.start();
-    }
+            catch (Throwable e) {
+               e.printStackTrace();
+            }
+         }
+      });
+      thread.start();
+   }
 
-    public void testReconnect() throws Exception {
-        startBroker(true);
-        // register an interest as a durable subscriber
-        Connection consumerConnection = createConsumerConnection();
-        createConsumer(consumerConnection);
-        consumerConnection.close();
-        // send some messages ...
-        Connection connection = createConnection();
-        connection.setClientID(idGen.generateId());
-        connection.start();
-        Session producerSession = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        MessageProducer producer = producerSession.createProducer(destination);
-        TextMessage msg = producerSession.createTextMessage();
-        for (int i = 0; i < MESSAGE_COUNT; i++) {
-            msg.setText("msg: " + i);
-            producer.send(msg);
-        }
-        connection.close();
-        spawnConsumer();
-        synchronized (closeBroker) {
-            while (!closeBroker.get()) {
-                closeBroker.wait();
-            }
-        }
-        // System.err.println("Stopping broker");
-        broker.stop();
-        startBroker(false);
-        // System.err.println("Started Broker again");
-        synchronized (messagesReceived) {
-            while (messagesReceived.get() < MESSAGE_COUNT) {
-                messagesReceived.wait(60000);
-            }
-        }
-        // assertTrue(messagesReceived.get() == MESSAGE_COUNT);
-        int count = messagesReceived.get();
-        assertTrue("Not enough messages received: " + count, count > firstBatch);
-    }
+   public void testReconnect() throws Exception {
+      startBroker(true);
+      // register an interest as a durable subscriber
+      Connection consumerConnection = createConsumerConnection();
+      createConsumer(consumerConnection);
+      consumerConnection.close();
+      // send some messages ...
+      Connection connection = createConnection();
+      connection.setClientID(idGen.generateId());
+      connection.start();
+      Session producerSession = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      MessageProducer producer = producerSession.createProducer(destination);
+      TextMessage msg = producerSession.createTextMessage();
+      for (int i = 0; i < MESSAGE_COUNT; i++) {
+         msg.setText("msg: " + i);
+         producer.send(msg);
+      }
+      connection.close();
+      spawnConsumer();
+      synchronized (closeBroker) {
+         while (!closeBroker.get()) {
+            closeBroker.wait();
+         }
+      }
+      // System.err.println("Stopping broker");
+      broker.stop();
+      startBroker(false);
+      // System.err.println("Started Broker again");
+      synchronized (messagesReceived) {
+         while (messagesReceived.get() < MESSAGE_COUNT) {
+            messagesReceived.wait(60000);
+         }
+      }
+      // assertTrue(messagesReceived.get() == MESSAGE_COUNT);
+      int count = messagesReceived.get();
+      assertTrue("Not enough messages received: " + count, count > firstBatch);
+   }
 }

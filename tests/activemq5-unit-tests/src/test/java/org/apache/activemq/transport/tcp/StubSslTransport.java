@@ -22,30 +22,31 @@ import javax.net.ssl.SSLSocket;
 import org.apache.activemq.wireformat.WireFormat;
 
 public class StubSslTransport extends SslTransport {
-    public static final int UNTOUCHED = -1;
-    public static final int FALSE = 0;
-    public static final int TRUE = 1;
 
-    private int wantClientAuthStatus = UNTOUCHED;
-    private int needClientAuthStatus = UNTOUCHED;
+   public static final int UNTOUCHED = -1;
+   public static final int FALSE = 0;
+   public static final int TRUE = 1;
 
-    public StubSslTransport(WireFormat wireFormat, SSLSocket socket) throws Exception {
-        super(wireFormat, socket);
-    }
+   private int wantClientAuthStatus = UNTOUCHED;
+   private int needClientAuthStatus = UNTOUCHED;
 
-    public void setWantClientAuth(boolean arg0) {
-        this.wantClientAuthStatus = arg0 ? TRUE : FALSE;
-    }
+   public StubSslTransport(WireFormat wireFormat, SSLSocket socket) throws Exception {
+      super(wireFormat, socket);
+   }
 
-    public void setNeedClientAuth(boolean arg0) {
-        this.needClientAuthStatus = arg0 ? TRUE : FALSE;
-    }
+   public void setWantClientAuth(boolean arg0) {
+      this.wantClientAuthStatus = arg0 ? TRUE : FALSE;
+   }
 
-    public int getWantClientAuthStatus() {
-        return wantClientAuthStatus;
-    }
+   public void setNeedClientAuth(boolean arg0) {
+      this.needClientAuthStatus = arg0 ? TRUE : FALSE;
+   }
 
-    public int getNeedClientAuthStatus() {
-        return needClientAuthStatus;
-    }
+   public int getWantClientAuthStatus() {
+      return wantClientAuthStatus;
+   }
+
+   public int getNeedClientAuthStatus() {
+      return needClientAuthStatus;
+   }
 }

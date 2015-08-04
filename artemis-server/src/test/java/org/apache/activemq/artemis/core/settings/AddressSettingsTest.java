@@ -23,23 +23,19 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class AddressSettingsTest extends ActiveMQTestBase
-{
+public class AddressSettingsTest extends ActiveMQTestBase {
+
    @Test
-   public void testDefaults()
-   {
+   public void testDefaults() {
       AddressSettings addressSettings = new AddressSettings();
       Assert.assertEquals(null, addressSettings.getDeadLetterAddress());
       Assert.assertEquals(null, addressSettings.getExpiryAddress());
       Assert.assertEquals(AddressSettings.DEFAULT_MAX_DELIVERY_ATTEMPTS, addressSettings.getMaxDeliveryAttempts());
       Assert.assertEquals(addressSettings.getMaxSizeBytes(), AddressSettings.DEFAULT_MAX_SIZE_BYTES);
       Assert.assertEquals(AddressSettings.DEFAULT_PAGE_SIZE, addressSettings.getPageSizeBytes());
-      Assert.assertEquals(AddressSettings.DEFAULT_MESSAGE_COUNTER_HISTORY_DAY_LIMIT,
-                          addressSettings.getMessageCounterHistoryDayLimit());
+      Assert.assertEquals(AddressSettings.DEFAULT_MESSAGE_COUNTER_HISTORY_DAY_LIMIT, addressSettings.getMessageCounterHistoryDayLimit());
       Assert.assertEquals(AddressSettings.DEFAULT_REDELIVER_DELAY, addressSettings.getRedeliveryDelay());
-      Assert.assertEquals(AddressSettings.DEFAULT_REDELIVER_MULTIPLIER,
-                          addressSettings.getRedeliveryMultiplier(),
-                          0.000001);
+      Assert.assertEquals(AddressSettings.DEFAULT_REDELIVER_MULTIPLIER, addressSettings.getRedeliveryMultiplier(), 0.000001);
       Assert.assertEquals(AddressSettings.DEFAULT_SLOW_CONSUMER_THRESHOLD, addressSettings.getSlowConsumerThreshold());
       Assert.assertEquals(AddressSettings.DEFAULT_SLOW_CONSUMER_CHECK_PERIOD, addressSettings.getSlowConsumerCheckPeriod());
       Assert.assertEquals(AddressSettings.DEFAULT_SLOW_CONSUMER_POLICY, addressSettings.getSlowConsumerPolicy());
@@ -48,8 +44,7 @@ public class AddressSettingsTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testSingleMerge()
-   {
+   public void testSingleMerge() {
       AddressSettings addressSettings = new AddressSettings();
       AddressSettings addressSettingsToMerge = new AddressSettings();
       SimpleString DLQ = new SimpleString("testDLQ");
@@ -74,8 +69,7 @@ public class AddressSettingsTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testMultipleMerge()
-   {
+   public void testMultipleMerge() {
       AddressSettings addressSettings = new AddressSettings();
       AddressSettings addressSettingsToMerge = new AddressSettings();
       SimpleString DLQ = new SimpleString("testDLQ");
@@ -107,8 +101,7 @@ public class AddressSettingsTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testMultipleMergeAll()
-   {
+   public void testMultipleMergeAll() {
       AddressSettings addressSettings = new AddressSettings();
       AddressSettings addressSettingsToMerge = new AddressSettings();
       SimpleString DLQ = new SimpleString("testDLQ");

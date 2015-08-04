@@ -29,8 +29,8 @@ import org.apache.activemq.artemis.api.core.management.Parameter;
  * @see org.apache.activemq.artemis.api.core.client.ServerLocator
  * @see org.apache.activemq.artemis.api.core.client.ClientSessionFactory
  */
-public interface ConnectionFactoryControl
-{
+public interface ConnectionFactoryControl {
+
    /**
     * Returns the configuration name of this connection factory.
     */
@@ -198,7 +198,6 @@ public interface ConnectionFactoryControl
     */
    void setPreAcknowledge(boolean preAcknowledge);
 
-
    /**
     * @see org.apache.activemq.artemis.api.core.client.ServerLocator#getConnectionTTL()
     */
@@ -280,7 +279,6 @@ public interface ConnectionFactoryControl
     * @see org.apache.activemq.artemis.api.core.client.ServerLocator#setFailoverOnInitialConnection(boolean)
     */
    void setFailoverOnInitialConnection(boolean failoverOnInitialConnection);
-
 
    /**
     * @see org.apache.activemq.artemis.api.core.client.ServerLocator#getProducerWindowSize()

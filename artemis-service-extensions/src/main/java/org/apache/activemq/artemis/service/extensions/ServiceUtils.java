@@ -27,64 +27,52 @@ import org.apache.activemq.artemis.service.extensions.xa.ActiveMQXAResourceWrapp
 import org.apache.activemq.artemis.service.extensions.xa.ActiveMQXAResourceWrapperFactory;
 import org.apache.activemq.artemis.service.extensions.xa.ActiveMQXAResourceWrapperFactoryImpl;
 
-public class ServiceUtils
-{
+public class ServiceUtils {
+
    private static ActiveMQXAResourceWrapperFactory activeMQXAResourceWrapperFactory;
 
    private static TransactionManager transactionManager;
 
    private static boolean transactionManagerLoaded = false;
 
-   private static ActiveMQXAResourceWrapperFactory getActiveMQXAResourceWrapperFactory()
-   {
-      if (activeMQXAResourceWrapperFactory == null)
-      {
+   private static ActiveMQXAResourceWrapperFactory getActiveMQXAResourceWrapperFactory() {
+      if (activeMQXAResourceWrapperFactory == null) {
          setActiveMQXAResourceWrapperFactory(ServiceLoader.load(ActiveMQXAResourceWrapperFactory.class));
       }
       return activeMQXAResourceWrapperFactory;
    }
 
-   public static ActiveMQXAResourceWrapper wrapXAResource(XAResource xaResource, Map<String, Object> properties)
-   {
+   public static ActiveMQXAResourceWrapper wrapXAResource(XAResource xaResource, Map<String, Object> properties) {
       return getActiveMQXAResourceWrapperFactory().wrap(xaResource, properties);
    }
 
-   public static synchronized TransactionManager getTransactionManager()
-   {
-      if (!transactionManagerLoaded)
-      {
+   public static synchronized TransactionManager getTransactionManager() {
+      if (!transactionManagerLoaded) {
          Iterator<TransactionManagerLocator> it = ServiceLoader.load(TransactionManagerLocator.class).iterator();
-         while (it.hasNext() && transactionManager == null)
-         {
+         while (it.hasNext() && transactionManager == null) {
             transactionManager = it.next().getTransactionManager();
          }
 
-         if (transactionManager != null)
-         {
+         if (transactionManager != null) {
             transactionManagerLoaded = true;
          }
-         else
-         {
+         else {
             ActiveMQServiceExtensionLogger.LOGGER.transactionManagerNotFound();
          }
       }
       return transactionManager;
    }
 
-   public static void setTransactionManager(TransactionManager tm)
-   {
+   public static void setTransactionManager(TransactionManager tm) {
       transactionManager = tm;
       transactionManagerLoaded = (transactionManager != null);
    }
 
-   private static void setActiveMQXAResourceWrapperFactory(Iterable<ActiveMQXAResourceWrapperFactory> iterable)
-   {
-      if (iterable.iterator().hasNext())
-      {
+   private static void setActiveMQXAResourceWrapperFactory(Iterable<ActiveMQXAResourceWrapperFactory> iterable) {
+      if (iterable.iterator().hasNext()) {
          activeMQXAResourceWrapperFactory = iterable.iterator().next();
       }
-      else
-      {
+      else {
          activeMQXAResourceWrapperFactory = new ActiveMQXAResourceWrapperFactoryImpl();
       }
    }

@@ -42,8 +42,7 @@ import java.util.HashMap;
  * <br>
  * TODO: validate replication failover also
  */
-public class PagingFailoverTest extends FailoverTestBase
-{
+public class PagingFailoverTest extends FailoverTestBase {
    // Constants -----------------------------------------------------
 
    private static final SimpleString ADDRESS = new SimpleString("SimpleAddress");
@@ -62,41 +61,33 @@ public class PagingFailoverTest extends FailoverTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
       locator = getServerLocator();
    }
 
    @Test
-   public void testPageFailBeforeConsume() throws Exception
-   {
+   public void testPageFailBeforeConsume() throws Exception {
       internalTestPage(false, true);
    }
 
    @Test
-   public void testPage() throws Exception
-   {
+   public void testPage() throws Exception {
       internalTestPage(false, false);
    }
 
    @Test
-   public void testPageTransactioned() throws Exception
-   {
+   public void testPageTransactioned() throws Exception {
       internalTestPage(true, false);
    }
 
    @Test
-   public void testPageTransactionedFailBeforeConsume() throws Exception
-   {
+   public void testPageTransactionedFailBeforeConsume() throws Exception {
       internalTestPage(true, true);
    }
 
-   public void internalTestPage(final boolean transacted, final boolean failBeforeConsume) throws Exception
-   {
-      locator.setBlockOnNonDurableSend(true)
-              .setBlockOnDurableSend(true)
-              .setReconnectAttempts(-1);
+   public void internalTestPage(final boolean transacted, final boolean failBeforeConsume) throws Exception {
+      locator.setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setReconnectAttempts(-1);
 
       sf = createSessionFactoryAndWaitForTopology(locator, 2);
       session = addClientSession(sf.createSession(!transacted, !transacted, 0));
@@ -107,10 +98,8 @@ public class PagingFailoverTest extends FailoverTestBase
 
       final int TOTAL_MESSAGES = 2000;
 
-      for (int i = 0; i < TOTAL_MESSAGES; i++)
-      {
-         if (transacted && i % 10 == 0)
-         {
+      for (int i = 0; i < TOTAL_MESSAGES; i++) {
+         if (transacted && i % 10 == 0) {
             session.commit();
          }
          ClientMessage msg = session.createMessage(true);
@@ -120,8 +109,7 @@ public class PagingFailoverTest extends FailoverTestBase
 
       session.commit();
 
-      if (failBeforeConsume)
-      {
+      if (failBeforeConsume) {
          crash(session);
          waitForBackup(null, 5);
       }
@@ -136,13 +124,11 @@ public class PagingFailoverTest extends FailoverTestBase
 
       final int MIDDLE = TOTAL_MESSAGES / 2;
 
-      for (int i = 0; i < MIDDLE; i++)
-      {
+      for (int i = 0; i < MIDDLE; i++) {
          ClientMessage msg = cons.receive(20000);
          Assert.assertNotNull(msg);
          msg.acknowledge();
-         if (transacted && i % 10 == 0)
-         {
+         if (transacted && i % 10 == 0) {
             session.commit();
          }
          Assert.assertEquals(i, msg.getObjectProperty(new SimpleString("key")));
@@ -154,8 +140,7 @@ public class PagingFailoverTest extends FailoverTestBase
 
       Thread.sleep(1000);
 
-      if (!failBeforeConsume)
-      {
+      if (!failBeforeConsume) {
          crash(session);
          // failSession(session, latch);
       }
@@ -168,8 +153,7 @@ public class PagingFailoverTest extends FailoverTestBase
 
       session.start();
 
-      for (int i = MIDDLE; i < TOTAL_MESSAGES; i++)
-      {
+      for (int i = MIDDLE; i < TOTAL_MESSAGES; i++) {
          ClientMessage msg = cons.receive(5000);
          Assert.assertNotNull(msg);
 
@@ -180,11 +164,8 @@ public class PagingFailoverTest extends FailoverTestBase
    }
 
    @Test
-   public void testExpireMessage() throws Exception
-   {
-      locator.setBlockOnNonDurableSend(true)
-              .setBlockOnDurableSend(true)
-              .setReconnectAttempts(-1);
+   public void testExpireMessage() throws Exception {
+      locator.setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setReconnectAttempts(-1);
 
       ClientSessionFactoryInternal sf = createSessionFactoryAndWaitForTopology(locator, 2);
       session = sf.createSession(true, true, 0);
@@ -195,8 +176,7 @@ public class PagingFailoverTest extends FailoverTestBase
 
       final int TOTAL_MESSAGES = 1000;
 
-      for (int i = 0; i < TOTAL_MESSAGES; i++)
-      {
+      for (int i = 0; i < TOTAL_MESSAGES; i++) {
          ClientMessage msg = session.createMessage(true);
          msg.putIntProperty(new SimpleString("key"), i);
          msg.setExpiration(System.currentTimeMillis() + 1000);
@@ -211,8 +191,7 @@ public class PagingFailoverTest extends FailoverTestBase
 
       long timeout = System.currentTimeMillis() + 60000;
 
-      while (timeout > System.currentTimeMillis() && queue.getPageSubscription().isPaging())
-      {
+      while (timeout > System.currentTimeMillis() && queue.getPageSubscription().isPaging()) {
          Thread.sleep(100);
          // Simulating what would happen on expire
          queue.expireReferences();
@@ -222,33 +201,27 @@ public class PagingFailoverTest extends FailoverTestBase
 
    }
 
-
    // Package protected ---------------------------------------------
 
    // Protected -----------------------------------------------------
 
    @Override
-   protected TransportConfiguration getAcceptorTransportConfiguration(final boolean live)
-   {
+   protected TransportConfiguration getAcceptorTransportConfiguration(final boolean live) {
       return TransportConfigurationUtils.getInVMAcceptor(live);
    }
 
    @Override
-   protected TransportConfiguration getConnectorTransportConfiguration(final boolean live)
-   {
+   protected TransportConfiguration getConnectorTransportConfiguration(final boolean live) {
       return TransportConfigurationUtils.getInVMConnector(live);
    }
 
    @Override
-   protected ActiveMQServer createServer(final boolean realFiles, final Configuration configuration)
-   {
-      return addServer(createInVMFailoverServer(true, configuration, PAGE_SIZE, PAGE_MAX,
-                                                new HashMap<String, AddressSettings>(), nodeManager, 2));
+   protected ActiveMQServer createServer(final boolean realFiles, final Configuration configuration) {
+      return addServer(createInVMFailoverServer(true, configuration, PAGE_SIZE, PAGE_MAX, new HashMap<String, AddressSettings>(), nodeManager, 2));
    }
 
    @Override
-   protected TestableServer createTestableServer(Configuration config)
-   {
+   protected TestableServer createTestableServer(Configuration config) {
       return new SameProcessActiveMQServer(createServer(true, config));
    }
 }

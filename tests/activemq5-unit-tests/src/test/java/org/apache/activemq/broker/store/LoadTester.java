@@ -44,67 +44,66 @@ import org.slf4j.LoggerFactory;
  */
 public class LoadTester extends JmsTestSupport {
 
-    private static final Logger LOG = LoggerFactory.getLogger(LoadTester.class);
+   private static final Logger LOG = LoggerFactory.getLogger(LoadTester.class);
 
-    protected int messageSize = 1024 * 64;
-    protected int produceCount = 10000;
+   protected int messageSize = 1024 * 64;
+   protected int produceCount = 10000;
 
-    @Override
-    protected BrokerService createBroker() throws Exception {
-        return BrokerFactory.createBroker(new URI("xbean:org/apache/activemq/broker/store/loadtester.xml"));
-    }
+   @Override
+   protected BrokerService createBroker() throws Exception {
+      return BrokerFactory.createBroker(new URI("xbean:org/apache/activemq/broker/store/loadtester.xml"));
+   }
 
-    @Override
-    protected ConnectionFactory createConnectionFactory() throws URISyntaxException, IOException {
-        ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(broker.getTransportConnectors().get(0).getServer().getConnectURI());
-        factory.setUseAsyncSend(true);
-        return factory;
-    }
+   @Override
+   protected ConnectionFactory createConnectionFactory() throws URISyntaxException, IOException {
+      ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(broker.getTransportConnectors().get(0).getServer().getConnectURI());
+      factory.setUseAsyncSend(true);
+      return factory;
+   }
 
-    public void testQueueSendThenAddConsumer() throws Exception {
-        ProgressPrinter printer = new ProgressPrinter(produceCount, 20);
+   public void testQueueSendThenAddConsumer() throws Exception {
+      ProgressPrinter printer = new ProgressPrinter(produceCount, 20);
 
-        ActiveMQDestination destination = new ActiveMQQueue("TEST");
+      ActiveMQDestination destination = new ActiveMQQueue("TEST");
 
-        connection.setUseCompression(false);
-        connection.getPrefetchPolicy().setAll(10);
-        connection.start();
-        Session session = connection.createSession(false, Session.DUPS_OK_ACKNOWLEDGE);
-        MessageProducer producer = session.createProducer(destination);
-        producer.setDeliveryMode(DeliveryMode.PERSISTENT);
+      connection.setUseCompression(false);
+      connection.getPrefetchPolicy().setAll(10);
+      connection.start();
+      Session session = connection.createSession(false, Session.DUPS_OK_ACKNOWLEDGE);
+      MessageProducer producer = session.createProducer(destination);
+      producer.setDeliveryMode(DeliveryMode.PERSISTENT);
 
-        LOG.info("Sending " + produceCount + " messages that are " + (messageSize / 1024.0) + "k large, for a total of " + (produceCount * messageSize / (1024.0 * 1024.0))
-                 + " megs of data.");
-        // Send a message to the broker.
-        long start = System.currentTimeMillis();
-        for (int i = 0; i < produceCount; i++) {
-            printer.increment();
-            BytesMessage msg = session.createBytesMessage();
-            msg.writeBytes(new byte[messageSize]);
-            producer.send(msg);
-        }
-        long end1 = System.currentTimeMillis();
+      LOG.info("Sending " + produceCount + " messages that are " + (messageSize / 1024.0) + "k large, for a total of " + (produceCount * messageSize / (1024.0 * 1024.0)) + " megs of data.");
+      // Send a message to the broker.
+      long start = System.currentTimeMillis();
+      for (int i = 0; i < produceCount; i++) {
+         printer.increment();
+         BytesMessage msg = session.createBytesMessage();
+         msg.writeBytes(new byte[messageSize]);
+         producer.send(msg);
+      }
+      long end1 = System.currentTimeMillis();
 
-        LOG.info("Produced messages/sec: " + (produceCount * 1000.0 / (end1 - start)));
+      LOG.info("Produced messages/sec: " + (produceCount * 1000.0 / (end1 - start)));
 
-        printer = new ProgressPrinter(produceCount, 10);
-        start = System.currentTimeMillis();
-        MessageConsumer consumer = session.createConsumer(destination);
-        for (int i = 0; i < produceCount; i++) {
-            printer.increment();
-            assertNotNull("Getting message: " + i, consumer.receive(20000));
-        }
-        end1 = System.currentTimeMillis();
-        LOG.info("Consumed messages/sec: " + (produceCount * 1000.0 / (end1 - start)));
+      printer = new ProgressPrinter(produceCount, 10);
+      start = System.currentTimeMillis();
+      MessageConsumer consumer = session.createConsumer(destination);
+      for (int i = 0; i < produceCount; i++) {
+         printer.increment();
+         assertNotNull("Getting message: " + i, consumer.receive(20000));
+      }
+      end1 = System.currentTimeMillis();
+      LOG.info("Consumed messages/sec: " + (produceCount * 1000.0 / (end1 - start)));
 
-    }
+   }
 
-    public static Test suite() {
-        return suite(LoadTester.class);
-    }
+   public static Test suite() {
+      return suite(LoadTester.class);
+   }
 
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(suite());
-    }
+   public static void main(String[] args) {
+      junit.textui.TestRunner.run(suite());
+   }
 
 }

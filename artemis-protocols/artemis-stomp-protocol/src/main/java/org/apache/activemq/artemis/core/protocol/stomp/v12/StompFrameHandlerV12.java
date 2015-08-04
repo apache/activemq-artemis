@@ -30,29 +30,26 @@ import org.apache.activemq.artemis.core.server.ServerMessage;
 
 import static org.apache.activemq.artemis.core.protocol.stomp.ActiveMQStompProtocolMessageBundle.BUNDLE;
 
-public class StompFrameHandlerV12 extends StompFrameHandlerV11 implements FrameEventListener
-{
-   public StompFrameHandlerV12(StompConnection connection)
-   {
+public class StompFrameHandlerV12 extends StompFrameHandlerV11 implements FrameEventListener {
+
+   public StompFrameHandlerV12(StompConnection connection) {
       super(connection);
       decoder = new StompDecoderV12(this);
       decoder.init();
    }
 
    @Override
-   public StompFrame createStompFrame(String command)
-   {
+   public StompFrame createStompFrame(String command) {
       return new StompFrameV12(command);
    }
 
    @Override
    public StompFrame createMessageFrame(ServerMessage serverMessage,
-                                        StompSubscription subscription, int deliveryCount) throws Exception
-   {
+                                        StompSubscription subscription,
+                                        int deliveryCount) throws Exception {
       StompFrame frame = super.createMessageFrame(serverMessage, subscription, deliveryCount);
 
-      if (!subscription.getAck().equals(Stomp.Headers.Subscribe.AckModeValues.AUTO))
-      {
+      if (!subscription.getAck().equals(Stomp.Headers.Subscribe.AckModeValues.AUTO)) {
          frame.addHeader(Stomp.Headers.Message.ACK, String.valueOf(serverMessage.getMessageID()));
       }
 
@@ -64,42 +61,36 @@ public class StompFrameHandlerV12 extends StompFrameHandlerV11 implements FrameE
     * here we use id = messageID
     */
    @Override
-   public StompFrame onAck(StompFrame request)
-   {
+   public StompFrame onAck(StompFrame request) {
       StompFrame response = null;
 
       String messageID = request.getHeader(Stomp.Headers.Ack.ID);
       String txID = request.getHeader(Stomp.Headers.TRANSACTION);
 
-      if (txID != null)
-      {
+      if (txID != null) {
          ActiveMQServerLogger.LOGGER.stompTXAckNorSupported();
       }
 
-      if (messageID == null)
-      {
+      if (messageID == null) {
          ActiveMQStompException error = BUNDLE.noIDInAck().setHandler(connection.getFrameHandler());
          return error.getFrame();
       }
 
-      try
-      {
+      try {
          connection.acknowledge(messageID, null);
       }
-      catch (ActiveMQStompException e)
-      {
+      catch (ActiveMQStompException e) {
          response = e.getFrame();
       }
 
       return response;
    }
 
-   protected class StompDecoderV12 extends StompDecoderV11
-   {
+   protected class StompDecoderV12 extends StompDecoderV11 {
+
       protected boolean nextEOLChar = false;
 
-      public StompDecoderV12(StompFrameHandlerV12 handler)
-      {
+      public StompDecoderV12(StompFrameHandlerV12 handler) {
          super(handler);
 
          //1.2 allows '\r\n'
@@ -107,33 +98,27 @@ public class StompFrameHandlerV12 extends StompFrameHandlerV11 implements FrameE
       }
 
       @Override
-      public void init()
-      {
+      public void init() {
          super.init();
          nextEOLChar = false;
       }
 
       @Override
-      protected void checkEol() throws ActiveMQStompException
-      {
+      protected void checkEol() throws ActiveMQStompException {
          //either \n or \r\n
-         if (workingBuffer[pos - 2] == NEW_LINE)
-         {
+         if (workingBuffer[pos - 2] == NEW_LINE) {
             pos--;
          }
-         else if (workingBuffer[pos - 2] != CR)
-         {
+         else if (workingBuffer[pos - 2] != CR) {
             throwInvalid();
          }
-         else if (workingBuffer[pos - 1] != NEW_LINE)
-         {
+         else if (workingBuffer[pos - 1] != NEW_LINE) {
             throwInvalid();
          }
       }
 
       @Override
-      public void init(StompDecoder decoder)
-      {
+      public void init(StompDecoder decoder) {
          this.data = decoder.data;
          this.workingBuffer = decoder.workingBuffer;
          this.pos = decoder.pos;
@@ -141,35 +126,27 @@ public class StompFrameHandlerV12 extends StompFrameHandlerV11 implements FrameE
       }
 
       @Override
-      protected boolean parseHeaders() throws ActiveMQStompException
-      {
+      protected boolean parseHeaders() throws ActiveMQStompException {
       outer:
-         while (true)
-         {
+         while (true) {
             byte b = workingBuffer[pos++];
 
-            switch (b)
-            {
+            switch (b) {
                //escaping
-               case ESC_CHAR:
-               {
-                  if (isEscaping)
-                  {
+               case ESC_CHAR: {
+                  if (isEscaping) {
                      //this is a backslash
                      holder.append(b);
                      isEscaping = false;
                   }
-                  else
-                  {
+                  else {
                      //begin escaping
                      isEscaping = true;
                   }
                   break;
                }
-               case HEADER_SEPARATOR:
-               {
-                  if (inHeaderName)
-                  {
+               case HEADER_SEPARATOR: {
+                  if (inHeaderName) {
                      headerName = holder.getString();
 
                      holder.reset();
@@ -183,59 +160,46 @@ public class StompFrameHandlerV12 extends StompFrameHandlerV11 implements FrameE
 
                   break;
                }
-               case LN:
-               {
-                  if (isEscaping)
-                  {
+               case LN: {
+                  if (isEscaping) {
                      holder.append(NEW_LINE);
                      isEscaping = false;
                   }
-                  else
-                  {
+                  else {
                      holder.append(b);
                   }
                   break;
                }
-               case RT:
-               {
-                  if (isEscaping)
-                  {
+               case RT: {
+                  if (isEscaping) {
                      holder.append(CR);
                      isEscaping = false;
                   }
-                  else
-                  {
+                  else {
                      holder.append(b);
                   }
                   break;
                }
-               case CR:
-               {
-                  if (nextEOLChar)
-                  {
+               case CR: {
+                  if (nextEOLChar) {
                      throw BUNDLE.invalidTwoCRs().setHandler(handler);
                   }
                   nextEOLChar = true;
                   break;
                }
-               case StompDecoder.c:
-               {
-                  if (isEscaping)
-                  {
+               case StompDecoder.c: {
+                  if (isEscaping) {
                      holder.append(StompDecoder.HEADER_SEPARATOR);
                      isEscaping = false;
                   }
-                  else
-                  {
+                  else {
                      holder.append(b);
                   }
                   break;
                }
-               case NEW_LINE:
-               {
+               case NEW_LINE: {
                   nextEOLChar = false;
-                  if (whiteSpaceOnly)
-                  {
+                  if (whiteSpaceOnly) {
                      // Headers are terminated by a blank line
                      readingHeaders = false;
                      break outer;
@@ -244,18 +208,15 @@ public class StompFrameHandlerV12 extends StompFrameHandlerV11 implements FrameE
                   String headerValue = holder.getString();
                   holder.reset();
 
-                  if (!headers.containsKey(headerName))
-                  {
+                  if (!headers.containsKey(headerName)) {
                      headers.put(headerName, headerValue);
                   }
 
-                  if (headerName.equals(Stomp.Headers.CONTENT_LENGTH))
-                  {
+                  if (headerName.equals(Stomp.Headers.CONTENT_LENGTH)) {
                      contentLength = Integer.parseInt(headerValue);
                   }
 
-                  if (headerName.equals(Stomp.Headers.CONTENT_TYPE))
-                  {
+                  if (headerName.equals(Stomp.Headers.CONTENT_TYPE)) {
                      contentType = headerValue;
                   }
 
@@ -267,8 +228,7 @@ public class StompFrameHandlerV12 extends StompFrameHandlerV11 implements FrameE
 
                   break;
                }
-               default:
-               {
+               default: {
                   whiteSpaceOnly = false;
 
                   headerValueWhitespace = false;
@@ -276,8 +236,7 @@ public class StompFrameHandlerV12 extends StompFrameHandlerV11 implements FrameE
                   holder.append(b);
                }
             }
-            if (pos == data)
-            {
+            if (pos == data) {
                // Run out of data
                return false;
             }
@@ -285,18 +244,14 @@ public class StompFrameHandlerV12 extends StompFrameHandlerV11 implements FrameE
          return true;
       }
 
-      protected StompFrame parseBody() throws ActiveMQStompException
-      {
+      protected StompFrame parseBody() throws ActiveMQStompException {
          byte[] content = null;
 
-         if (contentLength != -1)
-         {
-            if (pos + contentLength + 1 > data)
-            {
+         if (contentLength != -1) {
+            if (pos + contentLength + 1 > data) {
                // Need more bytes
             }
-            else
-            {
+            else {
                content = new byte[contentLength];
 
                System.arraycopy(workingBuffer, pos, content, 0, contentLength);
@@ -304,33 +259,26 @@ public class StompFrameHandlerV12 extends StompFrameHandlerV11 implements FrameE
                pos += contentLength;
 
                //drain all the rest
-               if (bodyStart == -1)
-               {
+               if (bodyStart == -1) {
                   bodyStart = pos;
                }
 
-               while (pos < data)
-               {
-                  if (workingBuffer[pos++] == 0)
-                  {
+               while (pos < data) {
+                  if (workingBuffer[pos++] == 0) {
                      break;
                   }
                }
             }
          }
-         else
-         {
+         else {
             // Need to scan for terminating NUL
 
-            if (bodyStart == -1)
-            {
+            if (bodyStart == -1) {
                bodyStart = pos;
             }
 
-            while (pos < data)
-            {
-               if (workingBuffer[pos++] == 0)
-               {
+            while (pos < data) {
+               if (workingBuffer[pos++] == 0) {
                   content = new byte[pos - bodyStart - 1];
 
                   System.arraycopy(workingBuffer, bodyStart, content, 0, content.length);
@@ -340,11 +288,10 @@ public class StompFrameHandlerV12 extends StompFrameHandlerV11 implements FrameE
             }
          }
 
-         if (content != null)
-         {
-            if (data > pos)
-            {
-               if (workingBuffer[pos] == NEW_LINE) pos++;
+         if (content != null) {
+            if (data > pos) {
+               if (workingBuffer[pos] == NEW_LINE)
+                  pos++;
 
                if (data > pos)
                   // More data still in the buffer from the next packet
@@ -361,8 +308,7 @@ public class StompFrameHandlerV12 extends StompFrameHandlerV11 implements FrameE
 
             return ret;
          }
-         else
-         {
+         else {
             return null;
          }
       }

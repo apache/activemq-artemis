@@ -19,50 +19,40 @@ package org.apache.activemq.artemis.core.journal.impl.dataformat;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.journal.EncodingSupport;
 
-public abstract class JournalInternalRecord implements EncodingSupport
-{
+public abstract class JournalInternalRecord implements EncodingSupport {
 
    protected int fileID;
 
    protected byte compactCount;
 
-   public int getFileID()
-   {
+   public int getFileID() {
       return fileID;
    }
 
-   public void setFileID(final int fileID)
-   {
+   public void setFileID(final int fileID) {
       this.fileID = fileID;
    }
 
-   public void decode(final ActiveMQBuffer buffer)
-   {
+   public void decode(final ActiveMQBuffer buffer) {
    }
 
-   public void setNumberOfRecords(final int records)
-   {
+   public void setNumberOfRecords(final int records) {
    }
 
-   public int getNumberOfRecords()
-   {
+   public int getNumberOfRecords() {
       return 0;
    }
 
-   public short getCompactCount()
-   {
+   public short getCompactCount() {
       return compactCount;
    }
 
-   public void setCompactCount(final short compactCount)
-   {
-      if (compactCount > Byte.MAX_VALUE)
-      {
+   public void setCompactCount(final short compactCount) {
+      if (compactCount > Byte.MAX_VALUE) {
          this.compactCount = Byte.MAX_VALUE;
       }
-      else
-      {
-         this.compactCount = (byte)compactCount;
+      else {
+         this.compactCount = (byte) compactCount;
       }
    }
 

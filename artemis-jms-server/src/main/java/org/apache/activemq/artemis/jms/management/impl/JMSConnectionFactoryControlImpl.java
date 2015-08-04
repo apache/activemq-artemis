@@ -29,8 +29,7 @@ import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.server.JMSServerManager;
 import org.apache.activemq.artemis.jms.server.config.ConnectionFactoryConfiguration;
 
-public class JMSConnectionFactoryControlImpl extends StandardMBean implements ConnectionFactoryControl
-{
+public class JMSConnectionFactoryControlImpl extends StandardMBean implements ConnectionFactoryControl {
    // Constants -----------------------------------------------------
 
    // Attributes ----------------------------------------------------
@@ -50,8 +49,7 @@ public class JMSConnectionFactoryControlImpl extends StandardMBean implements Co
    public JMSConnectionFactoryControlImpl(final ConnectionFactoryConfiguration cfConfig,
                                           final ActiveMQConnectionFactory cf,
                                           final JMSServerManager jmsManager,
-                                          final String name) throws NotCompliantMBeanException
-   {
+                                          final String name) throws NotCompliantMBeanException {
       super(ConnectionFactoryControl.class);
       this.cfConfig = cfConfig;
       this.cf = cf;
@@ -63,405 +61,327 @@ public class JMSConnectionFactoryControlImpl extends StandardMBean implements Co
 
    // ManagedConnectionFactoryMBean implementation ------------------
 
-   public String[] getRegistryBindings()
-   {
+   public String[] getRegistryBindings() {
       return jmsManager.getBindingsOnConnectionFactory(name);
    }
 
-   public boolean isCompressLargeMessages()
-   {
+   public boolean isCompressLargeMessages() {
       return cf.isCompressLargeMessage();
    }
 
-   public void setCompressLargeMessages(final boolean compress)
-   {
+   public void setCompressLargeMessages(final boolean compress) {
       cfConfig.setCompressLargeMessages(compress);
       recreateCF();
    }
 
-   public boolean isHA()
-   {
+   public boolean isHA() {
       return cfConfig.isHA();
    }
 
-   public int getFactoryType()
-   {
+   public int getFactoryType() {
       return cfConfig.getFactoryType().intValue();
    }
 
-   public String getClientID()
-   {
+   public String getClientID() {
       return cfConfig.getClientID();
    }
 
-   public long getClientFailureCheckPeriod()
-   {
+   public long getClientFailureCheckPeriod() {
       return cfConfig.getClientFailureCheckPeriod();
    }
 
-   public void setClientID(String clientID)
-   {
+   public void setClientID(String clientID) {
       cfConfig.setClientID(clientID);
       recreateCF();
    }
 
-   public void setDupsOKBatchSize(int dupsOKBatchSize)
-   {
+   public void setDupsOKBatchSize(int dupsOKBatchSize) {
       cfConfig.setDupsOKBatchSize(dupsOKBatchSize);
       recreateCF();
    }
 
-   public void setTransactionBatchSize(int transactionBatchSize)
-   {
+   public void setTransactionBatchSize(int transactionBatchSize) {
       cfConfig.setTransactionBatchSize(transactionBatchSize);
       recreateCF();
    }
 
-   public void setClientFailureCheckPeriod(long clientFailureCheckPeriod)
-   {
+   public void setClientFailureCheckPeriod(long clientFailureCheckPeriod) {
       cfConfig.setClientFailureCheckPeriod(clientFailureCheckPeriod);
       recreateCF();
    }
 
-   public void setConnectionTTL(long connectionTTL)
-   {
+   public void setConnectionTTL(long connectionTTL) {
       cfConfig.setConnectionTTL(connectionTTL);
       recreateCF();
    }
 
-   public void setCallTimeout(long callTimeout)
-   {
+   public void setCallTimeout(long callTimeout) {
       cfConfig.setCallTimeout(callTimeout);
       recreateCF();
    }
 
-   public void setCallFailoverTimeout(long callTimeout)
-   {
+   public void setCallFailoverTimeout(long callTimeout) {
       cfConfig.setCallFailoverTimeout(callTimeout);
       recreateCF();
    }
 
-   public void setConsumerWindowSize(int consumerWindowSize)
-   {
+   public void setConsumerWindowSize(int consumerWindowSize) {
       cfConfig.setConsumerWindowSize(consumerWindowSize);
       recreateCF();
    }
 
-   public void setConsumerMaxRate(int consumerMaxRate)
-   {
+   public void setConsumerMaxRate(int consumerMaxRate) {
       cfConfig.setConsumerMaxRate(consumerMaxRate);
       recreateCF();
    }
 
-   public void setConfirmationWindowSize(int confirmationWindowSize)
-   {
+   public void setConfirmationWindowSize(int confirmationWindowSize) {
       cfConfig.setConfirmationWindowSize(confirmationWindowSize);
       recreateCF();
    }
 
-   public void setProducerMaxRate(int producerMaxRate)
-   {
+   public void setProducerMaxRate(int producerMaxRate) {
       cfConfig.setProducerMaxRate(producerMaxRate);
       recreateCF();
    }
 
-   public int getProducerWindowSize()
-   {
+   public int getProducerWindowSize() {
       return cfConfig.getProducerWindowSize();
    }
 
-   public void setProducerWindowSize(int producerWindowSize)
-   {
+   public void setProducerWindowSize(int producerWindowSize) {
       cfConfig.setProducerWindowSize(producerWindowSize);
       recreateCF();
    }
 
-   public void setCacheLargeMessagesClient(boolean cacheLargeMessagesClient)
-   {
+   public void setCacheLargeMessagesClient(boolean cacheLargeMessagesClient) {
       cfConfig.setCacheLargeMessagesClient(cacheLargeMessagesClient);
       recreateCF();
    }
 
-   public boolean isCacheLargeMessagesClient()
-   {
+   public boolean isCacheLargeMessagesClient() {
       return cfConfig.isCacheLargeMessagesClient();
    }
 
-   public void setMinLargeMessageSize(int minLargeMessageSize)
-   {
+   public void setMinLargeMessageSize(int minLargeMessageSize) {
       cfConfig.setMinLargeMessageSize(minLargeMessageSize);
       recreateCF();
    }
 
-   public void setBlockOnNonDurableSend(boolean blockOnNonDurableSend)
-   {
+   public void setBlockOnNonDurableSend(boolean blockOnNonDurableSend) {
       cfConfig.setBlockOnNonDurableSend(blockOnNonDurableSend);
       recreateCF();
    }
 
-   public void setBlockOnAcknowledge(boolean blockOnAcknowledge)
-   {
+   public void setBlockOnAcknowledge(boolean blockOnAcknowledge) {
       cfConfig.setBlockOnAcknowledge(blockOnAcknowledge);
       recreateCF();
    }
 
-   public void setBlockOnDurableSend(boolean blockOnDurableSend)
-   {
+   public void setBlockOnDurableSend(boolean blockOnDurableSend) {
       cfConfig.setBlockOnDurableSend(blockOnDurableSend);
       recreateCF();
    }
 
-   public void setAutoGroup(boolean autoGroup)
-   {
+   public void setAutoGroup(boolean autoGroup) {
       cfConfig.setAutoGroup(autoGroup);
       recreateCF();
    }
 
-   public void setPreAcknowledge(boolean preAcknowledge)
-   {
+   public void setPreAcknowledge(boolean preAcknowledge) {
       cfConfig.setPreAcknowledge(preAcknowledge);
       recreateCF();
    }
 
-   public void setMaxRetryInterval(long retryInterval)
-   {
+   public void setMaxRetryInterval(long retryInterval) {
       cfConfig.setMaxRetryInterval(retryInterval);
       recreateCF();
    }
 
-   public void setRetryIntervalMultiplier(double retryIntervalMultiplier)
-   {
+   public void setRetryIntervalMultiplier(double retryIntervalMultiplier) {
       cfConfig.setRetryIntervalMultiplier(retryIntervalMultiplier);
       recreateCF();
    }
 
-   public void setReconnectAttempts(int reconnectAttempts)
-   {
+   public void setReconnectAttempts(int reconnectAttempts) {
       cfConfig.setReconnectAttempts(reconnectAttempts);
       recreateCF();
    }
 
-   public void setFailoverOnInitialConnection(boolean failover)
-   {
+   public void setFailoverOnInitialConnection(boolean failover) {
       cfConfig.setFailoverOnInitialConnection(failover);
       recreateCF();
    }
 
-   public boolean isUseGlobalPools()
-   {
+   public boolean isUseGlobalPools() {
       return cfConfig.isUseGlobalPools();
    }
 
-   public void setScheduledThreadPoolMaxSize(int scheduledThreadPoolMaxSize)
-   {
+   public void setScheduledThreadPoolMaxSize(int scheduledThreadPoolMaxSize) {
       cfConfig.setScheduledThreadPoolMaxSize(scheduledThreadPoolMaxSize);
       recreateCF();
    }
 
-   public int getThreadPoolMaxSize()
-   {
+   public int getThreadPoolMaxSize() {
       return cfConfig.getThreadPoolMaxSize();
    }
 
-   public void setThreadPoolMaxSize(int threadPoolMaxSize)
-   {
+   public void setThreadPoolMaxSize(int threadPoolMaxSize) {
       cfConfig.setThreadPoolMaxSize(threadPoolMaxSize);
       recreateCF();
    }
 
-   public int getInitialMessagePacketSize()
-   {
+   public int getInitialMessagePacketSize() {
       return cf.getInitialMessagePacketSize();
    }
 
-   public void setGroupID(String groupID)
-   {
+   public void setGroupID(String groupID) {
       cfConfig.setGroupID(groupID);
       recreateCF();
    }
 
-   public String getGroupID()
-   {
+   public String getGroupID() {
       return cfConfig.getGroupID();
    }
 
-   public void setUseGlobalPools(boolean useGlobalPools)
-   {
+   public void setUseGlobalPools(boolean useGlobalPools) {
       cfConfig.setUseGlobalPools(useGlobalPools);
       recreateCF();
    }
 
-   public int getScheduledThreadPoolMaxSize()
-   {
+   public int getScheduledThreadPoolMaxSize() {
       return cfConfig.getScheduledThreadPoolMaxSize();
    }
 
-   public void setRetryInterval(long retryInterval)
-   {
+   public void setRetryInterval(long retryInterval) {
       cfConfig.setRetryInterval(retryInterval);
       recreateCF();
    }
 
-   public long getMaxRetryInterval()
-   {
+   public long getMaxRetryInterval() {
       return cfConfig.getMaxRetryInterval();
    }
 
-   public String getConnectionLoadBalancingPolicyClassName()
-   {
+   public String getConnectionLoadBalancingPolicyClassName() {
       return cfConfig.getLoadBalancingPolicyClassName();
    }
 
-   public void setConnectionLoadBalancingPolicyClassName(String name)
-   {
+   public void setConnectionLoadBalancingPolicyClassName(String name) {
       cfConfig.setLoadBalancingPolicyClassName(name);
       recreateCF();
    }
 
-   public TransportConfiguration[] getStaticConnectors()
-   {
+   public TransportConfiguration[] getStaticConnectors() {
       return cf.getStaticConnectors();
    }
 
-   public DiscoveryGroupConfiguration getDiscoveryGroupConfiguration()
-   {
+   public DiscoveryGroupConfiguration getDiscoveryGroupConfiguration() {
       return cf.getDiscoveryGroupConfiguration();
    }
 
-   public void addBinding(@Parameter(name = "binding", desc = "the name of the binding for the Registry") String binding) throws Exception
-   {
+   public void addBinding(@Parameter(name = "binding", desc = "the name of the binding for the Registry") String binding) throws Exception {
       jmsManager.addConnectionFactoryToBindingRegistry(name, binding);
    }
 
-   public void removeBinding(@Parameter(name = "binding", desc = "the name of the binding for the Registry") String binding) throws Exception
-   {
+   public void removeBinding(@Parameter(name = "binding", desc = "the name of the binding for the Registry") String binding) throws Exception {
       jmsManager.removeConnectionFactoryFromBindingRegistry(name, binding);
    }
 
-   public long getCallTimeout()
-   {
+   public long getCallTimeout() {
       return cfConfig.getCallTimeout();
    }
 
-   public long getCallFailoverTimeout()
-   {
+   public long getCallFailoverTimeout() {
       return cfConfig.getCallFailoverTimeout();
    }
 
-   public int getConsumerMaxRate()
-   {
+   public int getConsumerMaxRate() {
       return cfConfig.getConsumerMaxRate();
    }
 
-   public int getConsumerWindowSize()
-   {
+   public int getConsumerWindowSize() {
       return cfConfig.getConsumerWindowSize();
    }
 
-   public int getProducerMaxRate()
-   {
+   public int getProducerMaxRate() {
       return cfConfig.getProducerMaxRate();
    }
 
-   public int getConfirmationWindowSize()
-   {
+   public int getConfirmationWindowSize() {
       return cfConfig.getConfirmationWindowSize();
    }
 
-   public int getDupsOKBatchSize()
-   {
+   public int getDupsOKBatchSize() {
       return cfConfig.getDupsOKBatchSize();
    }
 
-   public boolean isBlockOnAcknowledge()
-   {
+   public boolean isBlockOnAcknowledge() {
       return cfConfig.isBlockOnAcknowledge();
    }
 
-   public boolean isBlockOnNonDurableSend()
-   {
+   public boolean isBlockOnNonDurableSend() {
       return cfConfig.isBlockOnNonDurableSend();
    }
 
-   public boolean isBlockOnDurableSend()
-   {
+   public boolean isBlockOnDurableSend() {
       return cfConfig.isBlockOnDurableSend();
    }
 
-   public boolean isPreAcknowledge()
-   {
+   public boolean isPreAcknowledge() {
       return cfConfig.isPreAcknowledge();
    }
 
-   public String getName()
-   {
+   public String getName() {
       return name;
    }
 
-   public long getConnectionTTL()
-   {
+   public long getConnectionTTL() {
       return cfConfig.getConnectionTTL();
    }
 
-   public int getReconnectAttempts()
-   {
+   public int getReconnectAttempts() {
       return cfConfig.getReconnectAttempts();
    }
 
-   public boolean isFailoverOnInitialConnection()
-   {
+   public boolean isFailoverOnInitialConnection() {
       return cfConfig.isFailoverOnInitialConnection();
    }
 
-   public int getMinLargeMessageSize()
-   {
+   public int getMinLargeMessageSize() {
       return cfConfig.getMinLargeMessageSize();
    }
 
-   public long getRetryInterval()
-   {
+   public long getRetryInterval() {
       return cfConfig.getRetryInterval();
    }
 
-   public double getRetryIntervalMultiplier()
-   {
+   public double getRetryIntervalMultiplier() {
       return cfConfig.getRetryIntervalMultiplier();
    }
 
-   public int getTransactionBatchSize()
-   {
+   public int getTransactionBatchSize() {
       return cfConfig.getTransactionBatchSize();
    }
 
-   public boolean isAutoGroup()
-   {
+   public boolean isAutoGroup() {
       return cfConfig.isAutoGroup();
    }
 
    @Override
-   public MBeanInfo getMBeanInfo()
-   {
+   public MBeanInfo getMBeanInfo() {
       MBeanInfo info = super.getMBeanInfo();
-      return new MBeanInfo(info.getClassName(),
-                           info.getDescription(),
-                           info.getAttributes(),
-                           info.getConstructors(),
-                           MBeanInfoHelper.getMBeanOperationsInfo(ConnectionFactoryControl.class),
-                           info.getNotifications());
+      return new MBeanInfo(info.getClassName(), info.getDescription(), info.getAttributes(), info.getConstructors(), MBeanInfoHelper.getMBeanOperationsInfo(ConnectionFactoryControl.class), info.getNotifications());
    }
 
    // Package protected ---------------------------------------------
 
    // Protected -----------------------------------------------------
 
-   private void recreateCF()
-   {
-      try
-      {
+   private void recreateCF() {
+      try {
          this.cf = jmsManager.recreateCF(this.name, this.cfConfig);
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          throw new RuntimeException(e.getMessage(), e);
       }
    }

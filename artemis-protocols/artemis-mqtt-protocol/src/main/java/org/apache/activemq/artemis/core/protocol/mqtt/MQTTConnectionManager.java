@@ -33,8 +33,8 @@ import java.util.UUID;
  * MQTTConnectionMananager is responsible for handle Connect and Disconnect packets and any resulting behaviour of these
  * events.
  */
-public class MQTTConnectionManager
-{
+public class MQTTConnectionManager {
+
    private MQTTSession session;
 
    //TODO Read in a list of existing client IDs from stored Sessions.
@@ -42,8 +42,7 @@ public class MQTTConnectionManager
 
    private MQTTLogger log = MQTTLogger.LOGGER;
 
-   public MQTTConnectionManager(MQTTSession session)
-   {
+   public MQTTConnectionManager(MQTTSession session) {
       this.session = session;
       MQTTFailureListener failureListener = new MQTTFailureListener(this);
       session.getConnection().addFailureListener(failureListener);
@@ -52,12 +51,17 @@ public class MQTTConnectionManager
    /**
     * Handles the connect packet.  See spec for details on each of parameters.
     */
-   synchronized void connect(String cId, String username, String password, boolean will, String willMessage, String willTopic,
-                boolean willRetain, int willQosLevel, boolean cleanSession) throws Exception
-   {
+   synchronized void connect(String cId,
+                             String username,
+                             String password,
+                             boolean will,
+                             String willMessage,
+                             String willTopic,
+                             boolean willRetain,
+                             int willQosLevel,
+                             boolean cleanSession) throws Exception {
       String clientId = validateClientId(cId, cleanSession);
-      if (clientId == null)
-      {
+      if (clientId == null) {
          session.getProtocolHandler().sendConnack(MqttConnectReturnCode.CONNECTION_REFUSED_IDENTIFIER_REJECTED);
          session.getProtocolHandler().disconnect();
          return;
@@ -70,8 +74,7 @@ public class MQTTConnectionManager
 
       session.setServerSession(serverSession);
 
-      if (will)
-      {
+      if (will) {
          ServerMessage w = MQTTUtil.createServerMessageFromString(session, willMessage, willTopic, willQosLevel, willRetain);
          session.getSessionState().setWillMessage(w);
       }
@@ -83,43 +86,29 @@ public class MQTTConnectionManager
 
    /**
     * Creates an internal Server Session.
+    *
     * @param username
     * @param password
     * @return
     * @throws Exception
     */
-   ServerSessionImpl createServerSession(String username, String password) throws Exception
-   {
+   ServerSessionImpl createServerSession(String username, String password) throws Exception {
       String id = UUIDGenerator.getInstance().generateStringUUID();
-      ActiveMQServer server =  session.getServer();
+      ActiveMQServer server = session.getServer();
 
-      ServerSession serverSession = server.createSession(id,
-            username,
-            password,
-            ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE,
-            session.getConnection(),
-            MQTTUtil.SESSION_AUTO_COMMIT_SENDS,
-            MQTTUtil.SESSION_AUTO_COMMIT_ACKS,
-            MQTTUtil.SESSION_PREACKNOWLEDGE,
-            MQTTUtil.SESSION_XA,
-            null,
-            session.getSessionCallback(),
-            null, // Session factory
-            MQTTUtil.SESSION_AUTO_CREATE_QUEUE);
+      ServerSession serverSession = server.createSession(id, username, password, ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE, session.getConnection(), MQTTUtil.SESSION_AUTO_COMMIT_SENDS, MQTTUtil.SESSION_AUTO_COMMIT_ACKS, MQTTUtil.SESSION_PREACKNOWLEDGE, MQTTUtil.SESSION_XA, null, session.getSessionCallback(), null, // Session factory
+                                                         MQTTUtil.SESSION_AUTO_CREATE_QUEUE);
       return (ServerSessionImpl) serverSession;
    }
 
-   void disconnect()
-   {
-      try
-      {
-         if (session != null && session.getSessionState() != null)
-         {
+   void disconnect() {
+      try {
+         if (session != null && session.getSessionState() != null) {
             String clientId = session.getSessionState().getClientId();
-            if (clientId != null) CONNECTED_CLIENTS.remove(clientId);
+            if (clientId != null)
+               CONNECTED_CLIENTS.remove(clientId);
 
-            if (session.getState().isWill())
-            {
+            if (session.getState().isWill()) {
                session.getConnectionManager().sendWill();
             }
          }
@@ -127,8 +116,7 @@ public class MQTTConnectionManager
          session.getConnection().disconnect(false);
          session.getConnection().destroy();
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          /* FIXME Failure during disconnect would leave the session state in an unrecoverable state.  We should handle
          errors more gracefully.
           */
@@ -136,41 +124,32 @@ public class MQTTConnectionManager
       }
    }
 
-
-   private void sendWill() throws Exception
-   {
+   private void sendWill() throws Exception {
       session.getServerSession().send(session.getSessionState().getWillMessage(), true);
       session.getSessionState().deleteWillMessage();
    }
 
-   private MQTTSessionState getSessionState(String clientId, boolean cleanSession) throws InterruptedException
-   {
-      synchronized (MQTTSession.SESSIONS)
-      {
+   private MQTTSessionState getSessionState(String clientId, boolean cleanSession) throws InterruptedException {
+      synchronized (MQTTSession.SESSIONS) {
          /* [MQTT-3.1.2-6] If CleanSession is set to 1, the Client and Server MUST discard any previous Session and
           * start a new one  This Session lasts as long as the Network Connection. State data associated with this Session
           * MUST NOT be reused in any subsequent Session */
-         if (cleanSession)
-         {
+         if (cleanSession) {
             MQTTSession.SESSIONS.remove(clientId);
             return new MQTTSessionState(clientId);
          }
-         else
-         {
+         else {
             /* [MQTT-3.1.2-4] Attach an existing session if one exists (if cleanSession flag is false) otherwise create
             a new one. */
             MQTTSessionState state = MQTTSession.SESSIONS.get(clientId);
-            if (state != null)
-            {
+            if (state != null) {
                // TODO Add a count down latch for handling wait during attached session state.
-               while (state.getAttached())
-               {
+               while (state.getAttached()) {
                   Thread.sleep(1000);
                }
-               return  state;
+               return state;
             }
-            else
-            {
+            else {
                state = new MQTTSessionState(clientId);
                MQTTSession.SESSIONS.put(clientId, state);
                return state;
@@ -179,24 +158,19 @@ public class MQTTConnectionManager
       }
    }
 
-   private String validateClientId(String clientId, boolean cleanSession)
-   {
-      if (clientId == null || clientId.isEmpty())
-      {
+   private String validateClientId(String clientId, boolean cleanSession) {
+      if (clientId == null || clientId.isEmpty()) {
          // [MQTT-3.1.3-7] [MQTT-3.1.3-6] If client does not specify a client ID and clean session is set to 1 create it.
-         if (cleanSession)
-         {
+         if (cleanSession) {
             clientId = UUID.randomUUID().toString();
          }
-         else
-         {
+         else {
             // [MQTT-3.1.3-8] Return ID rejected and disconnect if clean session = false and client id is null
             return null;
          }
       }
       // If the client ID is not unique (i.e. it has already registered) then do not accept it.
-      else if (!CONNECTED_CLIENTS.add(clientId))
-      {
+      else if (!CONNECTED_CLIENTS.add(clientId)) {
          // [MQTT-3.1.3-9] Return ID Rejected if server rejects the client ID
          return null;
       }

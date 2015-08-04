@@ -21,14 +21,13 @@ import org.apache.activemq.artemis.core.protocol.core.Packet;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.utils.DataConstants;
 
-public class PacketImpl implements Packet
-{
+public class PacketImpl implements Packet {
    // Constants -------------------------------------------------------------------------
 
    // The minimal size for all the packets, Common data for all the packets (look at
    // PacketImpl.encode)
    public static final int PACKET_HEADERS_SIZE = DataConstants.SIZE_INT + DataConstants.SIZE_BYTE +
-                                                 DataConstants.SIZE_LONG;
+      DataConstants.SIZE_LONG;
 
    private static final int INITIAL_PACKET_SIZE = 1500;
 
@@ -194,8 +193,6 @@ public class PacketImpl implements Packet
 
    public static final byte SESS_UNIQUE_ADD_METADATA = 106;
 
-
-
    // HA
 
    public static final byte CLUSTER_TOPOLOGY = 110;
@@ -248,30 +245,25 @@ public class PacketImpl implements Packet
 
    // Static --------------------------------------------------------
 
-   public PacketImpl(final byte type)
-   {
+   public PacketImpl(final byte type) {
       this.type = type;
    }
 
    // Public --------------------------------------------------------
 
-   public byte getType()
-   {
+   public byte getType() {
       return type;
    }
 
-   public long getChannelID()
-   {
+   public long getChannelID() {
       return channelID;
    }
 
-   public void setChannelID(final long channelID)
-   {
+   public void setChannelID(final long channelID) {
       this.channelID = channelID;
    }
 
-   public ActiveMQBuffer encode(final RemotingConnection connection)
-   {
+   public ActiveMQBuffer encode(final RemotingConnection connection) {
       ActiveMQBuffer buffer = connection.createTransportBuffer(PacketImpl.INITIAL_PACKET_SIZE);
 
       // The standard header fields
@@ -292,8 +284,7 @@ public class PacketImpl implements Packet
       return buffer;
    }
 
-   public void decode(final ActiveMQBuffer buffer)
-   {
+   public void decode(final ActiveMQBuffer buffer) {
       channelID = buffer.readLong();
 
       decodeRest(buffer);
@@ -301,78 +292,64 @@ public class PacketImpl implements Packet
       size = buffer.readerIndex();
    }
 
-   public int getPacketSize()
-   {
-      if (size == -1)
-      {
+   public int getPacketSize() {
+      if (size == -1) {
          throw new IllegalStateException("Packet hasn't been encoded/decoded yet");
       }
 
       return size;
    }
 
-   public boolean isResponse()
-   {
+   public boolean isResponse() {
       return false;
    }
 
-   public void encodeRest(final ActiveMQBuffer buffer)
-   {
+   public void encodeRest(final ActiveMQBuffer buffer) {
    }
 
-   public void decodeRest(final ActiveMQBuffer buffer)
-   {
+   public void decodeRest(final ActiveMQBuffer buffer) {
    }
 
-   public boolean isRequiresConfirmations()
-   {
+   public boolean isRequiresConfirmations() {
       return true;
    }
 
    @Override
-   public String toString()
-   {
+   public String toString() {
       return getParentString() + "]";
    }
 
    @Override
-   public int hashCode()
-   {
+   public int hashCode() {
       final int prime = 31;
       int result = 1;
-      result = prime * result + (int)(channelID ^ (channelID >>> 32));
+      result = prime * result + (int) (channelID ^ (channelID >>> 32));
       result = prime * result + size;
       result = prime * result + type;
       return result;
    }
 
    @Override
-   public boolean equals(Object obj)
-   {
-      if (this == obj)
-      {
+   public boolean equals(Object obj) {
+      if (this == obj) {
          return true;
       }
-      if (!(obj instanceof PacketImpl))
-      {
+      if (!(obj instanceof PacketImpl)) {
          return false;
       }
-      PacketImpl other = (PacketImpl)obj;
+      PacketImpl other = (PacketImpl) obj;
       return (channelID == other.channelID) && (size == other.size) && (type != other.type);
    }
 
-   protected String getParentString()
-   {
-      return "PACKET("  + this.getClass().getSimpleName() + ")[type=" + type + ", channelID=" + channelID + ", packetObject=" + this.getClass().getSimpleName();
+   protected String getParentString() {
+      return "PACKET(" + this.getClass().getSimpleName() + ")[type=" + type + ", channelID=" + channelID + ", packetObject=" + this.getClass().getSimpleName();
    }
 
-   private int stringEncodeSize(final String str)
-   {
+   private int stringEncodeSize(final String str) {
       return DataConstants.SIZE_INT + str.length() * 2;
    }
 
-   protected int nullableStringEncodeSize(final String str)
-   {
+   protected int nullableStringEncodeSize(final String str) {
       return DataConstants.SIZE_BOOLEAN + (str != null ? stringEncodeSize(str) : 0);
    }
 }

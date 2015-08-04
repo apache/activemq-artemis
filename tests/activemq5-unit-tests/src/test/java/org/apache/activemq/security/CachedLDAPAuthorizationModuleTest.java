@@ -27,45 +27,43 @@ import org.junit.runner.RunWith;
 
 import java.io.InputStream;
 
-
-@RunWith( FrameworkRunner.class )
+@RunWith(FrameworkRunner.class)
 @CreateLdapServer(transports = {@CreateTransport(protocol = "LDAP")})
 @ApplyLdifFiles(
-        "org/apache/activemq/security/activemq-apacheds.ldif"
-)
+   "org/apache/activemq/security/activemq-apacheds.ldif")
 public class CachedLDAPAuthorizationModuleTest extends AbstractCachedLDAPAuthorizationModuleTest {
 
-    @Override
-    protected SimpleCachedLDAPAuthorizationMap createMap() {
-        SimpleCachedLDAPAuthorizationMap map = super.createMap();
-        map.setConnectionURL("ldap://localhost:" + getLdapServer().getPort());
-        return map;
-    }
-    
-    @Override
-    protected InputStream getAddLdif() {
-        return getClass().getClassLoader().getResourceAsStream("org/apache/activemq/security/activemq-apacheds-add.ldif");
-    }
+   @Override
+   protected SimpleCachedLDAPAuthorizationMap createMap() {
+      SimpleCachedLDAPAuthorizationMap map = super.createMap();
+      map.setConnectionURL("ldap://localhost:" + getLdapServer().getPort());
+      return map;
+   }
 
-    @Override
-    protected InputStream getRemoveLdif() {
-        return getClass().getClassLoader().getResourceAsStream("org/apache/activemq/security/activemq-apacheds-delete.ldif");
-    }
+   @Override
+   protected InputStream getAddLdif() {
+      return getClass().getClassLoader().getResourceAsStream("org/apache/activemq/security/activemq-apacheds-add.ldif");
+   }
 
-    @Override
-    protected String getMemberAttributeValueForModifyRequest() {
-        return "cn=users,ou=Group,ou=ActiveMQ,ou=system";
-    }
+   @Override
+   protected InputStream getRemoveLdif() {
+      return getClass().getClassLoader().getResourceAsStream("org/apache/activemq/security/activemq-apacheds-delete.ldif");
+   }
 
-    protected String getQueueBaseDn() {
-        return "ou=Queue,ou=Destination,ou=ActiveMQ,ou=system";
-    }
+   @Override
+   protected String getMemberAttributeValueForModifyRequest() {
+      return "cn=users,ou=Group,ou=ActiveMQ,ou=system";
+   }
 
-    @Override
-    protected LdapConnection getLdapConnection() throws Exception {
-        LdapConnection connection = new LdapNetworkConnection("localhost", getLdapServer().getPort());
-        connection.bind(new Dn("uid=admin,ou=system"), "secret");
-        return connection;
-    }    
+   protected String getQueueBaseDn() {
+      return "ou=Queue,ou=Destination,ou=ActiveMQ,ou=system";
+   }
+
+   @Override
+   protected LdapConnection getLdapConnection() throws Exception {
+      LdapConnection connection = new LdapNetworkConnection("localhost", getLdapServer().getPort());
+      connection.bind(new Dn("uid=admin,ou=system"), "secret");
+      return connection;
+   }
 }
 

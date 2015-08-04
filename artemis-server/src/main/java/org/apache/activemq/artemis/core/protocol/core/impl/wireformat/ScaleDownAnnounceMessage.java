@@ -20,44 +20,38 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 
-public class ScaleDownAnnounceMessage extends PacketImpl
-{
+public class ScaleDownAnnounceMessage extends PacketImpl {
+
    private SimpleString targetNodeId;
    private SimpleString scaledDownNodeId;
 
-   public ScaleDownAnnounceMessage()
-   {
+   public ScaleDownAnnounceMessage() {
       super(SCALEDOWN_ANNOUNCEMENT);
    }
 
-   public ScaleDownAnnounceMessage(SimpleString targetNodeId, SimpleString scaledDownNodeId)
-   {
+   public ScaleDownAnnounceMessage(SimpleString targetNodeId, SimpleString scaledDownNodeId) {
       super(SCALEDOWN_ANNOUNCEMENT);
       this.targetNodeId = targetNodeId;
       this.scaledDownNodeId = scaledDownNodeId;
    }
 
    @Override
-   public void encodeRest(ActiveMQBuffer buffer)
-   {
+   public void encodeRest(ActiveMQBuffer buffer) {
       buffer.writeSimpleString(targetNodeId);
       buffer.writeSimpleString(scaledDownNodeId);
    }
 
    @Override
-   public void decodeRest(ActiveMQBuffer buffer)
-   {
+   public void decodeRest(ActiveMQBuffer buffer) {
       targetNodeId = buffer.readSimpleString();
       scaledDownNodeId = buffer.readSimpleString();
    }
 
-   public SimpleString getTargetNodeId()
-   {
+   public SimpleString getTargetNodeId() {
       return targetNodeId;
    }
 
-   public SimpleString getScaledDownNodeId()
-   {
+   public SimpleString getScaledDownNodeId() {
       return scaledDownNodeId;
    }
 }

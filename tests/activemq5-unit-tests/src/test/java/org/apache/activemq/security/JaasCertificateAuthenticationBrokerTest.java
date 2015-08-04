@@ -36,152 +36,159 @@ import org.apache.activemq.jaas.UserPrincipal;
 import org.apache.activemq.transport.tcp.StubX509Certificate;
 
 public class JaasCertificateAuthenticationBrokerTest extends TestCase {
-    StubBroker receiveBroker;
 
-    JaasCertificateAuthenticationBroker authBroker;
+   StubBroker receiveBroker;
 
-    ConnectionContext connectionContext;
-    ConnectionInfo connectionInfo;
+   JaasCertificateAuthenticationBroker authBroker;
 
-    @Override
-    protected void setUp() throws Exception {
-        receiveBroker = new StubBroker();
+   ConnectionContext connectionContext;
+   ConnectionInfo connectionInfo;
 
-        authBroker = new JaasCertificateAuthenticationBroker(receiveBroker, "");
+   @Override
+   protected void setUp() throws Exception {
+      receiveBroker = new StubBroker();
 
-        connectionContext = new ConnectionContext();
-        connectionInfo = new ConnectionInfo();
+      authBroker = new JaasCertificateAuthenticationBroker(receiveBroker, "");
 
-        connectionInfo.setTransportContext(new StubX509Certificate[] {});
-    }
+      connectionContext = new ConnectionContext();
+      connectionInfo = new ConnectionInfo();
 
-    @Override
-    protected void tearDown() throws Exception {
-        super.tearDown();
-    }
+      connectionInfo.setTransportContext(new StubX509Certificate[]{});
+   }
 
-    private void setConfiguration(Set<String> userNames, Set<String> groupNames, boolean loginShouldSucceed) {
-        HashMap<String, String> configOptions = new HashMap<String, String>();
+   @Override
+   protected void tearDown() throws Exception {
+      super.tearDown();
+   }
 
-        String userNamesString;
-        {
-            Iterator<String> iter = userNames.iterator();
-            userNamesString = "" + (iter.hasNext() ? iter.next() : "");
-            while (iter.hasNext()) {
-                userNamesString += "," + iter.next();
+   private void setConfiguration(Set<String> userNames, Set<String> groupNames, boolean loginShouldSucceed) {
+      HashMap<String, String> configOptions = new HashMap<String, String>();
+
+      String userNamesString;
+      {
+         Iterator<String> iter = userNames.iterator();
+         userNamesString = "" + (iter.hasNext() ? iter.next() : "");
+         while (iter.hasNext()) {
+            userNamesString += "," + iter.next();
+         }
+      }
+
+      String groupNamesString = "";
+      {
+         Iterator<String> iter = groupNames.iterator();
+         groupNamesString = "" + (iter.hasNext() ? iter.next() : "");
+         while (iter.hasNext()) {
+            groupNamesString += "," + iter.next();
+         }
+      }
+
+      configOptions.put(StubLoginModule.ALLOW_LOGIN_PROPERTY, loginShouldSucceed ? "true" : "false");
+      configOptions.put(StubLoginModule.USERS_PROPERTY, userNamesString);
+      configOptions.put(StubLoginModule.GROUPS_PROPERTY, groupNamesString);
+      AppConfigurationEntry configEntry = new AppConfigurationEntry("org.apache.activemq.security.StubLoginModule", AppConfigurationEntry.LoginModuleControlFlag.REQUIRED, configOptions);
+
+      StubJaasConfiguration jaasConfig = new StubJaasConfiguration(configEntry);
+
+      Configuration.setConfiguration(jaasConfig);
+   }
+
+   public void testAddConnectionSuccess() {
+      String dnUserName = "dnUserName";
+
+      HashSet<String> userNames = new HashSet<String>();
+      userNames.add(dnUserName);
+
+      HashSet<String> groupNames = new HashSet<String>();
+      groupNames.add("testGroup1");
+      groupNames.add("testGroup2");
+      groupNames.add("tesetGroup3");
+
+      setConfiguration(userNames, groupNames, true);
+
+      try {
+         authBroker.addConnection(connectionContext, connectionInfo);
+      }
+      catch (Exception e) {
+         fail("Call to addConnection failed: " + e.getMessage());
+      }
+
+      assertEquals("Number of addConnection calls to underlying Broker must match number of calls made to " + "AuthenticationBroker.", 1, receiveBroker.addConnectionData.size());
+
+      ConnectionContext receivedContext = receiveBroker.addConnectionData.getFirst().connectionContext;
+
+      assertEquals("The SecurityContext's userName must be set to that of the UserPrincipal.", dnUserName, receivedContext.getSecurityContext().getUserName());
+
+      Set<Principal> receivedPrincipals = receivedContext.getSecurityContext().getPrincipals();
+
+      for (Iterator<Principal> iter = receivedPrincipals.iterator(); iter.hasNext(); ) {
+         Principal currentPrincipal = iter.next();
+
+         if (currentPrincipal instanceof UserPrincipal) {
+            if (userNames.remove(currentPrincipal.getName())) {
+               // Nothing, we did good.
             }
-        }
-
-        String groupNamesString = "";
-        {
-            Iterator<String> iter = groupNames.iterator();
-            groupNamesString = "" + (iter.hasNext() ? iter.next() : "");
-            while (iter.hasNext()) {
-                groupNamesString += "," + iter.next();
+            else {
+               // Found an unknown userName.
+               fail("Unknown UserPrincipal found");
             }
-        }
-
-        configOptions.put(StubLoginModule.ALLOW_LOGIN_PROPERTY, loginShouldSucceed ? "true" : "false");
-        configOptions.put(StubLoginModule.USERS_PROPERTY, userNamesString);
-        configOptions.put(StubLoginModule.GROUPS_PROPERTY, groupNamesString);
-        AppConfigurationEntry configEntry = new AppConfigurationEntry("org.apache.activemq.security.StubLoginModule", AppConfigurationEntry.LoginModuleControlFlag.REQUIRED,
-                                                                      configOptions);
-
-        StubJaasConfiguration jaasConfig = new StubJaasConfiguration(configEntry);
-
-        Configuration.setConfiguration(jaasConfig);
-    }
-
-    public void testAddConnectionSuccess() {
-        String dnUserName = "dnUserName";
-
-        HashSet<String> userNames = new HashSet<String>();
-        userNames.add(dnUserName);
-
-        HashSet<String> groupNames = new HashSet<String>();
-        groupNames.add("testGroup1");
-        groupNames.add("testGroup2");
-        groupNames.add("tesetGroup3");
-
-        setConfiguration(userNames, groupNames, true);
-
-        try {
-            authBroker.addConnection(connectionContext, connectionInfo);
-        } catch (Exception e) {
-            fail("Call to addConnection failed: " + e.getMessage());
-        }
-
-        assertEquals("Number of addConnection calls to underlying Broker must match number of calls made to " + "AuthenticationBroker.", 1, receiveBroker.addConnectionData.size());
-
-        ConnectionContext receivedContext = receiveBroker.addConnectionData.getFirst().connectionContext;
-
-        assertEquals("The SecurityContext's userName must be set to that of the UserPrincipal.", dnUserName, receivedContext.getSecurityContext().getUserName());
-
-        Set<Principal> receivedPrincipals = receivedContext.getSecurityContext().getPrincipals();
-
-        for (Iterator<Principal> iter = receivedPrincipals.iterator(); iter.hasNext();) {
-            Principal currentPrincipal = iter.next();
-
-            if (currentPrincipal instanceof UserPrincipal) {
-                if (userNames.remove(currentPrincipal.getName())) {
-                    // Nothing, we did good.
-                } else {
-                    // Found an unknown userName.
-                    fail("Unknown UserPrincipal found");
-                }
-            } else if (currentPrincipal instanceof GroupPrincipal) {
-                if (groupNames.remove(currentPrincipal.getName())) {
-                    // Nothing, we did good.
-                } else {
-                    fail("Unknown GroupPrincipal found.");
-                }
-            } else {
-                fail("Unexpected Principal subclass found.");
+         }
+         else if (currentPrincipal instanceof GroupPrincipal) {
+            if (groupNames.remove(currentPrincipal.getName())) {
+               // Nothing, we did good.
             }
-        }
+            else {
+               fail("Unknown GroupPrincipal found.");
+            }
+         }
+         else {
+            fail("Unexpected Principal subclass found.");
+         }
+      }
 
-        if (!userNames.isEmpty()) {
-            fail("Some usernames were not added as UserPrincipals");
-        }
+      if (!userNames.isEmpty()) {
+         fail("Some usernames were not added as UserPrincipals");
+      }
 
-        if (!groupNames.isEmpty()) {
-            fail("Some group names were not added as GroupPrincipals");
-        }
-    }
+      if (!groupNames.isEmpty()) {
+         fail("Some group names were not added as GroupPrincipals");
+      }
+   }
 
-    public void testAddConnectionFailure() {
-        HashSet<String> userNames = new HashSet<String>();
+   public void testAddConnectionFailure() {
+      HashSet<String> userNames = new HashSet<String>();
 
-        HashSet<String> groupNames = new HashSet<String>();
-        groupNames.add("testGroup1");
-        groupNames.add("testGroup2");
-        groupNames.add("tesetGroup3");
+      HashSet<String> groupNames = new HashSet<String>();
+      groupNames.add("testGroup1");
+      groupNames.add("testGroup2");
+      groupNames.add("tesetGroup3");
 
-        setConfiguration(userNames, groupNames, false);
+      setConfiguration(userNames, groupNames, false);
 
-        boolean connectFailed = false;
-        try {
-            authBroker.addConnection(connectionContext, connectionInfo);
-        } catch (SecurityException e) {
-            connectFailed = true;
-        } catch (Exception e) {
-            fail("Failed to connect for unexpected reason: " + e.getMessage());
-        }
+      boolean connectFailed = false;
+      try {
+         authBroker.addConnection(connectionContext, connectionInfo);
+      }
+      catch (SecurityException e) {
+         connectFailed = true;
+      }
+      catch (Exception e) {
+         fail("Failed to connect for unexpected reason: " + e.getMessage());
+      }
 
-        if (!connectFailed) {
-            fail("Unauthenticated connection allowed.");
-        }
+      if (!connectFailed) {
+         fail("Unauthenticated connection allowed.");
+      }
 
-        assertEquals("Unauthenticated connection allowed.", true, receiveBroker.addConnectionData.isEmpty());
-    }
+      assertEquals("Unauthenticated connection allowed.", true, receiveBroker.addConnectionData.isEmpty());
+   }
 
-    public void testRemoveConnection() throws Exception {
-        connectionContext.setSecurityContext(new StubSecurityContext());
+   public void testRemoveConnection() throws Exception {
+      connectionContext.setSecurityContext(new StubSecurityContext());
 
-        authBroker.removeConnection(connectionContext, connectionInfo, new Throwable());
+      authBroker.removeConnection(connectionContext, connectionInfo, new Throwable());
 
-        assertEquals("removeConnection should clear ConnectionContext.", null, connectionContext.getSecurityContext());
+      assertEquals("removeConnection should clear ConnectionContext.", null, connectionContext.getSecurityContext());
 
-        assertEquals("Incorrect number of calls to underlying broker were made.", 1, receiveBroker.removeConnectionData.size());
-    }
+      assertEquals("Incorrect number of calls to underlying broker were made.", 1, receiveBroker.removeConnectionData.size());
+   }
 }

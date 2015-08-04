@@ -19,17 +19,15 @@ package org.apache.activemq.artemis.api.core;
 /**
  * An operation failed because a queue exists on the server.
  */
-public final class ActiveMQInvalidTransientQueueUseException extends ActiveMQException
-{
+public final class ActiveMQInvalidTransientQueueUseException extends ActiveMQException {
+
    private static final long serialVersionUID = -405552292451883063L;
 
-   public ActiveMQInvalidTransientQueueUseException()
-   {
+   public ActiveMQInvalidTransientQueueUseException() {
       super(ActiveMQExceptionType.INVALID_TRANSIENT_QUEUE_USE);
    }
 
-   public ActiveMQInvalidTransientQueueUseException(String msg)
-   {
+   public ActiveMQInvalidTransientQueueUseException(String msg) {
       super(ActiveMQExceptionType.INVALID_TRANSIENT_QUEUE_USE, msg);
    }
 }

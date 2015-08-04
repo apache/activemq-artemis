@@ -26,7 +26,9 @@ import javax.management.MBeanServer;
 import javax.management.MBeanServerInvocationHandler;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
+
 import junit.framework.Test;
+
 import junit.textui.TestRunner;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.EmbeddedBrokerTestSupport;
@@ -41,210 +43,212 @@ import org.slf4j.LoggerFactory;
  * A specific test of Queue.purge() functionality
  */
 public class PurgeTest extends EmbeddedBrokerTestSupport {
-    private static final Logger LOG = LoggerFactory.getLogger(PurgeTest.class);
 
-    protected MBeanServer mbeanServer;
-    protected String domain = "org.apache.activemq";
-    protected String clientID = "foo";
+   private static final Logger LOG = LoggerFactory.getLogger(PurgeTest.class);
 
-    protected Connection connection;
-    protected boolean transacted;
-    protected int authMode = Session.AUTO_ACKNOWLEDGE;
-    protected int messageCount = 10;
-    public PersistenceAdapter persistenceAdapter;
+   protected MBeanServer mbeanServer;
+   protected String domain = "org.apache.activemq";
+   protected String clientID = "foo";
 
-    public static void main(String[] args) {
-        TestRunner.run(PurgeTest.class);
-    }
+   protected Connection connection;
+   protected boolean transacted;
+   protected int authMode = Session.AUTO_ACKNOWLEDGE;
+   protected int messageCount = 10;
+   public PersistenceAdapter persistenceAdapter;
 
-    public static Test suite() {
-        return suite(PurgeTest.class);
-    }
+   public static void main(String[] args) {
+      TestRunner.run(PurgeTest.class);
+   }
 
-    public void testPurge() throws Exception {
-        // Send some messages
-        connection = connectionFactory.createConnection();
-        connection.setClientID(clientID);
-        connection.start();
-        Session session = connection.createSession(transacted, authMode);
-        destination = createDestination();
-        MessageProducer producer = session.createProducer(destination);
-        for (int i = 0; i < messageCount; i++) {
-            Message message = session.createTextMessage("Message: " + i);
-            producer.send(message);
-        }
+   public static Test suite() {
+      return suite(PurgeTest.class);
+   }
 
-        // Now get the QueueViewMBean and purge
-        String objectNameStr = broker.getBrokerObjectName().toString();
-        objectNameStr += ",destinationType=Queue,destinationName="+getDestinationString();
-        ObjectName queueViewMBeanName = assertRegisteredObjectName(objectNameStr);
-        QueueViewMBean proxy = (QueueViewMBean)MBeanServerInvocationHandler.newProxyInstance(mbeanServer, queueViewMBeanName, QueueViewMBean.class, true);
+   public void testPurge() throws Exception {
+      // Send some messages
+      connection = connectionFactory.createConnection();
+      connection.setClientID(clientID);
+      connection.start();
+      Session session = connection.createSession(transacted, authMode);
+      destination = createDestination();
+      MessageProducer producer = session.createProducer(destination);
+      for (int i = 0; i < messageCount; i++) {
+         Message message = session.createTextMessage("Message: " + i);
+         producer.send(message);
+      }
 
-        long count = proxy.getQueueSize();
-        assertEquals("Queue size", count, messageCount);
+      // Now get the QueueViewMBean and purge
+      String objectNameStr = broker.getBrokerObjectName().toString();
+      objectNameStr += ",destinationType=Queue,destinationName=" + getDestinationString();
+      ObjectName queueViewMBeanName = assertRegisteredObjectName(objectNameStr);
+      QueueViewMBean proxy = (QueueViewMBean) MBeanServerInvocationHandler.newProxyInstance(mbeanServer, queueViewMBeanName, QueueViewMBean.class, true);
 
-        proxy.purge();
-        count = proxy.getQueueSize();
-        assertEquals("Queue size", count, 0);
-        assertEquals("Browse size", proxy.browseMessages().size(), 0);
+      long count = proxy.getQueueSize();
+      assertEquals("Queue size", count, messageCount);
 
-        // Queues have a special case once there are more than a thousand
-        // dead messages, make sure we hit that.
-        messageCount += 1000;
-        for (int i = 0; i < messageCount; i++) {
-            Message message = session.createTextMessage("Message: " + i);
-            producer.send(message);
-        }
+      proxy.purge();
+      count = proxy.getQueueSize();
+      assertEquals("Queue size", count, 0);
+      assertEquals("Browse size", proxy.browseMessages().size(), 0);
 
-        count = proxy.getQueueSize();
-        assertEquals("Queue size", count, messageCount);
+      // Queues have a special case once there are more than a thousand
+      // dead messages, make sure we hit that.
+      messageCount += 1000;
+      for (int i = 0; i < messageCount; i++) {
+         Message message = session.createTextMessage("Message: " + i);
+         producer.send(message);
+      }
 
-        proxy.purge();
-        count = proxy.getQueueSize();
-        assertEquals("Queue size", count, 0);
-        assertEquals("Browse size", proxy.browseMessages().size(), 0);
+      count = proxy.getQueueSize();
+      assertEquals("Queue size", count, messageCount);
 
-        producer.close();
-    }
+      proxy.purge();
+      count = proxy.getQueueSize();
+      assertEquals("Queue size", count, 0);
+      assertEquals("Browse size", proxy.browseMessages().size(), 0);
 
-    public void initCombosForTestDelete() {
-        addCombinationValues("persistenceAdapter", new Object[] {new MemoryPersistenceAdapter(), new KahaDBPersistenceAdapter()});
-    }
+      producer.close();
+   }
 
-    public void testDeleteSameProducer() throws Exception {
-        connection = connectionFactory.createConnection();
-        connection.start();
-        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        destination = createDestination();
+   public void initCombosForTestDelete() {
+      addCombinationValues("persistenceAdapter", new Object[]{new MemoryPersistenceAdapter(), new KahaDBPersistenceAdapter()});
+   }
 
-        MessageProducer producer = session.createProducer(destination);
-        Message message = session.createTextMessage("Test Message");
-        producer.send(message);
+   public void testDeleteSameProducer() throws Exception {
+      connection = connectionFactory.createConnection();
+      connection.start();
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      destination = createDestination();
 
-        MessageConsumer consumer = session.createConsumer(destination);
+      MessageProducer producer = session.createProducer(destination);
+      Message message = session.createTextMessage("Test Message");
+      producer.send(message);
 
-        Message received = consumer.receive(1000);
-        assertEquals(message, received);
+      MessageConsumer consumer = session.createConsumer(destination);
 
-        ObjectName brokerViewMBeanName = assertRegisteredObjectName(domain + ":type=Broker,brokerName=localhost");
-        BrokerViewMBean brokerProxy = (BrokerViewMBean)MBeanServerInvocationHandler.newProxyInstance(mbeanServer, brokerViewMBeanName, BrokerViewMBean.class, true);
+      Message received = consumer.receive(1000);
+      assertEquals(message, received);
 
-        brokerProxy.removeQueue(getDestinationString());
-        producer.send(message);
+      ObjectName brokerViewMBeanName = assertRegisteredObjectName(domain + ":type=Broker,brokerName=localhost");
+      BrokerViewMBean brokerProxy = (BrokerViewMBean) MBeanServerInvocationHandler.newProxyInstance(mbeanServer, brokerViewMBeanName, BrokerViewMBean.class, true);
 
-        received = consumer.receive(1000);
+      brokerProxy.removeQueue(getDestinationString());
+      producer.send(message);
 
-        assertNotNull("Message not received", received);
-        assertEquals(message, received);
-    }
+      received = consumer.receive(1000);
 
-    public void testDelete() throws Exception {
-        // Send some messages
-        connection = connectionFactory.createConnection();
-        connection.setClientID(clientID);
-        connection.start();
-        Session session = connection.createSession(transacted, authMode);
-        destination = createDestination();
-        sendMessages(session, messageCount);
+      assertNotNull("Message not received", received);
+      assertEquals(message, received);
+   }
 
-        // Now get the QueueViewMBean and purge
+   public void testDelete() throws Exception {
+      // Send some messages
+      connection = connectionFactory.createConnection();
+      connection.setClientID(clientID);
+      connection.start();
+      Session session = connection.createSession(transacted, authMode);
+      destination = createDestination();
+      sendMessages(session, messageCount);
 
-        ObjectName queueViewMBeanName = assertRegisteredObjectName(domain + ":type=Broker,brokerName=localhost,destinationType=Queue,destinationName=" + getDestinationString());
-        QueueViewMBean queueProxy = (QueueViewMBean)MBeanServerInvocationHandler.newProxyInstance(mbeanServer, queueViewMBeanName, QueueViewMBean.class, true);
+      // Now get the QueueViewMBean and purge
 
-        ObjectName brokerViewMBeanName = assertRegisteredObjectName(domain + ":type=Broker,brokerName=localhost");
-        BrokerViewMBean brokerProxy = (BrokerViewMBean)MBeanServerInvocationHandler.newProxyInstance(mbeanServer, brokerViewMBeanName, BrokerViewMBean.class, true);
+      ObjectName queueViewMBeanName = assertRegisteredObjectName(domain + ":type=Broker,brokerName=localhost,destinationType=Queue,destinationName=" + getDestinationString());
+      QueueViewMBean queueProxy = (QueueViewMBean) MBeanServerInvocationHandler.newProxyInstance(mbeanServer, queueViewMBeanName, QueueViewMBean.class, true);
 
-        long count = queueProxy.getQueueSize();
-        assertEquals("Queue size", count, messageCount);
+      ObjectName brokerViewMBeanName = assertRegisteredObjectName(domain + ":type=Broker,brokerName=localhost");
+      BrokerViewMBean brokerProxy = (BrokerViewMBean) MBeanServerInvocationHandler.newProxyInstance(mbeanServer, brokerViewMBeanName, BrokerViewMBean.class, true);
 
-        brokerProxy.removeQueue(getDestinationString());
+      long count = queueProxy.getQueueSize();
+      assertEquals("Queue size", count, messageCount);
 
-        sendMessages(session, messageCount);
+      brokerProxy.removeQueue(getDestinationString());
 
-        queueViewMBeanName = assertRegisteredObjectName(domain + ":type=Broker,brokerName=localhost,destinationType=Queue,destinationName=" + getDestinationString());
-        queueProxy = (QueueViewMBean)MBeanServerInvocationHandler.newProxyInstance(mbeanServer, queueViewMBeanName, QueueViewMBean.class, true);
+      sendMessages(session, messageCount);
 
-        count = queueProxy.getQueueSize();
-        assertEquals("Queue size", count, messageCount);
+      queueViewMBeanName = assertRegisteredObjectName(domain + ":type=Broker,brokerName=localhost,destinationType=Queue,destinationName=" + getDestinationString());
+      queueProxy = (QueueViewMBean) MBeanServerInvocationHandler.newProxyInstance(mbeanServer, queueViewMBeanName, QueueViewMBean.class, true);
 
-        queueProxy.purge();
+      count = queueProxy.getQueueSize();
+      assertEquals("Queue size", count, messageCount);
 
-        // Queue have a special case once there are more than a thousand
-        // dead messages, make sure we hit that.
-        messageCount += 1000;
-        sendMessages(session, messageCount);
+      queueProxy.purge();
 
-        count = queueProxy.getQueueSize();
-        assertEquals("Queue size", count, messageCount);
+      // Queue have a special case once there are more than a thousand
+      // dead messages, make sure we hit that.
+      messageCount += 1000;
+      sendMessages(session, messageCount);
 
-        brokerProxy.removeQueue(getDestinationString());
+      count = queueProxy.getQueueSize();
+      assertEquals("Queue size", count, messageCount);
 
-        sendMessages(session, messageCount);
+      brokerProxy.removeQueue(getDestinationString());
 
-        queueViewMBeanName = assertRegisteredObjectName(domain + ":type=Broker,brokerName=localhost,destinationType=Queue,destinationName=" + getDestinationString());
-        queueProxy = (QueueViewMBean)MBeanServerInvocationHandler.newProxyInstance(mbeanServer, queueViewMBeanName, QueueViewMBean.class, true);
+      sendMessages(session, messageCount);
 
-        count = queueProxy.getQueueSize();
-        assertEquals("Queue size", count, messageCount);
-    }
+      queueViewMBeanName = assertRegisteredObjectName(domain + ":type=Broker,brokerName=localhost,destinationType=Queue,destinationName=" + getDestinationString());
+      queueProxy = (QueueViewMBean) MBeanServerInvocationHandler.newProxyInstance(mbeanServer, queueViewMBeanName, QueueViewMBean.class, true);
 
-    private void sendMessages(Session session, int count) throws Exception {
-        MessageProducer producer = session.createProducer(destination);
-        for (int i = 0; i < messageCount; i++) {
-            Message message = session.createTextMessage("Message: " + i);
-            producer.send(message);
-        }
-    }
+      count = queueProxy.getQueueSize();
+      assertEquals("Queue size", count, messageCount);
+   }
 
-    protected ObjectName assertRegisteredObjectName(String name) throws MalformedObjectNameException, NullPointerException {
-        ObjectName objectName = new ObjectName(name);
-        if (mbeanServer.isRegistered(objectName)) {
-            echo("Bean Registered: " + objectName);
-        } else {
-            fail("Could not find MBean!: " + objectName);
-        }
-        return objectName;
-    }
+   private void sendMessages(Session session, int count) throws Exception {
+      MessageProducer producer = session.createProducer(destination);
+      for (int i = 0; i < messageCount; i++) {
+         Message message = session.createTextMessage("Message: " + i);
+         producer.send(message);
+      }
+   }
 
-    protected void setUp() throws Exception {
-        bindAddress = "tcp://localhost:0";
-        useTopic = false;
-        super.setUp();
-        mbeanServer = broker.getManagementContext().getMBeanServer();
-    }
+   protected ObjectName assertRegisteredObjectName(String name) throws MalformedObjectNameException, NullPointerException {
+      ObjectName objectName = new ObjectName(name);
+      if (mbeanServer.isRegistered(objectName)) {
+         echo("Bean Registered: " + objectName);
+      }
+      else {
+         fail("Could not find MBean!: " + objectName);
+      }
+      return objectName;
+   }
 
-    protected void tearDown() throws Exception {
-        if (connection != null) {
-            connection.close();
-            connection = null;
-        }
-        super.tearDown();
-    }
+   protected void setUp() throws Exception {
+      bindAddress = "tcp://localhost:0";
+      useTopic = false;
+      super.setUp();
+      mbeanServer = broker.getManagementContext().getMBeanServer();
+   }
 
-    protected BrokerService createBroker() throws Exception {
-        BrokerService answer = new BrokerService();
-        answer.setUseJmx(true);
-        answer.setEnableStatistics(true);
-        answer.addConnector(bindAddress);
-        answer.setPersistenceAdapter(persistenceAdapter);
-        answer.deleteAllMessages();
-        return answer;
-    }
+   protected void tearDown() throws Exception {
+      if (connection != null) {
+         connection.close();
+         connection = null;
+      }
+      super.tearDown();
+   }
 
-    @Override
-    protected ConnectionFactory createConnectionFactory() throws Exception {
-        return new ActiveMQConnectionFactory(broker.getTransportConnectors().get(0).getPublishableConnectString());
-    }
+   protected BrokerService createBroker() throws Exception {
+      BrokerService answer = new BrokerService();
+      answer.setUseJmx(true);
+      answer.setEnableStatistics(true);
+      answer.addConnector(bindAddress);
+      answer.setPersistenceAdapter(persistenceAdapter);
+      answer.deleteAllMessages();
+      return answer;
+   }
 
-    protected void echo(String text) {
-        LOG.info(text);
-    }
+   @Override
+   protected ConnectionFactory createConnectionFactory() throws Exception {
+      return new ActiveMQConnectionFactory(broker.getTransportConnectors().get(0).getPublishableConnectString());
+   }
 
-    /**
-     * Returns the name of the destination used in this test case
-     */
-    protected String getDestinationString() {
-        return getClass().getName() + "." + getName(true);
-    }
+   protected void echo(String text) {
+      LOG.info(text);
+   }
+
+   /**
+    * Returns the name of the destination used in this test case
+    */
+   protected String getDestinationString() {
+      return getClass().getName() + "." + getName(true);
+   }
 }

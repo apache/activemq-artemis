@@ -25,8 +25,7 @@ import org.junit.Test;
 
 import java.util.Iterator;
 
-public class ConcurrentHashSetTest extends Assert
-{
+public class ConcurrentHashSetTest extends Assert {
    // Constants -----------------------------------------------------
 
    // Attributes ----------------------------------------------------
@@ -42,22 +41,19 @@ public class ConcurrentHashSetTest extends Assert
    // Public --------------------------------------------------------
 
    @Test
-   public void testAdd() throws Exception
-   {
+   public void testAdd() throws Exception {
       Assert.assertTrue(set.add(element));
       Assert.assertFalse(set.add(element));
    }
 
    @Test
-   public void testAddIfAbsent() throws Exception
-   {
+   public void testAddIfAbsent() throws Exception {
       Assert.assertTrue(set.addIfAbsent(element));
       Assert.assertFalse(set.addIfAbsent(element));
    }
 
    @Test
-   public void testRemove() throws Exception
-   {
+   public void testRemove() throws Exception {
       Assert.assertTrue(set.add(element));
 
       Assert.assertTrue(set.remove(element));
@@ -65,8 +61,7 @@ public class ConcurrentHashSetTest extends Assert
    }
 
    @Test
-   public void testContains() throws Exception
-   {
+   public void testContains() throws Exception {
       Assert.assertFalse(set.contains(element));
 
       Assert.assertTrue(set.add(element));
@@ -77,8 +72,7 @@ public class ConcurrentHashSetTest extends Assert
    }
 
    @Test
-   public void testSize() throws Exception
-   {
+   public void testSize() throws Exception {
       Assert.assertEquals(0, set.size());
 
       Assert.assertTrue(set.add(element));
@@ -89,8 +83,7 @@ public class ConcurrentHashSetTest extends Assert
    }
 
    @Test
-   public void testClear() throws Exception
-   {
+   public void testClear() throws Exception {
       Assert.assertTrue(set.add(element));
 
       Assert.assertTrue(set.contains(element));
@@ -99,8 +92,7 @@ public class ConcurrentHashSetTest extends Assert
    }
 
    @Test
-   public void testIsEmpty() throws Exception
-   {
+   public void testIsEmpty() throws Exception {
       Assert.assertTrue(set.isEmpty());
 
       Assert.assertTrue(set.add(element));
@@ -111,13 +103,11 @@ public class ConcurrentHashSetTest extends Assert
    }
 
    @Test
-   public void testIterator() throws Exception
-   {
+   public void testIterator() throws Exception {
       set.add(element);
 
       Iterator<String> iterator = set.iterator();
-      while (iterator.hasNext())
-      {
+      while (iterator.hasNext()) {
          String e = iterator.next();
          Assert.assertEquals(element, e);
       }
@@ -126,8 +116,7 @@ public class ConcurrentHashSetTest extends Assert
    // TestCase overrides --------------------------------------------
 
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       set = new ConcurrentHashSet<String>();
       element = RandomUtil.randomString();
    }

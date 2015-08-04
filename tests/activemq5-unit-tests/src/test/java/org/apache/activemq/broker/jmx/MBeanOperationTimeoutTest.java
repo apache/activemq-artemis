@@ -28,6 +28,7 @@ import javax.management.MBeanServer;
 import javax.management.MBeanServerInvocationHandler;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
+
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.broker.BrokerService;
 import org.junit.After;
@@ -35,97 +36,101 @@ import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 public class MBeanOperationTimeoutTest {
-    private static final Logger LOG = LoggerFactory.getLogger(MBeanOperationTimeoutTest.class);
 
-    private ActiveMQConnectionFactory connectionFactory;
-    private BrokerService broker;
-    private String connectionUri;
-    private static final String destinationName = "MBeanOperationTimeoutTestQ";
-    private static final String moveToDestinationName = "MBeanOperationTimeoutTestQ.Moved";
+   private static final Logger LOG = LoggerFactory.getLogger(MBeanOperationTimeoutTest.class);
 
-    protected MBeanServer mbeanServer;
-    protected String domain = "org.apache.activemq";
+   private ActiveMQConnectionFactory connectionFactory;
+   private BrokerService broker;
+   private String connectionUri;
+   private static final String destinationName = "MBeanOperationTimeoutTestQ";
+   private static final String moveToDestinationName = "MBeanOperationTimeoutTestQ.Moved";
 
-    protected int messageCount = 50000;
+   protected MBeanServer mbeanServer;
+   protected String domain = "org.apache.activemq";
 
-    @Test(expected = TimeoutException.class)
-    public void testLongOperationTimesOut() throws Exception {
+   protected int messageCount = 50000;
 
-        sendMessages(messageCount);
-        LOG.info("Produced " + messageCount + " messages to the broker.");
+   @Test(expected = TimeoutException.class)
+   public void testLongOperationTimesOut() throws Exception {
 
-        // Now get the QueueViewMBean and purge
-        String objectNameStr = broker.getBrokerObjectName().toString();
-        objectNameStr += ",destinationType=Queue,destinationName="+destinationName;
+      sendMessages(messageCount);
+      LOG.info("Produced " + messageCount + " messages to the broker.");
 
-        ObjectName queueViewMBeanName = assertRegisteredObjectName(objectNameStr);
-        QueueViewMBean proxy = (QueueViewMBean)MBeanServerInvocationHandler.newProxyInstance(mbeanServer, queueViewMBeanName, QueueViewMBean.class, true);
+      // Now get the QueueViewMBean and purge
+      String objectNameStr = broker.getBrokerObjectName().toString();
+      objectNameStr += ",destinationType=Queue,destinationName=" + destinationName;
 
-        long count = proxy.getQueueSize();
-        assertEquals("Queue size", count, messageCount);
+      ObjectName queueViewMBeanName = assertRegisteredObjectName(objectNameStr);
+      QueueViewMBean proxy = (QueueViewMBean) MBeanServerInvocationHandler.newProxyInstance(mbeanServer, queueViewMBeanName, QueueViewMBean.class, true);
 
-        LOG.info("Attempting to move one message, TimeoutException expected");
-        proxy.moveMatchingMessagesTo(null, moveToDestinationName);
-    }
+      long count = proxy.getQueueSize();
+      assertEquals("Queue size", count, messageCount);
 
-    private void sendMessages(int count) throws Exception {
-        Connection connection = connectionFactory.createConnection();
-        try {
-            Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
-            Destination destination = session.createQueue(destinationName);
-            MessageProducer producer = session.createProducer(destination);
-            for (int i = 0; i < messageCount; i++) {
-                Message message = session.createMessage();
-                message.setIntProperty("id", i);
-                producer.send(message);
-            }
-            session.commit();
-        } finally {
-            connection.close();
-        }
-    }
+      LOG.info("Attempting to move one message, TimeoutException expected");
+      proxy.moveMatchingMessagesTo(null, moveToDestinationName);
+   }
 
-    protected ObjectName assertRegisteredObjectName(String name) throws MalformedObjectNameException, NullPointerException {
-        ObjectName objectName = new ObjectName(name);
-        if (mbeanServer.isRegistered(objectName)) {
-            LOG.info("Bean Registered: " + objectName);
-        } else {
-            fail("Could not find MBean!: " + objectName);
-        }
-        return objectName;
-    }
+   private void sendMessages(int count) throws Exception {
+      Connection connection = connectionFactory.createConnection();
+      try {
+         Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
+         Destination destination = session.createQueue(destinationName);
+         MessageProducer producer = session.createProducer(destination);
+         for (int i = 0; i < messageCount; i++) {
+            Message message = session.createMessage();
+            message.setIntProperty("id", i);
+            producer.send(message);
+         }
+         session.commit();
+      }
+      finally {
+         connection.close();
+      }
+   }
 
-    @Before
-    public void setUp() throws Exception {
-        broker = createBroker();
-        broker.start();
-        broker.waitUntilStarted();
+   protected ObjectName assertRegisteredObjectName(String name) throws MalformedObjectNameException, NullPointerException {
+      ObjectName objectName = new ObjectName(name);
+      if (mbeanServer.isRegistered(objectName)) {
+         LOG.info("Bean Registered: " + objectName);
+      }
+      else {
+         fail("Could not find MBean!: " + objectName);
+      }
+      return objectName;
+   }
 
-        connectionUri = broker.getTransportConnectors().get(0).getPublishableConnectString();
-        connectionFactory = new ActiveMQConnectionFactory(connectionUri);
-        mbeanServer = broker.getManagementContext().getMBeanServer();
-    }
+   @Before
+   public void setUp() throws Exception {
+      broker = createBroker();
+      broker.start();
+      broker.waitUntilStarted();
 
-    @After
-    public void tearDown() throws Exception {
-        Thread.sleep(500);
-        if (broker != null) {
-            broker.stop();
-            broker.waitUntilStopped();
-            broker = null;
-        }
-    }
+      connectionUri = broker.getTransportConnectors().get(0).getPublishableConnectString();
+      connectionFactory = new ActiveMQConnectionFactory(connectionUri);
+      mbeanServer = broker.getManagementContext().getMBeanServer();
+   }
 
-    protected BrokerService createBroker() throws Exception {
-        BrokerService answer = new BrokerService();
-        answer.setMbeanInvocationTimeout(TimeUnit.SECONDS.toMillis(1));
-        answer.setUseJmx(true);
-        answer.addConnector("vm://localhost");
-        answer.setDeleteAllMessagesOnStartup(true);
-        return answer;
-    }
+   @After
+   public void tearDown() throws Exception {
+      Thread.sleep(500);
+      if (broker != null) {
+         broker.stop();
+         broker.waitUntilStopped();
+         broker = null;
+      }
+   }
+
+   protected BrokerService createBroker() throws Exception {
+      BrokerService answer = new BrokerService();
+      answer.setMbeanInvocationTimeout(TimeUnit.SECONDS.toMillis(1));
+      answer.setUseJmx(true);
+      answer.addConnector("vm://localhost");
+      answer.setDeleteAllMessagesOnStartup(true);
+      return answer;
+   }
 }

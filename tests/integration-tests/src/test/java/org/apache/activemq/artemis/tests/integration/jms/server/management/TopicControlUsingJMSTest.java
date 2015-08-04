@@ -47,8 +47,7 @@ import javax.jms.TopicSubscriber;
 
 import static org.apache.activemq.artemis.tests.util.RandomUtil.randomString;
 
-public class TopicControlUsingJMSTest extends ManagementTestBase
-{
+public class TopicControlUsingJMSTest extends ManagementTestBase {
 
    // Constants -----------------------------------------------------
 
@@ -79,20 +78,17 @@ public class TopicControlUsingJMSTest extends ManagementTestBase
    // Public --------------------------------------------------------
 
    @Test
-   public void testGetAttributes() throws Exception
-   {
+   public void testGetAttributes() throws Exception {
       Assert.assertEquals(topic.getTopicName(), proxy.retrieveAttributeValue("name"));
       Assert.assertEquals(topic.getAddress(), proxy.retrieveAttributeValue("address"));
       Assert.assertEquals(topic.isTemporary(), proxy.retrieveAttributeValue("temporary"));
-      Object[] bindings = (Object[])proxy.retrieveAttributeValue("" +
-                                                                 "RegistryBindings");
+      Object[] bindings = (Object[]) proxy.retrieveAttributeValue("" + "RegistryBindings");
       assertEquals(1, bindings.length);
       Assert.assertEquals(topicBinding, bindings[0]);
    }
 
    @Test
-   public void testGetXXXSubscriptionsCount() throws Exception
-   {
+   public void testGetXXXSubscriptionsCount() throws Exception {
       Connection connection_1 = JMSUtil.createConnection(InVMConnectorFactory.class.getName());
 
       // 1 non-durable subscriber, 2 durable subscribers
@@ -113,8 +109,7 @@ public class TopicControlUsingJMSTest extends ManagementTestBase
    }
 
    @Test
-   public void testGetXXXMessagesCount() throws Exception
-   {
+   public void testGetXXXMessagesCount() throws Exception {
       // 1 non-durable subscriber, 2 durable subscribers
       Connection connection_1 = JMSUtil.createConnection(InVMConnectorFactory.class.getName());
       JMSUtil.createConsumer(connection_1, topic);
@@ -139,8 +134,7 @@ public class TopicControlUsingJMSTest extends ManagementTestBase
    }
 
    @Test
-   public void testListXXXSubscriptionsCount() throws Exception
-   {
+   public void testListXXXSubscriptionsCount() throws Exception {
       // 1 non-durable subscriber, 2 durable subscribers
       Connection connection_1 = JMSUtil.createConnection(InVMConnectorFactory.class.getName());
       JMSUtil.createConsumer(connection_1, topic);
@@ -149,9 +143,9 @@ public class TopicControlUsingJMSTest extends ManagementTestBase
       Connection connection_3 = JMSUtil.createConnection(InVMConnectorFactory.class.getName());
       JMSUtil.createDurableSubscriber(connection_3, topic, clientID + "2", subscriptionName + "2");
 
-      Assert.assertEquals(3, ((Object[])proxy.invokeOperation("listAllSubscriptions")).length);
-      Assert.assertEquals(1, ((Object[])proxy.invokeOperation("listNonDurableSubscriptions")).length);
-      Assert.assertEquals(2, ((Object[])proxy.invokeOperation("listDurableSubscriptions")).length);
+      Assert.assertEquals(3, ((Object[]) proxy.invokeOperation("listAllSubscriptions")).length);
+      Assert.assertEquals(1, ((Object[]) proxy.invokeOperation("listNonDurableSubscriptions")).length);
+      Assert.assertEquals(2, ((Object[]) proxy.invokeOperation("listDurableSubscriptions")).length);
 
       connection_1.close();
       connection_2.close();
@@ -159,8 +153,7 @@ public class TopicControlUsingJMSTest extends ManagementTestBase
    }
 
    @Test
-   public void testCountMessagesForSubscription() throws Exception
-   {
+   public void testCountMessagesForSubscription() throws Exception {
       String key = "key";
       long matchingValue = RandomUtil.randomLong();
       long unmatchingValue = matchingValue + 1;
@@ -176,49 +169,40 @@ public class TopicControlUsingJMSTest extends ManagementTestBase
 
       Assert.assertEquals(3, proxy.retrieveAttributeValue("messageCount"));
 
-      Assert.assertEquals(2,
-                          proxy.invokeOperation("countMessagesForSubscription", clientID, subscriptionName, key + " =" +
-                                                                                                            matchingValue));
-      Assert.assertEquals(1,
-                          proxy.invokeOperation("countMessagesForSubscription", clientID, subscriptionName, key + " =" +
-                                                                                                            unmatchingValue));
+      Assert.assertEquals(2, proxy.invokeOperation("countMessagesForSubscription", clientID, subscriptionName, key + " =" +
+                             matchingValue));
+      Assert.assertEquals(1, proxy.invokeOperation("countMessagesForSubscription", clientID, subscriptionName, key + " =" +
+                             unmatchingValue));
 
       connection.close();
    }
 
    @Test
-   public void testCountMessagesForUnknownSubscription() throws Exception
-   {
+   public void testCountMessagesForUnknownSubscription() throws Exception {
       String unknownSubscription = RandomUtil.randomString();
 
-      try
-      {
+      try {
          proxy.invokeOperation("countMessagesForSubscription", clientID, unknownSubscription, null);
          Assert.fail();
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
       }
    }
 
    @Test
-   public void testCountMessagesForUnknownClientID() throws Exception
-   {
+   public void testCountMessagesForUnknownClientID() throws Exception {
       String unknownClientID = RandomUtil.randomString();
 
-      try
-      {
+      try {
          proxy.invokeOperation("countMessagesForSubscription", unknownClientID, subscriptionName, null);
          Assert.fail();
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
       }
    }
 
    @Test
-   public void testDropDurableSubscriptionWithExistingSubscription() throws Exception
-   {
+   public void testDropDurableSubscriptionWithExistingSubscription() throws Exception {
       Connection connection = JMSUtil.createConnection(InVMConnectorFactory.class.getName());
 
       JMSUtil.createDurableSubscriber(connection, topic, clientID, subscriptionName);
@@ -233,21 +217,18 @@ public class TopicControlUsingJMSTest extends ManagementTestBase
    }
 
    @Test
-   public void testDropDurableSubscriptionWithUnknownSubscription() throws Exception
-   {
+   public void testDropDurableSubscriptionWithUnknownSubscription() throws Exception {
       Connection connection = JMSUtil.createConnection(InVMConnectorFactory.class.getName());
 
       JMSUtil.createDurableSubscriber(connection, topic, clientID, subscriptionName);
 
       Assert.assertEquals(1, proxy.retrieveAttributeValue("durableSubscriptionCount"));
 
-      try
-      {
+      try {
          proxy.invokeOperation("dropDurableSubscription", clientID, "this subscription does not exist");
          Assert.fail("should throw an exception");
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
 
       }
 
@@ -257,18 +238,11 @@ public class TopicControlUsingJMSTest extends ManagementTestBase
    }
 
    @Test
-   public void testDropAllSubscriptions() throws Exception
-   {
+   public void testDropAllSubscriptions() throws Exception {
       Connection connection_1 = JMSUtil.createConnection(InVMConnectorFactory.class.getName());
-      TopicSubscriber durableSubscriber_1 = JMSUtil.createDurableSubscriber(connection_1,
-                                                                            topic,
-                                                                            clientID,
-                                                                            subscriptionName);
+      TopicSubscriber durableSubscriber_1 = JMSUtil.createDurableSubscriber(connection_1, topic, clientID, subscriptionName);
       Connection connection_2 = JMSUtil.createConnection(InVMConnectorFactory.class.getName());
-      TopicSubscriber durableSubscriber_2 = JMSUtil.createDurableSubscriber(connection_2,
-                                                                            topic,
-                                                                            clientID + "2",
-                                                                            subscriptionName + "2");
+      TopicSubscriber durableSubscriber_2 = JMSUtil.createDurableSubscriber(connection_2, topic, clientID + "2", subscriptionName + "2");
 
       Assert.assertEquals(2, proxy.retrieveAttributeValue("subscriptionCount"));
 
@@ -285,8 +259,7 @@ public class TopicControlUsingJMSTest extends ManagementTestBase
    }
 
    @Test
-   public void testRemoveAllMessages() throws Exception
-   {
+   public void testRemoveAllMessages() throws Exception {
       Connection connection_1 = JMSUtil.createConnection(InVMConnectorFactory.class.getName());
       JMSUtil.createDurableSubscriber(connection_1, topic, clientID, subscriptionName);
       Connection connection_2 = JMSUtil.createConnection(InVMConnectorFactory.class.getName());
@@ -296,7 +269,7 @@ public class TopicControlUsingJMSTest extends ManagementTestBase
 
       Assert.assertEquals(3 * 2, proxy.retrieveAttributeValue("messageCount"));
 
-      int removedCount = (Integer)proxy.invokeOperation("removeMessages", "");
+      int removedCount = (Integer) proxy.invokeOperation("removeMessages", "");
       Assert.assertEquals(3 * 2, removedCount);
       Assert.assertEquals(0, proxy.retrieveAttributeValue("messageCount"));
 
@@ -305,58 +278,45 @@ public class TopicControlUsingJMSTest extends ManagementTestBase
    }
 
    @Test
-   public void testListMessagesForSubscription() throws Exception
-   {
+   public void testListMessagesForSubscription() throws Exception {
       Connection connection = JMSUtil.createConnection(InVMConnectorFactory.class.getName());
 
       JMSUtil.createDurableSubscriber(connection, topic, clientID, subscriptionName);
 
       JMSUtil.sendMessages(topic, 3);
 
-      Object[] data = (Object[])proxy.invokeOperation("listMessagesForSubscription",
-                                                      ActiveMQDestination.createQueueNameForDurableSubscription(true, clientID,
-                                                                                                                subscriptionName));
+      Object[] data = (Object[]) proxy.invokeOperation("listMessagesForSubscription", ActiveMQDestination.createQueueNameForDurableSubscription(true, clientID, subscriptionName));
       Assert.assertEquals(3, data.length);
 
       connection.close();
    }
 
    @Test
-   public void testListMessagesForSubscriptionWithUnknownClientID() throws Exception
-   {
+   public void testListMessagesForSubscriptionWithUnknownClientID() throws Exception {
       String unknownClientID = RandomUtil.randomString();
 
-      try
-      {
-         proxy.invokeOperation("listMessagesForSubscription",
-                               ActiveMQDestination.createQueueNameForDurableSubscription(true, unknownClientID,
-                                                                                         subscriptionName));
+      try {
+         proxy.invokeOperation("listMessagesForSubscription", ActiveMQDestination.createQueueNameForDurableSubscription(true, unknownClientID, subscriptionName));
          Assert.fail();
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
       }
    }
 
    @Test
-   public void testListMessagesForSubscriptionWithUnknownSubscription() throws Exception
-   {
+   public void testListMessagesForSubscriptionWithUnknownSubscription() throws Exception {
       String unknownSubscription = RandomUtil.randomString();
 
-      try
-      {
-         proxy.invokeOperation("listMessagesForSubscription",
-                               ActiveMQDestination.createQueueNameForDurableSubscription(true, clientID, unknownSubscription));
+      try {
+         proxy.invokeOperation("listMessagesForSubscription", ActiveMQDestination.createQueueNameForDurableSubscription(true, clientID, unknownSubscription));
          Assert.fail();
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
       }
    }
 
    @Test
-   public void testGetMessagesAdded() throws Exception
-   {
+   public void testGetMessagesAdded() throws Exception {
       Connection connection_1 = JMSUtil.createConnection(InVMConnectorFactory.class.getName());
       JMSUtil.createConsumer(connection_1, topic);
       Connection connection_2 = JMSUtil.createConnection(InVMConnectorFactory.class.getName());
@@ -376,22 +336,13 @@ public class TopicControlUsingJMSTest extends ManagementTestBase
    }
 
    @Test
-   public void testGetMessagesDelivering() throws Exception
-   {
+   public void testGetMessagesDelivering() throws Exception {
       Connection connection_1 = JMSUtil.createConnection(InVMConnectorFactory.class.getName());
       MessageConsumer cons_1 = JMSUtil.createConsumer(connection_1, topic, Session.CLIENT_ACKNOWLEDGE);
       Connection connection_2 = JMSUtil.createConnection(InVMConnectorFactory.class.getName());
-      MessageConsumer cons_2 = JMSUtil.createDurableSubscriber(connection_2,
-                                                               topic,
-                                                               clientID,
-                                                               subscriptionName,
-                                                               Session.CLIENT_ACKNOWLEDGE);
+      MessageConsumer cons_2 = JMSUtil.createDurableSubscriber(connection_2, topic, clientID, subscriptionName, Session.CLIENT_ACKNOWLEDGE);
       Connection connection_3 = JMSUtil.createConnection(InVMConnectorFactory.class.getName());
-      MessageConsumer cons_3 = JMSUtil.createDurableSubscriber(connection_3,
-                                                               topic,
-                                                               clientID + "2",
-                                                               subscriptionName + "2",
-                                                               Session.CLIENT_ACKNOWLEDGE);
+      MessageConsumer cons_3 = JMSUtil.createDurableSubscriber(connection_3, topic, clientID + "2", subscriptionName + "2", Session.CLIENT_ACKNOWLEDGE);
 
       assertEquals(0, proxy.retrieveAttributeValue("deliveringCount"));
 
@@ -406,8 +357,7 @@ public class TopicControlUsingJMSTest extends ManagementTestBase
       Message msg_1 = null;
       Message msg_2 = null;
       Message msg_3 = null;
-      for (int i = 0; i < 2; i++)
-      {
+      for (int i = 0; i < 2; i++) {
          msg_1 = cons_1.receive(5000);
          assertNotNull(msg_1);
          msg_2 = cons_2.receive(5000);
@@ -436,12 +386,10 @@ public class TopicControlUsingJMSTest extends ManagementTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
-      Configuration config = createDefaultInVMConfig()
-              .setJMXManagementEnabled(true);
+      Configuration config = createDefaultInVMConfig().setJMXManagementEnabled(true);
       server = addServer(ActiveMQServers.newActiveMQServer(config, mbeanServer, false));
       server.start();
 
@@ -457,9 +405,7 @@ public class TopicControlUsingJMSTest extends ManagementTestBase
       serverManager.createTopic(false, topicName, topicBinding);
       topic = (ActiveMQTopic) ActiveMQJMSClient.createTopic(topicName);
 
-      ActiveMQConnectionFactory cf =
-               ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF,
-                                                                  new TransportConfiguration(INVM_CONNECTOR_FACTORY));
+      ActiveMQConnectionFactory cf = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration(INVM_CONNECTOR_FACTORY));
       connection = cf.createQueueConnection();
       session = connection.createQueueSession(false, Session.AUTO_ACKNOWLEDGE);
       connection.start();

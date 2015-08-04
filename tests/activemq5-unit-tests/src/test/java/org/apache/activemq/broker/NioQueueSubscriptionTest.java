@@ -47,88 +47,87 @@ import static org.junit.Assert.fail;
 @RunWith(BlockJUnit4ClassRunner.class)
 public class NioQueueSubscriptionTest extends QueueSubscriptionTest {
 
-    protected static final Logger LOG = LoggerFactory.getLogger(NioQueueSubscriptionTest.class);
+   protected static final Logger LOG = LoggerFactory.getLogger(NioQueueSubscriptionTest.class);
 
-    private final Map<Thread, Throwable> exceptions = Collections.synchronizedMap(new HashMap<Thread, Throwable>());
+   private final Map<Thread, Throwable> exceptions = Collections.synchronizedMap(new HashMap<Thread, Throwable>());
 
-    @Override
-    protected ConnectionFactory createConnectionFactory() throws Exception {
-        return new ActiveMQConnectionFactory("tcp://localhost:62621?trace=false");
-    }
+   @Override
+   protected ConnectionFactory createConnectionFactory() throws Exception {
+      return new ActiveMQConnectionFactory("tcp://localhost:62621?trace=false");
+   }
 
+   @Override
+   protected BrokerService createBroker() throws Exception {
+      BrokerService answer = BrokerFactory.createBroker(new URI("broker://nio://localhost:62621?useQueueForAccept=false&persistent=false&wiewformat.maxInactivityDuration=0"));
+      answer.getManagementContext().setCreateConnector(false);
+      answer.setUseJmx(false);
+      answer.setDeleteAllMessagesOnStartup(true);
+      final List<PolicyEntry> policyEntries = new ArrayList<PolicyEntry>();
+      final PolicyEntry entry = new PolicyEntry();
+      entry.setQueue(">");
+      entry.setOptimizedDispatch(true);
+      policyEntries.add(entry);
 
-    @Override
-    protected BrokerService createBroker() throws Exception {
-        BrokerService answer = BrokerFactory.createBroker(new URI(
-            "broker://nio://localhost:62621?useQueueForAccept=false&persistent=false&wiewformat.maxInactivityDuration=0"));
-        answer.getManagementContext().setCreateConnector(false);
-        answer.setUseJmx(false);
-        answer.setDeleteAllMessagesOnStartup(true);
-        final List<PolicyEntry> policyEntries = new ArrayList<PolicyEntry>();
-        final PolicyEntry entry = new PolicyEntry();
-        entry.setQueue(">");
-        entry.setOptimizedDispatch(true);
-        policyEntries.add(entry);
+      final PolicyMap policyMap = new PolicyMap();
+      policyMap.setPolicyEntries(policyEntries);
+      answer.setDestinationPolicy(policyMap);
+      return answer;
+   }
 
-        final PolicyMap policyMap = new PolicyMap();
-        policyMap.setPolicyEntries(policyEntries);
-        answer.setDestinationPolicy(policyMap);
-        return answer;
-    }
+   @Ignore("See AMQ-4286")
+   @Test(timeout = 60 * 1000)
+   public void testLotsOfConcurrentConnections() throws Exception {
+      ExecutorService executor = Executors.newCachedThreadPool();
+      final ConnectionFactory factory = createConnectionFactory();
+      int connectionCount = 400;
+      final AtomicInteger threadId = new AtomicInteger(0);
+      for (int i = 0; i < connectionCount; i++) {
+         executor.execute(new Runnable() {
+            @Override
+            public void run() {
+               final int innerId = threadId.incrementAndGet();
+               try {
+                  ExceptionListener listener = new NioQueueSubscriptionTestListener(innerId, exceptions, LOG);
+                  ActiveMQConnection connection = (ActiveMQConnection) factory.createConnection();
+                  connection.setExceptionListener(listener);
+                  connection.start();
+                  assertNotNull(connection.getBrokerName());
+                  connections.add(connection);
+               }
+               catch (Exception e) {
+                  LOG.error(">>>> Exception in run() on thread " + innerId, e);
+                  exceptions.put(Thread.currentThread(), e);
+               }
+            }
+         });
+      }
 
+      executor.shutdown();
+      executor.awaitTermination(30, TimeUnit.SECONDS);
 
-    @Ignore("See AMQ-4286")
-    @Test(timeout = 60 * 1000)
-    public void testLotsOfConcurrentConnections() throws Exception {
-        ExecutorService executor = Executors.newCachedThreadPool();
-        final ConnectionFactory factory = createConnectionFactory();
-        int connectionCount = 400;
-        final AtomicInteger threadId = new AtomicInteger(0);
-        for (int i = 0; i < connectionCount; i++) {
-            executor.execute(new Runnable() {
-                @Override
-                public void run() {
-                    final int innerId = threadId.incrementAndGet();
-                    try {
-                        ExceptionListener listener = new NioQueueSubscriptionTestListener(innerId, exceptions, LOG);
-                        ActiveMQConnection connection = (ActiveMQConnection) factory.createConnection();
-                        connection.setExceptionListener(listener);
-                        connection.start();
-                        assertNotNull(connection.getBrokerName());
-                        connections.add(connection);
-                    } catch (Exception e) {
-                        LOG.error(">>>> Exception in run() on thread " + innerId, e);
-                        exceptions.put(Thread.currentThread(), e);
-                    }
-                }
-            });
-        }
-
-        executor.shutdown();
-        executor.awaitTermination(30, TimeUnit.SECONDS);
-
-        if (!exceptions.isEmpty()) {
-            LOG.error(">>>> " + exceptions.size() + " exceptions like", exceptions.values().iterator().next());
-            fail("unexpected exceptions in worker threads: " + exceptions.values().iterator().next());
-        }
-        LOG.info("created " + connectionCount + " connections");
-    }
+      if (!exceptions.isEmpty()) {
+         LOG.error(">>>> " + exceptions.size() + " exceptions like", exceptions.values().iterator().next());
+         fail("unexpected exceptions in worker threads: " + exceptions.values().iterator().next());
+      }
+      LOG.info("created " + connectionCount + " connections");
+   }
 }
 
 class NioQueueSubscriptionTestListener implements ExceptionListener {
-    private int id = 0;
-    protected Logger LOG;
-    private final Map<Thread, Throwable> exceptions;
 
-    public NioQueueSubscriptionTestListener(int id, Map<Thread, Throwable> exceptions, Logger log) {
-        this.id = id;
-        this.exceptions = exceptions;
-        this.LOG = log;
-    }
+   private int id = 0;
+   protected Logger LOG;
+   private final Map<Thread, Throwable> exceptions;
 
-    @Override
-    public void onException(JMSException exception) {
-        LOG.error(">>>> Exception in onException() on thread " + id, exception);
-        exceptions.put(Thread.currentThread(), exception);
-    }
+   public NioQueueSubscriptionTestListener(int id, Map<Thread, Throwable> exceptions, Logger log) {
+      this.id = id;
+      this.exceptions = exceptions;
+      this.LOG = log;
+   }
+
+   @Override
+   public void onException(JMSException exception) {
+      LOG.error(">>>> Exception in onException() on thread " + id, exception);
+      exceptions.put(Thread.currentThread(), exception);
+   }
 }

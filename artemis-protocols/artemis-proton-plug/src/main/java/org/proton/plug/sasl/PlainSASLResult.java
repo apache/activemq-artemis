@@ -18,33 +18,29 @@ package org.proton.plug.sasl;
 
 import org.proton.plug.SASLResult;
 
-public class PlainSASLResult implements SASLResult
-{
+public class PlainSASLResult implements SASLResult {
+
    private boolean success;
    private String user;
    private String password;
 
-   public PlainSASLResult(boolean success, String user, String password)
-   {
+   public PlainSASLResult(boolean success, String user, String password) {
       this.success = success;
       this.user = user;
       this.password = password;
    }
 
    @Override
-   public String getUser()
-   {
+   public String getUser() {
       return user;
    }
 
-   public String getPassword()
-   {
+   public String getPassword() {
       return password;
    }
 
    @Override
-   public boolean isSuccess()
-   {
+   public boolean isSuccess() {
       return success;
    }
 }

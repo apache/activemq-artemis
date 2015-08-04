@@ -25,8 +25,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "link")
 @XmlAccessorType(XmlAccessType.PROPERTY)
-public class XmlLink implements Serializable
-{
+public class XmlLink implements Serializable {
+
    private static final long serialVersionUID = -6517264072911034419L;
    protected String method;
    protected String className;
@@ -35,69 +35,58 @@ public class XmlLink implements Serializable
    protected String href;
 
    @XmlAttribute(name = "class")
-   public String getClassName()
-   {
+   public String getClassName() {
       return className;
    }
 
-   public void setClassName(String className)
-   {
+   public void setClassName(String className) {
       this.className = className;
    }
 
    @XmlAttribute
-   public String getMethod()
-   {
+   public String getMethod() {
       return method;
    }
 
-   public void setMethod(String method)
-   {
+   public void setMethod(String method) {
       this.method = method;
    }
 
    @XmlAttribute(name = "rel")
-   public String getRelationship()
-   {
+   public String getRelationship() {
       return rel;
    }
 
-   public void setRelationship(String relationship)
-   {
+   public void setRelationship(String relationship) {
       rel = relationship;
    }
 
    @XmlAttribute
-   public String getHref()
-   {
+   public String getHref() {
       return href;
    }
 
-   public void setHref(String href)
-   {
+   public void setHref(String href) {
       this.href = href;
    }
 
    @XmlAttribute
-   public String getType()
-   {
+   public String getType() {
       return type;
    }
 
-   public void setType(String type)
-   {
+   public void setType(String type) {
       this.type = type;
    }
 
    @Override
-   public String toString()
-   {
+   public String toString() {
       return "XmlLink{" +
-              "className='" + className + '\'' +
-              ", rel='" + rel + '\'' +
-              ", href='" + href + '\'' +
-              ", type='" + type + '\'' +
-              ", method='" + method + '\'' +
-              '}';
+         "className='" + className + '\'' +
+         ", rel='" + rel + '\'' +
+         ", href='" + href + '\'' +
+         ", type='" + type + '\'' +
+         ", method='" + method + '\'' +
+         '}';
    }
 }

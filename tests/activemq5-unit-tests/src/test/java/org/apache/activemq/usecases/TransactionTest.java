@@ -39,84 +39,86 @@ import org.slf4j.LoggerFactory;
 
 /**
  * @author pragmasoft
- *
  */
 public final class TransactionTest extends TestCase {
 
-    private static final Logger LOG = LoggerFactory.getLogger(TransactionTest.class);
+   private static final Logger LOG = LoggerFactory.getLogger(TransactionTest.class);
 
-    private volatile String receivedText;
+   private volatile String receivedText;
 
-    private Session producerSession;
-    private Session consumerSession;
-    private Destination queue;
+   private Session producerSession;
+   private Session consumerSession;
+   private Destination queue;
 
-    private MessageProducer producer;
-    private MessageConsumer consumer;
-    private Connection connection;
-    private final CountDownLatch latch = new CountDownLatch(1);
+   private MessageProducer producer;
+   private MessageConsumer consumer;
+   private Connection connection;
+   private final CountDownLatch latch = new CountDownLatch(1);
 
-    public void testTransaction() throws Exception {
+   public void testTransaction() throws Exception {
 
-        ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("vm://localhost?broker.persistent=false");
-        connection = factory.createConnection();
-        queue = new ActiveMQQueue(getClass().getName() + "." + getName());
+      ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("vm://localhost?broker.persistent=false");
+      connection = factory.createConnection();
+      queue = new ActiveMQQueue(getClass().getName() + "." + getName());
 
-        producerSession = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        consumerSession = connection.createSession(true, 0);
+      producerSession = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      consumerSession = connection.createSession(true, 0);
 
-        producer = producerSession.createProducer(queue);
+      producer = producerSession.createProducer(queue);
 
-        consumer = consumerSession.createConsumer(queue);
-        consumer.setMessageListener(new MessageListener() {
+      consumer = consumerSession.createConsumer(queue);
+      consumer.setMessageListener(new MessageListener() {
 
-            @Override
-            public void onMessage(Message m) {
-                try {
-                    TextMessage tm = (TextMessage)m;
-                    receivedText = tm.getText();
-                    latch.countDown();
+         @Override
+         public void onMessage(Message m) {
+            try {
+               TextMessage tm = (TextMessage) m;
+               receivedText = tm.getText();
+               latch.countDown();
 
-                    LOG.info("consumer received message :" + receivedText);
-                    consumerSession.commit();
-                    LOG.info("committed transaction");
-                } catch (JMSException e) {
-                    try {
-                        consumerSession.rollback();
-                        LOG.info("rolled back transaction");
-                    } catch (JMSException e1) {
-                        LOG.info(e1.toString());
-                        e1.printStackTrace();
-                    }
-                    LOG.info(e.toString());
-                    e.printStackTrace();
-                }
+               LOG.info("consumer received message :" + receivedText);
+               consumerSession.commit();
+               LOG.info("committed transaction");
             }
-        });
+            catch (JMSException e) {
+               try {
+                  consumerSession.rollback();
+                  LOG.info("rolled back transaction");
+               }
+               catch (JMSException e1) {
+                  LOG.info(e1.toString());
+                  e1.printStackTrace();
+               }
+               LOG.info(e.toString());
+               e.printStackTrace();
+            }
+         }
+      });
 
-        connection.start();
+      connection.start();
 
-        TextMessage tm = null;
-        try {
-            tm = producerSession.createTextMessage();
-            tm.setText("Hello, " + new Date());
-            producer.send(tm);
-            LOG.info("producer sent message :" + tm.getText());
-        } catch (JMSException e) {
-            e.printStackTrace();
-        }
+      TextMessage tm = null;
+      try {
+         tm = producerSession.createTextMessage();
+         tm.setText("Hello, " + new Date());
+         producer.send(tm);
+         LOG.info("producer sent message :" + tm.getText());
+      }
+      catch (JMSException e) {
+         e.printStackTrace();
+      }
 
-        LOG.info("Waiting for latch");
-        latch.await(2,TimeUnit.SECONDS);
-        assertNotNull(receivedText);
-        LOG.info("test completed, destination=" + receivedText);
-    }
+      LOG.info("Waiting for latch");
+      latch.await(2, TimeUnit.SECONDS);
+      assertNotNull(receivedText);
+      LOG.info("test completed, destination=" + receivedText);
+   }
 
-    @Override
-    protected void tearDown() throws Exception {
-        if (connection != null) {
-            connection.close();
-        }
-        super.tearDown();
-    }
+   @Override
+   protected void tearDown() throws Exception {
+      if (connection != null) {
+         connection.close();
+      }
+      super.tearDown();
+   }
 }

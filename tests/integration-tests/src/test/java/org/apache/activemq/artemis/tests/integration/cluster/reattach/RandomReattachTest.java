@@ -47,8 +47,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class RandomReattachTest extends ActiveMQTestBase
-{
+public class RandomReattachTest extends ActiveMQTestBase {
+
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
    // Constants -----------------------------------------------------
@@ -70,198 +70,152 @@ public class RandomReattachTest extends ActiveMQTestBase
    // Public --------------------------------------------------------
 
    @Test
-   public void testA() throws Exception
-   {
-      runTest(new RunnableT()
-      {
+   public void testA() throws Exception {
+      runTest(new RunnableT() {
          @Override
-         public void run(final ClientSessionFactory sf) throws Exception
-         {
+         public void run(final ClientSessionFactory sf) throws Exception {
             doTestA(sf);
          }
       });
    }
 
    @Test
-   public void testB() throws Exception
-   {
-      runTest(new RunnableT()
-      {
+   public void testB() throws Exception {
+      runTest(new RunnableT() {
          @Override
-         public void run(final ClientSessionFactory sf) throws Exception
-         {
+         public void run(final ClientSessionFactory sf) throws Exception {
             doTestB(sf);
          }
       });
    }
 
    @Test
-   public void testC() throws Exception
-   {
-      runTest(new RunnableT()
-      {
+   public void testC() throws Exception {
+      runTest(new RunnableT() {
          @Override
-         public void run(final ClientSessionFactory sf) throws Exception
-         {
+         public void run(final ClientSessionFactory sf) throws Exception {
             doTestC(sf);
          }
       });
    }
 
    @Test
-   public void testD() throws Exception
-   {
-      runTest(new RunnableT()
-      {
+   public void testD() throws Exception {
+      runTest(new RunnableT() {
          @Override
-         public void run(final ClientSessionFactory sf) throws Exception
-         {
+         public void run(final ClientSessionFactory sf) throws Exception {
             doTestD(sf);
          }
       });
    }
 
    @Test
-   public void testE() throws Exception
-   {
-      runTest(new RunnableT()
-      {
+   public void testE() throws Exception {
+      runTest(new RunnableT() {
          @Override
-         public void run(final ClientSessionFactory sf) throws Exception
-         {
+         public void run(final ClientSessionFactory sf) throws Exception {
             doTestE(sf);
          }
       });
    }
 
    @Test
-   public void testF() throws Exception
-   {
-      runTest(new RunnableT()
-      {
+   public void testF() throws Exception {
+      runTest(new RunnableT() {
          @Override
-         public void run(final ClientSessionFactory sf) throws Exception
-         {
+         public void run(final ClientSessionFactory sf) throws Exception {
             doTestF(sf);
          }
       });
    }
 
    @Test
-   public void testG() throws Exception
-   {
-      runTest(new RunnableT()
-      {
+   public void testG() throws Exception {
+      runTest(new RunnableT() {
          @Override
-         public void run(final ClientSessionFactory sf) throws Exception
-         {
+         public void run(final ClientSessionFactory sf) throws Exception {
             doTestG(sf);
          }
       });
    }
 
    @Test
-   public void testH() throws Exception
-   {
-      runTest(new RunnableT()
-      {
+   public void testH() throws Exception {
+      runTest(new RunnableT() {
          @Override
-         public void run(final ClientSessionFactory sf) throws Exception
-         {
+         public void run(final ClientSessionFactory sf) throws Exception {
             doTestH(sf);
          }
       });
    }
 
    @Test
-   public void testI() throws Exception
-   {
-      runTest(new RunnableT()
-      {
+   public void testI() throws Exception {
+      runTest(new RunnableT() {
          @Override
-         public void run(final ClientSessionFactory sf) throws Exception
-         {
+         public void run(final ClientSessionFactory sf) throws Exception {
             doTestI(sf);
          }
       });
    }
 
    @Test
-   public void testJ() throws Exception
-   {
-      runTest(new RunnableT()
-      {
+   public void testJ() throws Exception {
+      runTest(new RunnableT() {
          @Override
-         public void run(final ClientSessionFactory sf) throws Exception
-         {
+         public void run(final ClientSessionFactory sf) throws Exception {
             doTestJ(sf);
          }
       });
    }
 
    @Test
-   public void testK() throws Exception
-   {
-      runTest(new RunnableT()
-      {
+   public void testK() throws Exception {
+      runTest(new RunnableT() {
          @Override
-         public void run(final ClientSessionFactory sf) throws Exception
-         {
+         public void run(final ClientSessionFactory sf) throws Exception {
             doTestK(sf);
          }
       });
    }
 
    @Test
-   public void testL() throws Exception
-   {
-      runTest(new RunnableT()
-      {
+   public void testL() throws Exception {
+      runTest(new RunnableT() {
          @Override
-         public void run(final ClientSessionFactory sf) throws Exception
-         {
+         public void run(final ClientSessionFactory sf) throws Exception {
             doTestL(sf);
          }
       });
    }
 
    @Test
-   public void testN() throws Exception
-   {
-      runTest(new RunnableT()
-      {
+   public void testN() throws Exception {
+      runTest(new RunnableT() {
          @Override
-         public void run(final ClientSessionFactory sf) throws Exception
-         {
+         public void run(final ClientSessionFactory sf) throws Exception {
             doTestN(sf);
          }
       });
    }
 
-   public void runTest(final RunnableT runnable) throws Exception
-   {
+   public void runTest(final RunnableT runnable) throws Exception {
       final int numIts = getNumIterations();
 
-      for (int its = 0; its < numIts; its++)
-      {
+      for (int its = 0; its < numIts; its++) {
          RandomReattachTest.log.info("####" + getName() + " iteration #" + its);
          start();
-         ServerLocator locator = createInVMNonHALocator()
-                 .setReconnectAttempts(-1)
-                 .setConfirmationWindowSize(1024 * 1024);
+         ServerLocator locator = createInVMNonHALocator().setReconnectAttempts(-1).setConfirmationWindowSize(1024 * 1024);
 
          ClientSessionFactory sf = createSessionFactory(locator);
-
 
          ClientSession session = sf.createSession(false, false, false);
 
          Failer failer = startFailer(1000, session);
 
-         do
-         {
+         do {
             runnable.run(sf);
-         }
-         while (!failer.isExecuted());
+         } while (!failer.isExecuted());
       }
    }
 
@@ -269,8 +223,7 @@ public class RandomReattachTest extends ActiveMQTestBase
 
    // Protected -----------------------------------------------------
 
-   protected void doTestA(final ClientSessionFactory sf) throws Exception
-   {
+   protected void doTestA(final ClientSessionFactory sf) throws Exception {
       long start = System.currentTimeMillis();
 
       ClientSession s = sf.createSession(false, false, false);
@@ -282,8 +235,7 @@ public class RandomReattachTest extends ActiveMQTestBase
       Set<ClientConsumer> consumers = new HashSet<ClientConsumer>();
       Set<ClientSession> sessions = new HashSet<ClientSession>();
 
-      for (int i = 0; i < numSessions; i++)
-      {
+      for (int i = 0; i < numSessions; i++) {
          SimpleString subName = new SimpleString("sub" + i);
 
          ClientSession sessConsume = sf.createSession(false, true, true);
@@ -303,28 +255,21 @@ public class RandomReattachTest extends ActiveMQTestBase
 
       ClientProducer producer = sessSend.createProducer(RandomReattachTest.ADDRESS);
 
-      for (int i = 0; i < numMessages; i++)
-      {
-         ClientMessage message = sessSend.createMessage(ActiveMQTextMessage.TYPE,
-                                                        false,
-                                                        0,
-                                                        System.currentTimeMillis(),
-                                                        (byte)1);
+      for (int i = 0; i < numMessages; i++) {
+         ClientMessage message = sessSend.createMessage(ActiveMQTextMessage.TYPE, false, 0, System.currentTimeMillis(), (byte) 1);
          message.putIntProperty(new SimpleString("count"), i);
          producer.send(message);
       }
 
-      class MyHandler extends AssertionCheckMessageHandler
-      {
+      class MyHandler extends AssertionCheckMessageHandler {
+
          final CountDownLatch latch = new CountDownLatch(1);
 
          int count;
 
          @Override
-         public void onMessageAssert(final ClientMessage message)
-         {
-            if (count == numMessages)
-            {
+         public void onMessageAssert(final ClientMessage message) {
+            if (count == numMessages) {
                Assert.fail("Too many messages");
             }
 
@@ -332,17 +277,14 @@ public class RandomReattachTest extends ActiveMQTestBase
 
             count++;
 
-            try
-            {
+            try {
                message.acknowledge();
             }
-            catch (ActiveMQException me)
-            {
+            catch (ActiveMQException me) {
                RandomReattachTest.log.error("Failed to process", me);
             }
 
-            if (count == numMessages)
-            {
+            if (count == numMessages) {
                latch.countDown();
             }
          }
@@ -350,8 +292,7 @@ public class RandomReattachTest extends ActiveMQTestBase
 
       Set<MyHandler> handlers = new HashSet<MyHandler>();
 
-      for (ClientConsumer consumer : consumers)
-      {
+      for (ClientConsumer consumer : consumers) {
          MyHandler handler = new MyHandler();
 
          consumer.setMessageHandler(handler);
@@ -359,8 +300,7 @@ public class RandomReattachTest extends ActiveMQTestBase
          handlers.add(handler);
       }
 
-      for (MyHandler handler : handlers)
-      {
+      for (MyHandler handler : handlers) {
          boolean ok = handler.latch.await(5000, TimeUnit.MILLISECONDS);
 
          handler.checkAssertions();
@@ -369,13 +309,11 @@ public class RandomReattachTest extends ActiveMQTestBase
       }
 
       sessSend.close();
-      for (ClientSession session : sessions)
-      {
+      for (ClientSession session : sessions) {
          session.close();
       }
 
-      for (int i = 0; i < numSessions; i++)
-      {
+      for (int i = 0; i < numSessions; i++) {
          SimpleString subName = new SimpleString("sub" + i);
 
          s.deleteQueue(subName);
@@ -388,8 +326,7 @@ public class RandomReattachTest extends ActiveMQTestBase
       RandomReattachTest.log.info("duration " + (end - start));
    }
 
-   protected void doTestB(final ClientSessionFactory sf) throws Exception
-   {
+   protected void doTestB(final ClientSessionFactory sf) throws Exception {
       long start = System.currentTimeMillis();
 
       ClientSession s = sf.createSession(false, false, false);
@@ -401,8 +338,7 @@ public class RandomReattachTest extends ActiveMQTestBase
       Set<ClientConsumer> consumers = new HashSet<ClientConsumer>();
       Set<ClientSession> sessions = new HashSet<ClientSession>();
 
-      for (int i = 0; i < numSessions; i++)
-      {
+      for (int i = 0; i < numSessions; i++) {
          SimpleString subName = new SimpleString("sub" + i);
 
          ClientSession sessConsume = sf.createSession(false, true, true);
@@ -420,33 +356,25 @@ public class RandomReattachTest extends ActiveMQTestBase
 
       ClientProducer producer = sessSend.createProducer(RandomReattachTest.ADDRESS);
 
-      for (int i = 0; i < numMessages; i++)
-      {
-         ClientMessage message = sessSend.createMessage(ActiveMQTextMessage.TYPE,
-                                                        false,
-                                                        0,
-                                                        System.currentTimeMillis(),
-                                                        (byte)1);
+      for (int i = 0; i < numMessages; i++) {
+         ClientMessage message = sessSend.createMessage(ActiveMQTextMessage.TYPE, false, 0, System.currentTimeMillis(), (byte) 1);
          message.putIntProperty(new SimpleString("count"), i);
          producer.send(message);
       }
 
-      for (ClientSession session : sessions)
-      {
+      for (ClientSession session : sessions) {
          session.start();
       }
 
-      class MyHandler extends AssertionCheckMessageHandler
-      {
+      class MyHandler extends AssertionCheckMessageHandler {
+
          final CountDownLatch latch = new CountDownLatch(1);
 
          int count;
 
          @Override
-         public void onMessageAssert(final ClientMessage message)
-         {
-            if (count == numMessages)
-            {
+         public void onMessageAssert(final ClientMessage message) {
+            if (count == numMessages) {
                Assert.fail("Too many messages");
             }
 
@@ -454,8 +382,7 @@ public class RandomReattachTest extends ActiveMQTestBase
 
             count++;
 
-            if (count == numMessages)
-            {
+            if (count == numMessages) {
                latch.countDown();
             }
          }
@@ -463,8 +390,7 @@ public class RandomReattachTest extends ActiveMQTestBase
 
       Set<MyHandler> handlers = new HashSet<MyHandler>();
 
-      for (ClientConsumer consumer : consumers)
-      {
+      for (ClientConsumer consumer : consumers) {
          MyHandler handler = new MyHandler();
 
          consumer.setMessageHandler(handler);
@@ -472,8 +398,7 @@ public class RandomReattachTest extends ActiveMQTestBase
          handlers.add(handler);
       }
 
-      for (MyHandler handler : handlers)
-      {
+      for (MyHandler handler : handlers) {
          boolean ok = handler.latch.await(10000, TimeUnit.MILLISECONDS);
 
          handler.checkAssertions();
@@ -483,13 +408,11 @@ public class RandomReattachTest extends ActiveMQTestBase
 
       sessSend.close();
 
-      for (ClientSession session : sessions)
-      {
+      for (ClientSession session : sessions) {
          session.close();
       }
 
-      for (int i = 0; i < numSessions; i++)
-      {
+      for (int i = 0; i < numSessions; i++) {
          SimpleString subName = new SimpleString("sub" + i);
 
          s.deleteQueue(subName);
@@ -503,8 +426,7 @@ public class RandomReattachTest extends ActiveMQTestBase
 
    }
 
-   protected void doTestC(final ClientSessionFactory sf) throws Exception
-   {
+   protected void doTestC(final ClientSessionFactory sf) throws Exception {
       long start = System.currentTimeMillis();
 
       ClientSession s = sf.createSession(false, false, false);
@@ -516,8 +438,7 @@ public class RandomReattachTest extends ActiveMQTestBase
       Set<ClientConsumer> consumers = new HashSet<ClientConsumer>();
       Set<ClientSession> sessions = new HashSet<ClientSession>();
 
-      for (int i = 0; i < numSessions; i++)
-      {
+      for (int i = 0; i < numSessions; i++) {
          SimpleString subName = new SimpleString("sub" + i);
 
          ClientSession sessConsume = sf.createSession(false, false, false);
@@ -537,43 +458,31 @@ public class RandomReattachTest extends ActiveMQTestBase
 
       ClientProducer producer = sessSend.createProducer(RandomReattachTest.ADDRESS);
 
-      for (int i = 0; i < numMessages; i++)
-      {
-         ClientMessage message = sessSend.createMessage(ActiveMQTextMessage.TYPE,
-                                                        false,
-                                                        0,
-                                                        System.currentTimeMillis(),
-                                                        (byte)1);
+      for (int i = 0; i < numMessages; i++) {
+         ClientMessage message = sessSend.createMessage(ActiveMQTextMessage.TYPE, false, 0, System.currentTimeMillis(), (byte) 1);
          message.putIntProperty(new SimpleString("count"), i);
          producer.send(message);
       }
 
       sessSend.rollback();
 
-      for (int i = 0; i < numMessages; i++)
-      {
-         ClientMessage message = sessSend.createMessage(ActiveMQTextMessage.TYPE,
-                                                        false,
-                                                        0,
-                                                        System.currentTimeMillis(),
-                                                        (byte)1);
+      for (int i = 0; i < numMessages; i++) {
+         ClientMessage message = sessSend.createMessage(ActiveMQTextMessage.TYPE, false, 0, System.currentTimeMillis(), (byte) 1);
          message.putIntProperty(new SimpleString("count"), i);
          producer.send(message);
       }
 
       sessSend.commit();
 
-      class MyHandler extends AssertionCheckMessageHandler
-      {
+      class MyHandler extends AssertionCheckMessageHandler {
+
          final CountDownLatch latch = new CountDownLatch(1);
 
          int count;
 
          @Override
-         public void onMessageAssert(final ClientMessage message)
-         {
-            if (count == numMessages)
-            {
+         public void onMessageAssert(final ClientMessage message) {
+            if (count == numMessages) {
                Assert.fail("Too many messages, expected " + count);
             }
 
@@ -581,18 +490,15 @@ public class RandomReattachTest extends ActiveMQTestBase
 
             count++;
 
-            try
-            {
+            try {
                message.acknowledge();
             }
-            catch (ActiveMQException e)
-            {
+            catch (ActiveMQException e) {
                e.printStackTrace();
                throw new RuntimeException(e.getMessage(), e);
             }
 
-            if (count == numMessages)
-            {
+            if (count == numMessages) {
                latch.countDown();
             }
          }
@@ -600,8 +506,7 @@ public class RandomReattachTest extends ActiveMQTestBase
 
       Set<MyHandler> handlers = new HashSet<MyHandler>();
 
-      for (ClientConsumer consumer : consumers)
-      {
+      for (ClientConsumer consumer : consumers) {
          MyHandler handler = new MyHandler();
 
          consumer.setMessageHandler(handler);
@@ -609,8 +514,7 @@ public class RandomReattachTest extends ActiveMQTestBase
          handlers.add(handler);
       }
 
-      for (MyHandler handler : handlers)
-      {
+      for (MyHandler handler : handlers) {
          boolean ok = handler.latch.await(10000, TimeUnit.MILLISECONDS);
 
          Assert.assertTrue(ok);
@@ -621,8 +525,7 @@ public class RandomReattachTest extends ActiveMQTestBase
       handlers.clear();
 
       // New handlers
-      for (ClientConsumer consumer : consumers)
-      {
+      for (ClientConsumer consumer : consumers) {
          MyHandler handler = new MyHandler();
 
          consumer.setMessageHandler(handler);
@@ -630,13 +533,11 @@ public class RandomReattachTest extends ActiveMQTestBase
          handlers.add(handler);
       }
 
-      for (ClientSession session : sessions)
-      {
+      for (ClientSession session : sessions) {
          session.rollback();
       }
 
-      for (MyHandler handler : handlers)
-      {
+      for (MyHandler handler : handlers) {
          boolean ok = handler.latch.await(10000, TimeUnit.MILLISECONDS);
 
          Assert.assertTrue(ok);
@@ -644,19 +545,16 @@ public class RandomReattachTest extends ActiveMQTestBase
          handler.checkAssertions();
       }
 
-      for (ClientSession session : sessions)
-      {
+      for (ClientSession session : sessions) {
          session.commit();
       }
 
       sessSend.close();
-      for (ClientSession session : sessions)
-      {
+      for (ClientSession session : sessions) {
          session.close();
       }
 
-      for (int i = 0; i < numSessions; i++)
-      {
+      for (int i = 0; i < numSessions; i++) {
          SimpleString subName = new SimpleString("sub" + i);
 
          s.deleteQueue(subName);
@@ -669,8 +567,7 @@ public class RandomReattachTest extends ActiveMQTestBase
       RandomReattachTest.log.info("duration " + (end - start));
    }
 
-   protected void doTestD(final ClientSessionFactory sf) throws Exception
-   {
+   protected void doTestD(final ClientSessionFactory sf) throws Exception {
       long start = System.currentTimeMillis();
 
       ClientSession s = sf.createSession(false, false, false);
@@ -682,8 +579,7 @@ public class RandomReattachTest extends ActiveMQTestBase
       Set<ClientConsumer> consumers = new HashSet<ClientConsumer>();
       Set<ClientSession> sessions = new HashSet<ClientSession>();
 
-      for (int i = 0; i < numSessions; i++)
-      {
+      for (int i = 0; i < numSessions; i++) {
          SimpleString subName = new SimpleString("sub" + i);
 
          ClientSession sessConsume = sf.createSession(false, false, false);
@@ -701,48 +597,35 @@ public class RandomReattachTest extends ActiveMQTestBase
 
       ClientProducer producer = sessSend.createProducer(RandomReattachTest.ADDRESS);
 
-      for (int i = 0; i < numMessages; i++)
-      {
-         ClientMessage message = sessSend.createMessage(ActiveMQTextMessage.TYPE,
-                                                        false,
-                                                        0,
-                                                        System.currentTimeMillis(),
-                                                        (byte)1);
+      for (int i = 0; i < numMessages; i++) {
+         ClientMessage message = sessSend.createMessage(ActiveMQTextMessage.TYPE, false, 0, System.currentTimeMillis(), (byte) 1);
          message.putIntProperty(new SimpleString("count"), i);
          producer.send(message);
       }
 
       sessSend.rollback();
 
-      for (int i = 0; i < numMessages; i++)
-      {
-         ClientMessage message = sessSend.createMessage(ActiveMQTextMessage.TYPE,
-                                                        false,
-                                                        0,
-                                                        System.currentTimeMillis(),
-                                                        (byte)1);
+      for (int i = 0; i < numMessages; i++) {
+         ClientMessage message = sessSend.createMessage(ActiveMQTextMessage.TYPE, false, 0, System.currentTimeMillis(), (byte) 1);
          message.putIntProperty(new SimpleString("count"), i);
          producer.send(message);
       }
 
       sessSend.commit();
 
-      for (ClientSession session : sessions)
-      {
+      for (ClientSession session : sessions) {
          session.start();
       }
 
-      class MyHandler extends AssertionCheckMessageHandler
-      {
+      class MyHandler extends AssertionCheckMessageHandler {
+
          final CountDownLatch latch = new CountDownLatch(1);
 
          int count;
 
          @Override
-         public void onMessageAssert(final ClientMessage message)
-         {
-            if (count == numMessages)
-            {
+         public void onMessageAssert(final ClientMessage message) {
+            if (count == numMessages) {
                Assert.fail("Too many messages, " + count);
             }
 
@@ -750,8 +633,7 @@ public class RandomReattachTest extends ActiveMQTestBase
 
             count++;
 
-            if (count == numMessages)
-            {
+            if (count == numMessages) {
                latch.countDown();
             }
          }
@@ -759,8 +641,7 @@ public class RandomReattachTest extends ActiveMQTestBase
 
       Set<MyHandler> handlers = new HashSet<MyHandler>();
 
-      for (ClientConsumer consumer : consumers)
-      {
+      for (ClientConsumer consumer : consumers) {
          MyHandler handler = new MyHandler();
 
          consumer.setMessageHandler(handler);
@@ -768,8 +649,7 @@ public class RandomReattachTest extends ActiveMQTestBase
          handlers.add(handler);
       }
 
-      for (MyHandler handler : handlers)
-      {
+      for (MyHandler handler : handlers) {
          boolean ok = handler.latch.await(20000, TimeUnit.MILLISECONDS);
 
          Assert.assertTrue(ok);
@@ -780,8 +660,7 @@ public class RandomReattachTest extends ActiveMQTestBase
       handlers.clear();
 
       // New handlers
-      for (ClientConsumer consumer : consumers)
-      {
+      for (ClientConsumer consumer : consumers) {
          MyHandler handler = new MyHandler();
 
          consumer.setMessageHandler(handler);
@@ -789,13 +668,11 @@ public class RandomReattachTest extends ActiveMQTestBase
          handlers.add(handler);
       }
 
-      for (ClientSession session : sessions)
-      {
+      for (ClientSession session : sessions) {
          session.rollback();
       }
 
-      for (MyHandler handler : handlers)
-      {
+      for (MyHandler handler : handlers) {
          boolean ok = handler.latch.await(10000, TimeUnit.MILLISECONDS);
 
          Assert.assertTrue(ok);
@@ -803,19 +680,16 @@ public class RandomReattachTest extends ActiveMQTestBase
          handler.checkAssertions();
       }
 
-      for (ClientSession session : sessions)
-      {
+      for (ClientSession session : sessions) {
          session.commit();
       }
 
       sessSend.close();
-      for (ClientSession session : sessions)
-      {
+      for (ClientSession session : sessions) {
          session.close();
       }
 
-      for (int i = 0; i < numSessions; i++)
-      {
+      for (int i = 0; i < numSessions; i++) {
          SimpleString subName = new SimpleString("sub" + i);
 
          s.deleteQueue(subName);
@@ -830,8 +704,7 @@ public class RandomReattachTest extends ActiveMQTestBase
 
    // Now with synchronous receive()
 
-   protected void doTestE(final ClientSessionFactory sf) throws Exception
-   {
+   protected void doTestE(final ClientSessionFactory sf) throws Exception {
       long start = System.currentTimeMillis();
 
       ClientSession s = sf.createSession(false, false, false);
@@ -843,8 +716,7 @@ public class RandomReattachTest extends ActiveMQTestBase
       Set<ClientConsumer> consumers = new HashSet<ClientConsumer>();
       Set<ClientSession> sessions = new HashSet<ClientSession>();
 
-      for (int i = 0; i < numSessions; i++)
-      {
+      for (int i = 0; i < numSessions; i++) {
          SimpleString subName = new SimpleString("sub" + i);
 
          ClientSession sessConsume = sf.createSession(false, true, true);
@@ -864,21 +736,14 @@ public class RandomReattachTest extends ActiveMQTestBase
 
       ClientProducer producer = sessSend.createProducer(RandomReattachTest.ADDRESS);
 
-      for (int i = 0; i < numMessages; i++)
-      {
-         ClientMessage message = sessSend.createMessage(ActiveMQTextMessage.TYPE,
-                                                        false,
-                                                        0,
-                                                        System.currentTimeMillis(),
-                                                        (byte)1);
+      for (int i = 0; i < numMessages; i++) {
+         ClientMessage message = sessSend.createMessage(ActiveMQTextMessage.TYPE, false, 0, System.currentTimeMillis(), (byte) 1);
          message.putIntProperty(new SimpleString("count"), i);
          producer.send(message);
       }
 
-      for (int i = 0; i < numMessages; i++)
-      {
-         for (ClientConsumer consumer : consumers)
-         {
+      for (int i = 0; i < numMessages; i++) {
+         for (ClientConsumer consumer : consumers) {
             ClientMessage msg = consumer.receive(RandomReattachTest.RECEIVE_TIMEOUT);
 
             Assert.assertNotNull(msg);
@@ -889,10 +754,8 @@ public class RandomReattachTest extends ActiveMQTestBase
          }
       }
 
-      for (int i = 0; i < numMessages; i++)
-      {
-         for (ClientConsumer consumer : consumers)
-         {
+      for (int i = 0; i < numMessages; i++) {
+         for (ClientConsumer consumer : consumers) {
             ClientMessage msg = consumer.receiveImmediate();
 
             Assert.assertNull(msg);
@@ -900,13 +763,11 @@ public class RandomReattachTest extends ActiveMQTestBase
       }
 
       sessSend.close();
-      for (ClientSession session : sessions)
-      {
+      for (ClientSession session : sessions) {
          session.close();
       }
 
-      for (int i = 0; i < numSessions; i++)
-      {
+      for (int i = 0; i < numSessions; i++) {
          SimpleString subName = new SimpleString("sub" + i);
 
          s.deleteQueue(subName);
@@ -919,8 +780,7 @@ public class RandomReattachTest extends ActiveMQTestBase
       RandomReattachTest.log.info("duration " + (end - start));
    }
 
-   protected void doTestF(final ClientSessionFactory sf) throws Exception
-   {
+   protected void doTestF(final ClientSessionFactory sf) throws Exception {
       long start = System.currentTimeMillis();
 
       ClientSession s = sf.createSession(false, false, false);
@@ -932,8 +792,7 @@ public class RandomReattachTest extends ActiveMQTestBase
       Set<ClientConsumer> consumers = new HashSet<ClientConsumer>();
       Set<ClientSession> sessions = new HashSet<ClientSession>();
 
-      for (int i = 0; i < numSessions; i++)
-      {
+      for (int i = 0; i < numSessions; i++) {
          SimpleString subName = new SimpleString("sub" + i);
 
          ClientSession sessConsume = sf.createSession(false, true, true);
@@ -951,30 +810,21 @@ public class RandomReattachTest extends ActiveMQTestBase
 
       ClientProducer producer = sessSend.createProducer(RandomReattachTest.ADDRESS);
 
-      for (int i = 0; i < numMessages; i++)
-      {
-         ClientMessage message = sessSend.createMessage(ActiveMQTextMessage.TYPE,
-                                                        false,
-                                                        0,
-                                                        System.currentTimeMillis(),
-                                                        (byte)1);
+      for (int i = 0; i < numMessages; i++) {
+         ClientMessage message = sessSend.createMessage(ActiveMQTextMessage.TYPE, false, 0, System.currentTimeMillis(), (byte) 1);
          message.putIntProperty(new SimpleString("count"), i);
          producer.send(message);
       }
 
-      for (ClientSession session : sessions)
-      {
+      for (ClientSession session : sessions) {
          session.start();
       }
 
-      for (int i = 0; i < numMessages; i++)
-      {
-         for (ClientConsumer consumer : consumers)
-         {
+      for (int i = 0; i < numMessages; i++) {
+         for (ClientConsumer consumer : consumers) {
             ClientMessage msg = consumer.receive(RandomReattachTest.RECEIVE_TIMEOUT);
 
-            if (msg == null)
-            {
+            if (msg == null) {
                throw new IllegalStateException("Failed to receive message " + i);
             }
 
@@ -986,10 +836,8 @@ public class RandomReattachTest extends ActiveMQTestBase
          }
       }
 
-      for (int i = 0; i < numMessages; i++)
-      {
-         for (ClientConsumer consumer : consumers)
-         {
+      for (int i = 0; i < numMessages; i++) {
+         for (ClientConsumer consumer : consumers) {
             ClientMessage msg = consumer.receiveImmediate();
 
             Assert.assertNull(msg);
@@ -997,13 +845,11 @@ public class RandomReattachTest extends ActiveMQTestBase
       }
 
       sessSend.close();
-      for (ClientSession session : sessions)
-      {
+      for (ClientSession session : sessions) {
          session.close();
       }
 
-      for (int i = 0; i < numSessions; i++)
-      {
+      for (int i = 0; i < numSessions; i++) {
          SimpleString subName = new SimpleString("sub" + i);
 
          s.deleteQueue(subName);
@@ -1011,15 +857,14 @@ public class RandomReattachTest extends ActiveMQTestBase
 
       s.close();
 
-      Assert.assertEquals(1, ((ClientSessionFactoryImpl)sf).numSessions());
+      Assert.assertEquals(1, ((ClientSessionFactoryImpl) sf).numSessions());
 
       long end = System.currentTimeMillis();
 
       RandomReattachTest.log.info("duration " + (end - start));
    }
 
-   protected void doTestG(final ClientSessionFactory sf) throws Exception
-   {
+   protected void doTestG(final ClientSessionFactory sf) throws Exception {
       long start = System.currentTimeMillis();
 
       ClientSession s = sf.createSession(false, false, false);
@@ -1031,8 +876,7 @@ public class RandomReattachTest extends ActiveMQTestBase
       Set<ClientConsumer> consumers = new HashSet<ClientConsumer>();
       Set<ClientSession> sessions = new HashSet<ClientSession>();
 
-      for (int i = 0; i < numSessions; i++)
-      {
+      for (int i = 0; i < numSessions; i++) {
          SimpleString subName = new SimpleString("sub" + i);
 
          ClientSession sessConsume = sf.createSession(false, false, false);
@@ -1052,36 +896,24 @@ public class RandomReattachTest extends ActiveMQTestBase
 
       ClientProducer producer = sessSend.createProducer(RandomReattachTest.ADDRESS);
 
-      for (int i = 0; i < numMessages; i++)
-      {
-         ClientMessage message = sessSend.createMessage(ActiveMQTextMessage.TYPE,
-                                                        false,
-                                                        0,
-                                                        System.currentTimeMillis(),
-                                                        (byte)1);
+      for (int i = 0; i < numMessages; i++) {
+         ClientMessage message = sessSend.createMessage(ActiveMQTextMessage.TYPE, false, 0, System.currentTimeMillis(), (byte) 1);
          message.putIntProperty(new SimpleString("count"), i);
          producer.send(message);
       }
 
       sessSend.rollback();
 
-      for (int i = 0; i < numMessages; i++)
-      {
-         ClientMessage message = sessSend.createMessage(ActiveMQTextMessage.TYPE,
-                                                        false,
-                                                        0,
-                                                        System.currentTimeMillis(),
-                                                        (byte)1);
+      for (int i = 0; i < numMessages; i++) {
+         ClientMessage message = sessSend.createMessage(ActiveMQTextMessage.TYPE, false, 0, System.currentTimeMillis(), (byte) 1);
          message.putIntProperty(new SimpleString("count"), i);
          producer.send(message);
       }
 
       sessSend.commit();
 
-      for (int i = 0; i < numMessages; i++)
-      {
-         for (ClientConsumer consumer : consumers)
-         {
+      for (int i = 0; i < numMessages; i++) {
+         for (ClientConsumer consumer : consumers) {
             ClientMessage msg = consumer.receive(RandomReattachTest.RECEIVE_TIMEOUT);
 
             Assert.assertNotNull(msg);
@@ -1092,22 +924,18 @@ public class RandomReattachTest extends ActiveMQTestBase
          }
       }
 
-      for (ClientConsumer consumer : consumers)
-      {
+      for (ClientConsumer consumer : consumers) {
          ClientMessage msg = consumer.receiveImmediate();
 
          Assert.assertNull(msg);
       }
 
-      for (ClientSession session : sessions)
-      {
+      for (ClientSession session : sessions) {
          session.rollback();
       }
 
-      for (int i = 0; i < numMessages; i++)
-      {
-         for (ClientConsumer consumer : consumers)
-         {
+      for (int i = 0; i < numMessages; i++) {
+         for (ClientConsumer consumer : consumers) {
             ClientMessage msg = consumer.receive(RandomReattachTest.RECEIVE_TIMEOUT);
 
             Assert.assertNotNull(msg);
@@ -1118,29 +946,24 @@ public class RandomReattachTest extends ActiveMQTestBase
          }
       }
 
-      for (int i = 0; i < numMessages; i++)
-      {
-         for (ClientConsumer consumer : consumers)
-         {
+      for (int i = 0; i < numMessages; i++) {
+         for (ClientConsumer consumer : consumers) {
             ClientMessage msg = consumer.receiveImmediate();
 
             Assert.assertNull(msg);
          }
       }
 
-      for (ClientSession session : sessions)
-      {
+      for (ClientSession session : sessions) {
          session.commit();
       }
 
       sessSend.close();
-      for (ClientSession session : sessions)
-      {
+      for (ClientSession session : sessions) {
          session.close();
       }
 
-      for (int i = 0; i < numSessions; i++)
-      {
+      for (int i = 0; i < numSessions; i++) {
          SimpleString subName = new SimpleString("sub" + i);
 
          s.deleteQueue(subName);
@@ -1153,8 +976,7 @@ public class RandomReattachTest extends ActiveMQTestBase
       RandomReattachTest.log.info("duration " + (end - start));
    }
 
-   protected void doTestH(final ClientSessionFactory sf) throws Exception
-   {
+   protected void doTestH(final ClientSessionFactory sf) throws Exception {
       long start = System.currentTimeMillis();
 
       ClientSession s = sf.createSession(false, false, false);
@@ -1166,8 +988,7 @@ public class RandomReattachTest extends ActiveMQTestBase
       Set<ClientConsumer> consumers = new HashSet<ClientConsumer>();
       Set<ClientSession> sessions = new HashSet<ClientSession>();
 
-      for (int i = 0; i < numSessions; i++)
-      {
+      for (int i = 0; i < numSessions; i++) {
          SimpleString subName = new SimpleString("sub" + i);
 
          ClientSession sessConsume = sf.createSession(false, false, false);
@@ -1185,41 +1006,28 @@ public class RandomReattachTest extends ActiveMQTestBase
 
       ClientProducer producer = sessSend.createProducer(RandomReattachTest.ADDRESS);
 
-      for (int i = 0; i < numMessages; i++)
-      {
-         ClientMessage message = sessSend.createMessage(ActiveMQTextMessage.TYPE,
-                                                        false,
-                                                        0,
-                                                        System.currentTimeMillis(),
-                                                        (byte)1);
+      for (int i = 0; i < numMessages; i++) {
+         ClientMessage message = sessSend.createMessage(ActiveMQTextMessage.TYPE, false, 0, System.currentTimeMillis(), (byte) 1);
          message.putIntProperty(new SimpleString("count"), i);
          producer.send(message);
       }
 
       sessSend.rollback();
 
-      for (int i = 0; i < numMessages; i++)
-      {
-         ClientMessage message = sessSend.createMessage(ActiveMQTextMessage.TYPE,
-                                                        false,
-                                                        0,
-                                                        System.currentTimeMillis(),
-                                                        (byte)1);
+      for (int i = 0; i < numMessages; i++) {
+         ClientMessage message = sessSend.createMessage(ActiveMQTextMessage.TYPE, false, 0, System.currentTimeMillis(), (byte) 1);
          message.putIntProperty(new SimpleString("count"), i);
          producer.send(message);
       }
 
       sessSend.commit();
 
-      for (ClientSession session : sessions)
-      {
+      for (ClientSession session : sessions) {
          session.start();
       }
 
-      for (int i = 0; i < numMessages; i++)
-      {
-         for (ClientConsumer consumer : consumers)
-         {
+      for (int i = 0; i < numMessages; i++) {
+         for (ClientConsumer consumer : consumers) {
             ClientMessage msg = consumer.receive(RandomReattachTest.RECEIVE_TIMEOUT);
 
             Assert.assertNotNull(msg);
@@ -1230,25 +1038,20 @@ public class RandomReattachTest extends ActiveMQTestBase
          }
       }
 
-      for (int i = 0; i < numMessages; i++)
-      {
-         for (ClientConsumer consumer : consumers)
-         {
+      for (int i = 0; i < numMessages; i++) {
+         for (ClientConsumer consumer : consumers) {
             ClientMessage msg = consumer.receiveImmediate();
 
             Assert.assertNull(msg);
          }
       }
 
-      for (ClientSession session : sessions)
-      {
+      for (ClientSession session : sessions) {
          session.rollback();
       }
 
-      for (int i = 0; i < numMessages; i++)
-      {
-         for (ClientConsumer consumer : consumers)
-         {
+      for (int i = 0; i < numMessages; i++) {
+         for (ClientConsumer consumer : consumers) {
             ClientMessage msg = consumer.receive(RandomReattachTest.RECEIVE_TIMEOUT);
 
             Assert.assertNotNull(msg);
@@ -1259,29 +1062,24 @@ public class RandomReattachTest extends ActiveMQTestBase
          }
       }
 
-      for (int i = 0; i < numMessages; i++)
-      {
-         for (ClientConsumer consumer : consumers)
-         {
+      for (int i = 0; i < numMessages; i++) {
+         for (ClientConsumer consumer : consumers) {
             ClientMessage msg = consumer.receiveImmediate();
 
             Assert.assertNull(msg);
          }
       }
 
-      for (ClientSession session : sessions)
-      {
+      for (ClientSession session : sessions) {
          session.commit();
       }
 
       sessSend.close();
-      for (ClientSession session : sessions)
-      {
+      for (ClientSession session : sessions) {
          session.close();
       }
 
-      for (int i = 0; i < numSessions; i++)
-      {
+      for (int i = 0; i < numSessions; i++) {
          SimpleString subName = new SimpleString("sub" + i);
 
          s.deleteQueue(subName);
@@ -1294,8 +1092,7 @@ public class RandomReattachTest extends ActiveMQTestBase
       RandomReattachTest.log.info("duration " + (end - start));
    }
 
-   protected void doTestI(final ClientSessionFactory sf) throws Exception
-   {
+   protected void doTestI(final ClientSessionFactory sf) throws Exception {
       ClientSession sessCreate = sf.createSession(false, true, true);
 
       sessCreate.createQueue(RandomReattachTest.ADDRESS, RandomReattachTest.ADDRESS, null, false);
@@ -1308,11 +1105,7 @@ public class RandomReattachTest extends ActiveMQTestBase
 
       ClientProducer producer = sess.createProducer(RandomReattachTest.ADDRESS);
 
-      ClientMessage message = sess.createMessage(ActiveMQTextMessage.TYPE,
-                                                 false,
-                                                 0,
-                                                 System.currentTimeMillis(),
-                                                 (byte)1);
+      ClientMessage message = sess.createMessage(ActiveMQTextMessage.TYPE, false, 0, System.currentTimeMillis(), (byte) 1);
       producer.send(message);
 
       ClientMessage message2 = consumer.receive(RandomReattachTest.RECEIVE_TIMEOUT);
@@ -1328,8 +1121,7 @@ public class RandomReattachTest extends ActiveMQTestBase
       sessCreate.close();
    }
 
-   protected void doTestJ(final ClientSessionFactory sf) throws Exception
-   {
+   protected void doTestJ(final ClientSessionFactory sf) throws Exception {
       ClientSession sessCreate = sf.createSession(false, true, true);
 
       sessCreate.createQueue(RandomReattachTest.ADDRESS, RandomReattachTest.ADDRESS, null, false);
@@ -1342,11 +1134,7 @@ public class RandomReattachTest extends ActiveMQTestBase
 
       ClientProducer producer = sess.createProducer(RandomReattachTest.ADDRESS);
 
-      ClientMessage message = sess.createMessage(ActiveMQTextMessage.TYPE,
-                                                 false,
-                                                 0,
-                                                 System.currentTimeMillis(),
-                                                 (byte)1);
+      ClientMessage message = sess.createMessage(ActiveMQTextMessage.TYPE, false, 0, System.currentTimeMillis(), (byte) 1);
       producer.send(message);
 
       ClientMessage message2 = consumer.receive(RandomReattachTest.RECEIVE_TIMEOUT);
@@ -1362,16 +1150,14 @@ public class RandomReattachTest extends ActiveMQTestBase
       sessCreate.close();
    }
 
-   protected void doTestK(final ClientSessionFactory sf) throws Exception
-   {
+   protected void doTestK(final ClientSessionFactory sf) throws Exception {
       ClientSession s = sf.createSession(false, false, false);
 
       s.createQueue(RandomReattachTest.ADDRESS, RandomReattachTest.ADDRESS, null, false);
 
       final int numConsumers = 100;
 
-      for (int i = 0; i < numConsumers; i++)
-      {
+      for (int i = 0; i < numConsumers; i++) {
          ClientConsumer consumer = s.createConsumer(RandomReattachTest.ADDRESS);
 
          consumer.close();
@@ -1382,26 +1168,20 @@ public class RandomReattachTest extends ActiveMQTestBase
       s.close();
    }
 
-   protected void doTestL(final ClientSessionFactory sf) throws Exception
-   {
+   protected void doTestL(final ClientSessionFactory sf) throws Exception {
       final int numSessions = 10;
 
-      for (int i = 0; i < numSessions; i++)
-      {
+      for (int i = 0; i < numSessions; i++) {
          ClientSession session = sf.createSession(false, false, false);
 
          session.close();
       }
    }
 
-   protected void doTestN(final ClientSessionFactory sf) throws Exception
-   {
+   protected void doTestN(final ClientSessionFactory sf) throws Exception {
       ClientSession sessCreate = sf.createSession(false, true, true);
 
-      sessCreate.createQueue(RandomReattachTest.ADDRESS,
-                             new SimpleString(RandomReattachTest.ADDRESS.toString()),
-                             null,
-                             false);
+      sessCreate.createQueue(RandomReattachTest.ADDRESS, new SimpleString(RandomReattachTest.ADDRESS.toString()), null, false);
 
       ClientSession sess = sf.createSession(false, true, true);
 
@@ -1415,11 +1195,7 @@ public class RandomReattachTest extends ActiveMQTestBase
 
       ClientProducer producer = sess.createProducer(RandomReattachTest.ADDRESS);
 
-      ClientMessage message = sess.createMessage(ActiveMQTextMessage.TYPE,
-                                                 false,
-                                                 0,
-                                                 System.currentTimeMillis(),
-                                                 (byte)1);
+      ClientMessage message = sess.createMessage(ActiveMQTextMessage.TYPE, false, 0, System.currentTimeMillis(), (byte) 1);
       producer.send(message);
 
       sess.start();
@@ -1441,15 +1217,13 @@ public class RandomReattachTest extends ActiveMQTestBase
       sessCreate.close();
    }
 
-   protected int getNumIterations()
-   {
+   protected int getNumIterations() {
       return 2;
    }
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       timer = new Timer(true);
@@ -1457,8 +1231,7 @@ public class RandomReattachTest extends ActiveMQTestBase
 
    @Override
    @After
-   public void tearDown() throws Exception
-   {
+   public void tearDown() throws Exception {
       timer.cancel();
 
       super.tearDown();
@@ -1466,23 +1239,20 @@ public class RandomReattachTest extends ActiveMQTestBase
 
    // Private -------------------------------------------------------
 
-   private Failer startFailer(final long time, final ClientSession session)
-   {
-      Failer failer = new Failer((ClientSessionInternal)session);
+   private Failer startFailer(final long time, final ClientSession session) {
+      Failer failer = new Failer((ClientSessionInternal) session);
 
-      timer.schedule(failer, (long)(time * Math.random()), 100);
+      timer.schedule(failer, (long) (time * Math.random()), 100);
 
       return failer;
    }
 
-   private void start() throws Exception
-   {
+   private void start() throws Exception {
       server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig(), false));
       server.start();
    }
 
-   private void stop() throws Exception
-   {
+   private void stop() throws Exception {
       server.stop();
 
       Assert.assertEquals(0, InVMRegistry.instance.size());
@@ -1492,20 +1262,18 @@ public class RandomReattachTest extends ActiveMQTestBase
 
    // Inner classes -------------------------------------------------
 
-   class Failer extends TimerTask
-   {
+   class Failer extends TimerTask {
+
       private final ClientSessionInternal session;
 
       private boolean executed;
 
-      public Failer(final ClientSessionInternal session)
-      {
+      public Failer(final ClientSessionInternal session) {
          this.session = session;
       }
 
       @Override
-      public synchronized void run()
-      {
+      public synchronized void run() {
          RandomReattachTest.log.info("** Failing connection");
 
          session.getConnection().fail(new ActiveMQNotConnectedException("oops"));
@@ -1517,25 +1285,20 @@ public class RandomReattachTest extends ActiveMQTestBase
          executed = true;
       }
 
-      public synchronized boolean isExecuted()
-      {
+      public synchronized boolean isExecuted() {
          return executed;
       }
    }
 
-   public abstract class RunnableT
-   {
+   public abstract class RunnableT {
+
       abstract void run(final ClientSessionFactory sf) throws Exception;
    }
 
-   abstract static class AssertionCheckMessageHandler implements MessageHandler
-   {
+   abstract static class AssertionCheckMessageHandler implements MessageHandler {
 
-
-      public void checkAssertions()
-      {
-         for (AssertionError e : errors)
-         {
+      public void checkAssertions() {
+         for (AssertionError e : errors) {
             // it will throw the first error
             throw e;
          }
@@ -1546,14 +1309,11 @@ public class RandomReattachTest extends ActiveMQTestBase
       /* (non-Javadoc)
        * @see MessageHandler#onMessage(ClientMessage)
        */
-      public void onMessage(ClientMessage message)
-      {
-         try
-         {
+      public void onMessage(ClientMessage message) {
+         try {
             onMessageAssert(message);
          }
-         catch (AssertionError e)
-         {
+         catch (AssertionError e) {
             e.printStackTrace(); // System.out -> junit reports
             errors.add(e);
          }

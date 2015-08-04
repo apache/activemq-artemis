@@ -29,17 +29,15 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 
 /**
- *
  * A ReceiveNoWaitTest
  */
-public class ReceiveNoWaitTest extends JMSTestBase
-{
+public class ReceiveNoWaitTest extends JMSTestBase {
+
    private Queue queue;
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       queue = createQueue("TestQueue");
@@ -51,12 +49,10 @@ public class ReceiveNoWaitTest extends JMSTestBase
     * https://jira.jboss.org/jira/browse/HORNETQ-284
     */
    @Test
-   public void testReceiveNoWait() throws Exception
-   {
+   public void testReceiveNoWait() throws Exception {
       assertNotNull(queue);
 
-      for (int i = 0; i < 10; i++)
-      {
+      for (int i = 0; i < 10; i++) {
          Connection connection = cf.createConnection();
 
          Session session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
@@ -65,8 +61,7 @@ public class ReceiveNoWaitTest extends JMSTestBase
 
          producer.setDeliveryMode(DeliveryMode.PERSISTENT);
 
-         for (int j = 0; j < 100; j++)
-         {
+         for (int j = 0; j < 100; j++) {
             String text = "Message" + j;
 
             TextMessage message = session.createTextMessage();
@@ -80,12 +75,10 @@ public class ReceiveNoWaitTest extends JMSTestBase
 
          MessageConsumer consumer = session.createConsumer(queue);
 
-         for (int j = 0; j < 100; j++)
-         {
-            TextMessage m = (TextMessage)consumer.receiveNoWait();
+         for (int j = 0; j < 100; j++) {
+            TextMessage m = (TextMessage) consumer.receiveNoWait();
 
-            if (m == null)
-            {
+            if (m == null) {
                throw new IllegalStateException("msg null");
             }
 

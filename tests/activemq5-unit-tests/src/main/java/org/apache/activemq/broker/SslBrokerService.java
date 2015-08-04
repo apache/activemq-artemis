@@ -34,28 +34,36 @@ import java.security.SecureRandom;
  * AND the key and trust managers need to be specified from within code. In
  * fact, if the URI passed to this class does not have an "ssl" scheme, this
  * class will pass all work on to its superclass.
- * 
+ *
  * @author sepandm@gmail.com (Sepand)
  */
-public class SslBrokerService extends BrokerService
-{
+public class SslBrokerService extends BrokerService {
 
-    public TransportConnector addSslConnector(String bindAddress, KeyManager[] km, TrustManager[] tm, SecureRandom random) throws Exception {
-        return null;
-    }
+   public TransportConnector addSslConnector(String bindAddress,
+                                             KeyManager[] km,
+                                             TrustManager[] tm,
+                                             SecureRandom random) throws Exception {
+      return null;
+   }
 
-    public TransportConnector addSslConnector(URI bindAddress, KeyManager[] km, TrustManager[] tm, SecureRandom random) throws Exception {
-        return null;
-    }
+   public TransportConnector addSslConnector(URI bindAddress,
+                                             KeyManager[] km,
+                                             TrustManager[] tm,
+                                             SecureRandom random) throws Exception {
+      return null;
+   }
 
-    protected TransportServer createSslTransportServer(URI brokerURI, KeyManager[] km, TrustManager[] tm, SecureRandom random) throws IOException, KeyManagementException {
-        return null;
-    }
+   protected TransportServer createSslTransportServer(URI brokerURI,
+                                                      KeyManager[] km,
+                                                      TrustManager[] tm,
+                                                      SecureRandom random) throws IOException, KeyManagementException {
+      return null;
+   }
 
-    //one way
-    public void setupSsl(String keystoreType, String password, String serverKeystore) {
-        this.SERVER_SIDE_KEYSTORE = serverKeystore;
-        this.KEYSTORE_PASSWORD = password;
-        this.storeType = keystoreType;
-    }
+   //one way
+   public void setupSsl(String keystoreType, String password, String serverKeystore) {
+      this.SERVER_SIDE_KEYSTORE = serverKeystore;
+      this.KEYSTORE_PASSWORD = password;
+      this.storeType = keystoreType;
+   }
 }

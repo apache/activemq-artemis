@@ -25,30 +25,28 @@ import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.ServerMessage;
 
+public class MQTTRetainMessageManager {
 
-public class MQTTRetainMessageManager
-{
    private MQTTSession session;
 
-   public MQTTRetainMessageManager(MQTTSession session)
-   {
+   public MQTTRetainMessageManager(MQTTSession session) {
       this.session = session;
    }
 
-   /** FIXME
-   *  Retained messages should be handled in the core API.  There is currently no support for retained messages
-   *  at the time of writing.  Instead we handle retained messages here.  This method will create a new queue for
-   *  every address that is used to store retained messages.  THere should only ever be one message in the retained
-   *  message queue.  When a new subscription is created the queue should be browsed and the message copied onto
-   *  the subscription queue for the consumer.  When a new retained message is received the message will be sent to
-   *  the retained queue and the previous retain message consumed to remove it from the queue. */
-   void handleRetainedMessage(ServerMessage message, String address, boolean reset) throws Exception
-   {
+   /**
+    * FIXME
+    * Retained messages should be handled in the core API.  There is currently no support for retained messages
+    * at the time of writing.  Instead we handle retained messages here.  This method will create a new queue for
+    * every address that is used to store retained messages.  THere should only ever be one message in the retained
+    * message queue.  When a new subscription is created the queue should be browsed and the message copied onto
+    * the subscription queue for the consumer.  When a new retained message is received the message will be sent to
+    * the retained queue and the previous retain message consumed to remove it from the queue.
+    */
+   void handleRetainedMessage(ServerMessage message, String address, boolean reset) throws Exception {
       SimpleString retainAddress = new SimpleString(MQTTUtil.convertMQTTAddressFilterToCoreRetain(address));
 
       Queue queue = session.getServer().locateQueue(retainAddress);
-      if (queue == null)
-      {
+      if (queue == null) {
          queue = session.getServerSession().createQueue(retainAddress, retainAddress, null, false, true);
       }
 
@@ -56,23 +54,19 @@ public class MQTTRetainMessageManager
       message.setAddress(retainAddress);
 
       Iterator<MessageReference> iterator = queue.iterator();
-      synchronized (iterator)
-      {
-         if (iterator.hasNext())
-         {
+      synchronized (iterator) {
+         if (iterator.hasNext()) {
             Long messageId = iterator.next().getMessage().getMessageID();
             queue.deleteReference(messageId);
          }
 
-         if (!reset)
-         {
+         if (!reset) {
             session.getServerSession().send(message.copy(), true);
          }
       }
    }
 
-   void addRetainedMessagesToQueue(SimpleString queueName, String address) throws Exception
-   {
+   void addRetainedMessagesToQueue(SimpleString queueName, String address) throws Exception {
       // Queue to add the retained messages to
       Queue queue = session.getServer().locateQueue(queueName);
 
@@ -81,14 +75,11 @@ public class MQTTRetainMessageManager
       BindingQueryResult bindingQueryResult = session.getServerSession().executeBindingQuery(new SimpleString(retainAddress));
 
       // Iterate over all matching retain queues and add the head message to the original queue.
-      for (SimpleString retainedQueueName : bindingQueryResult.getQueueNames())
-      {
+      for (SimpleString retainedQueueName : bindingQueryResult.getQueueNames()) {
          Queue retainedQueue = session.getServer().locateQueue(retainedQueueName);
-         synchronized (this)
-         {
+         synchronized (this) {
             Iterator<MessageReference> i = retainedQueue.iterator();
-            if (i.hasNext())
-            {
+            if (i.hasNext()) {
                ServerMessage message = i.next().getMessage().copy(session.getServer().getStorageManager().generateID());
                queue.addTail(message.createReference(queue), true);
             }

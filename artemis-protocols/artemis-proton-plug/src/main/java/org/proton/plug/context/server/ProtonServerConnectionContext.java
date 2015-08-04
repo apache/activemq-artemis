@@ -28,49 +28,44 @@ import org.proton.plug.context.AbstractConnectionContext;
 import org.proton.plug.context.AbstractProtonSessionContext;
 import org.proton.plug.exceptions.ActiveMQAMQPException;
 
-public class ProtonServerConnectionContext extends AbstractConnectionContext implements AMQPServerConnectionContext
-{
-   public ProtonServerConnectionContext(AMQPConnectionCallback connectionSP)
-   {
+public class ProtonServerConnectionContext extends AbstractConnectionContext implements AMQPServerConnectionContext {
+
+   public ProtonServerConnectionContext(AMQPConnectionCallback connectionSP) {
       super(connectionSP);
    }
 
-   public ProtonServerConnectionContext(AMQPConnectionCallback connectionSP, int idleTimeout, int maxFrameSize, int channelMax)
-   {
+   public ProtonServerConnectionContext(AMQPConnectionCallback connectionSP,
+                                        int idleTimeout,
+                                        int maxFrameSize,
+                                        int channelMax) {
       super(connectionSP, idleTimeout, maxFrameSize, channelMax);
    }
 
-   protected AbstractProtonSessionContext newSessionExtension(Session realSession) throws ActiveMQAMQPException
-   {
+   protected AbstractProtonSessionContext newSessionExtension(Session realSession) throws ActiveMQAMQPException {
       AMQPSessionCallback sessionSPI = connectionCallback.createSessionCallback(this);
       AbstractProtonSessionContext protonSession = new ProtonServerSessionContext(sessionSPI, this, realSession);
 
       return protonSession;
    }
 
-   protected void remoteLinkOpened(Link link) throws Exception
-   {
+   protected void remoteLinkOpened(Link link) throws Exception {
 
       ProtonServerSessionContext protonSession = (ProtonServerSessionContext) getSessionExtension(link.getSession());
 
       link.setSource(link.getRemoteSource());
       link.setTarget(link.getRemoteTarget());
-      if (link instanceof Receiver)
-      {
+      if (link instanceof Receiver) {
          Receiver receiver = (Receiver) link;
-         if (link.getRemoteTarget() instanceof Coordinator)
-         {
+         if (link.getRemoteTarget() instanceof Coordinator) {
             Coordinator coordinator = (Coordinator) link.getRemoteTarget();
             protonSession.addTransactionHandler(coordinator, receiver);
          }
-         else
-         {
+         else {
             protonSession.addReceiver(receiver);
             receiver.flow(100);
          }
       }
-      else
-      {
+      else {
          Sender sender = (Sender) link;
          protonSession.addSender(sender);
          sender.offer(1);

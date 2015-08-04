@@ -26,33 +26,33 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * 
+ *
  */
 public class TemporaryDestinationToFromNameTest extends EmbeddedBrokerAndConnectionTestSupport {
 
-    private static final Logger LOG = LoggerFactory.getLogger(TemporaryDestinationToFromNameTest.class);
+   private static final Logger LOG = LoggerFactory.getLogger(TemporaryDestinationToFromNameTest.class);
 
-    public void testCreateTemporaryQueueThenCreateAQueueFromItsName() throws Exception {
-        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+   public void testCreateTemporaryQueueThenCreateAQueueFromItsName() throws Exception {
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-        Queue tempQueue = session.createTemporaryQueue();
-        String name = tempQueue.getQueueName();
-        LOG.info("Created queue named: " + name);
+      Queue tempQueue = session.createTemporaryQueue();
+      String name = tempQueue.getQueueName();
+      LOG.info("Created queue named: " + name);
 
-        Queue createdQueue = session.createQueue(name);
+      Queue createdQueue = session.createQueue(name);
 
-        assertEquals("created queue not equal to temporary queue", tempQueue, createdQueue);
-    }
+      assertEquals("created queue not equal to temporary queue", tempQueue, createdQueue);
+   }
 
-    public void testCreateTemporaryTopicThenCreateATopicFromItsName() throws Exception {
-        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+   public void testCreateTemporaryTopicThenCreateATopicFromItsName() throws Exception {
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-        Topic tempTopic = session.createTemporaryTopic();
-        String name = tempTopic.getTopicName();
-        LOG.info("Created topic named: " + name);
+      Topic tempTopic = session.createTemporaryTopic();
+      String name = tempTopic.getTopicName();
+      LOG.info("Created topic named: " + name);
 
-        Topic createdTopic = session.createTopic(name);
+      Topic createdTopic = session.createTopic(name);
 
-        assertEquals("created topic not equal to temporary topic", tempTopic, createdTopic);
-    }
+      assertEquals("created topic not equal to temporary topic", tempTopic, createdTopic);
+   }
 }

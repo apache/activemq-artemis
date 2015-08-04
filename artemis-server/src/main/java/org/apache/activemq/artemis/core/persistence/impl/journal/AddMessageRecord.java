@@ -18,10 +18,9 @@ package org.apache.activemq.artemis.core.persistence.impl.journal;
 
 import org.apache.activemq.artemis.core.server.ServerMessage;
 
-public final class AddMessageRecord
-{
-   public AddMessageRecord(final ServerMessage message)
-   {
+public final class AddMessageRecord {
+
+   public AddMessageRecord(final ServerMessage message) {
       this.message = message;
    }
 
@@ -31,18 +30,15 @@ public final class AddMessageRecord
 
    int deliveryCount;
 
-   public ServerMessage getMessage()
-   {
+   public ServerMessage getMessage() {
       return message;
    }
 
-   public long getScheduledDeliveryTime()
-   {
+   public long getScheduledDeliveryTime() {
       return scheduledDeliveryTime;
    }
 
-   public int getDeliveryCount()
-   {
+   public int getDeliveryCount() {
       return deliveryCount;
    }
 }

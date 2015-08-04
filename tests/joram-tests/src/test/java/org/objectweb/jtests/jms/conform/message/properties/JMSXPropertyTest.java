@@ -31,34 +31,28 @@ import org.objectweb.jtests.jms.framework.TestConfig;
 /**
  * Test the JMSX defined properties.
  * <br />
- *  See JMS Specification, sec. 3.5.9 JMS Defined Properties
+ * See JMS Specification, sec. 3.5.9 JMS Defined Properties
  */
-public class JMSXPropertyTest extends PTPTestCase
-{
+public class JMSXPropertyTest extends PTPTestCase {
 
    /**
     * Test that the JMSX property <code>JMSXGroupID</code> is supported.
     */
    @Test
-   public void testSupportsJMSXGroupID()
-   {
-      try
-      {
+   public void testSupportsJMSXGroupID() {
+      try {
          boolean found = false;
          ConnectionMetaData metaData = senderConnection.getMetaData();
          Enumeration enumeration = metaData.getJMSXPropertyNames();
-         while (enumeration.hasMoreElements())
-         {
-            String jmsxPropertyName = (String)enumeration.nextElement();
-            if (jmsxPropertyName.equals("JMSXGroupID"))
-            {
+         while (enumeration.hasMoreElements()) {
+            String jmsxPropertyName = (String) enumeration.nextElement();
+            if (jmsxPropertyName.equals("JMSXGroupID")) {
                found = true;
             }
          }
          Assert.assertTrue("JMSXGroupID property is not supported", found);
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          fail(e);
       }
    }
@@ -67,10 +61,8 @@ public class JMSXPropertyTest extends PTPTestCase
     * Test that the JMSX property <code>JMSXGroupID</code> works
     */
    @Test
-   public void testJMSXGroupID_1()
-   {
-      try
-      {
+   public void testJMSXGroupID_1() {
+      try {
          String groupID = "testSupportsJMSXGroupID_1:group";
          TextMessage message = senderSession.createTextMessage();
          message.setStringProperty("JMSXGroupID", groupID);
@@ -79,12 +71,11 @@ public class JMSXPropertyTest extends PTPTestCase
 
          Message m = receiver.receive(TestConfig.TIMEOUT);
          Assert.assertTrue(m instanceof TextMessage);
-         TextMessage msg = (TextMessage)m;
+         TextMessage msg = (TextMessage) m;
          Assert.assertEquals(groupID, msg.getStringProperty("JMSXGroupID"));
          Assert.assertEquals("testSupportsJMSXGroupID_1", msg.getText());
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          fail(e);
       }
    }
@@ -93,15 +84,12 @@ public class JMSXPropertyTest extends PTPTestCase
     * Test that the JMSX property <code>JMSXDeliveryCount</code> works.
     */
    @Test
-   public void testJMSXDeliveryCount() throws Exception
-   {
-      if (!supportsJMSXDeliveryCount())
-      {
+   public void testJMSXDeliveryCount() throws Exception {
+      if (!supportsJMSXDeliveryCount()) {
          return;
       }
 
-      try
-      {
+      try {
          senderConnection.stop();
          // senderSession has been created as non transacted
          // we create it again but as a transacted session
@@ -117,8 +105,7 @@ public class JMSXPropertyTest extends PTPTestCase
          receiverSession = receiverConnection.createQueueSession(true, 0);
          Assert.assertEquals(true, receiverSession.getTransacted());
          // we create again the receiver
-         if (receiver != null)
-         {
+         if (receiver != null) {
             receiver.close();
          }
          receiver = receiverSession.createReceiver(receiverQueue);
@@ -135,7 +122,7 @@ public class JMSXPropertyTest extends PTPTestCase
          Message m = receiver.receive(TestConfig.TIMEOUT);
          Assert.assertTrue(m != null);
          Assert.assertTrue(m instanceof TextMessage);
-         TextMessage msg = (TextMessage)m;
+         TextMessage msg = (TextMessage) m;
          // ... which is the one which was sent...
          Assert.assertEquals("testJMSXDeliveryCount", msg.getText());
          // ...and has not been redelivered
@@ -150,7 +137,7 @@ public class JMSXPropertyTest extends PTPTestCase
          m = receiver.receive(TestConfig.TIMEOUT);
          Assert.assertTrue(m != null);
          Assert.assertTrue(m instanceof TextMessage);
-         msg = (TextMessage)m;
+         msg = (TextMessage) m;
          // ... which is still the one which was sent...
          Assert.assertEquals("testJMSXDeliveryCount", msg.getText());
          // .. but this time, it has been redelivered
@@ -159,12 +146,10 @@ public class JMSXPropertyTest extends PTPTestCase
          jmsxDeliveryCount = msg.getIntProperty("JMSXDeliveryCount");
          Assert.assertEquals(2, jmsxDeliveryCount);
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          fail(e);
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          fail(e);
       }
    }
@@ -172,15 +157,12 @@ public class JMSXPropertyTest extends PTPTestCase
    /**
     * checks if the JMSX property <code>JMSXDeliveryCount</code> is supported.
     */
-   private boolean supportsJMSXDeliveryCount() throws Exception
-   {
+   private boolean supportsJMSXDeliveryCount() throws Exception {
       ConnectionMetaData metaData = senderConnection.getMetaData();
       Enumeration enumeration = metaData.getJMSXPropertyNames();
-      while (enumeration.hasMoreElements())
-      {
-         String jmsxPropertyName = (String)enumeration.nextElement();
-         if (jmsxPropertyName.equals("JMSXDeliveryCount"))
-         {
+      while (enumeration.hasMoreElements()) {
+         String jmsxPropertyName = (String) enumeration.nextElement();
+         if (jmsxPropertyName.equals("JMSXDeliveryCount")) {
             return true;
          }
       }

@@ -21,389 +21,365 @@ import java.util.Arrays;
 import javax.jms.JMSException;
 import javax.jms.StreamMessage;
 
-
 /**
  * A wrapper for a message
  */
-public class ActiveMQRAStreamMessage extends ActiveMQRAMessage implements StreamMessage
-{
-   /** Whether trace is enabled */
+public class ActiveMQRAStreamMessage extends ActiveMQRAMessage implements StreamMessage {
+
+   /**
+    * Whether trace is enabled
+    */
    private static boolean trace = ActiveMQRALogger.LOGGER.isTraceEnabled();
 
    /**
     * Create a new wrapper
+    *
     * @param message the message
     * @param session the session
     */
-   public ActiveMQRAStreamMessage(final StreamMessage message, final ActiveMQRASession session)
-   {
+   public ActiveMQRAStreamMessage(final StreamMessage message, final ActiveMQRASession session) {
       super(message, session);
 
-      if (ActiveMQRAStreamMessage.trace)
-      {
+      if (ActiveMQRAStreamMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("constructor(" + message + ", " + session + ")");
       }
    }
 
    /**
     * Read
+    *
     * @return The value
-    * @exception JMSException Thrown if an error occurs
+    * @throws JMSException Thrown if an error occurs
     */
-   public boolean readBoolean() throws JMSException
-   {
-      if (ActiveMQRAStreamMessage.trace)
-      {
+   public boolean readBoolean() throws JMSException {
+      if (ActiveMQRAStreamMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("readBoolean()");
       }
 
-      return ((StreamMessage)message).readBoolean();
+      return ((StreamMessage) message).readBoolean();
    }
 
    /**
     * Read
+    *
     * @return The value
-    * @exception JMSException Thrown if an error occurs
+    * @throws JMSException Thrown if an error occurs
     */
-   public byte readByte() throws JMSException
-   {
-      if (ActiveMQRAStreamMessage.trace)
-      {
+   public byte readByte() throws JMSException {
+      if (ActiveMQRAStreamMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("readByte()");
       }
 
-      return ((StreamMessage)message).readByte();
+      return ((StreamMessage) message).readByte();
    }
 
    /**
     * Read
+    *
     * @param value The value
     * @return The value
-    * @exception JMSException Thrown if an error occurs
+    * @throws JMSException Thrown if an error occurs
     */
-   public int readBytes(final byte[] value) throws JMSException
-   {
-      if (ActiveMQRAStreamMessage.trace)
-      {
+   public int readBytes(final byte[] value) throws JMSException {
+      if (ActiveMQRAStreamMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("readBytes(" + Arrays.toString(value) + ")");
       }
 
-      return ((StreamMessage)message).readBytes(value);
+      return ((StreamMessage) message).readBytes(value);
    }
 
    /**
     * Read
+    *
     * @return The value
-    * @exception JMSException Thrown if an error occurs
+    * @throws JMSException Thrown if an error occurs
     */
-   public char readChar() throws JMSException
-   {
-      if (ActiveMQRAStreamMessage.trace)
-      {
+   public char readChar() throws JMSException {
+      if (ActiveMQRAStreamMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("readChar()");
       }
 
-      return ((StreamMessage)message).readChar();
+      return ((StreamMessage) message).readChar();
    }
 
    /**
     * Read
+    *
     * @return The value
-    * @exception JMSException Thrown if an error occurs
+    * @throws JMSException Thrown if an error occurs
     */
-   public double readDouble() throws JMSException
-   {
-      if (ActiveMQRAStreamMessage.trace)
-      {
+   public double readDouble() throws JMSException {
+      if (ActiveMQRAStreamMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("readDouble()");
       }
 
-      return ((StreamMessage)message).readDouble();
+      return ((StreamMessage) message).readDouble();
    }
 
    /**
     * Read
+    *
     * @return The value
-    * @exception JMSException Thrown if an error occurs
+    * @throws JMSException Thrown if an error occurs
     */
-   public float readFloat() throws JMSException
-   {
-      if (ActiveMQRAStreamMessage.trace)
-      {
+   public float readFloat() throws JMSException {
+      if (ActiveMQRAStreamMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("readFloat()");
       }
 
-      return ((StreamMessage)message).readFloat();
+      return ((StreamMessage) message).readFloat();
    }
 
    /**
     * Read
+    *
     * @return The value
-    * @exception JMSException Thrown if an error occurs
+    * @throws JMSException Thrown if an error occurs
     */
-   public int readInt() throws JMSException
-   {
-      if (ActiveMQRAStreamMessage.trace)
-      {
+   public int readInt() throws JMSException {
+      if (ActiveMQRAStreamMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("readInt()");
       }
 
-      return ((StreamMessage)message).readInt();
+      return ((StreamMessage) message).readInt();
    }
 
    /**
     * Read
+    *
     * @return The value
-    * @exception JMSException Thrown if an error occurs
+    * @throws JMSException Thrown if an error occurs
     */
-   public long readLong() throws JMSException
-   {
-      if (ActiveMQRAStreamMessage.trace)
-      {
+   public long readLong() throws JMSException {
+      if (ActiveMQRAStreamMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("readLong()");
       }
 
-      return ((StreamMessage)message).readLong();
+      return ((StreamMessage) message).readLong();
    }
 
    /**
     * Read
+    *
     * @return The value
-    * @exception JMSException Thrown if an error occurs
+    * @throws JMSException Thrown if an error occurs
     */
-   public Object readObject() throws JMSException
-   {
-      if (ActiveMQRAStreamMessage.trace)
-      {
+   public Object readObject() throws JMSException {
+      if (ActiveMQRAStreamMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("readObject()");
       }
 
-      return ((StreamMessage)message).readObject();
+      return ((StreamMessage) message).readObject();
    }
 
    /**
     * Read
+    *
     * @return The value
-    * @exception JMSException Thrown if an error occurs
+    * @throws JMSException Thrown if an error occurs
     */
-   public short readShort() throws JMSException
-   {
-      if (ActiveMQRAStreamMessage.trace)
-      {
+   public short readShort() throws JMSException {
+      if (ActiveMQRAStreamMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("readShort()");
       }
 
-      return ((StreamMessage)message).readShort();
+      return ((StreamMessage) message).readShort();
    }
 
    /**
     * Read
+    *
     * @return The value
-    * @exception JMSException Thrown if an error occurs
+    * @throws JMSException Thrown if an error occurs
     */
-   public String readString() throws JMSException
-   {
-      if (ActiveMQRAStreamMessage.trace)
-      {
+   public String readString() throws JMSException {
+      if (ActiveMQRAStreamMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("readString()");
       }
 
-      return ((StreamMessage)message).readString();
+      return ((StreamMessage) message).readString();
    }
 
    /**
     * Reset
-    * @exception JMSException Thrown if an error occurs
+    *
+    * @throws JMSException Thrown if an error occurs
     */
-   public void reset() throws JMSException
-   {
-      if (ActiveMQRAStreamMessage.trace)
-      {
+   public void reset() throws JMSException {
+      if (ActiveMQRAStreamMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("reset()");
       }
 
-      ((StreamMessage)message).reset();
+      ((StreamMessage) message).reset();
    }
 
    /**
     * Write
+    *
     * @param value The value
-    * @exception JMSException Thrown if an error occurs
+    * @throws JMSException Thrown if an error occurs
     */
-   public void writeBoolean(final boolean value) throws JMSException
-   {
-      if (ActiveMQRAStreamMessage.trace)
-      {
+   public void writeBoolean(final boolean value) throws JMSException {
+      if (ActiveMQRAStreamMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("writeBoolean(" + value + ")");
       }
 
-      ((StreamMessage)message).writeBoolean(value);
+      ((StreamMessage) message).writeBoolean(value);
    }
 
    /**
     * Write
+    *
     * @param value The value
-    * @exception JMSException Thrown if an error occurs
+    * @throws JMSException Thrown if an error occurs
     */
-   public void writeByte(final byte value) throws JMSException
-   {
-      if (ActiveMQRAStreamMessage.trace)
-      {
+   public void writeByte(final byte value) throws JMSException {
+      if (ActiveMQRAStreamMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("writeByte(" + value + ")");
       }
 
-      ((StreamMessage)message).writeByte(value);
+      ((StreamMessage) message).writeByte(value);
    }
 
    /**
     * Write
-    * @param value The value
+    *
+    * @param value  The value
     * @param offset The offset
     * @param length The length
-    * @exception JMSException Thrown if an error occurs
+    * @throws JMSException Thrown if an error occurs
     */
-   public void writeBytes(final byte[] value, final int offset, final int length) throws JMSException
-   {
-      if (ActiveMQRAStreamMessage.trace)
-      {
+   public void writeBytes(final byte[] value, final int offset, final int length) throws JMSException {
+      if (ActiveMQRAStreamMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("writeBytes(" + Arrays.toString(value) + ", " + offset + ", " + length + ")");
       }
 
-      ((StreamMessage)message).writeBytes(value, offset, length);
+      ((StreamMessage) message).writeBytes(value, offset, length);
    }
 
    /**
     * Write
+    *
     * @param value The value
-    * @exception JMSException Thrown if an error occurs
+    * @throws JMSException Thrown if an error occurs
     */
-   public void writeBytes(final byte[] value) throws JMSException
-   {
-      if (ActiveMQRAStreamMessage.trace)
-      {
+   public void writeBytes(final byte[] value) throws JMSException {
+      if (ActiveMQRAStreamMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("writeBytes(" + Arrays.toString(value) + ")");
       }
 
-      ((StreamMessage)message).writeBytes(value);
+      ((StreamMessage) message).writeBytes(value);
    }
 
    /**
     * Write
+    *
     * @param value The value
-    * @exception JMSException Thrown if an error occurs
+    * @throws JMSException Thrown if an error occurs
     */
-   public void writeChar(final char value) throws JMSException
-   {
-      if (ActiveMQRAStreamMessage.trace)
-      {
+   public void writeChar(final char value) throws JMSException {
+      if (ActiveMQRAStreamMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("writeChar(" + value + ")");
       }
 
-      ((StreamMessage)message).writeChar(value);
+      ((StreamMessage) message).writeChar(value);
    }
 
    /**
     * Write
+    *
     * @param value The value
-    * @exception JMSException Thrown if an error occurs
+    * @throws JMSException Thrown if an error occurs
     */
-   public void writeDouble(final double value) throws JMSException
-   {
-      if (ActiveMQRAStreamMessage.trace)
-      {
+   public void writeDouble(final double value) throws JMSException {
+      if (ActiveMQRAStreamMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("writeDouble(" + value + ")");
       }
 
-      ((StreamMessage)message).writeDouble(value);
+      ((StreamMessage) message).writeDouble(value);
    }
 
    /**
     * Write
+    *
     * @param value The value
-    * @exception JMSException Thrown if an error occurs
+    * @throws JMSException Thrown if an error occurs
     */
-   public void writeFloat(final float value) throws JMSException
-   {
-      if (ActiveMQRAStreamMessage.trace)
-      {
+   public void writeFloat(final float value) throws JMSException {
+      if (ActiveMQRAStreamMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("writeFloat(" + value + ")");
       }
 
-      ((StreamMessage)message).writeFloat(value);
+      ((StreamMessage) message).writeFloat(value);
    }
 
    /**
     * Write
+    *
     * @param value The value
-    * @exception JMSException Thrown if an error occurs
+    * @throws JMSException Thrown if an error occurs
     */
-   public void writeInt(final int value) throws JMSException
-   {
-      if (ActiveMQRAStreamMessage.trace)
-      {
+   public void writeInt(final int value) throws JMSException {
+      if (ActiveMQRAStreamMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("writeInt(" + value + ")");
       }
 
-      ((StreamMessage)message).writeInt(value);
+      ((StreamMessage) message).writeInt(value);
    }
 
    /**
     * Write
+    *
     * @param value The value
-    * @exception JMSException Thrown if an error occurs
+    * @throws JMSException Thrown if an error occurs
     */
-   public void writeLong(final long value) throws JMSException
-   {
-      if (ActiveMQRAStreamMessage.trace)
-      {
+   public void writeLong(final long value) throws JMSException {
+      if (ActiveMQRAStreamMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("writeLong(" + value + ")");
       }
 
-      ((StreamMessage)message).writeLong(value);
+      ((StreamMessage) message).writeLong(value);
    }
 
    /**
     * Write
+    *
     * @param value The value
-    * @exception JMSException Thrown if an error occurs
+    * @throws JMSException Thrown if an error occurs
     */
-   public void writeObject(final Object value) throws JMSException
-   {
-      if (ActiveMQRAStreamMessage.trace)
-      {
+   public void writeObject(final Object value) throws JMSException {
+      if (ActiveMQRAStreamMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("writeObject(" + value + ")");
       }
 
-      ((StreamMessage)message).writeObject(value);
+      ((StreamMessage) message).writeObject(value);
    }
 
    /**
     * Write
+    *
     * @param value The value
-    * @exception JMSException Thrown if an error occurs
+    * @throws JMSException Thrown if an error occurs
     */
-   public void writeShort(final short value) throws JMSException
-   {
-      if (ActiveMQRAStreamMessage.trace)
-      {
+   public void writeShort(final short value) throws JMSException {
+      if (ActiveMQRAStreamMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("writeShort(" + value + ")");
       }
 
-      ((StreamMessage)message).writeShort(value);
+      ((StreamMessage) message).writeShort(value);
    }
 
    /**
     * Write
+    *
     * @param value The value
-    * @exception JMSException Thrown if an error occurs
+    * @throws JMSException Thrown if an error occurs
     */
-   public void writeString(final String value) throws JMSException
-   {
-      if (ActiveMQRAStreamMessage.trace)
-      {
+   public void writeString(final String value) throws JMSException {
+      if (ActiveMQRAStreamMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("writeString(" + value + ")");
       }
 
-      ((StreamMessage)message).writeString(value);
+      ((StreamMessage) message).writeString(value);
    }
 }

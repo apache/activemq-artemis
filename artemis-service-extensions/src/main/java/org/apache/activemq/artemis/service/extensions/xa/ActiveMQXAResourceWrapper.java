@@ -18,8 +18,8 @@ package org.apache.activemq.artemis.service.extensions.xa;
 
 import javax.transaction.xa.XAResource;
 
-public interface ActiveMQXAResourceWrapper extends XAResource
-{
+public interface ActiveMQXAResourceWrapper extends XAResource {
+
    // List of supported properties
    String ACTIVEMQ_JNDI_NAME = "ACTIVEMQ_JNDI_ID";
 

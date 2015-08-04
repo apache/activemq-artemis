@@ -18,27 +18,22 @@ package org.apache.activemq.artemis.rest.util;
 
 import javax.ws.rs.core.Response;
 
-public class CustomHeaderLinkStrategy implements LinkStrategy
-{
-   public void setLinkHeader(Response.ResponseBuilder builder, String title, String rel, String href, String type)
-   {
+public class CustomHeaderLinkStrategy implements LinkStrategy {
+
+   public void setLinkHeader(Response.ResponseBuilder builder, String title, String rel, String href, String type) {
       String headerName = null;
-      if (title != null)
-      {
+      if (title != null) {
          headerName = title;
       }
-      else if (rel != null)
-      {
+      else if (rel != null) {
          headerName = rel;
       }
-      else
-      {
+      else {
          throw new RuntimeException("Cannot figure out header name");
       }
       headerName = "msg-" + headerName;
       builder.header(headerName, href);
-      if (type != null)
-      {
+      if (type != null) {
          builder.header(headerName + "-type", type);
       }
    }

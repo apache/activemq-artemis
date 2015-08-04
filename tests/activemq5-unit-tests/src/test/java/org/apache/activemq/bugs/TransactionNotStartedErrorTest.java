@@ -25,6 +25,7 @@ import javax.jms.ObjectMessage;
 import javax.jms.Session;
 
 import junit.framework.TestCase;
+
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.broker.BrokerService;
 import org.slf4j.Logger;
@@ -42,243 +43,247 @@ import org.slf4j.LoggerFactory;
  */
 public class TransactionNotStartedErrorTest extends TestCase {
 
-    private static final Logger LOG = LoggerFactory.getLogger(TransactionNotStartedErrorTest.class);
+   private static final Logger LOG = LoggerFactory.getLogger(TransactionNotStartedErrorTest.class);
 
-    private static final int counter = 500;
+   private static final int counter = 500;
 
-    private static int hectorToHaloCtr;
-    private static int xenaToHaloCtr;
-    private static int troyToHaloCtr;
+   private static int hectorToHaloCtr;
+   private static int xenaToHaloCtr;
+   private static int troyToHaloCtr;
 
-    private static int haloToHectorCtr;
-    private static int haloToXenaCtr;
-    private static int haloToTroyCtr;
+   private static int haloToHectorCtr;
+   private static int haloToXenaCtr;
+   private static int haloToTroyCtr;
 
-    private final String hectorToHalo = "hectorToHalo";
-    private final String xenaToHalo = "xenaToHalo";
-    private final String troyToHalo = "troyToHalo";
+   private final String hectorToHalo = "hectorToHalo";
+   private final String xenaToHalo = "xenaToHalo";
+   private final String troyToHalo = "troyToHalo";
 
-    private final String haloToHector = "haloToHector";
-    private final String haloToXena = "haloToXena";
-    private final String haloToTroy = "haloToTroy";
+   private final String haloToHector = "haloToHector";
+   private final String haloToXena = "haloToXena";
+   private final String haloToTroy = "haloToTroy";
 
-    private BrokerService broker;
+   private BrokerService broker;
 
-    private Connection hectorConnection;
-    private Connection xenaConnection;
-    private Connection troyConnection;
-    private Connection haloConnection;
+   private Connection hectorConnection;
+   private Connection xenaConnection;
+   private Connection troyConnection;
+   private Connection haloConnection;
 
-    private final Object lock = new Object();
+   private final Object lock = new Object();
 
-    public Connection createConnection() throws Exception {
-        ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(
-            broker.getTransportConnectors().get(0).getPublishableConnectString());
-        return factory.createConnection();
-    }
+   public Connection createConnection() throws Exception {
+      ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(broker.getTransportConnectors().get(0).getPublishableConnectString());
+      return factory.createConnection();
+   }
 
-    public Session createSession(Connection connection, boolean transacted) throws JMSException {
-        return connection.createSession(transacted, Session.AUTO_ACKNOWLEDGE);
-    }
+   public Session createSession(Connection connection, boolean transacted) throws JMSException {
+      return connection.createSession(transacted, Session.AUTO_ACKNOWLEDGE);
+   }
 
-    public void startBroker() throws Exception {
-        broker = new BrokerService();
-        broker.setDeleteAllMessagesOnStartup(true);
-        broker.setPersistent(true);
-        broker.setUseJmx(true);
-        broker.addConnector("tcp://localhost:0").setName("Default");
-        broker.start();
-        LOG.info("Starting broker..");
-    }
+   public void startBroker() throws Exception {
+      broker = new BrokerService();
+      broker.setDeleteAllMessagesOnStartup(true);
+      broker.setPersistent(true);
+      broker.setUseJmx(true);
+      broker.addConnector("tcp://localhost:0").setName("Default");
+      broker.start();
+      LOG.info("Starting broker..");
+   }
 
-    public void tearDown() throws Exception {
-        hectorConnection.close();
-        xenaConnection.close();
-        troyConnection.close();
-        haloConnection.close();
-        broker.stop();
-    }
+   public void tearDown() throws Exception {
+      hectorConnection.close();
+      xenaConnection.close();
+      troyConnection.close();
+      haloConnection.close();
+      broker.stop();
+   }
 
-    public void testTransactionNotStartedError() throws Exception {
-        startBroker();
-        hectorConnection = createConnection();
-        Thread hectorThread = buildProducer(hectorConnection, hectorToHalo);
-        Receiver hHectorReceiver = new Receiver() {
-            public void receive(String s) throws Exception {
-                haloToHectorCtr++;
-                if (haloToHectorCtr >= counter) {
-                    synchronized (lock) {
-                        lock.notifyAll();
-                    }
-                }
+   public void testTransactionNotStartedError() throws Exception {
+      startBroker();
+      hectorConnection = createConnection();
+      Thread hectorThread = buildProducer(hectorConnection, hectorToHalo);
+      Receiver hHectorReceiver = new Receiver() {
+         public void receive(String s) throws Exception {
+            haloToHectorCtr++;
+            if (haloToHectorCtr >= counter) {
+               synchronized (lock) {
+                  lock.notifyAll();
+               }
             }
-        };
-        buildReceiver(hectorConnection, haloToHector, false, hHectorReceiver);
+         }
+      };
+      buildReceiver(hectorConnection, haloToHector, false, hHectorReceiver);
 
-        troyConnection = createConnection();
-        Thread troyThread = buildProducer(troyConnection, troyToHalo);
-        Receiver hTroyReceiver = new Receiver() {
-            public void receive(String s) throws Exception {
-                haloToTroyCtr++;
-                if (haloToTroyCtr >= counter) {
-                    synchronized (lock) {
-                        lock.notifyAll();
-                    }
-                }
+      troyConnection = createConnection();
+      Thread troyThread = buildProducer(troyConnection, troyToHalo);
+      Receiver hTroyReceiver = new Receiver() {
+         public void receive(String s) throws Exception {
+            haloToTroyCtr++;
+            if (haloToTroyCtr >= counter) {
+               synchronized (lock) {
+                  lock.notifyAll();
+               }
             }
-        };
-        buildReceiver(hectorConnection, haloToTroy, false, hTroyReceiver);
+         }
+      };
+      buildReceiver(hectorConnection, haloToTroy, false, hTroyReceiver);
 
-        xenaConnection = createConnection();
-        Thread xenaThread = buildProducer(xenaConnection, xenaToHalo);
-        Receiver hXenaReceiver = new Receiver() {
-            public void receive(String s) throws Exception {
-                haloToXenaCtr++;
-                if (haloToXenaCtr >= counter) {
-                    synchronized (lock) {
-                        lock.notifyAll();
-                    }
-                }
+      xenaConnection = createConnection();
+      Thread xenaThread = buildProducer(xenaConnection, xenaToHalo);
+      Receiver hXenaReceiver = new Receiver() {
+         public void receive(String s) throws Exception {
+            haloToXenaCtr++;
+            if (haloToXenaCtr >= counter) {
+               synchronized (lock) {
+                  lock.notifyAll();
+               }
             }
-        };
-        buildReceiver(xenaConnection, haloToXena, false, hXenaReceiver);
+         }
+      };
+      buildReceiver(xenaConnection, haloToXena, false, hXenaReceiver);
 
-        haloConnection = createConnection();
-        final MessageSender hectorSender = buildTransactionalProducer(haloToHector, haloConnection);
-        final MessageSender troySender = buildTransactionalProducer(haloToTroy, haloConnection);
-        final MessageSender xenaSender = buildTransactionalProducer(haloToXena, haloConnection);
-        Receiver hectorReceiver = new Receiver() {
-            public void receive(String s) throws Exception {
-                hectorToHaloCtr++;
-                troySender.send("halo to troy because of hector");
-                if (hectorToHaloCtr >= counter) {
-                    synchronized (lock) {
-                        lock.notifyAll();
-                    }
-                }
+      haloConnection = createConnection();
+      final MessageSender hectorSender = buildTransactionalProducer(haloToHector, haloConnection);
+      final MessageSender troySender = buildTransactionalProducer(haloToTroy, haloConnection);
+      final MessageSender xenaSender = buildTransactionalProducer(haloToXena, haloConnection);
+      Receiver hectorReceiver = new Receiver() {
+         public void receive(String s) throws Exception {
+            hectorToHaloCtr++;
+            troySender.send("halo to troy because of hector");
+            if (hectorToHaloCtr >= counter) {
+               synchronized (lock) {
+                  lock.notifyAll();
+               }
             }
-        };
-        Receiver xenaReceiver = new Receiver() {
-            public void receive(String s) throws Exception {
-                xenaToHaloCtr++;
-                hectorSender.send("halo to hector because of xena");
-                if (xenaToHaloCtr >= counter) {
-                    synchronized (lock) {
-                        lock.notifyAll();
-                    }
-                }
+         }
+      };
+      Receiver xenaReceiver = new Receiver() {
+         public void receive(String s) throws Exception {
+            xenaToHaloCtr++;
+            hectorSender.send("halo to hector because of xena");
+            if (xenaToHaloCtr >= counter) {
+               synchronized (lock) {
+                  lock.notifyAll();
+               }
             }
-        };
-        Receiver troyReceiver = new Receiver() {
-            public void receive(String s) throws Exception {
-                troyToHaloCtr++;
-                xenaSender.send("halo to xena because of troy");
-                if (troyToHaloCtr >= counter) {
-                    synchronized (lock) {
-                        lock.notifyAll();
-                    }
-                }
+         }
+      };
+      Receiver troyReceiver = new Receiver() {
+         public void receive(String s) throws Exception {
+            troyToHaloCtr++;
+            xenaSender.send("halo to xena because of troy");
+            if (troyToHaloCtr >= counter) {
+               synchronized (lock) {
+                  lock.notifyAll();
+               }
             }
-        };
-        buildReceiver(haloConnection, hectorToHalo, true, hectorReceiver);
-        buildReceiver(haloConnection, xenaToHalo, true, xenaReceiver);
-        buildReceiver(haloConnection, troyToHalo, true, troyReceiver);
+         }
+      };
+      buildReceiver(haloConnection, hectorToHalo, true, hectorReceiver);
+      buildReceiver(haloConnection, xenaToHalo, true, xenaReceiver);
+      buildReceiver(haloConnection, troyToHalo, true, troyReceiver);
 
-        haloConnection.start();
+      haloConnection.start();
 
-        troyConnection.start();
-        troyThread.start();
+      troyConnection.start();
+      troyThread.start();
 
-        xenaConnection.start();
-        xenaThread.start();
+      xenaConnection.start();
+      xenaThread.start();
 
-        hectorConnection.start();
-        hectorThread.start();
-        waitForMessagesToBeDelivered();
-        // number of messages received should match messages sent
-        assertEquals(hectorToHaloCtr, counter);
-        LOG.info("hectorToHalo received " + hectorToHaloCtr + " messages");
-        assertEquals(xenaToHaloCtr, counter);
-        LOG.info("xenaToHalo received " + xenaToHaloCtr + " messages");
-        assertEquals(troyToHaloCtr, counter);
-        LOG.info("troyToHalo received " + troyToHaloCtr + " messages");
-        assertEquals(haloToHectorCtr, counter);
-        LOG.info("haloToHector received " + haloToHectorCtr + " messages");
-        assertEquals(haloToXenaCtr, counter);
-        LOG.info("haloToXena received " + haloToXenaCtr + " messages");
-        assertEquals(haloToTroyCtr, counter);
-        LOG.info("haloToTroy received " + haloToTroyCtr + " messages");
+      hectorConnection.start();
+      hectorThread.start();
+      waitForMessagesToBeDelivered();
+      // number of messages received should match messages sent
+      assertEquals(hectorToHaloCtr, counter);
+      LOG.info("hectorToHalo received " + hectorToHaloCtr + " messages");
+      assertEquals(xenaToHaloCtr, counter);
+      LOG.info("xenaToHalo received " + xenaToHaloCtr + " messages");
+      assertEquals(troyToHaloCtr, counter);
+      LOG.info("troyToHalo received " + troyToHaloCtr + " messages");
+      assertEquals(haloToHectorCtr, counter);
+      LOG.info("haloToHector received " + haloToHectorCtr + " messages");
+      assertEquals(haloToXenaCtr, counter);
+      LOG.info("haloToXena received " + haloToXenaCtr + " messages");
+      assertEquals(haloToTroyCtr, counter);
+      LOG.info("haloToTroy received " + haloToTroyCtr + " messages");
 
-    }
+   }
 
-    protected void waitForMessagesToBeDelivered() {
-        // let's give the listeners enough time to read all messages
-        long maxWaitTime = counter * 3000;
-        long waitTime = maxWaitTime;
-        long start = (maxWaitTime <= 0) ? 0 : System.currentTimeMillis();
+   protected void waitForMessagesToBeDelivered() {
+      // let's give the listeners enough time to read all messages
+      long maxWaitTime = counter * 3000;
+      long waitTime = maxWaitTime;
+      long start = (maxWaitTime <= 0) ? 0 : System.currentTimeMillis();
 
-        synchronized (lock) {
-            boolean hasMessages = true;
-            while (hasMessages && waitTime >= 0) {
-                try {
-                    lock.wait(200);
-                } catch (InterruptedException e) {
-                    LOG.error(e.toString());
-                }
-                // check if all messages have been received
-                hasMessages = hectorToHaloCtr < counter || xenaToHaloCtr < counter || troyToHaloCtr < counter || haloToHectorCtr < counter || haloToXenaCtr < counter
-                              || haloToTroyCtr < counter;
-                waitTime = maxWaitTime - (System.currentTimeMillis() - start);
+      synchronized (lock) {
+         boolean hasMessages = true;
+         while (hasMessages && waitTime >= 0) {
+            try {
+               lock.wait(200);
             }
-        }
-    }
-
-    public MessageSender buildTransactionalProducer(String queueName, Connection connection) throws Exception {
-        return new MessageSender(queueName, connection, true, false);
-    }
-
-    public Thread buildProducer(Connection connection, final String queueName) throws Exception {
-        final Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        final MessageSender producer = new MessageSender(queueName, connection, false, false);
-        Thread thread = new Thread() {
-
-            public synchronized void run() {
-                for (int i = 0; i < counter; i++) {
-                    try {
-                        producer.send(queueName);
-                        if (session.getTransacted()) {
-                            session.commit();
-                        }
-
-                    } catch (Exception e) {
-                        throw new RuntimeException("on " + queueName + " send", e);
-                    }
-                }
+            catch (InterruptedException e) {
+               LOG.error(e.toString());
             }
-        };
-        return thread;
-    }
+            // check if all messages have been received
+            hasMessages = hectorToHaloCtr < counter || xenaToHaloCtr < counter || troyToHaloCtr < counter || haloToHectorCtr < counter || haloToXenaCtr < counter || haloToTroyCtr < counter;
+            waitTime = maxWaitTime - (System.currentTimeMillis() - start);
+         }
+      }
+   }
 
-    public void buildReceiver(Connection connection, final String queueName, boolean transacted, final Receiver receiver) throws Exception {
-        final Session session = transacted ? connection.createSession(true, Session.SESSION_TRANSACTED) : connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        MessageConsumer inputMessageConsumer = session.createConsumer(session.createQueue(queueName));
-        MessageListener messageListener = new MessageListener() {
+   public MessageSender buildTransactionalProducer(String queueName, Connection connection) throws Exception {
+      return new MessageSender(queueName, connection, true, false);
+   }
 
-            public void onMessage(Message message) {
-                try {
-                    ObjectMessage objectMessage = (ObjectMessage)message;
-                    String s = (String)objectMessage.getObject();
-                    receiver.receive(s);
-                    if (session.getTransacted()) {
-                        session.commit();
-                    }
+   public Thread buildProducer(Connection connection, final String queueName) throws Exception {
+      final Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      final MessageSender producer = new MessageSender(queueName, connection, false, false);
+      Thread thread = new Thread() {
 
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+         public synchronized void run() {
+            for (int i = 0; i < counter; i++) {
+               try {
+                  producer.send(queueName);
+                  if (session.getTransacted()) {
+                     session.commit();
+                  }
+
+               }
+               catch (Exception e) {
+                  throw new RuntimeException("on " + queueName + " send", e);
+               }
             }
-        };
-        inputMessageConsumer.setMessageListener(messageListener);
-    }
+         }
+      };
+      return thread;
+   }
+
+   public void buildReceiver(Connection connection,
+                             final String queueName,
+                             boolean transacted,
+                             final Receiver receiver) throws Exception {
+      final Session session = transacted ? connection.createSession(true, Session.SESSION_TRANSACTED) : connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      MessageConsumer inputMessageConsumer = session.createConsumer(session.createQueue(queueName));
+      MessageListener messageListener = new MessageListener() {
+
+         public void onMessage(Message message) {
+            try {
+               ObjectMessage objectMessage = (ObjectMessage) message;
+               String s = (String) objectMessage.getObject();
+               receiver.receive(s);
+               if (session.getTransacted()) {
+                  session.commit();
+               }
+
+            }
+            catch (Exception e) {
+               e.printStackTrace();
+            }
+         }
+      };
+      inputMessageConsumer.setMessageListener(messageListener);
+   }
 
 }

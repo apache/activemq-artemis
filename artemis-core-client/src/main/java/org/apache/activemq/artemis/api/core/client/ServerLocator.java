@@ -24,17 +24,16 @@ import org.apache.activemq.artemis.spi.core.remoting.ClientProtocolManagerFactor
 
 /**
  * The serverLocator locates a server, but beyond that it locates a server based on a list.
- * <p>
+ * <br>
  * If you are using straight TCP on the configuration, and if you configure your serverLocator to be
  * HA, the locator will always get an updated list of members to the server, the server will send
  * the updated list to the client.
- * <p>
+ * <br>
  * If you use UDP or JGroups (exclusively JGroups or UDP), the initial discovery is done by the
  * grouping finder, after the initial connection is made the server will always send updates to the
  * client. But the listeners will listen for updates on grouping.
  */
-public interface ServerLocator extends AutoCloseable
-{
+public interface ServerLocator extends AutoCloseable {
 
    /**
     * Returns true if close was already called
@@ -47,7 +46,7 @@ public interface ServerLocator extends AutoCloseable
     * This method will disable any checks when a GarbageCollection happens
     * leaving connections open. The JMS Layer will make specific usage of this
     * method, since the ConnectionFactory.finalize should release this.
-    * <p>
+    * <br>
     * Warning: You may leave resources unattended if you call this method and
     * don't take care of cleaning the resources yourself.
     */
@@ -98,11 +97,13 @@ public interface ServerLocator extends AutoCloseable
     * @throws Exception if a failure happened in creating the ClientSessionFactory or the
     *                   ServerLocator does not know about the passed in transportConfiguration
     */
-   ClientSessionFactory createSessionFactory(final TransportConfiguration transportConfiguration, int reconnectAttempts, boolean failoverOnInitialConnection) throws Exception;
+   ClientSessionFactory createSessionFactory(final TransportConfiguration transportConfiguration,
+                                             int reconnectAttempts,
+                                             boolean failoverOnInitialConnection) throws Exception;
 
    /**
     * Returns the period used to check if a client has failed to receive pings from the server.
-    * <p>
+    * <br>
     * Period is in milliseconds, default value is
     * {@link ActiveMQClient#DEFAULT_CLIENT_FAILURE_CHECK_PERIOD}.
     *
@@ -113,7 +114,7 @@ public interface ServerLocator extends AutoCloseable
    /**
     * Sets the period (in milliseconds) used to check if a client has failed to receive pings from
     * the server.
-    * <p>
+    * <br>
     * Value must be -1 (to disable) or greater than 0.
     *
     * @param clientFailureCheckPeriod the period to check failure
@@ -124,9 +125,9 @@ public interface ServerLocator extends AutoCloseable
    /**
     * When <code>true</code>, consumers created through this factory will create temporary files to
     * cache large messages.
-    * <p>
+    * <br>
     * There is 1 temporary file created for each large message.
-    * <p>
+    * <br>
     * Default value is {@link ActiveMQClient#DEFAULT_CACHE_LARGE_MESSAGE_CLIENT}.
     *
     * @return <code>true</code> if consumers created through this factory will cache large messages
@@ -144,7 +145,7 @@ public interface ServerLocator extends AutoCloseable
 
    /**
     * Returns the connection <em>time-to-live</em>.
-    * <p>
+    * <br>
     * This TTL determines how long the server will keep a connection alive in the absence of any
     * data arriving from the client. Value is in milliseconds, default value is
     * {@link ActiveMQClient#DEFAULT_CONNECTION_TTL}.
@@ -155,7 +156,7 @@ public interface ServerLocator extends AutoCloseable
 
    /**
     * Sets this factory's connections <em>time-to-live</em>.
-    * <p>
+    * <br>
     * Value must be -1 (to disable) or greater or equals to 0.
     *
     * @param connectionTTL period in milliseconds
@@ -165,7 +166,7 @@ public interface ServerLocator extends AutoCloseable
 
    /**
     * Returns the blocking calls timeout.
-    * <p>
+    * <br>
     * If client's blocking calls to the server take more than this timeout, the call will throw a
     * {@link org.apache.activemq.artemis.api.core.ActiveMQException} with the code {@link org.apache.activemq.artemis.api.core.ActiveMQExceptionType#CONNECTION_TIMEDOUT}. Value
     * is in milliseconds, default value is {@link ActiveMQClient#DEFAULT_CALL_TIMEOUT}.
@@ -176,7 +177,7 @@ public interface ServerLocator extends AutoCloseable
 
    /**
     * Sets the blocking call timeout.
-    * <p>
+    * <br>
     * Value must be greater or equals to 0
     *
     * @param callTimeout blocking call timeout in milliseconds
@@ -184,11 +185,10 @@ public interface ServerLocator extends AutoCloseable
     */
    ServerLocator setCallTimeout(long callTimeout);
 
-
    /**
     * Returns the blocking calls failover timeout when the client is awaiting failover,
     * this is over and above the normal call timeout.
-    * <p>
+    * <br>
     * If client is in the process of failing over when a blocking call is called then the client will wait this long before
     * actually trying the send.
     *
@@ -198,9 +198,9 @@ public interface ServerLocator extends AutoCloseable
 
    /**
     * Sets the blocking call failover timeout.
-    * <p>
+    * <br>
     * When the client is awaiting failover, this is over and above the normal call timeout.
-    * <p>
+    * <br>
     * Value must be greater or equals to -1, -1 means forever
     *
     * @param callFailoverTimeout blocking call timeout in milliseconds
@@ -210,7 +210,7 @@ public interface ServerLocator extends AutoCloseable
 
    /**
     * Returns the large message size threshold.
-    * <p>
+    * <br>
     * Messages whose size is if greater than this value will be handled as <em>large messages</em>.
     * Value is in bytes, default value is {@link ActiveMQClient#DEFAULT_MIN_LARGE_MESSAGE_SIZE}.
     *
@@ -220,7 +220,7 @@ public interface ServerLocator extends AutoCloseable
 
    /**
     * Sets the large message size threshold.
-    * <p>
+    * <br>
     * Value must be greater than 0.
     *
     * @param minLargeMessageSize large message size threshold in bytes
@@ -230,7 +230,7 @@ public interface ServerLocator extends AutoCloseable
 
    /**
     * Returns the window size for flow control of the consumers created through this factory.
-    * <p>
+    * <br>
     * Value is in bytes, default value is {@link ActiveMQClient#DEFAULT_CONSUMER_WINDOW_SIZE}.
     *
     * @return the window size used for consumer flow control
@@ -239,7 +239,7 @@ public interface ServerLocator extends AutoCloseable
 
    /**
     * Sets the window size for flow control of the consumers created through this factory.
-    * <p>
+    * <br>
     * Value must be -1 (to disable flow control), 0 (to not buffer any messages) or greater than 0
     * (to set the maximum size of the buffer)
     *
@@ -250,9 +250,9 @@ public interface ServerLocator extends AutoCloseable
 
    /**
     * Returns the maximum rate of message consumption for consumers created through this factory.
-    * <p>
+    * <br>
     * This value controls the rate at which a consumer can consume messages. A consumer will never consume messages at a rate faster than the rate specified.
-    * <p>
+    * <br>
     * Value is -1 (to disable) or a positive integer corresponding to the maximum desired message consumption rate specified in units of messages per second.
     * Default value is {@link ActiveMQClient#DEFAULT_CONSUMER_MAX_RATE}.
     *
@@ -262,7 +262,7 @@ public interface ServerLocator extends AutoCloseable
 
    /**
     * Sets the maximum rate of message consumption for consumers created through this factory.
-    * <p>
+    * <br>
     * Value must -1 (to disable) or a positive integer corresponding to the maximum desired message consumption rate specified in units of messages per second.
     *
     * @param consumerMaxRate maximum rate of message consumption (in messages per seconds)
@@ -272,7 +272,7 @@ public interface ServerLocator extends AutoCloseable
 
    /**
     * Returns the size for the confirmation window of clients using this factory.
-    * <p>
+    * <br>
     * Value is in bytes or -1 (to disable the window). Default value is
     * {@link ActiveMQClient#DEFAULT_CONFIRMATION_WINDOW_SIZE}.
     *
@@ -282,7 +282,7 @@ public interface ServerLocator extends AutoCloseable
 
    /**
     * Sets the size for the confirmation window buffer of clients using this factory.
-    * <p>
+    * <br>
     * Value must be -1 (to disable the window) or greater than 0.
     *
     * @param confirmationWindowSize size of the confirmation window (in bytes)
@@ -292,7 +292,7 @@ public interface ServerLocator extends AutoCloseable
 
    /**
     * Returns the window size for flow control of the producers created through this factory.
-    * <p>
+    * <br>
     * Value must be -1 (to disable flow control) or greater than 0 to determine the maximum amount of bytes at any give time (to prevent overloading the connection).
     * Default value is {@link ActiveMQClient#DEFAULT_PRODUCER_WINDOW_SIZE}.
     *
@@ -302,7 +302,7 @@ public interface ServerLocator extends AutoCloseable
 
    /**
     * Returns the window size for flow control of the producers created through this factory.
-    * <p>
+    * <br>
     * Value must be -1 (to disable flow control) or greater than 0.
     *
     * @param producerWindowSize window size (in bytest) for flow control of the producers created through this factory.
@@ -312,9 +312,9 @@ public interface ServerLocator extends AutoCloseable
 
    /**
     * Returns the maximum rate of message production for producers created through this factory.
-    * <p>
+    * <br>
     * This value controls the rate at which a producer can produce messages. A producer will never produce messages at a rate faster than the rate specified.
-    * <p>
+    * <br>
     * Value is -1 (to disable) or a positive integer corresponding to the maximum desired message production rate specified in units of messages per second.
     * Default value is {@link ActiveMQClient#DEFAULT_PRODUCER_MAX_RATE}.
     *
@@ -324,7 +324,7 @@ public interface ServerLocator extends AutoCloseable
 
    /**
     * Sets the maximum rate of message production for producers created through this factory.
-    * <p>
+    * <br>
     * Value must -1 (to disable) or a positive integer corresponding to the maximum desired message production rate specified in units of messages per second.
     *
     * @param producerMaxRate maximum rate of message production (in messages per seconds)
@@ -335,7 +335,7 @@ public interface ServerLocator extends AutoCloseable
    /**
     * Returns whether consumers created through this factory will block while
     * sending message acknowledgments or do it asynchronously.
-    * <p>
+    * <br>
     * Default value is {@link ActiveMQClient#DEFAULT_BLOCK_ON_ACKNOWLEDGE}.
     *
     * @return whether consumers will block while sending message
@@ -359,7 +359,7 @@ public interface ServerLocator extends AutoCloseable
     * <br>
     * If the session is configured to send durable message asynchronously, the client can set a SendAcknowledgementHandler on the ClientSession
     * to be notified once the message has been handled by the server.
-    * <p>
+    * <br>
     * Default value is {@link ActiveMQClient#DEFAULT_BLOCK_ON_DURABLE_SEND}.
     *
     * @return whether producers will block while sending persistent messages or do it asynchronously
@@ -379,7 +379,7 @@ public interface ServerLocator extends AutoCloseable
     * <br>
     * If the session is configured to send non-durable message asynchronously, the client can set a SendAcknowledgementHandler on the ClientSession
     * to be notified once the message has been handled by the server.
-    * <p>
+    * <br>
     * Default value is {@link ActiveMQClient#DEFAULT_BLOCK_ON_NON_DURABLE_SEND}.
     *
     * @return whether producers will block while sending non-durable messages or do it asynchronously
@@ -397,7 +397,7 @@ public interface ServerLocator extends AutoCloseable
    /**
     * Returns whether producers created through this factory will automatically
     * assign a group ID to the messages they sent.
-    * <p>
+    * <br>
     * if <code>true</code>, a random unique group ID is created and set on each message for the property
     * {@link org.apache.activemq.artemis.api.core.Message#HDR_GROUP_ID}.
     * Default value is {@link ActiveMQClient#DEFAULT_AUTO_GROUP}.
@@ -417,7 +417,7 @@ public interface ServerLocator extends AutoCloseable
 
    /**
     * Returns the group ID that will be eventually set on each message for the property {@link org.apache.activemq.artemis.api.core.Message#HDR_GROUP_ID}.
-    * <p>
+    * <br>
     * Default value is is {@code null} and no group ID will be set on the messages.
     *
     * @return the group ID that will be eventually set on each message
@@ -434,7 +434,7 @@ public interface ServerLocator extends AutoCloseable
 
    /**
     * Returns whether messages will pre-acknowledged on the server before they are sent to the consumers or not.
-    * <p>
+    * <br>
     * Default value is {@link ActiveMQClient#DEFAULT_PRE_ACKNOWLEDGE}
     */
    boolean isPreAcknowledge();
@@ -452,7 +452,7 @@ public interface ServerLocator extends AutoCloseable
 
    /**
     * Returns the acknowledgments batch size.
-    * <p>
+    * <br>
     * Default value is {@link ActiveMQClient#DEFAULT_ACK_BATCH_SIZE}.
     *
     * @return the acknowledgments batch size
@@ -461,7 +461,7 @@ public interface ServerLocator extends AutoCloseable
 
    /**
     * Sets the acknowledgments batch size.
-    * <p>
+    * <br>
     * Value must be equal or greater than 0.
     *
     * @param ackBatchSize acknowledgments batch size
@@ -485,7 +485,7 @@ public interface ServerLocator extends AutoCloseable
    /**
     * Returns whether this factory will use global thread pools (shared among all the factories in the same JVM)
     * or its own pools.
-    * <p>
+    * <br>
     * Default value is {@link ActiveMQClient#DEFAULT_USE_GLOBAL_POOLS}.
     *
     * @return <code>true</code> if this factory uses global thread pools, <code>false</code> else
@@ -503,7 +503,7 @@ public interface ServerLocator extends AutoCloseable
 
    /**
     * Returns the maximum size of the scheduled thread pool.
-    * <p>
+    * <br>
     * Default value is {@link ActiveMQClient#DEFAULT_SCHEDULED_THREAD_POOL_MAX_SIZE}.
     *
     * @return the maximum size of the scheduled thread pool.
@@ -512,7 +512,7 @@ public interface ServerLocator extends AutoCloseable
 
    /**
     * Sets the maximum size of the scheduled thread pool.
-    * <p>
+    * <br>
     * This setting is relevant only if this factory does not use global pools.
     * Value must be greater than 0.
     *
@@ -523,7 +523,7 @@ public interface ServerLocator extends AutoCloseable
 
    /**
     * Returns the maximum size of the thread pool.
-    * <p>
+    * <br>
     * Default value is {@link ActiveMQClient#DEFAULT_THREAD_POOL_MAX_SIZE}.
     *
     * @return the maximum size of the thread pool.
@@ -532,7 +532,7 @@ public interface ServerLocator extends AutoCloseable
 
    /**
     * Sets the maximum size of the thread pool.
-    * <p>
+    * <br>
     * This setting is relevant only if this factory does not use global pools.
     * Value must be -1 (for unlimited thread pool) or greater than 0.
     *
@@ -543,7 +543,7 @@ public interface ServerLocator extends AutoCloseable
 
    /**
     * Returns the time to retry connections created by this factory after failure.
-    * <p>
+    * <br>
     * Value is in milliseconds, default is {@link ActiveMQClient#DEFAULT_RETRY_INTERVAL}.
     *
     * @return the time to retry connections created by this factory after failure
@@ -552,7 +552,7 @@ public interface ServerLocator extends AutoCloseable
 
    /**
     * Sets the time to retry connections created by this factory after failure.
-    * <p>
+    * <br>
     * Value must be greater than 0.
     *
     * @param retryInterval time (in milliseconds) to retry connections created by this factory after failure
@@ -562,7 +562,7 @@ public interface ServerLocator extends AutoCloseable
 
    /**
     * Returns the multiplier to apply to successive retry intervals.
-    * <p>
+    * <br>
     * Default value is  {@link ActiveMQClient#DEFAULT_RETRY_INTERVAL_MULTIPLIER}.
     *
     * @return the multiplier to apply to successive retry intervals
@@ -571,7 +571,7 @@ public interface ServerLocator extends AutoCloseable
 
    /**
     * Sets the multiplier to apply to successive retry intervals.
-    * <p>
+    * <br>
     * Value must be positive.
     *
     * @param retryIntervalMultiplier multiplier to apply to successive retry intervals
@@ -581,7 +581,7 @@ public interface ServerLocator extends AutoCloseable
 
    /**
     * Returns the maximum retry interval (in the case a retry interval multiplier has been specified).
-    * <p>
+    * <br>
     * Value is in milliseconds, default value is  {@link ActiveMQClient#DEFAULT_MAX_RETRY_INTERVAL}.
     *
     * @return the maximum retry interval
@@ -590,7 +590,7 @@ public interface ServerLocator extends AutoCloseable
 
    /**
     * Sets the maximum retry interval.
-    * <p>
+    * <br>
     * Value must be greater than 0.
     *
     * @param maxRetryInterval maximum retry interval to apply in the case a retry interval multiplier
@@ -601,7 +601,7 @@ public interface ServerLocator extends AutoCloseable
 
    /**
     * Returns the maximum number of attempts to retry connection in case of failure.
-    * <p>
+    * <br>
     * Default value is {@link ActiveMQClient#DEFAULT_RECONNECT_ATTEMPTS}.
     *
     * @return the maximum number of attempts to retry connection in case of failure.
@@ -610,7 +610,7 @@ public interface ServerLocator extends AutoCloseable
 
    /**
     * Sets the maximum number of attempts to retry connection in case of failure.
-    * <p>
+    * <br>
     * Value must be -1 (to retry infinitely), 0 (to never retry connection) or greater than 0.
     *
     * @param reconnectAttempts maximum number of attempts to retry connection in case of failure
@@ -620,7 +620,7 @@ public interface ServerLocator extends AutoCloseable
 
    /**
     * Sets the maximum number of attempts to establish an initial connection.
-    * <p>
+    * <br>
     * Value must be -1 (to retry infinitely), 0 (to never retry connection) or greater than 0.
     *
     * @param reconnectAttempts maximum number of attempts for the initial connection
@@ -636,7 +636,7 @@ public interface ServerLocator extends AutoCloseable
    /**
     * Returns true if the client will automatically attempt to connect to the backup server if the initial
     * connection to the live server fails
-    * <p>
+    * <br>
     * Default value is {@link ActiveMQClient#DEFAULT_FAILOVER_ON_INITIAL_CONNECTION}.
     */
    boolean isFailoverOnInitialConnection();
@@ -651,7 +651,7 @@ public interface ServerLocator extends AutoCloseable
 
    /**
     * Returns the class name of the connection load balancing policy.
-    * <p>
+    * <br>
     * Default value is "org.apache.activemq.artemis.api.core.client.loadbalance.RoundRobinConnectionLoadBalancingPolicy".
     *
     * @return the class name of the connection load balancing policy
@@ -660,7 +660,7 @@ public interface ServerLocator extends AutoCloseable
 
    /**
     * Sets the class name of the connection load balancing policy.
-    * <p>
+    * <br>
     * Value must be the name of a class implementing {@link org.apache.activemq.artemis.api.core.client.loadbalance.ConnectionLoadBalancingPolicy}.
     *
     * @param loadBalancingPolicyClassName class name of the connection load balancing policy
@@ -670,7 +670,7 @@ public interface ServerLocator extends AutoCloseable
 
    /**
     * Returns the initial size of messages created through this factory.
-    * <p>
+    * <br>
     * Value is in bytes, default value is  {@link ActiveMQClient#DEFAULT_INITIAL_MESSAGE_PACKET_SIZE}.
     *
     * @return the initial size of messages created through this factory
@@ -679,7 +679,7 @@ public interface ServerLocator extends AutoCloseable
 
    /**
     * Sets the initial size of messages created through this factory.
-    * <p>
+    * <br>
     * Value must be greater than 0.
     *
     * @param size initial size of messages created through this factory.
@@ -741,6 +741,7 @@ public interface ServerLocator extends AutoCloseable
 
    /**
     * Verify if all of the transports are using inVM.
+    *
     * @return {@code true} if the locator has all inVM transports.
     */
    boolean allInVM();

@@ -24,63 +24,66 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * 
+ *
  */
 public class JmsQueueSendReceiveTwoConnectionsStartBeforeBrokerTest extends JmsQueueSendReceiveTwoConnectionsTest {
-    private static final Logger LOG = LoggerFactory.getLogger(JmsQueueSendReceiveTwoConnectionsStartBeforeBrokerTest.class);
 
-    private Queue<Exception> errors = new ConcurrentLinkedQueue<Exception>();
-    private int delayBeforeStartingBroker = 1000;
-    private BrokerService broker;
+   private static final Logger LOG = LoggerFactory.getLogger(JmsQueueSendReceiveTwoConnectionsStartBeforeBrokerTest.class);
 
-    public void startBroker() {
-        // Initialize the broker
-        LOG.info("Lets wait: " + delayBeforeStartingBroker + " millis  before creating the broker");
-        try {
-            Thread.sleep(delayBeforeStartingBroker);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+   private Queue<Exception> errors = new ConcurrentLinkedQueue<Exception>();
+   private int delayBeforeStartingBroker = 1000;
+   private BrokerService broker;
 
-        LOG.info("Now starting the broker");
-        try {
-            broker = new BrokerService();
-            broker.setPersistent(false);
-            broker.addConnector("tcp://localhost:61616");
-            broker.start();
-        } catch (Exception e) {
-            LOG.info("Caught: " + e);
-            errors.add(e);
-        }
-    }
+   public void startBroker() {
+      // Initialize the broker
+      LOG.info("Lets wait: " + delayBeforeStartingBroker + " millis  before creating the broker");
+      try {
+         Thread.sleep(delayBeforeStartingBroker);
+      }
+      catch (InterruptedException e) {
+         e.printStackTrace();
+      }
 
-    protected ActiveMQConnectionFactory createConnectionFactory() throws Exception {
-        return new ActiveMQConnectionFactory("failover:(tcp://localhost:61616)?maxReconnectAttempts=10&useExponentialBackOff=false&initialReconnectDelay=200");
-    }
+      LOG.info("Now starting the broker");
+      try {
+         broker = new BrokerService();
+         broker.setPersistent(false);
+         broker.addConnector("tcp://localhost:61616");
+         broker.start();
+      }
+      catch (Exception e) {
+         LOG.info("Caught: " + e);
+         errors.add(e);
+      }
+   }
 
-    protected void setUp() throws Exception {
-        setAutoFail(true);
-        // now lets asynchronously start a broker
-        Thread thread = new Thread() {
-            public void run() {
-                startBroker();
-            }
-        };
-        thread.start();
+   protected ActiveMQConnectionFactory createConnectionFactory() throws Exception {
+      return new ActiveMQConnectionFactory("failover:(tcp://localhost:61616)?maxReconnectAttempts=10&useExponentialBackOff=false&initialReconnectDelay=200");
+   }
 
-        super.setUp();
-    }
+   protected void setUp() throws Exception {
+      setAutoFail(true);
+      // now lets asynchronously start a broker
+      Thread thread = new Thread() {
+         public void run() {
+            startBroker();
+         }
+      };
+      thread.start();
 
-    protected void tearDown() throws Exception {
-        super.tearDown();
+      super.setUp();
+   }
 
-        if (broker != null) {
-            broker.stop();
-        }
-        if (!errors.isEmpty()) {
-            Exception e = errors.remove();
-            throw e;
-        }
-    }
+   protected void tearDown() throws Exception {
+      super.tearDown();
+
+      if (broker != null) {
+         broker.stop();
+      }
+      if (!errors.isEmpty()) {
+         Exception e = errors.remove();
+         throw e;
+      }
+   }
 
 }

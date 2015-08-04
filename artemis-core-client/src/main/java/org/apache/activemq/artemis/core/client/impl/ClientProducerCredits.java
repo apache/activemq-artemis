@@ -19,8 +19,8 @@ package org.apache.activemq.artemis.core.client.impl;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.spi.core.remoting.SessionContext;
 
-public interface ClientProducerCredits
-{
+public interface ClientProducerCredits {
+
    void acquireCredits(int credits) throws InterruptedException, ActiveMQException;
 
    void receiveCredits(int credits);

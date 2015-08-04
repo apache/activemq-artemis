@@ -22,76 +22,77 @@ import java.io.IOException;
 import javax.net.ssl.SSLServerSocket;
 
 public class StubSSLServerSocket extends SSLServerSocket {
-    public static final int UNTOUCHED = -1;
-    public static final int FALSE = 0;
-    public static final int TRUE = 1;
-    
-    private int wantClientAuthStatus = UNTOUCHED;
-    private int needClientAuthStatus = UNTOUCHED;
-    
-    public StubSSLServerSocket() throws IOException {
-        
-    }
-    
-    public int getWantClientAuthStatus() {
-        return wantClientAuthStatus;
-    }
-    
-    public int getNeedClientAuthStatus() {
-        return needClientAuthStatus;
-    }
-    
-    public void setWantClientAuth(boolean want) {
-        wantClientAuthStatus = want ? TRUE : FALSE;
-    }
-    
-    public void setNeedClientAuth(boolean need) {
-        needClientAuthStatus = need ? TRUE : FALSE;
-    }
 
-    // --- Stubbed methods ---
-    
-    public boolean getEnableSessionCreation() {
-        return false;
-    }
+   public static final int UNTOUCHED = -1;
+   public static final int FALSE = 0;
+   public static final int TRUE = 1;
 
-    public String[] getEnabledCipherSuites() {
-        return null;
-    }
+   private int wantClientAuthStatus = UNTOUCHED;
+   private int needClientAuthStatus = UNTOUCHED;
 
-    public String[] getEnabledProtocols() {
-        return null;
-    }
+   public StubSSLServerSocket() throws IOException {
 
-    public boolean getNeedClientAuth() {
-        return false;
-    }
+   }
 
-    public String[] getSupportedCipherSuites() {
-        return null;
-    }
+   public int getWantClientAuthStatus() {
+      return wantClientAuthStatus;
+   }
 
-    public String[] getSupportedProtocols() {
-        return null;
-    }
+   public int getNeedClientAuthStatus() {
+      return needClientAuthStatus;
+   }
 
-    public boolean getUseClientMode() {
-        return false;
-    }
+   public void setWantClientAuth(boolean want) {
+      wantClientAuthStatus = want ? TRUE : FALSE;
+   }
 
-    public boolean getWantClientAuth() {
-        return false;
-    }
+   public void setNeedClientAuth(boolean need) {
+      needClientAuthStatus = need ? TRUE : FALSE;
+   }
 
-    public void setEnableSessionCreation(boolean flag) {
-    }
+   // --- Stubbed methods ---
 
-    public void setEnabledCipherSuites(String[] suites) {
-    }
+   public boolean getEnableSessionCreation() {
+      return false;
+   }
 
-    public void setEnabledProtocols(String[] protocols) {
-    }
+   public String[] getEnabledCipherSuites() {
+      return null;
+   }
 
-    public void setUseClientMode(boolean mode) {
-    }
+   public String[] getEnabledProtocols() {
+      return null;
+   }
+
+   public boolean getNeedClientAuth() {
+      return false;
+   }
+
+   public String[] getSupportedCipherSuites() {
+      return null;
+   }
+
+   public String[] getSupportedProtocols() {
+      return null;
+   }
+
+   public boolean getUseClientMode() {
+      return false;
+   }
+
+   public boolean getWantClientAuth() {
+      return false;
+   }
+
+   public void setEnableSessionCreation(boolean flag) {
+   }
+
+   public void setEnabledCipherSuites(String[] suites) {
+   }
+
+   public void setEnabledProtocols(String[] protocols) {
+   }
+
+   public void setUseClientMode(boolean mode) {
+   }
 }

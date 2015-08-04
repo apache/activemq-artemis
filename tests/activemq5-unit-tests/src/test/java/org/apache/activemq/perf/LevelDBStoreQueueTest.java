@@ -22,21 +22,21 @@ import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.leveldb.LevelDBStore;
 
 /**
- * 
+ *
  */
 public class LevelDBStoreQueueTest extends SimpleQueueTest {
 
-    protected void configureBroker(BrokerService answer,String uri) throws Exception {
+   protected void configureBroker(BrokerService answer, String uri) throws Exception {
 
-        File dataFileDir = new File("target/test-amq-data/perfTest/amq");
+      File dataFileDir = new File("target/test-amq-data/perfTest/amq");
 
-        LevelDBStore adaptor = new LevelDBStore();
-        adaptor.setDirectory(dataFileDir);
+      LevelDBStore adaptor = new LevelDBStore();
+      adaptor.setDirectory(dataFileDir);
 
-        answer.setPersistenceAdapter(adaptor);
-        answer.addConnector(uri);
-        answer.setDeleteAllMessagesOnStartup(true);
+      answer.setPersistenceAdapter(adaptor);
+      answer.addConnector(uri);
+      answer.setDeleteAllMessagesOnStartup(true);
 
-    }
+   }
 
 }

@@ -20,11 +20,10 @@ import org.apache.activemq.artemis.service.extensions.ServiceUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class TransactionManagerLocatorTest extends Assert
-{
+public class TransactionManagerLocatorTest extends Assert {
+
    @Test
-   public void getTM()
-   {
+   public void getTM() {
       assertNotNull(ServiceUtils.getTransactionManager());
       assertEquals(ServiceUtils.getTransactionManager().getClass(), DummyTransactionManagerLocator.class);
    }

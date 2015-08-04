@@ -17,10 +17,11 @@
 package org.apache.activemq.usecases;
 
 /**
- * 
+ *
  */
 public class QueueConsumerCloseAndReconnectTest extends DurableConsumerCloseAndReconnectTest {
-    protected boolean isTopic() {
-        return false;
-    }
+
+   protected boolean isTopic() {
+      return false;
+   }
 }

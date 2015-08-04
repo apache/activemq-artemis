@@ -25,8 +25,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-public class SecurityConfiguration
-{   /**
+public class SecurityConfiguration {
+
+   /**
     * the current valid users
     */
    protected final Map<String, User> users = new HashMap<String, User>();
@@ -38,61 +39,48 @@ public class SecurityConfiguration
     */
    protected final Map<String, List<String>> roles = new HashMap<String, List<String>>();
 
-   public SecurityConfiguration()
-   {
+   public SecurityConfiguration() {
    }
 
-   public SecurityConfiguration(Map<String, String> users, Map<String, List<String>> roles)
-   {
+   public SecurityConfiguration(Map<String, String> users, Map<String, List<String>> roles) {
       Iterator<Map.Entry<String, String>> iter = users.entrySet().iterator();
-      while (iter.hasNext())
-      {
+      while (iter.hasNext()) {
          Map.Entry<String, String> entry = iter.next();
          addUser(entry.getKey(), entry.getValue());
       }
       Iterator<Map.Entry<String, List<String>>> iter1 = roles.entrySet().iterator();
-      while (iter1.hasNext())
-      {
+      while (iter1.hasNext()) {
          Map.Entry<String, List<String>> entry = iter1.next();
-         for (String role : entry.getValue())
-         {
+         for (String role : entry.getValue()) {
             addRole(entry.getKey(), role);
          }
       }
    }
 
-   public void addUser(final String user, final String password)
-   {
-      if (user == null)
-      {
+   public void addUser(final String user, final String password) {
+      if (user == null) {
          throw ActiveMQMessageBundle.BUNDLE.nullUser();
       }
-      if (password == null)
-      {
+      if (password == null) {
          throw ActiveMQMessageBundle.BUNDLE.nullPassword();
       }
       users.put(user, new User(user, password));
    }
 
-   public void removeUser(final String user)
-   {
+   public void removeUser(final String user) {
       users.remove(user);
       roles.remove(user);
    }
 
-   public void addRole(final String user, final String role)
-   {
-      if (roles.get(user) == null)
-      {
+   public void addRole(final String user, final String role) {
+      if (roles.get(user) == null) {
          roles.put(user, new ArrayList<String>());
       }
       roles.get(user).add(role);
    }
 
-   public void removeRole(final String user, final String role)
-   {
-      if (roles.get(user) == null)
-      {
+   public void removeRole(final String user, final String role) {
+      if (roles.get(user) == null) {
          return;
       }
       roles.get(user).remove(role);
@@ -101,23 +89,19 @@ public class SecurityConfiguration
    /*
    * set the default user for null users
    */
-   public void setDefaultUser(final String username)
-   {
+   public void setDefaultUser(final String username) {
       defaultUser = username;
    }
 
-   public String getDefaultUser()
-   {
+   public String getDefaultUser() {
       return defaultUser;
    }
 
-   public org.apache.activemq.artemis.core.security.User getUser(String username)
-   {
+   public org.apache.activemq.artemis.core.security.User getUser(String username) {
       return users.get(username);
    }
 
-   public List<String> getRole(String username)
-   {
+   public List<String> getRole(String username) {
       return roles.get(username);
    }
 }

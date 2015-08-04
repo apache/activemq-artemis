@@ -26,8 +26,7 @@ import org.apache.activemq.artemis.api.core.management.Parameter;
 /**
  * A JMSQueueControl is used to manage a JMS queue.
  */
-public interface JMSQueueControl extends DestinationControl
-{
+public interface JMSQueueControl extends DestinationControl {
    // Attributes ----------------------------------------------------
 
    /**
@@ -168,7 +167,6 @@ public interface JMSQueueControl extends DestinationControl
     * Changes the message's priority corresponding to the specified message ID to the specified priority.
     *
     * @param newPriority between 0 and 9 inclusive.
-    *
     * @return {@code true} if the message priority was changed
     */
    @Operation(desc = "Change the priority of the message corresponding to the given messageID", impact = MBeanOperationInfo.ACTION)
@@ -185,6 +183,7 @@ public interface JMSQueueControl extends DestinationControl
    @Operation(desc = "Change the priority of the messages corresponding to the given filter", impact = MBeanOperationInfo.ACTION)
    int changeMessagesPriority(@Parameter(name = "filter", desc = "A message filter") String filter,
                               @Parameter(name = "newPriority", desc = "the new priority (between 0 and 9)") int newPriority) throws Exception;
+
    /**
     * Moves the message corresponding to the specified message ID to the specified other queue.
     *
@@ -193,7 +192,6 @@ public interface JMSQueueControl extends DestinationControl
    @Operation(desc = "Move the message corresponding to the given messageID to another queue, ignoring duplicates (rejectDuplicates=false on this case)", impact = MBeanOperationInfo.ACTION)
    boolean moveMessage(@Parameter(name = "messageID", desc = "A message ID") String messageID,
                        @Parameter(name = "otherQueueName", desc = "The name of the queue to move the message to") String otherQueueName) throws Exception;
-
 
    /**
     * Moves the message corresponding to the specified message ID to the specified other queue.

@@ -30,22 +30,20 @@ import java.lang.Exception;
  * This example demonstrates how a message consumer can be limited to consumer messages at a maximum rate
  * specified in messages per sec.
  */
-public class ConsumerRateLimitExample
-{
-   public static void main(final String[] args) throws Exception
-   {
+public class ConsumerRateLimitExample {
+
+   public static void main(final String[] args) throws Exception {
       Connection connection = null;
       InitialContext initialContext = null;
-      try
-      {
+      try {
          // Step 1. Create an initial context to perform the JNDI lookup.
          initialContext = new InitialContext();
 
          // Step 2. Perfom a lookup on the queue
-         Queue queue = (Queue)initialContext.lookup("queue/exampleQueue");
+         Queue queue = (Queue) initialContext.lookup("queue/exampleQueue");
 
          // Step 3. Perform a lookup on the Connection Factory
-         ConnectionFactory cf = (ConnectionFactory)initialContext.lookup("ConnectionFactory");
+         ConnectionFactory cf = (ConnectionFactory) initialContext.lookup("ConnectionFactory");
 
          // Step 4. Create a JMS Connection
          connection = cf.createConnection();
@@ -68,8 +66,7 @@ public class ConsumerRateLimitExample
 
          final int numMessages = 150;
 
-         for (int i = 0; i < numMessages; i++)
-         {
+         for (int i = 0; i < numMessages; i++) {
             TextMessage message = session.createTextMessage("This is text message: " + i);
 
             producer.send(message);
@@ -87,12 +84,10 @@ public class ConsumerRateLimitExample
 
          long start = System.currentTimeMillis();
 
-         while (System.currentTimeMillis() - start <= duration)
-         {
-            TextMessage message = (TextMessage)consumer.receive(2000);
+         while (System.currentTimeMillis() - start <= duration) {
+            TextMessage message = (TextMessage) consumer.receive(2000);
 
-            if (message == null)
-            {
+            if (message == null) {
                throw new RuntimeException("Message was null");
             }
 
@@ -101,22 +96,19 @@ public class ConsumerRateLimitExample
 
          long end = System.currentTimeMillis();
 
-         double rate = 1000 * (double)i / (end - start);
+         double rate = 1000 * (double) i / (end - start);
 
          System.out.println("We consumed " + i + " messages in " + (end - start) + " milliseconds");
 
          System.out.println("Actual consume rate was " + rate + " messages per second");
       }
-      finally
-      {
+      finally {
          // Step 9. Be sure to close our resources!
-         if (initialContext != null)
-         {
+         if (initialContext != null) {
             initialContext.close();
          }
 
-         if (connection != null)
-         {
+         if (connection != null) {
             connection.close();
          }
       }

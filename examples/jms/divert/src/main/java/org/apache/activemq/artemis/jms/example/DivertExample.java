@@ -31,13 +31,12 @@ import java.util.Hashtable;
 /**
  * This examples demonstrates the use of ActiveMQ Artemis "Diverts" to transparently divert or copy messages
  * from one address to another.
- *
+ * <br>
  * Please see the readme.html for more information.
  */
-public class DivertExample
-{
-   public static void main(final String[] args) throws Exception
-   {
+public class DivertExample {
+
+   public static void main(final String[] args) throws Exception {
       Connection connectionLondon = null;
 
       Connection connectionNewYork = null;
@@ -45,8 +44,7 @@ public class DivertExample
       InitialContext initialContextLondon = null;
 
       InitialContext initialContextNewYork = null;
-      try
-      {
+      try {
          // Step 1. Create an initial context to perform the JNDI lookup on the London server
          Hashtable<String, Object> properties = new Hashtable<String, Object>();
          properties.put("java.naming.factory.initial", "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
@@ -57,14 +55,14 @@ public class DivertExample
          initialContextLondon = new InitialContext(properties);
 
          // Step 2. Look-up the queue orderQueue on the London server - this is the queue any orders are sent to
-         Queue orderQueue = (Queue)initialContextLondon.lookup("queue/orders");
+         Queue orderQueue = (Queue) initialContextLondon.lookup("queue/orders");
 
          // Step 3. Look-up the topic priceUpdates on the London server- this is the topic that any price updates are
          // sent to
-         Topic priceUpdates = (Topic)initialContextLondon.lookup("topic/priceUpdates");
+         Topic priceUpdates = (Topic) initialContextLondon.lookup("topic/priceUpdates");
 
          // Step 4. Look-up the spy topic on the London server- this is what we will use to snoop on any orders
-         Topic spyTopic = (Topic)initialContextLondon.lookup("topic/spyTopic");
+         Topic spyTopic = (Topic) initialContextLondon.lookup("topic/spyTopic");
 
          // Step 6. Create an initial context to perform the JNDI lookup on the New York server
          properties = new Hashtable<String, Object>();
@@ -80,13 +78,13 @@ public class DivertExample
          // them to the address newYorkPriceUpdates on the New York server where they will be distributed to the topic
          // subscribers on
          // the New York server
-         Topic newYorkPriceUpdates = (Topic)initialContextNewYork.lookup("topic/newYorkPriceUpdates");
+         Topic newYorkPriceUpdates = (Topic) initialContextNewYork.lookup("topic/newYorkPriceUpdates");
 
          // Step 8. Perform a lookup on the Connection Factory on the London server
-         ConnectionFactory cfLondon = (ConnectionFactory)initialContextLondon.lookup("ConnectionFactory");
+         ConnectionFactory cfLondon = (ConnectionFactory) initialContextLondon.lookup("ConnectionFactory");
 
          // Step 9. Perform a lookup on the Connection Factory on the New York server
-         ConnectionFactory cfNewYork = (ConnectionFactory)initialContextNewYork.lookup("ConnectionFactory2");
+         ConnectionFactory cfNewYork = (ConnectionFactory) initialContextNewYork.lookup("ConnectionFactory2");
 
          // Step 10. Create a JMS Connection on the London server
          connectionLondon = cfLondon.createConnection();
@@ -141,16 +139,16 @@ public class DivertExample
          System.out.println("Sent message: " + orderMessage.getText());
 
          // Step 24. The order message is consumed by the orderConsumer on the London server
-         TextMessage receivedOrder = (TextMessage)orderConsumer.receive(5000);
+         TextMessage receivedOrder = (TextMessage) orderConsumer.receive(5000);
 
          System.out.println("Received order: " + receivedOrder.getText());
 
          // Step 25. A copy of the order is also received by the spyTopic subscribers on the London server
-         TextMessage spiedOrder1 = (TextMessage)spySubscriberA.receive(5000);
+         TextMessage spiedOrder1 = (TextMessage) spySubscriberA.receive(5000);
 
          System.out.println("Snooped on order: " + spiedOrder1.getText());
 
-         TextMessage spiedOrder2 = (TextMessage)spySubscriberB.receive(5000);
+         TextMessage spiedOrder2 = (TextMessage) spySubscriberB.receive(5000);
 
          System.out.println("Snooped on order: " + spiedOrder2.getText());
 
@@ -163,25 +161,23 @@ public class DivertExample
 
          // Step 27. The price update *should* be received by the local subscriber since we only divert messages
          // where office = New York
-         TextMessage receivedUpdate = (TextMessage)priceUpdatesSubscriberLondon.receive(2000);
+         TextMessage receivedUpdate = (TextMessage) priceUpdatesSubscriberLondon.receive(2000);
 
          System.out.println("Received price update locally: " + receivedUpdate.getText());
 
          // Step 28. The price update *should not* be received in New York
 
-         TextMessage priceUpdate1 = (TextMessage)newYorkPriceUpdatesSubscriberA.receive(1000);
+         TextMessage priceUpdate1 = (TextMessage) newYorkPriceUpdatesSubscriberA.receive(1000);
 
-         if (priceUpdate1 != null)
-         {
+         if (priceUpdate1 != null) {
             throw new IllegalStateException("Message is not null");
          }
 
          System.out.println("Did not received price update in New York, look it's: " + priceUpdate1);
 
-         TextMessage priceUpdate2 = (TextMessage)newYorkPriceUpdatesSubscriberB.receive(1000);
+         TextMessage priceUpdate2 = (TextMessage) newYorkPriceUpdatesSubscriberB.receive(1000);
 
-         if (priceUpdate2 != null)
-         {
+         if (priceUpdate2 != null) {
             throw new IllegalStateException("Message is not null");
          }
 
@@ -201,8 +197,7 @@ public class DivertExample
          // it is destined for the New York office
          Message message = priceUpdatesSubscriberLondon.receive(1000);
 
-         if (message != null)
-         {
+         if (message != null) {
             throw new IllegalStateException("Message is not null");
          }
 
@@ -214,33 +209,28 @@ public class DivertExample
          // We notice how the forwarded messages have had a special header added by our custom transformer that
          // we told the divert to use
 
-         priceUpdate1 = (TextMessage)newYorkPriceUpdatesSubscriberA.receive(5000);
+         priceUpdate1 = (TextMessage) newYorkPriceUpdatesSubscriberA.receive(5000);
 
          System.out.println("Received forwarded price update on server 1: " + priceUpdate1.getText());
          System.out.println("Time of forward: " + priceUpdate1.getLongProperty("time_of_forward"));
 
-         priceUpdate2 = (TextMessage)newYorkPriceUpdatesSubscriberB.receive(5000);
+         priceUpdate2 = (TextMessage) newYorkPriceUpdatesSubscriberB.receive(5000);
 
          System.out.println("Received forwarded price update on server 2: " + priceUpdate2.getText());
          System.out.println("Time of forward: " + priceUpdate2.getLongProperty("time_of_forward"));
       }
-      finally
-      {
+      finally {
          // Step 12. Be sure to close our resources!
-         if (initialContextLondon != null)
-         {
+         if (initialContextLondon != null) {
             initialContextLondon.close();
          }
-         if (initialContextNewYork != null)
-         {
+         if (initialContextNewYork != null) {
             initialContextNewYork.close();
          }
-         if (connectionLondon != null)
-         {
+         if (connectionLondon != null) {
             connectionLondon.close();
          }
-         if (connectionNewYork != null)
-         {
+         if (connectionNewYork != null) {
             connectionNewYork.close();
          }
       }

@@ -38,16 +38,14 @@ import org.apache.activemq.artemis.core.server.management.impl.ManagementService
 import org.apache.activemq.artemis.tests.integration.server.FakeStorageManager;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
 
-public class ManagementServiceImplTest extends ActiveMQTestBase
-{
+public class ManagementServiceImplTest extends ActiveMQTestBase {
+
    @Test
-   public void testHandleManagementMessageWithOperation() throws Exception
-   {
+   public void testHandleManagementMessageWithOperation() throws Exception {
       String queue = RandomUtil.randomString();
       String address = RandomUtil.randomString();
 
-      Configuration config = createBasicConfig()
-         .setJMXManagementEnabled(false);
+      Configuration config = createBasicConfig().setJMXManagementEnabled(false);
 
       ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(config, false));
       server.start();
@@ -62,10 +60,8 @@ public class ManagementServiceImplTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testHandleManagementMessageWithOperationWhichFails() throws Exception
-   {
-      Configuration config = createBasicConfig()
-         .setJMXManagementEnabled(false);
+   public void testHandleManagementMessageWithOperationWhichFails() throws Exception {
+      Configuration config = createBasicConfig().setJMXManagementEnabled(false);
 
       ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(config, false));
       server.start();
@@ -81,10 +77,8 @@ public class ManagementServiceImplTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testHandleManagementMessageWithUnknowResource() throws Exception
-   {
-      Configuration config = createBasicConfig()
-         .setJMXManagementEnabled(false);
+   public void testHandleManagementMessageWithUnknowResource() throws Exception {
+      Configuration config = createBasicConfig().setJMXManagementEnabled(false);
 
       ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(config, false));
       server.start();
@@ -100,10 +94,8 @@ public class ManagementServiceImplTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testHandleManagementMessageWithUnknownAttribute() throws Exception
-   {
-      Configuration config = createBasicConfig()
-         .setJMXManagementEnabled(false);
+   public void testHandleManagementMessageWithUnknownAttribute() throws Exception {
+      Configuration config = createBasicConfig().setJMXManagementEnabled(false);
 
       ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(config, false));
       server.start();
@@ -120,10 +112,8 @@ public class ManagementServiceImplTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testHandleManagementMessageWithKnownAttribute() throws Exception
-   {
-      Configuration config = createBasicConfig()
-         .setJMXManagementEnabled(false);
+   public void testHandleManagementMessageWithKnownAttribute() throws Exception {
+      Configuration config = createBasicConfig().setJMXManagementEnabled(false);
 
       ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(config, false));
       server.start();
@@ -140,10 +130,8 @@ public class ManagementServiceImplTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testGetResources() throws Exception
-   {
-      Configuration config = createBasicConfig()
-         .setJMXManagementEnabled(false);
+   public void testGetResources() throws Exception {
+      Configuration config = createBasicConfig().setJMXManagementEnabled(false);
       ManagementServiceImpl managementService = new ManagementServiceImpl(null, config);
       managementService.setStorageManager(new NullStorageManager());
 
@@ -155,13 +143,13 @@ public class ManagementServiceImplTest extends ActiveMQTestBase
       Object[] addresses = managementService.getResources(AddressControl.class);
       Assert.assertEquals(1, addresses.length);
       Assert.assertTrue(addresses[0] instanceof AddressControl);
-      AddressControl addressControl = (AddressControl)addresses[0];
+      AddressControl addressControl = (AddressControl) addresses[0];
       Assert.assertEquals(address.toString(), addressControl.getAddress());
 
       Object[] queues = managementService.getResources(QueueControl.class);
       Assert.assertEquals(1, queues.length);
       Assert.assertTrue(queues[0] instanceof QueueControl);
-      QueueControl queueControl = (QueueControl)queues[0];
+      QueueControl queueControl = (QueueControl) queues[0];
       Assert.assertEquals(queue.getName().toString(), queueControl.getName());
    }
 

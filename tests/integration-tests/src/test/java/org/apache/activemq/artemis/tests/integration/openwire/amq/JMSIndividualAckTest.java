@@ -32,8 +32,7 @@ import org.junit.Test;
 /**
  * adapted from: org.apache.activemq.JMSIndividualAckTest
  */
-public class JMSIndividualAckTest extends BasicOpenWireTest
-{
+public class JMSIndividualAckTest extends BasicOpenWireTest {
 
    /**
     * Tests if acknowledged messages are being consumed.
@@ -41,8 +40,7 @@ public class JMSIndividualAckTest extends BasicOpenWireTest
     * @throws JMSException
     */
    @Test
-   public void testAckedMessageAreConsumed() throws JMSException
-   {
+   public void testAckedMessageAreConsumed() throws JMSException {
       connection.start();
       Session session = connection.createSession(false, ActiveMQSession.INDIVIDUAL_ACKNOWLEDGE);
       Queue queue = (Queue) this.createDestination(session, ActiveMQDestination.QUEUE_TYPE);
@@ -73,8 +71,7 @@ public class JMSIndividualAckTest extends BasicOpenWireTest
     * @throws JMSException
     */
    @Test
-   public void testLastMessageAcked() throws JMSException
-   {
+   public void testLastMessageAcked() throws JMSException {
       connection.start();
       Session session = connection.createSession(false, ActiveMQSession.INDIVIDUAL_ACKNOWLEDGE);
       Queue queue = (Queue) this.createDestination(session, ActiveMQDestination.QUEUE_TYPE);
@@ -98,8 +95,7 @@ public class JMSIndividualAckTest extends BasicOpenWireTest
 
       // Reset the session.
       session.close();
-      session = connection.createSession(false,
-            ActiveMQSession.INDIVIDUAL_ACKNOWLEDGE);
+      session = connection.createSession(false, ActiveMQSession.INDIVIDUAL_ACKNOWLEDGE);
 
       // Attempt to Consume the message...
       consumer = session.createConsumer(queue);
@@ -121,8 +117,7 @@ public class JMSIndividualAckTest extends BasicOpenWireTest
     * @throws JMSException
     */
    @Test
-   public void testUnAckedMessageAreNotConsumedOnSessionClose() throws JMSException
-   {
+   public void testUnAckedMessageAreNotConsumedOnSessionClose() throws JMSException {
       connection.start();
       Session session = connection.createSession(false, ActiveMQSession.INDIVIDUAL_ACKNOWLEDGE);
       Queue queue = (Queue) this.createDestination(session, ActiveMQDestination.QUEUE_TYPE);

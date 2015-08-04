@@ -21,19 +21,19 @@ import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 
 /**
  * A member of the topology.
- *
+ * <br>
  * Each TopologyMember represents a single server and possibly any backup server that may take over
  * its duties (using the nodeId of the original server).
  */
-public interface TopologyMember
-{
+public interface TopologyMember {
+
    /**
     * Returns the {@code backup-group-name} of the live server and backup servers associated with
     * Topology entry.
-    * <p>
+    * <br>
     * This is a server configuration value. A (remote) backup will only work with live servers that
     * have a matching {@code backup-group-name}.
-    * <p>
+    * <br>
     * This value does not apply to "shared-storage" backup and live pairs.
     *
     * @return the {@code backup-group-name}
@@ -42,10 +42,10 @@ public interface TopologyMember
 
    /**
     * Returns the {@code scale-down-group-name} of the live server with this Topology entry.
-    * <p>
+    * <br>
     * This is a server configuration value. a live server will only send its messages to another live server
     * with matching {@code scale-down-group-name}.
-    * <p>
+    * <br>
     *
     * @return the {@code scale-down-group-name}
     */

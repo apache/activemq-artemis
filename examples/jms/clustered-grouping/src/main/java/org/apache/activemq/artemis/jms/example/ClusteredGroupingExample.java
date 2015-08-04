@@ -30,10 +30,9 @@ import java.util.Hashtable;
  * A simple example that demonstrates server side load-balancing of messages between the queue instances on different
  * nodes of the cluster.
  */
-public class ClusteredGroupingExample
-{
-   public static void main(String[] args) throws Exception
-   {
+public class ClusteredGroupingExample {
+
+   public static void main(String[] args) throws Exception {
       Connection connection0 = null;
 
       Connection connection1 = null;
@@ -46,8 +45,7 @@ public class ClusteredGroupingExample
 
       InitialContext ic2 = null;
 
-      try
-      {
+      try {
          // Step 1. Get an initial context for looking up JNDI from server 0
          Hashtable<String, Object> properties = new Hashtable<String, Object>();
          properties.put("java.naming.factory.initial", "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
@@ -56,10 +54,10 @@ public class ClusteredGroupingExample
          ic0 = new InitialContext(properties);
 
          // Step 2. Look-up the JMS Queue object from JNDI
-         Queue queue = (Queue)ic0.lookup("queue/exampleQueue");
+         Queue queue = (Queue) ic0.lookup("queue/exampleQueue");
 
          // Step 3. Look-up a JMS Connection Factory object from JNDI on server 0
-         ConnectionFactory cf0 = (ConnectionFactory)ic0.lookup("ConnectionFactory");
+         ConnectionFactory cf0 = (ConnectionFactory) ic0.lookup("ConnectionFactory");
 
          // Step 4. Get an initial context for looking up JNDI from server 1
          properties = new Hashtable<String, Object>();
@@ -68,7 +66,7 @@ public class ClusteredGroupingExample
          ic1 = new InitialContext(properties);
 
          // Step 5. Look-up a JMS Connection Factory object from JNDI on server 1
-         ConnectionFactory cf1 = (ConnectionFactory)ic1.lookup("ConnectionFactory");
+         ConnectionFactory cf1 = (ConnectionFactory) ic1.lookup("ConnectionFactory");
 
          // Step 4. Get an initial context for looking up JNDI from server 2
          properties = new Hashtable<String, Object>();
@@ -77,7 +75,7 @@ public class ClusteredGroupingExample
          ic2 = new InitialContext(properties);
 
          // Step 5. Look-up a JMS Connection Factory object from JNDI on server 2
-         ConnectionFactory cf2 = (ConnectionFactory)ic2.lookup("ConnectionFactory");
+         ConnectionFactory cf2 = (ConnectionFactory) ic2.lookup("ConnectionFactory");
 
          // Step 6. We create a JMS Connection connection0 which is a connection to server 0
          connection0 = cf0.createConnection();
@@ -107,7 +105,6 @@ public class ClusteredGroupingExample
          // Step 13. We create JMS MessageConsumer objects on server 0
          MessageConsumer consumer = session0.createConsumer(queue);
 
-
          // Step 14. We create a JMS MessageProducer object on server 0, 1 and 2
          MessageProducer producer0 = session0.createProducer(queue);
 
@@ -119,8 +116,7 @@ public class ClusteredGroupingExample
 
          final int numMessages = 10;
 
-         for (int i = 0; i < numMessages; i++)
-         {
+         for (int i = 0; i < numMessages; i++) {
             TextMessage message = session0.createTextMessage("This is text message " + i);
 
             message.setStringProperty("JMSXGroupID", "Group-0");
@@ -130,8 +126,7 @@ public class ClusteredGroupingExample
             System.out.println("Sent messages: " + message.getText() + " to node 0");
          }
 
-         for (int i = 0; i < numMessages; i++)
-         {
+         for (int i = 0; i < numMessages; i++) {
             TextMessage message = session1.createTextMessage("This is text message " + (i + 10));
 
             message.setStringProperty("JMSXGroupID", "Group-0");
@@ -142,8 +137,7 @@ public class ClusteredGroupingExample
 
          }
 
-         for (int i = 0; i < numMessages; i++)
-         {
+         for (int i = 0; i < numMessages; i++) {
             TextMessage message = session2.createTextMessage("This is text message " + (i + 20));
 
             message.setStringProperty("JMSXGroupID", "Group-0");
@@ -156,45 +150,37 @@ public class ClusteredGroupingExample
          // Step 16. We now consume those messages from server 0
          // We note the messages have all been sent to the same consumer on the same node
 
-         for (int i = 0; i < numMessages * 3; i++)
-         {
-            TextMessage message0 = (TextMessage)consumer.receive(5000);
+         for (int i = 0; i < numMessages * 3; i++) {
+            TextMessage message0 = (TextMessage) consumer.receive(5000);
 
             System.out.println("Got message: " + message0.getText() + " from node 0");
 
          }
       }
-      finally
-      {
+      finally {
          // Step 17. Be sure to close our resources!
 
-         if (connection0 != null)
-         {
+         if (connection0 != null) {
             connection0.close();
          }
 
-         if (connection1 != null)
-         {
+         if (connection1 != null) {
             connection1.close();
          }
 
-         if (connection2 != null)
-         {
+         if (connection2 != null) {
             connection2.close();
          }
 
-         if (ic0 != null)
-         {
+         if (ic0 != null) {
             ic0.close();
          }
 
-         if (ic1 != null)
-         {
+         if (ic1 != null) {
             ic1.close();
          }
 
-         if (ic2 != null)
-         {
+         if (ic2 != null) {
             ic2.close();
          }
       }

@@ -25,8 +25,8 @@ import java.util.List;
 
 @XmlRootElement(name = "broker")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class BrokerDTO
-{
+public class BrokerDTO {
+
    @XmlElementRef
    public SecurityDTO security;
 

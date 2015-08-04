@@ -58,237 +58,241 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class MessageEvictionTest {
-    static final Logger LOG = LoggerFactory.getLogger(MessageEvictionTest.class);
-    private BrokerService broker;
-    private ConnectionFactory connectionFactory;
-    Connection connection;
-    private Session session;
-    private Topic destination;
-    private final String destinationName = "verifyEvection";
-    protected int numMessages = 2000;
-    protected String payload = new String(new byte[1024*2]);
 
-    public void setUp(PendingSubscriberMessageStoragePolicy pendingSubscriberPolicy) throws Exception {
-        broker = createBroker(pendingSubscriberPolicy);
-        broker.start();
-        connectionFactory = createConnectionFactory();
-        connection = connectionFactory.createConnection();
-        connection.start();
-        session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
-        destination = session.createTopic(destinationName);
-    }
+   static final Logger LOG = LoggerFactory.getLogger(MessageEvictionTest.class);
+   private BrokerService broker;
+   private ConnectionFactory connectionFactory;
+   Connection connection;
+   private Session session;
+   private Topic destination;
+   private final String destinationName = "verifyEvection";
+   protected int numMessages = 2000;
+   protected String payload = new String(new byte[1024 * 2]);
 
-    @After
-    public void tearDown() throws Exception {
-        if (connection != null)
-        {
-            connection.stop();
-        }
-        if (broker != null)
-        {
-            broker.stop();
-        }
-    }
+   public void setUp(PendingSubscriberMessageStoragePolicy pendingSubscriberPolicy) throws Exception {
+      broker = createBroker(pendingSubscriberPolicy);
+      broker.start();
+      connectionFactory = createConnectionFactory();
+      connection = connectionFactory.createConnection();
+      connection.start();
+      session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
+      destination = session.createTopic(destinationName);
+   }
 
-    @Test
-    public void testMessageEvictionMemoryUsageFileCursor() throws Exception {
-        setUp(new FilePendingSubscriberMessageStoragePolicy());
-        doTestMessageEvictionMemoryUsage();
-    }
+   @After
+   public void tearDown() throws Exception {
+      if (connection != null) {
+         connection.stop();
+      }
+      if (broker != null) {
+         broker.stop();
+      }
+   }
 
-    @Test
-    public void testMessageEvictionMemoryUsageVmCursor() throws Exception {
-        setUp(new VMPendingSubscriberMessageStoragePolicy());
-        doTestMessageEvictionMemoryUsage();
-    }
+   @Test
+   public void testMessageEvictionMemoryUsageFileCursor() throws Exception {
+      setUp(new FilePendingSubscriberMessageStoragePolicy());
+      doTestMessageEvictionMemoryUsage();
+   }
 
-    @Test
-    public void testMessageEvictionDiscardedAdvisory() throws Exception {
-        setUp(new VMPendingSubscriberMessageStoragePolicy());
+   @Test
+   public void testMessageEvictionMemoryUsageVmCursor() throws Exception {
+      setUp(new VMPendingSubscriberMessageStoragePolicy());
+      doTestMessageEvictionMemoryUsage();
+   }
 
-        ExecutorService executor = Executors.newSingleThreadExecutor();
-        final CountDownLatch consumerRegistered = new CountDownLatch(1);
-        final CountDownLatch gotAdvisory = new CountDownLatch(1);
-        final CountDownLatch advisoryIsGood = new CountDownLatch(1);
+   @Test
+   public void testMessageEvictionDiscardedAdvisory() throws Exception {
+      setUp(new VMPendingSubscriberMessageStoragePolicy());
 
-        executor.execute(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    ActiveMQTopic discardedAdvisoryDestination =
-                        AdvisorySupport.getMessageDiscardedAdvisoryTopic(destination);
-                    // use separate session rather than asyncDispatch on consumer session
-                    // as we want consumer session to block
-                    Session advisorySession = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-                    final MessageConsumer consumer = advisorySession.createConsumer(discardedAdvisoryDestination);
-                    consumer.setMessageListener(new MessageListener() {
-                        int advisoriesReceived = 0;
-                        @Override
-                        public void onMessage(Message message) {
-                            try {
-                                LOG.info("advisory:" + message);
-                                ActiveMQMessage activeMQMessage = (ActiveMQMessage) message;
-                                assertNotNull(activeMQMessage.getStringProperty(AdvisorySupport.MSG_PROPERTY_CONSUMER_ID));
-                                assertEquals(++advisoriesReceived, activeMQMessage.getIntProperty(AdvisorySupport.MSG_PROPERTY_DISCARDED_COUNT));
-                                message.acknowledge();
-                                advisoryIsGood.countDown();
-                            } catch (JMSException e) {
-                                e.printStackTrace();
-                                fail(e.toString());
-                            } finally {
-                                gotAdvisory.countDown();
-                            }
-                        }
-                    });
-                    consumerRegistered.countDown();
-                    gotAdvisory.await(120, TimeUnit.SECONDS);
-                    consumer.close();
-                    advisorySession.close();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    fail(e.toString());
-                }
+      ExecutorService executor = Executors.newSingleThreadExecutor();
+      final CountDownLatch consumerRegistered = new CountDownLatch(1);
+      final CountDownLatch gotAdvisory = new CountDownLatch(1);
+      final CountDownLatch advisoryIsGood = new CountDownLatch(1);
+
+      executor.execute(new Runnable() {
+         @Override
+         public void run() {
+            try {
+               ActiveMQTopic discardedAdvisoryDestination = AdvisorySupport.getMessageDiscardedAdvisoryTopic(destination);
+               // use separate session rather than asyncDispatch on consumer session
+               // as we want consumer session to block
+               Session advisorySession = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+               final MessageConsumer consumer = advisorySession.createConsumer(discardedAdvisoryDestination);
+               consumer.setMessageListener(new MessageListener() {
+                  int advisoriesReceived = 0;
+
+                  @Override
+                  public void onMessage(Message message) {
+                     try {
+                        LOG.info("advisory:" + message);
+                        ActiveMQMessage activeMQMessage = (ActiveMQMessage) message;
+                        assertNotNull(activeMQMessage.getStringProperty(AdvisorySupport.MSG_PROPERTY_CONSUMER_ID));
+                        assertEquals(++advisoriesReceived, activeMQMessage.getIntProperty(AdvisorySupport.MSG_PROPERTY_DISCARDED_COUNT));
+                        message.acknowledge();
+                        advisoryIsGood.countDown();
+                     }
+                     catch (JMSException e) {
+                        e.printStackTrace();
+                        fail(e.toString());
+                     }
+                     finally {
+                        gotAdvisory.countDown();
+                     }
+                  }
+               });
+               consumerRegistered.countDown();
+               gotAdvisory.await(120, TimeUnit.SECONDS);
+               consumer.close();
+               advisorySession.close();
             }
-        });
-        assertTrue("we have an advisory consumer", consumerRegistered.await(60, TimeUnit.SECONDS));
-        doTestMessageEvictionMemoryUsage();
-        assertTrue("got an advisory for discarded", gotAdvisory.await(0, TimeUnit.SECONDS));
-        assertTrue("advisory is good",advisoryIsGood.await(0, TimeUnit.SECONDS));
-    }
-
-    public void doTestMessageEvictionMemoryUsage() throws Exception {
-
-        ExecutorService executor = Executors.newCachedThreadPool();
-        final CountDownLatch doAck = new CountDownLatch(1);
-        final CountDownLatch ackDone = new CountDownLatch(1);
-        final CountDownLatch consumerRegistered = new CountDownLatch(1);
-        executor.execute(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    final MessageConsumer consumer = session.createConsumer(destination);
-                    consumer.setMessageListener(new MessageListener() {
-                        @Override
-                        public void onMessage(Message message) {
-                            try {
-                                // very slow, only ack once
-                                doAck.await(60, TimeUnit.SECONDS);
-                                LOG.info("acking: " + message.getJMSMessageID());
-                                message.acknowledge();
-                                ackDone.countDown();
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                                fail(e.toString());
-                            } finally {
-                                consumerRegistered.countDown();
-                                ackDone.countDown();
-                            }
-                        }
-                    });
-                    consumerRegistered.countDown();
-                    ackDone.await(60, TimeUnit.SECONDS);
-                    consumer.close();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    fail(e.toString());
-                }
+            catch (Exception e) {
+               e.printStackTrace();
+               fail(e.toString());
             }
-        });
+         }
+      });
+      assertTrue("we have an advisory consumer", consumerRegistered.await(60, TimeUnit.SECONDS));
+      doTestMessageEvictionMemoryUsage();
+      assertTrue("got an advisory for discarded", gotAdvisory.await(0, TimeUnit.SECONDS));
+      assertTrue("advisory is good", advisoryIsGood.await(0, TimeUnit.SECONDS));
+   }
 
-        assertTrue("we have a consumer", consumerRegistered.await(10, TimeUnit.SECONDS));
+   public void doTestMessageEvictionMemoryUsage() throws Exception {
 
-        final AtomicInteger sent = new AtomicInteger(0);
-        final CountDownLatch sendDone = new CountDownLatch(1);
-        executor.execute(new Runnable() {
-            @Override
-            public void run() {
-               MessageProducer producer;
-               try {
-                   producer = session.createProducer(destination);
-                   for (int i=0; i< numMessages; i++) {
-                       producer.send(session.createTextMessage(payload));
-                       sent.incrementAndGet();
-                       TimeUnit.MILLISECONDS.sleep(10);
-                   }
-                   producer.close();
-                   sendDone.countDown();
-               } catch (Exception e) {
-                   sendDone.countDown();
-                   e.printStackTrace();
-                   fail(e.toString());
+      ExecutorService executor = Executors.newCachedThreadPool();
+      final CountDownLatch doAck = new CountDownLatch(1);
+      final CountDownLatch ackDone = new CountDownLatch(1);
+      final CountDownLatch consumerRegistered = new CountDownLatch(1);
+      executor.execute(new Runnable() {
+         @Override
+         public void run() {
+            try {
+               final MessageConsumer consumer = session.createConsumer(destination);
+               consumer.setMessageListener(new MessageListener() {
+                  @Override
+                  public void onMessage(Message message) {
+                     try {
+                        // very slow, only ack once
+                        doAck.await(60, TimeUnit.SECONDS);
+                        LOG.info("acking: " + message.getJMSMessageID());
+                        message.acknowledge();
+                        ackDone.countDown();
+                     }
+                     catch (Exception e) {
+                        e.printStackTrace();
+                        fail(e.toString());
+                     }
+                     finally {
+                        consumerRegistered.countDown();
+                        ackDone.countDown();
+                     }
+                  }
+               });
+               consumerRegistered.countDown();
+               ackDone.await(60, TimeUnit.SECONDS);
+               consumer.close();
+            }
+            catch (Exception e) {
+               e.printStackTrace();
+               fail(e.toString());
+            }
+         }
+      });
+
+      assertTrue("we have a consumer", consumerRegistered.await(10, TimeUnit.SECONDS));
+
+      final AtomicInteger sent = new AtomicInteger(0);
+      final CountDownLatch sendDone = new CountDownLatch(1);
+      executor.execute(new Runnable() {
+         @Override
+         public void run() {
+            MessageProducer producer;
+            try {
+               producer = session.createProducer(destination);
+               for (int i = 0; i < numMessages; i++) {
+                  producer.send(session.createTextMessage(payload));
+                  sent.incrementAndGet();
+                  TimeUnit.MILLISECONDS.sleep(10);
                }
+               producer.close();
+               sendDone.countDown();
             }
-        });
-
-        assertTrue("messages sending done", sendDone.await(180, TimeUnit.SECONDS));
-        assertEquals("all message were sent", numMessages, sent.get());
-
-        doAck.countDown();
-        executor.shutdown();
-        executor.awaitTermination(30, TimeUnit.SECONDS);
-
-        assertTrue("usage goes to 0 once consumer goes away", Wait.waitFor(new Wait.Condition() {
-            @Override
-            public boolean isSatisified() throws Exception {
-                return 0 == TestSupport.getDestination(broker,
-                        ActiveMQDestination.transform(destination)).getMemoryUsage().getPercentUsage();
+            catch (Exception e) {
+               sendDone.countDown();
+               e.printStackTrace();
+               fail(e.toString());
             }
-        }));
-    }
+         }
+      });
 
-    BrokerService createBroker(PendingSubscriberMessageStoragePolicy pendingSubscriberPolicy) throws Exception {
-        BrokerService brokerService = new BrokerService();
-        brokerService.addConnector("tcp://localhost:0");
-        brokerService.setUseJmx(false);
-        brokerService.setDeleteAllMessagesOnStartup(true);
+      assertTrue("messages sending done", sendDone.await(180, TimeUnit.SECONDS));
+      assertEquals("all message were sent", numMessages, sent.get());
 
-        // spooling to disk early so topic memory limit is not reached
-        brokerService.getSystemUsage().getMemoryUsage().setLimit(500*1024);
+      doAck.countDown();
+      executor.shutdown();
+      executor.awaitTermination(30, TimeUnit.SECONDS);
 
-        final List<PolicyEntry> policyEntries = new ArrayList<PolicyEntry>();
-        final PolicyEntry entry = new PolicyEntry();
-        entry.setTopic(">");
+      assertTrue("usage goes to 0 once consumer goes away", Wait.waitFor(new Wait.Condition() {
+         @Override
+         public boolean isSatisified() throws Exception {
+            return 0 == TestSupport.getDestination(broker, ActiveMQDestination.transform(destination)).getMemoryUsage().getPercentUsage();
+         }
+      }));
+   }
 
-        entry.setAdvisoryForDiscardingMessages(true);
+   BrokerService createBroker(PendingSubscriberMessageStoragePolicy pendingSubscriberPolicy) throws Exception {
+      BrokerService brokerService = new BrokerService();
+      brokerService.addConnector("tcp://localhost:0");
+      brokerService.setUseJmx(false);
+      brokerService.setDeleteAllMessagesOnStartup(true);
 
-        // so consumer does not get over run while blocked limit the prefetch
-        entry.setTopicPrefetch(50);
+      // spooling to disk early so topic memory limit is not reached
+      brokerService.getSystemUsage().getMemoryUsage().setLimit(500 * 1024);
 
+      final List<PolicyEntry> policyEntries = new ArrayList<PolicyEntry>();
+      final PolicyEntry entry = new PolicyEntry();
+      entry.setTopic(">");
 
-        entry.setPendingSubscriberPolicy(pendingSubscriberPolicy);
+      entry.setAdvisoryForDiscardingMessages(true);
 
-        // limit the number of outstanding messages, large enough to use the file store
-        // or small enough not to blow memory limit
-        int pendingMessageLimit = 50;
-        if (pendingSubscriberPolicy instanceof FilePendingSubscriberMessageStoragePolicy) {
-            pendingMessageLimit = 500;
-        }
-        ConstantPendingMessageLimitStrategy pendingMessageLimitStrategy = new ConstantPendingMessageLimitStrategy();
-        pendingMessageLimitStrategy.setLimit(pendingMessageLimit);
-        entry.setPendingMessageLimitStrategy(pendingMessageLimitStrategy);
+      // so consumer does not get over run while blocked limit the prefetch
+      entry.setTopicPrefetch(50);
 
-        // to keep the limit in check and up to date rather than just the first few, evict some
-        OldestMessageEvictionStrategy messageEvictionStrategy = new OldestMessageEvictionStrategy();
-        // whether to check expiry before eviction, default limit 1000 is fine as no ttl set in this test
-        //messageEvictionStrategy.setEvictExpiredMessagesHighWatermark(1000);
-        entry.setMessageEvictionStrategy(messageEvictionStrategy);
+      entry.setPendingSubscriberPolicy(pendingSubscriberPolicy);
 
-        // let evicted messaged disappear
-        entry.setDeadLetterStrategy(null);
-        policyEntries.add(entry);
+      // limit the number of outstanding messages, large enough to use the file store
+      // or small enough not to blow memory limit
+      int pendingMessageLimit = 50;
+      if (pendingSubscriberPolicy instanceof FilePendingSubscriberMessageStoragePolicy) {
+         pendingMessageLimit = 500;
+      }
+      ConstantPendingMessageLimitStrategy pendingMessageLimitStrategy = new ConstantPendingMessageLimitStrategy();
+      pendingMessageLimitStrategy.setLimit(pendingMessageLimit);
+      entry.setPendingMessageLimitStrategy(pendingMessageLimitStrategy);
 
-        final PolicyMap policyMap = new PolicyMap();
-        policyMap.setPolicyEntries(policyEntries);
-        brokerService.setDestinationPolicy(policyMap);
+      // to keep the limit in check and up to date rather than just the first few, evict some
+      OldestMessageEvictionStrategy messageEvictionStrategy = new OldestMessageEvictionStrategy();
+      // whether to check expiry before eviction, default limit 1000 is fine as no ttl set in this test
+      //messageEvictionStrategy.setEvictExpiredMessagesHighWatermark(1000);
+      entry.setMessageEvictionStrategy(messageEvictionStrategy);
 
-        return brokerService;
-    }
+      // let evicted messaged disappear
+      entry.setDeadLetterStrategy(null);
+      policyEntries.add(entry);
 
-    ConnectionFactory createConnectionFactory() throws Exception {
-        String url = broker.getTransportConnectors().get(0).getServer().getConnectURI().toString();
-        ActiveMQConnectionFactory factory =  new ActiveMQConnectionFactory(url);
-        factory.setWatchTopicAdvisories(false);
-        return factory;
-    }
+      final PolicyMap policyMap = new PolicyMap();
+      policyMap.setPolicyEntries(policyEntries);
+      brokerService.setDestinationPolicy(policyMap);
+
+      return brokerService;
+   }
+
+   ConnectionFactory createConnectionFactory() throws Exception {
+      String url = broker.getTransportConnectors().get(0).getServer().getConnectURI().toString();
+      ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(url);
+      factory.setWatchTopicAdvisories(false);
+      return factory;
+   }
 
 }

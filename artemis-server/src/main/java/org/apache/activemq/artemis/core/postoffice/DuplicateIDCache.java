@@ -21,13 +21,13 @@ import java.util.List;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 
-public interface DuplicateIDCache
-{
+public interface DuplicateIDCache {
+
    boolean contains(byte[] duplicateID);
 
    void addToCache(byte[] duplicateID, Transaction tx) throws Exception;
 
-   void deleteFromCache(byte [] duplicateID) throws Exception;
+   void deleteFromCache(byte[] duplicateID) throws Exception;
 
    void load(List<Pair<byte[], Long>> theIds) throws Exception;
 

@@ -16,8 +16,7 @@
  */
 package org.apache.activemq.artemis.core.transaction;
 
-public class TransactionPropertyIndexes
-{
+public class TransactionPropertyIndexes {
 
    public static final int LARGE_MESSAGE_CONFIRMATIONS = 1;
 

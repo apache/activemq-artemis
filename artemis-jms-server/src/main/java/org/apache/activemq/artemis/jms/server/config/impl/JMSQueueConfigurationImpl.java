@@ -18,9 +18,7 @@ package org.apache.activemq.artemis.jms.server.config.impl;
 
 import org.apache.activemq.artemis.jms.server.config.JMSQueueConfiguration;
 
-
-public class JMSQueueConfigurationImpl implements JMSQueueConfiguration
-{
+public class JMSQueueConfigurationImpl implements JMSQueueConfiguration {
 
    // Constants -----------------------------------------------------
 
@@ -38,52 +36,43 @@ public class JMSQueueConfigurationImpl implements JMSQueueConfiguration
 
    // Constructors --------------------------------------------------
 
-   public JMSQueueConfigurationImpl()
-   {
+   public JMSQueueConfigurationImpl() {
    }
 
    // QueueConfiguration implementation -----------------------------
 
-   public String[] getBindings()
-   {
+   public String[] getBindings() {
       return bindings;
    }
 
-   public JMSQueueConfigurationImpl setBindings(String... bindings)
-   {
+   public JMSQueueConfigurationImpl setBindings(String... bindings) {
       this.bindings = bindings;
       return this;
    }
 
-   public String getName()
-   {
+   public String getName() {
       return name;
    }
 
-   public JMSQueueConfigurationImpl setName(String name)
-   {
+   public JMSQueueConfigurationImpl setName(String name) {
       this.name = name;
       return this;
    }
 
-   public String getSelector()
-   {
+   public String getSelector() {
       return selector;
    }
 
-   public JMSQueueConfigurationImpl setSelector(String selector)
-   {
+   public JMSQueueConfigurationImpl setSelector(String selector) {
       this.selector = selector;
       return this;
    }
 
-   public boolean isDurable()
-   {
+   public boolean isDurable() {
       return durable;
    }
 
-   public JMSQueueConfigurationImpl setDurable(boolean durable)
-   {
+   public JMSQueueConfigurationImpl setDurable(boolean durable) {
       this.durable = durable;
       return this;
    }

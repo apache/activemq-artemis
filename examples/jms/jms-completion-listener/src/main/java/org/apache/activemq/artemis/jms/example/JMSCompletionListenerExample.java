@@ -32,22 +32,20 @@ import java.util.concurrent.TimeUnit;
 /**
  * A JMS Completion Listener Example.
  */
-public class JMSCompletionListenerExample
-{
-   public static void main(final String[] args) throws Exception
-   {
+public class JMSCompletionListenerExample {
+
+   public static void main(final String[] args) throws Exception {
       InitialContext initialContext = null;
       JMSContext jmsContext = null;
-      try
-      {
+      try {
          // Step 1. Create an initial context to perform the JNDI lookup.
          initialContext = new InitialContext();
 
          // Step 2. Perfom a lookup on the queue
-         Queue queue = (Queue)initialContext.lookup("queue/exampleQueue");
+         Queue queue = (Queue) initialContext.lookup("queue/exampleQueue");
 
          // Step 3. Perform a lookup on the Connection Factory
-         ConnectionFactory cf = (ConnectionFactory)initialContext.lookup("ConnectionFactory");
+         ConnectionFactory cf = (ConnectionFactory) initialContext.lookup("ConnectionFactory");
 
          // Step 4.Create a JMS Context
          jmsContext = cf.createContext();
@@ -58,18 +56,15 @@ public class JMSCompletionListenerExample
          final CountDownLatch latch = new CountDownLatch(1);
 
          //Step 6. We want to send the message Asynchronously and be notified when the Broker receives it so we set a completion handler
-         producer.setAsync(new CompletionListener()
-         {
+         producer.setAsync(new CompletionListener() {
             @Override
-            public void onCompletion(Message message)
-            {
+            public void onCompletion(Message message) {
                System.out.println("message acknowledged by ActiveMQ");
                latch.countDown();
             }
 
             @Override
-            public void onException(Message message, Exception e)
-            {
+            public void onException(Message message, Exception e) {
                e.printStackTrace();
             }
          });
@@ -78,20 +73,16 @@ public class JMSCompletionListenerExample
          producer.send(queue, "this is a string");
 
          //Step 7. wait for the Completion handler
-         if (!latch.await(5, TimeUnit.SECONDS))
-         {
+         if (!latch.await(5, TimeUnit.SECONDS)) {
             throw new IllegalStateException("Completion listener not called as expected.");
          }
       }
-      finally
-      {
+      finally {
          // Step 8. Be sure to close our JMS resources!
-         if (initialContext != null)
-         {
+         if (initialContext != null) {
             initialContext.close();
          }
-         if (jmsContext != null)
-         {
+         if (jmsContext != null) {
             jmsContext.close();
          }
       }

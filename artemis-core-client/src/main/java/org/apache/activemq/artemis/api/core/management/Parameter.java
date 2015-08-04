@@ -23,14 +23,14 @@ import java.lang.annotation.Target;
 
 /**
  * Info for a MBean Operation Parameter.
- * <p>
+ * <br>
  * This annotation is used only for methods which can be invoked
  * through a GUI.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.PARAMETER)
-public @interface Parameter
-{
+public @interface Parameter {
+
    String name();
 
    String desc() default "N/A";

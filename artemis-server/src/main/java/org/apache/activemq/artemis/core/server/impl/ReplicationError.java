@@ -29,30 +29,27 @@ import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 
 /**
  * Stops the backup in case of an error at the start of Replication.
- * <p>
+ * <br>
  * Using an interceptor for the task to avoid a server reference inside of the 'basic' channel-0
  * handler at {@link org.apache.activemq.artemis.core.protocol.core.impl.ActiveMQClientProtocolManager.Channel0Handler}. As {@link org.apache.activemq.artemis.core.protocol.core.impl.ActiveMQClientProtocolManager}
  * is also shipped in the activemq-core-client JAR (which does not include {@link org.apache.activemq.artemis.core.server.ActiveMQServer}).
  */
-final class ReplicationError implements Interceptor
-{
+final class ReplicationError implements Interceptor {
+
    private final ActiveMQServer server;
    private LiveNodeLocator nodeLocator;
 
-   public ReplicationError(ActiveMQServer server, LiveNodeLocator nodeLocator)
-   {
+   public ReplicationError(ActiveMQServer server, LiveNodeLocator nodeLocator) {
       this.server = server;
       this.nodeLocator = nodeLocator;
    }
 
    @Override
-   public boolean intercept(Packet packet, RemotingConnection connection) throws ActiveMQException
-   {
+   public boolean intercept(Packet packet, RemotingConnection connection) throws ActiveMQException {
       if (packet.getType() != PacketImpl.BACKUP_REGISTRATION_FAILED)
          return true;
       BackupReplicationStartFailedMessage message = (BackupReplicationStartFailedMessage) packet;
-      switch (message.getRegistrationProblem())
-      {
+      switch (message.getRegistrationProblem()) {
          case ALREADY_REPLICATING:
             tryNext();
             break;
@@ -69,14 +66,12 @@ final class ReplicationError implements Interceptor
       return false;
    }
 
-   private void failed() throws ActiveMQInternalErrorException
-   {
+   private void failed() throws ActiveMQInternalErrorException {
       ActiveMQServerLogger.LOGGER.errorRegisteringBackup();
       nodeLocator.notifyRegistrationFailed(false);
    }
 
-   private void tryNext()
-   {
+   private void tryNext() {
       nodeLocator.notifyRegistrationFailed(true);
    }
 

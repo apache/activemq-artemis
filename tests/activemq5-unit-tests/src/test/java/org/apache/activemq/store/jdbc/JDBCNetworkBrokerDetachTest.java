@@ -22,15 +22,15 @@ import org.apache.derby.jdbc.EmbeddedDataSource;
 
 public class JDBCNetworkBrokerDetachTest extends NetworkBrokerDetachTest {
 
-    protected void configureBroker(BrokerService broker) throws Exception {
-        JDBCPersistenceAdapter jdbc = new JDBCPersistenceAdapter();
-        EmbeddedDataSource dataSource = new EmbeddedDataSource();
-        dataSource.setDatabaseName(broker.getBrokerName());
-        dataSource.setCreateDatabase("create");
-        jdbc.setDataSource(dataSource);
-        jdbc.deleteAllMessages();
-        broker.setPersistenceAdapter(jdbc);
-        broker.setUseVirtualTopics(false);
-    }
-	
+   protected void configureBroker(BrokerService broker) throws Exception {
+      JDBCPersistenceAdapter jdbc = new JDBCPersistenceAdapter();
+      EmbeddedDataSource dataSource = new EmbeddedDataSource();
+      dataSource.setDatabaseName(broker.getBrokerName());
+      dataSource.setCreateDatabase("create");
+      jdbc.setDataSource(dataSource);
+      jdbc.deleteAllMessages();
+      broker.setPersistenceAdapter(jdbc);
+      broker.setUseVirtualTopics(false);
+   }
+
 }

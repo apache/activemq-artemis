@@ -19,8 +19,7 @@ package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.utils.DataConstants;
 
-public class SessionReceiveContinuationMessage extends SessionContinuationMessage
-{
+public class SessionReceiveContinuationMessage extends SessionContinuationMessage {
 
    // Constants -----------------------------------------------------
 
@@ -34,8 +33,7 @@ public class SessionReceiveContinuationMessage extends SessionContinuationMessag
 
    // Constructors --------------------------------------------------
 
-   public SessionReceiveContinuationMessage()
-   {
+   public SessionReceiveContinuationMessage() {
       super(SESS_RECEIVE_CONTINUATION);
    }
 
@@ -48,8 +46,7 @@ public class SessionReceiveContinuationMessage extends SessionContinuationMessag
    public SessionReceiveContinuationMessage(final long consumerID,
                                             final byte[] body,
                                             final boolean continues,
-                                            final boolean requiresResponse)
-   {
+                                            final boolean requiresResponse) {
       super(SESS_RECEIVE_CONTINUATION, body, continues);
       this.consumerID = consumerID;
    }
@@ -58,8 +55,7 @@ public class SessionReceiveContinuationMessage extends SessionContinuationMessag
                                             final byte[] body,
                                             final boolean continues,
                                             final boolean requiresResponse,
-                                            final int packetSize)
-   {
+                                            final int packetSize) {
       this(consumerID, body, continues, requiresResponse);
       this.size = packetSize;
    }
@@ -67,61 +63,52 @@ public class SessionReceiveContinuationMessage extends SessionContinuationMessag
    /**
     * @return the consumerID
     */
-   public long getConsumerID()
-   {
+   public long getConsumerID() {
       return consumerID;
    }
 
    // Public --------------------------------------------------------
 
    @Override
-   public void encodeRest(final ActiveMQBuffer buffer)
-   {
+   public void encodeRest(final ActiveMQBuffer buffer) {
       super.encodeRest(buffer);
       buffer.writeLong(consumerID);
    }
+
    @Override
-   public int getPacketSize()
-   {
-      if (size == -1)
-      {
+   public int getPacketSize() {
+      if (size == -1) {
          // This packet was created by the LargeMessageController
          return 0;
       }
-      else
-      {
+      else {
          return size;
       }
    }
 
-
-
    @Override
-   public void decodeRest(final ActiveMQBuffer buffer)
-   {
+   public void decodeRest(final ActiveMQBuffer buffer) {
       super.decodeRest(buffer);
       consumerID = buffer.readLong();
    }
 
    @Override
-   public int hashCode()
-   {
+   public int hashCode() {
       final int prime = 31;
       int result = super.hashCode();
-      result = prime * result + (int)(consumerID ^ (consumerID >>> 32));
+      result = prime * result + (int) (consumerID ^ (consumerID >>> 32));
       return result;
    }
 
    @Override
-   public boolean equals(Object obj)
-   {
+   public boolean equals(Object obj) {
       if (this == obj)
          return true;
       if (!super.equals(obj))
          return false;
       if (!(obj instanceof SessionReceiveContinuationMessage))
          return false;
-      SessionReceiveContinuationMessage other = (SessionReceiveContinuationMessage)obj;
+      SessionReceiveContinuationMessage other = (SessionReceiveContinuationMessage) obj;
       if (consumerID != other.consumerID)
          return false;
       return true;

@@ -43,135 +43,143 @@ import org.slf4j.LoggerFactory;
 
 public class AMQ3529Test {
 
-    private static Logger LOG = LoggerFactory.getLogger(AMQ3529Test.class);
+   private static Logger LOG = LoggerFactory.getLogger(AMQ3529Test.class);
 
-    private ConnectionFactory connectionFactory;
-    private Connection connection;
-    private Session session;
-    private BrokerService broker;
-    private String connectionUri;
-    private MessageConsumer consumer;
-    private Context ctx = null;
+   private ConnectionFactory connectionFactory;
+   private Connection connection;
+   private Session session;
+   private BrokerService broker;
+   private String connectionUri;
+   private MessageConsumer consumer;
+   private Context ctx = null;
 
-    @Before
-    public void startBroker() throws Exception {
-        broker = new BrokerService();
-        broker.setDeleteAllMessagesOnStartup(true);
-        broker.setPersistent(false);
-        broker.setUseJmx(false);
-        broker.addConnector("tcp://0.0.0.0:0");
-        broker.start();
-        broker.waitUntilStarted();
+   @Before
+   public void startBroker() throws Exception {
+      broker = new BrokerService();
+      broker.setDeleteAllMessagesOnStartup(true);
+      broker.setPersistent(false);
+      broker.setUseJmx(false);
+      broker.addConnector("tcp://0.0.0.0:0");
+      broker.start();
+      broker.waitUntilStarted();
 
-        connectionUri = broker.getTransportConnectors().get(0).getPublishableConnectString();
+      connectionUri = broker.getTransportConnectors().get(0).getPublishableConnectString();
 
-        connectionFactory = new ActiveMQConnectionFactory(connectionUri);
-    }
+      connectionFactory = new ActiveMQConnectionFactory(connectionUri);
+   }
 
-    @After
-    public void stopBroker() throws Exception {
-        broker.stop();
-        broker.waitUntilStopped();
-    }
+   @After
+   public void stopBroker() throws Exception {
+      broker.stop();
+      broker.waitUntilStopped();
+   }
 
-    @Test(timeout = 60000)
-    public void testInterruptionAffects() throws Exception {
-        ThreadGroup tg = new ThreadGroup("tg");
+   @Test(timeout = 60000)
+   public void testInterruptionAffects() throws Exception {
+      ThreadGroup tg = new ThreadGroup("tg");
 
-        assertEquals(0, tg.activeCount());
+      assertEquals(0, tg.activeCount());
 
-        Thread client = new Thread(tg, "client") {
+      Thread client = new Thread(tg, "client") {
 
-            @Override
-            public void run() {
-                try {
-                    connection = connectionFactory.createConnection();
-                    session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-                    assertNotNull(session);
+         @Override
+         public void run() {
+            try {
+               connection = connectionFactory.createConnection();
+               session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+               assertNotNull(session);
 
-                    Properties props = new Properties();
-                    props.setProperty(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.jndi.ActiveMQInitialContextFactory");
-                    props.setProperty(Context.PROVIDER_URL, "tcp://0.0.0.0:0");
-                    ctx = null;
-                    try {
-                        ctx = new InitialContext(props);
-                    } catch (NoClassDefFoundError e) {
-                        throw new NamingException(e.toString());
-                    } catch (Exception e) {
-                        throw new NamingException(e.toString());
-                    }
-                    Destination destination = (Destination) ctx.lookup("dynamicTopics/example.C");
-                    consumer = session.createConsumer(destination);
-                    consumer.receive(10000);
-                } catch (Exception e) {
-                    // Expect an exception here from the interrupt.
-                } finally {
-                    // next line is the nature of the test, if I remove this
-                    // line, everything works OK
-                    try {
-                        consumer.close();
-                    } catch (JMSException e) {
-                        fail("Consumer Close failed with" + e.getMessage());
-                    }
-                    try {
-                        session.close();
-                    } catch (JMSException e) {
-                        fail("Session Close failed with" + e.getMessage());
-                    }
-                    try {
-                        connection.close();
-                    } catch (JMSException e) {
-                        fail("Connection Close failed with" + e.getMessage());
-                    }
-                    try {
-                        ctx.close();
-                    } catch (Exception e) {
-                        fail("Connection Close failed with" + e.getMessage());
-                    }
-                }
+               Properties props = new Properties();
+               props.setProperty(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.jndi.ActiveMQInitialContextFactory");
+               props.setProperty(Context.PROVIDER_URL, "tcp://0.0.0.0:0");
+               ctx = null;
+               try {
+                  ctx = new InitialContext(props);
+               }
+               catch (NoClassDefFoundError e) {
+                  throw new NamingException(e.toString());
+               }
+               catch (Exception e) {
+                  throw new NamingException(e.toString());
+               }
+               Destination destination = (Destination) ctx.lookup("dynamicTopics/example.C");
+               consumer = session.createConsumer(destination);
+               consumer.receive(10000);
             }
-        };
-        client.start();
-        Thread.sleep(5000);
-        client.interrupt();
-        client.join();
-        Thread.sleep(2000);
-        Thread[] remainThreads = new Thread[tg.activeCount()];
-        tg.enumerate(remainThreads);
-        for (Thread t : remainThreads) {
-            if (t.isAlive() && !t.isDaemon())
-                fail("Remaining thread: " + t.toString());
-        }
+            catch (Exception e) {
+               // Expect an exception here from the interrupt.
+            }
+            finally {
+               // next line is the nature of the test, if I remove this
+               // line, everything works OK
+               try {
+                  consumer.close();
+               }
+               catch (JMSException e) {
+                  fail("Consumer Close failed with" + e.getMessage());
+               }
+               try {
+                  session.close();
+               }
+               catch (JMSException e) {
+                  fail("Session Close failed with" + e.getMessage());
+               }
+               try {
+                  connection.close();
+               }
+               catch (JMSException e) {
+                  fail("Connection Close failed with" + e.getMessage());
+               }
+               try {
+                  ctx.close();
+               }
+               catch (Exception e) {
+                  fail("Connection Close failed with" + e.getMessage());
+               }
+            }
+         }
+      };
+      client.start();
+      Thread.sleep(5000);
+      client.interrupt();
+      client.join();
+      Thread.sleep(2000);
+      Thread[] remainThreads = new Thread[tg.activeCount()];
+      tg.enumerate(remainThreads);
+      for (Thread t : remainThreads) {
+         if (t.isAlive() && !t.isDaemon())
+            fail("Remaining thread: " + t.toString());
+      }
 
-        ThreadGroup root = Thread.currentThread().getThreadGroup().getParent();
-        while (root.getParent() != null) {
-            root = root.getParent();
-        }
-        visit(root, 0);
-    }
+      ThreadGroup root = Thread.currentThread().getThreadGroup().getParent();
+      while (root.getParent() != null) {
+         root = root.getParent();
+      }
+      visit(root, 0);
+   }
 
-    // This method recursively visits all thread groups under `group'.
-    public static void visit(ThreadGroup group, int level) {
-        // Get threads in `group'
-        int numThreads = group.activeCount();
-        Thread[] threads = new Thread[numThreads * 2];
-        numThreads = group.enumerate(threads, false);
+   // This method recursively visits all thread groups under `group'.
+   public static void visit(ThreadGroup group, int level) {
+      // Get threads in `group'
+      int numThreads = group.activeCount();
+      Thread[] threads = new Thread[numThreads * 2];
+      numThreads = group.enumerate(threads, false);
 
-        // Enumerate each thread in `group'
-        for (int i = 0; i < numThreads; i++) {
-            // Get thread
-            Thread thread = threads[i];
-            LOG.debug("Thread:" + thread.getName() + " is still running");
-        }
+      // Enumerate each thread in `group'
+      for (int i = 0; i < numThreads; i++) {
+         // Get thread
+         Thread thread = threads[i];
+         LOG.debug("Thread:" + thread.getName() + " is still running");
+      }
 
-        // Get thread subgroups of `group'
-        int numGroups = group.activeGroupCount();
-        ThreadGroup[] groups = new ThreadGroup[numGroups * 2];
-        numGroups = group.enumerate(groups, false);
+      // Get thread subgroups of `group'
+      int numGroups = group.activeGroupCount();
+      ThreadGroup[] groups = new ThreadGroup[numGroups * 2];
+      numGroups = group.enumerate(groups, false);
 
-        // Recursively visit each subgroup
-        for (int i = 0; i < numGroups; i++) {
-            visit(groups[i], level + 1);
-        }
-    }
+      // Recursively visit each subgroup
+      for (int i = 0; i < numGroups; i++) {
+         visit(groups[i], level + 1);
+      }
+   }
 }

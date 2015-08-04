@@ -23,8 +23,7 @@ import javax.management.StandardMBean;
 
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 
-public abstract class AbstractControl extends StandardMBean
-{
+public abstract class AbstractControl extends StandardMBean {
 
    // Constants -----------------------------------------------------
 
@@ -36,8 +35,7 @@ public abstract class AbstractControl extends StandardMBean
 
    // Constructors --------------------------------------------------
 
-   public AbstractControl(final Class<?> clazz, final StorageManager storageManager) throws NotCompliantMBeanException
-   {
+   public AbstractControl(final Class<?> clazz, final StorageManager storageManager) throws NotCompliantMBeanException {
       super(clazz);
       this.storageManager = storageManager;
    }
@@ -48,27 +46,21 @@ public abstract class AbstractControl extends StandardMBean
 
    // Protected -----------------------------------------------------
 
-   protected void clearIO()
-   {
+   protected void clearIO() {
       // the storage manager could be null on the backup on certain components
-      if (storageManager != null)
-      {
+      if (storageManager != null) {
          storageManager.clearContext();
       }
    }
 
-   protected void blockOnIO()
-   {
+   protected void blockOnIO() {
       // the storage manager could be null on the backup on certain components
-      if (storageManager != null)
-      {
-         try
-         {
+      if (storageManager != null) {
+         try {
             storageManager.waitOnOperations();
             storageManager.clearContext();
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);
          }
       }
@@ -78,15 +70,9 @@ public abstract class AbstractControl extends StandardMBean
    protected abstract MBeanOperationInfo[] fillMBeanOperationInfo();
 
    @Override
-   public MBeanInfo getMBeanInfo()
-   {
+   public MBeanInfo getMBeanInfo() {
       MBeanInfo info = super.getMBeanInfo();
-      return new MBeanInfo(info.getClassName(),
-                           info.getDescription(),
-                           info.getAttributes(),
-                           info.getConstructors(),
-                           fillMBeanOperationInfo(),
-                           info.getNotifications());
+      return new MBeanInfo(info.getClassName(), info.getDescription(), info.getAttributes(), info.getConstructors(), fillMBeanOperationInfo(), info.getNotifications());
    }
 
    // Private -------------------------------------------------------

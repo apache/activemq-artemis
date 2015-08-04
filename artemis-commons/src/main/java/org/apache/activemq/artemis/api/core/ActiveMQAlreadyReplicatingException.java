@@ -19,17 +19,15 @@ package org.apache.activemq.artemis.api.core;
 /**
  * The server is already paired with a replicating backup.
  */
-public final class ActiveMQAlreadyReplicatingException extends ActiveMQException
-{
+public final class ActiveMQAlreadyReplicatingException extends ActiveMQException {
+
    private static final long serialVersionUID = -7352538521961996152L;
 
-   public ActiveMQAlreadyReplicatingException()
-   {
+   public ActiveMQAlreadyReplicatingException() {
       super(ActiveMQExceptionType.ALREADY_REPLICATING);
    }
 
-   public ActiveMQAlreadyReplicatingException(String msg)
-   {
+   public ActiveMQAlreadyReplicatingException(String msg) {
       super(ActiveMQExceptionType.ALREADY_REPLICATING, msg);
    }
 }

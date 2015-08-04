@@ -16,8 +16,7 @@
  */
 package org.apache.activemq.artemis.spi.core.remoting;
 
-public interface ClientProtocolManagerFactory
-{
+public interface ClientProtocolManagerFactory {
 
    ClientProtocolManager newProtocolManager();
 }

@@ -16,13 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.distribution;
 
-
-public class NettySymmetricClusterWithBackupTest extends SymmetricClusterWithBackupTest
-{
+public class NettySymmetricClusterWithBackupTest extends SymmetricClusterWithBackupTest {
 
    @Override
-   protected boolean isNetty()
-   {
+   protected boolean isNetty() {
       return true;
    }
 

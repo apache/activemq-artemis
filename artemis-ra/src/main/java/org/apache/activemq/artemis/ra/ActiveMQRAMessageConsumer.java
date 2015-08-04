@@ -26,69 +26,69 @@ import javax.jms.ObjectMessage;
 import javax.jms.StreamMessage;
 import javax.jms.TextMessage;
 
-
 /**
  * A wrapper for a message consumer
  */
-public class ActiveMQRAMessageConsumer implements MessageConsumer
-{
-   /** Whether trace is enabled */
+public class ActiveMQRAMessageConsumer implements MessageConsumer {
+
+   /**
+    * Whether trace is enabled
+    */
    private static boolean trace = ActiveMQRALogger.LOGGER.isTraceEnabled();
 
-   /** The wrapped message consumer */
+   /**
+    * The wrapped message consumer
+    */
    protected MessageConsumer consumer;
 
-   /** The session for this consumer */
+   /**
+    * The session for this consumer
+    */
    protected ActiveMQRASession session;
 
    /**
     * Create a new wrapper
+    *
     * @param consumer the consumer
-    * @param session the session
+    * @param session  the session
     */
-   public ActiveMQRAMessageConsumer(final MessageConsumer consumer, final ActiveMQRASession session)
-   {
+   public ActiveMQRAMessageConsumer(final MessageConsumer consumer, final ActiveMQRASession session) {
       this.consumer = consumer;
       this.session = session;
 
-      if (ActiveMQRAMessageConsumer.trace)
-      {
+      if (ActiveMQRAMessageConsumer.trace) {
          ActiveMQRALogger.LOGGER.trace("new ActiveMQMessageConsumer " + this +
-                                            " consumer=" +
-                                            consumer +
-                                            " session=" +
-                                            session);
+                                          " consumer=" +
+                                          consumer +
+                                          " session=" +
+                                          session);
       }
    }
 
    /**
     * Close
-    * @exception JMSException Thrown if an error occurs
+    *
+    * @throws JMSException Thrown if an error occurs
     */
-   public void close() throws JMSException
-   {
-      if (ActiveMQRAMessageConsumer.trace)
-      {
+   public void close() throws JMSException {
+      if (ActiveMQRAMessageConsumer.trace) {
          ActiveMQRALogger.LOGGER.trace("close " + this);
       }
-      try
-      {
+      try {
          closeConsumer();
       }
-      finally
-      {
+      finally {
          session.removeConsumer(this);
       }
    }
 
    /**
     * Check state
-    * @exception JMSException Thrown if an error occurs
+    *
+    * @throws JMSException Thrown if an error occurs
     */
-   void checkState() throws JMSException
-   {
-      if (ActiveMQRAMessageConsumer.trace)
-      {
+   void checkState() throws JMSException {
+      if (ActiveMQRAMessageConsumer.trace) {
          ActiveMQRALogger.LOGGER.trace("checkState()");
       }
       session.checkState();
@@ -96,13 +96,12 @@ public class ActiveMQRAMessageConsumer implements MessageConsumer
 
    /**
     * Get message listener
+    *
     * @return The listener
-    * @exception JMSException Thrown if an error occurs
+    * @throws JMSException Thrown if an error occurs
     */
-   public MessageListener getMessageListener() throws JMSException
-   {
-      if (ActiveMQRAMessageConsumer.trace)
-      {
+   public MessageListener getMessageListener() throws JMSException {
+      if (ActiveMQRAMessageConsumer.trace) {
          ActiveMQRALogger.LOGGER.trace("getMessageListener()");
       }
 
@@ -113,40 +112,35 @@ public class ActiveMQRAMessageConsumer implements MessageConsumer
 
    /**
     * Set message listener
+    *
     * @param listener The listener
-    * @exception JMSException Thrown if an error occurs
+    * @throws JMSException Thrown if an error occurs
     */
-   public void setMessageListener(final MessageListener listener) throws JMSException
-   {
+   public void setMessageListener(final MessageListener listener) throws JMSException {
       session.lock();
-      try
-      {
+      try {
          checkState();
          session.checkStrict();
-         if (listener == null)
-         {
+         if (listener == null) {
             consumer.setMessageListener(null);
          }
-         else
-         {
+         else {
             consumer.setMessageListener(wrapMessageListener(listener));
          }
       }
-      finally
-      {
+      finally {
          session.unlock();
       }
    }
 
    /**
     * Get message selector
+    *
     * @return The selector
-    * @exception JMSException Thrown if an error occurs
+    * @throws JMSException Thrown if an error occurs
     */
-   public String getMessageSelector() throws JMSException
-   {
-      if (ActiveMQRAMessageConsumer.trace)
-      {
+   public String getMessageSelector() throws JMSException {
+      if (ActiveMQRAMessageConsumer.trace) {
          ActiveMQRALogger.LOGGER.trace("getMessageSelector()");
       }
 
@@ -156,127 +150,108 @@ public class ActiveMQRAMessageConsumer implements MessageConsumer
 
    /**
     * Receive
+    *
     * @return The message
-    * @exception JMSException Thrown if an error occurs
+    * @throws JMSException Thrown if an error occurs
     */
-   public Message receive() throws JMSException
-   {
+   public Message receive() throws JMSException {
       session.lock();
-      try
-      {
-         if (ActiveMQRAMessageConsumer.trace)
-         {
+      try {
+         if (ActiveMQRAMessageConsumer.trace) {
             ActiveMQRALogger.LOGGER.trace("receive " + this);
          }
 
          checkState();
          Message message = consumer.receive();
 
-         if (ActiveMQRAMessageConsumer.trace)
-         {
+         if (ActiveMQRAMessageConsumer.trace) {
             ActiveMQRALogger.LOGGER.trace("received " + this + " result=" + message);
          }
 
-         if (message == null)
-         {
+         if (message == null) {
             return null;
          }
-         else
-         {
+         else {
             return wrapMessage(message);
          }
       }
-      finally
-      {
+      finally {
          session.unlock();
       }
    }
 
    /**
     * Receive
+    *
     * @param timeout The timeout value
     * @return The message
-    * @exception JMSException Thrown if an error occurs
+    * @throws JMSException Thrown if an error occurs
     */
-   public Message receive(final long timeout) throws JMSException
-   {
+   public Message receive(final long timeout) throws JMSException {
       session.lock();
-      try
-      {
-         if (ActiveMQRAMessageConsumer.trace)
-         {
+      try {
+         if (ActiveMQRAMessageConsumer.trace) {
             ActiveMQRALogger.LOGGER.trace("receive " + this + " timeout=" + timeout);
          }
 
          checkState();
          Message message = consumer.receive(timeout);
 
-         if (ActiveMQRAMessageConsumer.trace)
-         {
+         if (ActiveMQRAMessageConsumer.trace) {
             ActiveMQRALogger.LOGGER.trace("received " + this + " result=" + message);
          }
 
-         if (message == null)
-         {
+         if (message == null) {
             return null;
          }
-         else
-         {
+         else {
             return wrapMessage(message);
          }
       }
-      finally
-      {
+      finally {
          session.unlock();
       }
    }
 
    /**
     * Receive
+    *
     * @return The message
-    * @exception JMSException Thrown if an error occurs
+    * @throws JMSException Thrown if an error occurs
     */
-   public Message receiveNoWait() throws JMSException
-   {
+   public Message receiveNoWait() throws JMSException {
       session.lock();
-      try
-      {
-         if (ActiveMQRAMessageConsumer.trace)
-         {
+      try {
+         if (ActiveMQRAMessageConsumer.trace) {
             ActiveMQRALogger.LOGGER.trace("receiveNoWait " + this);
          }
 
          checkState();
          Message message = consumer.receiveNoWait();
 
-         if (ActiveMQRAMessageConsumer.trace)
-         {
+         if (ActiveMQRAMessageConsumer.trace) {
             ActiveMQRALogger.LOGGER.trace("received " + this + " result=" + message);
          }
 
-         if (message == null)
-         {
+         if (message == null) {
             return null;
          }
-         else
-         {
+         else {
             return wrapMessage(message);
          }
       }
-      finally
-      {
+      finally {
          session.unlock();
       }
    }
 
    /**
     * Close consumer
-    * @exception JMSException Thrown if an error occurs
+    *
+    * @throws JMSException Thrown if an error occurs
     */
-   void closeConsumer() throws JMSException
-   {
-      if (ActiveMQRAMessageConsumer.trace)
-      {
+   void closeConsumer() throws JMSException {
+      if (ActiveMQRAMessageConsumer.trace) {
          ActiveMQRALogger.LOGGER.trace("closeConsumer()");
       }
 
@@ -285,48 +260,41 @@ public class ActiveMQRAMessageConsumer implements MessageConsumer
 
    /**
     * Wrap message
+    *
     * @param message The message to be wrapped
     * @return The wrapped message
     */
-   Message wrapMessage(final Message message)
-   {
-      if (ActiveMQRAMessageConsumer.trace)
-      {
+   Message wrapMessage(final Message message) {
+      if (ActiveMQRAMessageConsumer.trace) {
          ActiveMQRALogger.LOGGER.trace("wrapMessage(" + message + ")");
       }
 
-      if (message instanceof BytesMessage)
-      {
-         return new ActiveMQRABytesMessage((BytesMessage)message, session);
+      if (message instanceof BytesMessage) {
+         return new ActiveMQRABytesMessage((BytesMessage) message, session);
       }
-      else if (message instanceof MapMessage)
-      {
-         return new ActiveMQRAMapMessage((MapMessage)message, session);
+      else if (message instanceof MapMessage) {
+         return new ActiveMQRAMapMessage((MapMessage) message, session);
       }
-      else if (message instanceof ObjectMessage)
-      {
-         return new ActiveMQRAObjectMessage((ObjectMessage)message, session);
+      else if (message instanceof ObjectMessage) {
+         return new ActiveMQRAObjectMessage((ObjectMessage) message, session);
       }
-      else if (message instanceof StreamMessage)
-      {
-         return new ActiveMQRAStreamMessage((StreamMessage)message, session);
+      else if (message instanceof StreamMessage) {
+         return new ActiveMQRAStreamMessage((StreamMessage) message, session);
       }
-      else if (message instanceof TextMessage)
-      {
-         return new ActiveMQRATextMessage((TextMessage)message, session);
+      else if (message instanceof TextMessage) {
+         return new ActiveMQRATextMessage((TextMessage) message, session);
       }
       return new ActiveMQRAMessage(message, session);
    }
 
    /**
     * Wrap message listener
+    *
     * @param listener The listener to be wrapped
     * @return The wrapped listener
     */
-   MessageListener wrapMessageListener(final MessageListener listener)
-   {
-      if (ActiveMQRAMessageConsumer.trace)
-      {
+   MessageListener wrapMessageListener(final MessageListener listener) {
+      if (ActiveMQRAMessageConsumer.trace) {
          ActiveMQRALogger.LOGGER.trace("getMessageSelector()");
       }
 

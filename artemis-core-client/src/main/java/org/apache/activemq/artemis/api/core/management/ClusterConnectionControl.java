@@ -21,8 +21,8 @@ import java.util.Map;
 /**
  * A ClusterConnectionControl is used to manage a cluster connection.
  */
-public interface ClusterConnectionControl extends ActiveMQComponentControl
-{
+public interface ClusterConnectionControl extends ActiveMQComponentControl {
+
    /**
     * Returns the configuration name of this cluster connection.
     */
@@ -52,6 +52,7 @@ public interface ClusterConnectionControl extends ActiveMQComponentControl
     * Return the Topology that this Cluster Connection knows about
     */
    String getTopology();
+
    /**
     * Returns the maximum number of hops used by this cluster connection.
     */

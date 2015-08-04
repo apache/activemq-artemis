@@ -28,8 +28,7 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class CleanBufferTest extends ActiveMQTestBase
-{
+public class CleanBufferTest extends ActiveMQTestBase {
 
    // Constants -----------------------------------------------------
 
@@ -42,18 +41,15 @@ public class CleanBufferTest extends ActiveMQTestBase
    // Public --------------------------------------------------------
 
    @Test
-   public void testCleanOnNIO()
-   {
+   public void testCleanOnNIO() {
       SequentialFileFactory factory = new NIOSequentialFileFactory(new File("Whatever"), 1);
 
       testBuffer(factory);
    }
 
    @Test
-   public void testCleanOnAIO()
-   {
-      if (LibaioContext.isLoaded())
-      {
+   public void testCleanOnAIO() {
+      if (LibaioContext.isLoaded()) {
          SequentialFileFactory factory = new AIOSequentialFileFactory(new File("Whatever"), 50);
 
          testBuffer(factory);
@@ -61,29 +57,24 @@ public class CleanBufferTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testCleanOnFake()
-   {
+   public void testCleanOnFake() {
       SequentialFileFactory factory = new FakeSequentialFileFactory();
 
       testBuffer(factory);
    }
 
-   private void testBuffer(final SequentialFileFactory factory)
-   {
+   private void testBuffer(final SequentialFileFactory factory) {
       factory.start();
       ByteBuffer buffer = factory.newBuffer(100);
 
-      try
-      {
-         for (byte b = 0; b < 100; b++)
-         {
+      try {
+         for (byte b = 0; b < 100; b++) {
             buffer.put(b);
          }
 
          buffer.rewind();
 
-         for (byte b = 0; b < 100; b++)
-         {
+         for (byte b = 0; b < 100; b++) {
             Assert.assertEquals(b, buffer.get());
          }
 
@@ -93,20 +84,16 @@ public class CleanBufferTest extends ActiveMQTestBase
 
          buffer.rewind();
 
-         for (byte b = 0; b < 100; b++)
-         {
-            if (b < 10)
-            {
+         for (byte b = 0; b < 100; b++) {
+            if (b < 10) {
                Assert.assertEquals(0, buffer.get());
             }
-            else
-            {
+            else {
                Assert.assertEquals(b, buffer.get());
             }
          }
       }
-      finally
-      {
+      finally {
          factory.releaseBuffer(buffer);
          factory.stop();
       }

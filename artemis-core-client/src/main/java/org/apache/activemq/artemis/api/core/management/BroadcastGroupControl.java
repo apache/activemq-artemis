@@ -19,8 +19,8 @@ package org.apache.activemq.artemis.api.core.management;
 /**
  * A BroadcastGroupControl is used to manage a broadcast group.
  */
-public interface BroadcastGroupControl extends ActiveMQComponentControl
-{
+public interface BroadcastGroupControl extends ActiveMQComponentControl {
+
    /**
     * Returns the configuration name of this broadcast group.
     */

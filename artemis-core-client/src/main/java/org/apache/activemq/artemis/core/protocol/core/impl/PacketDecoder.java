@@ -145,338 +145,271 @@ import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionXAS
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SubscribeClusterTopologyUpdatesMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SubscribeClusterTopologyUpdatesMessageV2;
 
-public abstract class PacketDecoder implements Serializable
-{
+public abstract class PacketDecoder implements Serializable {
+
    public abstract Packet decode(final ActiveMQBuffer in);
 
-   public Packet decode(byte packetType)
-   {
+   public Packet decode(byte packetType) {
       Packet packet;
 
-      switch (packetType)
-      {
-         case PING:
-         {
+      switch (packetType) {
+         case PING: {
             packet = new Ping();
             break;
          }
-         case DISCONNECT:
-         {
+         case DISCONNECT: {
             packet = new DisconnectMessage();
             break;
          }
-         case DISCONNECT_V2:
-         {
+         case DISCONNECT_V2: {
             packet = new DisconnectMessage_V2();
             break;
          }
-         case DISCONNECT_CONSUMER:
-         {
+         case DISCONNECT_CONSUMER: {
             packet = new DisconnectConsumerMessage();
             break;
          }
-         case EXCEPTION:
-         {
+         case EXCEPTION: {
             packet = new ActiveMQExceptionMessage();
             break;
          }
-         case PACKETS_CONFIRMED:
-         {
+         case PACKETS_CONFIRMED: {
             packet = new PacketsConfirmedMessage();
             break;
          }
-         case CREATESESSION:
-         {
+         case CREATESESSION: {
             packet = new CreateSessionMessage();
             break;
          }
-         case CHECK_FOR_FAILOVER:
-         {
+         case CHECK_FOR_FAILOVER: {
             packet = new CheckFailoverMessage();
             break;
          }
-         case CREATESESSION_RESP:
-         {
+         case CREATESESSION_RESP: {
             packet = new CreateSessionResponseMessage();
             break;
          }
-         case REATTACH_SESSION:
-         {
+         case REATTACH_SESSION: {
             packet = new ReattachSessionMessage();
             break;
          }
-         case REATTACH_SESSION_RESP:
-         {
+         case REATTACH_SESSION_RESP: {
             packet = new ReattachSessionResponseMessage();
             break;
          }
-         case SESS_CLOSE:
-         {
+         case SESS_CLOSE: {
             packet = new SessionCloseMessage();
             break;
          }
-         case SESS_CREATECONSUMER:
-         {
+         case SESS_CREATECONSUMER: {
             packet = new SessionCreateConsumerMessage();
             break;
          }
-         case SESS_ACKNOWLEDGE:
-         {
+         case SESS_ACKNOWLEDGE: {
             packet = new SessionAcknowledgeMessage();
             break;
          }
-         case SESS_EXPIRED:
-         {
+         case SESS_EXPIRED: {
             packet = new SessionExpireMessage();
             break;
          }
-         case SESS_COMMIT:
-         {
+         case SESS_COMMIT: {
             packet = new SessionCommitMessage();
             break;
          }
-         case SESS_ROLLBACK:
-         {
+         case SESS_ROLLBACK: {
             packet = new RollbackMessage();
             break;
          }
-         case SESS_QUEUEQUERY:
-         {
+         case SESS_QUEUEQUERY: {
             packet = new SessionQueueQueryMessage();
             break;
          }
-         case SESS_QUEUEQUERY_RESP:
-         {
+         case SESS_QUEUEQUERY_RESP: {
             packet = new SessionQueueQueryResponseMessage();
             break;
          }
-         case SESS_QUEUEQUERY_RESP_V2:
-         {
+         case SESS_QUEUEQUERY_RESP_V2: {
             packet = new SessionQueueQueryResponseMessage_V2();
             break;
          }
-         case CREATE_QUEUE:
-         {
+         case CREATE_QUEUE: {
             packet = new CreateQueueMessage();
             break;
          }
-         case CREATE_SHARED_QUEUE:
-         {
+         case CREATE_SHARED_QUEUE: {
             packet = new CreateSharedQueueMessage();
             break;
          }
-         case DELETE_QUEUE:
-         {
+         case DELETE_QUEUE: {
             packet = new SessionDeleteQueueMessage();
             break;
          }
-         case SESS_BINDINGQUERY:
-         {
+         case SESS_BINDINGQUERY: {
             packet = new SessionBindingQueryMessage();
             break;
          }
-         case SESS_BINDINGQUERY_RESP:
-         {
+         case SESS_BINDINGQUERY_RESP: {
             packet = new SessionBindingQueryResponseMessage();
             break;
          }
-         case SESS_BINDINGQUERY_RESP_V2:
-         {
+         case SESS_BINDINGQUERY_RESP_V2: {
             packet = new SessionBindingQueryResponseMessage_V2();
             break;
          }
-         case SESS_XA_START:
-         {
+         case SESS_XA_START: {
             packet = new SessionXAStartMessage();
             break;
          }
-         case SESS_XA_FAILED:
-         {
+         case SESS_XA_FAILED: {
             packet = new SessionXAAfterFailedMessage();
             break;
          }
-         case SESS_XA_END:
-         {
+         case SESS_XA_END: {
             packet = new SessionXAEndMessage();
             break;
          }
-         case SESS_XA_COMMIT:
-         {
+         case SESS_XA_COMMIT: {
             packet = new SessionXACommitMessage();
             break;
          }
-         case SESS_XA_PREPARE:
-         {
+         case SESS_XA_PREPARE: {
             packet = new SessionXAPrepareMessage();
             break;
          }
-         case SESS_XA_RESP:
-         {
+         case SESS_XA_RESP: {
             packet = new SessionXAResponseMessage();
             break;
          }
-         case SESS_XA_ROLLBACK:
-         {
+         case SESS_XA_ROLLBACK: {
             packet = new SessionXARollbackMessage();
             break;
          }
-         case SESS_XA_JOIN:
-         {
+         case SESS_XA_JOIN: {
             packet = new SessionXAJoinMessage();
             break;
          }
-         case SESS_XA_SUSPEND:
-         {
+         case SESS_XA_SUSPEND: {
             packet = new PacketImpl(PacketImpl.SESS_XA_SUSPEND);
             break;
          }
-         case SESS_XA_RESUME:
-         {
+         case SESS_XA_RESUME: {
             packet = new SessionXAResumeMessage();
             break;
          }
-         case SESS_XA_FORGET:
-         {
+         case SESS_XA_FORGET: {
             packet = new SessionXAForgetMessage();
             break;
          }
-         case SESS_XA_INDOUBT_XIDS:
-         {
+         case SESS_XA_INDOUBT_XIDS: {
             packet = new PacketImpl(PacketImpl.SESS_XA_INDOUBT_XIDS);
             break;
          }
-         case SESS_XA_INDOUBT_XIDS_RESP:
-         {
+         case SESS_XA_INDOUBT_XIDS_RESP: {
             packet = new SessionXAGetInDoubtXidsResponseMessage();
             break;
          }
-         case SESS_XA_SET_TIMEOUT:
-         {
+         case SESS_XA_SET_TIMEOUT: {
             packet = new SessionXASetTimeoutMessage();
             break;
          }
-         case SESS_XA_SET_TIMEOUT_RESP:
-         {
+         case SESS_XA_SET_TIMEOUT_RESP: {
             packet = new SessionXASetTimeoutResponseMessage();
             break;
          }
-         case SESS_XA_GET_TIMEOUT:
-         {
+         case SESS_XA_GET_TIMEOUT: {
             packet = new PacketImpl(PacketImpl.SESS_XA_GET_TIMEOUT);
             break;
          }
-         case SESS_XA_GET_TIMEOUT_RESP:
-         {
+         case SESS_XA_GET_TIMEOUT_RESP: {
             packet = new SessionXAGetTimeoutResponseMessage();
             break;
          }
-         case SESS_START:
-         {
+         case SESS_START: {
             packet = new PacketImpl(PacketImpl.SESS_START);
             break;
          }
-         case SESS_STOP:
-         {
+         case SESS_STOP: {
             packet = new PacketImpl(PacketImpl.SESS_STOP);
             break;
          }
-         case SESS_FLOWTOKEN:
-         {
+         case SESS_FLOWTOKEN: {
             packet = new SessionConsumerFlowCreditMessage();
             break;
          }
-         case SESS_CONSUMER_CLOSE:
-         {
+         case SESS_CONSUMER_CLOSE: {
             packet = new SessionConsumerCloseMessage();
             break;
          }
-         case SESS_INDIVIDUAL_ACKNOWLEDGE:
-         {
+         case SESS_INDIVIDUAL_ACKNOWLEDGE: {
             packet = new SessionIndividualAcknowledgeMessage();
             break;
          }
-         case NULL_RESPONSE:
-         {
+         case NULL_RESPONSE: {
             packet = new NullResponseMessage();
             break;
          }
-         case SESS_RECEIVE_CONTINUATION:
-         {
+         case SESS_RECEIVE_CONTINUATION: {
             packet = new SessionReceiveContinuationMessage();
             break;
          }
-         case SESS_SEND_CONTINUATION:
-         {
+         case SESS_SEND_CONTINUATION: {
             packet = new SessionSendContinuationMessage();
             break;
          }
-         case SESS_PRODUCER_REQUEST_CREDITS:
-         {
+         case SESS_PRODUCER_REQUEST_CREDITS: {
             packet = new SessionRequestProducerCreditsMessage();
             break;
          }
-         case SESS_PRODUCER_CREDITS:
-         {
+         case SESS_PRODUCER_CREDITS: {
             packet = new SessionProducerCreditsMessage();
             break;
          }
-         case SESS_PRODUCER_FAIL_CREDITS:
-         {
+         case SESS_PRODUCER_FAIL_CREDITS: {
             packet = new SessionProducerCreditsFailMessage();
             break;
          }
-         case SESS_FORCE_CONSUMER_DELIVERY:
-         {
+         case SESS_FORCE_CONSUMER_DELIVERY: {
             packet = new SessionForceConsumerDelivery();
             break;
          }
-         case CLUSTER_TOPOLOGY:
-         {
+         case CLUSTER_TOPOLOGY: {
             packet = new ClusterTopologyChangeMessage();
             break;
          }
-         case CLUSTER_TOPOLOGY_V2:
-         {
+         case CLUSTER_TOPOLOGY_V2: {
             packet = new ClusterTopologyChangeMessage_V2();
             break;
          }
-         case CLUSTER_TOPOLOGY_V3:
-         {
+         case CLUSTER_TOPOLOGY_V3: {
             packet = new ClusterTopologyChangeMessage_V3();
             break;
          }
-         case SUBSCRIBE_TOPOLOGY:
-         {
+         case SUBSCRIBE_TOPOLOGY: {
             packet = new SubscribeClusterTopologyUpdatesMessage();
             break;
          }
-         case SUBSCRIBE_TOPOLOGY_V2:
-         {
+         case SUBSCRIBE_TOPOLOGY_V2: {
             packet = new SubscribeClusterTopologyUpdatesMessageV2();
             break;
          }
-         case SESS_ADD_METADATA:
-         {
+         case SESS_ADD_METADATA: {
             packet = new SessionAddMetaDataMessage();
             break;
          }
-         case SESS_ADD_METADATA2:
-         {
+         case SESS_ADD_METADATA2: {
             packet = new SessionAddMetaDataMessageV2();
             break;
          }
-         case SESS_UNIQUE_ADD_METADATA:
-         {
+         case SESS_UNIQUE_ADD_METADATA: {
             packet = new SessionUniqueAddMetaDataMessage();
             break;
          }
-         case PacketImpl.CHECK_FOR_FAILOVER_REPLY:
-         {
+         case PacketImpl.CHECK_FOR_FAILOVER_REPLY: {
             packet = new CheckFailoverReplyMessage();
             break;
          }
-         default:
-         {
+         default: {
             throw ActiveMQClientMessageBundle.BUNDLE.invalidType(packetType);
          }
       }

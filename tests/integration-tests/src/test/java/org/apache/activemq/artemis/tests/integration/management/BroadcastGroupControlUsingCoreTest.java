@@ -22,69 +22,55 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.api.core.management.BroadcastGroupControl;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
 
-public class BroadcastGroupControlUsingCoreTest extends BroadcastGroupControlTest
-{
+public class BroadcastGroupControlUsingCoreTest extends BroadcastGroupControlTest {
 
    @Override
-   protected BroadcastGroupControl createManagementControl(final String name) throws Exception
-   {
+   protected BroadcastGroupControl createManagementControl(final String name) throws Exception {
       ServerLocator locator = createInVMNonHALocator();
       ClientSessionFactory sf = addSessionFactory(createSessionFactory(locator));
       final ClientSession session = addClientSession(sf.createSession(false, true, true));
       session.start();
 
-      return new BroadcastGroupControl()
-      {
-         private final CoreMessagingProxy proxy = new CoreMessagingProxy(session,
-                                                                         ResourceNames.CORE_BROADCAST_GROUP + name);
+      return new BroadcastGroupControl() {
+         private final CoreMessagingProxy proxy = new CoreMessagingProxy(session, ResourceNames.CORE_BROADCAST_GROUP + name);
 
-         public long getBroadcastPeriod()
-         {
-            return ((Integer)proxy.retrieveAttributeValue("broadcastPeriod")).longValue();
+         public long getBroadcastPeriod() {
+            return ((Integer) proxy.retrieveAttributeValue("broadcastPeriod")).longValue();
          }
 
-         public Object[] getConnectorPairs()
-         {
-            return (Object[])proxy.retrieveAttributeValue("connectorPairs");
+         public Object[] getConnectorPairs() {
+            return (Object[]) proxy.retrieveAttributeValue("connectorPairs");
          }
 
-         public String getConnectorPairsAsJSON()
-         {
-            return (String)proxy.retrieveAttributeValue("connectorPairsAsJSON");
+         public String getConnectorPairsAsJSON() {
+            return (String) proxy.retrieveAttributeValue("connectorPairsAsJSON");
          }
 
-         public String getGroupAddress()
-         {
-            return (String)proxy.retrieveAttributeValue("groupAddress");
+         public String getGroupAddress() {
+            return (String) proxy.retrieveAttributeValue("groupAddress");
          }
 
-         public int getGroupPort()
-         {
-            return (Integer)proxy.retrieveAttributeValue("groupPort");
+         public int getGroupPort() {
+            return (Integer) proxy.retrieveAttributeValue("groupPort");
          }
 
-         public int getLocalBindPort()
-         {
-            return (Integer)proxy.retrieveAttributeValue("localBindPort");
+         public int getLocalBindPort() {
+            return (Integer) proxy.retrieveAttributeValue("localBindPort");
          }
 
-         public String getName()
-         {
-            return (String)proxy.retrieveAttributeValue("name");
+         public String getName() {
+            return (String) proxy.retrieveAttributeValue("name");
          }
 
-         public boolean isStarted()
-         {
-            return (Boolean)proxy.retrieveAttributeValue("started");
+         public boolean isStarted() {
+            return (Boolean) proxy.retrieveAttributeValue("started");
          }
 
-         public void start() throws Exception
-         {
+         public void start() throws Exception {
             proxy.invokeOperation("start");
          }
 
-         public void stop() throws Exception
-         {
+         public void stop() throws Exception {
             proxy.invokeOperation("stop");
          }
       };

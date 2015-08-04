@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.unit.core.journal.impl;
+
 import org.apache.activemq.artemis.tests.unit.core.journal.impl.fakes.FakeSequentialFileFactory;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Before;
@@ -44,34 +45,27 @@ import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
 import org.apache.activemq.artemis.tests.unit.UnitTestLogger;
 import org.apache.activemq.artemis.tests.unit.core.journal.impl.fakes.SimpleEncoding;
 
-public class AlignedJournalImplTest extends ActiveMQTestBase
-{
+public class AlignedJournalImplTest extends ActiveMQTestBase {
 
    // Constants -----------------------------------------------------
 
-   private static final LoaderCallback dummyLoader = new LoaderCallback()
-   {
+   private static final LoaderCallback dummyLoader = new LoaderCallback() {
 
-      public void addPreparedTransaction(final PreparedTransactionInfo preparedTransaction)
-      {
+      public void addPreparedTransaction(final PreparedTransactionInfo preparedTransaction) {
       }
 
-      public void addRecord(final RecordInfo info)
-      {
+      public void addRecord(final RecordInfo info) {
       }
 
-      public void deleteRecord(final long id)
-      {
+      public void deleteRecord(final long id) {
       }
 
-      public void updateRecord(final RecordInfo info)
-      {
+      public void updateRecord(final RecordInfo info) {
       }
 
       public void failedTransaction(final long transactionID,
                                     final List<RecordInfo> records,
-                                    final List<RecordInfo> recordsToDelete)
-      {
+                                    final List<RecordInfo> recordsToDelete) {
       }
    };
 
@@ -95,8 +89,7 @@ public class AlignedJournalImplTest extends ActiveMQTestBase
 
    // This test just validates basic alignment on the FakeSequentialFile itself
    @Test
-   public void testBasicAlignment() throws Exception
-   {
+   public void testBasicAlignment() throws Exception {
 
       FakeSequentialFileFactory factory = new FakeSequentialFileFactory(200, true);
 
@@ -104,20 +97,17 @@ public class AlignedJournalImplTest extends ActiveMQTestBase
 
       file.open();
 
-      try
-      {
+      try {
          ByteBuffer buffer = ByteBuffer.allocateDirect(200);
-         for (int i = 0; i < 200; i++)
-         {
-            buffer.put(i, (byte)1);
+         for (int i = 0; i < 200; i++) {
+            buffer.put(i, (byte) 1);
          }
 
          file.writeDirect(buffer, true);
 
          buffer = ByteBuffer.allocate(400);
-         for (int i = 0; i < 400; i++)
-         {
-            buffer.put(i, (byte)2);
+         for (int i = 0; i < 400; i++) {
+            buffer.put(i, (byte) 2);
          }
 
          file.writeDirect(buffer, true);
@@ -128,47 +118,40 @@ public class AlignedJournalImplTest extends ActiveMQTestBase
 
          file.read(buffer);
 
-         for (int i = 0; i < 200; i++)
-         {
-            Assert.assertEquals((byte)1, buffer.get(i));
+         for (int i = 0; i < 200; i++) {
+            Assert.assertEquals((byte) 1, buffer.get(i));
          }
 
-         for (int i = 201; i < 600; i++)
-         {
-            Assert.assertEquals("Position " + i, (byte)2, buffer.get(i));
+         for (int i = 201; i < 600; i++) {
+            Assert.assertEquals("Position " + i, (byte) 2, buffer.get(i));
          }
 
       }
-      catch (Exception ignored)
-      {
+      catch (Exception ignored) {
       }
    }
 
    @Test
-   public void testInconsistentAlignment() throws Exception
-   {
+   public void testInconsistentAlignment() throws Exception {
       factory = new FakeSequentialFileFactory(512, true);
 
-      try
-      {
+      try {
          journalImpl = new JournalImpl(2000, 2, 0, 0, factory, "tt", "tt", 1000);
          Assert.fail("Expected IllegalArgumentException");
       }
-      catch (IllegalArgumentException ignored)
-      {
+      catch (IllegalArgumentException ignored) {
          // expected
       }
 
    }
 
    @Test
-   public void testSimpleAdd() throws Exception
-   {
+   public void testSimpleAdd() throws Exception {
       final int JOURNAL_SIZE = 1060;
 
       setupAndLoadJournal(JOURNAL_SIZE, 10);
 
-      journalImpl.appendAddRecord(13, (byte)14, new SimpleEncoding(1, (byte)15), false);
+      journalImpl.appendAddRecord(13, (byte) 14, new SimpleEncoding(1, (byte) 15), false);
 
       journalImpl.forceMoveNextFile();
 
@@ -189,8 +172,7 @@ public class AlignedJournalImplTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testAppendAndUpdateRecords() throws Exception
-   {
+   public void testAppendAndUpdateRecords() throws Exception {
 
       final int JOURNAL_SIZE = 1060;
 
@@ -199,20 +181,17 @@ public class AlignedJournalImplTest extends ActiveMQTestBase
       Assert.assertEquals(0, records.size());
       Assert.assertEquals(0, transactions.size());
 
-      for (int i = 0; i < 25; i++)
-      {
+      for (int i = 0; i < 25; i++) {
          byte[] bytes = new byte[5];
-         for (int j = 0; j < bytes.length; j++)
-         {
-            bytes[j] = (byte)i;
+         for (int j = 0; j < bytes.length; j++) {
+            bytes[j] = (byte) i;
          }
-         journalImpl.appendAddRecord(i * 100L, (byte)i, bytes, false);
+         journalImpl.appendAddRecord(i * 100L, (byte) i, bytes, false);
       }
 
-      for (int i = 25; i < 50; i++)
-      {
-         EncodingSupport support = new SimpleEncoding(5, (byte)i);
-         journalImpl.appendAddRecord(i * 100L, (byte)i, support, false);
+      for (int i = 25; i < 50; i++) {
+         EncodingSupport support = new SimpleEncoding(5, (byte) i);
+         journalImpl.appendAddRecord(i * 100L, (byte) i, support, false);
       }
 
       setupAndLoadJournal(JOURNAL_SIZE, 1024);
@@ -220,55 +199,46 @@ public class AlignedJournalImplTest extends ActiveMQTestBase
       Assert.assertEquals(50, records.size());
 
       int i = 0;
-      for (RecordInfo recordItem : records)
-      {
+      for (RecordInfo recordItem : records) {
          Assert.assertEquals(i * 100L, recordItem.id);
          Assert.assertEquals(i, recordItem.getUserRecordType());
          Assert.assertEquals(5, recordItem.data.length);
-         for (int j = 0; j < 5; j++)
-         {
-            Assert.assertEquals((byte)i, recordItem.data[j]);
+         for (int j = 0; j < 5; j++) {
+            Assert.assertEquals((byte) i, recordItem.data[j]);
          }
 
          i++;
       }
 
-      for (i = 40; i < 50; i++)
-      {
+      for (i = 40; i < 50; i++) {
          byte[] bytes = new byte[10];
-         for (int j = 0; j < 10; j++)
-         {
-            bytes[j] = (byte)'x';
+         for (int j = 0; j < 10; j++) {
+            bytes[j] = (byte) 'x';
          }
 
-         journalImpl.appendUpdateRecord(i * 100L, (byte)i, bytes, false);
+         journalImpl.appendUpdateRecord(i * 100L, (byte) i, bytes, false);
       }
 
       setupAndLoadJournal(JOURNAL_SIZE, 1024);
 
       i = 0;
-      for (RecordInfo recordItem : records)
-      {
+      for (RecordInfo recordItem : records) {
 
-         if (i < 50)
-         {
+         if (i < 50) {
             Assert.assertEquals(i * 100L, recordItem.id);
             Assert.assertEquals(i, recordItem.getUserRecordType());
             Assert.assertEquals(5, recordItem.data.length);
-            for (int j = 0; j < 5; j++)
-            {
-               Assert.assertEquals((byte)i, recordItem.data[j]);
+            for (int j = 0; j < 5; j++) {
+               Assert.assertEquals((byte) i, recordItem.data[j]);
             }
          }
-         else
-         {
+         else {
             Assert.assertEquals((i - 10) * 100L, recordItem.id);
             Assert.assertEquals(i - 10, recordItem.getUserRecordType());
             Assert.assertTrue(recordItem.isUpdate);
             Assert.assertEquals(10, recordItem.data.length);
-            for (int j = 0; j < 10; j++)
-            {
-               Assert.assertEquals((byte)'x', recordItem.data[j]);
+            for (int j = 0; j < 10; j++) {
+               Assert.assertEquals((byte) 'x', recordItem.data[j]);
             }
          }
 
@@ -280,8 +250,7 @@ public class AlignedJournalImplTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testPartialDelete() throws Exception
-   {
+   public void testPartialDelete() throws Exception {
       final int JOURNAL_SIZE = 10000;
 
       setupAndLoadJournal(JOURNAL_SIZE, 100);
@@ -298,9 +267,8 @@ public class AlignedJournalImplTest extends ActiveMQTestBase
 
       UnitTestLogger.LOGGER.debug("_______________________________");
 
-      for (int i = 0; i < 50; i++)
-      {
-         journalImpl.appendAddRecord(i, (byte)1, new SimpleEncoding(1, (byte)'x'), false);
+      for (int i = 0; i < 50; i++) {
+         journalImpl.appendAddRecord(i, (byte) 1, new SimpleEncoding(1, (byte) 'x'), false);
       }
 
       journalImpl.forceMoveNextFile();
@@ -311,8 +279,7 @@ public class AlignedJournalImplTest extends ActiveMQTestBase
 
       Assert.assertEquals(3, factory.listFiles("tt").size());
 
-      for (int i = 10; i < 50; i++)
-      {
+      for (int i = 10; i < 50; i++) {
          journalImpl.appendDeleteRecord(i, false);
       }
 
@@ -327,8 +294,7 @@ public class AlignedJournalImplTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testAddAndDeleteReclaimWithoutTransactions() throws Exception
-   {
+   public void testAddAndDeleteReclaimWithoutTransactions() throws Exception {
       final int JOURNAL_SIZE = 10000;
 
       setupAndLoadJournal(JOURNAL_SIZE, 1);
@@ -345,9 +311,8 @@ public class AlignedJournalImplTest extends ActiveMQTestBase
 
       UnitTestLogger.LOGGER.debug("_______________________________");
 
-      for (int i = 0; i < 50; i++)
-      {
-         journalImpl.appendAddRecord(i, (byte)1, new SimpleEncoding(1, (byte)'x'), false);
+      for (int i = 0; i < 50; i++) {
+         journalImpl.appendAddRecord(i, (byte) 1, new SimpleEncoding(1, (byte) 'x'), false);
       }
 
       // as the request to a new file is asynchronous, we need to make sure the
@@ -356,14 +321,13 @@ public class AlignedJournalImplTest extends ActiveMQTestBase
 
       Assert.assertEquals(2, factory.listFiles("tt").size());
 
-      for (int i = 0; i < 50; i++)
-      {
+      for (int i = 0; i < 50; i++) {
          journalImpl.appendDeleteRecord(i, false);
       }
 
       journalImpl.forceMoveNextFile();
 
-      journalImpl.appendAddRecord(1000, (byte)1, new SimpleEncoding(1, (byte)'x'), false);
+      journalImpl.appendAddRecord(1000, (byte) 1, new SimpleEncoding(1, (byte) 'x'), false);
 
       journalImpl.debugWait();
 
@@ -392,8 +356,7 @@ public class AlignedJournalImplTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testReloadWithTransaction() throws Exception
-   {
+   public void testReloadWithTransaction() throws Exception {
       final int JOURNAL_SIZE = 2000;
 
       setupAndLoadJournal(JOURNAL_SIZE, 100);
@@ -401,22 +364,20 @@ public class AlignedJournalImplTest extends ActiveMQTestBase
       Assert.assertEquals(0, records.size());
       Assert.assertEquals(0, transactions.size());
 
-      journalImpl.appendAddRecordTransactional(1, 1, (byte)1, new SimpleEncoding(1, (byte)1));
+      journalImpl.appendAddRecordTransactional(1, 1, (byte) 1, new SimpleEncoding(1, (byte) 1));
 
       setupAndLoadJournal(JOURNAL_SIZE, 100);
 
       Assert.assertEquals(0, records.size());
       Assert.assertEquals(0, transactions.size());
 
-      try
-      {
+      try {
          journalImpl.appendCommitRecord(1L, false);
          // This was supposed to throw an exception, as the transaction was
          // forgotten (interrupted by a reload).
          Assert.fail("Supposed to throw exception");
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          UnitTestLogger.LOGGER.warn(e);
       }
 
@@ -428,8 +389,7 @@ public class AlignedJournalImplTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testReloadWithInterruptedTransaction() throws Exception
-   {
+   public void testReloadWithInterruptedTransaction() throws Exception {
       final int JOURNAL_SIZE = 1100;
 
       setupAndLoadJournal(JOURNAL_SIZE, 100);
@@ -439,9 +399,8 @@ public class AlignedJournalImplTest extends ActiveMQTestBase
       Assert.assertEquals(0, records.size());
       Assert.assertEquals(0, transactions.size());
 
-      for (int i = 0; i < 10; i++)
-      {
-         journalImpl.appendAddRecordTransactional(77L, 1, (byte)1, new SimpleEncoding(1, (byte)1));
+      for (int i = 0; i < 10; i++) {
+         journalImpl.appendAddRecordTransactional(77L, 1, (byte) 1, new SimpleEncoding(1, (byte) 1));
          journalImpl.forceMoveNextFile();
       }
 
@@ -449,7 +408,7 @@ public class AlignedJournalImplTest extends ActiveMQTestBase
 
       Assert.assertEquals(12, factory.listFiles("tt").size());
 
-      journalImpl.appendAddRecordTransactional(78L, 1, (byte)1, new SimpleEncoding(1, (byte)1));
+      journalImpl.appendAddRecordTransactional(78L, 1, (byte) 1, new SimpleEncoding(1, (byte) 1));
 
       Assert.assertEquals(12, factory.listFiles("tt").size());
 
@@ -458,21 +417,18 @@ public class AlignedJournalImplTest extends ActiveMQTestBase
       Assert.assertEquals(0, records.size());
       Assert.assertEquals(0, transactions.size());
       Assert.assertEquals(2, incompleteTransactions.size());
-      Assert.assertEquals((Long)77L, incompleteTransactions.get(0));
-      Assert.assertEquals((Long)78L, incompleteTransactions.get(1));
+      Assert.assertEquals((Long) 77L, incompleteTransactions.get(0));
+      Assert.assertEquals((Long) 78L, incompleteTransactions.get(1));
 
-      try
-      {
+      try {
          journalImpl.appendCommitRecord(77L, false);
          // This was supposed to throw an exception, as the transaction was
          // forgotten (interrupted by a reload).
          Assert.fail("Supposed to throw exception");
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          UnitTestLogger.LOGGER.debug("Expected exception " + e, e);
       }
-
 
       setupAndLoadJournal(JOURNAL_SIZE, 100);
 
@@ -487,8 +443,7 @@ public class AlignedJournalImplTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testReloadWithCompletedTransaction() throws Exception
-   {
+   public void testReloadWithCompletedTransaction() throws Exception {
       final int JOURNAL_SIZE = 2000;
 
       setupAndLoadJournal(JOURNAL_SIZE, 100);
@@ -496,9 +451,8 @@ public class AlignedJournalImplTest extends ActiveMQTestBase
       Assert.assertEquals(0, records.size());
       Assert.assertEquals(0, transactions.size());
 
-      for (int i = 0; i < 10; i++)
-      {
-         journalImpl.appendAddRecordTransactional(1, i, (byte)1, new SimpleEncoding(1, (byte)1));
+      for (int i = 0; i < 10; i++) {
+         journalImpl.appendAddRecordTransactional(1, i, (byte) 1, new SimpleEncoding(1, (byte) 1));
          journalImpl.forceMoveNextFile();
       }
 
@@ -519,19 +473,18 @@ public class AlignedJournalImplTest extends ActiveMQTestBase
 
       Assert.assertEquals(12, factory.listFiles("tt").size());
 
-      for (int i = 0; i < 10; i++)
-      {
+      for (int i = 0; i < 10; i++) {
          journalImpl.appendDeleteRecordTransactional(2L, i);
          journalImpl.forceMoveNextFile();
       }
 
       journalImpl.appendCommitRecord(2L, false);
 
-      journalImpl.appendAddRecord(100, (byte)1, new SimpleEncoding(5, (byte)1), false);
+      journalImpl.appendAddRecord(100, (byte) 1, new SimpleEncoding(5, (byte) 1), false);
 
       journalImpl.forceMoveNextFile();
 
-      journalImpl.appendAddRecord(101, (byte)1, new SimpleEncoding(5, (byte)1), false);
+      journalImpl.appendAddRecord(101, (byte) 1, new SimpleEncoding(5, (byte) 1), false);
 
       journalImpl.checkReclaimStatus();
 
@@ -545,8 +498,7 @@ public class AlignedJournalImplTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testTotalSize() throws Exception
-   {
+   public void testTotalSize() throws Exception {
       final int JOURNAL_SIZE = 2000;
 
       setupAndLoadJournal(JOURNAL_SIZE, 100);
@@ -554,10 +506,7 @@ public class AlignedJournalImplTest extends ActiveMQTestBase
       Assert.assertEquals(0, records.size());
       Assert.assertEquals(0, transactions.size());
 
-      journalImpl.appendAddRecordTransactional(1L,
-                                               2L,
-                                               (byte)3,
-                                               new SimpleEncoding(1900 - JournalImpl.SIZE_ADD_RECORD_TX - 1, (byte)4));
+      journalImpl.appendAddRecordTransactional(1L, 2L, (byte) 3, new SimpleEncoding(1900 - JournalImpl.SIZE_ADD_RECORD_TX - 1, (byte) 4));
 
       journalImpl.appendCommitRecord(1L, false);
 
@@ -570,8 +519,7 @@ public class AlignedJournalImplTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testReloadInvalidCheckSizeOnTransaction() throws Exception
-   {
+   public void testReloadInvalidCheckSizeOnTransaction() throws Exception {
       final int JOURNAL_SIZE = 2000;
 
       setupAndLoadJournal(JOURNAL_SIZE, 100);
@@ -581,9 +529,8 @@ public class AlignedJournalImplTest extends ActiveMQTestBase
       Assert.assertEquals(0, records.size());
       Assert.assertEquals(0, transactions.size());
 
-      for (int i = 0; i < 2; i++)
-      {
-         journalImpl.appendAddRecordTransactional(1L, i, (byte)0, new SimpleEncoding(1, (byte)15));
+      for (int i = 0; i < 2; i++) {
+         journalImpl.appendAddRecordTransactional(1L, i, (byte) 0, new SimpleEncoding(1, (byte) 15));
       }
 
       journalImpl.appendCommitRecord(1L, false);
@@ -635,8 +582,7 @@ public class AlignedJournalImplTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testPartiallyBrokenFile() throws Exception
-   {
+   public void testPartiallyBrokenFile() throws Exception {
       final int JOURNAL_SIZE = 20000;
 
       setupAndLoadJournal(JOURNAL_SIZE, 100);
@@ -646,10 +592,9 @@ public class AlignedJournalImplTest extends ActiveMQTestBase
       Assert.assertEquals(0, records.size());
       Assert.assertEquals(0, transactions.size());
 
-      for (int i = 0; i < 20; i++)
-      {
-         journalImpl.appendAddRecordTransactional(1L, i, (byte)0, new SimpleEncoding(1, (byte)15));
-         journalImpl.appendAddRecordTransactional(2L, i + 20L, (byte)0, new SimpleEncoding(1, (byte)15));
+      for (int i = 0; i < 20; i++) {
+         journalImpl.appendAddRecordTransactional(1L, i, (byte) 0, new SimpleEncoding(1, (byte) 15));
+         journalImpl.appendAddRecordTransactional(2L, i + 20L, (byte) 0, new SimpleEncoding(1, (byte) 15));
       }
 
       journalImpl.appendCommitRecord(1L, false);
@@ -697,8 +642,7 @@ public class AlignedJournalImplTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testReduceFreeFiles() throws Exception
-   {
+   public void testReduceFreeFiles() throws Exception {
       final int JOURNAL_SIZE = 2000;
 
       setupAndLoadJournal(JOURNAL_SIZE, 100, 10);
@@ -709,9 +653,8 @@ public class AlignedJournalImplTest extends ActiveMQTestBase
 
       Assert.assertEquals(10, factory.listFiles("tt").size());
 
-      for (int i = 0; i < 10; i++)
-      {
-         journalImpl.appendAddRecord(i, (byte)0, new SimpleEncoding(1, (byte)0), false);
+      for (int i = 0; i < 10; i++) {
+         journalImpl.appendAddRecord(i, (byte) 0, new SimpleEncoding(1, (byte) 0), false);
          journalImpl.forceMoveNextFile();
       }
 
@@ -721,8 +664,7 @@ public class AlignedJournalImplTest extends ActiveMQTestBase
 
       Assert.assertEquals(12, factory.listFiles("tt").size());
 
-      for (int i = 0; i < 10; i++)
-      {
+      for (int i = 0; i < 10; i++) {
          journalImpl.appendDeleteRecord(i, false);
       }
 
@@ -738,8 +680,7 @@ public class AlignedJournalImplTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testReloadIncompleteTransaction() throws Exception
-   {
+   public void testReloadIncompleteTransaction() throws Exception {
       final int JOURNAL_SIZE = 2000;
 
       setupAndLoadJournal(JOURNAL_SIZE, 1);
@@ -749,14 +690,12 @@ public class AlignedJournalImplTest extends ActiveMQTestBase
       Assert.assertEquals(0, records.size());
       Assert.assertEquals(0, transactions.size());
 
-      for (int i = 0; i < 10; i++)
-      {
-         journalImpl.appendAddRecordTransactional(1L, i, (byte)0, new SimpleEncoding(1, (byte)15));
+      for (int i = 0; i < 10; i++) {
+         journalImpl.appendAddRecordTransactional(1L, i, (byte) 0, new SimpleEncoding(1, (byte) 15));
       }
 
-      for (int i = 10; i < 20; i++)
-      {
-         journalImpl.appendAddRecordTransactional(1L, i, (byte)0, new SimpleEncoding(1, (byte)15));
+      for (int i = 10; i < 20; i++) {
+         journalImpl.appendAddRecordTransactional(1L, i, (byte) 0, new SimpleEncoding(1, (byte) 15));
       }
 
       journalImpl.appendCommitRecord(1L, false);
@@ -800,8 +739,7 @@ public class AlignedJournalImplTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testPrepareAloneOnSeparatedFile() throws Exception
-   {
+   public void testPrepareAloneOnSeparatedFile() throws Exception {
       final int JOURNAL_SIZE = 20000;
 
       setupAndLoadJournal(JOURNAL_SIZE, 100);
@@ -809,24 +747,22 @@ public class AlignedJournalImplTest extends ActiveMQTestBase
       Assert.assertEquals(0, records.size());
       Assert.assertEquals(0, transactions.size());
 
-      for (int i = 0; i < 10; i++)
-      {
-         journalImpl.appendAddRecordTransactional(1L, i, (byte)0, new SimpleEncoding(1, (byte)15));
+      for (int i = 0; i < 10; i++) {
+         journalImpl.appendAddRecordTransactional(1L, i, (byte) 0, new SimpleEncoding(1, (byte) 15));
       }
 
       journalImpl.forceMoveNextFile();
-      SimpleEncoding xidEncoding = new SimpleEncoding(10, (byte)'a');
+      SimpleEncoding xidEncoding = new SimpleEncoding(10, (byte) 'a');
 
       journalImpl.appendPrepareRecord(1L, xidEncoding, false);
       journalImpl.appendCommitRecord(1L, false);
 
-      for (int i = 0; i < 10; i++)
-      {
+      for (int i = 0; i < 10; i++) {
          journalImpl.appendDeleteRecordTransactional(2L, i);
       }
 
       journalImpl.appendCommitRecord(2L, false);
-      journalImpl.appendAddRecord(100L, (byte)0, new SimpleEncoding(1, (byte)10), false); // Add
+      journalImpl.appendAddRecord(100L, (byte) 0, new SimpleEncoding(1, (byte) 10), false); // Add
       // anything
       // to
       // keep
@@ -842,8 +778,7 @@ public class AlignedJournalImplTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testCommitWithMultipleFiles() throws Exception
-   {
+   public void testCommitWithMultipleFiles() throws Exception {
       final int JOURNAL_SIZE = 20000;
 
       setupAndLoadJournal(JOURNAL_SIZE, 100);
@@ -851,21 +786,17 @@ public class AlignedJournalImplTest extends ActiveMQTestBase
       Assert.assertEquals(0, records.size());
       Assert.assertEquals(0, transactions.size());
 
-      for (int i = 0; i < 50; i++)
-      {
-         if (i == 10)
-         {
+      for (int i = 0; i < 50; i++) {
+         if (i == 10) {
             journalImpl.forceMoveNextFile();
          }
-         journalImpl.appendAddRecordTransactional(1L, i, (byte)0, new SimpleEncoding(1, (byte)15));
+         journalImpl.appendAddRecordTransactional(1L, i, (byte) 0, new SimpleEncoding(1, (byte) 15));
       }
 
       journalImpl.appendCommitRecord(1L, false);
 
-      for (int i = 0; i < 10; i++)
-      {
-         if (i == 5)
-         {
+      for (int i = 0; i < 10; i++) {
+         if (i == 5) {
             journalImpl.forceMoveNextFile();
          }
          journalImpl.appendDeleteRecordTransactional(2L, i);
@@ -882,8 +813,7 @@ public class AlignedJournalImplTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testSimplePrepare() throws Exception
-   {
+   public void testSimplePrepare() throws Exception {
       final int JOURNAL_SIZE = 3 * 1024;
 
       setupAndLoadJournal(JOURNAL_SIZE, 1);
@@ -891,11 +821,11 @@ public class AlignedJournalImplTest extends ActiveMQTestBase
       Assert.assertEquals(0, records.size());
       Assert.assertEquals(0, transactions.size());
 
-      SimpleEncoding xid = new SimpleEncoding(10, (byte)1);
+      SimpleEncoding xid = new SimpleEncoding(10, (byte) 1);
 
-      journalImpl.appendAddRecord(10L, (byte)0, new SimpleEncoding(10, (byte)0), false);
+      journalImpl.appendAddRecord(10L, (byte) 0, new SimpleEncoding(10, (byte) 0), false);
 
-      journalImpl.appendDeleteRecordTransactional(1L, 10L, new SimpleEncoding(100, (byte)'j'));
+      journalImpl.appendDeleteRecordTransactional(1L, 10L, new SimpleEncoding(100, (byte) 'j'));
 
       journalImpl.appendPrepareRecord(1, xid, false);
 
@@ -907,21 +837,18 @@ public class AlignedJournalImplTest extends ActiveMQTestBase
       Assert.assertEquals(1, transactions.get(0).recordsToDelete.size());
       Assert.assertEquals(1, records.size());
 
-      for (RecordInfo record : transactions.get(0).recordsToDelete)
-      {
+      for (RecordInfo record : transactions.get(0).recordsToDelete) {
          byte[] data = record.data;
          Assert.assertEquals(100, data.length);
-         for (byte element : data)
-         {
-            Assert.assertEquals((byte)'j', element);
+         for (byte element : data) {
+            Assert.assertEquals((byte) 'j', element);
          }
       }
 
       Assert.assertEquals(10, transactions.get(0).extraData.length);
 
-      for (int i = 0; i < 10; i++)
-      {
-         Assert.assertEquals((byte)1, transactions.get(0).extraData[i]);
+      for (int i = 0; i < 10; i++) {
+         Assert.assertEquals((byte) 1, transactions.get(0).extraData[i]);
       }
 
       journalImpl.appendCommitRecord(1L, false);
@@ -936,8 +863,7 @@ public class AlignedJournalImplTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testReloadWithPreparedTransaction() throws Exception
-   {
+   public void testReloadWithPreparedTransaction() throws Exception {
       final int JOURNAL_SIZE = 3 * 1024;
 
       setupAndLoadJournal(JOURNAL_SIZE, 1);
@@ -945,15 +871,14 @@ public class AlignedJournalImplTest extends ActiveMQTestBase
       Assert.assertEquals(0, records.size());
       Assert.assertEquals(0, transactions.size());
 
-      for (int i = 0; i < 10; i++)
-      {
-         journalImpl.appendAddRecordTransactional(1, i, (byte)1, new SimpleEncoding(50, (byte)1));
+      for (int i = 0; i < 10; i++) {
+         journalImpl.appendAddRecordTransactional(1, i, (byte) 1, new SimpleEncoding(50, (byte) 1));
          journalImpl.forceMoveNextFile();
       }
 
       journalImpl.debugWait();
 
-      SimpleEncoding xid1 = new SimpleEncoding(10, (byte)1);
+      SimpleEncoding xid1 = new SimpleEncoding(10, (byte) 1);
 
       journalImpl.appendPrepareRecord(1L, xid1, false);
 
@@ -965,9 +890,8 @@ public class AlignedJournalImplTest extends ActiveMQTestBase
       Assert.assertEquals(1, transactions.size());
 
       Assert.assertEquals(10, transactions.get(0).extraData.length);
-      for (int i = 0; i < 10; i++)
-      {
-         Assert.assertEquals((byte)1, transactions.get(0).extraData[i]);
+      for (int i = 0; i < 10; i++) {
+         Assert.assertEquals((byte) 1, transactions.get(0).extraData[i]);
       }
 
       journalImpl.checkReclaimStatus();
@@ -984,12 +908,11 @@ public class AlignedJournalImplTest extends ActiveMQTestBase
 
       journalImpl.checkReclaimStatus();
 
-      for (int i = 0; i < 10; i++)
-      {
+      for (int i = 0; i < 10; i++) {
          journalImpl.appendDeleteRecordTransactional(2L, i);
       }
 
-      SimpleEncoding xid2 = new SimpleEncoding(15, (byte)2);
+      SimpleEncoding xid2 = new SimpleEncoding(15, (byte) 2);
 
       journalImpl.appendPrepareRecord(2L, xid2, false);
 
@@ -999,8 +922,7 @@ public class AlignedJournalImplTest extends ActiveMQTestBase
 
       Assert.assertEquals(15, transactions.get(0).extraData.length);
 
-      for (byte element : transactions.get(0).extraData)
-      {
+      for (byte element : transactions.get(0).extraData) {
          Assert.assertEquals(2, element);
       }
 
@@ -1026,8 +948,7 @@ public class AlignedJournalImplTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testReloadInvalidPrepared() throws Exception
-   {
+   public void testReloadInvalidPrepared() throws Exception {
       final int JOURNAL_SIZE = 3000;
 
       setupAndLoadJournal(JOURNAL_SIZE, 100);
@@ -1035,12 +956,11 @@ public class AlignedJournalImplTest extends ActiveMQTestBase
       Assert.assertEquals(0, records.size());
       Assert.assertEquals(0, transactions.size());
 
-      for (int i = 0; i < 10; i++)
-      {
-         journalImpl.appendAddRecordTransactional(1, i, (byte)1, new SimpleEncoding(50, (byte)1));
+      for (int i = 0; i < 10; i++) {
+         journalImpl.appendAddRecordTransactional(1, i, (byte) 1, new SimpleEncoding(50, (byte) 1));
       }
 
-      journalImpl.appendPrepareRecord(1L, new SimpleEncoding(13, (byte)0), false);
+      journalImpl.appendPrepareRecord(1L, new SimpleEncoding(13, (byte) 0), false);
 
       setupAndLoadJournal(JOURNAL_SIZE, 100);
       Assert.assertEquals(0, records.size());
@@ -1078,15 +998,13 @@ public class AlignedJournalImplTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testReclaimAfterRollabck() throws Exception
-   {
+   public void testReclaimAfterRollabck() throws Exception {
       final int JOURNAL_SIZE = 2000;
 
       setupAndLoadJournal(JOURNAL_SIZE, 1);
 
-      for (int i = 0; i < 10; i++)
-      {
-         journalImpl.appendAddRecordTransactional(1L, i, (byte)0, new SimpleEncoding(1, (byte)0));
+      for (int i = 0; i < 10; i++) {
+         journalImpl.appendAddRecordTransactional(1L, i, (byte) 0, new SimpleEncoding(1, (byte) 0));
          journalImpl.forceMoveNextFile();
       }
 
@@ -1108,15 +1026,13 @@ public class AlignedJournalImplTest extends ActiveMQTestBase
 
    // It should be ok to write records on AIO, and later read then on NIO
    @Test
-   public void testDecreaseAlignment() throws Exception
-   {
+   public void testDecreaseAlignment() throws Exception {
       final int JOURNAL_SIZE = 512 * 4;
 
       setupAndLoadJournal(JOURNAL_SIZE, 512);
 
-      for (int i = 0; i < 10; i++)
-      {
-         journalImpl.appendAddRecordTransactional(1L, i, (byte)0, new SimpleEncoding(1, (byte)0));
+      for (int i = 0; i < 10; i++) {
+         journalImpl.appendAddRecordTransactional(1L, i, (byte) 0, new SimpleEncoding(1, (byte) 0));
       }
 
       journalImpl.appendCommitRecord(1L, false);
@@ -1132,15 +1048,13 @@ public class AlignedJournalImplTest extends ActiveMQTestBase
 
    // It should be ok to write records on NIO, and later read then on AIO
    @Test
-   public void testIncreaseAlignment() throws Exception
-   {
+   public void testIncreaseAlignment() throws Exception {
       final int JOURNAL_SIZE = 512 * 4;
 
       setupAndLoadJournal(JOURNAL_SIZE, 1);
 
-      for (int i = 0; i < 10; i++)
-      {
-         journalImpl.appendAddRecordTransactional(1L, i, (byte)0, new SimpleEncoding(1, (byte)0));
+      for (int i = 0; i < 10; i++) {
+         journalImpl.appendAddRecordTransactional(1L, i, (byte) 0, new SimpleEncoding(1, (byte) 0));
       }
 
       journalImpl.appendCommitRecord(1L, false);
@@ -1155,17 +1069,16 @@ public class AlignedJournalImplTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testEmptyPrepare() throws Exception
-   {
+   public void testEmptyPrepare() throws Exception {
       final int JOURNAL_SIZE = 512 * 4;
 
       setupAndLoadJournal(JOURNAL_SIZE, 1);
 
-      journalImpl.appendPrepareRecord(2L, new SimpleEncoding(10, (byte)'j'), false);
+      journalImpl.appendPrepareRecord(2L, new SimpleEncoding(10, (byte) 'j'), false);
 
       journalImpl.forceMoveNextFile();
 
-      journalImpl.appendAddRecord(1L, (byte)0, new SimpleEncoding(10, (byte)'k'), false);
+      journalImpl.appendAddRecord(1L, (byte) 0, new SimpleEncoding(10, (byte) 'k'), false);
 
       setupAndLoadJournal(JOURNAL_SIZE, 1);
 
@@ -1199,8 +1112,7 @@ public class AlignedJournalImplTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testReclaimingAfterConcurrentAddsAndDeletes() throws Exception
-   {
+   public void testReclaimingAfterConcurrentAddsAndDeletes() throws Exception {
       final int JOURNAL_SIZE = 10 * 1024;
 
       setupAndLoadJournal(JOURNAL_SIZE, 1);
@@ -1215,52 +1127,41 @@ public class AlignedJournalImplTest extends ActiveMQTestBase
 
       final int NUMBER_OF_ELEMENTS = 500;
 
-      Thread t1 = new Thread()
-      {
+      Thread t1 = new Thread() {
          @Override
-         public void run()
-         {
-            try
-            {
+         public void run() {
+            try {
                latchReady.countDown();
                ActiveMQTestBase.waitForLatch(latchStart);
-               for (int i = 0; i < NUMBER_OF_ELEMENTS; i++)
-               {
-                  journalImpl.appendAddRecordTransactional(i, i, (byte)1, new SimpleEncoding(50, (byte)1));
+               for (int i = 0; i < NUMBER_OF_ELEMENTS; i++) {
+                  journalImpl.appendAddRecordTransactional(i, i, (byte) 1, new SimpleEncoding(50, (byte) 1));
                   journalImpl.appendCommitRecord(i, false);
                   queueDelete.offer(i);
                }
                finishedOK.incrementAndGet();
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                e.printStackTrace();
             }
          }
       };
 
-      Thread t2 = new Thread()
-      {
+      Thread t2 = new Thread() {
          @Override
-         public void run()
-         {
-            try
-            {
+         public void run() {
+            try {
                latchReady.countDown();
                ActiveMQTestBase.waitForLatch(latchStart);
-               for (int i = 0; i < NUMBER_OF_ELEMENTS; i++)
-               {
+               for (int i = 0; i < NUMBER_OF_ELEMENTS; i++) {
                   Integer toDelete = queueDelete.poll(10, TimeUnit.SECONDS);
-                  if (toDelete == null)
-                  {
+                  if (toDelete == null) {
                      break;
                   }
                   journalImpl.appendDeleteRecord(toDelete, false);
                }
                finishedOK.incrementAndGet();
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                e.printStackTrace();
             }
          }
@@ -1292,8 +1193,7 @@ public class AlignedJournalImplTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testAlignmentOverReload() throws Exception
-   {
+   public void testAlignmentOverReload() throws Exception {
 
       factory = new FakeSequentialFileFactory(512, false);
       journalImpl = new JournalImpl(512 + 512 * 3, 20, 0, 0, factory, "amq", "amq", 1000);
@@ -1302,10 +1202,10 @@ public class AlignedJournalImplTest extends ActiveMQTestBase
 
       journalImpl.load(AlignedJournalImplTest.dummyLoader);
 
-      journalImpl.appendAddRecord(1L, (byte)0, new SimpleEncoding(100, (byte)'a'), false);
-      journalImpl.appendAddRecord(2L, (byte)0, new SimpleEncoding(100, (byte)'b'), false);
-      journalImpl.appendAddRecord(3L, (byte)0, new SimpleEncoding(100, (byte)'b'), false);
-      journalImpl.appendAddRecord(4L, (byte)0, new SimpleEncoding(100, (byte)'b'), false);
+      journalImpl.appendAddRecord(1L, (byte) 0, new SimpleEncoding(100, (byte) 'a'), false);
+      journalImpl.appendAddRecord(2L, (byte) 0, new SimpleEncoding(100, (byte) 'b'), false);
+      journalImpl.appendAddRecord(3L, (byte) 0, new SimpleEncoding(100, (byte) 'b'), false);
+      journalImpl.appendAddRecord(4L, (byte) 0, new SimpleEncoding(100, (byte) 'b'), false);
 
       journalImpl.stop();
 
@@ -1345,8 +1245,7 @@ public class AlignedJournalImplTest extends ActiveMQTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       records = new ArrayList<RecordInfo>();
@@ -1363,8 +1262,7 @@ public class AlignedJournalImplTest extends ActiveMQTestBase
 
    @Override
    @After
-   public void tearDown() throws Exception
-   {
+   public void tearDown() throws Exception {
       stopComponent(journalImpl);
       if (factory != null)
          factory.stop();
@@ -1383,20 +1281,18 @@ public class AlignedJournalImplTest extends ActiveMQTestBase
 
    // Private -------------------------------------------------------
 
-   private void setupAndLoadJournal(final int journalSize, final int alignment) throws Exception
-   {
+   private void setupAndLoadJournal(final int journalSize, final int alignment) throws Exception {
       setupAndLoadJournal(journalSize, alignment, 2);
    }
 
-   private void setupAndLoadJournal(final int journalSize, final int alignment, final int numberOfMinimalFiles) throws Exception
-   {
-      if (factory == null)
-      {
+   private void setupAndLoadJournal(final int journalSize,
+                                    final int alignment,
+                                    final int numberOfMinimalFiles) throws Exception {
+      if (factory == null) {
          factory = new FakeSequentialFileFactory(alignment, true);
       }
 
-      if (journalImpl != null)
-      {
+      if (journalImpl != null) {
          journalImpl.stop();
       }
 
@@ -1408,12 +1304,10 @@ public class AlignedJournalImplTest extends ActiveMQTestBase
       transactions.clear();
       incompleteTransactions.clear();
 
-      journalImpl.load(records, transactions, new TransactionFailureCallback()
-      {
+      journalImpl.load(records, transactions, new TransactionFailureCallback() {
          public void failedTransaction(final long transactionID,
                                        final List<RecordInfo> records,
-                                       final List<RecordInfo> recordsToDelete)
-         {
+                                       final List<RecordInfo> recordsToDelete) {
             System.out.println("records.length = " + records.size());
             incompleteTransactions.add(transactionID);
          }

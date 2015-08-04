@@ -23,9 +23,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
 
-public interface ConnectorServiceFactory
-{
-   ConnectorService createConnectorService(String connectorName, Map<String, Object> configuration,
+public interface ConnectorServiceFactory {
+
+   ConnectorService createConnectorService(String connectorName,
+                                           Map<String, Object> configuration,
                                            StorageManager storageManager,
                                            PostOffice postOffice,
                                            ScheduledExecutorService scheduledThreadPool);

@@ -45,8 +45,8 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.concurrent.CountDownLatch;
 
-public abstract class ActiveMQRATestBase extends JMSTestBase
-{
+public abstract class ActiveMQRATestBase extends JMSTestBase {
+
    protected ServerLocator locator;
 
    protected static final String MDBQUEUE = "mdbQueue";
@@ -56,8 +56,7 @@ public abstract class ActiveMQRATestBase extends JMSTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
       locator = createInVMNonHALocator();
       createQueue(true, MDBQUEUE);
@@ -65,60 +64,50 @@ public abstract class ActiveMQRATestBase extends JMSTestBase
       setupDLQ(1);
    }
 
-   protected void setupDLQ(int maxDeliveries)
-   {
-      AddressSettings settings = new AddressSettings()
-              .setDeadLetterAddress(SimpleString.toSimpleString("jms.queue." + DLQ))
-              .setMaxDeliveryAttempts(maxDeliveries);
+   protected void setupDLQ(int maxDeliveries) {
+      AddressSettings settings = new AddressSettings().setDeadLetterAddress(SimpleString.toSimpleString("jms.queue." + DLQ)).setMaxDeliveryAttempts(maxDeliveries);
       server.getAddressSettingsRepository().addMatch("#", settings);
    }
 
-   protected ActiveMQActivation lookupActivation(ActiveMQResourceAdapter qResourceAdapter)
-   {
+   protected ActiveMQActivation lookupActivation(ActiveMQResourceAdapter qResourceAdapter) {
       Map<ActivationSpec, ActiveMQActivation> activations = qResourceAdapter.getActivations();
       assertEquals(1, activations.size());
 
       return activations.values().iterator().next();
    }
 
-   protected ActiveMQResourceAdapter newResourceAdapter()
-   {
+   protected ActiveMQResourceAdapter newResourceAdapter() {
       ActiveMQResourceAdapter qResourceAdapter = new ActiveMQResourceAdapter();
       qResourceAdapter.setConnectorClassName(INVM_CONNECTOR_FACTORY);
       return qResourceAdapter;
    }
 
+   protected class DummyMessageEndpointFactory implements MessageEndpointFactory {
 
-   protected class DummyMessageEndpointFactory implements MessageEndpointFactory
-   {
       private DummyMessageEndpoint endpoint;
 
       private final boolean isDeliveryTransacted;
 
-      public DummyMessageEndpointFactory(DummyMessageEndpoint endpoint, boolean deliveryTransacted)
-      {
+      public DummyMessageEndpointFactory(DummyMessageEndpoint endpoint, boolean deliveryTransacted) {
          this.endpoint = endpoint;
          isDeliveryTransacted = deliveryTransacted;
       }
 
       @Override
-      public MessageEndpoint createEndpoint(XAResource xaResource) throws UnavailableException
-      {
-         if (xaResource != null)
-         {
+      public MessageEndpoint createEndpoint(XAResource xaResource) throws UnavailableException {
+         if (xaResource != null) {
             endpoint.setXAResource(xaResource);
          }
          return endpoint;
       }
 
-      public boolean isDeliveryTransacted(Method method) throws NoSuchMethodException
-      {
+      public boolean isDeliveryTransacted(Method method) throws NoSuchMethodException {
          return isDeliveryTransacted;
       }
    }
 
-   protected class DummyMessageEndpoint implements MessageEndpoint, MessageListener
-   {
+   protected class DummyMessageEndpoint implements MessageEndpoint, MessageListener {
+
       public CountDownLatch latch;
 
       public ActiveMQMessage lastMessage;
@@ -129,101 +118,93 @@ public abstract class ActiveMQRATestBase extends JMSTestBase
 
       volatile boolean inAfterDelivery = false;
 
-      public DummyMessageEndpoint(CountDownLatch latch)
-      {
+      public DummyMessageEndpoint(CountDownLatch latch) {
          this.latch = latch;
       }
 
-      public void beforeDelivery(Method method) throws NoSuchMethodException, ResourceException
-      {
+      public void beforeDelivery(Method method) throws NoSuchMethodException, ResourceException {
 
       }
 
-      public void afterDelivery() throws ResourceException
-      {
-         if (latch != null)
-         {
+      public void afterDelivery() throws ResourceException {
+         if (latch != null) {
             latch.countDown();
          }
       }
 
-      public void release()
-      {
+      public void release() {
          released = true;
       }
 
-      public void onMessage(Message message)
-      {
+      public void onMessage(Message message) {
          lastMessage = (ActiveMQMessage) message;
          System.err.println(message);
       }
 
-      public void reset(CountDownLatch latch)
-      {
+      public void reset(CountDownLatch latch) {
          this.latch = latch;
          lastMessage = null;
       }
 
-      public void setXAResource(XAResource xaResource)
-      {
+      public void setXAResource(XAResource xaResource) {
          this.xaResource = xaResource;
       }
    }
 
-   public class MyBootstrapContext implements BootstrapContext
-   {
+   public class MyBootstrapContext implements BootstrapContext {
+
       WorkManager workManager = new DummyWorkManager();
 
-      public Timer createTimer() throws UnavailableException
-      {
+      public Timer createTimer() throws UnavailableException {
          return null;
       }
 
       @Override
-      public WorkManager getWorkManager()
-      {
+      public WorkManager getWorkManager() {
          return workManager;
       }
 
       @Override
-      public XATerminator getXATerminator()
-      {
+      public XATerminator getXATerminator() {
          return null;
       }
 
-      class DummyWorkManager implements WorkManager
-      {
+      class DummyWorkManager implements WorkManager {
+
          @Override
-         public void doWork(Work work) throws WorkException
-         {
+         public void doWork(Work work) throws WorkException {
          }
 
          @Override
-         public void doWork(Work work, long l, ExecutionContext executionContext, WorkListener workListener) throws WorkException
-         {
+         public void doWork(Work work,
+                            long l,
+                            ExecutionContext executionContext,
+                            WorkListener workListener) throws WorkException {
          }
 
          @Override
-         public long startWork(Work work) throws WorkException
-         {
+         public long startWork(Work work) throws WorkException {
             return 0;
          }
 
          @Override
-         public long startWork(Work work, long l, ExecutionContext executionContext, WorkListener workListener) throws WorkException
-         {
+         public long startWork(Work work,
+                               long l,
+                               ExecutionContext executionContext,
+                               WorkListener workListener) throws WorkException {
             return 0;
          }
 
          @Override
-         public void scheduleWork(Work work) throws WorkException
-         {
+         public void scheduleWork(Work work) throws WorkException {
             work.run();
          }
 
          @Override
-         public void scheduleWork(Work work, long l, ExecutionContext executionContext, WorkListener workListener) throws WorkException
-         {
+         public void scheduleWork(Work work,
+                                  long l,
+                                  ExecutionContext executionContext,
+                                  WorkListener workListener) throws WorkException {
          }
       }
    }

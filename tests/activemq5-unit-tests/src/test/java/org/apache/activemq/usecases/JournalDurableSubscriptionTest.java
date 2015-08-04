@@ -23,16 +23,16 @@ import org.apache.activemq.store.PersistenceAdapter;
 import org.apache.activemq.store.journal.JournalPersistenceAdapterFactory;
 
 /**
- * 
+ *
  */
 public class JournalDurableSubscriptionTest extends DurableSubscriptionTestSupport {
 
-    protected PersistenceAdapter createPersistenceAdapter() throws IOException {
-        File dataDir = new File("target/test-data/durableJournal");
-        JournalPersistenceAdapterFactory factory = new JournalPersistenceAdapterFactory();
-        factory.setDataDirectoryFile(dataDir);
-        factory.setUseJournal(true);
-        factory.setJournalLogFileSize(1024 * 64);
-        return factory.createPersistenceAdapter();
-    }
+   protected PersistenceAdapter createPersistenceAdapter() throws IOException {
+      File dataDir = new File("target/test-data/durableJournal");
+      JournalPersistenceAdapterFactory factory = new JournalPersistenceAdapterFactory();
+      factory.setDataDirectoryFile(dataDir);
+      factory.setUseJournal(true);
+      factory.setJournalLogFileSize(1024 * 64);
+      return factory.createPersistenceAdapter();
+   }
 }

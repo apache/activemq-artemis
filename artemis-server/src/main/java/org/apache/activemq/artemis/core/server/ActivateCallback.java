@@ -16,8 +16,8 @@
  */
 package org.apache.activemq.artemis.core.server;
 
-public interface ActivateCallback
-{
+public interface ActivateCallback {
+
    /*
     * this is called before any services are started when the server first initialised
     */

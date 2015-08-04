@@ -40,119 +40,122 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class AMQ3932Test {
-    static final Logger LOG = LoggerFactory.getLogger(AMQ3932Test.class);
-    private Connection connection;
-    private BrokerService broker;
 
-    @Before
-    public void setUp() throws Exception {
-        broker = new BrokerService();
-        broker.setPersistent(false);
-        broker.setUseJmx(false);
-        TransportConnector tcpConnector = broker.addConnector("tcp://localhost:0");
-        broker.start();
+   static final Logger LOG = LoggerFactory.getLogger(AMQ3932Test.class);
+   private Connection connection;
+   private BrokerService broker;
 
-        ConnectionFactory factory = new ActiveMQConnectionFactory(
-                "failover:("+ tcpConnector.getPublishableConnectString() +")?jms.prefetchPolicy.queuePrefetch=0");
-        connection = factory.createConnection();
-        connection.start();
-    }
+   @Before
+   public void setUp() throws Exception {
+      broker = new BrokerService();
+      broker.setPersistent(false);
+      broker.setUseJmx(false);
+      TransportConnector tcpConnector = broker.addConnector("tcp://localhost:0");
+      broker.start();
 
-    @After
-    public void tearDown() throws Exception {
-        connection.close();
+      ConnectionFactory factory = new ActiveMQConnectionFactory("failover:(" + tcpConnector.getPublishableConnectString() + ")?jms.prefetchPolicy.queuePrefetch=0");
+      connection = factory.createConnection();
+      connection.start();
+   }
 
-        if (broker != null) {
-            broker.stop();
-            broker.waitUntilStopped();
-            broker = null;
-        }
-    }
+   @After
+   public void tearDown() throws Exception {
+      connection.close();
 
-    @Test
-    public void testPlainReceiveBlocks() throws Exception {
-        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        final MessageConsumer consumer = session.createConsumer(session.createQueue(getClass().getName()));
+      if (broker != null) {
+         broker.stop();
+         broker.waitUntilStopped();
+         broker = null;
+      }
+   }
 
-        broker.stop();
-        broker.waitUntilStopped();
-        broker = null;
+   @Test
+   public void testPlainReceiveBlocks() throws Exception {
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      final MessageConsumer consumer = session.createConsumer(session.createQueue(getClass().getName()));
 
-        final CountDownLatch done = new CountDownLatch(1);
-        final CountDownLatch started = new CountDownLatch(1);
-        ExecutorService executor = Executors.newSingleThreadExecutor();
+      broker.stop();
+      broker.waitUntilStopped();
+      broker = null;
 
-        executor.execute(new Runnable() {
-            public void run() {
-                try {
-                    started.countDown();
-                    LOG.info("Entering into a Sync receive call");
-                    consumer.receive();
-                } catch (JMSException e) {
-                }
-                done.countDown();
+      final CountDownLatch done = new CountDownLatch(1);
+      final CountDownLatch started = new CountDownLatch(1);
+      ExecutorService executor = Executors.newSingleThreadExecutor();
+
+      executor.execute(new Runnable() {
+         public void run() {
+            try {
+               started.countDown();
+               LOG.info("Entering into a Sync receive call");
+               consumer.receive();
             }
-        });
-
-        assertTrue(started.await(10, TimeUnit.SECONDS));
-        assertFalse(done.await(20, TimeUnit.SECONDS));
-    }
-
-    @Test
-    public void testHungReceiveNoWait() throws Exception {
-        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        final MessageConsumer consumer = session.createConsumer(session.createQueue(getClass().getName()));
-
-        broker.stop();
-        broker.waitUntilStopped();
-        broker = null;
-
-        final CountDownLatch done = new CountDownLatch(1);
-        final CountDownLatch started = new CountDownLatch(1);
-        ExecutorService executor = Executors.newSingleThreadExecutor();
-
-        executor.execute(new Runnable() {
-            public void run() {
-                try {
-                    started.countDown();
-                    LOG.info("Entering into a Sync receiveNoWait call");
-                    consumer.receiveNoWait();
-                } catch (JMSException e) {
-                }
-                done.countDown();
+            catch (JMSException e) {
             }
-        });
+            done.countDown();
+         }
+      });
 
-        assertTrue(started.await(10, TimeUnit.SECONDS));
-        assertTrue(done.await(20, TimeUnit.SECONDS));
-    }
+      assertTrue(started.await(10, TimeUnit.SECONDS));
+      assertFalse(done.await(20, TimeUnit.SECONDS));
+   }
 
-    @Test
-    public void testHungReceiveTimed() throws Exception {
-        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        final MessageConsumer consumer = session.createConsumer(session.createQueue(getClass().getName()));
+   @Test
+   public void testHungReceiveNoWait() throws Exception {
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      final MessageConsumer consumer = session.createConsumer(session.createQueue(getClass().getName()));
 
-        broker.stop();
-        broker.waitUntilStopped();
-        broker = null;
+      broker.stop();
+      broker.waitUntilStopped();
+      broker = null;
 
-        final CountDownLatch done = new CountDownLatch(1);
-        final CountDownLatch started = new CountDownLatch(1);
-        ExecutorService executor = Executors.newSingleThreadExecutor();
+      final CountDownLatch done = new CountDownLatch(1);
+      final CountDownLatch started = new CountDownLatch(1);
+      ExecutorService executor = Executors.newSingleThreadExecutor();
 
-        executor.execute(new Runnable() {
-            public void run() {
-                try {
-                    started.countDown();
-                    LOG.info("Entering into a timed Sync receive call");
-                    consumer.receive(10);
-                } catch (JMSException e) {
-                }
-                done.countDown();
+      executor.execute(new Runnable() {
+         public void run() {
+            try {
+               started.countDown();
+               LOG.info("Entering into a Sync receiveNoWait call");
+               consumer.receiveNoWait();
             }
-        });
+            catch (JMSException e) {
+            }
+            done.countDown();
+         }
+      });
 
-        assertTrue(started.await(10, TimeUnit.SECONDS));
-        assertTrue(done.await(20, TimeUnit.SECONDS));
-    }
+      assertTrue(started.await(10, TimeUnit.SECONDS));
+      assertTrue(done.await(20, TimeUnit.SECONDS));
+   }
+
+   @Test
+   public void testHungReceiveTimed() throws Exception {
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      final MessageConsumer consumer = session.createConsumer(session.createQueue(getClass().getName()));
+
+      broker.stop();
+      broker.waitUntilStopped();
+      broker = null;
+
+      final CountDownLatch done = new CountDownLatch(1);
+      final CountDownLatch started = new CountDownLatch(1);
+      ExecutorService executor = Executors.newSingleThreadExecutor();
+
+      executor.execute(new Runnable() {
+         public void run() {
+            try {
+               started.countDown();
+               LOG.info("Entering into a timed Sync receive call");
+               consumer.receive(10);
+            }
+            catch (JMSException e) {
+            }
+            done.countDown();
+         }
+      });
+
+      assertTrue(started.await(10, TimeUnit.SECONDS));
+      assertTrue(done.await(20, TimeUnit.SECONDS));
+   }
 }

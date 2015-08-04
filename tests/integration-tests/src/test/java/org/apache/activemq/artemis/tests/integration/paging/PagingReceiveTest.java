@@ -31,8 +31,7 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.junit.Before;
 import org.junit.Test;
 
-public class PagingReceiveTest extends ActiveMQTestBase
-{
+public class PagingReceiveTest extends ActiveMQTestBase {
 
    private static final SimpleString ADDRESS = new SimpleString("jms.queue.catalog-service.price.change.bm");
 
@@ -40,15 +39,12 @@ public class PagingReceiveTest extends ActiveMQTestBase
 
    private ServerLocator locator;
 
-   protected boolean isNetty()
-   {
+   protected boolean isNetty() {
       return false;
    }
 
-
    @Test
-   public void testReceive() throws Exception
-   {
+   public void testReceive() throws Exception {
       ClientMessage message = receiveMessage();
       System.out.println("message received:" + message);
 
@@ -57,16 +53,14 @@ public class PagingReceiveTest extends ActiveMQTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
       server = internalCreateServer();
 
       Queue queue = server.createQueue(ADDRESS, ADDRESS, null, true, false);
       queue.getPageSubscription().getPagingStore().startPaging();
 
-      for (int i = 0; i < 10; i++)
-      {
+      for (int i = 0; i < 10; i++) {
          queue.getPageSubscription().getPagingStore().forceAnotherPage();
       }
 
@@ -74,13 +68,11 @@ public class PagingReceiveTest extends ActiveMQTestBase
       ClientSession session = sf.createSession(null, null, false, true, true, false, 0);
       ClientProducer prod = session.createProducer(ADDRESS);
 
-      for (int i = 0; i < 500; i++)
-      {
+      for (int i = 0; i < 500; i++) {
          ClientMessage msg = session.createMessage(true);
          msg.putIntProperty("key", i);
          prod.send(msg);
-         if (i > 0 && i % 10 == 0)
-         {
+         if (i > 0 && i % 10 == 0) {
             session.commit();
          }
       }
@@ -92,11 +84,9 @@ public class PagingReceiveTest extends ActiveMQTestBase
 
       internalCreateServer();
 
-
    }
 
-   private ActiveMQServer internalCreateServer() throws Exception
-   {
+   private ActiveMQServer internalCreateServer() throws Exception {
       final ActiveMQServer server = newActiveMQServer();
 
       server.start();
@@ -107,8 +97,7 @@ public class PagingReceiveTest extends ActiveMQTestBase
       return server;
    }
 
-   private ClientMessage receiveMessage() throws Exception
-   {
+   private ClientMessage receiveMessage() throws Exception {
       final ClientSessionFactory sf = createSessionFactory(locator);
       ClientSession session = sf.createSession(null, null, false, true, true, false, 0);
 
@@ -119,8 +108,7 @@ public class PagingReceiveTest extends ActiveMQTestBase
 
       session.commit();
 
-      if (message != null)
-      {
+      if (message != null) {
          message.acknowledge();
       }
 
@@ -131,21 +119,14 @@ public class PagingReceiveTest extends ActiveMQTestBase
       return message;
    }
 
-   private ActiveMQServer newActiveMQServer() throws Exception
-   {
+   private ActiveMQServer newActiveMQServer() throws Exception {
       final ActiveMQServer server = createServer(true, isNetty());
 
-      final AddressSettings settings = new AddressSettings()
-              .setMaxSizeBytes(67108864)
-              .setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE)
-              .setMaxRedeliveryDelay(3600000)
-              .setRedeliveryMultiplier(2.0)
-              .setRedeliveryDelay(500);
+      final AddressSettings settings = new AddressSettings().setMaxSizeBytes(67108864).setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE).setMaxRedeliveryDelay(3600000).setRedeliveryMultiplier(2.0).setRedeliveryDelay(500);
 
       server.getAddressSettingsRepository().addMatch("#", settings);
 
       return server;
    }
-
 
 }

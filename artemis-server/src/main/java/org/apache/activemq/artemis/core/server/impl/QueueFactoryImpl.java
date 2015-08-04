@@ -30,16 +30,17 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 
 /**
- *
  * A QueueFactoryImpl
  */
-public class QueueFactoryImpl implements QueueFactory
-{
+public class QueueFactoryImpl implements QueueFactory {
+
    protected final HierarchicalRepository<AddressSettings> addressSettingsRepository;
 
    protected final ScheduledExecutorService scheduledExecutor;
 
-   /** This is required for delete-all-reference to work correctly with paging, and controlling global-size */
+   /**
+    * This is required for delete-all-reference to work correctly with paging, and controlling global-size
+    */
    protected PostOffice postOffice;
 
    protected final StorageManager storageManager;
@@ -49,8 +50,7 @@ public class QueueFactoryImpl implements QueueFactory
    public QueueFactoryImpl(final ExecutorFactory executorFactory,
                            final ScheduledExecutorService scheduledExecutor,
                            final HierarchicalRepository<AddressSettings> addressSettingsRepository,
-                           final StorageManager storageManager)
-   {
+                           final StorageManager storageManager) {
       this.addressSettingsRepository = addressSettingsRepository;
 
       this.scheduledExecutor = scheduledExecutor;
@@ -60,8 +60,7 @@ public class QueueFactoryImpl implements QueueFactory
       this.executorFactory = executorFactory;
    }
 
-   public void setPostOffice(final PostOffice postOffice)
-   {
+   public void setPostOffice(final PostOffice postOffice) {
       this.postOffice = postOffice;
    }
 
@@ -73,44 +72,15 @@ public class QueueFactoryImpl implements QueueFactory
                             final SimpleString user,
                             final boolean durable,
                             final boolean temporary,
-                            final boolean autoCreated)
-   {
+                            final boolean autoCreated) {
       AddressSettings addressSettings = addressSettingsRepository.getMatch(address.toString());
 
       Queue queue;
-      if (addressSettings.isLastValueQueue())
-      {
-         queue = new LastValueQueue(persistenceID,
-                                    address,
-                                    name,
-                                    filter,
-                                    pageSubscription,
-                                    user,
-                                    durable,
-                                    temporary,
-                                    autoCreated,
-                                    scheduledExecutor,
-                                    postOffice,
-                                    storageManager,
-                                    addressSettingsRepository,
-                                    executorFactory.getExecutor());
+      if (addressSettings.isLastValueQueue()) {
+         queue = new LastValueQueue(persistenceID, address, name, filter, pageSubscription, user, durable, temporary, autoCreated, scheduledExecutor, postOffice, storageManager, addressSettingsRepository, executorFactory.getExecutor());
       }
-      else
-      {
-         queue = new QueueImpl(persistenceID,
-                               address,
-                               name,
-                               filter,
-                               pageSubscription,
-                               user,
-                               durable,
-                               temporary,
-                               autoCreated,
-                               scheduledExecutor,
-                               postOffice,
-                               storageManager,
-                               addressSettingsRepository,
-                               executorFactory.getExecutor());
+      else {
+         queue = new QueueImpl(persistenceID, address, name, filter, pageSubscription, user, durable, temporary, autoCreated, scheduledExecutor, postOffice, storageManager, addressSettingsRepository, executorFactory.getExecutor());
       }
 
       return queue;

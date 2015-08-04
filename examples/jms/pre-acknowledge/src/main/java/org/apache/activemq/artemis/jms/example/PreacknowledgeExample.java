@@ -36,25 +36,23 @@ import org.apache.activemq.artemis.api.jms.management.JMSManagementHelper;
 /**
  * This example demonstrates the use of ActiveMQ Artemis "pre-acknowledge" functionality where
  * messages are acknowledged before they are delivered to the consumer.
- *
+ * <br>
  * Please see the readme.html for more details.
  */
-public class PreacknowledgeExample
-{
-   public static void main(final String[] args) throws Exception
-   {
+public class PreacknowledgeExample {
+
+   public static void main(final String[] args) throws Exception {
       Connection connection = null;
 
       InitialContext initialContext = null;
-      try
-      {
+      try {
          // Step 1. Create an initial context to perform the JNDI lookup.
          initialContext = new InitialContext();
 
          // Step 2. Perform the look-ups
-         Queue queue = (Queue)initialContext.lookup("queue/exampleQueue");
+         Queue queue = (Queue) initialContext.lookup("queue/exampleQueue");
 
-         ConnectionFactory cf = (ConnectionFactory)initialContext.lookup("ConnectionFactory");
+         ConnectionFactory cf = (ConnectionFactory) initialContext.lookup("ConnectionFactory");
 
          // Step 3. Create a the JMS objects
          connection = cf.createConnection();
@@ -89,25 +87,21 @@ public class PreacknowledgeExample
 
          System.out.println("Queue message count is now " + count);
 
-         if (count != 0)
-         {
+         if (count != 0) {
             throw new IllegalStateException("Queue message count is not 0.");
          }
 
          // Step 8. Finally, receive the message
-         TextMessage messageReceived = (TextMessage)messageConsumer.receive(5000);
+         TextMessage messageReceived = (TextMessage) messageConsumer.receive(5000);
 
          System.out.println("Received message: " + messageReceived.getText());
       }
-      finally
-      {
+      finally {
          // Step 9. Be sure to close our resources!
-         if (initialContext != null)
-         {
+         if (initialContext != null) {
             initialContext.close();
          }
-         if (connection != null)
-         {
+         if (connection != null) {
             connection.close();
          }
       }
@@ -115,9 +109,8 @@ public class PreacknowledgeExample
 
    // To do this we send a management message to get the message count.
    // In real life you wouldn't create a new session every time you send a management message
-   private static int getMessageCount(final Connection connection) throws Exception
-   {
-      QueueSession session = ((QueueConnection)connection).createQueueSession(false, Session.AUTO_ACKNOWLEDGE);
+   private static int getMessageCount(final Connection connection) throws Exception {
+      QueueSession session = ((QueueConnection) connection).createQueueSession(false, Session.AUTO_ACKNOWLEDGE);
 
       Queue managementQueue = ActiveMQJMSClient.createQueue("activemq.management");
 
@@ -131,7 +124,7 @@ public class PreacknowledgeExample
 
       Message response = requestor.request(m);
 
-      int messageCount = (Integer)JMSManagementHelper.getResult(response);
+      int messageCount = (Integer) JMSManagementHelper.getResult(response);
 
       return messageCount;
    }

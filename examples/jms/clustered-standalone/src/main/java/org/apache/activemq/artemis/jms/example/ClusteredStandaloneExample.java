@@ -26,10 +26,9 @@ import javax.jms.Topic;
 import javax.naming.InitialContext;
 import java.util.Hashtable;
 
-public class ClusteredStandaloneExample
-{
-   public static void main(final String[] args) throws Exception
-   {
+public class ClusteredStandaloneExample {
+
+   public static void main(final String[] args) throws Exception {
       Connection connection0 = null;
 
       Connection connection1 = null;
@@ -40,8 +39,7 @@ public class ClusteredStandaloneExample
       InitialContext initialContext1 = null;
       InitialContext initialContext2 = null;
 
-      try
-      {
+      try {
          Hashtable<String, Object> properties = new Hashtable<String, Object>();
          properties.put("java.naming.factory.initial", "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
          properties.put("connectionFactory.ConnectionFactory", "tcp://localhost:61616");
@@ -62,19 +60,19 @@ public class ClusteredStandaloneExample
          // We create a connection on each node, create a consumer on each connection and send some
          // messages at a node and verify they are all received by all consumers
 
-         ConnectionFactory cf0 = (ConnectionFactory)initialContext0.lookup("ConnectionFactory");
+         ConnectionFactory cf0 = (ConnectionFactory) initialContext0.lookup("ConnectionFactory");
 
          System.out.println("Got cf " + cf0);
 
-         ConnectionFactory cf1 = (ConnectionFactory)initialContext1.lookup("ConnectionFactory");
+         ConnectionFactory cf1 = (ConnectionFactory) initialContext1.lookup("ConnectionFactory");
 
          System.out.println("Got cf " + cf1);
 
-         ConnectionFactory cf2 = (ConnectionFactory)initialContext2.lookup("ConnectionFactory");
+         ConnectionFactory cf2 = (ConnectionFactory) initialContext2.lookup("ConnectionFactory");
 
          System.out.println("Got cf " + cf2);
 
-         Topic topic = (Topic)initialContext0.lookup("topic/exampleTopic");
+         Topic topic = (Topic) initialContext0.lookup("topic/exampleTopic");
 
          connection0 = cf0.createConnection();
 
@@ -104,37 +102,32 @@ public class ClusteredStandaloneExample
 
          final int numMessages = 10;
 
-         for (int i = 0; i < numMessages; i++)
-         {
+         for (int i = 0; i < numMessages; i++) {
             TextMessage message = session0.createTextMessage("Message " + i);
 
             producer.send(message);
          }
 
-         for (int i = 0; i < numMessages; i++)
-         {
-            TextMessage message0 = (TextMessage)messageConsumer0.receive(2000);
+         for (int i = 0; i < numMessages; i++) {
+            TextMessage message0 = (TextMessage) messageConsumer0.receive(2000);
 
-            if (message0 == null)
-            {
+            if (message0 == null) {
                throw new IllegalStateException();
             }
 
             // System.out.println("Received message " + message0.getText());
 
-            TextMessage message1 = (TextMessage)messageConsumer1.receive(2000);
+            TextMessage message1 = (TextMessage) messageConsumer1.receive(2000);
 
-            if (message1 == null)
-            {
+            if (message1 == null) {
                throw new IllegalStateException();
             }
 
             // System.out.println("Received message " + message1.getText());
 
-            TextMessage message2 = (TextMessage)messageConsumer2.receive(2000);
+            TextMessage message2 = (TextMessage) messageConsumer2.receive(2000);
 
-            if (message2 == null)
-            {
+            if (message2 == null) {
                throw new IllegalStateException();
             }
 
@@ -149,31 +142,24 @@ public class ClusteredStandaloneExample
 
          messageConsumer2.close();
       }
-      finally
-      {
+      finally {
          // Step 12. Be sure to close our JMS resources!
-         if (initialContext0 != null)
-         {
+         if (initialContext0 != null) {
             initialContext0.close();
          }
-         if (initialContext1 != null)
-         {
+         if (initialContext1 != null) {
             initialContext1.close();
          }
-         if (initialContext2 != null)
-         {
+         if (initialContext2 != null) {
             initialContext2.close();
          }
-         if (connection0 != null)
-         {
+         if (connection0 != null) {
             connection0.close();
          }
-         if (connection1 != null)
-         {
+         if (connection1 != null) {
             connection1.close();
          }
-         if (connection2 != null)
-         {
+         if (connection2 != null) {
             connection2.close();
          }
       }

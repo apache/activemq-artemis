@@ -38,8 +38,8 @@ import javax.jms.JMSException;
 import javax.jms.Queue;
 import javax.jms.Session;
 
-public class CloseDestroyedConnectionTest extends JMSTestBase
-{
+public class CloseDestroyedConnectionTest extends JMSTestBase {
+
    private ActiveMQConnectionFactory cf;
    private ActiveMQSession session1;
    private Connection conn2;
@@ -47,40 +47,34 @@ public class CloseDestroyedConnectionTest extends JMSTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
-      cf =
-               ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF,
-                                                                  new TransportConfiguration(INVM_CONNECTOR_FACTORY));
+      cf = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration(INVM_CONNECTOR_FACTORY));
       cf.setBlockOnDurableSend(true);
       cf.setPreAcknowledge(true);
    }
 
    @Test
-   public void testClosingTemporaryTopicDeletesQueue() throws JMSException, ActiveMQException
-   {
+   public void testClosingTemporaryTopicDeletesQueue() throws JMSException, ActiveMQException {
       conn = cf.createConnection();
 
       Assert.assertEquals(1, server.getRemotingService().getConnections().size());
 
-      session1 = (ActiveMQSession)conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-      ActiveMQTemporaryTopic topic = (ActiveMQTemporaryTopic)session1.createTemporaryTopic();
+      session1 = (ActiveMQSession) conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      ActiveMQTemporaryTopic topic = (ActiveMQTemporaryTopic) session1.createTemporaryTopic();
       String address = topic.getAddress();
       session1.close();
       conn.close();
       conn2 = cf.createConnection();
-      session2 = (ActiveMQSession)conn2.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      session2 = (ActiveMQSession) conn2.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
       ClientSession cs = session2.getCoreSession();
-      try
-      {
+      try {
          cs.createConsumer(address);
          fail("the address from the TemporaryTopic still exists!");
       }
-      catch (ActiveMQException e)
-      {
+      catch (ActiveMQException e) {
          assertEquals("expecting 'queue does not exist'", ActiveMQExceptionType.QUEUE_DOES_NOT_EXIST, e.getType());
       }
    }
@@ -89,8 +83,7 @@ public class CloseDestroyedConnectionTest extends JMSTestBase
     * Closing a connection that is destroyed should cleanly close everything without throwing exceptions
     */
    @Test
-   public void testCloseDestroyedConnection() throws Exception
-   {
+   public void testCloseDestroyedConnection() throws Exception {
       long connectionTTL = 500;
       cf.setClientFailureCheckPeriod(connectionTTL / 2);
       // Need to set connection ttl to a low figure so connections get removed quickly on the server
@@ -119,7 +112,7 @@ public class CloseDestroyedConnectionTest extends JMSTestBase
 
       // Now fail the underlying connection
 
-      ClientSessionInternal sessi = (ClientSessionInternal)((ActiveMQSession)sess).getCoreSession();
+      ClientSessionInternal sessi = (ClientSessionInternal) ((ActiveMQSession) sess).getCoreSession();
 
       RemotingConnection rc = sessi.getConnection();
 
@@ -131,19 +124,16 @@ public class CloseDestroyedConnectionTest extends JMSTestBase
 
       long start = System.currentTimeMillis();
 
-      while (true)
-      {
+      while (true) {
          int cons = server.getRemotingService().getConnections().size();
 
-         if (cons == 0)
-         {
+         if (cons == 0) {
             break;
          }
 
          long now = System.currentTimeMillis();
 
-         if (now - start > 10000)
-         {
+         if (now - start > 10000) {
             throw new Exception("Timed out waiting for connections to close");
          }
 

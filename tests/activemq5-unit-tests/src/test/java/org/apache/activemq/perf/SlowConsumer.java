@@ -25,26 +25,28 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * 
+ *
  */
 public class SlowConsumer extends PerfConsumer {
-    private static final transient Logger LOG = LoggerFactory.getLogger(SlowConsumer.class);
 
-    public SlowConsumer(ConnectionFactory fac, Destination dest, String consumerName) throws JMSException {
-        super(fac, dest, consumerName);
-    }
+   private static final transient Logger LOG = LoggerFactory.getLogger(SlowConsumer.class);
 
-    public SlowConsumer(ConnectionFactory fac, Destination dest) throws JMSException {
-        super(fac, dest, null);
-    }
+   public SlowConsumer(ConnectionFactory fac, Destination dest, String consumerName) throws JMSException {
+      super(fac, dest, consumerName);
+   }
 
-    public void onMessage(Message msg) {
-        super.onMessage(msg);
-        LOG.debug("GOT A MSG " + msg);
-        try {
-            Thread.sleep(10000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
+   public SlowConsumer(ConnectionFactory fac, Destination dest) throws JMSException {
+      super(fac, dest, null);
+   }
+
+   public void onMessage(Message msg) {
+      super.onMessage(msg);
+      LOG.debug("GOT A MSG " + msg);
+      try {
+         Thread.sleep(10000);
+      }
+      catch (InterruptedException e) {
+         e.printStackTrace();
+      }
+   }
 }

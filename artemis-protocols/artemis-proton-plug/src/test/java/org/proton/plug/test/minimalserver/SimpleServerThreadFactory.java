@@ -21,8 +21,8 @@ import java.security.PrivilegedAction;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public final class SimpleServerThreadFactory implements ThreadFactory
-{
+public final class SimpleServerThreadFactory implements ThreadFactory {
+
    private final ThreadGroup group;
 
    private final AtomicInteger threadCount = new AtomicInteger(0);
@@ -33,8 +33,7 @@ public final class SimpleServerThreadFactory implements ThreadFactory
 
    private final ClassLoader tccl;
 
-   public SimpleServerThreadFactory(final String groupName, final boolean daemon, final ClassLoader tccl)
-   {
+   public SimpleServerThreadFactory(final String groupName, final boolean daemon, final ClassLoader tccl) {
       group = new ThreadGroup(groupName + "-" + System.identityHashCode(this));
 
       this.threadPriority = Thread.NORM_PRIORITY;
@@ -44,43 +43,34 @@ public final class SimpleServerThreadFactory implements ThreadFactory
       this.daemon = daemon;
    }
 
-   public Thread newThread(final Runnable command)
-   {
+   public Thread newThread(final Runnable command) {
       final Thread t;
       // attach the thread to a group only if there is no security manager:
       // when sandboxed, the code does not have the RuntimePermission modifyThreadGroup
-      if (System.getSecurityManager() == null)
-      {
+      if (System.getSecurityManager() == null) {
          t = new Thread(group, command, "Thread-" + threadCount.getAndIncrement() + " (" + group.getName() + ")");
       }
-      else
-      {
+      else {
          t = new Thread(command, "Thread-" + threadCount.getAndIncrement());
       }
 
-      AccessController.doPrivileged(new PrivilegedAction<Object>()
-      {
-         public Object run()
-         {
+      AccessController.doPrivileged(new PrivilegedAction<Object>() {
+         public Object run() {
             t.setDaemon(daemon);
             t.setPriority(threadPriority);
             return null;
          }
       });
 
-      try
-      {
-         AccessController.doPrivileged(new PrivilegedAction<Object>()
-         {
-            public Object run()
-            {
+      try {
+         AccessController.doPrivileged(new PrivilegedAction<Object>() {
+            public Object run() {
                t.setContextClassLoader(tccl);
                return null;
             }
          });
       }
-      catch (java.security.AccessControlException e)
-      {
+      catch (java.security.AccessControlException e) {
          e.printStackTrace();
       }
 

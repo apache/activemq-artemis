@@ -46,159 +46,162 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- *Test that the store recovers even if some log files are missing.
+ * Test that the store recovers even if some log files are missing.
  */
 public class KahaDBSchedulerMissingJournalLogsTest {
 
-    static final Logger LOG = LoggerFactory.getLogger(KahaDBSchedulerIndexRebuildTest.class);
+   static final Logger LOG = LoggerFactory.getLogger(KahaDBSchedulerIndexRebuildTest.class);
 
-    private BrokerService broker = null;
-    private JobSchedulerStoreImpl schedulerStore = null;
+   private BrokerService broker = null;
+   private JobSchedulerStoreImpl schedulerStore = null;
 
-    private final int NUM_LOGS = 6;
+   private final int NUM_LOGS = 6;
 
-    static String basedir;
-    static {
-        try {
-            ProtectionDomain protectionDomain = SchedulerDBVersionTest.class.getProtectionDomain();
-            basedir = new File(new File(protectionDomain.getCodeSource().getLocation().getPath()), "../.").getCanonicalPath();
-        } catch (IOException e) {
-            basedir = ".";
-        }
-    }
+   static String basedir;
 
-    private final File schedulerStoreDir = new File(basedir, "activemq-data/store/scheduler");
-    private final File storeDir = new File(basedir, "activemq-data/store/");
+   static {
+      try {
+         ProtectionDomain protectionDomain = SchedulerDBVersionTest.class.getProtectionDomain();
+         basedir = new File(new File(protectionDomain.getCodeSource().getLocation().getPath()), "../.").getCanonicalPath();
+      }
+      catch (IOException e) {
+         basedir = ".";
+      }
+   }
 
-    /**
-     * @throws java.lang.Exception
-     */
-    @Before
-    public void setUp() throws Exception {
-        IOHelper.deleteFile(schedulerStoreDir);
-        LOG.info("Test Dir = {}", schedulerStoreDir);
+   private final File schedulerStoreDir = new File(basedir, "activemq-data/store/scheduler");
+   private final File storeDir = new File(basedir, "activemq-data/store/");
 
-        createBroker();
-        broker.start();
-        broker.waitUntilStarted();
+   /**
+    * @throws java.lang.Exception
+    */
+   @Before
+   public void setUp() throws Exception {
+      IOHelper.deleteFile(schedulerStoreDir);
+      LOG.info("Test Dir = {}", schedulerStoreDir);
 
-        schedulerStore = (JobSchedulerStoreImpl) broker.getJobSchedulerStore();
-    }
+      createBroker();
+      broker.start();
+      broker.waitUntilStarted();
 
-    /**
-     * @throws java.lang.Exception
-     */
-    @After
-    public void tearDown() throws Exception {
-        if (broker != null) {
-            broker.stop();
-            broker.waitUntilStopped();
-        }
-    }
+      schedulerStore = (JobSchedulerStoreImpl) broker.getJobSchedulerStore();
+   }
 
-    @Test(timeout=120 * 1000)
-    public void testMissingLogsCausesBrokerToFail() throws Exception {
-        fillUpSomeLogFiles();
+   /**
+    * @throws java.lang.Exception
+    */
+   @After
+   public void tearDown() throws Exception {
+      if (broker != null) {
+         broker.stop();
+         broker.waitUntilStopped();
+      }
+   }
 
-        int jobCount = schedulerStore.getJobScheduler("JMS").getAllJobs().size();
-        LOG.info("There are {} jobs in the store.", jobCount);
+   @Test(timeout = 120 * 1000)
+   public void testMissingLogsCausesBrokerToFail() throws Exception {
+      fillUpSomeLogFiles();
 
-        List<File> toDelete = new ArrayList<File>();
-        Map<Integer, DataFile> files = schedulerStore.getJournal().getFileMap();
-        for (int i = files.size(); i > files.size() / 2; i--) {
-            toDelete.add(files.get(i).getFile());
-        }
+      int jobCount = schedulerStore.getJobScheduler("JMS").getAllJobs().size();
+      LOG.info("There are {} jobs in the store.", jobCount);
 
-        broker.stop();
-        broker.waitUntilStopped();
+      List<File> toDelete = new ArrayList<File>();
+      Map<Integer, DataFile> files = schedulerStore.getJournal().getFileMap();
+      for (int i = files.size(); i > files.size() / 2; i--) {
+         toDelete.add(files.get(i).getFile());
+      }
 
-        for (File file : toDelete) {
-            LOG.info("File to delete: {}", file);
-            IOHelper.delete(file);
-        }
+      broker.stop();
+      broker.waitUntilStopped();
 
-        try {
-            createBroker();
-            fail("Should not start when logs are missing.");
-        } catch (Exception e) {
-        }
-    }
+      for (File file : toDelete) {
+         LOG.info("File to delete: {}", file);
+         IOHelper.delete(file);
+      }
 
-    @Test(timeout=120 * 1000)
-    public void testRecoverWhenSomeLogsAreMissing() throws Exception {
-        fillUpSomeLogFiles();
+      try {
+         createBroker();
+         fail("Should not start when logs are missing.");
+      }
+      catch (Exception e) {
+      }
+   }
 
-        int jobCount = schedulerStore.getJobScheduler("JMS").getAllJobs().size();
-        LOG.info("There are {} jobs in the store.", jobCount);
+   @Test(timeout = 120 * 1000)
+   public void testRecoverWhenSomeLogsAreMissing() throws Exception {
+      fillUpSomeLogFiles();
 
-        List<File> toDelete = new ArrayList<File>();
-        Map<Integer, DataFile> files = schedulerStore.getJournal().getFileMap();
-        for (int i = files.size() - 1; i > files.size() / 2; i--) {
-            toDelete.add(files.get(i).getFile());
-        }
+      int jobCount = schedulerStore.getJobScheduler("JMS").getAllJobs().size();
+      LOG.info("There are {} jobs in the store.", jobCount);
 
-        broker.stop();
-        broker.waitUntilStopped();
+      List<File> toDelete = new ArrayList<File>();
+      Map<Integer, DataFile> files = schedulerStore.getJournal().getFileMap();
+      for (int i = files.size() - 1; i > files.size() / 2; i--) {
+         toDelete.add(files.get(i).getFile());
+      }
 
-        for (File file : toDelete) {
-            LOG.info("File to delete: {}", file);
-            IOHelper.delete(file);
-        }
+      broker.stop();
+      broker.waitUntilStopped();
 
-        schedulerStore = createScheduler();
-        schedulerStore.setIgnoreMissingJournalfiles(true);
+      for (File file : toDelete) {
+         LOG.info("File to delete: {}", file);
+         IOHelper.delete(file);
+      }
 
-        createBroker(schedulerStore);
-        broker.start();
-        broker.waitUntilStarted();
+      schedulerStore = createScheduler();
+      schedulerStore.setIgnoreMissingJournalfiles(true);
 
-        int postRecoverJobCount = schedulerStore.getJobScheduler("JMS").getAllJobs().size();
-        assertTrue(postRecoverJobCount > 0);
-        assertTrue(postRecoverJobCount < jobCount);
-    }
+      createBroker(schedulerStore);
+      broker.start();
+      broker.waitUntilStarted();
 
-    private void fillUpSomeLogFiles() throws Exception {
-        ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory("vm://localhost");
-        Connection connection = cf.createConnection();
-        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        Queue queue = session.createQueue("test.queue");
-        MessageProducer producer = session.createProducer(queue);
-        connection.start();
-        while (true) {
-            scheduleRepeating(session, producer);
-            if (schedulerStore.getJournal().getFileMap().size() == NUM_LOGS) {
-                break;
-            }
-        }
-        connection.close();
-    }
+      int postRecoverJobCount = schedulerStore.getJobScheduler("JMS").getAllJobs().size();
+      assertTrue(postRecoverJobCount > 0);
+      assertTrue(postRecoverJobCount < jobCount);
+   }
 
-    private void scheduleRepeating(Session session, MessageProducer producer) throws Exception {
-        TextMessage message = session.createTextMessage("test msg");
-        long time = 360 * 1000;
-        message.setLongProperty(ScheduledMessage.AMQ_SCHEDULED_DELAY, time);
-        message.setLongProperty(ScheduledMessage.AMQ_SCHEDULED_PERIOD, 500);
-        message.setIntProperty(ScheduledMessage.AMQ_SCHEDULED_REPEAT, -1);
-        producer.send(message);
-    }
+   private void fillUpSomeLogFiles() throws Exception {
+      ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory("vm://localhost");
+      Connection connection = cf.createConnection();
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      Queue queue = session.createQueue("test.queue");
+      MessageProducer producer = session.createProducer(queue);
+      connection.start();
+      while (true) {
+         scheduleRepeating(session, producer);
+         if (schedulerStore.getJournal().getFileMap().size() == NUM_LOGS) {
+            break;
+         }
+      }
+      connection.close();
+   }
 
-    protected JobSchedulerStoreImpl createScheduler() {
-        JobSchedulerStoreImpl scheduler = new JobSchedulerStoreImpl();
-        scheduler.setDirectory(schedulerStoreDir);
-        scheduler.setJournalMaxFileLength(10 * 1024);
-        return scheduler;
-    }
+   private void scheduleRepeating(Session session, MessageProducer producer) throws Exception {
+      TextMessage message = session.createTextMessage("test msg");
+      long time = 360 * 1000;
+      message.setLongProperty(ScheduledMessage.AMQ_SCHEDULED_DELAY, time);
+      message.setLongProperty(ScheduledMessage.AMQ_SCHEDULED_PERIOD, 500);
+      message.setIntProperty(ScheduledMessage.AMQ_SCHEDULED_REPEAT, -1);
+      producer.send(message);
+   }
 
-    protected void createBroker() throws Exception {
-        createBroker(createScheduler());
-    }
+   protected JobSchedulerStoreImpl createScheduler() {
+      JobSchedulerStoreImpl scheduler = new JobSchedulerStoreImpl();
+      scheduler.setDirectory(schedulerStoreDir);
+      scheduler.setJournalMaxFileLength(10 * 1024);
+      return scheduler;
+   }
 
-    protected void createBroker(JobSchedulerStoreImpl scheduler) throws Exception {
-        broker = new BrokerService();
-        broker.setJobSchedulerStore(scheduler);
-        broker.setPersistent(true);
-        broker.setDataDirectory(storeDir.getAbsolutePath());
-        broker.setSchedulerSupport(true);
-        broker.setUseJmx(false);
-    }
+   protected void createBroker() throws Exception {
+      createBroker(createScheduler());
+   }
+
+   protected void createBroker(JobSchedulerStoreImpl scheduler) throws Exception {
+      broker = new BrokerService();
+      broker.setJobSchedulerStore(scheduler);
+      broker.setPersistent(true);
+      broker.setDataDirectory(storeDir.getAbsolutePath());
+      broker.setSchedulerSupport(true);
+      broker.setUseJmx(false);
+   }
 }

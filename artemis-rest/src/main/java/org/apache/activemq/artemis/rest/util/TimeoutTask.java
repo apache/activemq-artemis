@@ -25,8 +25,8 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.activemq.artemis.rest.ActiveMQRestLogger;
 
-public class TimeoutTask implements Runnable
-{
+public class TimeoutTask implements Runnable {
+
    protected boolean running = true;
    protected int interval = 10;
    protected final Lock callbacksLock = new ReentrantLock();
@@ -35,90 +35,71 @@ public class TimeoutTask implements Runnable
    protected Map<String, Callback> pendingCallbacks = new HashMap<String, Callback>();
    protected Thread thread;
 
-   public TimeoutTask(int interval)
-   {
+   public TimeoutTask(int interval) {
       this.interval = interval;
    }
 
-   public interface Callback
-   {
+   public interface Callback {
+
       boolean testTimeout(String token, boolean autoShutdown);
 
       void shutdown(String token);
    }
 
-   public synchronized void add(Callback callback, String token)
-   {
-      if (callbacksLock.tryLock())
-      {
-         try
-         {
+   public synchronized void add(Callback callback, String token) {
+      if (callbacksLock.tryLock()) {
+         try {
             callbacks.put(token, callback);
          }
-         finally
-         {
+         finally {
             callbacksLock.unlock();
          }
       }
-      else
-      {
+      else {
          pendingCallbacksLock.lock();
-         try
-         {
+         try {
             pendingCallbacks.put(token, callback);
          }
-         finally
-         {
+         finally {
             pendingCallbacksLock.unlock();
          }
       }
    }
 
-   public synchronized void remove(String token)
-   {
+   public synchronized void remove(String token) {
       callbacksLock.lock();
-      try
-      {
+      try {
          callbacks.remove(token);
       }
-      finally
-      {
+      finally {
          callbacksLock.unlock();
       }
    }
 
-   public synchronized void stop()
-   {
+   public synchronized void stop() {
       running = false;
       thread.interrupt();
    }
 
-   public synchronized int getInterval()
-   {
+   public synchronized int getInterval() {
       return interval;
    }
 
-   public synchronized void setInterval(int interval)
-   {
+   public synchronized void setInterval(int interval) {
       this.interval = interval;
    }
 
-   public void start()
-   {
+   public void start() {
       thread = new Thread(this);
       thread.start();
    }
 
-   public void run()
-   {
-      while (running)
-      {
-         try
-         {
+   public void run() {
+      while (running) {
+         try {
             Thread.sleep(interval * 1000);
          }
-         catch (InterruptedException e)
-         {
+         catch (InterruptedException e) {
             running = false;
             break;
          }
@@ -131,64 +112,52 @@ public class TimeoutTask implements Runnable
          int deadConsumers = 0;
 
          callbacksLock.lock();
-         try
-         {
+         try {
             long startTime = System.currentTimeMillis();
             List<String> tokens = new ArrayList<String>(callbacks.size());
-            for (String token : callbacks.keySet())
-            {
+            for (String token : callbacks.keySet()) {
                tokens.add(token);
             }
-            for (String token : tokens)
-            {
+            for (String token : tokens) {
                Callback callback = callbacks.get(token);
-               if (callback.testTimeout(token, false))
-               {
+               if (callback.testTimeout(token, false)) {
                   deadConsumers += 1;
                   expiredCallbacks.put(token, callback);
                   callbacks.remove(token);
                }
-               else
-               {
+               else {
                   liveConsumers += 1;
                }
             }
             ActiveMQRestLogger.LOGGER.debug("Finished testing callbacks for timeouts in " +
-                                              (System.currentTimeMillis() - startTime) + "ms. " +
-                                              "(Live: " + liveConsumers + ", Expired: " + deadConsumers + ")");
+                                               (System.currentTimeMillis() - startTime) + "ms. " +
+                                               "(Live: " + liveConsumers + ", Expired: " + deadConsumers + ")");
 
             // Next, move any pending callback additions to the main callbacks map.
             pendingCallbacksLock.lock();
-            try
-            {
-               if (pendingCallbacks.size() > 0)
-               {
+            try {
+               if (pendingCallbacks.size() > 0) {
                   ActiveMQRestLogger.LOGGER.debug("Found " + pendingCallbacks.size() + " callbacks to add.");
                   callbacks.putAll(pendingCallbacks);
                   pendingCallbacks.clear();
                }
             }
-            finally
-            {
+            finally {
                pendingCallbacksLock.unlock();
             }
          }
-         finally
-         {
+         finally {
             callbacksLock.unlock();
          }
 
          // Finally, freely shutdown all expired consumers.
-         if (expiredCallbacks.size() > 0)
-         {
+         if (expiredCallbacks.size() > 0) {
             long startTime = System.currentTimeMillis();
             List<String> tokens = new ArrayList<String>(expiredCallbacks.size());
-            for (String token : expiredCallbacks.keySet())
-            {
+            for (String token : expiredCallbacks.keySet()) {
                tokens.add(token);
             }
-            for (String token : tokens)
-            {
+            for (String token : tokens) {
                Callback expired = expiredCallbacks.get(token);
                expired.shutdown(token);
             }

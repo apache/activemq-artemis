@@ -37,113 +37,113 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * 
+ *
  */
 public class TempDestDeleteTest extends EmbeddedBrokerTestSupport implements ConsumerListener {
-    private static final Logger LOG = LoggerFactory.getLogger(TempDestDeleteTest.class);
 
-    protected int consumerCounter;
-    protected ConsumerEventSource topicConsumerEventSource;
-    protected BlockingQueue<ConsumerEvent> eventQueue = new ArrayBlockingQueue<ConsumerEvent>(1000);
-    
-    private ConsumerEventSource queueConsumerEventSource;
-    private Connection connection;
-    private Session session;
-    private ActiveMQTempTopic tempTopic;
-    private ActiveMQTempQueue tempQueue;
+   private static final Logger LOG = LoggerFactory.getLogger(TempDestDeleteTest.class);
 
-    public void testDeleteTempTopicDeletesAvisoryTopics() throws Exception {
-        topicConsumerEventSource.start();
+   protected int consumerCounter;
+   protected ConsumerEventSource topicConsumerEventSource;
+   protected BlockingQueue<ConsumerEvent> eventQueue = new ArrayBlockingQueue<ConsumerEvent>(1000);
 
-        MessageConsumer consumer = createConsumer(tempTopic);
-        assertConsumerEvent(1, true);
+   private ConsumerEventSource queueConsumerEventSource;
+   private Connection connection;
+   private Session session;
+   private ActiveMQTempTopic tempTopic;
+   private ActiveMQTempQueue tempQueue;
 
-        Topic advisoryTopic = AdvisorySupport.getConsumerAdvisoryTopic(tempTopic);
-        assertTrue(destinationExists(advisoryTopic));
+   public void testDeleteTempTopicDeletesAvisoryTopics() throws Exception {
+      topicConsumerEventSource.start();
 
-        consumer.close();
+      MessageConsumer consumer = createConsumer(tempTopic);
+      assertConsumerEvent(1, true);
 
-        // Once we delete the topic, the advisory topic for the destination
-        // should also be deleted.
-        tempTopic.delete();
+      Topic advisoryTopic = AdvisorySupport.getConsumerAdvisoryTopic(tempTopic);
+      assertTrue(destinationExists(advisoryTopic));
 
-        assertFalse(destinationExists(advisoryTopic));
-    }
+      consumer.close();
 
-    public void testDeleteTempQueueDeletesAvisoryTopics() throws Exception {
-        queueConsumerEventSource.start();
+      // Once we delete the topic, the advisory topic for the destination
+      // should also be deleted.
+      tempTopic.delete();
 
-        MessageConsumer consumer = createConsumer(tempQueue);
-        assertConsumerEvent(1, true);
+      assertFalse(destinationExists(advisoryTopic));
+   }
 
-        Topic advisoryTopic = AdvisorySupport.getConsumerAdvisoryTopic(tempQueue);
-        assertTrue(destinationExists(advisoryTopic));
+   public void testDeleteTempQueueDeletesAvisoryTopics() throws Exception {
+      queueConsumerEventSource.start();
 
-        consumer.close();
+      MessageConsumer consumer = createConsumer(tempQueue);
+      assertConsumerEvent(1, true);
 
-        // Once we delete the queue, the advisory topic for the destination
-        // should also be deleted.
-        tempQueue.delete();
+      Topic advisoryTopic = AdvisorySupport.getConsumerAdvisoryTopic(tempQueue);
+      assertTrue(destinationExists(advisoryTopic));
 
-        assertFalse(destinationExists(advisoryTopic));
-    }
+      consumer.close();
 
-    private boolean destinationExists(Destination dest) throws Exception {
-        RegionBroker rb = (RegionBroker)broker.getBroker().getAdaptor(RegionBroker.class);
-        return rb.getTopicRegion().getDestinationMap().containsKey(dest) || rb.getQueueRegion().getDestinationMap().containsKey(dest)
-               || rb.getTempTopicRegion().getDestinationMap().containsKey(dest) || rb.getTempQueueRegion().getDestinationMap().containsKey(dest);
-    }
+      // Once we delete the queue, the advisory topic for the destination
+      // should also be deleted.
+      tempQueue.delete();
 
-    public void onConsumerEvent(ConsumerEvent event) {
-        eventQueue.add(event);
-    }
+      assertFalse(destinationExists(advisoryTopic));
+   }
 
-    protected void setUp() throws Exception {
-        super.setUp();
-        connection = createConnection();
-        connection.start();
+   private boolean destinationExists(Destination dest) throws Exception {
+      RegionBroker rb = (RegionBroker) broker.getBroker().getAdaptor(RegionBroker.class);
+      return rb.getTopicRegion().getDestinationMap().containsKey(dest) || rb.getQueueRegion().getDestinationMap().containsKey(dest) || rb.getTempTopicRegion().getDestinationMap().containsKey(dest) || rb.getTempQueueRegion().getDestinationMap().containsKey(dest);
+   }
 
-        session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+   public void onConsumerEvent(ConsumerEvent event) {
+      eventQueue.add(event);
+   }
 
-        tempTopic = (ActiveMQTempTopic)session.createTemporaryTopic();
-        topicConsumerEventSource = new ConsumerEventSource(connection, tempTopic);
-        topicConsumerEventSource.setConsumerListener(this);
+   protected void setUp() throws Exception {
+      super.setUp();
+      connection = createConnection();
+      connection.start();
 
-        tempQueue = (ActiveMQTempQueue)session.createTemporaryQueue();
-        queueConsumerEventSource = new ConsumerEventSource(connection, tempQueue);
-        queueConsumerEventSource.setConsumerListener(this);
-    }
+      session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-    protected void tearDown() throws Exception {
-        if (connection != null) {
-            connection.close();
-        }
-        super.tearDown();
-    }
+      tempTopic = (ActiveMQTempTopic) session.createTemporaryTopic();
+      topicConsumerEventSource = new ConsumerEventSource(connection, tempTopic);
+      topicConsumerEventSource.setConsumerListener(this);
 
-    protected void assertConsumerEvent(int count, boolean started) throws InterruptedException {
-        ConsumerEvent event = waitForConsumerEvent();
-        assertEquals("Consumer count", count, event.getConsumerCount());
-        assertEquals("started", started, event.isStarted());
-    }
+      tempQueue = (ActiveMQTempQueue) session.createTemporaryQueue();
+      queueConsumerEventSource = new ConsumerEventSource(connection, tempQueue);
+      queueConsumerEventSource.setConsumerListener(this);
+   }
 
-    protected MessageConsumer createConsumer(Destination dest) throws JMSException {
-        final String consumerText = "Consumer: " + (++consumerCounter);
-        LOG.info("Creating consumer: " + consumerText + " on destination: " + dest);
+   protected void tearDown() throws Exception {
+      if (connection != null) {
+         connection.close();
+      }
+      super.tearDown();
+   }
 
-        MessageConsumer consumer = session.createConsumer(dest);
-        consumer.setMessageListener(new MessageListener() {
-            public void onMessage(Message message) {
-                LOG.info("Received message by: " + consumerText + " message: " + message);
-            }
-        });
-        return consumer;
-    }
+   protected void assertConsumerEvent(int count, boolean started) throws InterruptedException {
+      ConsumerEvent event = waitForConsumerEvent();
+      assertEquals("Consumer count", count, event.getConsumerCount());
+      assertEquals("started", started, event.isStarted());
+   }
 
-    protected ConsumerEvent waitForConsumerEvent() throws InterruptedException {
-        ConsumerEvent answer = eventQueue.poll(1000, TimeUnit.MILLISECONDS);
-        assertTrue("Should have received a consumer event!", answer != null);
-        return answer;
-    }
+   protected MessageConsumer createConsumer(Destination dest) throws JMSException {
+      final String consumerText = "Consumer: " + (++consumerCounter);
+      LOG.info("Creating consumer: " + consumerText + " on destination: " + dest);
+
+      MessageConsumer consumer = session.createConsumer(dest);
+      consumer.setMessageListener(new MessageListener() {
+         public void onMessage(Message message) {
+            LOG.info("Received message by: " + consumerText + " message: " + message);
+         }
+      });
+      return consumer;
+   }
+
+   protected ConsumerEvent waitForConsumerEvent() throws InterruptedException {
+      ConsumerEvent answer = eventQueue.poll(1000, TimeUnit.MILLISECONDS);
+      assertTrue("Should have received a consumer event!", answer != null);
+      return answer;
+   }
 
 }

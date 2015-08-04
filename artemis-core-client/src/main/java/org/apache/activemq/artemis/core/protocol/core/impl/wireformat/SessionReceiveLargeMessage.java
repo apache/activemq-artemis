@@ -20,11 +20,13 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.message.impl.MessageInternal;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 
-public class SessionReceiveLargeMessage extends PacketImpl
-{
+public class SessionReceiveLargeMessage extends PacketImpl {
+
    private final MessageInternal message;
 
-   /** Since we receive the message before the entire message was received, */
+   /**
+    * Since we receive the message before the entire message was received,
+    */
    private long largeMessageSize;
 
    private long consumerID;
@@ -32,8 +34,7 @@ public class SessionReceiveLargeMessage extends PacketImpl
    private int deliveryCount;
 
    // To be used on decoding at the client while receiving a large message
-   public SessionReceiveLargeMessage(final MessageInternal message)
-   {
+   public SessionReceiveLargeMessage(final MessageInternal message) {
       super(SESS_RECEIVE_LARGE_MSG);
       this.message = message;
    }
@@ -41,8 +42,7 @@ public class SessionReceiveLargeMessage extends PacketImpl
    public SessionReceiveLargeMessage(final long consumerID,
                                      final MessageInternal message,
                                      final long largeMessageSize,
-                                     final int deliveryCount)
-   {
+                                     final int deliveryCount) {
       super(SESS_RECEIVE_LARGE_MSG);
 
       this.consumerID = consumerID;
@@ -54,32 +54,27 @@ public class SessionReceiveLargeMessage extends PacketImpl
       this.largeMessageSize = largeMessageSize;
    }
 
-   public MessageInternal getLargeMessage()
-   {
+   public MessageInternal getLargeMessage() {
       return message;
    }
 
-   public long getConsumerID()
-   {
+   public long getConsumerID() {
       return consumerID;
    }
 
-   public int getDeliveryCount()
-   {
+   public int getDeliveryCount() {
       return deliveryCount;
    }
 
    /**
     * @return the largeMessageSize
     */
-   public long getLargeMessageSize()
-   {
+   public long getLargeMessageSize() {
       return largeMessageSize;
    }
 
    @Override
-   public void encodeRest(final ActiveMQBuffer buffer)
-   {
+   public void encodeRest(final ActiveMQBuffer buffer) {
       buffer.writeLong(consumerID);
       buffer.writeInt(deliveryCount);
       buffer.writeLong(largeMessageSize);
@@ -87,8 +82,7 @@ public class SessionReceiveLargeMessage extends PacketImpl
    }
 
    @Override
-   public void decodeRest(final ActiveMQBuffer buffer)
-   {
+   public void decodeRest(final ActiveMQBuffer buffer) {
       consumerID = buffer.readLong();
       deliveryCount = buffer.readInt();
       largeMessageSize = buffer.readLong();
@@ -96,35 +90,32 @@ public class SessionReceiveLargeMessage extends PacketImpl
    }
 
    @Override
-   public int hashCode()
-   {
+   public int hashCode() {
       final int prime = 31;
       int result = super.hashCode();
-      result = prime * result + (int)(consumerID ^ (consumerID >>> 32));
+      result = prime * result + (int) (consumerID ^ (consumerID >>> 32));
       result = prime * result + deliveryCount;
-      result = prime * result + (int)(largeMessageSize ^ (largeMessageSize >>> 32));
+      result = prime * result + (int) (largeMessageSize ^ (largeMessageSize >>> 32));
       result = prime * result + ((message == null) ? 0 : message.hashCode());
       return result;
    }
 
    @Override
-   public boolean equals(Object obj)
-   {
+   public boolean equals(Object obj) {
       if (this == obj)
          return true;
       if (!super.equals(obj))
          return false;
       if (!(obj instanceof SessionReceiveLargeMessage))
          return false;
-      SessionReceiveLargeMessage other = (SessionReceiveLargeMessage)obj;
+      SessionReceiveLargeMessage other = (SessionReceiveLargeMessage) obj;
       if (consumerID != other.consumerID)
          return false;
       if (deliveryCount != other.deliveryCount)
          return false;
       if (largeMessageSize != other.largeMessageSize)
          return false;
-      if (message == null)
-      {
+      if (message == null) {
          if (other.message != null)
             return false;
       }

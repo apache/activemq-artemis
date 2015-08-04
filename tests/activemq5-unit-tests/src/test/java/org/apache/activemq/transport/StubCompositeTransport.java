@@ -24,28 +24,25 @@ import java.util.List;
 /**
  *
  */
-public class StubCompositeTransport extends StubTransport implements CompositeTransport
-{
-    private List<URI> transportURIs = new ArrayList<URI>();    
-    
-    /**
-     * @see org.apache.activemq.transport.CompositeTransport#add(java.net.URI[])
-     */
-    public void add(boolean rebalance, URI[] uris)
-    {
-        transportURIs.addAll(Arrays.asList(uris));
-    }
+public class StubCompositeTransport extends StubTransport implements CompositeTransport {
 
-    /**
-     * @see org.apache.activemq.transport.CompositeTransport#remove(java.net.URI[])
-     */
-    public void remove(boolean rebalance, URI[] uris)
-    {
-        transportURIs.removeAll(Arrays.asList(uris));
-    }
+   private List<URI> transportURIs = new ArrayList<URI>();
 
-    public URI[] getTransportURIs()
-    {
-        return transportURIs.toArray(new URI[0]);
-    }
+   /**
+    * @see org.apache.activemq.transport.CompositeTransport#add(java.net.URI[])
+    */
+   public void add(boolean rebalance, URI[] uris) {
+      transportURIs.addAll(Arrays.asList(uris));
+   }
+
+   /**
+    * @see org.apache.activemq.transport.CompositeTransport#remove(java.net.URI[])
+    */
+   public void remove(boolean rebalance, URI[] uris) {
+      transportURIs.removeAll(Arrays.asList(uris));
+   }
+
+   public URI[] getTransportURIs() {
+      return transportURIs.toArray(new URI[0]);
+   }
 }

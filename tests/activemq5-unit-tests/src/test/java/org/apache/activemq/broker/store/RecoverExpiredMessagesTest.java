@@ -19,7 +19,9 @@ package org.apache.activemq.broker.store;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
+
 import junit.framework.Test;
+
 import org.apache.activemq.broker.BrokerRestartTestSupport;
 import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.broker.StubConnection;
@@ -42,103 +44,100 @@ import org.apache.activemq.store.kahadb.KahaDBPersistenceAdapter;
 import org.apache.activemq.util.IOHelper;
 
 public class RecoverExpiredMessagesTest extends BrokerRestartTestSupport {
-    final ArrayList<String> expected = new ArrayList<String>();
-    final ActiveMQDestination destination = new ActiveMQQueue("TEST");
-    public PendingQueueMessageStoragePolicy queuePendingPolicy;
 
-    @Override
-    protected void setUp() throws Exception {
-        setAutoFail(true);
-        super.setUp();
-    }
+   final ArrayList<String> expected = new ArrayList<String>();
+   final ActiveMQDestination destination = new ActiveMQQueue("TEST");
+   public PendingQueueMessageStoragePolicy queuePendingPolicy;
 
-    public void initCombosForTestRecovery() throws Exception {
-        addCombinationValues("queuePendingPolicy", new PendingQueueMessageStoragePolicy[] {new FilePendingQueueMessageStoragePolicy(), new VMPendingQueueMessageStoragePolicy()});
-        PersistenceAdapter[] persistenceAdapters = new PersistenceAdapter[] {
-                new KahaDBPersistenceAdapter(),
-                new JDBCPersistenceAdapter(JDBCPersistenceAdapter.createDataSource(IOHelper.getDefaultDataDirectory()), new OpenWireFormat())
-        };
-        for (PersistenceAdapter adapter : persistenceAdapters) {
-            adapter.setDirectory(new File(IOHelper.getDefaultDataDirectory()));
-        }
-        addCombinationValues("persistenceAdapter", persistenceAdapters);
-    }
+   @Override
+   protected void setUp() throws Exception {
+      setAutoFail(true);
+      super.setUp();
+   }
 
-    public void testRecovery() throws Exception {
-        sendSomeMessagesThatWillExpireIn5AndThenOne();
+   public void initCombosForTestRecovery() throws Exception {
+      addCombinationValues("queuePendingPolicy", new PendingQueueMessageStoragePolicy[]{new FilePendingQueueMessageStoragePolicy(), new VMPendingQueueMessageStoragePolicy()});
+      PersistenceAdapter[] persistenceAdapters = new PersistenceAdapter[]{new KahaDBPersistenceAdapter(), new JDBCPersistenceAdapter(JDBCPersistenceAdapter.createDataSource(IOHelper.getDefaultDataDirectory()), new OpenWireFormat())};
+      for (PersistenceAdapter adapter : persistenceAdapters) {
+         adapter.setDirectory(new File(IOHelper.getDefaultDataDirectory()));
+      }
+      addCombinationValues("persistenceAdapter", persistenceAdapters);
+   }
 
-        broker.stop();
-        broker.waitUntilStopped();
-        TimeUnit.SECONDS.sleep(6);
-        broker = createRestartedBroker();
-        broker.start();
+   public void testRecovery() throws Exception {
+      sendSomeMessagesThatWillExpireIn5AndThenOne();
 
-        consumeExpected();
-    }
+      broker.stop();
+      broker.waitUntilStopped();
+      TimeUnit.SECONDS.sleep(6);
+      broker = createRestartedBroker();
+      broker.start();
 
-    private void consumeExpected() throws Exception {
-        // Setup the consumer and receive the message.
-         StubConnection connection = createConnection();
-        ConnectionInfo connectionInfo = createConnectionInfo();
-        SessionInfo sessionInfo = createSessionInfo(connectionInfo);
-        connection.send(connectionInfo);
-        connection.send(sessionInfo);
-        ConsumerInfo consumerInfo = createConsumerInfo(sessionInfo, destination);
-        connection.send(consumerInfo);
+      consumeExpected();
+   }
 
-        Message m = receiveMessage(connection);
-        assertNotNull("Should have received message " + expected.get(0) + " by now!", m);
-        assertEquals(expected.get(0), m.getMessageId().toString());
-        MessageAck ack = createAck(consumerInfo, m, 1, MessageAck.STANDARD_ACK_TYPE);
-        connection.send(ack);
+   private void consumeExpected() throws Exception {
+      // Setup the consumer and receive the message.
+      StubConnection connection = createConnection();
+      ConnectionInfo connectionInfo = createConnectionInfo();
+      SessionInfo sessionInfo = createSessionInfo(connectionInfo);
+      connection.send(connectionInfo);
+      connection.send(sessionInfo);
+      ConsumerInfo consumerInfo = createConsumerInfo(sessionInfo, destination);
+      connection.send(consumerInfo);
 
-        assertNoMessagesLeft(connection);
-        connection.request(closeConnectionInfo(connectionInfo));
-    }
+      Message m = receiveMessage(connection);
+      assertNotNull("Should have received message " + expected.get(0) + " by now!", m);
+      assertEquals(expected.get(0), m.getMessageId().toString());
+      MessageAck ack = createAck(consumerInfo, m, 1, MessageAck.STANDARD_ACK_TYPE);
+      connection.send(ack);
 
-    private void sendSomeMessagesThatWillExpireIn5AndThenOne() throws Exception {
+      assertNoMessagesLeft(connection);
+      connection.request(closeConnectionInfo(connectionInfo));
+   }
 
-        // Setup the producer and send the message.
-        StubConnection connection = createConnection();
-        ConnectionInfo connectionInfo = createConnectionInfo();
-        SessionInfo sessionInfo = createSessionInfo(connectionInfo);
-        ProducerInfo producerInfo = createProducerInfo(sessionInfo);
-        connection.send(connectionInfo);
-        connection.send(sessionInfo);
-        connection.send(producerInfo);
+   private void sendSomeMessagesThatWillExpireIn5AndThenOne() throws Exception {
 
+      // Setup the producer and send the message.
+      StubConnection connection = createConnection();
+      ConnectionInfo connectionInfo = createConnectionInfo();
+      SessionInfo sessionInfo = createSessionInfo(connectionInfo);
+      ProducerInfo producerInfo = createProducerInfo(sessionInfo);
+      connection.send(connectionInfo);
+      connection.send(sessionInfo);
+      connection.send(producerInfo);
 
-        int MESSAGE_COUNT = 10;
-        for(int i=0; i < MESSAGE_COUNT; i++) {
-            Message message = createMessage(producerInfo, destination);
-            message.setExpiration(System.currentTimeMillis()+5000);
-            message.setPersistent(true);
-            connection.send(message);
-        }
-        Message message = createMessage(producerInfo, destination);
-        message.setPersistent(true);
-        connection.send(message);
-        expected.add(message.getMessageId().toString());
+      int MESSAGE_COUNT = 10;
+      for (int i = 0; i < MESSAGE_COUNT; i++) {
+         Message message = createMessage(producerInfo, destination);
+         message.setExpiration(System.currentTimeMillis() + 5000);
+         message.setPersistent(true);
+         connection.send(message);
+      }
+      Message message = createMessage(producerInfo, destination);
+      message.setPersistent(true);
+      connection.send(message);
+      expected.add(message.getMessageId().toString());
 
-        connection.request(closeConnectionInfo(connectionInfo));
-    }
+      connection.request(closeConnectionInfo(connectionInfo));
+   }
 
-    @Override
-    protected PolicyEntry getDefaultPolicy() {
-        PolicyEntry policy = super.getDefaultPolicy();
-        policy.setPendingQueuePolicy(queuePendingPolicy);
-        policy.setExpireMessagesPeriod(0);
-        return policy;
-    }
+   @Override
+   protected PolicyEntry getDefaultPolicy() {
+      PolicyEntry policy = super.getDefaultPolicy();
+      policy.setPendingQueuePolicy(queuePendingPolicy);
+      policy.setExpireMessagesPeriod(0);
+      return policy;
+   }
 
-    @Override
-    protected void configureBroker(BrokerService broker) throws Exception {
-        super.configureBroker(broker);
-        broker.setPersistenceAdapter(persistenceAdapter);
-    }
+   @Override
+   protected void configureBroker(BrokerService broker) throws Exception {
+      super.configureBroker(broker);
+      broker.setPersistenceAdapter(persistenceAdapter);
+   }
 
-    public static Test suite() {
-        return suite(RecoverExpiredMessagesTest.class);
-    }
+   public static Test suite() {
+      return suite(RecoverExpiredMessagesTest.class);
+   }
 
 }

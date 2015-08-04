@@ -23,66 +23,66 @@ import javax.jms.Topic;
 
 import org.apache.activemq.test.JmsTopicSendReceiveTest;
 
-
 /**
- * 
+ *
  */
 public class JmsQueueTopicCompositeSendReceiveTest extends JmsTopicSendReceiveTest {
-    private static final org.apache.commons.logging.Log LOG = org.apache.commons.logging.LogFactory
-            .getLog(JmsQueueTopicCompositeSendReceiveTest.class);
-    Destination consumerDestination2;
-    MessageConsumer consumer2;
 
-    /**
-     * Sets a test to have a queue destination and non-persistent delivery mode.
-     *
-     * @see junit.framework.TestCase#setUp()
-     */
-    protected void setUp() throws Exception {
-        deliveryMode = DeliveryMode.NON_PERSISTENT;
-        topic = false;
-        super.setUp();
-        consumerDestination2 = consumeSession.createTopic("FOO.BAR.HUMBUG2");
-        LOG.info("Created  consumer destination: " + consumerDestination2 + " of type: " + consumerDestination2.getClass());
-        if (durable) {
-            LOG.info("Creating durable consumer");
-            consumer2 = consumeSession.createDurableSubscriber((Topic) consumerDestination2, getName());
-        } else {
-            consumer2 = consumeSession.createConsumer(consumerDestination2);
-        }
+   private static final org.apache.commons.logging.Log LOG = org.apache.commons.logging.LogFactory.getLog(JmsQueueTopicCompositeSendReceiveTest.class);
+   Destination consumerDestination2;
+   MessageConsumer consumer2;
 
-    }
+   /**
+    * Sets a test to have a queue destination and non-persistent delivery mode.
+    *
+    * @see junit.framework.TestCase#setUp()
+    */
+   protected void setUp() throws Exception {
+      deliveryMode = DeliveryMode.NON_PERSISTENT;
+      topic = false;
+      super.setUp();
+      consumerDestination2 = consumeSession.createTopic("FOO.BAR.HUMBUG2");
+      LOG.info("Created  consumer destination: " + consumerDestination2 + " of type: " + consumerDestination2.getClass());
+      if (durable) {
+         LOG.info("Creating durable consumer");
+         consumer2 = consumeSession.createDurableSubscriber((Topic) consumerDestination2, getName());
+      }
+      else {
+         consumer2 = consumeSession.createConsumer(consumerDestination2);
+      }
 
-    /**
-     * Returns the consumer subject.
-     *
-     * @return String - consumer subject
-     * @see org.apache.activemq.test.TestSupport#getConsumerSubject()
-     */
-    protected String getConsumerSubject() {
-        return "FOO.BAR.HUMBUG";
-    }
+   }
 
-    /**
-     * Returns the producer subject.
-     *
-     * @return String - producer subject
-     * @see org.apache.activemq.test.TestSupport#getProducerSubject()
-     */
-    protected String getProducerSubject() {
-        return "queue://FOO.BAR.HUMBUG,topic://FOO.BAR.HUMBUG2";
-    }
+   /**
+    * Returns the consumer subject.
+    *
+    * @return String - consumer subject
+    * @see org.apache.activemq.test.TestSupport#getConsumerSubject()
+    */
+   protected String getConsumerSubject() {
+      return "FOO.BAR.HUMBUG";
+   }
 
-    /**
-     * Test if all the messages sent are being received.
-     *
-     * @throws Exception
-     */
-    public void testSendReceive() throws Exception {
-        super.testSendReceive();
-        messages.clear();
-        consumer2.setMessageListener(this);
-        assertMessagesAreReceived();
-        LOG.info("" + data.length + " messages(s) received, closing down connections");
-    }
+   /**
+    * Returns the producer subject.
+    *
+    * @return String - producer subject
+    * @see org.apache.activemq.test.TestSupport#getProducerSubject()
+    */
+   protected String getProducerSubject() {
+      return "queue://FOO.BAR.HUMBUG,topic://FOO.BAR.HUMBUG2";
+   }
+
+   /**
+    * Test if all the messages sent are being received.
+    *
+    * @throws Exception
+    */
+   public void testSendReceive() throws Exception {
+      super.testSendReceive();
+      messages.clear();
+      consumer2.setMessageListener(this);
+      assertMessagesAreReceived();
+      LOG.info("" + data.length + " messages(s) received, closing down connections");
+   }
 }

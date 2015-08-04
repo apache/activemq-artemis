@@ -24,8 +24,7 @@ import javax.jms.Session;
 
 import org.apache.activemq.artemis.api.jms.management.JMSManagementHelper;
 
-public class JMSMessagingProxy
-{
+public class JMSMessagingProxy {
 
    // Constants -----------------------------------------------------
 
@@ -41,8 +40,9 @@ public class JMSMessagingProxy
 
    // Constructors --------------------------------------------------
 
-   public JMSMessagingProxy(final QueueSession session, final Queue managementQueue, final String resourceName) throws Exception
-   {
+   public JMSMessagingProxy(final QueueSession session,
+                            final Queue managementQueue,
+                            final String resourceName) throws Exception {
       this.session = session;
 
       this.resourceName = resourceName;
@@ -56,33 +56,27 @@ public class JMSMessagingProxy
 
    // Protected -----------------------------------------------------
 
-   public Object retrieveAttributeValue(final String attributeName)
-   {
-      try
-      {
+   public Object retrieveAttributeValue(final String attributeName) {
+      try {
          Message m = session.createMessage();
          JMSManagementHelper.putAttribute(m, resourceName, attributeName);
          Message reply = requestor.request(m);
          return JMSManagementHelper.getResult(reply);
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          throw new IllegalStateException(e);
       }
    }
 
-   public Object invokeOperation(final String operationName, final Object... args) throws Exception
-   {
+   public Object invokeOperation(final String operationName, final Object... args) throws Exception {
       Message m = session.createMessage();
       JMSManagementHelper.putOperationInvocation(m, resourceName, operationName, args);
       Message reply = requestor.request(m);
-      if (JMSManagementHelper.hasOperationSucceeded(reply))
-      {
+      if (JMSManagementHelper.hasOperationSucceeded(reply)) {
          return JMSManagementHelper.getResult(reply);
       }
-      else
-      {
-         throw new Exception((String)JMSManagementHelper.getResult(reply));
+      else {
+         throw new Exception((String) JMSManagementHelper.getResult(reply));
       }
    }
 

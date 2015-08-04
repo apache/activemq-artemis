@@ -27,14 +27,15 @@ import java.io.File;
 /**
  * @author gtully
  * @see https://issues.apache.org/activemq/browse/AMQ-2020
- **/
+ */
 public class StoreQueueCursorLevelDBNoDuplicateTest extends StoreQueueCursorNoDuplicateTest {
-    @Override
-    protected BrokerService createBroker() throws Exception {
-        BrokerService broker = super.createBroker();
-        LevelDBStore store = new LevelDBStore();
-        store.setDirectory(new File("target/activemq-data/leveldb"));
-        broker.setPersistenceAdapter(store);
-        return broker;
-    }
+
+   @Override
+   protected BrokerService createBroker() throws Exception {
+      BrokerService broker = super.createBroker();
+      LevelDBStore store = new LevelDBStore();
+      store.setDirectory(new File("target/activemq-data/leveldb"));
+      broker.setPersistenceAdapter(store);
+      return broker;
+   }
 }

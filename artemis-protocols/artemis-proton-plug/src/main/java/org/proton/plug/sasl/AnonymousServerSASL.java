@@ -19,21 +19,18 @@ package org.proton.plug.sasl;
 import org.proton.plug.SASLResult;
 import org.proton.plug.ServerSASL;
 
-public class AnonymousServerSASL implements ServerSASL
-{
-   public AnonymousServerSASL()
-   {
+public class AnonymousServerSASL implements ServerSASL {
+
+   public AnonymousServerSASL() {
    }
 
    @Override
-   public String getName()
-   {
+   public String getName() {
       return "ANONYMOUS";
    }
 
    @Override
-   public SASLResult processSASL(byte[] bytes)
-   {
+   public SASLResult processSASL(byte[] bytes) {
       return new PlainSASLResult(true, null, null);
    }
 }

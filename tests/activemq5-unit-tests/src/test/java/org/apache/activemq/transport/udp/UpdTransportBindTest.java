@@ -22,22 +22,23 @@ import org.apache.activemq.EmbeddedBrokerTestSupport;
 import javax.jms.Connection;
 import javax.jms.JMSException;
 
-public class UpdTransportBindTest extends EmbeddedBrokerTestSupport{
-    final String addr = "udp://localhost:61625";
+public class UpdTransportBindTest extends EmbeddedBrokerTestSupport {
 
-    protected void setUp() throws Exception {
-        bindAddress = addr + "?soTimeout=1000";
-        super.setUp();
-    }
+   final String addr = "udp://localhost:61625";
 
-    public void testConnect() throws Exception {
-        try {
-            Connection connection = new ActiveMQConnectionFactory(addr).createConnection();
-            connection.start();
-        } catch (JMSException e) {
-            fail("Could not start the connection for a UDP Transport. " +
-                 "Check that the port and connector are available.");
-        }
-    }
+   protected void setUp() throws Exception {
+      bindAddress = addr + "?soTimeout=1000";
+      super.setUp();
+   }
+
+   public void testConnect() throws Exception {
+      try {
+         Connection connection = new ActiveMQConnectionFactory(addr).createConnection();
+         connection.start();
+      }
+      catch (JMSException e) {
+         fail("Could not start the connection for a UDP Transport. " + "Check that the port and connector are available.");
+      }
+   }
 
 }

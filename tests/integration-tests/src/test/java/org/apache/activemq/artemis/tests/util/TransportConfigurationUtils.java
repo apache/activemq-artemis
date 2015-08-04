@@ -22,61 +22,49 @@ import java.util.Map;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.remoting.impl.invm.TransportConstants;
 
-public final class TransportConfigurationUtils
-{
+public final class TransportConfigurationUtils {
 
-   private TransportConfigurationUtils()
-   {
+   private TransportConfigurationUtils() {
       // Utility
    }
 
-   public static TransportConfiguration getInVMAcceptor(final boolean live)
-   {
+   public static TransportConfiguration getInVMAcceptor(final boolean live) {
       return transportConfiguration(ActiveMQTestBase.INVM_ACCEPTOR_FACTORY, live);
    }
 
-   public static TransportConfiguration getInVMConnector(final boolean live)
-   {
+   public static TransportConfiguration getInVMConnector(final boolean live) {
       return transportConfiguration(ActiveMQTestBase.INVM_CONNECTOR_FACTORY, live);
    }
 
-   public static TransportConfiguration getInVMAcceptor(final boolean live, int server)
-   {
+   public static TransportConfiguration getInVMAcceptor(final boolean live, int server) {
       return transportConfiguration(ActiveMQTestBase.INVM_ACCEPTOR_FACTORY, live, server);
    }
 
-   public static TransportConfiguration getInVMConnector(final boolean live, int server)
-   {
+   public static TransportConfiguration getInVMConnector(final boolean live, int server) {
       return transportConfiguration(ActiveMQTestBase.INVM_CONNECTOR_FACTORY, live, server);
    }
 
-   public static TransportConfiguration getNettyAcceptor(final boolean live, int server)
-   {
+   public static TransportConfiguration getNettyAcceptor(final boolean live, int server) {
       return transportConfiguration(ActiveMQTestBase.NETTY_ACCEPTOR_FACTORY, live, server);
    }
 
-   public static TransportConfiguration getNettyConnector(final boolean live, int server)
-   {
+   public static TransportConfiguration getNettyConnector(final boolean live, int server) {
       return transportConfiguration(ActiveMQTestBase.NETTY_CONNECTOR_FACTORY, live, server);
    }
 
-   public static TransportConfiguration getInVMAcceptor(final boolean live, int server, String name)
-   {
+   public static TransportConfiguration getInVMAcceptor(final boolean live, int server, String name) {
       return transportConfiguration(ActiveMQTestBase.INVM_ACCEPTOR_FACTORY, live, server, name);
    }
 
-   public static TransportConfiguration getInVMConnector(final boolean live, int server, String name)
-   {
+   public static TransportConfiguration getInVMConnector(final boolean live, int server, String name) {
       return transportConfiguration(ActiveMQTestBase.INVM_CONNECTOR_FACTORY, live, server, name);
    }
 
-   public static TransportConfiguration getNettyAcceptor(final boolean live, int server, String name)
-   {
+   public static TransportConfiguration getNettyAcceptor(final boolean live, int server, String name) {
       return transportConfiguration(ActiveMQTestBase.NETTY_ACCEPTOR_FACTORY, live, server, name);
    }
 
-   public static TransportConfiguration getNettyConnector(final boolean live, int server, String name)
-   {
+   public static TransportConfiguration getNettyConnector(final boolean live, int server, String name) {
       return transportConfiguration(ActiveMQTestBase.NETTY_CONNECTOR_FACTORY, live, server, name);
    }
 
@@ -85,10 +73,8 @@ public final class TransportConfigurationUtils
     * @param live
     * @return
     */
-   private static TransportConfiguration transportConfiguration(String classname, boolean live)
-   {
-      if (live)
-      {
+   private static TransportConfiguration transportConfiguration(String classname, boolean live) {
+      if (live) {
          return new TransportConfiguration(classname);
       }
 
@@ -97,10 +83,8 @@ public final class TransportConfigurationUtils
       return new TransportConfiguration(classname, server1Params);
    }
 
-   private static TransportConfiguration transportConfiguration(String classname, boolean live, int server)
-   {
-      if (classname.contains("netty"))
-      {
+   private static TransportConfiguration transportConfiguration(String classname, boolean live, int server) {
+      if (classname.contains("netty")) {
          Map<String, Object> serverParams = new HashMap<String, Object>();
          Integer port = live ? 61616 : 5545;
          serverParams.put(org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.PORT_PROP_NAME, port);
@@ -112,10 +96,11 @@ public final class TransportConfigurationUtils
       return new TransportConfiguration(classname, serverParams);
    }
 
-   private static TransportConfiguration transportConfiguration(String classname, boolean live, int server, String name)
-   {
-      if (classname.contains("netty"))
-      {
+   private static TransportConfiguration transportConfiguration(String classname,
+                                                                boolean live,
+                                                                int server,
+                                                                String name) {
+      if (classname.contains("netty")) {
          Map<String, Object> serverParams = new HashMap<String, Object>();
          Integer port = live ? 61616 : 5545;
          serverParams.put(org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.PORT_PROP_NAME, port);

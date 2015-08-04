@@ -20,8 +20,8 @@ import org.apache.activemq.artemis.core.filter.Filter;
 
 import java.util.List;
 
-public interface ScheduledDeliveryHandler
-{
+public interface ScheduledDeliveryHandler {
+
    boolean checkAndSchedule(MessageReference ref, final boolean tail);
 
    int getScheduledCount();

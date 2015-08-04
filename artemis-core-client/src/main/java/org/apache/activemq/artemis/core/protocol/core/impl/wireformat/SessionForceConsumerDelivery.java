@@ -20,54 +20,46 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 
 /**
- *
  * A SessionConsumerForceDelivery
  */
-public class SessionForceConsumerDelivery extends PacketImpl
-{
+public class SessionForceConsumerDelivery extends PacketImpl {
+
    private long consumerID;
    private long sequence;
 
-   public SessionForceConsumerDelivery(final long consumerID, final long sequence)
-   {
+   public SessionForceConsumerDelivery(final long consumerID, final long sequence) {
       super(SESS_FORCE_CONSUMER_DELIVERY);
 
       this.consumerID = consumerID;
       this.sequence = sequence;
    }
 
-   public SessionForceConsumerDelivery()
-   {
+   public SessionForceConsumerDelivery() {
       super(SESS_FORCE_CONSUMER_DELIVERY);
    }
 
-   public long getConsumerID()
-   {
+   public long getConsumerID() {
       return consumerID;
    }
 
-   public long getSequence()
-   {
+   public long getSequence() {
       return sequence;
    }
 
    @Override
-   public void encodeRest(final ActiveMQBuffer buffer)
-   {
+   public void encodeRest(final ActiveMQBuffer buffer) {
       buffer.writeLong(consumerID);
       buffer.writeLong(sequence);
    }
 
    @Override
-   public void decodeRest(final ActiveMQBuffer buffer)
-   {
+   public void decodeRest(final ActiveMQBuffer buffer) {
       consumerID = buffer.readLong();
       sequence = buffer.readLong();
    }
 
    @Override
-   public String toString()
-   {
+   public String toString() {
       StringBuffer buf = new StringBuffer(getParentString());
       buf.append(", consumerID=" + consumerID);
       buf.append(", sequence=" + sequence);
@@ -76,25 +68,23 @@ public class SessionForceConsumerDelivery extends PacketImpl
    }
 
    @Override
-   public int hashCode()
-   {
+   public int hashCode() {
       final int prime = 31;
       int result = super.hashCode();
-      result = prime * result + (int)(consumerID ^ (consumerID >>> 32));
-      result = prime * result + (int)(sequence ^ (sequence >>> 32));
+      result = prime * result + (int) (consumerID ^ (consumerID >>> 32));
+      result = prime * result + (int) (sequence ^ (sequence >>> 32));
       return result;
    }
 
    @Override
-   public boolean equals(Object obj)
-   {
+   public boolean equals(Object obj) {
       if (this == obj)
          return true;
       if (!super.equals(obj))
          return false;
       if (!(obj instanceof SessionForceConsumerDelivery))
          return false;
-      SessionForceConsumerDelivery other = (SessionForceConsumerDelivery)obj;
+      SessionForceConsumerDelivery other = (SessionForceConsumerDelivery) obj;
       if (consumerID != other.consumerID)
          return false;
       if (sequence != other.sequence)

@@ -43,8 +43,7 @@ import org.apache.activemq.artemis.ra.inflow.ActiveMQActivationSpec;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class ResourceAdapterTest extends ActiveMQTestBase
-{
+public class ResourceAdapterTest extends ActiveMQTestBase {
 
    // Constants -----------------------------------------------------
 
@@ -57,16 +56,14 @@ public class ResourceAdapterTest extends ActiveMQTestBase
    // Public --------------------------------------------------------
 
    @Test
-   public void testDefaultConnectionFactory() throws Exception
-   {
+   public void testDefaultConnectionFactory() throws Exception {
       ActiveMQResourceAdapter ra = new ActiveMQResourceAdapter();
       ra.setConnectorClassName(InVMConnectorFactory.class.getName());
       ActiveMQConnectionFactory factory = ra.getDefaultActiveMQConnectionFactory();
       Assert.assertEquals(factory.getCallTimeout(), ActiveMQClient.DEFAULT_CALL_TIMEOUT);
       Assert.assertEquals(factory.getClientFailureCheckPeriod(), ActiveMQClient.DEFAULT_CLIENT_FAILURE_CHECK_PERIOD);
       Assert.assertEquals(factory.getClientID(), null);
-      Assert.assertEquals(factory.getConnectionLoadBalancingPolicyClassName(),
-                          ActiveMQClient.DEFAULT_CONNECTION_LOAD_BALANCING_POLICY_CLASS_NAME);
+      Assert.assertEquals(factory.getConnectionLoadBalancingPolicyClassName(), ActiveMQClient.DEFAULT_CONNECTION_LOAD_BALANCING_POLICY_CLASS_NAME);
       Assert.assertEquals(factory.getConnectionTTL(), ActiveMQClient.DEFAULT_CONNECTION_TTL);
       Assert.assertEquals(factory.getConsumerMaxRate(), ActiveMQClient.DEFAULT_CONSUMER_MAX_RATE);
       Assert.assertEquals(factory.getConsumerWindowSize(), ActiveMQClient.DEFAULT_CONSUMER_WINDOW_SIZE);
@@ -77,8 +74,7 @@ public class ResourceAdapterTest extends ActiveMQTestBase
       // by default, reconnect attempts is set to -1
       Assert.assertEquals(-1, factory.getReconnectAttempts());
       Assert.assertEquals(factory.getRetryInterval(), ActiveMQClient.DEFAULT_RETRY_INTERVAL);
-      Assert.assertEquals(factory.getRetryIntervalMultiplier(), ActiveMQClient.DEFAULT_RETRY_INTERVAL_MULTIPLIER,
-                          0.00001);
+      Assert.assertEquals(factory.getRetryIntervalMultiplier(), ActiveMQClient.DEFAULT_RETRY_INTERVAL_MULTIPLIER, 0.00001);
       Assert.assertEquals(factory.getScheduledThreadPoolMaxSize(), ActiveMQClient.DEFAULT_SCHEDULED_THREAD_POOL_MAX_SIZE);
       Assert.assertEquals(factory.getThreadPoolMaxSize(), ActiveMQClient.DEFAULT_THREAD_POOL_MAX_SIZE);
       Assert.assertEquals(factory.getTransactionBatchSize(), ActiveMQClient.DEFAULT_ACK_BATCH_SIZE);
@@ -91,8 +87,7 @@ public class ResourceAdapterTest extends ActiveMQTestBase
    }
 
    @Test
-   public void test2DefaultConnectionFactorySame() throws Exception
-   {
+   public void test2DefaultConnectionFactorySame() throws Exception {
       ActiveMQResourceAdapter ra = new ActiveMQResourceAdapter();
       ra.setConnectorClassName(InVMConnectorFactory.class.getName());
       ActiveMQConnectionFactory factory = ra.getDefaultActiveMQConnectionFactory();
@@ -101,16 +96,14 @@ public class ResourceAdapterTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testCreateConnectionFactoryNoOverrides() throws Exception
-   {
+   public void testCreateConnectionFactoryNoOverrides() throws Exception {
       ActiveMQResourceAdapter ra = new ActiveMQResourceAdapter();
       ra.setConnectorClassName(InVMConnectorFactory.class.getName());
       ActiveMQConnectionFactory factory = ra.createActiveMQConnectionFactory(new ConnectionFactoryProperties());
       Assert.assertEquals(factory.getCallTimeout(), ActiveMQClient.DEFAULT_CALL_TIMEOUT);
       Assert.assertEquals(factory.getClientFailureCheckPeriod(), ActiveMQClient.DEFAULT_CLIENT_FAILURE_CHECK_PERIOD);
       Assert.assertEquals(factory.getClientID(), null);
-      Assert.assertEquals(factory.getConnectionLoadBalancingPolicyClassName(),
-                          ActiveMQClient.DEFAULT_CONNECTION_LOAD_BALANCING_POLICY_CLASS_NAME);
+      Assert.assertEquals(factory.getConnectionLoadBalancingPolicyClassName(), ActiveMQClient.DEFAULT_CONNECTION_LOAD_BALANCING_POLICY_CLASS_NAME);
       Assert.assertEquals(factory.getConnectionTTL(), ActiveMQClient.DEFAULT_CONNECTION_TTL);
       Assert.assertEquals(factory.getConsumerMaxRate(), ActiveMQClient.DEFAULT_CONSUMER_MAX_RATE);
       Assert.assertEquals(factory.getConsumerWindowSize(), ActiveMQClient.DEFAULT_CONSUMER_WINDOW_SIZE);
@@ -121,8 +114,7 @@ public class ResourceAdapterTest extends ActiveMQTestBase
       // by default, reconnect attempts is set to -1
       Assert.assertEquals(-1, factory.getReconnectAttempts());
       Assert.assertEquals(factory.getRetryInterval(), ActiveMQClient.DEFAULT_RETRY_INTERVAL);
-      Assert.assertEquals(factory.getRetryIntervalMultiplier(), ActiveMQClient.DEFAULT_RETRY_INTERVAL_MULTIPLIER,
-                          0.000001);
+      Assert.assertEquals(factory.getRetryIntervalMultiplier(), ActiveMQClient.DEFAULT_RETRY_INTERVAL_MULTIPLIER, 0.000001);
       Assert.assertEquals(factory.getScheduledThreadPoolMaxSize(), ActiveMQClient.DEFAULT_SCHEDULED_THREAD_POOL_MAX_SIZE);
       Assert.assertEquals(factory.getThreadPoolMaxSize(), ActiveMQClient.DEFAULT_THREAD_POOL_MAX_SIZE);
       Assert.assertEquals(factory.getTransactionBatchSize(), ActiveMQClient.DEFAULT_ACK_BATCH_SIZE);
@@ -135,8 +127,7 @@ public class ResourceAdapterTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testDefaultConnectionFactoryOverrides() throws Exception
-   {
+   public void testDefaultConnectionFactoryOverrides() throws Exception {
       ActiveMQResourceAdapter ra = new ActiveMQResourceAdapter();
       ra.setConnectorClassName(InVMConnectorFactory.class.getName());
       ra.setAutoGroup(!ActiveMQClient.DEFAULT_AUTO_GROUP);
@@ -191,8 +182,7 @@ public class ResourceAdapterTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testCreateConnectionFactoryOverrides() throws Exception
-   {
+   public void testCreateConnectionFactoryOverrides() throws Exception {
       ActiveMQResourceAdapter ra = new ActiveMQResourceAdapter();
       ra.setConnectorClassName(InVMConnectorFactory.class.getName());
       ConnectionFactoryProperties connectionFactoryProperties = new ConnectionFactoryProperties();
@@ -248,8 +238,7 @@ public class ResourceAdapterTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testCreateConnectionFactoryOverrideConnector() throws Exception
-   {
+   public void testCreateConnectionFactoryOverrideConnector() throws Exception {
       ActiveMQResourceAdapter ra = new ActiveMQResourceAdapter();
       ra.setConnectorClassName(InVMConnectorFactory.class.getName());
       ConnectionFactoryProperties connectionFactoryProperties = new ConnectionFactoryProperties();
@@ -262,8 +251,7 @@ public class ResourceAdapterTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testCreateConnectionFactoryOverrideDiscovery() throws Exception
-   {
+   public void testCreateConnectionFactoryOverrideDiscovery() throws Exception {
       ActiveMQResourceAdapter ra = new ActiveMQResourceAdapter();
       ra.setConnectorClassName(InVMConnectorFactory.class.getName());
       ConnectionFactoryProperties connectionFactoryProperties = new ConnectionFactoryProperties();
@@ -281,8 +269,7 @@ public class ResourceAdapterTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testCreateConnectionFactoryMultipleConnectors()
-   {
+   public void testCreateConnectionFactoryMultipleConnectors() {
       ActiveMQResourceAdapter ra = new ActiveMQResourceAdapter();
       ra.setConnectorClassName(NETTY_CONNECTOR_FACTORY + "," + INVM_CONNECTOR_FACTORY + "," + NETTY_CONNECTOR_FACTORY);
       ActiveMQConnectionFactory factory = ra.createActiveMQConnectionFactory(new ConnectionFactoryProperties());
@@ -298,8 +285,7 @@ public class ResourceAdapterTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testCreateConnectionFactoryMultipleConnectorsAndParams()
-   {
+   public void testCreateConnectionFactoryMultipleConnectorsAndParams() {
       ActiveMQResourceAdapter ra = new ActiveMQResourceAdapter();
       ra.setConnectorClassName(NETTY_CONNECTOR_FACTORY + "," + INVM_CONNECTOR_FACTORY + "," + NETTY_CONNECTOR_FACTORY);
       ra.setConnectionParameters("host=host1;port=61616, serverid=0, host=host2;port=61617");
@@ -321,8 +307,7 @@ public class ResourceAdapterTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testCreateConnectionFactoryMultipleConnectorsOverride()
-   {
+   public void testCreateConnectionFactoryMultipleConnectorsOverride() {
       ActiveMQResourceAdapter ra = new ActiveMQResourceAdapter();
       ra.setConnectorClassName(NETTY_CONNECTOR_FACTORY + "," + INVM_CONNECTOR_FACTORY + "," + NETTY_CONNECTOR_FACTORY);
       ConnectionFactoryProperties overrideProperties = new ConnectionFactoryProperties();
@@ -344,8 +329,7 @@ public class ResourceAdapterTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testCreateConnectionFactoryMultipleConnectorsOverrideAndParams()
-   {
+   public void testCreateConnectionFactoryMultipleConnectorsOverrideAndParams() {
       ActiveMQResourceAdapter ra = new ActiveMQResourceAdapter();
       ra.setConnectorClassName(NETTY_CONNECTOR_FACTORY + "," + INVM_CONNECTOR_FACTORY + "," + NETTY_CONNECTOR_FACTORY);
       ra.setConnectionParameters("host=host1;port=61616, serverid=0, host=host2;port=61617");
@@ -384,38 +368,23 @@ public class ResourceAdapterTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testCreateConnectionFactoryThrowsException() throws Exception
-   {
+   public void testCreateConnectionFactoryThrowsException() throws Exception {
       ActiveMQResourceAdapter ra = new ActiveMQResourceAdapter();
       ConnectionFactoryProperties connectionFactoryProperties = new ConnectionFactoryProperties();
-      try
-      {
+      try {
          ra.createActiveMQConnectionFactory(connectionFactoryProperties);
          Assert.fail("should throw exception");
       }
-      catch (IllegalArgumentException e)
-      {
+      catch (IllegalArgumentException e) {
          // pass
       }
    }
 
    @Test
-   public void testValidateProperties() throws Exception
-   {
-      validateGettersAndSetters(new ActiveMQResourceAdapter(),
-                                "backupTransportConfiguration",
-                                "connectionParameters",
-                                "jndiParams");
-      validateGettersAndSetters(new ActiveMQRAManagedConnectionFactory(),
-                                "connectionParameters",
-                                "sessionDefaultType",
-                                "backupConnectionParameters",
-                                "jndiParams");
-      validateGettersAndSetters(new ActiveMQActivationSpec(),
-                                "connectionParameters",
-                                "acknowledgeMode",
-                                "subscriptionDurability",
-                                "jndiParams");
+   public void testValidateProperties() throws Exception {
+      validateGettersAndSetters(new ActiveMQResourceAdapter(), "backupTransportConfiguration", "connectionParameters", "jndiParams");
+      validateGettersAndSetters(new ActiveMQRAManagedConnectionFactory(), "connectionParameters", "sessionDefaultType", "backupConnectionParameters", "jndiParams");
+      validateGettersAndSetters(new ActiveMQActivationSpec(), "connectionParameters", "acknowledgeMode", "subscriptionDurability", "jndiParams");
 
       ActiveMQActivationSpec spec = new ActiveMQActivationSpec();
 
@@ -451,12 +420,10 @@ public class ResourceAdapterTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testStartActivation() throws Exception
-   {
+   public void testStartActivation() throws Exception {
       ActiveMQServer server = createServer(false);
 
-      try
-      {
+      try {
 
          server.start();
          ServerLocator locator = createInVMNonHALocator();
@@ -502,21 +469,18 @@ public class ResourceAdapterTest extends ActiveMQTestBase
          locator.close();
 
       }
-      finally
-      {
+      finally {
          server.stop();
       }
    }
 
    @Test
-   public void testForConnectionLeakDuringActivationWhenSessionCreationFails() throws Exception
-   {
+   public void testForConnectionLeakDuringActivationWhenSessionCreationFails() throws Exception {
       ActiveMQServer server = createServer(false);
       ActiveMQResourceAdapter ra = null;
       ActiveMQActivation activation = null;
 
-      try
-      {
+      try {
          server.getConfiguration().setSecurityEnabled(true);
          server.start();
 
@@ -545,19 +509,16 @@ public class ResourceAdapterTest extends ActiveMQTestBase
 
          activation = new ActiveMQActivation(ra, new MessageEndpointFactory(), spec);
 
-         try
-         {
+         try {
             activation.start();
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             // ignore
          }
 
          assertEquals(0, server.getRemotingService().getConnections().size());
       }
-      finally
-      {
+      finally {
          if (activation != null)
             activation.stop();
          if (ra != null)

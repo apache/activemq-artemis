@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.integration.jms.server.management;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,8 +43,7 @@ import org.apache.activemq.artemis.jms.server.management.JMSNotificationType;
 /**
  * A Connection Factory Control Test
  */
-public class ConnectionFactoryControlTest extends ManagementTestBase
-{
+public class ConnectionFactoryControlTest extends ManagementTestBase {
 
    // Constants -----------------------------------------------------
 
@@ -62,20 +62,19 @@ public class ConnectionFactoryControlTest extends ManagementTestBase
    // Public --------------------------------------------------------
 
    @Test
-   public void testCreateCF() throws Exception
-   {
+   public void testCreateCF() throws Exception {
       JMSServerControl control = createJMSControl();
       control.createConnectionFactory("test", false, false, 0, "invm", "test");
 
       ConnectionFactoryControl controlCF = createCFControl("test");
 
-      ActiveMQConnectionFactory cf = (ActiveMQConnectionFactory)ctx.lookup("test");
+      ActiveMQConnectionFactory cf = (ActiveMQConnectionFactory) ctx.lookup("test");
 
       Assert.assertFalse(cf.isCompressLargeMessage());
 
       controlCF.setCompressLargeMessages(true);
 
-      cf = (ActiveMQConnectionFactory)ctx.lookup("test");
+      cf = (ActiveMQConnectionFactory) ctx.lookup("test");
       Assert.assertTrue(cf.isCompressLargeMessage());
 
       server.stop();
@@ -84,7 +83,7 @@ public class ConnectionFactoryControlTest extends ManagementTestBase
 
       startServer();
 
-      cf = (ActiveMQConnectionFactory)ctx.lookup("test");
+      cf = (ActiveMQConnectionFactory) ctx.lookup("test");
       Assert.assertTrue(cf.isCompressLargeMessage());
 
    }
@@ -92,19 +91,14 @@ public class ConnectionFactoryControlTest extends ManagementTestBase
    //make sure notifications are always received no matter whether
    //a CF is created via JMSServerControl or by JMSServerManager directly.
    @Test
-   public void testCreateCFNotification() throws Exception
-   {
+   public void testCreateCFNotification() throws Exception {
       JMSUtil.JMXListener listener = new JMSUtil.JMXListener();
       this.mbeanServer.addNotificationListener(ObjectNameBuilder.DEFAULT.getJMSServerObjectName(), listener, null, null);
 
       List<String> connectors = new ArrayList<String>();
       connectors.add("invm");
 
-      this.jmsServerManager.createConnectionFactory("NewCF",
-                                                 false,
-                                                 JMSFactoryType.CF,
-                                                 connectors,
-                                                 "/NewConnectionFactory");
+      this.jmsServerManager.createConnectionFactory("NewCF", false, JMSFactoryType.CF, connectors, "/NewConnectionFactory");
 
       Notification notif = listener.getNotification();
 
@@ -132,16 +126,13 @@ public class ConnectionFactoryControlTest extends ManagementTestBase
       Assert.assertEquals("test", notif.getMessage());
    }
 
-
-
    // Package protected ---------------------------------------------
 
    // Protected -----------------------------------------------------
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       startServer();
@@ -151,11 +142,8 @@ public class ConnectionFactoryControlTest extends ManagementTestBase
    /**
     * @throws Exception
     */
-   protected void startServer() throws Exception
-   {
-      Configuration config = createDefaultInVMConfig()
-         .addConnectorConfiguration("invm", new TransportConfiguration(INVM_CONNECTOR_FACTORY))
-         .setJMXManagementEnabled(true);
+   protected void startServer() throws Exception {
+      Configuration config = createDefaultInVMConfig().addConnectorConfiguration("invm", new TransportConfiguration(INVM_CONNECTOR_FACTORY)).setJMXManagementEnabled(true);
       server = addServer(ActiveMQServers.newActiveMQServer(config, mbeanServer, true));
       server.start();
 
@@ -168,13 +156,11 @@ public class ConnectionFactoryControlTest extends ManagementTestBase
       jmsServerManager.activated();
    }
 
-   protected ConnectionFactoryControl createCFControl(String name) throws Exception
-   {
+   protected ConnectionFactoryControl createCFControl(String name) throws Exception {
       return ManagementControlHelper.createConnectionFactoryControl(name, mbeanServer);
    }
 
-   protected JMSServerControl createJMSControl() throws Exception
-   {
+   protected JMSServerControl createJMSControl() throws Exception {
       return ManagementControlHelper.createJMSServerControl(mbeanServer);
    }
 

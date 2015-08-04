@@ -17,16 +17,18 @@
 package org.apache.activemq.blob;
 
 import junit.framework.TestCase;
+
 import org.apache.activemq.ActiveMQConnectionFactory;
 
 /**
- * 
+ *
  */
 public class BlobTransferPolicyUriTest extends TestCase {
-    public void testBlobTransferPolicyIsConfiguredViaUri() throws Exception {
-        ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("vm://localhost?jms.blobTransferPolicy.defaultUploadUrl=http://foo.com");
-        BlobTransferPolicy policy = factory.getBlobTransferPolicy();
-        assertEquals("http://foo.com", policy.getDefaultUploadUrl());
-        assertEquals("http://foo.com", policy.getUploadUrl());
-    }
+
+   public void testBlobTransferPolicyIsConfiguredViaUri() throws Exception {
+      ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("vm://localhost?jms.blobTransferPolicy.defaultUploadUrl=http://foo.com");
+      BlobTransferPolicy policy = factory.getBlobTransferPolicy();
+      assertEquals("http://foo.com", policy.getDefaultUploadUrl());
+      assertEquals("http://foo.com", policy.getUploadUrl());
+   }
 }

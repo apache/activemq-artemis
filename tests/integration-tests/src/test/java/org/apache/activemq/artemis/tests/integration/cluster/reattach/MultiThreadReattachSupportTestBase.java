@@ -35,8 +35,7 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public abstract class MultiThreadReattachSupportTestBase extends ActiveMQTestBase
-{
+public abstract class MultiThreadReattachSupportTestBase extends ActiveMQTestBase {
 
    private final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
@@ -50,23 +49,20 @@ public abstract class MultiThreadReattachSupportTestBase extends ActiveMQTestBas
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
       timer = new Timer();
    }
 
    @Override
    @After
-   public void tearDown() throws Exception
-   {
+   public void tearDown() throws Exception {
       timer.cancel();
       timer = null;
       super.tearDown();
    }
 
-   protected boolean shouldFail()
-   {
+   protected boolean shouldFail() {
       return true;
    }
 
@@ -74,46 +70,40 @@ public abstract class MultiThreadReattachSupportTestBase extends ActiveMQTestBas
                                                  final int numThreads,
                                                  final int numIts,
                                                  final boolean failOnCreateConnection,
-                                                 final long failDelay) throws Exception
-   {
-      for (int its = 0; its < numIts; its++)
-      {
+                                                 final long failDelay) throws Exception {
+      for (int its = 0; its < numIts; its++) {
          log.info("Beginning iteration " + its);
 
          start();
 
          final ServerLocator locator = createLocator();
 
-         final ClientSessionFactoryInternal sf = (ClientSessionFactoryInternal)createSessionFactory(locator);
+         final ClientSessionFactoryInternal sf = (ClientSessionFactoryInternal) createSessionFactory(locator);
 
          final ClientSession session = addClientSession(sf.createSession(false, true, true));
 
          Failer failer = startFailer(failDelay, session, failOnCreateConnection);
 
-         class Runner extends Thread
-         {
+         class Runner extends Thread {
+
             private volatile Throwable throwable;
 
             private final RunnableT test;
 
             private final int threadNum;
 
-            Runner(final RunnableT test, final int threadNum)
-            {
+            Runner(final RunnableT test, final int threadNum) {
                this.test = test;
 
                this.threadNum = threadNum;
             }
 
             @Override
-            public void run()
-            {
-               try
-               {
+            public void run() {
+               try {
                   test.run(sf, threadNum);
                }
-               catch (Throwable t)
-               {
+               catch (Throwable t) {
                   throwable = t;
 
                   log.error("Failed to run test", t);
@@ -121,17 +111,15 @@ public abstract class MultiThreadReattachSupportTestBase extends ActiveMQTestBas
                   // Case a failure happened here, it should print the Thread dump
                   // Sending it to System.out, as it would show on the Tests report
                   System.out.println(ActiveMQTestBase.threadDump(" - fired by MultiThreadRandomReattachTestBase::runTestMultipleThreads (" + t.getLocalizedMessage() +
-                                                                         ")"));
+                                                                    ")"));
                }
             }
          }
 
-         do
-         {
+         do {
             List<Runner> threads = new ArrayList<Runner>();
 
-            for (int i = 0; i < numThreads; i++)
-            {
+            for (int i = 0; i < numThreads; i++) {
                Runner runner = new Runner(runnable, i);
 
                threads.add(runner);
@@ -139,20 +127,17 @@ public abstract class MultiThreadReattachSupportTestBase extends ActiveMQTestBas
                runner.start();
             }
 
-            for (Runner thread : threads)
-            {
+            for (Runner thread : threads) {
                thread.join();
 
-               if (thread.throwable != null)
-               {
+               if (thread.throwable != null) {
                   throw new Exception("Exception on thread " + thread, thread.throwable);
                }
             }
 
             runnable.checkFail();
 
-         }
-         while (!failer.isExecuted());
+         } while (!failer.isExecuted());
 
          InVMConnector.resetFailures();
 
@@ -172,14 +157,12 @@ public abstract class MultiThreadReattachSupportTestBase extends ActiveMQTestBas
 
    // Private -------------------------------------------------------
 
-   private Failer startFailer(final long time, final ClientSession session, final boolean failOnCreateConnection)
-   {
+   private Failer startFailer(final long time, final ClientSession session, final boolean failOnCreateConnection) {
       Failer failer = new Failer(session, failOnCreateConnection);
 
       // This is useful for debugging.. just change shouldFail to return false, and Failer will not be executed
-      if (shouldFail())
-      {
-         timer.schedule(failer, (long)(time * Math.random()), 100);
+      if (shouldFail()) {
+         timer.schedule(failer, (long) (time * Math.random()), 100);
       }
 
       return failer;
@@ -187,26 +170,22 @@ public abstract class MultiThreadReattachSupportTestBase extends ActiveMQTestBas
 
    // Inner classes -------------------------------------------------
 
-   protected abstract class RunnableT extends Thread
-   {
+   protected abstract class RunnableT extends Thread {
+
       private volatile String failReason;
 
       private volatile Throwable throwable;
 
-      public void setFailed(final String reason, final Throwable throwable)
-      {
+      public void setFailed(final String reason, final Throwable throwable) {
          failReason = reason;
          this.throwable = throwable;
       }
 
-      public void checkFail()
-      {
-         if (throwable != null)
-         {
+      public void checkFail() {
+         if (throwable != null) {
             log.error("Test failed: " + failReason, throwable);
          }
-         if (failReason != null)
-         {
+         if (failReason != null) {
             Assert.fail(failReason);
          }
       }
@@ -214,35 +193,31 @@ public abstract class MultiThreadReattachSupportTestBase extends ActiveMQTestBas
       public abstract void run(final ClientSessionFactory sf, final int threadNum) throws Exception;
    }
 
-   private class Failer extends TimerTask
-   {
+   private class Failer extends TimerTask {
+
       private final ClientSession session;
 
       private boolean executed;
 
       private final boolean failOnCreateConnection;
 
-      public Failer(final ClientSession session, final boolean failOnCreateConnection)
-      {
+      public Failer(final ClientSession session, final boolean failOnCreateConnection) {
          this.session = session;
 
          this.failOnCreateConnection = failOnCreateConnection;
       }
 
       @Override
-      public synchronized void run()
-      {
+      public synchronized void run() {
          log.info("** Failing connection");
 
-         RemotingConnectionImpl conn = (RemotingConnectionImpl)((ClientSessionInternal)session).getConnection();
+         RemotingConnectionImpl conn = (RemotingConnectionImpl) ((ClientSessionInternal) session).getConnection();
 
-         if (failOnCreateConnection)
-         {
+         if (failOnCreateConnection) {
             InVMConnector.numberOfFailures = 1;
             InVMConnector.failOnCreateConnection = true;
          }
-         else
-         {
+         else {
             conn.fail(new ActiveMQNotConnectedException("blah"));
          }
 
@@ -253,8 +228,7 @@ public abstract class MultiThreadReattachSupportTestBase extends ActiveMQTestBas
          executed = true;
       }
 
-      public synchronized boolean isExecuted()
-      {
+      public synchronized boolean isExecuted() {
          return executed;
       }
    }

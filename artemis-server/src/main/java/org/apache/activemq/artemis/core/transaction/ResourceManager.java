@@ -23,8 +23,8 @@ import javax.transaction.xa.Xid;
 
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 
-public interface ResourceManager extends ActiveMQComponent
-{
+public interface ResourceManager extends ActiveMQComponent {
+
    boolean putTransaction(Xid xid, Transaction tx);
 
    Transaction getTransaction(Xid xid);

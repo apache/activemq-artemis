@@ -25,12 +25,16 @@ import org.apache.activemq.artemis.api.core.Interceptor;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 
-public interface ClientProtocolManager
-{
+public interface ClientProtocolManager {
 
    /// Life Cycle Methods:
 
-   RemotingConnection connect(Connection transportConnection, long callTimeout, long callFailoverTimeout, List<Interceptor> incomingInterceptors, List<Interceptor> outgoingInterceptors, TopologyResponseHandler topologyResponseHandler);
+   RemotingConnection connect(Connection transportConnection,
+                              long callTimeout,
+                              long callFailoverTimeout,
+                              List<Interceptor> incomingInterceptors,
+                              List<Interceptor> outgoingInterceptors,
+                              TopologyResponseHandler topologyResponseHandler);
 
    RemotingConnection getCurrentConnection();
 

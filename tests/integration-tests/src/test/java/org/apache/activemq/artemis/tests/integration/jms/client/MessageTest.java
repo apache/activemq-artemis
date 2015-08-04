@@ -31,8 +31,7 @@ import org.apache.activemq.artemis.tests.util.JMSTestBase;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class MessageTest extends JMSTestBase
-{
+public class MessageTest extends JMSTestBase {
    // Constants -----------------------------------------------------
 
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
@@ -57,11 +56,9 @@ public class MessageTest extends JMSTestBase
     * @see https://jira.jboss.org/jira/browse/HORNETQ-242
     */
    @Test
-   public void testStreamMessageReadsNull() throws Exception
-   {
+   public void testStreamMessageReadsNull() throws Exception {
       Connection conn = cf.createConnection();
-      try
-      {
+      try {
          Queue queue = createQueue("testQueue");
 
          Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -78,7 +75,6 @@ public class MessageTest extends JMSTestBase
          msg.writeInt(2);
          msg.writeInt(3);
 
-
          StreamMessage received = (StreamMessage) sendAndConsumeMessage(msg, prod, cons);
 
          Assert.assertNotNull(received);
@@ -87,125 +83,103 @@ public class MessageTest extends JMSTestBase
          assertEquals(2, received.readObject());
          assertEquals(3, received.readObject());
 
-         try
-         {
+         try {
             received.readObject();
 
             fail("Should throw exception");
          }
-         catch (MessageEOFException e)
-         {
+         catch (MessageEOFException e) {
             //Ok
          }
 
-         try
-         {
+         try {
             received.readBoolean();
 
             fail("Should throw exception");
          }
-         catch (MessageEOFException e)
-         {
+         catch (MessageEOFException e) {
             //Ok
          }
 
-         try
-         {
+         try {
             received.readByte();
 
             fail("Should throw exception");
          }
-         catch (MessageEOFException e)
-         {
+         catch (MessageEOFException e) {
             //Ok
          }
 
-         try
-         {
+         try {
             received.readChar();
 
             fail("Should throw exception");
          }
-         catch (MessageEOFException e)
-         {
+         catch (MessageEOFException e) {
             //Ok
          }
 
-         try
-         {
+         try {
             received.readDouble();
 
             fail("Should throw exception");
          }
-         catch (MessageEOFException e)
-         {
+         catch (MessageEOFException e) {
             //Ok
          }
 
-         try
-         {
+         try {
             received.readFloat();
 
             fail("Should throw exception");
          }
-         catch (MessageEOFException e)
-         {
+         catch (MessageEOFException e) {
             //Ok
          }
 
-         try
-         {
+         try {
             received.readInt();
 
             fail("Should throw exception");
          }
-         catch (MessageEOFException e)
-         {
+         catch (MessageEOFException e) {
             //Ok
          }
 
-         try
-         {
+         try {
             received.readLong();
 
             fail("Should throw exception");
          }
-         catch (MessageEOFException e)
-         {
+         catch (MessageEOFException e) {
             //Ok
          }
 
-         try
-         {
+         try {
             received.readShort();
 
             fail("Should throw exception");
          }
-         catch (MessageEOFException e)
-         {
+         catch (MessageEOFException e) {
             //Ok
          }
 
-         try
-         {
+         try {
             received.readString();
 
             fail("Should throw exception");
          }
-         catch (MessageEOFException e)
-         {
+         catch (MessageEOFException e) {
             //Ok
          }
       }
-      finally
-      {
+      finally {
          conn.close();
       }
    }
 
    @Test
-   public void testNullProperties() throws Exception
-   {
+   public void testNullProperties() throws Exception {
       conn = cf.createConnection();
 
       Queue queue = createQueue("testQueue");
@@ -249,8 +223,7 @@ public class MessageTest extends JMSTestBase
 
    // Private -------------------------------------------------------
 
-   private void checkProperties(final Message message) throws Exception
-   {
+   private void checkProperties(final Message message) throws Exception {
       Assert.assertNull(message.getObjectProperty(MessageTest.propName1));
       Assert.assertNull(message.getStringProperty(MessageTest.propName1));
       Assert.assertNull(message.getStringProperty(MessageTest.propName2));
@@ -258,68 +231,54 @@ public class MessageTest extends JMSTestBase
       Assert.assertNull(message.getStringProperty(MessageTest.propName3));
       Assert.assertNull(message.getObjectProperty(MessageTest.propName3));
 
-      try
-      {
+      try {
          MessageTest.log.info(message.getIntProperty(MessageTest.propName1));
          Assert.fail("Should throw exception");
       }
-      catch (NumberFormatException e)
-      {
+      catch (NumberFormatException e) {
          // Ok
       }
 
-      try
-      {
+      try {
          MessageTest.log.info(message.getShortProperty(MessageTest.propName1));
       }
-      catch (NumberFormatException e)
-      {
+      catch (NumberFormatException e) {
          // Ok
       }
-      try
-      {
+      try {
          MessageTest.log.info(message.getByteProperty(MessageTest.propName1));
       }
-      catch (NumberFormatException e)
-      {
+      catch (NumberFormatException e) {
          // Ok
       }
       Assert.assertEquals(false, message.getBooleanProperty(MessageTest.propName1));
-      try
-      {
+      try {
          MessageTest.log.info(message.getLongProperty(MessageTest.propName1));
       }
-      catch (NumberFormatException e)
-      {
+      catch (NumberFormatException e) {
          // Ok
       }
-      try
-      {
+      try {
          MessageTest.log.info(message.getFloatProperty(MessageTest.propName1));
       }
-      catch (NullPointerException e)
-      {
+      catch (NullPointerException e) {
          // Ok
       }
-      try
-      {
+      try {
          MessageTest.log.info(message.getDoubleProperty(MessageTest.propName1));
       }
-      catch (NullPointerException e)
-      {
+      catch (NullPointerException e) {
          // Ok
       }
    }
 
    // https://issues.jboss.org/browse/HORNETQ-988
    @Test
-   public void testShouldNotThrowException() throws Exception
-   {
+   public void testShouldNotThrowException() throws Exception {
       Connection conn = null;
 
       createTopic(true, "Topic1");
-      try
-      {
+      try {
          conn = cf.createConnection();
 
          conn.start();
@@ -350,18 +309,16 @@ public class MessageTest extends JMSTestBase
          assertNotNull(consGeral.receive(5000));
 
       }
-      finally
-      {
-         if (conn != null)
-         {
+      finally {
+         if (conn != null) {
             conn.close();
          }
       }
    }
 
-
-   private Message sendAndConsumeMessage(final Message msg, final MessageProducer prod, final MessageConsumer cons) throws Exception
-   {
+   private Message sendAndConsumeMessage(final Message msg,
+                                         final MessageProducer prod,
+                                         final MessageConsumer cons) throws Exception {
       prod.send(msg);
 
       Message received = cons.receive(MessageTest.TIMEOUT);

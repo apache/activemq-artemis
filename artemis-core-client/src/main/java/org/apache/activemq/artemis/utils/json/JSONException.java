@@ -26,33 +26,31 @@ package org.apache.activemq.artemis.utils.json;
 /**
  * The JSONException is thrown by the JSON.org classes then things are amiss.
  */
-public class JSONException extends Exception
-{
+public class JSONException extends Exception {
+
    /**
-   *
-   */
+    *
+    */
    private static final long serialVersionUID = -3940674325153571604L;
 
    private Throwable cause;
 
    /**
     * Constructs a JSONException with an explanatory message.
+    *
     * @param message Detail about the reason for the exception.
     */
-   public JSONException(final String message)
-   {
+   public JSONException(final String message) {
       super(message);
    }
 
-   public JSONException(final Throwable t)
-   {
+   public JSONException(final Throwable t) {
       super(t.getMessage());
       cause = t;
    }
 
    @Override
-   public synchronized Throwable getCause()
-   {
+   public synchronized Throwable getCause() {
       return cause;
    }
 }

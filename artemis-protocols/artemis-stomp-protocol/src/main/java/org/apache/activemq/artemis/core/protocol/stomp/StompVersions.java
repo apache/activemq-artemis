@@ -19,21 +19,18 @@ package org.apache.activemq.artemis.core.protocol.stomp;
 /**
  * Stomp Spec Versions
  */
-public enum StompVersions
-{
+public enum StompVersions {
    V1_0("1.0"),
    V1_1("1.1"),
    V1_2("1.2");
 
    private String version;
 
-   private StompVersions(String ver)
-   {
+   private StompVersions(String ver) {
       this.version = ver;
    }
 
-   public String toString()
-   {
+   public String toString() {
       return this.version;
    }
 }

@@ -26,15 +26,20 @@ import org.apache.activemq.artemis.core.client.impl.Topology;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 
-public interface ClusterConnection extends ActiveMQComponent, ClusterTopologyListener
-{
+public interface ClusterConnection extends ActiveMQComponent, ClusterTopologyListener {
+
    SimpleString getName();
 
    String getNodeID();
 
    ActiveMQServer getServer();
 
-   void nodeAnnounced(long eventUID, String nodeID, String backupGroupName, String scaleDownGroupName, Pair<TransportConfiguration, TransportConfiguration> connectorPair, boolean backup);
+   void nodeAnnounced(long eventUID,
+                      String nodeID,
+                      String backupGroupName,
+                      String scaleDownGroupName,
+                      Pair<TransportConfiguration, TransportConfiguration> connectorPair,
+                      boolean backup);
 
    void addClusterTopologyListener(ClusterTopologyListener listener);
 
@@ -42,6 +47,7 @@ public interface ClusterConnection extends ActiveMQComponent, ClusterTopologyLis
 
    /**
     * Only used for tests?
+    *
     * @return a Map of node ID and addresses
     */
    Map<String, String> getNodes();
@@ -61,6 +67,7 @@ public interface ClusterConnection extends ActiveMQComponent, ClusterTopologyLis
 
    /**
     * Verifies whether user and password match the ones configured for this ClusterConnection.
+    *
     * @param clusterUser
     * @param clusterPassword
     * @return {@code true} if username and password match, {@code false} otherwise.

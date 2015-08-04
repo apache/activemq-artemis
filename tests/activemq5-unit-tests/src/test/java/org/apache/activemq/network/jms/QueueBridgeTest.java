@@ -39,73 +39,74 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 public class QueueBridgeTest extends TestCase implements MessageListener {
 
-    protected static final int MESSAGE_COUNT = 10;
-    private static final Logger LOG = LoggerFactory.getLogger(QueueBridgeTest.class);
+   protected static final int MESSAGE_COUNT = 10;
+   private static final Logger LOG = LoggerFactory.getLogger(QueueBridgeTest.class);
 
-    protected AbstractApplicationContext context;
-    protected QueueConnection localConnection;
-    protected QueueConnection remoteConnection;
-    protected QueueRequestor requestor;
-    protected QueueSession requestServerSession;
-    protected MessageConsumer requestServerConsumer;
-    protected MessageProducer requestServerProducer;
+   protected AbstractApplicationContext context;
+   protected QueueConnection localConnection;
+   protected QueueConnection remoteConnection;
+   protected QueueRequestor requestor;
+   protected QueueSession requestServerSession;
+   protected MessageConsumer requestServerConsumer;
+   protected MessageProducer requestServerProducer;
 
-    protected void setUp() throws Exception {
-        super.setUp();
-        context = createApplicationContext();
+   protected void setUp() throws Exception {
+      super.setUp();
+      context = createApplicationContext();
 
-        createConnections();
+      createConnections();
 
-        requestServerSession = localConnection.createQueueSession(false, Session.AUTO_ACKNOWLEDGE);
-        Queue theQueue = requestServerSession.createQueue(getClass().getName());
-        requestServerConsumer = requestServerSession.createConsumer(theQueue);
-        requestServerConsumer.setMessageListener(this);
-        requestServerProducer = requestServerSession.createProducer(null);
+      requestServerSession = localConnection.createQueueSession(false, Session.AUTO_ACKNOWLEDGE);
+      Queue theQueue = requestServerSession.createQueue(getClass().getName());
+      requestServerConsumer = requestServerSession.createConsumer(theQueue);
+      requestServerConsumer.setMessageListener(this);
+      requestServerProducer = requestServerSession.createProducer(null);
 
-        QueueSession session = remoteConnection.createQueueSession(false, Session.AUTO_ACKNOWLEDGE);
-        requestor = new QueueRequestor(session, theQueue);
-    }
+      QueueSession session = remoteConnection.createQueueSession(false, Session.AUTO_ACKNOWLEDGE);
+      requestor = new QueueRequestor(session, theQueue);
+   }
 
-    protected void createConnections() throws JMSException {
-        ActiveMQConnectionFactory fac = (ActiveMQConnectionFactory)context.getBean("localFactory");
-        localConnection = fac.createQueueConnection();
-        localConnection.start();
+   protected void createConnections() throws JMSException {
+      ActiveMQConnectionFactory fac = (ActiveMQConnectionFactory) context.getBean("localFactory");
+      localConnection = fac.createQueueConnection();
+      localConnection.start();
 
-        fac = (ActiveMQConnectionFactory)context.getBean("remoteFactory");
-        remoteConnection = fac.createQueueConnection();
-        remoteConnection.start();
-    }
+      fac = (ActiveMQConnectionFactory) context.getBean("remoteFactory");
+      remoteConnection = fac.createQueueConnection();
+      remoteConnection.start();
+   }
 
-    protected AbstractApplicationContext createApplicationContext() {
-        return new ClassPathXmlApplicationContext("org/apache/activemq/network/jms/queue-config.xml");
-    }
+   protected AbstractApplicationContext createApplicationContext() {
+      return new ClassPathXmlApplicationContext("org/apache/activemq/network/jms/queue-config.xml");
+   }
 
-    protected void tearDown() throws Exception {
-        localConnection.close();
-        super.tearDown();
-    }
+   protected void tearDown() throws Exception {
+      localConnection.close();
+      super.tearDown();
+   }
 
-    public void testQueueRequestorOverBridge() throws JMSException {
-        for (int i = 0; i < MESSAGE_COUNT; i++) {
-            TextMessage msg = requestServerSession.createTextMessage("test msg: " + i);
-            TextMessage result = (TextMessage)requestor.request(msg);
-            assertNotNull(result);
-            LOG.info(result.getText());
-        }
-    }
+   public void testQueueRequestorOverBridge() throws JMSException {
+      for (int i = 0; i < MESSAGE_COUNT; i++) {
+         TextMessage msg = requestServerSession.createTextMessage("test msg: " + i);
+         TextMessage result = (TextMessage) requestor.request(msg);
+         assertNotNull(result);
+         LOG.info(result.getText());
+      }
+   }
 
-    public void onMessage(Message msg) {
-        try {
-            TextMessage textMsg = (TextMessage)msg;
-            String payload = "REPLY: " + textMsg.getText();
-            Destination replyTo;
-            replyTo = msg.getJMSReplyTo();
-            textMsg.clearBody();
-            textMsg.setText(payload);
-            requestServerProducer.send(replyTo, textMsg);
-        } catch (JMSException e) {
-            e.printStackTrace();
-        }
-    }
+   public void onMessage(Message msg) {
+      try {
+         TextMessage textMsg = (TextMessage) msg;
+         String payload = "REPLY: " + textMsg.getText();
+         Destination replyTo;
+         replyTo = msg.getJMSReplyTo();
+         textMsg.clearBody();
+         textMsg.setText(payload);
+         requestServerProducer.send(replyTo, textMsg);
+      }
+      catch (JMSException e) {
+         e.printStackTrace();
+      }
+   }
 
 }

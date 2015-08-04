@@ -24,8 +24,8 @@ import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.utils.PasswordMaskingUtil;
 import org.apache.activemq.artemis.utils.SensitiveDataCodec;
 
-public class FileSecurityConfiguration extends SecurityConfiguration
-{
+public class FileSecurityConfiguration extends SecurityConfiguration {
+
    private final String usersUrl;
 
    private final String rolesUrl;
@@ -36,8 +36,11 @@ public class FileSecurityConfiguration extends SecurityConfiguration
 
    private boolean started;
 
-   public FileSecurityConfiguration(String usersUrl, String rolesUrl, String defaultUser, Boolean maskPassword, String passwordCodec)
-   {
+   public FileSecurityConfiguration(String usersUrl,
+                                    String rolesUrl,
+                                    String defaultUser,
+                                    Boolean maskPassword,
+                                    String passwordCodec) {
       this.usersUrl = usersUrl;
       this.rolesUrl = rolesUrl;
       this.defaultUser = defaultUser;
@@ -45,8 +48,7 @@ public class FileSecurityConfiguration extends SecurityConfiguration
       this.passwordCodec = passwordCodec;
    }
 
-   public void stop() throws Exception
-   {
+   public void stop() throws Exception {
       users.clear();
 
       roles.clear();
@@ -54,34 +56,26 @@ public class FileSecurityConfiguration extends SecurityConfiguration
       defaultUser = null;
    }
 
-   public boolean isStarted()
-   {
+   public boolean isStarted() {
       return true;
    }
 
-
-   public synchronized void start() throws Exception
-   {
-      if (started)
-      {
+   public synchronized void start() throws Exception {
+      if (started) {
          return;
       }
       SensitiveDataCodec<String> codec = null;
-      if (maskPassword)
-      {
-         if (passwordCodec != null)
-         {
+      if (maskPassword) {
+         if (passwordCodec != null) {
             codec = PasswordMaskingUtil.getDefaultCodec();
          }
-         else
-         {
+         else {
             codec = PasswordMaskingUtil.getCodec(passwordCodec);
          }
       }
       URL theUsersUrl = getClass().getClassLoader().getResource(usersUrl);
 
-      if (theUsersUrl == null)
-      {
+      if (theUsersUrl == null) {
          // The URL is outside of the classloader. Trying a pure url now
          theUsersUrl = new URL(usersUrl);
       }
@@ -89,8 +83,7 @@ public class FileSecurityConfiguration extends SecurityConfiguration
       userProps.load(theUsersUrl.openStream());
       URL theRolesUrl = getClass().getClassLoader().getResource(usersUrl);
 
-      if (theRolesUrl == null)
-      {
+      if (theRolesUrl == null) {
          // The URL is outside of the classloader. Trying a pure url now
          theRolesUrl = new URL(rolesUrl);
       }
@@ -99,28 +92,22 @@ public class FileSecurityConfiguration extends SecurityConfiguration
 
       Set<String> keys = userProps.stringPropertyNames();
 
-      for (String username : keys)
-      {
+      for (String username : keys) {
          String password = userProps.getProperty(username);
-         if (codec != null)
-         {
+         if (codec != null) {
             password = codec.decode(password);
          }
          addUser(username, password);
       }
 
-      for (String username : keys)
-      {
+      for (String username : keys) {
          String roles = roleProps.getProperty(username);
-         if (roles ==  null)
-         {
+         if (roles == null) {
             ActiveMQServerLogger.LOGGER.cannotFindRoleForUser(username);
          }
-         else
-         {
+         else {
             String[] split = roles.split(",");
-            for (String role : split)
-            {
+            for (String role : split) {
                addRole(username, role.trim());
             }
          }

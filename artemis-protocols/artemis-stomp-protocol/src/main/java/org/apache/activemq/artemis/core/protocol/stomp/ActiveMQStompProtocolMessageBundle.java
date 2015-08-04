@@ -24,17 +24,17 @@ import org.jboss.logging.Messages;
 
 /**
  * Logger Code 33
- * <p>
+ * <br>
  * Each message id must be 6 digits long starting with 10, the 3rd digit should be 9. So the range
  * is from 339000 to 339999.
- * <p>
+ * <br>
  * Once released, methods should not be deleted as they may be referenced by knowledge base
  * articles. Unused methods should be marked as deprecated.
  */
 
 @MessageBundle(projectCode = "AMQ")
-public interface ActiveMQStompProtocolMessageBundle
-{
+public interface ActiveMQStompProtocolMessageBundle {
+
    ActiveMQStompProtocolMessageBundle BUNDLE = Messages.getBundle(ActiveMQStompProtocolMessageBundle.class);
 
    @Message(id = 339000, value = "Stomp Connection TTL cannot be negative: {0}", format = Message.Format.MESSAGE_FORMAT)

@@ -19,17 +19,15 @@ package org.apache.activemq.artemis.tests.unit.core.journal.impl;
 import org.apache.activemq.artemis.tests.unit.core.journal.impl.fakes.FakeSequentialFileFactory;
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 
-public class FakeJournalImplTest extends JournalImplTestUnit
-{
+public class FakeJournalImplTest extends JournalImplTestUnit {
+
    @Override
-   protected SequentialFileFactory getFileFactory() throws Exception
-   {
+   protected SequentialFileFactory getFileFactory() throws Exception {
       return new FakeSequentialFileFactory();
    }
 
    @Override
-   protected int getAlignment()
-   {
+   protected int getAlignment() {
       return 1;
    }
 }

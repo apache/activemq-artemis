@@ -23,8 +23,8 @@ import org.apache.activemq.artemis.core.paging.cursor.PageSubscription;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 
-public interface PageTransactionInfo extends EncodingSupport
-{
+public interface PageTransactionInfo extends EncodingSupport {
+
    boolean isCommit();
 
    boolean isRollback();
@@ -45,7 +45,10 @@ public interface PageTransactionInfo extends EncodingSupport
 
    void storeUpdate(StorageManager storageManager, PagingManager pagingManager, Transaction tx) throws Exception;
 
-   void reloadUpdate(final StorageManager storageManager, final PagingManager pagingManager, final Transaction tx, final int increment) throws Exception;
+   void reloadUpdate(final StorageManager storageManager,
+                     final PagingManager pagingManager,
+                     final Transaction tx,
+                     final int increment) throws Exception;
 
    // To be used after the update was stored or reload
    void onUpdate(int update, StorageManager storageManager, PagingManager pagingManager);
@@ -57,6 +60,7 @@ public interface PageTransactionInfo extends EncodingSupport
    /**
     * This method will hold the position to be delivered later in case this transaction is pending.
     * If the tx is not pending, it will return false, so the caller can deliver it right away
+    *
     * @return true if the message will be delivered later, false if it should be delivered right away
     */
    boolean deliverAfterCommit(PageIterator pageIterator, PageSubscription cursor, PagePosition cursorPos);

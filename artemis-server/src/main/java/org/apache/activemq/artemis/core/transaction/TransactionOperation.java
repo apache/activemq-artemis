@@ -21,16 +21,15 @@ import java.util.List;
 import org.apache.activemq.artemis.core.server.MessageReference;
 
 /**
- *
  * A TransactionOperation
  */
-public interface TransactionOperation
-{
+public interface TransactionOperation {
+
    void beforePrepare(Transaction tx) throws Exception;
 
    /**
     * After prepare shouldn't throw any exception.
-    * <p>
+    * <br>
     * Any verification has to be done on before prepare
     */
    void afterPrepare(Transaction tx);
@@ -39,7 +38,7 @@ public interface TransactionOperation
 
    /**
     * After commit shouldn't throw any exception.
-    * <p>
+    * <br>
     * Any verification has to be done on before commit
     */
    void afterCommit(Transaction tx);
@@ -48,7 +47,7 @@ public interface TransactionOperation
 
    /**
     * After rollback shouldn't throw any exception.
-    * <p>
+    * <br>
     * Any verification has to be done on before rollback
     */
    void afterRollback(Transaction tx);

@@ -21,21 +21,18 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 
 /**
  * This is a sub process of the test {@link PageCountSyncOnNonTXTest}
- *  The System.out calls here are meant to be here as they will appear on the process output and test output.
- *  It helps to identify what happened on the test in case of failures.
+ * The System.out calls here are meant to be here as they will appear on the process output and test output.
+ * It helps to identify what happened on the test in case of failures.
  */
-public class PageCountSyncServer extends SpawnedServerSupport
-{
-   public static Process spawnVM(final String testDir, final long timeToRun) throws Exception
-   {
+public class PageCountSyncServer extends SpawnedServerSupport {
+
+   public static Process spawnVM(final String testDir, final long timeToRun) throws Exception {
       return SpawnedVMSupport.spawnVM(PageCountSyncServer.class.getName(), testDir, "" + timeToRun);
    }
 
-   public void perform(final String folder, final long timeToRun) throws Exception
-   {
+   public void perform(final String folder, final long timeToRun) throws Exception {
 
-      try
-      {
+      try {
          ActiveMQServer server = createServer(folder);
 
          server.start();
@@ -48,29 +45,24 @@ public class PageCountSyncServer extends SpawnedServerSupport
          System.out.println("Going down now!!!");
          System.exit(1);
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          e.printStackTrace();
          System.exit(-1);
       }
    }
 
-   public static void main(String[] args) throws Exception
-   {
+   public static void main(String[] args) throws Exception {
       PageCountSyncServer ss = new PageCountSyncServer();
 
       System.out.println("Args.length = " + args.length);
-      for (String arg: args)
-      {
+      for (String arg : args) {
          System.out.println("Argument: " + arg);
       }
 
-      if (args.length == 2)
-      {
+      if (args.length == 2) {
          ss.perform(args[0], Long.parseLong(args[1]));
       }
-      else
-      {
+      else {
          System.err.println("you were expected to pass getTestDir as an argument on SpawnVMSupport");
       }
    }

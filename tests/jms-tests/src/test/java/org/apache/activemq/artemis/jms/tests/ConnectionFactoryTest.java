@@ -45,15 +45,14 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class ConnectionFactoryTest extends JMSTestCase
-{
+public class ConnectionFactoryTest extends JMSTestCase {
+
    private final Random random = new Random();
    private String testClientId;
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
       testClientId = "amq" + random.nextInt();
    }
@@ -63,10 +62,9 @@ public class ConnectionFactoryTest extends JMSTestCase
     * created.
     */
    @Test
-   public void testQueueConnectionFactory() throws Exception
-   {
+   public void testQueueConnectionFactory() throws Exception {
       deployConnectionFactory(0, JMSFactoryType.QUEUE_CF, "CF_QUEUE_XA_FALSE", "/CF_QUEUE_XA_FALSE");
-      QueueConnectionFactory qcf = (QueueConnectionFactory)ic.lookup("/CF_QUEUE_XA_FALSE");
+      QueueConnectionFactory qcf = (QueueConnectionFactory) ic.lookup("/CF_QUEUE_XA_FALSE");
       QueueConnection qc = qcf.createQueueConnection();
       qc.close();
       undeployConnectionFactory("CF_QUEUE_XA_FALSE");
@@ -77,34 +75,30 @@ public class ConnectionFactoryTest extends JMSTestCase
     * created.
     */
    @Test
-   public void testTopicConnectionFactory() throws Exception
-   {
+   public void testTopicConnectionFactory() throws Exception {
       deployConnectionFactory(0, JMSFactoryType.TOPIC_CF, "CF_TOPIC_XA_FALSE", "/CF_TOPIC_XA_FALSE");
-      TopicConnectionFactory qcf = (TopicConnectionFactory)ic.lookup("/CF_TOPIC_XA_FALSE");
+      TopicConnectionFactory qcf = (TopicConnectionFactory) ic.lookup("/CF_TOPIC_XA_FALSE");
       TopicConnection tc = qcf.createTopicConnection();
       tc.close();
       undeployConnectionFactory("CF_TOPIC_XA_FALSE");
    }
 
    @Test
-   public void testAdministrativelyConfiguredClientID() throws Exception
-   {
+   public void testAdministrativelyConfiguredClientID() throws Exception {
       // deploy a connection factory that has an administatively configured clientID
       ActiveMQServerTestCase.deployConnectionFactory(testClientId, "TestConnectionFactory", "TestConnectionFactory");
 
-      ConnectionFactory cf = (ConnectionFactory)ic.lookup("/TestConnectionFactory");
+      ConnectionFactory cf = (ConnectionFactory) ic.lookup("/TestConnectionFactory");
       Connection c = cf.createConnection();
 
       ProxyAssertSupport.assertEquals(testClientId, c.getClientID());
 
-      try
-      {
+      try {
          c.setClientID("somethingelse");
          ProxyAssertSupport.fail("should throw exception");
 
       }
-      catch (javax.jms.IllegalStateException e)
-      {
+      catch (javax.jms.IllegalStateException e) {
          // OK
       }
       c.close();
@@ -112,13 +106,12 @@ public class ConnectionFactoryTest extends JMSTestCase
    }
 
    @Test
-   public void testNoClientIDConfigured_1() throws Exception
-   {
+   public void testNoClientIDConfigured_1() throws Exception {
       // the ConnectionFactories that ship with ActiveMQ Artemis do not have their clientID
       // administratively configured.
 
       deployConnectionFactory(0, JMSFactoryType.TOPIC_CF, "CF_XA_FALSE", "/CF_XA_FALSE");
-      ConnectionFactory cf = (ConnectionFactory)ic.lookup("/CF_XA_FALSE");
+      ConnectionFactory cf = (ConnectionFactory) ic.lookup("/CF_XA_FALSE");
       Connection c = cf.createConnection();
 
       ProxyAssertSupport.assertNull(c.getClientID());
@@ -128,13 +121,12 @@ public class ConnectionFactoryTest extends JMSTestCase
    }
 
    @Test
-   public void testNoClientIDConfigured_2() throws Exception
-   {
+   public void testNoClientIDConfigured_2() throws Exception {
       // the ConnectionFactories that ship with ActiveMQ Artemis do not have their clientID
       // administratively configured.
 
       deployConnectionFactory(0, JMSFactoryType.TOPIC_CF, "CF_XA_FALSE", "/CF_XA_FALSE");
-      ConnectionFactory cf = (ConnectionFactory)ic.lookup("/CF_XA_FALSE");
+      ConnectionFactory cf = (ConnectionFactory) ic.lookup("/CF_XA_FALSE");
       Connection c = cf.createConnection();
 
       // set the client id immediately after the connection is created
@@ -148,18 +140,16 @@ public class ConnectionFactoryTest extends JMSTestCase
 
    // Added for http://jira.jboss.org/jira/browse/JBMESSAGING-939
    @Test
-   public void testDurableSubscriptionOnPreConfiguredConnectionFactory() throws Exception
-   {
+   public void testDurableSubscriptionOnPreConfiguredConnectionFactory() throws Exception {
       ActiveMQServerTestCase.deployConnectionFactory("TestConnectionFactory1", "cfTest", "/TestDurableCF");
 
       createTopic("TestSubscriber");
 
       Connection conn = null;
 
-      try
-      {
-         Topic topic = (Topic)ic.lookup("/topic/TestSubscriber");
-         ConnectionFactory cf = (ConnectionFactory)ic.lookup("/TestDurableCF");
+      try {
+         Topic topic = (Topic) ic.lookup("/topic/TestSubscriber");
+         ConnectionFactory cf = (ConnectionFactory) ic.lookup("/TestDurableCF");
          conn = cf.createConnection();
 
          // I have to remove this asertion, as the test would work if doing this assertion
@@ -171,26 +161,20 @@ public class ConnectionFactoryTest extends JMSTestCase
 
          session.createDurableSubscriber(topic, "durableSubscriberChangeSelectorTest", "TEST = 'test'", false);
       }
-      finally
-      {
-         try
-         {
-            if (conn != null)
-            {
+      finally {
+         try {
+            if (conn != null) {
                conn.close();
             }
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             log.warn(e.toString(), e);
          }
 
-         try
-         {
+         try {
             destroyTopic("TestSubscriber");
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             log.warn(e.toString(), e);
          }
 
@@ -199,17 +183,15 @@ public class ConnectionFactoryTest extends JMSTestCase
    }
 
    @Test
-   public void testSlowConsumers() throws Exception
-   {
+   public void testSlowConsumers() throws Exception {
       ArrayList<String> bindings = new ArrayList<String>();
       bindings.add("TestSlowConsumersCF");
       ActiveMQServerTestCase.deployConnectionFactory(0, "TestSlowConsumersCF", 1, "TestSlowConsumersCF");
 
       Connection conn = null;
 
-      try
-      {
-         ConnectionFactory cf = (ConnectionFactory)ic.lookup("/TestSlowConsumersCF");
+      try {
+         ConnectionFactory cf = (ConnectionFactory) ic.lookup("/TestSlowConsumersCF");
 
          conn = cf.createConnection();
 
@@ -221,18 +203,15 @@ public class ConnectionFactoryTest extends JMSTestCase
 
          final int numMessages = 500;
 
-         class FastListener implements MessageListener
-         {
+         class FastListener implements MessageListener {
+
             int processed;
 
-            public void onMessage(final Message msg)
-            {
+            public void onMessage(final Message msg) {
                processed++;
 
-               if (processed == numMessages - 2)
-               {
-                  synchronized (waitLock)
-                  {
+               if (processed == numMessages - 2) {
+                  synchronized (waitLock) {
                      waitLock.notifyAll();
                   }
                }
@@ -241,25 +220,20 @@ public class ConnectionFactoryTest extends JMSTestCase
 
          final FastListener fast = new FastListener();
 
-         class SlowListener implements MessageListener
-         {
+         class SlowListener implements MessageListener {
+
             int processed;
 
-            public void onMessage(final Message msg)
-            {
+            public void onMessage(final Message msg) {
                processed++;
 
-               synchronized (waitLock)
-               {
+               synchronized (waitLock) {
                   // Should really cope with spurious wakeups
-                  while (fast.processed != numMessages - 2)
-                  {
-                     try
-                     {
+                  while (fast.processed != numMessages - 2) {
+                     try {
                         waitLock.wait(20000);
                      }
-                     catch (InterruptedException e)
-                     {
+                     catch (InterruptedException e) {
                      }
                   }
 
@@ -284,8 +258,7 @@ public class ConnectionFactoryTest extends JMSTestCase
 
          conn.start();
 
-         for (int i = 0; i < numMessages; i++)
-         {
+         for (int i = 0; i < numMessages; i++) {
             TextMessage tm = sessSend.createTextMessage("message" + i);
 
             prod.send(tm);
@@ -294,16 +267,13 @@ public class ConnectionFactoryTest extends JMSTestCase
          // All the messages bar one should be consumed by the fast listener - since the slow listener shouldn't buffer
          // any.
 
-         synchronized (waitLock)
-         {
+         synchronized (waitLock) {
             // Should really cope with spurious wakeups
-            while (fast.processed != numMessages - 2)
-            {
+            while (fast.processed != numMessages - 2) {
                waitLock.wait(20000);
             }
 
-            while (slow.processed != 2)
-            {
+            while (slow.processed != 2) {
                waitLock.wait(20000);
             }
          }
@@ -311,26 +281,20 @@ public class ConnectionFactoryTest extends JMSTestCase
          Assert.assertTrue(fast.processed == numMessages - 2);
 
       }
-      finally
-      {
-         try
-         {
-            if (conn != null)
-            {
+      finally {
+         try {
+            if (conn != null) {
                conn.close();
             }
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             log.warn(e.toString(), e);
          }
 
-         try
-         {
+         try {
             ActiveMQServerTestCase.undeployConnectionFactory("TestSlowConsumersCF");
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             log.warn(e.toString(), e);
          }
 
@@ -339,8 +303,7 @@ public class ConnectionFactoryTest extends JMSTestCase
    }
 
    @Test
-   public void testFactoryTypes() throws Exception
-   {
+   public void testFactoryTypes() throws Exception {
       deployConnectionFactory(0, JMSFactoryType.CF, "ConnectionFactory", "/ConnectionFactory");
       deployConnectionFactory(0, JMSFactoryType.QUEUE_XA_CF, "CF_QUEUE_XA_TRUE", "/CF_QUEUE_XA_TRUE");
       deployConnectionFactory(0, JMSFactoryType.QUEUE_CF, "CF_QUEUE_XA_FALSE", "/CF_QUEUE_XA_FALSE");
@@ -356,62 +319,62 @@ public class ConnectionFactoryTest extends JMSTestCase
 
       ActiveMQConnectionFactory factory = null;
 
-      factory = (ActiveMQConnectionFactory)ic.lookup("/ConnectionFactory");
+      factory = (ActiveMQConnectionFactory) ic.lookup("/ConnectionFactory");
 
       Assert.assertTrue(factory instanceof ConnectionFactory);
       assertNTypes(factory, 4);
 
-      factory = (ActiveMQConnectionFactory)ic.lookup("/CF_XA_TRUE");
+      factory = (ActiveMQConnectionFactory) ic.lookup("/CF_XA_TRUE");
 
       Assert.assertTrue(factory instanceof XAConnectionFactory);
       assertNTypes(factory, 6);
 
-      factory = (ActiveMQConnectionFactory)ic.lookup("/CF_XA_FALSE");
+      factory = (ActiveMQConnectionFactory) ic.lookup("/CF_XA_FALSE");
 
       Assert.assertTrue(factory instanceof ConnectionFactory);
       assertNTypes(factory, 4);
 
-      factory = (ActiveMQConnectionFactory)ic.lookup("/CF_GENERIC");
+      factory = (ActiveMQConnectionFactory) ic.lookup("/CF_GENERIC");
 
       Assert.assertTrue(factory instanceof ConnectionFactory);
       assertNTypes(factory, 4);
 
-      factory = (ActiveMQConnectionFactory)ic.lookup("/CF_GENERIC_XA_TRUE");
+      factory = (ActiveMQConnectionFactory) ic.lookup("/CF_GENERIC_XA_TRUE");
 
       Assert.assertTrue(factory instanceof XAConnectionFactory);
       assertNTypes(factory, 6);
 
-      factory = (ActiveMQConnectionFactory)ic.lookup("/CF_GENERIC_XA_FALSE");
+      factory = (ActiveMQConnectionFactory) ic.lookup("/CF_GENERIC_XA_FALSE");
 
       Assert.assertTrue(factory instanceof ConnectionFactory);
       assertNTypes(factory, 4);
 
-      factory = (ActiveMQConnectionFactory)ic.lookup("/CF_QUEUE");
+      factory = (ActiveMQConnectionFactory) ic.lookup("/CF_QUEUE");
 
       Assert.assertTrue(factory instanceof QueueConnectionFactory);
       assertNTypes(factory, 3);
 
-      factory = (ActiveMQConnectionFactory)ic.lookup("/CF_QUEUE_XA_TRUE");
+      factory = (ActiveMQConnectionFactory) ic.lookup("/CF_QUEUE_XA_TRUE");
 
       Assert.assertTrue(factory instanceof XAQueueConnectionFactory);
       assertNTypes(factory, 4);
 
-      factory = (ActiveMQConnectionFactory)ic.lookup("/CF_QUEUE_XA_FALSE");
+      factory = (ActiveMQConnectionFactory) ic.lookup("/CF_QUEUE_XA_FALSE");
 
       Assert.assertTrue(factory instanceof QueueConnectionFactory);
       assertNTypes(factory, 3);
 
-      factory = (ActiveMQConnectionFactory)ic.lookup("/CF_TOPIC");
+      factory = (ActiveMQConnectionFactory) ic.lookup("/CF_TOPIC");
 
       Assert.assertTrue(factory instanceof TopicConnectionFactory);
       assertNTypes(factory, 3);
 
-      factory = (ActiveMQConnectionFactory)ic.lookup("/CF_TOPIC_XA_TRUE");
+      factory = (ActiveMQConnectionFactory) ic.lookup("/CF_TOPIC_XA_TRUE");
 
       Assert.assertTrue(factory instanceof XATopicConnectionFactory);
       assertNTypes(factory, 4);
 
-      factory = (ActiveMQConnectionFactory)ic.lookup("/CF_TOPIC_XA_FALSE");
+      factory = (ActiveMQConnectionFactory) ic.lookup("/CF_TOPIC_XA_FALSE");
 
       Assert.assertTrue(factory instanceof TopicConnectionFactory);
       assertNTypes(factory, 3);
@@ -431,8 +394,7 @@ public class ConnectionFactoryTest extends JMSTestCase
    }
 
    @Test
-   public void testConnectionTypes() throws Exception
-   {
+   public void testConnectionTypes() throws Exception {
       deployConnectionFactory(0, JMSFactoryType.CF, "ConnectionFactory", "/ConnectionFactory");
       deployConnectionFactory(0, JMSFactoryType.QUEUE_XA_CF, "CF_QUEUE_XA_TRUE", "/CF_QUEUE_XA_TRUE");
       deployConnectionFactory(0, JMSFactoryType.XA_CF, "CF_XA_TRUE", "/CF_XA_TRUE");
@@ -447,27 +409,27 @@ public class ConnectionFactoryTest extends JMSTestCase
       XAQueueConnection xaQueueConnection = null;
       XATopicConnection xaTopicConnection = null;
 
-      ConnectionFactory genericFactory = (ConnectionFactory)ic.lookup("/ConnectionFactory");
+      ConnectionFactory genericFactory = (ConnectionFactory) ic.lookup("/ConnectionFactory");
       genericConnection = genericFactory.createConnection();
       assertConnectionType(genericConnection, "generic");
 
-      XAConnectionFactory xaFactory = (XAConnectionFactory)ic.lookup("/CF_XA_TRUE");
+      XAConnectionFactory xaFactory = (XAConnectionFactory) ic.lookup("/CF_XA_TRUE");
       xaConnection = xaFactory.createXAConnection();
       assertConnectionType(xaConnection, "xa");
 
-      QueueConnectionFactory queueCF = (QueueConnectionFactory)ic.lookup("/CF_QUEUE");
+      QueueConnectionFactory queueCF = (QueueConnectionFactory) ic.lookup("/CF_QUEUE");
       queueConnection = queueCF.createQueueConnection();
       assertConnectionType(queueConnection, "queue");
 
-      TopicConnectionFactory topicCF = (TopicConnectionFactory)ic.lookup("/CF_TOPIC");
+      TopicConnectionFactory topicCF = (TopicConnectionFactory) ic.lookup("/CF_TOPIC");
       topicConnection = topicCF.createTopicConnection();
       assertConnectionType(topicConnection, "topic");
 
-      XAQueueConnectionFactory xaQueueCF = (XAQueueConnectionFactory)ic.lookup("/CF_QUEUE_XA_TRUE");
+      XAQueueConnectionFactory xaQueueCF = (XAQueueConnectionFactory) ic.lookup("/CF_QUEUE_XA_TRUE");
       xaQueueConnection = xaQueueCF.createXAQueueConnection();
       assertConnectionType(xaQueueConnection, "xa-queue");
 
-      XATopicConnectionFactory xaTopicCF = (XATopicConnectionFactory)ic.lookup("/CF_TOPIC_XA_TRUE");
+      XATopicConnectionFactory xaTopicCF = (XATopicConnectionFactory) ic.lookup("/CF_TOPIC_XA_TRUE");
       xaTopicConnection = xaTopicCF.createXATopicConnection();
       assertConnectionType(xaTopicConnection, "xa-topic");
 
@@ -486,10 +448,8 @@ public class ConnectionFactoryTest extends JMSTestCase
       undeployConnectionFactory("CF_TOPIC_XA_TRUE");
    }
 
-   private void assertConnectionType(Connection conn, String type)
-   {
-      if ("generic".equals(type) || "queue".equals(type) || "topic".equals(type))
-      {
+   private void assertConnectionType(Connection conn, String type) {
+      if ("generic".equals(type) || "queue".equals(type) || "topic".equals(type)) {
          //generic
          Assert.assertFalse(conn instanceof XAConnection);
          Assert.assertTrue(conn instanceof QueueConnection);
@@ -497,52 +457,43 @@ public class ConnectionFactoryTest extends JMSTestCase
          Assert.assertTrue(conn instanceof TopicConnection);
          Assert.assertFalse(conn instanceof XATopicConnection);
       }
-      else if ("xa".equals(type) || "xa-queue".equals(type) || "xa-topic".equals(type))
-      {
+      else if ("xa".equals(type) || "xa-queue".equals(type) || "xa-topic".equals(type)) {
          Assert.assertTrue(conn instanceof XAConnection);
          Assert.assertTrue(conn instanceof QueueConnection);
          Assert.assertTrue(conn instanceof XAQueueConnection);
          Assert.assertTrue(conn instanceof TopicConnection);
          Assert.assertTrue(conn instanceof XATopicConnection);
       }
-      else
-      {
+      else {
          Assert.fail("Unknown connection type: " + type);
       }
    }
 
-   private void assertNTypes(ActiveMQConnectionFactory factory, final int total)
-   {
+   private void assertNTypes(ActiveMQConnectionFactory factory, final int total) {
       StringBuilder text = new StringBuilder();
       text.append(factory + "\n is instance of ");
       int num = 0;
-      if (factory instanceof ConnectionFactory)
-      {
+      if (factory instanceof ConnectionFactory) {
          num++;
          text.append("ConnectionFactory ");
       }
-      if (factory instanceof XAConnectionFactory)
-      {
+      if (factory instanceof XAConnectionFactory) {
          num++;
          text.append("XAConnectionFactory ");
       }
-      if (factory instanceof QueueConnectionFactory)
-      {
+      if (factory instanceof QueueConnectionFactory) {
          num++;
          text.append("QueueConnectionFactory ");
       }
-      if (factory instanceof TopicConnectionFactory)
-      {
+      if (factory instanceof TopicConnectionFactory) {
          num++;
          text.append("TopicConnectionFactory ");
       }
-      if (factory instanceof XAQueueConnectionFactory)
-      {
+      if (factory instanceof XAQueueConnectionFactory) {
          num++;
          text.append("XAQueueConnectionFactory ");
       }
-      if (factory instanceof XATopicConnectionFactory)
-      {
+      if (factory instanceof XATopicConnectionFactory) {
          num++;
          text.append("XATopicConnectionFactory ");
       }

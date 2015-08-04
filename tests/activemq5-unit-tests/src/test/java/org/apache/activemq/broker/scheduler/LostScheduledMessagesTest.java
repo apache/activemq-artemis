@@ -43,111 +43,111 @@ import org.junit.Test;
 
 public class LostScheduledMessagesTest {
 
-    private BrokerService broker;
+   private BrokerService broker;
 
-    private static final File schedulerDirectory = new File("target/test/ScheduledDB");
-    private static final File messageDirectory = new File("target/test/MessageDB");
-    private static final String QUEUE_NAME = "test";
+   private static final File schedulerDirectory = new File("target/test/ScheduledDB");
+   private static final File messageDirectory = new File("target/test/MessageDB");
+   private static final String QUEUE_NAME = "test";
 
-    @Before
-    public void setup() throws Exception {
-        IOHelper.mkdirs(schedulerDirectory);
-        IOHelper.deleteChildren(schedulerDirectory);
+   @Before
+   public void setup() throws Exception {
+      IOHelper.mkdirs(schedulerDirectory);
+      IOHelper.deleteChildren(schedulerDirectory);
 
-        IOHelper.mkdirs(messageDirectory);
-        IOHelper.deleteChildren(messageDirectory);
-    }
+      IOHelper.mkdirs(messageDirectory);
+      IOHelper.deleteChildren(messageDirectory);
+   }
 
-    private void startBroker() throws Exception {
-        broker = new BrokerService();
-        broker.setSchedulerSupport(true);
-        broker.setPersistent(true);
-        broker.setDeleteAllMessagesOnStartup(false);
-        broker.setDataDirectory("target");
-        broker.setSchedulerDirectoryFile(schedulerDirectory);
-        broker.setDataDirectoryFile(messageDirectory);
-        broker.setUseJmx(false);
-        broker.addConnector("vm://localhost");
-        broker.start();
-    }
+   private void startBroker() throws Exception {
+      broker = new BrokerService();
+      broker.setSchedulerSupport(true);
+      broker.setPersistent(true);
+      broker.setDeleteAllMessagesOnStartup(false);
+      broker.setDataDirectory("target");
+      broker.setSchedulerDirectoryFile(schedulerDirectory);
+      broker.setDataDirectoryFile(messageDirectory);
+      broker.setUseJmx(false);
+      broker.addConnector("vm://localhost");
+      broker.start();
+   }
 
-    @After
-    public void tearDown() throws Exception {
-        broker.stop();
-        BasicConfigurator.resetConfiguration();
-    }
+   @After
+   public void tearDown() throws Exception {
+      broker.stop();
+      BasicConfigurator.resetConfiguration();
+   }
 
-    @Test
-    public void MessagePassedNotUsingScheduling() throws Exception {
-        doTest(false);
-    }
+   @Test
+   public void MessagePassedNotUsingScheduling() throws Exception {
+      doTest(false);
+   }
 
-    @Test
-    public void MessageLostWhenUsingScheduling() throws Exception {
-        doTest(true);
-    }
+   @Test
+   public void MessageLostWhenUsingScheduling() throws Exception {
+      doTest(true);
+   }
 
-    private void doTest(boolean useScheduling) throws Exception {
+   private void doTest(boolean useScheduling) throws Exception {
 
-        int DELIVERY_DELAY_MS = 5000;
+      int DELIVERY_DELAY_MS = 5000;
 
-        startBroker();
+      startBroker();
 
-        long startTime = System.currentTimeMillis();
+      long startTime = System.currentTimeMillis();
 
-        // Send a message scheduled for delivery in 5 seconds
-        ConnectionFactory cf = new ActiveMQConnectionFactory("vm://localhost");
-        Connection connection = cf.createConnection();
-        connection.start();
-        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        MessageProducer producer = session.createProducer(session.createQueue(QUEUE_NAME));
-        Message message = session.createTextMessage("test");
-        if (useScheduling) {
-            message.setLongProperty(ScheduledMessage.AMQ_SCHEDULED_DELAY, DELIVERY_DELAY_MS);
-        }
-        producer.send(message);
+      // Send a message scheduled for delivery in 5 seconds
+      ConnectionFactory cf = new ActiveMQConnectionFactory("vm://localhost");
+      Connection connection = cf.createConnection();
+      connection.start();
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      MessageProducer producer = session.createProducer(session.createQueue(QUEUE_NAME));
+      Message message = session.createTextMessage("test");
+      if (useScheduling) {
+         message.setLongProperty(ScheduledMessage.AMQ_SCHEDULED_DELAY, DELIVERY_DELAY_MS);
+      }
+      producer.send(message);
 
-        session.close();
-        connection.close();
+      session.close();
+      connection.close();
 
-        broker.getServices();
+      broker.getServices();
 
-        // shut down broker
-        broker.stop();
-        broker.waitUntilStopped();
+      // shut down broker
+      broker.stop();
+      broker.waitUntilStopped();
 
-        // Make sure that broker have stopped within delivery delay
-        long shutdownTime = System.currentTimeMillis();
-        assertTrue("Failed to shut down broker in expected time. Test results inconclusive", shutdownTime - startTime < DELIVERY_DELAY_MS);
+      // Make sure that broker have stopped within delivery delay
+      long shutdownTime = System.currentTimeMillis();
+      assertTrue("Failed to shut down broker in expected time. Test results inconclusive", shutdownTime - startTime < DELIVERY_DELAY_MS);
 
-        // make sure that delivery falls into down time window
-        TimeUnit.MILLISECONDS.sleep(DELIVERY_DELAY_MS);
+      // make sure that delivery falls into down time window
+      TimeUnit.MILLISECONDS.sleep(DELIVERY_DELAY_MS);
 
-        // Start new broker instance
-        startBroker();
+      // Start new broker instance
+      startBroker();
 
-        final AtomicLong receiveCounter = new AtomicLong();
+      final AtomicLong receiveCounter = new AtomicLong();
 
-        cf = new ActiveMQConnectionFactory("vm://localhost");
-        connection = cf.createConnection();
-        connection.start();
-        session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      cf = new ActiveMQConnectionFactory("vm://localhost");
+      connection = cf.createConnection();
+      connection.start();
+      session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-        MessageConsumer consumer = session.createConsumer(session.createQueue(QUEUE_NAME));
-        consumer.setMessageListener(new MessageListener() {
+      MessageConsumer consumer = session.createConsumer(session.createQueue(QUEUE_NAME));
+      consumer.setMessageListener(new MessageListener() {
 
-            @Override
-            public void onMessage(Message message) {
-                receiveCounter.incrementAndGet();
-            }
-        });
+         @Override
+         public void onMessage(Message message) {
+            receiveCounter.incrementAndGet();
+         }
+      });
 
-        // Wait for a while to let MQ process the message
-        TimeUnit.MILLISECONDS.sleep(DELIVERY_DELAY_MS * 2);
+      // Wait for a while to let MQ process the message
+      TimeUnit.MILLISECONDS.sleep(DELIVERY_DELAY_MS * 2);
 
-        session.close();
-        connection.close();
+      session.close();
+      connection.close();
 
-        assertEquals(1, receiveCounter.get());
-    }
+      assertEquals(1, receiveCounter.get());
+   }
 }

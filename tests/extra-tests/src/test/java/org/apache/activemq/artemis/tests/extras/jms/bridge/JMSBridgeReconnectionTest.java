@@ -37,8 +37,8 @@ import javax.transaction.SystemException;
 import javax.transaction.Transaction;
 import javax.transaction.xa.XAResource;
 
-public class JMSBridgeReconnectionTest extends BridgeTestBase
-{
+public class JMSBridgeReconnectionTest extends BridgeTestBase {
+
    /**
     *
     */
@@ -51,89 +51,63 @@ public class JMSBridgeReconnectionTest extends BridgeTestBase
    // Once and only once
 
    @Test
-   public void testCrashAndReconnectDestBasic_OnceAndOnlyOnce_P() throws Exception
-   {
+   public void testCrashAndReconnectDestBasic_OnceAndOnlyOnce_P() throws Exception {
       performCrashAndReconnectDestBasic(QualityOfServiceMode.ONCE_AND_ONLY_ONCE, true, false);
    }
 
    @Test
-   public void testCrashAndReconnectDestBasic_OnceAndOnlyOnce_P_LargeMessage() throws Exception
-   {
+   public void testCrashAndReconnectDestBasic_OnceAndOnlyOnce_P_LargeMessage() throws Exception {
       performCrashAndReconnectDestBasic(QualityOfServiceMode.ONCE_AND_ONLY_ONCE, true, true);
    }
 
    @Test
-   public void testCrashAndReconnectDestBasic_OnceAndOnlyOnce_NP() throws Exception
-   {
+   public void testCrashAndReconnectDestBasic_OnceAndOnlyOnce_NP() throws Exception {
       performCrashAndReconnectDestBasic(QualityOfServiceMode.ONCE_AND_ONLY_ONCE, false, false);
    }
 
    // dups ok
 
    @Test
-   public void testCrashAndReconnectDestBasic_DuplicatesOk_P() throws Exception
-   {
+   public void testCrashAndReconnectDestBasic_DuplicatesOk_P() throws Exception {
       performCrashAndReconnectDestBasic(QualityOfServiceMode.DUPLICATES_OK, true, false);
    }
 
    @Test
-   public void testCrashAndReconnectDestBasic_DuplicatesOk_NP() throws Exception
-   {
+   public void testCrashAndReconnectDestBasic_DuplicatesOk_NP() throws Exception {
       performCrashAndReconnectDestBasic(QualityOfServiceMode.DUPLICATES_OK, false, false);
    }
 
    // At most once
 
    @Test
-   public void testCrashAndReconnectDestBasic_AtMostOnce_P() throws Exception
-   {
+   public void testCrashAndReconnectDestBasic_AtMostOnce_P() throws Exception {
       performCrashAndReconnectDestBasic(QualityOfServiceMode.AT_MOST_ONCE, true, false);
    }
 
    @Test
-   public void testCrashAndReconnectDestBasic_AtMostOnce_NP() throws Exception
-   {
+   public void testCrashAndReconnectDestBasic_AtMostOnce_NP() throws Exception {
       performCrashAndReconnectDestBasic(QualityOfServiceMode.AT_MOST_ONCE, false, false);
    }
 
    // Crash tests specific to XA transactions
 
    @Test
-   public void testCrashAndReconnectDestCrashBeforePrepare_P() throws Exception
-   {
+   public void testCrashAndReconnectDestCrashBeforePrepare_P() throws Exception {
       performCrashAndReconnectDestCrashBeforePrepare(true);
    }
 
    @Test
-   public void testCrashAndReconnectDestCrashBeforePrepare_NP() throws Exception
-   {
+   public void testCrashAndReconnectDestCrashBeforePrepare_NP() throws Exception {
       performCrashAndReconnectDestCrashBeforePrepare(false);
    }
 
    // Crash before bridge is started
 
    @Test
-   public void testRetryConnectionOnStartup() throws Exception
-   {
+   public void testRetryConnectionOnStartup() throws Exception {
       jmsServer1.stop();
 
-      JMSBridgeImpl bridge = new JMSBridgeImpl(cff0,
-                                               cff1,
-                                               sourceQueueFactory,
-                                               targetQueueFactory,
-                                               null,
-                                               null,
-                                               null,
-                                               null,
-                                               null,
-                                               1000,
-                                               -1,
-                                               QualityOfServiceMode.DUPLICATES_OK,
-                                               10,
-                                               -1,
-                                               null,
-                                               null,
-                                               false);
+      JMSBridgeImpl bridge = new JMSBridgeImpl(cff0, cff1, sourceQueueFactory, targetQueueFactory, null, null, null, null, null, 1000, -1, QualityOfServiceMode.DUPLICATES_OK, 10, -1, null, null, false);
       bridge.setTransactionManager(newTransactionManager());
       addActiveMQComponent(bridge);
       bridge.start();
@@ -156,27 +130,10 @@ public class JMSBridgeReconnectionTest extends BridgeTestBase
     * https://jira.jboss.org/jira/browse/HORNETQ-287
     */
    @Test
-   public void testStopBridgeWithFailureWhenStarted() throws Exception
-   {
+   public void testStopBridgeWithFailureWhenStarted() throws Exception {
       jmsServer1.stop();
 
-      JMSBridgeImpl bridge = new JMSBridgeImpl(cff0,
-                                               cff1,
-                                               sourceQueueFactory,
-                                               targetQueueFactory,
-                                               null,
-                                               null,
-                                               null,
-                                               null,
-                                               null,
-                                               500,
-                                               -1,
-                                               QualityOfServiceMode.DUPLICATES_OK,
-                                               10,
-                                               -1,
-                                               null,
-                                               null,
-                                               false);
+      JMSBridgeImpl bridge = new JMSBridgeImpl(cff0, cff1, sourceQueueFactory, targetQueueFactory, null, null, null, null, null, 500, -1, QualityOfServiceMode.DUPLICATES_OK, 10, -1, null, null, false);
       bridge.setTransactionManager(newTransactionManager());
 
       bridge.start();
@@ -201,36 +158,17 @@ public class JMSBridgeReconnectionTest extends BridgeTestBase
     */
    private void performCrashAndReconnectDestBasic(final QualityOfServiceMode qosMode,
                                                   final boolean persistent,
-                                                  final boolean largeMessage) throws Exception
-   {
+                                                  final boolean largeMessage) throws Exception {
       JMSBridgeImpl bridge = null;
 
       ConnectionFactoryFactory factInUse0 = cff0;
       ConnectionFactoryFactory factInUse1 = cff1;
-      if (qosMode.equals(QualityOfServiceMode.ONCE_AND_ONLY_ONCE))
-      {
+      if (qosMode.equals(QualityOfServiceMode.ONCE_AND_ONLY_ONCE)) {
          factInUse0 = cff0xa;
          factInUse1 = cff1xa;
       }
 
-      bridge =
-         new JMSBridgeImpl(factInUse0,
-                           factInUse1,
-                           sourceQueueFactory,
-                           targetQueueFactory,
-                           null,
-                           null,
-                           null,
-                           null,
-                           null,
-                           1000,
-                           -1,
-                           qosMode,
-                           10,
-                           -1,
-                           null,
-                           null,
-                           false);
+      bridge = new JMSBridgeImpl(factInUse0, factInUse1, sourceQueueFactory, targetQueueFactory, null, null, null, null, null, 1000, -1, qosMode, 10, -1, null, null, false);
       addActiveMQComponent(bridge);
       bridge.setTransactionManager(newTransactionManager());
       bridge.start();
@@ -282,47 +220,23 @@ public class JMSBridgeReconnectionTest extends BridgeTestBase
    }
 
    @Test
-   public void performCrashDestinationStopBridge() throws Exception
-   {
+   public void performCrashDestinationStopBridge() throws Exception {
       ConnectionFactoryFactory factInUse0 = cff0;
       ConnectionFactoryFactory factInUse1 = cff1;
-      final JMSBridgeImpl bridge =
-            new JMSBridgeImpl(factInUse0,
-                  factInUse1,
-                  sourceQueueFactory,
-                  targetQueueFactory,
-                  null,
-                  null,
-                  null,
-                  null,
-                  null,
-                  1000,
-                  -1,
-                  QualityOfServiceMode.DUPLICATES_OK,
-                  10,
-                  -1,
-                  null,
-                  null,
-                  false);
-
+      final JMSBridgeImpl bridge = new JMSBridgeImpl(factInUse0, factInUse1, sourceQueueFactory, targetQueueFactory, null, null, null, null, null, 1000, -1, QualityOfServiceMode.DUPLICATES_OK, 10, -1, null, null, false);
 
       addActiveMQComponent(bridge);
       bridge.setTransactionManager(newTransactionManager());
       bridge.start();
 
-      Thread clientThread = new Thread(new Runnable()
-      {
+      Thread clientThread = new Thread(new Runnable() {
          @Override
-         public void run()
-         {
-            while (bridge.isStarted())
-            {
-               try
-               {
+         public void run() {
+            while (bridge.isStarted()) {
+               try {
                   sendMessages(cf0, sourceQueue, 0, 1, false, false);
                }
-               catch (Exception e)
-               {
+               catch (Exception e) {
                   e.printStackTrace();
                }
             }
@@ -350,28 +264,19 @@ public class JMSBridgeReconnectionTest extends BridgeTestBase
    }
 
    @Test
-   public void performCrashAndReconnect() throws Exception
-   {
+   public void performCrashAndReconnect() throws Exception {
       performCrashAndReconnect(true);
    }
 
    @Test
-   public void performCrashAndNoReconnect() throws Exception
-   {
+   public void performCrashAndNoReconnect() throws Exception {
       performCrashAndReconnect(false);
    }
 
-
-   private void performCrashAndReconnect(boolean restart) throws Exception
-   {
-      cff1xa = new ConnectionFactoryFactory()
-      {
-         public Object createConnectionFactory() throws Exception
-         {
-            ActiveMQXAConnectionFactory cf = (ActiveMQXAConnectionFactory) ActiveMQJMSClient.createConnectionFactoryWithHA(JMSFactoryType.XA_CF,
-                                                                                                                         new TransportConfiguration(
-                                                                                                                            INVM_CONNECTOR_FACTORY,
-                                                                                                                            params1));
+   private void performCrashAndReconnect(boolean restart) throws Exception {
+      cff1xa = new ConnectionFactoryFactory() {
+         public Object createConnectionFactory() throws Exception {
+            ActiveMQXAConnectionFactory cf = (ActiveMQXAConnectionFactory) ActiveMQJMSClient.createConnectionFactoryWithHA(JMSFactoryType.XA_CF, new TransportConfiguration(INVM_CONNECTOR_FACTORY, params1));
 
             // Note! We disable automatic reconnection on the session factory. The bridge needs to do the reconnection
             cf.setReconnectAttempts(-1);
@@ -388,24 +293,7 @@ public class JMSBridgeReconnectionTest extends BridgeTestBase
       DummyTransaction tx = new DummyTransaction();
       tm.tx = tx;
 
-      JMSBridgeImpl bridge =
-            new JMSBridgeImpl(cff0xa,
-                  cff1xa,
-                  sourceQueueFactory,
-                  targetQueueFactory,
-                  null,
-                  null,
-                  null,
-                  null,
-                  null,
-                  1000,
-                  -1,
-                  QualityOfServiceMode.ONCE_AND_ONLY_ONCE,
-                  10,
-                  5000,
-                  null,
-                  null,
-                  false);
+      JMSBridgeImpl bridge = new JMSBridgeImpl(cff0xa, cff1xa, sourceQueueFactory, targetQueueFactory, null, null, null, null, null, 1000, -1, QualityOfServiceMode.ONCE_AND_ONLY_ONCE, 10, 5000, null, null, false);
       addActiveMQComponent(bridge);
       bridge.setTransactionManager(tm);
 
@@ -417,8 +305,7 @@ public class JMSBridgeReconnectionTest extends BridgeTestBase
 
       jmsServer1.stop();
 
-      if (restart)
-      {
+      if (restart) {
          jmsServer1.start();
       }
       // Wait a while before starting up to simulate the dest being down for a while
@@ -428,67 +315,60 @@ public class JMSBridgeReconnectionTest extends BridgeTestBase
 
       bridge.stop();
 
-      if (restart)
-      {
+      if (restart) {
          assertTrue(tx.rolledback);
          assertTrue(tx.targetConnected);
       }
-      else
-      {
+      else {
          assertTrue(tx.rolledback);
          assertFalse(tx.targetConnected);
       }
    }
 
-   private class DummyTransaction implements Transaction
-   {
+   private class DummyTransaction implements Transaction {
+
       boolean rolledback = false;
       ClientSession targetSession;
       boolean targetConnected = false;
+
       @Override
-      public void commit() throws RollbackException, HeuristicMixedException, HeuristicRollbackException, SecurityException, SystemException
-      {
+      public void commit() throws RollbackException, HeuristicMixedException, HeuristicRollbackException, SecurityException, SystemException {
 
       }
 
       @Override
-      public void rollback() throws IllegalStateException, SystemException
-      {
+      public void rollback() throws IllegalStateException, SystemException {
          rolledback = true;
          targetConnected = !targetSession.isClosed();
       }
 
       @Override
-      public void setRollbackOnly() throws IllegalStateException, SystemException
-      {
+      public void setRollbackOnly() throws IllegalStateException, SystemException {
 
       }
 
       @Override
-      public int getStatus() throws SystemException
-      {
+      public int getStatus() throws SystemException {
          return 0;
       }
 
       @Override
-      public boolean enlistResource(XAResource xaResource) throws RollbackException, IllegalStateException, SystemException
-      {
+      public boolean enlistResource(XAResource xaResource) throws RollbackException, IllegalStateException, SystemException {
          targetSession = (ClientSession) xaResource;
          return false;
       }
 
       @Override
-      public boolean delistResource(XAResource xaResource, int i) throws IllegalStateException, SystemException
-      {
+      public boolean delistResource(XAResource xaResource, int i) throws IllegalStateException, SystemException {
          return false;
       }
 
       @Override
-      public void registerSynchronization(Synchronization synchronization) throws RollbackException, IllegalStateException, SystemException
-      {
+      public void registerSynchronization(Synchronization synchronization) throws RollbackException, IllegalStateException, SystemException {
 
       }
    }
+
    /*
     * Send some messages
     * Crash the destination server
@@ -497,26 +377,8 @@ public class JMSBridgeReconnectionTest extends BridgeTestBase
     * Send some more messages
     * Verify all messages are received
     */
-   private void performCrashAndReconnectDestCrashBeforePrepare(final boolean persistent) throws Exception
-   {
-      JMSBridgeImpl bridge =
-         new JMSBridgeImpl(cff0xa,
-                           cff1xa,
-                           sourceQueueFactory,
-                           targetQueueFactory,
-                           null,
-                           null,
-                           null,
-                           null,
-                           null,
-                           1000,
-                           -1,
-                           QualityOfServiceMode.ONCE_AND_ONLY_ONCE,
-                           10,
-                           5000,
-                           null,
-                           null,
-                           false);
+   private void performCrashAndReconnectDestCrashBeforePrepare(final boolean persistent) throws Exception {
+      JMSBridgeImpl bridge = new JMSBridgeImpl(cff0xa, cff1xa, sourceQueueFactory, targetQueueFactory, null, null, null, null, null, 1000, -1, QualityOfServiceMode.ONCE_AND_ONLY_ONCE, 10, 5000, null, null, false);
       addActiveMQComponent(bridge);
       bridge.setTransactionManager(newTransactionManager());
 

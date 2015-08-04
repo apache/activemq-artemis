@@ -21,10 +21,10 @@ import org.proton.plug.AMQPSessionCallback;
 import org.proton.plug.exceptions.ActiveMQAMQPException;
 
 /**
- *         handles incoming messages via a Proton Receiver and forwards them to ActiveMQ
+ * handles incoming messages via a Proton Receiver and forwards them to ActiveMQ
  */
-public abstract class AbstractProtonReceiverContext extends ProtonInitializable implements ProtonDeliveryHandler
-{
+public abstract class AbstractProtonReceiverContext extends ProtonInitializable implements ProtonDeliveryHandler {
+
    protected final AbstractConnectionContext connection;
 
    protected final AbstractProtonSessionContext protonSession;
@@ -35,32 +35,29 @@ public abstract class AbstractProtonReceiverContext extends ProtonInitializable 
 
    protected final AMQPSessionCallback sessionSPI;
 
-   public AbstractProtonReceiverContext(AMQPSessionCallback sessionSPI, AbstractConnectionContext connection, AbstractProtonSessionContext protonSession, Receiver receiver)
-   {
+   public AbstractProtonReceiverContext(AMQPSessionCallback sessionSPI,
+                                        AbstractConnectionContext connection,
+                                        AbstractProtonSessionContext protonSession,
+                                        Receiver receiver) {
       this.connection = connection;
       this.protonSession = protonSession;
       this.receiver = receiver;
-      if (receiver.getRemoteTarget() != null)
-      {
+      if (receiver.getRemoteTarget() != null) {
          this.address = receiver.getRemoteTarget().getAddress();
       }
-      else
-      {
+      else {
          this.address = null;
       }
       this.sessionSPI = sessionSPI;
    }
 
    @Override
-   public void close() throws ActiveMQAMQPException
-   {
+   public void close() throws ActiveMQAMQPException {
       protonSession.removeReceiver(receiver);
    }
 
-   public void flow(int credits)
-   {
-      synchronized (connection.getLock())
-      {
+   public void flow(int credits) {
+      synchronized (connection.getLock()) {
          receiver.flow(credits);
       }
       connection.flush();

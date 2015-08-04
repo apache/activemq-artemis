@@ -19,27 +19,23 @@ package org.apache.activemq.artemis.api.core;
 /**
  * Internal error which prevented ActiveMQ Artemis from performing an important operation.
  */
-public final class ActiveMQInternalErrorException extends ActiveMQException
-{
+public final class ActiveMQInternalErrorException extends ActiveMQException {
+
    private static final long serialVersionUID = -5987814047521530695L;
 
-   public ActiveMQInternalErrorException()
-   {
+   public ActiveMQInternalErrorException() {
       super(ActiveMQExceptionType.INTERNAL_ERROR);
    }
 
-   public ActiveMQInternalErrorException(String msg)
-   {
+   public ActiveMQInternalErrorException(String msg) {
       super(ActiveMQExceptionType.INTERNAL_ERROR, msg);
    }
 
-   public ActiveMQInternalErrorException(String message, Exception e)
-   {
+   public ActiveMQInternalErrorException(String message, Exception e) {
       super(ActiveMQExceptionType.INTERNAL_ERROR, message, e);
    }
 
-   public ActiveMQInternalErrorException(String message, Throwable t)
-   {
+   public ActiveMQInternalErrorException(String message, Throwable t) {
       super(ActiveMQExceptionType.INTERNAL_ERROR, message, t);
    }
 }

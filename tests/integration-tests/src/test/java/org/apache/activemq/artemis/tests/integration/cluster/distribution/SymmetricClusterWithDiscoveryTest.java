@@ -16,33 +16,29 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.distribution;
 
-
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 
-public class SymmetricClusterWithDiscoveryTest extends SymmetricClusterTest
-{
+public class SymmetricClusterWithDiscoveryTest extends SymmetricClusterTest {
+
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
    protected final String groupAddress = ActiveMQTestBase.getUDPDiscoveryAddress();
 
    protected final int groupPort = ActiveMQTestBase.getUDPDiscoveryPort();
 
-   protected boolean isNetty()
-   {
+   protected boolean isNetty() {
       return false;
    }
 
    @Override
-   protected void setupCluster() throws Exception
-   {
+   protected void setupCluster() throws Exception {
       setupCluster(MessageLoadBalancingType.ON_DEMAND);
    }
 
    @Override
-   protected void setupCluster(final MessageLoadBalancingType messageLoadBalancingType) throws Exception
-   {
+   protected void setupCluster(final MessageLoadBalancingType messageLoadBalancingType) throws Exception {
       setupDiscoveryClusterConnection("cluster0", 0, "dg1", "queues", messageLoadBalancingType, 1, isNetty());
 
       setupDiscoveryClusterConnection("cluster1", 1, "dg1", "queues", messageLoadBalancingType, 1, isNetty());
@@ -55,46 +51,19 @@ public class SymmetricClusterWithDiscoveryTest extends SymmetricClusterTest
    }
 
    @Override
-   protected void setupServers() throws Exception
-   {
-      setupLiveServerWithDiscovery(0,
-                              groupAddress,
-                               groupPort,
-                               isFileStorage(),
-                               isNetty(),
-                               false);
-      setupLiveServerWithDiscovery(1,
-                              groupAddress,
-                               groupPort,
-                               isFileStorage(),
-                               isNetty(),
-                               false);
-      setupLiveServerWithDiscovery(2,
-                              groupAddress,
-                               groupPort,
-                               isFileStorage(),
-                               isNetty(),
-                               false);
-      setupLiveServerWithDiscovery(3,
-                              groupAddress,
-                               groupPort,
-                               isFileStorage(),
-                               isNetty(),
-                               false);
-      setupLiveServerWithDiscovery(4,
-                              groupAddress,
-                               groupPort,
-                               isFileStorage(),
-                               isNetty(),
-                               false);
+   protected void setupServers() throws Exception {
+      setupLiveServerWithDiscovery(0, groupAddress, groupPort, isFileStorage(), isNetty(), false);
+      setupLiveServerWithDiscovery(1, groupAddress, groupPort, isFileStorage(), isNetty(), false);
+      setupLiveServerWithDiscovery(2, groupAddress, groupPort, isFileStorage(), isNetty(), false);
+      setupLiveServerWithDiscovery(3, groupAddress, groupPort, isFileStorage(), isNetty(), false);
+      setupLiveServerWithDiscovery(4, groupAddress, groupPort, isFileStorage(), isNetty(), false);
    }
 
    /*
     * This is like testStopStartServers but we make sure we pause longer than discovery group timeout
     * before restarting (5 seconds)
     */
-   public void _testStartStopServersWithPauseBeforeRestarting() throws Exception
-   {
+   public void _testStartStopServersWithPauseBeforeRestarting() throws Exception {
       doTestStartStopServers(10000, 3000);
    }
 

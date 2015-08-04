@@ -16,7 +16,7 @@
  */
 package org.proton.plug.test;
 
-public class Constants
-{
+public class Constants {
+
    public static final int PORT = 5672;
 }

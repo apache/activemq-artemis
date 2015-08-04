@@ -22,13 +22,13 @@ import org.apache.activemq.command.ActiveMQQueue;
 
 /**
  *
- * 
+ *
  */
 public class MirroredQueueUsingVirtualTopicQueueTest extends MirroredQueueTest {
 
-    @Override
-    protected Destination createConsumeDestination() {
-        String queueName = "Consumer.A.VirtualTopic.Mirror." + getQueueName();
-        return new ActiveMQQueue(queueName);
-    }
+   @Override
+   protected Destination createConsumeDestination() {
+      String queueName = "Consumer.A.VirtualTopic.Mirror." + getQueueName();
+      return new ActiveMQQueue(queueName);
+   }
 }

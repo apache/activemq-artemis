@@ -36,113 +36,112 @@ import static org.junit.Assert.assertEquals;
 
 public class AMQ3120Test {
 
-    private static final Logger LOG = LoggerFactory.getLogger(AMQ3120Test.class);
+   private static final Logger LOG = LoggerFactory.getLogger(AMQ3120Test.class);
 
-    BrokerService broker = null;
-    File kahaDbDir = null;
-    private final Destination destination = new ActiveMQQueue("AMQ3120Test");
-    final String payload = new String(new byte[1024]);
+   BrokerService broker = null;
+   File kahaDbDir = null;
+   private final Destination destination = new ActiveMQQueue("AMQ3120Test");
+   final String payload = new String(new byte[1024]);
 
-    protected void startBroker(boolean delete) throws Exception {
-        broker = new BrokerService();
+   protected void startBroker(boolean delete) throws Exception {
+      broker = new BrokerService();
 
-        //Start with a clean directory
-        kahaDbDir = new File(broker.getBrokerDataDirectory(), "KahaDB");
-        deleteDir(kahaDbDir);
+      //Start with a clean directory
+      kahaDbDir = new File(broker.getBrokerDataDirectory(), "KahaDB");
+      deleteDir(kahaDbDir);
 
-        broker.setSchedulerSupport(false);
-        broker.setDeleteAllMessagesOnStartup(delete);
-        broker.setPersistent(true);
-        broker.setUseJmx(false);
-        broker.addConnector("tcp://localhost:0");
+      broker.setSchedulerSupport(false);
+      broker.setDeleteAllMessagesOnStartup(delete);
+      broker.setPersistent(true);
+      broker.setUseJmx(false);
+      broker.addConnector("tcp://localhost:0");
 
-        PolicyMap map = new PolicyMap();
-        PolicyEntry entry = new PolicyEntry();
-        entry.setUseCache(false);
-        map.setDefaultEntry(entry);
-        broker.setDestinationPolicy(map);
+      PolicyMap map = new PolicyMap();
+      PolicyEntry entry = new PolicyEntry();
+      entry.setUseCache(false);
+      map.setDefaultEntry(entry);
+      broker.setDestinationPolicy(map);
 
-        configurePersistence(broker, delete);
+      configurePersistence(broker, delete);
 
-        broker.start();
-        LOG.info("Starting broker..");
-    }
+      broker.start();
+      LOG.info("Starting broker..");
+   }
 
-    protected void configurePersistence(BrokerService brokerService, boolean deleteAllOnStart) throws Exception {
-        KahaDBPersistenceAdapter adapter = (KahaDBPersistenceAdapter) brokerService.getPersistenceAdapter();
+   protected void configurePersistence(BrokerService brokerService, boolean deleteAllOnStart) throws Exception {
+      KahaDBPersistenceAdapter adapter = (KahaDBPersistenceAdapter) brokerService.getPersistenceAdapter();
 
-        // ensure there are a bunch of data files but multiple entries in each
-        adapter.setJournalMaxFileLength(1024 * 20);
+      // ensure there are a bunch of data files but multiple entries in each
+      adapter.setJournalMaxFileLength(1024 * 20);
 
-        // speed up the test case, checkpoint and cleanup early and often
-        adapter.setCheckpointInterval(500);
-        adapter.setCleanupInterval(500);
+      // speed up the test case, checkpoint and cleanup early and often
+      adapter.setCheckpointInterval(500);
+      adapter.setCleanupInterval(500);
 
-        if (!deleteAllOnStart) {
-            adapter.setForceRecoverIndex(true);
-        }
+      if (!deleteAllOnStart) {
+         adapter.setForceRecoverIndex(true);
+      }
 
-    }
+   }
 
-    private boolean deleteDir(File dir) {
-        if (dir.isDirectory()) {
-            String[] children = dir.list();
-            for (int i = 0; i < children.length; i++) {
-                boolean success = deleteDir(new File(dir, children[i]));
-                if (!success) {
-                    return false;
-                }
+   private boolean deleteDir(File dir) {
+      if (dir.isDirectory()) {
+         String[] children = dir.list();
+         for (int i = 0; i < children.length; i++) {
+            boolean success = deleteDir(new File(dir, children[i]));
+            if (!success) {
+               return false;
             }
-        }
+         }
+      }
 
-        return dir.delete();
-    }
+      return dir.delete();
+   }
 
-    private int getFileCount(File dir){
-        if (dir.isDirectory()) {
-            String[] children = dir.list();
-            return children.length;
-        }
+   private int getFileCount(File dir) {
+      if (dir.isDirectory()) {
+         String[] children = dir.list();
+         return children.length;
+      }
 
-        return 0;
-    }
+      return 0;
+   }
 
-    @Test
-    public void testCleanupOfFiles() throws Exception {
-        final int messageCount = 500;
-        startBroker(true);
-        int fileCount = getFileCount(kahaDbDir);
-        assertEquals(4, fileCount);
+   @Test
+   public void testCleanupOfFiles() throws Exception {
+      final int messageCount = 500;
+      startBroker(true);
+      int fileCount = getFileCount(kahaDbDir);
+      assertEquals(4, fileCount);
 
-        Connection connection = new ActiveMQConnectionFactory(
-                broker.getTransportConnectors().get(0).getConnectUri()).createConnection();
-        connection.start();
-        Session producerSess = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        Session consumerSess = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      Connection connection = new ActiveMQConnectionFactory(broker.getTransportConnectors().get(0).getConnectUri()).createConnection();
+      connection.start();
+      Session producerSess = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      Session consumerSess = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-        ProducerThread producer = new ProducerThread(producerSess, destination) {
-            @Override
-            protected Message createMessage(int i) throws Exception {
-                return sess.createTextMessage(payload + "::" + i);
-            }
-        };
-        producer.setSleep(650);
-        producer.setMessageCount(messageCount);
-        ConsumerThread consumer = new ConsumerThread(consumerSess, destination);
-        consumer.setBreakOnNull(false);
-        consumer.setMessageCount(messageCount);
+      ProducerThread producer = new ProducerThread(producerSess, destination) {
+         @Override
+         protected Message createMessage(int i) throws Exception {
+            return sess.createTextMessage(payload + "::" + i);
+         }
+      };
+      producer.setSleep(650);
+      producer.setMessageCount(messageCount);
+      ConsumerThread consumer = new ConsumerThread(consumerSess, destination);
+      consumer.setBreakOnNull(false);
+      consumer.setMessageCount(messageCount);
 
-        producer.start();
-        consumer.start();
+      producer.start();
+      consumer.start();
 
-        producer.join();
-        consumer.join();
+      producer.join();
+      consumer.join();
 
-        assertEquals("consumer got all produced messages", producer.getMessageCount(), consumer.getReceived());
+      assertEquals("consumer got all produced messages", producer.getMessageCount(), consumer.getReceived());
 
-        broker.stop();
-        broker.waitUntilStopped();
+      broker.stop();
+      broker.waitUntilStopped();
 
-    }
+   }
 
 }

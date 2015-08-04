@@ -15,9 +15,8 @@
  * limitations under the License.
  */
 
-
-
 package org.apache.activemq.bugs;
+
 import javax.jms.Connection;
 import javax.jms.DeliveryMode;
 import javax.jms.JMSException;
@@ -34,71 +33,72 @@ import org.slf4j.LoggerFactory;
 
 public class ConnectionPerMessageTest extends EmbeddedBrokerTestSupport {
 
-	private static final Logger LOG = LoggerFactory.getLogger(ConnectionPerMessageTest.class);
-	private static final int COUNT = 2000;
-	protected String bindAddress;
+   private static final Logger LOG = LoggerFactory.getLogger(ConnectionPerMessageTest.class);
+   private static final int COUNT = 2000;
+   protected String bindAddress;
 
-	public void testConnectionPerMessage() throws Exception {
-		final String topicName = "test.topic";
+   public void testConnectionPerMessage() throws Exception {
+      final String topicName = "test.topic";
 
-		LOG.info("Initializing connection factory for JMS to URL: "
-				+ bindAddress);
-		final ActiveMQConnectionFactory normalFactory = new ActiveMQConnectionFactory();
-		normalFactory.setBrokerURL(bindAddress);
-		for (int i = 0; i < COUNT; i++) {
+      LOG.info("Initializing connection factory for JMS to URL: " + bindAddress);
+      final ActiveMQConnectionFactory normalFactory = new ActiveMQConnectionFactory();
+      normalFactory.setBrokerURL(bindAddress);
+      for (int i = 0; i < COUNT; i++) {
 
-			if (i % 100 == 0) {
-				LOG.info(new Integer(i).toString());
-			}
+         if (i % 100 == 0) {
+            LOG.info(new Integer(i).toString());
+         }
 
-			Connection conn = null;
-			try {
+         Connection conn = null;
+         try {
 
-				conn = normalFactory.createConnection();
-				final Session session = conn.createSession(false,
-						Session.AUTO_ACKNOWLEDGE);
-				final Topic topic = session.createTopic(topicName);
-				final MessageProducer producer = session.createProducer(topic);
-				producer.setDeliveryMode(DeliveryMode.PERSISTENT);
+            conn = normalFactory.createConnection();
+            final Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+            final Topic topic = session.createTopic(topicName);
+            final MessageProducer producer = session.createProducer(topic);
+            producer.setDeliveryMode(DeliveryMode.PERSISTENT);
 
-				final MapMessage m = session.createMapMessage();
-				m.setInt("hey", i);
+            final MapMessage m = session.createMapMessage();
+            m.setInt("hey", i);
 
-				producer.send(m);
+            producer.send(m);
 
-			} catch (JMSException e) {
-				LOG.warn(e.getMessage(), e);
-			} finally {
-				if (conn != null)
-					try {
-						conn.close();
-					} catch (JMSException e) {
-						LOG.warn(e.getMessage(), e);
-					}
-			}
-		}
-	}
+         }
+         catch (JMSException e) {
+            LOG.warn(e.getMessage(), e);
+         }
+         finally {
+            if (conn != null)
+               try {
+                  conn.close();
+               }
+               catch (JMSException e) {
+                  LOG.warn(e.getMessage(), e);
+               }
+         }
+      }
+   }
 
-	protected void setUp() throws Exception {
-		bindAddress = "vm://localhost";
-		super.setUp();
-	}
+   protected void setUp() throws Exception {
+      bindAddress = "vm://localhost";
+      super.setUp();
+   }
 
-	protected BrokerService createBroker() throws Exception {
-		BrokerService answer = new BrokerService();
-        answer.setDeleteAllMessagesOnStartup(true);
-		answer.setUseJmx(false);
-		answer.setPersistent(isPersistent());
-		answer.addConnector(bindAddress);
-		return answer;
-	}
+   protected BrokerService createBroker() throws Exception {
+      BrokerService answer = new BrokerService();
+      answer.setDeleteAllMessagesOnStartup(true);
+      answer.setUseJmx(false);
+      answer.setPersistent(isPersistent());
+      answer.addConnector(bindAddress);
+      return answer;
+   }
 
-	protected boolean isPersistent() {
-		return true;
-	}
+   protected boolean isPersistent() {
+      return true;
+   }
 
-	protected void tearDown() throws Exception {
-		super.tearDown();
-	}
+   protected void tearDown() throws Exception {
+      super.tearDown();
+   }
 
 }

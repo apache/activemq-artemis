@@ -38,41 +38,35 @@ import org.junit.rules.TemporaryFolder;
 /**
  * Test to validate that the CLI doesn't throw improper exceptions when invoked.
  */
-public class ArtemisTest
-{
+public class ArtemisTest {
+
    @Rule
    public TemporaryFolder temporaryFolder;
 
-   public ArtemisTest()
-   {
+   public ArtemisTest() {
       File parent = new File("./target/tmp");
       parent.mkdirs();
       temporaryFolder = new TemporaryFolder(parent);
    }
 
-
    @After
-   public void cleanup()
-   {
+   public void cleanup() {
       System.clearProperty("artemis.instance");
       Run.setEmbedded(false);
    }
 
    @Test
-   public void invalidCliDoesntThrowException()
-   {
+   public void invalidCliDoesntThrowException() {
       testCli("create");
    }
 
    @Test
-   public void invalidPathDoesntThrowException()
-   {
-      testCli("create","/rawr");
+   public void invalidPathDoesntThrowException() {
+      testCli("create", "/rawr");
    }
 
    @Test
-   public void testSync() throws Exception
-   {
+   public void testSync() throws Exception {
       int writes = 2560;
       int tries = 10;
       long totalAvg = SyncCalculation.syncTest(temporaryFolder.getRoot(), 4096, writes, tries, true, true);
@@ -85,8 +79,7 @@ public class ArtemisTest
    }
 
    @Test
-   public void testSimpleRun() throws Exception
-   {
+   public void testSimpleRun() throws Exception {
       Run.setEmbedded(true);
       Artemis.main("create", temporaryFolder.getRoot().getAbsolutePath(), "--force", "--silent-input", "--no-web");
       System.setProperty("artemis.instance", temporaryFolder.getRoot().getAbsolutePath());
@@ -104,8 +97,7 @@ public class ArtemisTest
       message.setStringProperty("fruit", "banana");
       producer.send(message);
 
-      for (int i = 0; i < 100; i++)
-      {
+      for (int i = 0; i < 100; i++) {
          message = session.createTextMessage("orange");
          message.setStringProperty("fruit", "orange");
          producer.send(message);
@@ -128,7 +120,7 @@ public class ArtemisTest
       Assert.assertEquals(Integer.valueOf(1), Artemis.execute("consumer", "--txt-size", "50", "--verbose", "--break-on-null", "--receive-timeout", "100", "--filter", "fruit='banana'"));
 
       // Checking it was acked before
-      Assert.assertEquals(Integer.valueOf(100), Artemis.execute("consumer", "--txt-size", "50", "--verbose",  "--break-on-null", "--receive-timeout", "100"));
+      Assert.assertEquals(Integer.valueOf(100), Artemis.execute("consumer", "--txt-size", "50", "--verbose", "--break-on-null", "--receive-timeout", "100"));
 
       Artemis.execute("stop");
       Assert.assertTrue(Run.latchRunning.await(5, TimeUnit.SECONDS));
@@ -136,14 +128,11 @@ public class ArtemisTest
 
    }
 
-   private void testCli(String... args)
-   {
-      try
-      {
+   private void testCli(String... args) {
+      try {
          Artemis.main(args);
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          e.printStackTrace();
          Assert.fail("Exception caught " + e.getMessage());
       }

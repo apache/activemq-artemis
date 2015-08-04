@@ -26,46 +26,44 @@ import java.net.URI;
 
 public class StaticNetworkTest extends JmsMultipleBrokersTestSupport {
 
-    public void testStaticNetwork() throws Exception {
-        // Setup destination
-        ActiveMQDestination dest = createDestination("TEST", false);
-        ActiveMQDestination dest1 = createDestination("TEST1", false);
+   public void testStaticNetwork() throws Exception {
+      // Setup destination
+      ActiveMQDestination dest = createDestination("TEST", false);
+      ActiveMQDestination dest1 = createDestination("TEST1", false);
 
-        NetworkConnector bridgeAB =bridgeBrokers("BrokerA", "BrokerB", true);
-        bridgeAB.addStaticallyIncludedDestination(dest);
-        bridgeAB.setStaticBridge(true);
+      NetworkConnector bridgeAB = bridgeBrokers("BrokerA", "BrokerB", true);
+      bridgeAB.addStaticallyIncludedDestination(dest);
+      bridgeAB.setStaticBridge(true);
 
-        startAllBrokers();
-        waitForBridgeFormation();
+      startAllBrokers();
+      waitForBridgeFormation();
 
-        MessageConsumer consumer1 = createConsumer("BrokerB", dest);
-        MessageConsumer consumer2 = createConsumer("BrokerB", dest1);
+      MessageConsumer consumer1 = createConsumer("BrokerB", dest);
+      MessageConsumer consumer2 = createConsumer("BrokerB", dest1);
 
+      Thread.sleep(1000);
 
-        Thread.sleep(1000);
+      sendMessages("BrokerA", dest, 1);
+      sendMessages("BrokerA", dest1, 1);
 
+      MessageIdList msgs1 = getConsumerMessages("BrokerB", consumer1);
+      MessageIdList msgs2 = getConsumerMessages("BrokerB", consumer2);
 
-        sendMessages("BrokerA", dest,  1);
-        sendMessages("BrokerA", dest1, 1);
+      msgs1.waitForMessagesToArrive(1);
 
-        MessageIdList msgs1 = getConsumerMessages("BrokerB", consumer1);
-        MessageIdList msgs2 = getConsumerMessages("BrokerB", consumer2);
+      Thread.sleep(1000);
 
-        msgs1.waitForMessagesToArrive(1);
+      assertEquals(1, msgs1.getMessageCount());
+      assertEquals(0, msgs2.getMessageCount());
 
-        Thread.sleep(1000);
+   }
 
-        assertEquals(1, msgs1.getMessageCount());
-        assertEquals(0, msgs2.getMessageCount());
-
-    }
-
-    @Override
-    public void setUp() throws Exception {
-        super.setAutoFail(true);
-        super.setUp();
-        createBroker(new URI("broker:(tcp://localhost:61616)/BrokerA?persistent=false&useJmx=false"));
-        createBroker(new URI("broker:(tcp://localhost:61617)/BrokerB?persistent=false&useJmx=false"));
-    }
+   @Override
+   public void setUp() throws Exception {
+      super.setAutoFail(true);
+      super.setUp();
+      createBroker(new URI("broker:(tcp://localhost:61616)/BrokerA?persistent=false&useJmx=false"));
+      createBroker(new URI("broker:(tcp://localhost:61617)/BrokerB?persistent=false&useJmx=false"));
+   }
 
 }

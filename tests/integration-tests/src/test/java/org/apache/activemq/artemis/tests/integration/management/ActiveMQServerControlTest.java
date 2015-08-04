@@ -53,8 +53,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class ActiveMQServerControlTest extends ManagementTestBase
-{
+public class ActiveMQServerControlTest extends ManagementTestBase {
 
    // Constants -----------------------------------------------------
 
@@ -68,13 +67,10 @@ public class ActiveMQServerControlTest extends ManagementTestBase
 
    // Static --------------------------------------------------------
 
-   private static boolean contains(final String name, final String[] strings)
-   {
+   private static boolean contains(final String name, final String[] strings) {
       boolean found = false;
-      for (String str : strings)
-      {
-         if (name.equals(str))
-         {
+      for (String str : strings) {
+         if (name.equals(str)) {
             found = true;
             break;
          }
@@ -87,15 +83,13 @@ public class ActiveMQServerControlTest extends ManagementTestBase
    // Public --------------------------------------------------------
 
    @Test
-   public void testGetAttributes() throws Exception
-   {
+   public void testGetAttributes() throws Exception {
       ActiveMQServerControl serverControl = createManagementControl();
 
       Assert.assertEquals(server.getVersion().getFullVersion(), serverControl.getVersion());
 
       Assert.assertEquals(conf.isClustered(), serverControl.isClustered());
-      Assert.assertEquals(conf.isPersistDeliveryCountBeforeDelivery(),
-                          serverControl.isPersistDeliveryCountBeforeDelivery());
+      Assert.assertEquals(conf.isPersistDeliveryCountBeforeDelivery(), serverControl.isPersistDeliveryCountBeforeDelivery());
       Assert.assertEquals(conf.getScheduledThreadPoolMaxSize(), serverControl.getScheduledThreadPoolMaxSize());
       Assert.assertEquals(conf.getThreadPoolMaxSize(), serverControl.getThreadPoolMaxSize());
       Assert.assertEquals(conf.getSecurityInvalidationInterval(), serverControl.getSecurityInvalidationInterval());
@@ -107,8 +101,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase
       Assert.assertEquals(conf.getConnectionTTLOverride(), serverControl.getConnectionTTLOverride());
       //Assert.assertEquals(conf.getBackupConnectorName(), serverControl.getBackupConnectorName());
       Assert.assertEquals(conf.getManagementAddress().toString(), serverControl.getManagementAddress());
-      Assert.assertEquals(conf.getManagementNotificationAddress().toString(),
-                          serverControl.getManagementNotificationAddress());
+      Assert.assertEquals(conf.getManagementNotificationAddress().toString(), serverControl.getManagementNotificationAddress());
       Assert.assertEquals(conf.getIDCacheSize(), serverControl.getIDCacheSize());
       Assert.assertEquals(conf.isPersistIDCache(), serverControl.isPersistIDCache());
       Assert.assertEquals(conf.getBindingsDirectory(), serverControl.getBindingsDirectory());
@@ -118,8 +111,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase
       Assert.assertEquals(conf.isJournalSyncNonTransactional(), serverControl.isJournalSyncNonTransactional());
       Assert.assertEquals(conf.getJournalFileSize(), serverControl.getJournalFileSize());
       Assert.assertEquals(conf.getJournalMinFiles(), serverControl.getJournalMinFiles());
-      if (LibaioContext.isLoaded())
-      {
+      if (LibaioContext.isLoaded()) {
          Assert.assertEquals(conf.getJournalMaxIO_AIO(), serverControl.getJournalMaxIO());
          Assert.assertEquals(conf.getJournalBufferSize_AIO(), serverControl.getJournalBufferSize());
          Assert.assertEquals(conf.getJournalBufferTimeout_AIO(), serverControl.getJournalBufferTimeout());
@@ -140,8 +132,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase
    }
 
    @Test
-   public void testGetConnectors() throws Exception
-   {
+   public void testGetConnectors() throws Exception {
       ActiveMQServerControl serverControl = createManagementControl();
 
       Object[] connectorData = serverControl.getConnectors();
@@ -154,8 +145,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase
    }
 
    @Test
-   public void testGetConnectorsAsJSON() throws Exception
-   {
+   public void testGetConnectorsAsJSON() throws Exception {
       ActiveMQServerControl serverControl = createManagementControl();
 
       String jsonString = serverControl.getConnectorsAsJSON();
@@ -169,8 +159,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase
    }
 
    @Test
-   public void testCreateAndDestroyQueue() throws Exception
-   {
+   public void testCreateAndDestroyQueue() throws Exception {
       SimpleString address = RandomUtil.randomSimpleString();
       SimpleString name = RandomUtil.randomSimpleString();
 
@@ -194,8 +183,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase
    }
 
    @Test
-   public void testCreateAndDestroyQueue_2() throws Exception
-   {
+   public void testCreateAndDestroyQueue_2() throws Exception {
       SimpleString address = RandomUtil.randomSimpleString();
       SimpleString name = RandomUtil.randomSimpleString();
       String filter = "color = 'green'";
@@ -221,8 +209,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase
    }
 
    @Test
-   public void testCreateAndDestroyQueue_3() throws Exception
-   {
+   public void testCreateAndDestroyQueue_3() throws Exception {
       SimpleString address = RandomUtil.randomSimpleString();
       SimpleString name = RandomUtil.randomSimpleString();
       boolean durable = true;
@@ -247,8 +234,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase
    }
 
    @Test
-   public void testCreateAndDestroyQueueWithNullFilter() throws Exception
-   {
+   public void testCreateAndDestroyQueueWithNullFilter() throws Exception {
       SimpleString address = RandomUtil.randomSimpleString();
       SimpleString name = RandomUtil.randomSimpleString();
       String filter = null;
@@ -274,8 +260,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase
    }
 
    @Test
-   public void testCreateAndDestroyQueueWithEmptyStringForFilter() throws Exception
-   {
+   public void testCreateAndDestroyQueueWithEmptyStringForFilter() throws Exception {
       SimpleString address = RandomUtil.randomSimpleString();
       SimpleString name = RandomUtil.randomSimpleString();
       String filter = "";
@@ -301,8 +286,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase
    }
 
    @Test
-   public void testGetQueueNames() throws Exception
-   {
+   public void testGetQueueNames() throws Exception {
       SimpleString address = RandomUtil.randomSimpleString();
       SimpleString name = RandomUtil.randomSimpleString();
 
@@ -321,8 +305,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase
    }
 
    @Test
-   public void testGetAddressNames() throws Exception
-   {
+   public void testGetAddressNames() throws Exception {
       SimpleString address = RandomUtil.randomSimpleString();
       SimpleString name = RandomUtil.randomSimpleString();
 
@@ -341,8 +324,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase
    }
 
    @Test
-   public void testMessageCounterMaxDayCount() throws Exception
-   {
+   public void testMessageCounterMaxDayCount() throws Exception {
       ActiveMQServerControl serverControl = createManagementControl();
 
       Assert.assertEquals(MessageCounterManagerImpl.DEFAULT_MAX_DAY_COUNT, serverControl.getMessageCounterMaxDayCount());
@@ -352,79 +334,65 @@ public class ActiveMQServerControlTest extends ManagementTestBase
 
       Assert.assertEquals(newCount, serverControl.getMessageCounterMaxDayCount());
 
-      try
-      {
+      try {
          serverControl.setMessageCounterMaxDayCount(-1);
          Assert.fail();
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
       }
 
-      try
-      {
+      try {
          serverControl.setMessageCounterMaxDayCount(0);
          Assert.fail();
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
       }
 
       Assert.assertEquals(newCount, serverControl.getMessageCounterMaxDayCount());
    }
 
    @Test
-   public void testGetMessageCounterSamplePeriod() throws Exception
-   {
+   public void testGetMessageCounterSamplePeriod() throws Exception {
       ActiveMQServerControl serverControl = createManagementControl();
 
-      Assert.assertEquals(MessageCounterManagerImpl.DEFAULT_SAMPLE_PERIOD,
-                          serverControl.getMessageCounterSamplePeriod());
+      Assert.assertEquals(MessageCounterManagerImpl.DEFAULT_SAMPLE_PERIOD, serverControl.getMessageCounterSamplePeriod());
 
       long newSample = 20000;
       serverControl.setMessageCounterSamplePeriod(newSample);
 
       Assert.assertEquals(newSample, serverControl.getMessageCounterSamplePeriod());
 
-      try
-      {
+      try {
          serverControl.setMessageCounterSamplePeriod(-1);
          Assert.fail();
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
       }
 
-      try
-      {
+      try {
          serverControl.setMessageCounterSamplePeriod(0);
          Assert.fail();
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
       }
 
-      try
-      {
+      try {
          serverControl.setMessageCounterSamplePeriod(MessageCounterManagerImpl.MIN_SAMPLE_PERIOD - 1);
          Assert.fail();
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
       }
 
       Assert.assertEquals(newSample, serverControl.getMessageCounterSamplePeriod());
    }
 
-   protected void restartServer() throws Exception
-   {
+   protected void restartServer() throws Exception {
       server.stop();
       server.start();
    }
 
    @Test
-   public void testSecuritySettings() throws Exception
-   {
+   public void testSecuritySettings() throws Exception {
       ActiveMQServerControl serverControl = createManagementControl();
       String addressMatch = "test.#";
       String exactAddress = "test.whatever";
@@ -443,13 +411,11 @@ public class ActiveMQServerControlTest extends ManagementTestBase
       assertEquals(2, roleInfos.length);
       RoleInfo fooRole = null;
       RoleInfo barRole = null;
-      if (roleInfos[0].getName().equals("foo"))
-      {
+      if (roleInfos[0].getName().equals("foo")) {
          fooRole = roleInfos[0];
          barRole = roleInfos[1];
       }
-      else
-      {
+      else {
          fooRole = roleInfos[1];
          barRole = roleInfos[0];
       }
@@ -474,8 +440,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase
    }
 
    @Test
-   public void testAddressSettings() throws Exception
-   {
+   public void testAddressSettings() throws Exception {
       ActiveMQServerControl serverControl = createManagementControl();
       String addressMatch = "test.#";
       String exactAddress = "test.whatever";
@@ -500,54 +465,13 @@ public class ActiveMQServerControlTest extends ManagementTestBase
       boolean autoCreateJmsQueues = false;
       boolean autoDeleteJmsQueues = false;
 
-      serverControl.addAddressSettings(addressMatch,
-                                       DLA,
-                                       expiryAddress,
-                                       expiryDelay,
-                                       lastValueQueue,
-                                       deliveryAttempts,
-                                       maxSizeBytes,
-                                       pageSizeBytes,
-                                       pageMaxCacheSize,
-                                       redeliveryDelay,
-                                       redeliveryMultiplier,
-                                       maxRedeliveryDelay,
-                                       redistributionDelay,
-                                       sendToDLAOnNoRoute,
-                                       addressFullMessagePolicy,
-                                       slowConsumerThreshold,
-                                       slowConsumerCheckPeriod,
-                                       slowConsumerPolicy,
-                                       autoCreateJmsQueues,
-                                       autoDeleteJmsQueues);
-
+      serverControl.addAddressSettings(addressMatch, DLA, expiryAddress, expiryDelay, lastValueQueue, deliveryAttempts, maxSizeBytes, pageSizeBytes, pageMaxCacheSize, redeliveryDelay, redeliveryMultiplier, maxRedeliveryDelay, redistributionDelay, sendToDLAOnNoRoute, addressFullMessagePolicy, slowConsumerThreshold, slowConsumerCheckPeriod, slowConsumerPolicy, autoCreateJmsQueues, autoDeleteJmsQueues);
 
       boolean ex = false;
-      try
-      {
-         serverControl.addAddressSettings(addressMatch,
-                                          DLA,
-                                          expiryAddress,
-                                          expiryDelay,
-                                          lastValueQueue,
-                                          deliveryAttempts,
-                                          100,
-                                          1000,
-                                          pageMaxCacheSize,
-                                          redeliveryDelay,
-                                          redeliveryMultiplier,
-                                          maxRedeliveryDelay,
-                                          redistributionDelay,
-                                          sendToDLAOnNoRoute,
-                                          addressFullMessagePolicy,
-                                          slowConsumerThreshold,
-                                          slowConsumerCheckPeriod,
-                                          slowConsumerPolicy,
-                                          autoCreateJmsQueues,
-                                          autoDeleteJmsQueues);
+      try {
+         serverControl.addAddressSettings(addressMatch, DLA, expiryAddress, expiryDelay, lastValueQueue, deliveryAttempts, 100, 1000, pageMaxCacheSize, redeliveryDelay, redeliveryMultiplier, maxRedeliveryDelay, redistributionDelay, sendToDLAOnNoRoute, addressFullMessagePolicy, slowConsumerThreshold, slowConsumerCheckPeriod, slowConsumerPolicy, autoCreateJmsQueues, autoDeleteJmsQueues);
       }
-      catch (Exception expected)
-      {
+      catch (Exception expected) {
          ex = true;
       }
 
@@ -577,27 +501,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase
       assertEquals(autoCreateJmsQueues, info.isAutoCreateJmsQueues());
       assertEquals(autoDeleteJmsQueues, info.isAutoDeleteJmsQueues());
 
-      serverControl.addAddressSettings(addressMatch,
-                                       DLA,
-                                       expiryAddress,
-                                       expiryDelay,
-                                       lastValueQueue,
-                                       deliveryAttempts,
-                                       -1,
-                                       1000,
-                                       pageMaxCacheSize,
-                                       redeliveryDelay,
-                                       redeliveryMultiplier,
-                                       maxRedeliveryDelay,
-                                       redistributionDelay,
-                                       sendToDLAOnNoRoute,
-                                       addressFullMessagePolicy,
-                                       slowConsumerThreshold,
-                                       slowConsumerCheckPeriod,
-                                       slowConsumerPolicy,
-                                       autoCreateJmsQueues,
-                                       autoDeleteJmsQueues);
-
+      serverControl.addAddressSettings(addressMatch, DLA, expiryAddress, expiryDelay, lastValueQueue, deliveryAttempts, -1, 1000, pageMaxCacheSize, redeliveryDelay, redeliveryMultiplier, maxRedeliveryDelay, redistributionDelay, sendToDLAOnNoRoute, addressFullMessagePolicy, slowConsumerThreshold, slowConsumerCheckPeriod, slowConsumerPolicy, autoCreateJmsQueues, autoDeleteJmsQueues);
 
       jsonString = serverControl.getAddressSettingsAsJSON(exactAddress);
       info = AddressSettingsInfo.from(jsonString);
@@ -621,45 +525,20 @@ public class ActiveMQServerControlTest extends ManagementTestBase
       assertEquals(autoCreateJmsQueues, info.isAutoCreateJmsQueues());
       assertEquals(autoDeleteJmsQueues, info.isAutoDeleteJmsQueues());
 
-
       ex = false;
-      try
-      {
-         serverControl.addAddressSettings(addressMatch,
-                                          DLA,
-                                          expiryAddress,
-                                          expiryDelay,
-                                          lastValueQueue,
-                                          deliveryAttempts,
-                                          -2,
-                                          1000,
-                                          pageMaxCacheSize,
-                                          redeliveryDelay,
-                                          redeliveryMultiplier,
-                                          maxRedeliveryDelay,
-                                          redistributionDelay,
-                                          sendToDLAOnNoRoute,
-                                          addressFullMessagePolicy,
-                                          slowConsumerThreshold,
-                                          slowConsumerCheckPeriod,
-                                          slowConsumerPolicy,
-                                          autoCreateJmsQueues,
-                                          autoDeleteJmsQueues);
+      try {
+         serverControl.addAddressSettings(addressMatch, DLA, expiryAddress, expiryDelay, lastValueQueue, deliveryAttempts, -2, 1000, pageMaxCacheSize, redeliveryDelay, redeliveryMultiplier, maxRedeliveryDelay, redistributionDelay, sendToDLAOnNoRoute, addressFullMessagePolicy, slowConsumerThreshold, slowConsumerCheckPeriod, slowConsumerPolicy, autoCreateJmsQueues, autoDeleteJmsQueues);
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          ex = true;
       }
 
-
       assertTrue("Supposed to have an exception called", ex);
-
 
    }
 
    @Test
-   public void testNullRouteNameOnDivert() throws Exception
-   {
+   public void testNullRouteNameOnDivert() throws Exception {
       String address = RandomUtil.randomString();
       String name = RandomUtil.randomString();
       String forwardingAddress = RandomUtil.randomString();
@@ -675,8 +554,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase
    }
 
    @Test
-   public void testCreateAndDestroyDivert() throws Exception
-   {
+   public void testCreateAndDestroyDivert() throws Exception {
       String address = RandomUtil.randomString();
       String name = RandomUtil.randomString();
       String routingName = RandomUtil.randomString();
@@ -756,8 +634,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase
    }
 
    @Test
-   public void testCreateAndDestroyBridge() throws Exception
-   {
+   public void testCreateAndDestroyBridge() throws Exception {
       String name = RandomUtil.randomString();
       String sourceAddress = RandomUtil.randomString();
       String sourceQueue = RandomUtil.randomString();
@@ -776,23 +653,12 @@ public class ActiveMQServerControlTest extends ManagementTestBase
       session.createQueue(sourceAddress, sourceQueue);
       session.createQueue(targetAddress, targetQueue);
 
-      serverControl.createBridge(name,
-                                 sourceQueue,
-                                 targetAddress,
-                                 null, // forwardingAddress
+      serverControl.createBridge(name, sourceQueue, targetAddress, null, // forwardingAddress
                                  null, // filterString
-                                 ActiveMQClient.DEFAULT_RETRY_INTERVAL,
-                                 ActiveMQClient.DEFAULT_RETRY_INTERVAL_MULTIPLIER,
-                                 ActiveMQClient.INITIAL_CONNECT_ATTEMPTS,
-                                 ActiveMQClient.DEFAULT_RECONNECT_ATTEMPTS,
-                                 false, // duplicateDetection
+                                 ActiveMQClient.DEFAULT_RETRY_INTERVAL, ActiveMQClient.DEFAULT_RETRY_INTERVAL_MULTIPLIER, ActiveMQClient.INITIAL_CONNECT_ATTEMPTS, ActiveMQClient.DEFAULT_RECONNECT_ATTEMPTS, false, // duplicateDetection
                                  1, // confirmationWindowSize
-                                 ActiveMQClient.DEFAULT_CLIENT_FAILURE_CHECK_PERIOD,
-                                 connectorConfig.getName(), // liveConnector
-                                 false,
-                                 false,
-                                 null,
-                                 null);
+                                 ActiveMQClient.DEFAULT_CLIENT_FAILURE_CHECK_PERIOD, connectorConfig.getName(), // liveConnector
+                                 false, false, null, null);
 
       checkResource(ObjectNameBuilder.DEFAULT.getBridgeObjectName(name));
       String[] bridgeNames = serverControl.getBridgeNames();
@@ -848,8 +714,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase
    }
 
    @Test
-   public void testListPreparedTransactionDetails() throws Exception
-   {
+   public void testListPreparedTransactionDetails() throws Exception {
       SimpleString atestq = new SimpleString("BasicXaTestq");
       Xid xid = newXID();
 
@@ -894,8 +759,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase
    }
 
    @Test
-   public void testListPreparedTransactionDetailsAsHTML() throws Exception
-   {
+   public void testListPreparedTransactionDetailsAsHTML() throws Exception {
       SimpleString atestq = new SimpleString("BasicXaTestq");
       Xid xid = newXID();
 
@@ -934,8 +798,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase
    }
 
    @Test
-   public void testCommitPreparedTransactions() throws Exception
-   {
+   public void testCommitPreparedTransactions() throws Exception {
       SimpleString recQueue = new SimpleString("BasicXaTestqRec");
       SimpleString sendQueue = new SimpleString("BasicXaTestqSend");
 
@@ -953,12 +816,10 @@ public class ActiveMQServerControlTest extends ManagementTestBase
       clientProducer.send(m1);
       locator.close();
 
-
       ServerLocator receiveLocator = createInVMNonHALocator();
       ClientSessionFactory receiveCsf = createSessionFactory(receiveLocator);
       ClientSession receiveClientSession = receiveCsf.createSession(true, false, false);
       ClientConsumer consumer = receiveClientSession.createConsumer(recQueue);
-
 
       ServerLocator sendLocator = createInVMNonHALocator();
       ClientSessionFactory sendCsf = createSessionFactory(sendLocator);
@@ -973,7 +834,6 @@ public class ActiveMQServerControlTest extends ManagementTestBase
       assertNotNull(m);
 
       producer.send(m);
-
 
       receiveClientSession.end(xid, XAResource.TMSUCCESS);
       sendClientSession.end(xid2, XAResource.TMSUCCESS);
@@ -994,52 +854,40 @@ public class ActiveMQServerControlTest extends ManagementTestBase
    }
 
    @Test
-   public void testScaleDownWithConnector() throws Exception
-   {
-      scaleDown(new ScaleDownHandler()
-      {
+   public void testScaleDownWithConnector() throws Exception {
+      scaleDown(new ScaleDownHandler() {
          @Override
-         public void scaleDown(ActiveMQServerControl control) throws Exception
-         {
+         public void scaleDown(ActiveMQServerControl control) throws Exception {
             control.scaleDown("server2-connector");
          }
       });
    }
 
    @Test
-   public void testScaleDownWithOutConnector() throws Exception
-   {
-      scaleDown(new ScaleDownHandler()
-      {
+   public void testScaleDownWithOutConnector() throws Exception {
+      scaleDown(new ScaleDownHandler() {
          @Override
-         public void scaleDown(ActiveMQServerControl control) throws Exception
-         {
+         public void scaleDown(ActiveMQServerControl control) throws Exception {
             control.scaleDown(null);
          }
       });
    }
 
    @Test
-   public void testForceFailover() throws Exception
-   {
+   public void testForceFailover() throws Exception {
       ActiveMQServerControl serverControl = createManagementControl();
       serverControl.forceFailover();
       assertFalse(server.isStarted());
    }
 
-   protected void scaleDown(ScaleDownHandler handler) throws Exception
-   {
+   protected void scaleDown(ScaleDownHandler handler) throws Exception {
       SimpleString address = new SimpleString("testQueue");
       HashMap<String, Object> params = new HashMap<>();
       params.put(TransportConstants.SERVER_ID_PROP_NAME, "2");
-      Configuration config = createDefaultInVMConfig(2)
-              .clearAcceptorConfigurations()
-              .addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName(), params));
+      Configuration config = createDefaultInVMConfig(2).clearAcceptorConfigurations().addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName(), params));
       ActiveMQServer server2 = addServer(ActiveMQServers.newActiveMQServer(config, null, true));
 
-      this.conf
-              .clearConnectorConfigurations()
-              .addConnectorConfiguration("server2-connector", new TransportConfiguration(INVM_CONNECTOR_FACTORY, params));
+      this.conf.clearConnectorConfigurations().addConnectorConfiguration("server2-connector", new TransportConfiguration(INVM_CONNECTOR_FACTORY, params));
 
       server2.start();
       server.createQueue(address, address, null, true, false);
@@ -1048,8 +896,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase
       ClientSessionFactory csf = createSessionFactory(locator);
       ClientSession session = csf.createSession();
       ClientProducer producer = session.createProducer(address);
-      for (int i = 0; i < 100; i++)
-      {
+      for (int i = 0; i < 100; i++) {
          ClientMessage message = session.createMessage(true);
          message.getBodyBuffer().writeString("m" + i);
          producer.send(message);
@@ -1063,36 +910,32 @@ public class ActiveMQServerControlTest extends ManagementTestBase
       session = csf.createSession();
       session.start();
       ClientConsumer consumer = session.createConsumer(address);
-      for (int i = 0; i < 100; i++)
-      {
+      for (int i = 0; i < 100; i++) {
          ClientMessage m = consumer.receive(5000);
          assertNotNull(m);
       }
    }
+
    // Package protected ---------------------------------------------
-   interface ScaleDownHandler
-   {
+   interface ScaleDownHandler {
+
       void scaleDown(ActiveMQServerControl control) throws Exception;
    }
    // Protected -----------------------------------------------------
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       connectorConfig = new TransportConfiguration(INVM_CONNECTOR_FACTORY);
 
-      conf = createDefaultInVMConfig()
-         .setJMXManagementEnabled(true)
-         .addConnectorConfiguration(connectorConfig.getName(), connectorConfig);
+      conf = createDefaultInVMConfig().setJMXManagementEnabled(true).addConnectorConfiguration(connectorConfig.getName(), connectorConfig);
       server = addServer(ActiveMQServers.newActiveMQServer(conf, mbeanServer, true));
       server.start();
    }
 
-   protected ActiveMQServerControl createManagementControl() throws Exception
-   {
+   protected ActiveMQServerControl createManagementControl() throws Exception {
       return ManagementControlHelper.createActiveMQServerControl(mbeanServer);
    }
 

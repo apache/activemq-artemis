@@ -20,13 +20,13 @@ import javax.jms.XAConnectionFactory;
 import javax.naming.NamingException;
 
 public class XAConnectionFactoryTest extends ActiveMQInitialContextFactoryTest {
-    
-    public void testConnectionFactoriesIsXA() throws NamingException {
-        assertTrue("connection factory implements XA", context.lookup(getConnectionFactoryLookupName()) instanceof XAConnectionFactory);
-    }
-    
-    protected void configureEnvironment() {
-        environment.put("xa", "true");
-        super.configureEnvironment();
-    }
+
+   public void testConnectionFactoriesIsXA() throws NamingException {
+      assertTrue("connection factory implements XA", context.lookup(getConnectionFactoryLookupName()) instanceof XAConnectionFactory);
+   }
+
+   protected void configureEnvironment() {
+      environment.put("xa", "true");
+      super.configureEnvironment();
+   }
 }

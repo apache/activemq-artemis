@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.integration.journal;
+
 import java.io.File;
 
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
@@ -27,53 +28,42 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 
 /**
- *
  * A RealJournalImplTest
  * you need to define -Djava.library.path=${project-root}/native/src/.libs when calling the JVM
  * If you are running this test in eclipse you should do:
- *   I - Run->Open Run Dialog
- *   II - Find the class on the list (you will find it if you already tried running this testcase before)
- *   III - Add -Djava.library.path=<your project place>/native/src/.libs
+ * I - Run->Open Run Dialog
+ * II - Find the class on the list (you will find it if you already tried running this testcase before)
+ * III - Add -Djava.library.path=<your project place>/native/src/.libs
  */
-public class AIOJournalImplTest extends JournalImplTestUnit
-{
+public class AIOJournalImplTest extends JournalImplTestUnit {
+
    @BeforeClass
-   public static void hasAIO()
-   {
+   public static void hasAIO() {
       org.junit.Assume.assumeTrue("Test case needs AIO to run", AIOSequentialFileFactory.isSupported());
    }
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
-      if (!LibaioContext.isLoaded())
-      {
-         Assert.fail(String.format("libAIO is not loaded on %s %s %s",
-                                   System.getProperty("os.name"),
-                                   System.getProperty("os.arch"),
-                                   System.getProperty("os.version")));
+      if (!LibaioContext.isLoaded()) {
+         Assert.fail(String.format("libAIO is not loaded on %s %s %s", System.getProperty("os.name"), System.getProperty("os.arch"), System.getProperty("os.version")));
       }
    }
 
    @Override
-   protected SequentialFileFactory getFileFactory() throws Exception
-   {
+   protected SequentialFileFactory getFileFactory() throws Exception {
       File file = new File(getTestDir());
 
       deleteDirectory(file);
 
       file.mkdir();
 
-      return new AIOSequentialFileFactory(getTestDirfile(),
-            JournalConstants.DEFAULT_JOURNAL_BUFFER_SIZE_AIO, 1000000, 10,
-            false);
+      return new AIOSequentialFileFactory(getTestDirfile(), JournalConstants.DEFAULT_JOURNAL_BUFFER_SIZE_AIO, 1000000, 10, false);
    }
 
    @Override
-   protected int getAlignment()
-   {
+   protected int getAlignment() {
       return 512;
    }
 

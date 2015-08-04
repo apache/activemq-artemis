@@ -37,8 +37,8 @@ import org.apache.activemq.artemis.core.server.LargeServerMessage;
 import org.apache.activemq.artemis.utils.ConcurrentHashSet;
 import org.apache.activemq.artemis.utils.DataConstants;
 
-public final class Page implements Comparable<Page>
-{
+public final class Page implements Comparable<Page> {
+
    // Constants -----------------------------------------------------
    private static final boolean isTrace = ActiveMQServerLogger.LOGGER.isTraceEnabled();
    private static final boolean isDebug = ActiveMQServerLogger.LOGGER.isDebugEnabled();
@@ -81,8 +81,7 @@ public final class Page implements Comparable<Page>
                final StorageManager storageManager,
                final SequentialFileFactory factory,
                final SequentialFile file,
-               final int pageId) throws Exception
-   {
+               final int pageId) throws Exception {
       this.pageId = pageId;
       this.file = file;
       fileFactory = factory;
@@ -90,25 +89,20 @@ public final class Page implements Comparable<Page>
       this.storeName = storeName;
    }
 
-   public int getPageId()
-   {
+   public int getPageId() {
       return pageId;
    }
 
-   public void setLiveCache(LivePageCache pageCache)
-   {
+   public void setLiveCache(LivePageCache pageCache) {
       this.pageCache = pageCache;
    }
 
-   public synchronized List<PagedMessage> read(StorageManager storage) throws Exception
-   {
-      if (isDebug)
-      {
+   public synchronized List<PagedMessage> read(StorageManager storage) throws Exception {
+      if (isDebug) {
          ActiveMQServerLogger.LOGGER.debug("reading page " + this.pageId + " on address = " + storeName);
       }
 
-      if (!file.isOpen())
-      {
+      if (!file.isOpen()) {
          throw ActiveMQMessageBundle.BUNDLE.invalidPageIO();
       }
 
@@ -118,8 +112,7 @@ public final class Page implements Comparable<Page>
       // Using direct buffer, as described on https://jira.jboss.org/browse/HORNETQ-467
       ByteBuffer directBuffer = storage.allocateDirectBuffer((int) file.size());
       ActiveMQBuffer fileBuffer = null;
-      try
-      {
+      try {
 
          file.position(0);
          file.read(directBuffer);
@@ -129,56 +122,45 @@ public final class Page implements Comparable<Page>
          fileBuffer = ActiveMQBuffers.wrappedBuffer(directBuffer);
          fileBuffer.writerIndex(fileBuffer.capacity());
 
-         while (fileBuffer.readable())
-         {
+         while (fileBuffer.readable()) {
             final int position = fileBuffer.readerIndex();
 
             byte byteRead = fileBuffer.readByte();
 
-            if (byteRead == Page.START_BYTE)
-            {
-               if (fileBuffer.readerIndex() + DataConstants.SIZE_INT < fileBuffer.capacity())
-               {
+            if (byteRead == Page.START_BYTE) {
+               if (fileBuffer.readerIndex() + DataConstants.SIZE_INT < fileBuffer.capacity()) {
                   int messageSize = fileBuffer.readInt();
                   int oldPos = fileBuffer.readerIndex();
-                  if (fileBuffer.readerIndex() + messageSize < fileBuffer.capacity() &&
-                     fileBuffer.getByte(oldPos + messageSize) == Page.END_BYTE)
-                  {
+                  if (fileBuffer.readerIndex() + messageSize < fileBuffer.capacity() && fileBuffer.getByte(oldPos + messageSize) == Page.END_BYTE) {
                      PagedMessage msg = new PagedMessageImpl();
                      msg.decode(fileBuffer);
                      byte b = fileBuffer.readByte();
-                     if (b != Page.END_BYTE)
-                     {
+                     if (b != Page.END_BYTE) {
                         // Sanity Check: This would only happen if there is a bug on decode or any internal code, as
                         // this
                         // constraint was already checked
                         throw new IllegalStateException("Internal error, it wasn't possible to locate END_BYTE " + b);
                      }
                      msg.initMessage(storage);
-                     if (isTrace)
-                     {
+                     if (isTrace) {
                         ActiveMQServerLogger.LOGGER.trace("Reading message " + msg + " on pageId=" + this.pageId + " for address=" + storeName);
                      }
                      messages.add(msg);
                   }
-                  else
-                  {
+                  else {
                      markFileAsSuspect(file.getFileName(), position, messages.size());
                      break;
                   }
                }
             }
-            else
-            {
+            else {
                markFileAsSuspect(file.getFileName(), position, messages.size());
                break;
             }
          }
       }
-      finally
-      {
-         if (fileBuffer != null)
-         {
+      finally {
+         if (fileBuffer != null) {
             fileBuffer.byteBuf().unwrap().release();
          }
          storage.freeDirectBuffer(directBuffer);
@@ -189,10 +171,8 @@ public final class Page implements Comparable<Page>
       return messages;
    }
 
-   public synchronized void write(final PagedMessage message) throws Exception
-   {
-      if (!file.isOpen())
-      {
+   public synchronized void write(final PagedMessage message) throws Exception {
+      if (!file.isOpen()) {
 
          return;
       }
@@ -214,8 +194,7 @@ public final class Page implements Comparable<Page>
 
       file.writeDirect(buffer, false);
 
-      if (pageCache != null)
-      {
+      if (pageCache != null) {
          pageCache.addLiveMessage(message);
       }
 
@@ -225,29 +204,23 @@ public final class Page implements Comparable<Page>
       storageManager.pageWrite(message, pageId);
    }
 
-   public void sync() throws Exception
-   {
+   public void sync() throws Exception {
       file.sync();
    }
 
-   public void open() throws Exception
-   {
-      if (!file.isOpen())
-      {
+   public void open() throws Exception {
+      if (!file.isOpen()) {
          file.open();
       }
       size.set((int) file.size());
       file.position(0);
    }
 
-   public synchronized void close() throws Exception
-   {
-      if (storageManager != null)
-      {
+   public synchronized void close() throws Exception {
+      if (storageManager != null) {
          storageManager.pageClosed(storeName, pageId);
       }
-      if (pageCache != null)
-      {
+      if (pageCache != null) {
          pageCache.close();
          // leave it to the soft cache to decide when to release it now
          pageCache = null;
@@ -255,38 +228,29 @@ public final class Page implements Comparable<Page>
       file.close();
 
       Set<PageSubscriptionCounter> counters = getPendingCounters();
-      if (counters != null)
-      {
-         for (PageSubscriptionCounter counter : counters)
-         {
+      if (counters != null) {
+         for (PageSubscriptionCounter counter : counters) {
             counter.cleanupNonTXCounters(this.getPageId());
          }
       }
    }
 
-   public boolean isLive()
-   {
+   public boolean isLive() {
       return pageCache != null;
    }
 
-   public boolean delete(final PagedMessage[] messages) throws Exception
-   {
-      if (storageManager != null)
-      {
+   public boolean delete(final PagedMessage[] messages) throws Exception {
+      if (storageManager != null) {
          storageManager.pageDeleted(storeName, pageId);
       }
 
-      if (isDebug)
-      {
+      if (isDebug) {
          ActiveMQServerLogger.LOGGER.debug("Deleting pageId=" + pageId + " on store " + storeName);
       }
 
-      if (messages != null)
-      {
-         for (PagedMessage msg : messages)
-         {
-            if (msg.getMessage().isLargeMessage())
-            {
+      if (messages != null) {
+         for (PagedMessage msg : messages) {
+            if (msg.getMessage().isLargeMessage()) {
                LargeServerMessage lmsg = (LargeServerMessage) msg.getMessage();
 
                // Remember, cannot call delete directly here
@@ -297,68 +261,54 @@ public final class Page implements Comparable<Page>
          }
       }
 
-      try
-      {
-         if (suspiciousRecords)
-         {
+      try {
+         if (suspiciousRecords) {
             ActiveMQServerLogger.LOGGER.pageInvalid(file.getFileName(), file.getFileName());
             file.renameTo(file.getFileName() + ".invalidPage");
          }
-         else
-         {
+         else {
             file.delete();
          }
 
          return true;
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          ActiveMQServerLogger.LOGGER.pageDeleteError(e);
          return false;
       }
    }
 
-   public int getNumberOfMessages()
-   {
+   public int getNumberOfMessages() {
       return numberOfMessages.intValue();
    }
 
-   public int getSize()
-   {
+   public int getSize() {
       return size.intValue();
    }
 
    @Override
-   public String toString()
-   {
+   public String toString() {
       return "Page::pageID=" + this.pageId + ", file=" + this.file;
    }
 
-
-   public int compareTo(Page otherPage)
-   {
+   public int compareTo(Page otherPage) {
       return otherPage.getPageId() - this.pageId;
    }
 
    @Override
-   protected void finalize()
-   {
-      try
-      {
-         if (file != null && file.isOpen())
-         {
+   protected void finalize() {
+      try {
+         if (file != null && file.isOpen()) {
             file.close();
          }
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          ActiveMQServerLogger.LOGGER.pageFinaliseError(e);
       }
    }
 
    @Override
-   public int hashCode()
-   {
+   public int hashCode() {
       final int prime = 31;
       int result = 1;
       result = prime * result + pageId;
@@ -366,8 +316,7 @@ public final class Page implements Comparable<Page>
    }
 
    @Override
-   public boolean equals(Object obj)
-   {
+   public boolean equals(Object obj) {
       if (this == obj)
          return true;
       if (obj == null)
@@ -384,14 +333,12 @@ public final class Page implements Comparable<Page>
     * @param position
     * @param msgNumber
     */
-   private void markFileAsSuspect(final String fileName, final int position, final int msgNumber)
-   {
+   private void markFileAsSuspect(final String fileName, final int position, final int msgNumber) {
       ActiveMQServerLogger.LOGGER.pageSuspectFile(fileName, position, msgNumber);
       suspiciousRecords = true;
    }
 
-   public SequentialFile getFile()
-   {
+   public SequentialFile getFile() {
       return file;
    }
 
@@ -400,21 +347,17 @@ public final class Page implements Comparable<Page>
     *
     * @param pageSubscriptionCounter
     */
-   public void addPendingCounter(PageSubscriptionCounter pageSubscriptionCounter)
-   {
+   public void addPendingCounter(PageSubscriptionCounter pageSubscriptionCounter) {
       Set<PageSubscriptionCounter> counter = getOrCreatePendingCounters();
       pendingCounters.add(pageSubscriptionCounter);
    }
 
-   private synchronized Set<PageSubscriptionCounter> getPendingCounters()
-   {
+   private synchronized Set<PageSubscriptionCounter> getPendingCounters() {
       return pendingCounters;
    }
 
-   private synchronized Set<PageSubscriptionCounter> getOrCreatePendingCounters()
-   {
-      if (pendingCounters == null)
-      {
+   private synchronized Set<PageSubscriptionCounter> getOrCreatePendingCounters() {
+      if (pendingCounters == null) {
          pendingCounters = new ConcurrentHashSet<PageSubscriptionCounter>();
       }
 

@@ -56,8 +56,8 @@ import static org.apache.activemq.artemis.reader.BytesMessageUtil.bytesWriteUTF;
 /**
  * ActiveMQ Artemis implementation of a JMS {@link BytesMessage}.
  */
-public class ActiveMQBytesMessage extends ActiveMQMessage implements BytesMessage
-{
+public class ActiveMQBytesMessage extends ActiveMQMessage implements BytesMessage {
+
    // Static -------------------------------------------------------
    public static final byte TYPE = Message.BYTES_TYPE;
 
@@ -70,32 +70,28 @@ public class ActiveMQBytesMessage extends ActiveMQMessage implements BytesMessag
    /**
     * This constructor is used to construct messages prior to sending
     */
-   protected ActiveMQBytesMessage(final ClientSession session)
-   {
+   protected ActiveMQBytesMessage(final ClientSession session) {
       super(ActiveMQBytesMessage.TYPE, session);
    }
 
    /**
     * Constructor on receipt at client side
     */
-   protected ActiveMQBytesMessage(final ClientMessage message, final ClientSession session)
-   {
+   protected ActiveMQBytesMessage(final ClientMessage message, final ClientSession session) {
       super(message, session);
    }
 
    /**
     * Foreign message constructor
     */
-   public ActiveMQBytesMessage(final BytesMessage foreign, final ClientSession session) throws JMSException
-   {
+   public ActiveMQBytesMessage(final BytesMessage foreign, final ClientSession session) throws JMSException {
       super(foreign, ActiveMQBytesMessage.TYPE, session);
 
       foreign.reset();
 
       byte[] buffer = new byte[1024];
       int n = foreign.readBytes(buffer);
-      while (n != -1)
-      {
+      while (n != -1) {
          writeBytes(buffer, 0, n);
          n = foreign.readBytes(buffer);
       }
@@ -103,149 +99,115 @@ public class ActiveMQBytesMessage extends ActiveMQMessage implements BytesMessag
 
    // BytesMessage implementation -----------------------------------
 
-   public boolean readBoolean() throws JMSException
-   {
+   public boolean readBoolean() throws JMSException {
       checkRead();
-      try
-      {
+      try {
          return bytesReadBoolean(message);
       }
-      catch (IndexOutOfBoundsException e)
-      {
+      catch (IndexOutOfBoundsException e) {
          throw new MessageEOFException("");
       }
    }
 
-   public byte readByte() throws JMSException
-   {
+   public byte readByte() throws JMSException {
       checkRead();
-      try
-      {
+      try {
          return bytesReadByte(message);
       }
-      catch (IndexOutOfBoundsException e)
-      {
+      catch (IndexOutOfBoundsException e) {
          throw new MessageEOFException("");
       }
    }
 
-   public int readUnsignedByte() throws JMSException
-   {
+   public int readUnsignedByte() throws JMSException {
       checkRead();
-      try
-      {
+      try {
          return bytesReadUnsignedByte(message);
       }
-      catch (IndexOutOfBoundsException e)
-      {
+      catch (IndexOutOfBoundsException e) {
          throw new MessageEOFException("");
       }
    }
 
-   public short readShort() throws JMSException
-   {
+   public short readShort() throws JMSException {
       checkRead();
-      try
-      {
+      try {
          return bytesReadShort(message);
       }
-      catch (IndexOutOfBoundsException e)
-      {
+      catch (IndexOutOfBoundsException e) {
          throw new MessageEOFException("");
       }
    }
 
-   public int readUnsignedShort() throws JMSException
-   {
+   public int readUnsignedShort() throws JMSException {
       checkRead();
-      try
-      {
+      try {
          return bytesReadUnsignedShort(message);
       }
-      catch (IndexOutOfBoundsException e)
-      {
+      catch (IndexOutOfBoundsException e) {
          throw new MessageEOFException("");
       }
    }
 
-   public char readChar() throws JMSException
-   {
+   public char readChar() throws JMSException {
       checkRead();
-      try
-      {
+      try {
          return bytesReadChar(message);
       }
-      catch (IndexOutOfBoundsException e)
-      {
+      catch (IndexOutOfBoundsException e) {
          throw new MessageEOFException("");
       }
    }
 
-   public int readInt() throws JMSException
-   {
+   public int readInt() throws JMSException {
       checkRead();
-      try
-      {
+      try {
          return bytesReadInt(message);
       }
-      catch (IndexOutOfBoundsException e)
-      {
+      catch (IndexOutOfBoundsException e) {
          throw new MessageEOFException("");
       }
    }
 
-   public long readLong() throws JMSException
-   {
+   public long readLong() throws JMSException {
       checkRead();
-      try
-      {
+      try {
          return bytesReadLong(message);
       }
-      catch (IndexOutOfBoundsException e)
-      {
+      catch (IndexOutOfBoundsException e) {
          throw new MessageEOFException("");
       }
    }
 
-   public float readFloat() throws JMSException
-   {
+   public float readFloat() throws JMSException {
       checkRead();
-      try
-      {
+      try {
          return bytesReadFloat(message);
       }
-      catch (IndexOutOfBoundsException e)
-      {
+      catch (IndexOutOfBoundsException e) {
          throw new MessageEOFException("");
       }
    }
 
-   public double readDouble() throws JMSException
-   {
+   public double readDouble() throws JMSException {
       checkRead();
-      try
-      {
+      try {
          return bytesReadDouble(message);
       }
-      catch (IndexOutOfBoundsException e)
-      {
+      catch (IndexOutOfBoundsException e) {
          throw new MessageEOFException("");
       }
    }
 
-   public String readUTF() throws JMSException
-   {
+   public String readUTF() throws JMSException {
       checkRead();
-      try
-      {
+      try {
          return bytesReadUTF(message);
       }
-      catch (IndexOutOfBoundsException e)
-      {
+      catch (IndexOutOfBoundsException e) {
          throw new MessageEOFException("");
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          JMSException je = new JMSException("Failed to get UTF");
          je.setLinkedException(e);
          je.initCause(e);
@@ -253,76 +215,63 @@ public class ActiveMQBytesMessage extends ActiveMQMessage implements BytesMessag
       }
    }
 
-   public int readBytes(final byte[] value) throws JMSException
-   {
+   public int readBytes(final byte[] value) throws JMSException {
       checkRead();
       return bytesReadBytes(message, value);
    }
 
-   public int readBytes(final byte[] value, final int length) throws JMSException
-   {
+   public int readBytes(final byte[] value, final int length) throws JMSException {
       checkRead();
       return bytesReadBytes(message, value, length);
 
    }
 
-   public void writeBoolean(final boolean value) throws JMSException
-   {
+   public void writeBoolean(final boolean value) throws JMSException {
       checkWrite();
       bytesWriteBoolean(message, value);
    }
 
-   public void writeByte(final byte value) throws JMSException
-   {
+   public void writeByte(final byte value) throws JMSException {
       checkWrite();
       bytesWriteByte(message, value);
    }
 
-   public void writeShort(final short value) throws JMSException
-   {
+   public void writeShort(final short value) throws JMSException {
       checkWrite();
       bytesWriteShort(message, value);
    }
 
-   public void writeChar(final char value) throws JMSException
-   {
+   public void writeChar(final char value) throws JMSException {
       checkWrite();
       bytesWriteChar(message, value);
    }
 
-   public void writeInt(final int value) throws JMSException
-   {
+   public void writeInt(final int value) throws JMSException {
       checkWrite();
       bytesWriteInt(message, value);
    }
 
-   public void writeLong(final long value) throws JMSException
-   {
+   public void writeLong(final long value) throws JMSException {
       checkWrite();
       bytesWriteLong(message, value);
    }
 
-   public void writeFloat(final float value) throws JMSException
-   {
+   public void writeFloat(final float value) throws JMSException {
       checkWrite();
       bytesWriteFloat(message, value);
    }
 
-   public void writeDouble(final double value) throws JMSException
-   {
+   public void writeDouble(final double value) throws JMSException {
       checkWrite();
       bytesWriteDouble(message, value);
    }
 
-   public void writeUTF(final String value) throws JMSException
-   {
+   public void writeUTF(final String value) throws JMSException {
       checkWrite();
-      try
-      {
+      try {
          bytesWriteUTF(message, value);
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          JMSException je = new JMSException("Failed to write UTF");
          je.setLinkedException(e);
          je.initCause(e);
@@ -331,31 +280,25 @@ public class ActiveMQBytesMessage extends ActiveMQMessage implements BytesMessag
 
    }
 
-   public void writeBytes(final byte[] value) throws JMSException
-   {
+   public void writeBytes(final byte[] value) throws JMSException {
       checkWrite();
       bytesWriteBytes(message, value);
    }
 
-   public void writeBytes(final byte[] value, final int offset, final int length) throws JMSException
-   {
+   public void writeBytes(final byte[] value, final int offset, final int length) throws JMSException {
       checkWrite();
       bytesWriteBytes(message, value, offset, length);
    }
 
-   public void writeObject(final Object value) throws JMSException
-   {
+   public void writeObject(final Object value) throws JMSException {
       checkWrite();
-      if (!bytesWriteObject(message, value))
-      {
+      if (!bytesWriteObject(message, value)) {
          throw new MessageFormatException("Invalid object for properties");
       }
    }
 
-   public void reset() throws JMSException
-   {
-      if (!readOnly)
-      {
+   public void reset() throws JMSException {
+      if (!readOnly) {
          readOnly = true;
 
          bodyLength = message.getBodySize();
@@ -365,70 +308,59 @@ public class ActiveMQBytesMessage extends ActiveMQMessage implements BytesMessag
    }
 
    @Override
-   public void doBeforeReceive() throws ActiveMQException
-   {
+   public void doBeforeReceive() throws ActiveMQException {
       bodyLength = message.getBodySize();
    }
 
    // ActiveMQRAMessage overrides ----------------------------------------
 
    @Override
-   public void clearBody() throws JMSException
-   {
+   public void clearBody() throws JMSException {
       super.clearBody();
 
-      try
-      {
+      try {
          getBuffer().clear();
       }
-      catch (RuntimeException e)
-      {
+      catch (RuntimeException e) {
          JMSException e2 = new JMSException(e.getMessage());
          e2.initCause(e);
          throw e2;
       }
    }
 
-   public long getBodyLength() throws JMSException
-   {
+   public long getBodyLength() throws JMSException {
       checkRead();
 
       return bodyLength;
    }
 
    @Override
-   public void doBeforeSend() throws Exception
-   {
+   public void doBeforeSend() throws Exception {
       reset();
    }
 
    // Public --------------------------------------------------------
 
    @Override
-   public byte getType()
-   {
+   public byte getType() {
       return ActiveMQBytesMessage.TYPE;
    }
 
-   private ActiveMQBuffer getBuffer()
-   {
+   private ActiveMQBuffer getBuffer() {
       return message.getBodyBuffer();
    }
 
    @Override
-   public boolean isBodyAssignableTo(@SuppressWarnings("rawtypes")
-                                     Class c)
-   {
+   public boolean isBodyAssignableTo(@SuppressWarnings("rawtypes") Class c) {
       return c.isAssignableFrom(byte[].class);
    }
 
    @Override
-   protected <T> T getBodyInternal(Class<T> c)
-   {
+   protected <T> T getBodyInternal(Class<T> c) {
       if (bodyLength == 0)
          return null;
       byte[] dst = new byte[bodyLength];
       message.getBodyBuffer().getBytes(MessageImpl.BODY_OFFSET, dst);
-      return (T)dst;
+      return (T) dst;
    }
 }

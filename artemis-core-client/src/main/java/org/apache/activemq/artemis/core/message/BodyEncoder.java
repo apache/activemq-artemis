@@ -26,8 +26,8 @@ import org.apache.activemq.artemis.api.core.ActiveMQException;
  * <br>
  * Used to send large streams over the wire
  */
-public interface BodyEncoder
-{
+public interface BodyEncoder {
+
    /**
     * This method must not be called directly by ActiveMQ Artemis clients.
     */

@@ -18,36 +18,35 @@ package org.apache.activemq.artemis.core.protocol.core.impl;
 
 import org.apache.activemq.artemis.spi.core.remoting.ConsumerContext;
 
-public class ActiveMQConsumerContext extends ConsumerContext
-{
+public class ActiveMQConsumerContext extends ConsumerContext {
+
    private long id;
 
-   public ActiveMQConsumerContext(long id)
-   {
+   public ActiveMQConsumerContext(long id) {
       this.id = id;
    }
 
-   public long getId()
-   {
+   public long getId() {
       return id;
    }
 
    @Override
-   public boolean equals(Object o)
-   {
-      if (this == o) return true;
-      if (o == null || getClass() != o.getClass()) return false;
+   public boolean equals(Object o) {
+      if (this == o)
+         return true;
+      if (o == null || getClass() != o.getClass())
+         return false;
 
       ActiveMQConsumerContext that = (ActiveMQConsumerContext) o;
 
-      if (id != that.id) return false;
+      if (id != that.id)
+         return false;
 
       return true;
    }
 
    @Override
-   public int hashCode()
-   {
+   public int hashCode() {
       return (int) (id ^ (id >>> 32));
    }
 }

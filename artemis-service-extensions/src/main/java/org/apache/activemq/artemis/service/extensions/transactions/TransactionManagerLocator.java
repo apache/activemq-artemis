@@ -18,7 +18,7 @@ package org.apache.activemq.artemis.service.extensions.transactions;
 
 import javax.transaction.TransactionManager;
 
-public interface TransactionManagerLocator
-{
+public interface TransactionManagerLocator {
+
    TransactionManager getTransactionManager();
 }

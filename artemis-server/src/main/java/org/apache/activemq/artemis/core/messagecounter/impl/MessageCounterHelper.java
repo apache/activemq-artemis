@@ -26,20 +26,17 @@ import org.apache.activemq.artemis.api.core.management.DayCounterInfo;
 import org.apache.activemq.artemis.core.messagecounter.MessageCounter;
 import org.apache.activemq.artemis.core.messagecounter.MessageCounter.DayCounter;
 
-public class MessageCounterHelper
-{
+public class MessageCounterHelper {
    // Constants -----------------------------------------------------
 
    // Attributes ----------------------------------------------------
 
    // Static --------------------------------------------------------
 
-   public static String listMessageCounterHistory(final MessageCounter counter) throws Exception
-   {
+   public static String listMessageCounterHistory(final MessageCounter counter) throws Exception {
       List<DayCounter> history = counter.getHistory();
       DayCounterInfo[] infos = new DayCounterInfo[history.size()];
-      for (int i = 0; i < infos.length; i++)
-      {
+      for (int i = 0; i < infos.length; i++) {
          DayCounter dayCounter = history.get(i);
          int[] counters = dayCounter.getCounters();
          GregorianCalendar date = dayCounter.getDate();
@@ -51,39 +48,22 @@ public class MessageCounterHelper
       return DayCounterInfo.toJSON(infos);
    }
 
-   public static String listMessageCounterAsHTML(final MessageCounter[] counters)
-   {
-      if (counters == null)
-      {
+   public static String listMessageCounterAsHTML(final MessageCounter[] counters) {
+      if (counters == null) {
          return null;
       }
 
-      String ret0 =
-               "<table class=\"activemq-message-counter\">\n" + "<tr>"
-                   + "<th>Type</th>"
-                   + "<th>Name</th>"
-                   + "<th>Subscription</th>"
-                   + "<th>Durable</th>"
-                   + "<th>Count</th>"
-                   + "<th>CountDelta</th>"
-                   + "<th>Depth</th>"
-                   + "<th>DepthDelta</th>"
-                   + "<th>Last Add</th>"
-                   + "<th>Last Update</th>"
-                        + "</tr>\n";
+      String ret0 = "<table class=\"activemq-message-counter\">\n" + "<tr>" + "<th>Type</th>" + "<th>Name</th>" + "<th>Subscription</th>" + "<th>Durable</th>" + "<th>Count</th>" + "<th>CountDelta</th>" + "<th>Depth</th>" + "<th>DepthDelta</th>" + "<th>Last Add</th>" + "<th>Last Update</th>" + "</tr>\n";
       StringBuilder ret = new StringBuilder(ret0);
-      for (int i = 0; i < counters.length; i++)
-      {
+      for (int i = 0; i < counters.length; i++) {
          MessageCounter counter = counters[i];
          String type = counter.isDestinationTopic() ? "Topic" : "Queue";
          String subscription = counter.getDestinationSubscription();
-         if (subscription == null)
-         {
+         if (subscription == null) {
             subscription = "-";
          }
          String durableStr = "-"; // makes no sense for a queue
-         if (counter.isDestinationTopic())
-         {
+         if (counter.isDestinationTopic()) {
             durableStr = Boolean.toString(counter.isDestinationDurable());
          }
          ret.append("<tr bgcolor=\"#" + (i % 2 == 0 ? "FFFFFF" : "F0F0F0") + "\">");
@@ -107,17 +87,14 @@ public class MessageCounterHelper
       return ret.toString();
    }
 
-   public static String listMessageCounterHistoryAsHTML(final MessageCounter[] counters)
-   {
-      if (counters == null)
-      {
+   public static String listMessageCounterHistoryAsHTML(final MessageCounter[] counters) {
+      if (counters == null) {
          return null;
       }
 
       StringBuilder ret = new StringBuilder("<ul>\n");
 
-      for (MessageCounter counter : counters)
-      {
+      for (MessageCounter counter : counters) {
          ret.append("<li>\n");
          ret.append("  <ul>\n");
 
@@ -126,8 +103,7 @@ public class MessageCounterHelper
          ret.append((counter.isDestinationTopic() ? "Topic '" : "Queue '") + counter.getDestinationName() + "'");
          ret.append("</li>\n");
 
-         if (counter.getDestinationSubscription() != null)
-         {
+         if (counter.getDestinationSubscription() != null) {
             ret.append("    <li>");
             ret.append("Subscription '" + counter.getDestinationSubscription() + "'");
             ret.append("</li>\n");
@@ -138,8 +114,7 @@ public class MessageCounterHelper
          ret.append("<table class=\"activemq-message-counter-history\">\n");
          ret.append("<tr><th>Date</th>");
 
-         for (int j = 0; j < 24; j++)
-         {
+         for (int j = 0; j < 24; j++) {
             ret.append("<th>" + j + "</th>");
          }
 
@@ -151,8 +126,7 @@ public class MessageCounterHelper
          // get history day count
          int days = Integer.parseInt(tokens.nextToken());
 
-         for (int j = 0; j < days; j++)
-         {
+         for (int j = 0; j < days; j++) {
             // next day counter row
             ret.append("<tr bgcolor=\"#" + (j % 2 == 0 ? "FFFFFF" : "F0F0F0") + "\">");
 
@@ -162,16 +136,13 @@ public class MessageCounterHelper
             // 24 hour counters
             int total = 0;
 
-            for (int k = 0; k < 24; k++)
-            {
+            for (int k = 0; k < 24; k++) {
                int value = Integer.parseInt(tokens.nextToken().trim());
 
-               if (value == -1)
-               {
+               if (value == -1) {
                   ret.append("<td></td>");
                }
-               else
-               {
+               else {
                   ret.append("<td>" + value + "</td>");
 
                   total += value;
@@ -191,23 +162,18 @@ public class MessageCounterHelper
       return ret.toString();
    }
 
-   private static String prettify(final long value)
-   {
-      if (value == 0)
-      {
+   private static String prettify(final long value) {
+      if (value == 0) {
          return "-";
       }
       return Long.toString(value);
    }
 
-   private static String asDate(final long time)
-   {
-      if (time > 0)
-      {
+   private static String asDate(final long time) {
+      if (time > 0) {
          return DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM).format(new Date(time));
       }
-      else
-      {
+      else {
          return "-";
       }
    }

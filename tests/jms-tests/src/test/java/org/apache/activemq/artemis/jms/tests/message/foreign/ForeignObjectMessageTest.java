@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.jms.tests.message.foreign;
+
 import org.junit.Before;
 import org.junit.After;
 
@@ -28,14 +29,13 @@ import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
 /**
  * Tests the delivery/receipt of a foreign object message
  */
-public class ForeignObjectMessageTest extends ForeignMessageTest
-{
+public class ForeignObjectMessageTest extends ForeignMessageTest {
+
    private ForeignTestObject testObj;
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       testObj = new ForeignTestObject("hello", 2.2D);
       super.setUp();
 
@@ -43,15 +43,13 @@ public class ForeignObjectMessageTest extends ForeignMessageTest
 
    @Override
    @After
-   public void tearDown() throws Exception
-   {
+   public void tearDown() throws Exception {
       super.tearDown();
       testObj = null;
    }
 
    @Override
-   protected Message createForeignMessage() throws Exception
-   {
+   protected Message createForeignMessage() throws Exception {
       SimpleJMSObjectMessage m = new SimpleJMSObjectMessage();
 
       log.debug("creating JMS Message type " + m.getClass().getName());
@@ -62,11 +60,10 @@ public class ForeignObjectMessageTest extends ForeignMessageTest
    }
 
    @Override
-   protected void assertEquivalent(final Message m, final int mode, final boolean redelivery) throws JMSException
-   {
+   protected void assertEquivalent(final Message m, final int mode, final boolean redelivery) throws JMSException {
       super.assertEquivalent(m, mode, redelivery);
 
-      ObjectMessage obj = (ObjectMessage)m;
+      ObjectMessage obj = (ObjectMessage) m;
 
       ProxyAssertSupport.assertNotNull(obj.getObject());
       ProxyAssertSupport.assertEquals(obj.getObject(), testObj);

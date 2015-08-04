@@ -21,8 +21,8 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 /**
  * This interface provides encoding support for the Journal.
  */
-public interface EncodingSupport
-{
+public interface EncodingSupport {
+
    int getEncodeSize();
 
    void encode(ActiveMQBuffer buffer);

@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.aerogear;
 
-
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -51,8 +50,7 @@ import java.util.HashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-public class AeroGearBasicServerTest extends ActiveMQTestBase
-{
+public class AeroGearBasicServerTest extends ActiveMQTestBase {
 
    private ActiveMQServer server;
    private ServerLocator locator;
@@ -60,8 +58,7 @@ public class AeroGearBasicServerTest extends ActiveMQTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
       /*
       * there will be a thread kept alive by the http connection, we could disable the thread check but this means that the tests
@@ -87,15 +84,7 @@ public class AeroGearBasicServerTest extends ActiveMQTestBase
       params.put(AeroGearConstants.SOUND_NAME, "sound1");
       params.put(AeroGearConstants.VARIANTS_NAME, "variant1,variant2");
 
-      Configuration configuration = createDefaultInVMConfig()
-         .addConnectorServiceConfiguration(
-            new ConnectorServiceConfiguration()
-               .setFactoryClassName(AeroGearConnectorServiceFactory.class.getName())
-               .setParams(params)
-               .setName("TestAeroGearService"))
-         .addQueueConfiguration(new CoreQueueConfiguration()
-                                   .setAddress("testQueue")
-                                   .setName("testQueue"));
+      Configuration configuration = createDefaultInVMConfig().addConnectorServiceConfiguration(new ConnectorServiceConfiguration().setFactoryClassName(AeroGearConnectorServiceFactory.class.getName()).setParams(params).setName("TestAeroGearService")).addQueueConfiguration(new CoreQueueConfiguration().setAddress("testQueue").setName("testQueue"));
 
       server = addServer(createServer(configuration));
       server.start();
@@ -104,18 +93,15 @@ public class AeroGearBasicServerTest extends ActiveMQTestBase
 
    @Override
    @After
-   public void tearDown() throws Exception
-   {
-      if (jetty != null)
-      {
+   public void tearDown() throws Exception {
+      if (jetty != null) {
          jetty.stop();
       }
       super.tearDown();
    }
 
    @Test
-   public void aerogearSimpleReceiveTest() throws Exception
-   {
+   public void aerogearSimpleReceiveTest() throws Exception {
       CountDownLatch latch = new CountDownLatch(1);
       AeroGearHandler aeroGearHandler = new AeroGearHandler(latch);
       jetty.addHandler(aeroGearHandler);
@@ -212,19 +198,20 @@ public class AeroGearBasicServerTest extends ActiveMQTestBase
       assertNull(message);
    }
 
-   class AeroGearHandler extends AbstractHandler
-   {
+   class AeroGearHandler extends AbstractHandler {
+
       JSONObject jsonObject;
       private CountDownLatch latch;
 
-      public AeroGearHandler(CountDownLatch latch)
-      {
+      public AeroGearHandler(CountDownLatch latch) {
          this.latch = latch;
       }
 
       @Override
-      public void handle(String target, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, int i) throws IOException, ServletException
-      {
+      public void handle(String target,
+                         HttpServletRequest httpServletRequest,
+                         HttpServletResponse httpServletResponse,
+                         int i) throws IOException, ServletException {
          Request request = (Request) httpServletRequest;
          httpServletResponse.setContentType("text/html");
          httpServletResponse.setStatus(HttpServletResponse.SC_OK);
@@ -232,33 +219,30 @@ public class AeroGearBasicServerTest extends ActiveMQTestBase
          byte[] bytes = new byte[httpServletRequest.getContentLength()];
          httpServletRequest.getInputStream().read(bytes);
          String json = new String(bytes);
-         try
-         {
+         try {
             jsonObject = new JSONObject(json);
          }
-         catch (JSONException e)
-         {
+         catch (JSONException e) {
             jsonObject = null;
          }
          latch.countDown();
       }
 
-      public void resetLatch(CountDownLatch latch)
-      {
+      public void resetLatch(CountDownLatch latch) {
          this.latch = latch;
       }
    }
 
    @Test
-   public void aerogearReconnectTest() throws Exception
-   {
+   public void aerogearReconnectTest() throws Exception {
       jetty.stop();
       final CountDownLatch reconnectLatch = new CountDownLatch(1);
-      jetty.addHandler(new AbstractHandler()
-      {
+      jetty.addHandler(new AbstractHandler() {
          @Override
-         public void handle(String target, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, int i) throws IOException, ServletException
-         {
+         public void handle(String target,
+                            HttpServletRequest httpServletRequest,
+                            HttpServletResponse httpServletResponse,
+                            int i) throws IOException, ServletException {
             Request request = (Request) httpServletRequest;
             httpServletResponse.setContentType("text/html");
             httpServletResponse.setStatus(HttpServletResponse.SC_OK);
@@ -275,22 +259,18 @@ public class AeroGearBasicServerTest extends ActiveMQTestBase
       ClientMessage m = session.createMessage(true);
       m.putStringProperty(AeroGearConstants.AEROGEAR_ALERT.toString(), "hello from ActiveMQ!");
 
-      producer.send(m, new SendAcknowledgementHandler()
-      {
+      producer.send(m, new SendAcknowledgementHandler() {
          @Override
-         public void sendAcknowledged(Message message)
-         {
+         public void sendAcknowledged(Message message) {
             latch.countDown();
          }
       });
       m = session.createMessage(true);
       m.putStringProperty(AeroGearConstants.AEROGEAR_ALERT.toString(), "another hello from ActiveMQ!");
 
-      producer.send(m, new SendAcknowledgementHandler()
-      {
+      producer.send(m, new SendAcknowledgementHandler() {
          @Override
-         public void sendAcknowledged(Message message)
-         {
+         public void sendAcknowledged(Message message) {
             latch.countDown();
          }
       });
@@ -304,14 +284,14 @@ public class AeroGearBasicServerTest extends ActiveMQTestBase
    }
 
    @Test
-   public void aerogear401() throws Exception
-   {
+   public void aerogear401() throws Exception {
       final CountDownLatch latch = new CountDownLatch(1);
-      jetty.addHandler(new AbstractHandler()
-      {
+      jetty.addHandler(new AbstractHandler() {
          @Override
-         public void handle(String target, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, int i) throws IOException, ServletException
-         {
+         public void handle(String target,
+                            HttpServletRequest httpServletRequest,
+                            HttpServletResponse httpServletResponse,
+                            int i) throws IOException, ServletException {
             Request request = (Request) httpServletRequest;
             httpServletResponse.setContentType("text/html");
             httpServletResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -341,15 +321,14 @@ public class AeroGearBasicServerTest extends ActiveMQTestBase
       assertNotNull(message);
    }
 
-
    @Test
-   public void aerogear404() throws Exception
-   {
-      jetty.addHandler(new AbstractHandler()
-      {
+   public void aerogear404() throws Exception {
+      jetty.addHandler(new AbstractHandler() {
          @Override
-         public void handle(String target, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, int i) throws IOException, ServletException
-         {
+         public void handle(String target,
+                            HttpServletRequest httpServletRequest,
+                            HttpServletResponse httpServletResponse,
+                            int i) throws IOException, ServletException {
             Request request = (Request) httpServletRequest;
             httpServletResponse.setContentType("text/html");
             httpServletResponse.setStatus(HttpServletResponse.SC_NOT_FOUND);

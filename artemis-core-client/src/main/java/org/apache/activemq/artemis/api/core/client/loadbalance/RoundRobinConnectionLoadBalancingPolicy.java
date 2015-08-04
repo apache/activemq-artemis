@@ -22,13 +22,13 @@ import org.apache.activemq.artemis.utils.Random;
 
 /**
  * RoundRobinConnectionLoadBalancingPolicy corresponds to a round-robin load-balancing policy.
- *
+ * <br>
  * <br>
  * The first call to {@link #select(int)} will return a random integer between {@code 0} (inclusive) and {@code max} (exclusive).
  * Subsequent calls will then return an integer in a round-robin fashion.
  */
-public final class RoundRobinConnectionLoadBalancingPolicy implements ConnectionLoadBalancingPolicy, Serializable
-{
+public final class RoundRobinConnectionLoadBalancingPolicy implements ConnectionLoadBalancingPolicy, Serializable {
+
    private static final long serialVersionUID = 7511196010141439559L;
 
    private final Random random = new Random();
@@ -37,21 +37,17 @@ public final class RoundRobinConnectionLoadBalancingPolicy implements Connection
 
    private int pos;
 
-   public int select(final int max)
-   {
-      if (first)
-      {
+   public int select(final int max) {
+      if (first) {
          // We start on a random one
          pos = random.getRandom().nextInt(max);
 
          first = false;
       }
-      else
-      {
+      else {
          pos++;
 
-         if (pos >= max)
-         {
+         if (pos >= max) {
             pos = 0;
          }
       }

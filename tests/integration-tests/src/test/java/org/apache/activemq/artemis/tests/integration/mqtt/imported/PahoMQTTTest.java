@@ -31,36 +31,30 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.junit.Test;
 
-public class PahoMQTTTest extends MQTTTestSupport
-{
+public class PahoMQTTTest extends MQTTTestSupport {
 
    private static MQTTLogger LOG = MQTTLogger.LOGGER;
 
    @Test(timeout = 300000)
-   public void testLotsOfClients() throws Exception
-   {
+   public void testLotsOfClients() throws Exception {
 
       final int CLIENTS = Integer.getInteger("PahoMQTTTest.CLIENTS", 100);
       LOG.info("Using: {} clients: " + CLIENTS);
 
       final AtomicInteger receiveCounter = new AtomicInteger();
       MqttClient client = createPahoClient("consumer");
-      client.setCallback(new MqttCallback()
-      {
+      client.setCallback(new MqttCallback() {
          @Override
-         public void connectionLost(Throwable cause)
-         {
+         public void connectionLost(Throwable cause) {
          }
 
          @Override
-         public void messageArrived(String topic, MqttMessage message) throws Exception
-         {
+         public void messageArrived(String topic, MqttMessage message) throws Exception {
             receiveCounter.incrementAndGet();
          }
 
          @Override
-         public void deliveryComplete(IMqttDeliveryToken token)
-         {
+         public void deliveryComplete(IMqttDeliveryToken token) {
          }
       });
       client.connect();
@@ -71,35 +65,28 @@ public class PahoMQTTTest extends MQTTTestSupport
       final CountDownLatch disconnectDoneLatch = new CountDownLatch(CLIENTS);
       final CountDownLatch sendBarrier = new CountDownLatch(1);
 
-      for (int i = 0; i < CLIENTS; i++)
-      {
+      for (int i = 0; i < CLIENTS; i++) {
          Thread.sleep(10);
-         new Thread(null, null, "client:" + i)
-         {
+         new Thread(null, null, "client:" + i) {
             @Override
-            public void run()
-            {
-               try
-               {
+            public void run() {
+               try {
                   MqttClient client = createPahoClient(Thread.currentThread().getName());
                   client.connect();
                   connectedDoneLatch.countDown();
                   sendBarrier.await();
-                  for (int i = 0; i < 10; i++)
-                  {
+                  for (int i = 0; i < 10; i++) {
                      Thread.sleep(1000);
                      client.publish("test", "hello".getBytes(), 1, false);
                   }
                   client.disconnect();
                   client.close();
                }
-               catch (Throwable e)
-               {
+               catch (Throwable e) {
                   e.printStackTrace();
                   asyncError.set(e);
                }
-               finally
-               {
+               finally {
                   disconnectDoneLatch.countDown();
                }
             }
@@ -113,11 +100,9 @@ public class PahoMQTTTest extends MQTTTestSupport
       LOG.info("All clients connected... waiting to receive sent messages...");
 
       // We should eventually get all the messages.
-      within(30, TimeUnit.SECONDS, new Task()
-      {
+      within(30, TimeUnit.SECONDS, new Task() {
          @Override
-         public void run() throws Exception
-         {
+         public void run() throws Exception {
             assertTrue(receiveCounter.get() == CLIENTS * 10);
          }
       });
@@ -129,8 +114,7 @@ public class PahoMQTTTest extends MQTTTestSupport
    }
 
    @Test(timeout = 300000)
-   public void testSendAndReceiveMQTT() throws Exception
-   {
+   public void testSendAndReceiveMQTT() throws Exception {
       final CountDownLatch latch = new CountDownLatch(1);
 
       MqttClient consumer = createPahoClient("consumerId");
@@ -138,23 +122,19 @@ public class PahoMQTTTest extends MQTTTestSupport
 
       consumer.connect();
       consumer.subscribe("test");
-      consumer.setCallback(new MqttCallback()
-      {
+      consumer.setCallback(new MqttCallback() {
          @Override
-         public void connectionLost(Throwable cause)
-         {
+         public void connectionLost(Throwable cause) {
 
          }
 
          @Override
-         public void messageArrived(String topic, MqttMessage message) throws Exception
-         {
+         public void messageArrived(String topic, MqttMessage message) throws Exception {
             latch.countDown();
          }
 
          @Override
-         public void deliveryComplete(IMqttDeliveryToken token)
-         {
+         public void deliveryComplete(IMqttDeliveryToken token) {
 
          }
       });
@@ -167,8 +147,7 @@ public class PahoMQTTTest extends MQTTTestSupport
       producer.close();
    }
 
-   private MqttClient createPahoClient(String clientId) throws MqttException
-   {
+   private MqttClient createPahoClient(String clientId) throws MqttException {
       return new MqttClient("tcp://localhost:" + getPort(), clientId, new MemoryPersistence());
    }
 

@@ -18,40 +18,44 @@
 package org.apache.activemq.broker;
 
 import java.util.LinkedList;
+
 import org.apache.activemq.command.ConnectionInfo;
 
 public class StubBroker extends EmptyBroker {
-    public LinkedList<AddConnectionData> addConnectionData = new LinkedList<AddConnectionData>();
-    public LinkedList<RemoveConnectionData> removeConnectionData = new LinkedList<RemoveConnectionData>();
 
-    public class AddConnectionData {
-        public final ConnectionContext connectionContext;
-        public final ConnectionInfo connectionInfo;
+   public LinkedList<AddConnectionData> addConnectionData = new LinkedList<AddConnectionData>();
+   public LinkedList<RemoveConnectionData> removeConnectionData = new LinkedList<RemoveConnectionData>();
 
-        public AddConnectionData(ConnectionContext context, ConnectionInfo info) {
-            connectionContext = context;
-            connectionInfo = info;
-        }
-    }
+   public class AddConnectionData {
 
-    public static class RemoveConnectionData {
-        public final ConnectionContext connectionContext;
-        public final ConnectionInfo connectionInfo;
-        public final Throwable error;
+      public final ConnectionContext connectionContext;
+      public final ConnectionInfo connectionInfo;
 
-        public RemoveConnectionData(ConnectionContext context, ConnectionInfo info, Throwable error) {
-            connectionContext = context;
-            connectionInfo = info;
-            this.error = error;
-        }
-    }
+      public AddConnectionData(ConnectionContext context, ConnectionInfo info) {
+         connectionContext = context;
+         connectionInfo = info;
+      }
+   }
 
-    public void addConnection(ConnectionContext context, ConnectionInfo info) throws Exception {
-        addConnectionData.add(new AddConnectionData(context, info));
-    }
+   public static class RemoveConnectionData {
 
-    public void removeConnection(ConnectionContext context, ConnectionInfo info, Throwable error) throws Exception {
-        removeConnectionData.add(new RemoveConnectionData(context, info, error));
-    }
+      public final ConnectionContext connectionContext;
+      public final ConnectionInfo connectionInfo;
+      public final Throwable error;
+
+      public RemoveConnectionData(ConnectionContext context, ConnectionInfo info, Throwable error) {
+         connectionContext = context;
+         connectionInfo = info;
+         this.error = error;
+      }
+   }
+
+   public void addConnection(ConnectionContext context, ConnectionInfo info) throws Exception {
+      addConnectionData.add(new AddConnectionData(context, info));
+   }
+
+   public void removeConnection(ConnectionContext context, ConnectionInfo info, Throwable error) throws Exception {
+      removeConnectionData.add(new RemoveConnectionData(context, info, error));
+   }
 
 }

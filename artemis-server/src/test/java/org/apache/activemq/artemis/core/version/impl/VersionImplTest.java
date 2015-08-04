@@ -25,9 +25,7 @@ import java.io.ObjectOutputStream;
 
 import org.junit.Assert;
 
-
-public class VersionImplTest extends Assert
-{
+public class VersionImplTest extends Assert {
    // Constants -----------------------------------------------------
 
    // Attributes ----------------------------------------------------
@@ -39,21 +37,15 @@ public class VersionImplTest extends Assert
    // Public --------------------------------------------------------
 
    @Test
-   public void testVersionImpl() throws Exception
-   {
+   public void testVersionImpl() throws Exception {
 
       String versionName = "ACTIVEMQ";
       int majorVersion = 2;
       int minorVersion = 0;
       int microVersion = 1;
       int incrementingVersion = 10;
-      int[] compatibleVersionList = {7,8,9,10};
-      VersionImpl version = new VersionImpl(versionName,
-                                            majorVersion,
-                                            minorVersion,
-                                            microVersion,
-                                            incrementingVersion,
-                                            compatibleVersionList);
+      int[] compatibleVersionList = {7, 8, 9, 10};
+      VersionImpl version = new VersionImpl(versionName, majorVersion, minorVersion, microVersion, incrementingVersion, compatibleVersionList);
 
       Assert.assertEquals(versionName, version.getVersionName());
       Assert.assertEquals(majorVersion, version.getMajorVersion());
@@ -63,11 +55,10 @@ public class VersionImplTest extends Assert
    }
 
    @Test
-   public void testEquals() throws Exception
-   {
-      VersionImpl version = new VersionImpl("ACTIVEMQ", 2, 0, 1, 10, new int[]{7,8,9,10});
-      VersionImpl sameVersion = new VersionImpl("ACTIVEMQ", 2, 0, 1, 10, new int[]{7,8,9,10});
-      VersionImpl differentVersion = new VersionImpl("ACTIVEMQ", 2, 0, 1, 11, new int[]{7,8,9,10,11});
+   public void testEquals() throws Exception {
+      VersionImpl version = new VersionImpl("ACTIVEMQ", 2, 0, 1, 10, new int[]{7, 8, 9, 10});
+      VersionImpl sameVersion = new VersionImpl("ACTIVEMQ", 2, 0, 1, 10, new int[]{7, 8, 9, 10});
+      VersionImpl differentVersion = new VersionImpl("ACTIVEMQ", 2, 0, 1, 11, new int[]{7, 8, 9, 10, 11});
 
       Assert.assertFalse(version.equals(new Object()));
 
@@ -77,9 +68,8 @@ public class VersionImplTest extends Assert
    }
 
    @Test
-   public void testSerialize() throws Exception
-   {
-      VersionImpl version = new VersionImpl("uyiuy", 3, 7, 6, 12, new int[]{9,10,11,12});
+   public void testSerialize() throws Exception {
+      VersionImpl version = new VersionImpl("uyiuy", 3, 7, 6, 12, new int[]{9, 10, 11, 12});
       ByteArrayOutputStream baos = new ByteArrayOutputStream();
       ObjectOutputStream oos = new ObjectOutputStream(baos);
       oos.writeObject(version);
@@ -87,7 +77,7 @@ public class VersionImplTest extends Assert
 
       ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
       ObjectInputStream ois = new ObjectInputStream(bais);
-      VersionImpl version2 = (VersionImpl)ois.readObject();
+      VersionImpl version2 = (VersionImpl) ois.readObject();
 
       Assert.assertTrue(version.equals(version2));
    }

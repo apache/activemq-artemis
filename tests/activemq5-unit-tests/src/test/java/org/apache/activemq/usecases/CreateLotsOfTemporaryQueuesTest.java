@@ -21,47 +21,49 @@ import javax.jms.TemporaryQueue;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
+
 import junit.textui.TestRunner;
 import org.apache.activemq.EmbeddedBrokerAndConnectionTestSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * 
+ *
  */
 public class CreateLotsOfTemporaryQueuesTest extends EmbeddedBrokerAndConnectionTestSupport {
-    private static final Logger LOG = LoggerFactory.getLogger(CreateLotsOfTemporaryQueuesTest.class);
 
-    private static int numberToCreate = 500;
-    private static long sleep = 20;
+   private static final Logger LOG = LoggerFactory.getLogger(CreateLotsOfTemporaryQueuesTest.class);
 
-    public static void main(String[] args) {
-        configure(args);
-        TestRunner.run(suite());
-    }
+   private static int numberToCreate = 500;
+   private static long sleep = 20;
 
-    public static Test suite() {
-        return new TestSuite(CreateLotsOfTemporaryQueuesTest.class);
-    }
+   public static void main(String[] args) {
+      configure(args);
+      TestRunner.run(suite());
+   }
 
-    public void testCreateLotsOfTemporaryQueues() throws Exception {
-        LOG.info("Creating " + numberToCreate + " temporary queue(s)");
+   public static Test suite() {
+      return new TestSuite(CreateLotsOfTemporaryQueuesTest.class);
+   }
 
-        Session session = connection.createSession(true, Session.AUTO_ACKNOWLEDGE);
-        for (int i = 0; i < numberToCreate; i++) {
-            if (i % 1000 == 0) {
-                LOG.info("attempt " + i);
-            }
-            TemporaryQueue temporaryQueue = session.createTemporaryQueue();
-            temporaryQueue.delete();
-            Thread.sleep(sleep);
-        }
-        LOG.info("Created " + numberToCreate + " temporary queue(s)");
-    }
+   public void testCreateLotsOfTemporaryQueues() throws Exception {
+      LOG.info("Creating " + numberToCreate + " temporary queue(s)");
 
-    public static void configure(String[] args) {
-        if (args.length > 0) {
-            numberToCreate = Integer.parseInt(args[0]);
-        }
-    }
+      Session session = connection.createSession(true, Session.AUTO_ACKNOWLEDGE);
+      for (int i = 0; i < numberToCreate; i++) {
+         if (i % 1000 == 0) {
+            LOG.info("attempt " + i);
+         }
+         TemporaryQueue temporaryQueue = session.createTemporaryQueue();
+         temporaryQueue.delete();
+         Thread.sleep(sleep);
+      }
+      LOG.info("Created " + numberToCreate + " temporary queue(s)");
+   }
+
+   public static void configure(String[] args) {
+      if (args.length > 0) {
+         numberToCreate = Integer.parseInt(args[0]);
+      }
+   }
 }

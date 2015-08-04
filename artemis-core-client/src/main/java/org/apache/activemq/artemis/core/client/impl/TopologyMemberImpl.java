@@ -21,8 +21,8 @@ import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.TopologyMember;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 
-public final class TopologyMemberImpl implements TopologyMember
-{
+public final class TopologyMemberImpl implements TopologyMember {
+
    private static final long serialVersionUID = 1123652191795626133L;
 
    private final Pair<TransportConfiguration, TransportConfiguration> connector;
@@ -38,9 +38,11 @@ public final class TopologyMemberImpl implements TopologyMember
 
    private final String nodeId;
 
-   public TopologyMemberImpl(String nodeId, final String backupGroupName, final String scaleDownGroupName, final TransportConfiguration a,
-                             final TransportConfiguration b)
-   {
+   public TopologyMemberImpl(String nodeId,
+                             final String backupGroupName,
+                             final String scaleDownGroupName,
+                             final TransportConfiguration a,
+                             final TransportConfiguration b) {
       this.nodeId = nodeId;
       this.backupGroupName = backupGroupName;
       this.scaleDownGroupName = scaleDownGroupName;
@@ -49,90 +51,72 @@ public final class TopologyMemberImpl implements TopologyMember
    }
 
    @Override
-   public TransportConfiguration getLive()
-   {
+   public TransportConfiguration getLive() {
       return connector.getA();
    }
 
    @Override
-   public TransportConfiguration getBackup()
-   {
+   public TransportConfiguration getBackup() {
       return connector.getB();
    }
 
-   public void setBackup(final TransportConfiguration param)
-   {
+   public void setBackup(final TransportConfiguration param) {
       connector.setB(param);
    }
 
-   public void setLive(final TransportConfiguration param)
-   {
+   public void setLive(final TransportConfiguration param) {
       connector.setA(param);
    }
 
    @Override
-   public String getNodeId()
-   {
+   public String getNodeId() {
       return nodeId;
    }
 
    @Override
-   public long getUniqueEventID()
-   {
+   public long getUniqueEventID() {
       return uniqueEventID;
    }
 
    @Override
-   public String getBackupGroupName()
-   {
+   public String getBackupGroupName() {
       return backupGroupName;
    }
 
    @Override
-   public String getScaleDownGroupName()
-   {
+   public String getScaleDownGroupName() {
       return scaleDownGroupName;
    }
 
    /**
     * @param uniqueEventID the uniqueEventID to set
     */
-   public void setUniqueEventID(final long uniqueEventID)
-   {
+   public void setUniqueEventID(final long uniqueEventID) {
       this.uniqueEventID = uniqueEventID;
    }
 
-   public Pair<TransportConfiguration, TransportConfiguration> getConnector()
-   {
+   public Pair<TransportConfiguration, TransportConfiguration> getConnector() {
       return connector;
    }
 
-
-   public boolean isMember(RemotingConnection connection)
-   {
+   public boolean isMember(RemotingConnection connection) {
       TransportConfiguration connectorConfig = connection.getTransportConnection() != null ? connection.getTransportConnection().getConnectorConfig() : null;
 
       return isMember(connectorConfig);
 
    }
 
-   public boolean isMember(TransportConfiguration configuration)
-   {
-      if (getConnector().getA() != null && getConnector().getA().equals(configuration) ||
-         getConnector().getB() != null && getConnector().getB().equals(configuration))
-      {
+   public boolean isMember(TransportConfiguration configuration) {
+      if (getConnector().getA() != null && getConnector().getA().equals(configuration) || getConnector().getB() != null && getConnector().getB().equals(configuration)) {
          return true;
       }
-      else
-      {
+      else {
          return false;
       }
    }
 
-
    @Override
-   public String toString()
-   {
+   public String toString() {
       return "TopologyMember[id = " + nodeId + ", connector=" + connector + ", backupGroupName=" + backupGroupName + ", scaleDownGroupName=" + scaleDownGroupName + "]";
    }
 }

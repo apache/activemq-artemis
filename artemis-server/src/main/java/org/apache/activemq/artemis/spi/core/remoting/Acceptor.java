@@ -27,8 +27,8 @@ import org.apache.activemq.artemis.core.server.management.NotificationService;
  * An Acceptor is used by the RemotingService to allow clients to connect. It should take care of
  * dispatching client requests to the RemotingService's Dispatcher.
  */
-public interface Acceptor extends ActiveMQComponent
-{
+public interface Acceptor extends ActiveMQComponent {
+
    /**
     * Pause the acceptor and stop it from receiving client requests.
     */
@@ -49,12 +49,13 @@ public interface Acceptor extends ActiveMQComponent
    void setNotificationService(NotificationService notificationService);
 
    /**
-   * Set the default security Principal to be used when no user/pass are defined, only for InVM
-   */
+    * Set the default security Principal to be used when no user/pass are defined, only for InVM
+    */
    void setDefaultActiveMQPrincipal(ActiveMQPrincipal defaultActiveMQPrincipal);
 
    /**
     * Whether this acceptor allows insecure connections.
+    *
     * @throws java.lang.IllegalStateException if false @setDefaultActiveMQPrincipal
     */
    boolean isUnsecurable();

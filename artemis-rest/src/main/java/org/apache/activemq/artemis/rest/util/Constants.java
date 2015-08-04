@@ -16,8 +16,8 @@
  */
 package org.apache.activemq.artemis.rest.util;
 
-public interface Constants
-{
+public interface Constants {
+
    String WAIT_HEADER = "Accept-Wait";
    String PATH_FOR_QUEUES = "/queues";
 }

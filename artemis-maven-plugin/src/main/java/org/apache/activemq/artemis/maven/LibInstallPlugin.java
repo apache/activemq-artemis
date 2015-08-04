@@ -43,9 +43,7 @@ import org.eclipse.aether.resolution.ArtifactResolutionException;
 import org.eclipse.aether.resolution.ArtifactResult;
 
 @Mojo(name = "lib-install", defaultPhase = LifecyclePhase.VERIFY)
-public class LibInstallPlugin extends AbstractMojo
-
-{
+public class LibInstallPlugin extends AbstractMojo {
 
    @Parameter
    String name;
@@ -67,40 +65,33 @@ public class LibInstallPlugin extends AbstractMojo
    @Parameter(defaultValue = "${project.remoteProjectRepositories}")
    private List<RemoteRepository> remoteRepos;
 
-
    @Parameter
    private String[] libList;
 
    @Parameter(defaultValue = "${localRepository}")
    private org.apache.maven.artifact.repository.ArtifactRepository localRepository;
 
-   public void execute() throws MojoExecutionException, MojoFailureException
-   {
+   public void execute() throws MojoExecutionException, MojoFailureException {
       MavenProject project = (MavenProject) getPluginContext().get("project");
 
       Map properties = getPluginContext();
 
-      try
-      {
+      try {
 
          File projectLib = project.getArtifact().getFile();
          copyToLib(projectLib);
 
-         if (libList != null)
-         {
-            for (int i = 0; i < libList.length; i++)
-            {
+         if (libList != null) {
+            for (int i = 0; i < libList.length; i++) {
                String[] splitString = libList[i].split(":");
 
                getLog().info("********************" + splitString[0] + "/" + splitString[1] + "/" + splitString[2]);
 
                Artifact artifact;
-               try
-               {
+               try {
                   artifact = new DefaultArtifact(libList[i]);
                }
-               catch (IllegalArgumentException e)
-               {
+               catch (IllegalArgumentException e) {
                   throw new MojoFailureException(e.getMessage(), e);
                }
 
@@ -111,12 +102,10 @@ public class LibInstallPlugin extends AbstractMojo
                getLog().info("Resolving artifact " + artifact + " from " + remoteRepos);
 
                ArtifactResult result;
-               try
-               {
+               try {
                   result = repositorySystem.resolveArtifact(repoSession, request);
                }
-               catch (ArtifactResolutionException e)
-               {
+               catch (ArtifactResolutionException e) {
                   throw new MojoExecutionException(e.getMessage(), e);
                }
 
@@ -130,15 +119,13 @@ public class LibInstallPlugin extends AbstractMojo
          }
 
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          getLog().error(e);
          throw new MojoFailureException(e.getMessage());
       }
    }
 
-   private void copyToLib(File projectLib) throws IOException
-   {
+   private void copyToLib(File projectLib) throws IOException {
       Path target = instance.toPath().resolve("lib").resolve(projectLib.getName());
       target.toFile().mkdirs();
       getLog().info("Copying " + projectLib.getName() + " as " + target.toFile().getAbsolutePath());

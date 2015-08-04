@@ -20,40 +20,33 @@ import org.apache.activemq.artemis.spi.core.naming.BindingRegistry;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 
-public class SpringBindingRegistry implements BindingRegistry
-{
+public class SpringBindingRegistry implements BindingRegistry {
+
    private ConfigurableBeanFactory factory;
 
-   public SpringBindingRegistry(ConfigurableBeanFactory factory)
-   {
+   public SpringBindingRegistry(ConfigurableBeanFactory factory) {
       this.factory = factory;
    }
 
-   public Object lookup(String name)
-   {
+   public Object lookup(String name) {
       Object obj = null;
-      try
-      {
+      try {
          obj = factory.getBean(name);
       }
-      catch (NoSuchBeanDefinitionException e)
-      {
+      catch (NoSuchBeanDefinitionException e) {
          //ignore
       }
       return obj;
    }
 
-   public boolean bind(String name, Object obj)
-   {
+   public boolean bind(String name, Object obj) {
       factory.registerSingleton(name, obj);
       return true;
    }
 
-   public void unbind(String name)
-   {
+   public void unbind(String name) {
    }
 
-   public void close()
-   {
+   public void close() {
    }
 }

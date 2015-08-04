@@ -16,25 +16,22 @@
  */
 package org.apache.activemq.artemis.core.security;
 
-public class ActiveMQPrincipal
-{
+public class ActiveMQPrincipal {
+
    private final String userName;
 
    private final String password;
 
-   public ActiveMQPrincipal(String userName, String password)
-   {
+   public ActiveMQPrincipal(String userName, String password) {
       this.userName = userName;
       this.password = password;
    }
 
-   public String getUserName()
-   {
+   public String getUserName() {
       return userName;
    }
 
-   public String getPassword()
-   {
+   public String getPassword() {
       return password;
    }
 }

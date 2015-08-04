@@ -26,8 +26,7 @@ import org.apache.activemq.artemis.api.core.management.Parameter;
 /**
  * A TopicControl is used to manage a JMS Topic.
  */
-public interface TopicControl extends DestinationControl
-{
+public interface TopicControl extends DestinationControl {
 
    /**
     * Returns the number of (durable and non-durable) subscribers for this topic.
@@ -65,8 +64,6 @@ public interface TopicControl extends DestinationControl
     */
    @Operation(desc = "Adds the queue to another Registry binding")
    void addBinding(@Parameter(name = "binding", desc = "the name of the binding for Registry") String binding) throws Exception;
-
-
 
    // Operations ----------------------------------------------------
 
@@ -133,8 +130,8 @@ public interface TopicControl extends DestinationControl
     */
    @Operation(desc = "Count the number of messages matching the filter for the given subscription")
    int countMessagesForSubscription(@Parameter(name = "clientID", desc = "the client ID") String clientID,
-                                           @Parameter(name = "subscriptionName", desc = "the name of the durable subscription") String subscriptionName,
-                                           @Parameter(name = "filter", desc = "a JMS filter (can be empty)") String filter) throws Exception;
+                                    @Parameter(name = "subscriptionName", desc = "the name of the durable subscription") String subscriptionName,
+                                    @Parameter(name = "filter", desc = "a JMS filter (can be empty)") String filter) throws Exception;
 
    /**
     * Drops the subscription specified by the specified client ID and subscription name.

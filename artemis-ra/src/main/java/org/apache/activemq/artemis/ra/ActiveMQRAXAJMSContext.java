@@ -21,10 +21,9 @@ import org.apache.activemq.artemis.jms.client.ThreadAwareContext;
 
 import javax.jms.XAJMSContext;
 
-public class ActiveMQRAXAJMSContext extends ActiveMQRAJMSContext implements XAJMSContext
-{
-   public ActiveMQRAXAJMSContext(ActiveMQConnectionForContext connection, ThreadAwareContext threadAwareContext)
-   {
+public class ActiveMQRAXAJMSContext extends ActiveMQRAJMSContext implements XAJMSContext {
+
+   public ActiveMQRAXAJMSContext(ActiveMQConnectionForContext connection, ThreadAwareContext threadAwareContext) {
       super(connection, threadAwareContext);
    }
 }

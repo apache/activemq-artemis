@@ -28,14 +28,13 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Before;
 import org.junit.Test;
 
-public class NettyConnectorTest extends ActiveMQTestBase
-{
+public class NettyConnectorTest extends ActiveMQTestBase {
+
    private ActiveMQServer server;
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       server = createServer(false, createDefaultNettyConfig());
@@ -44,8 +43,7 @@ public class NettyConnectorTest extends ActiveMQTestBase
 
    //make sure the 'connect-timeout' passed to netty.
    @Test
-   public void testConnectionTimeoutConfig() throws Exception
-   {
+   public void testConnectionTimeoutConfig() throws Exception {
       final int timeout = 23456;
       TransportConfiguration transport = new TransportConfiguration(NETTY_CONNECTOR_FACTORY);
       transport.getParams().put(TransportConstants.NETTY_CONNECT_TIMEOUT, timeout);

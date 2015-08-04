@@ -19,26 +19,28 @@ package org.apache.activemq.artemis.ra;
 import javax.resource.ResourceException;
 import javax.resource.spi.ManagedConnectionMetaData;
 
-
 /**
  * Managed connection meta data
  */
-public class ActiveMQRAMetaData implements ManagedConnectionMetaData
-{
-   /** Trace enabled */
+public class ActiveMQRAMetaData implements ManagedConnectionMetaData {
+
+   /**
+    * Trace enabled
+    */
    private static boolean trace = ActiveMQRALogger.LOGGER.isTraceEnabled();
 
-   /** The managed connection */
+   /**
+    * The managed connection
+    */
    private final ActiveMQRAManagedConnection mc;
 
    /**
     * Constructor
+    *
     * @param mc The managed connection
     */
-   public ActiveMQRAMetaData(final ActiveMQRAManagedConnection mc)
-   {
-      if (ActiveMQRAMetaData.trace)
-      {
+   public ActiveMQRAMetaData(final ActiveMQRAManagedConnection mc) {
+      if (ActiveMQRAMetaData.trace) {
          ActiveMQRALogger.LOGGER.trace("constructor(" + mc + ")");
       }
 
@@ -47,13 +49,12 @@ public class ActiveMQRAMetaData implements ManagedConnectionMetaData
 
    /**
     * Get the EIS product name
+    *
     * @return The name
-    * @exception ResourceException Thrown if operation fails
+    * @throws ResourceException Thrown if operation fails
     */
-   public String getEISProductName() throws ResourceException
-   {
-      if (ActiveMQRAMetaData.trace)
-      {
+   public String getEISProductName() throws ResourceException {
+      if (ActiveMQRAMetaData.trace) {
          ActiveMQRALogger.LOGGER.trace("getEISProductName()");
       }
 
@@ -62,13 +63,12 @@ public class ActiveMQRAMetaData implements ManagedConnectionMetaData
 
    /**
     * Get the EIS product version
+    *
     * @return The version
-    * @exception ResourceException Thrown if operation fails
+    * @throws ResourceException Thrown if operation fails
     */
-   public String getEISProductVersion() throws ResourceException
-   {
-      if (ActiveMQRAMetaData.trace)
-      {
+   public String getEISProductVersion() throws ResourceException {
+      if (ActiveMQRAMetaData.trace) {
          ActiveMQRALogger.LOGGER.trace("getEISProductVersion()");
       }
 
@@ -77,13 +77,12 @@ public class ActiveMQRAMetaData implements ManagedConnectionMetaData
 
    /**
     * Get the user name
+    *
     * @return The user name
-    * @exception ResourceException Thrown if operation fails
+    * @throws ResourceException Thrown if operation fails
     */
-   public String getUserName() throws ResourceException
-   {
-      if (ActiveMQRAMetaData.trace)
-      {
+   public String getUserName() throws ResourceException {
+      if (ActiveMQRAMetaData.trace) {
          ActiveMQRALogger.LOGGER.trace("getUserName()");
       }
 
@@ -91,14 +90,13 @@ public class ActiveMQRAMetaData implements ManagedConnectionMetaData
    }
 
    /**
-     * Get the maximum number of connections -- RETURNS 0
-     * @return The number
-     * @exception ResourceException Thrown if operation fails
-     */
-   public int getMaxConnections() throws ResourceException
-   {
-      if (ActiveMQRAMetaData.trace)
-      {
+    * Get the maximum number of connections -- RETURNS 0
+    *
+    * @return The number
+    * @throws ResourceException Thrown if operation fails
+    */
+   public int getMaxConnections() throws ResourceException {
+      if (ActiveMQRAMetaData.trace) {
          ActiveMQRALogger.LOGGER.trace("getMaxConnections()");
       }
 

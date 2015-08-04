@@ -27,22 +27,18 @@ import org.apache.activemq.artemis.tests.integration.cluster.distribution.Cluste
 import org.junit.Before;
 import org.junit.Test;
 
+public class ClusterControllerTest extends ClusterTestBase {
 
-public class ClusterControllerTest extends ClusterTestBase
-{
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       setupServer(0, isFileStorage(), true);
       setupServer(1, isFileStorage(), true);
 
-      getServer(0).getConfiguration().getAcceptorConfigurations().add(createTransportConfiguration(false, true,
-            generateParams(0, false)));
-      getServer(1).getConfiguration().getAcceptorConfigurations().add(createTransportConfiguration(false, true,
-            generateParams(1, false)));
+      getServer(0).getConfiguration().getAcceptorConfigurations().add(createTransportConfiguration(false, true, generateParams(0, false)));
+      getServer(1).getConfiguration().getAcceptorConfigurations().add(createTransportConfiguration(false, true, generateParams(1, false)));
 
       getServer(0).getConfiguration().setSecurityEnabled(true);
       getServer(1).getConfiguration().setSecurityEnabled(true);
@@ -57,10 +53,8 @@ public class ClusterControllerTest extends ClusterTestBase
    }
 
    @Test
-   public void controlWithDifferentConnector() throws Exception
-   {
-      try (ServerLocatorImpl locator = (ServerLocatorImpl) createInVMNonHALocator())
-      {
+   public void controlWithDifferentConnector() throws Exception {
+      try (ServerLocatorImpl locator = (ServerLocatorImpl) createInVMNonHALocator()) {
          locator.setProtocolManagerFactory(ActiveMQServerSideProtocolManagerFactory.getInstance());
          ClusterController controller = new ClusterController(getServer(0), getServer(0).getScheduledPool());
          ClusterControl clusterControl = controller.connectToNodeInCluster((ClientSessionFactoryInternal) locator.createSessionFactory());
@@ -69,20 +63,16 @@ public class ClusterControllerTest extends ClusterTestBase
    }
 
    @Test
-   public void controlWithDifferentPassword() throws Exception
-   {
-      try (ServerLocatorImpl locator = (ServerLocatorImpl) createInVMNonHALocator())
-      {
+   public void controlWithDifferentPassword() throws Exception {
+      try (ServerLocatorImpl locator = (ServerLocatorImpl) createInVMNonHALocator()) {
          locator.setProtocolManagerFactory(ActiveMQServerSideProtocolManagerFactory.getInstance());
          ClusterController controller = new ClusterController(getServer(1), getServer(1).getScheduledPool());
          ClusterControl clusterControl = controller.connectToNodeInCluster((ClientSessionFactoryInternal) locator.createSessionFactory());
-         try
-         {
+         try {
             clusterControl.authorize();
             fail("should throw ActiveMQClusterSecurityException");
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             assertTrue("should throw ActiveMQClusterSecurityException", e instanceof ActiveMQClusterSecurityException);
          }
       }

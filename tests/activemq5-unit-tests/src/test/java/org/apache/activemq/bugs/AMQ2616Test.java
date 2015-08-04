@@ -24,7 +24,9 @@ import javax.jms.Connection;
 import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
+
 import junit.framework.TestCase;
+
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.broker.region.policy.FilePendingQueueMessageStoragePolicy;
@@ -35,82 +37,82 @@ import org.apache.activemq.store.kahadb.KahaDBPersistenceAdapter;
 import org.apache.activemq.util.IOHelper;
 
 public class AMQ2616Test extends TestCase {
-    private static final int NUMBER = 2000;
-    private BrokerService brokerService;
-    private final ArrayList<Thread> threads = new ArrayList<Thread>();
-    private final String ACTIVEMQ_BROKER_BIND = "tcp://0.0.0.0:0";
-    private final AtomicBoolean shutdown = new AtomicBoolean();
 
-    private String connectionUri;
+   private static final int NUMBER = 2000;
+   private BrokerService brokerService;
+   private final ArrayList<Thread> threads = new ArrayList<Thread>();
+   private final String ACTIVEMQ_BROKER_BIND = "tcp://0.0.0.0:0";
+   private final AtomicBoolean shutdown = new AtomicBoolean();
 
-    public void testQueueResourcesReleased() throws Exception{
-        ActiveMQConnectionFactory fac = new ActiveMQConnectionFactory(connectionUri);
-        Connection tempConnection = fac.createConnection();
-        tempConnection.start();
-        Session tempSession = tempConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        Queue tempQueue = tempSession.createTemporaryQueue();
+   private String connectionUri;
 
-        Connection testConnection = fac.createConnection();
-        long startUsage = brokerService.getSystemUsage().getMemoryUsage().getUsage();
-        Session testSession = testConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        MessageProducer testProducer = testSession.createProducer(tempQueue);
-        byte[] payload = new byte[1024*4];
-        for (int i = 0; i < NUMBER; i++ ) {
-            BytesMessage msg = testSession.createBytesMessage();
-            msg.writeBytes(payload);
-            testProducer.send(msg);
-        }
-        long endUsage = brokerService.getSystemUsage().getMemoryUsage().getUsage();
-        assertFalse(startUsage==endUsage);
-        tempConnection.close();
-        Thread.sleep(1000);
-        endUsage = brokerService.getSystemUsage().getMemoryUsage().getUsage();
-        assertEquals(startUsage,endUsage);
-    }
+   public void testQueueResourcesReleased() throws Exception {
+      ActiveMQConnectionFactory fac = new ActiveMQConnectionFactory(connectionUri);
+      Connection tempConnection = fac.createConnection();
+      tempConnection.start();
+      Session tempSession = tempConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      Queue tempQueue = tempSession.createTemporaryQueue();
 
+      Connection testConnection = fac.createConnection();
+      long startUsage = brokerService.getSystemUsage().getMemoryUsage().getUsage();
+      Session testSession = testConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      MessageProducer testProducer = testSession.createProducer(tempQueue);
+      byte[] payload = new byte[1024 * 4];
+      for (int i = 0; i < NUMBER; i++) {
+         BytesMessage msg = testSession.createBytesMessage();
+         msg.writeBytes(payload);
+         testProducer.send(msg);
+      }
+      long endUsage = brokerService.getSystemUsage().getMemoryUsage().getUsage();
+      assertFalse(startUsage == endUsage);
+      tempConnection.close();
+      Thread.sleep(1000);
+      endUsage = brokerService.getSystemUsage().getMemoryUsage().getUsage();
+      assertEquals(startUsage, endUsage);
+   }
 
-    @Override
-    protected void setUp() throws Exception {
-        // Start an embedded broker up.
-        brokerService = new BrokerService();
+   @Override
+   protected void setUp() throws Exception {
+      // Start an embedded broker up.
+      brokerService = new BrokerService();
 
-        KahaDBPersistenceAdapter adaptor = new KahaDBPersistenceAdapter();
-        adaptor.setEnableJournalDiskSyncs(false);
-        File file = new File("target/AMQ2616Test");
-        IOHelper.mkdirs(file);
-        IOHelper.deleteChildren(file);
-        adaptor.setDirectory(file);
-        brokerService.setPersistenceAdapter(adaptor);
+      KahaDBPersistenceAdapter adaptor = new KahaDBPersistenceAdapter();
+      adaptor.setEnableJournalDiskSyncs(false);
+      File file = new File("target/AMQ2616Test");
+      IOHelper.mkdirs(file);
+      IOHelper.deleteChildren(file);
+      adaptor.setDirectory(file);
+      brokerService.setPersistenceAdapter(adaptor);
 
-        PolicyMap policyMap = new PolicyMap();
-        PolicyEntry pe = new PolicyEntry();
-        pe.setMemoryLimit(10 * 1024 * 1024);
-        pe.setOptimizedDispatch(true);
-        pe.setProducerFlowControl(false);
-        pe.setExpireMessagesPeriod(1000);
-        pe.setPendingQueuePolicy(new FilePendingQueueMessageStoragePolicy());
-        policyMap.put(new ActiveMQQueue(">"), pe);
-        brokerService.setDestinationPolicy(policyMap);
-        brokerService.getSystemUsage().getMemoryUsage().setLimit(20 * 1024 * 1024);
-        brokerService.getSystemUsage().getTempUsage().setLimit(200 * 1024 * 1024);
-        brokerService.addConnector(ACTIVEMQ_BROKER_BIND);
-        brokerService.start();
-        brokerService.waitUntilStarted();
+      PolicyMap policyMap = new PolicyMap();
+      PolicyEntry pe = new PolicyEntry();
+      pe.setMemoryLimit(10 * 1024 * 1024);
+      pe.setOptimizedDispatch(true);
+      pe.setProducerFlowControl(false);
+      pe.setExpireMessagesPeriod(1000);
+      pe.setPendingQueuePolicy(new FilePendingQueueMessageStoragePolicy());
+      policyMap.put(new ActiveMQQueue(">"), pe);
+      brokerService.setDestinationPolicy(policyMap);
+      brokerService.getSystemUsage().getMemoryUsage().setLimit(20 * 1024 * 1024);
+      brokerService.getSystemUsage().getTempUsage().setLimit(200 * 1024 * 1024);
+      brokerService.addConnector(ACTIVEMQ_BROKER_BIND);
+      brokerService.start();
+      brokerService.waitUntilStarted();
 
-        connectionUri = brokerService.getTransportConnectors().get(0).getPublishableConnectString();
+      connectionUri = brokerService.getTransportConnectors().get(0).getPublishableConnectString();
 
-        new ActiveMQQueue(getName());
-    }
+      new ActiveMQQueue(getName());
+   }
 
-    @Override
-    protected void tearDown() throws Exception {
-        // Stop any running threads.
-        shutdown.set(true);
-        for (Thread t : threads) {
-            t.interrupt();
-            t.join();
-        }
-        brokerService.stop();
-    }
+   @Override
+   protected void tearDown() throws Exception {
+      // Stop any running threads.
+      shutdown.set(true);
+      for (Thread t : threads) {
+         t.interrupt();
+         t.join();
+      }
+      brokerService.stop();
+   }
 
 }

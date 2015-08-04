@@ -18,11 +18,11 @@ package org.apache.activemq.artemis.core.remoting;
 
 /**
  * CloseListeners can be registered with a {@link org.apache.activemq.artemis.spi.core.protocol.RemotingConnection} to get notified when the connection is closed.
- * <p>
+ * <br>
  * {@link org.apache.activemq.artemis.spi.core.protocol.RemotingConnection#addCloseListener(CloseListener)}
  */
-public interface CloseListener
-{
+public interface CloseListener {
+
    /**
     * called when the connection is closed
     */

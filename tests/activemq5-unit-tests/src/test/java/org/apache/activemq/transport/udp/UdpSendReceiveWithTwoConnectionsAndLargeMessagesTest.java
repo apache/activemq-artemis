@@ -18,14 +18,14 @@ package org.apache.activemq.transport.udp;
 
 /**
  *
- * 
+ *
  */
 public class UdpSendReceiveWithTwoConnectionsAndLargeMessagesTest extends UdpSendReceiveWithTwoConnectionsTest {
 
-    protected void setUp() throws Exception {
-        largeMessages = true;
-        messageCount = 2;
-        super.setUp();
-    }
+   protected void setUp() throws Exception {
+      largeMessages = true;
+      messageCount = 2;
+      super.setUp();
+   }
 
 }

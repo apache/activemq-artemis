@@ -41,203 +41,213 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class MessageGroupDelayedTest extends JmsTestSupport {
-    public static final Logger log = LoggerFactory.getLogger(MessageGroupDelayedTest.class);
-    protected Connection connection;
-    protected Session session;
-    protected MessageProducer producer;
-    protected Destination destination;
 
-    public int consumersBeforeDispatchStarts;
-    public int timeBeforeDispatchStarts;
+   public static final Logger log = LoggerFactory.getLogger(MessageGroupDelayedTest.class);
+   protected Connection connection;
+   protected Session session;
+   protected MessageProducer producer;
+   protected Destination destination;
 
-    BrokerService broker;
-    protected TransportConnector connector;
+   public int consumersBeforeDispatchStarts;
+   public int timeBeforeDispatchStarts;
 
-    protected HashMap<String, Integer> messageCount = new HashMap<String, Integer>();
-    protected HashMap<String, Set<String>> messageGroups = new HashMap<String, Set<String>>();
+   BrokerService broker;
+   protected TransportConnector connector;
 
-    public static Test suite() {
-        return suite(MessageGroupDelayedTest.class);
-    }
+   protected HashMap<String, Integer> messageCount = new HashMap<String, Integer>();
+   protected HashMap<String, Set<String>> messageGroups = new HashMap<String, Set<String>>();
 
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(suite());
-    }
+   public static Test suite() {
+      return suite(MessageGroupDelayedTest.class);
+   }
 
-    @Override
-    public void setUp() throws Exception {
-        broker = createBroker();
-        broker.start();
-        ActiveMQConnectionFactory connFactory = new ActiveMQConnectionFactory(connector.getConnectUri() + "?jms.prefetchPolicy.all=1");
-        connection = connFactory.createConnection();
-        session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
-        destination = new ActiveMQQueue("test-queue2");
-        producer = session.createProducer(destination);
-        connection.start();
-    }
+   public static void main(String[] args) {
+      junit.textui.TestRunner.run(suite());
+   }
 
-    @Override
-    protected BrokerService createBroker() throws Exception {
-        BrokerService service = new BrokerService();
-        service.setPersistent(false);
-        service.setUseJmx(false);
+   @Override
+   public void setUp() throws Exception {
+      broker = createBroker();
+      broker.start();
+      ActiveMQConnectionFactory connFactory = new ActiveMQConnectionFactory(connector.getConnectUri() + "?jms.prefetchPolicy.all=1");
+      connection = connFactory.createConnection();
+      session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
+      destination = new ActiveMQQueue("test-queue2");
+      producer = session.createProducer(destination);
+      connection.start();
+   }
 
-        // Setup a destination policy where it takes only 1 message at a time.
-        PolicyMap policyMap = new PolicyMap();
-        PolicyEntry policy = new PolicyEntry();
-        log.info("testing with consumersBeforeDispatchStarts=" + consumersBeforeDispatchStarts + " and timeBeforeDispatchStarts=" + timeBeforeDispatchStarts);
-        policy.setConsumersBeforeDispatchStarts(consumersBeforeDispatchStarts);
-        policy.setTimeBeforeDispatchStarts(timeBeforeDispatchStarts);
-        policyMap.setDefaultEntry(policy);
-        service.setDestinationPolicy(policyMap);
+   @Override
+   protected BrokerService createBroker() throws Exception {
+      BrokerService service = new BrokerService();
+      service.setPersistent(false);
+      service.setUseJmx(false);
 
-        connector = service.addConnector("tcp://localhost:0");
-        return service;
-    }
+      // Setup a destination policy where it takes only 1 message at a time.
+      PolicyMap policyMap = new PolicyMap();
+      PolicyEntry policy = new PolicyEntry();
+      log.info("testing with consumersBeforeDispatchStarts=" + consumersBeforeDispatchStarts + " and timeBeforeDispatchStarts=" + timeBeforeDispatchStarts);
+      policy.setConsumersBeforeDispatchStarts(consumersBeforeDispatchStarts);
+      policy.setTimeBeforeDispatchStarts(timeBeforeDispatchStarts);
+      policyMap.setDefaultEntry(policy);
+      service.setDestinationPolicy(policyMap);
 
-    @Override
-    public void tearDown() throws Exception {
-        producer.close();
-        session.close();
-        connection.close();
-        broker.stop();
-    }
+      connector = service.addConnector("tcp://localhost:0");
+      return service;
+   }
 
-    public void initCombosForTestDelayedDirectConnectionListener() {
-        addCombinationValues("consumersBeforeDispatchStarts", new Object[] { 0, 3, 5 });
-        addCombinationValues("timeBeforeDispatchStarts", new Object[] { 0, 100 });
-    }
+   @Override
+   public void tearDown() throws Exception {
+      producer.close();
+      session.close();
+      connection.close();
+      broker.stop();
+   }
 
-    public void testDelayedDirectConnectionListener() throws Exception {
+   public void initCombosForTestDelayedDirectConnectionListener() {
+      addCombinationValues("consumersBeforeDispatchStarts", new Object[]{0, 3, 5});
+      addCombinationValues("timeBeforeDispatchStarts", new Object[]{0, 100});
+   }
 
-        for (int i = 0; i < 10; i++) {
-            Message msga = session.createTextMessage("hello a");
-            msga.setStringProperty("JMSXGroupID", "A");
-            producer.send(msga);
-            Message msgb = session.createTextMessage("hello b");
-            msgb.setStringProperty("JMSXGroupID", "B");
-            producer.send(msgb);
-            Message msgc = session.createTextMessage("hello c");
-            msgc.setStringProperty("JMSXGroupID", "C");
-            producer.send(msgc);
-        }
-        log.info("30 messages sent to group A/B/C");
+   public void testDelayedDirectConnectionListener() throws Exception {
 
-        int[] counters = { 10, 10, 10 };
+      for (int i = 0; i < 10; i++) {
+         Message msga = session.createTextMessage("hello a");
+         msga.setStringProperty("JMSXGroupID", "A");
+         producer.send(msga);
+         Message msgb = session.createTextMessage("hello b");
+         msgb.setStringProperty("JMSXGroupID", "B");
+         producer.send(msgb);
+         Message msgc = session.createTextMessage("hello c");
+         msgc.setStringProperty("JMSXGroupID", "C");
+         producer.send(msgc);
+      }
+      log.info("30 messages sent to group A/B/C");
 
-        CountDownLatch startSignal = new CountDownLatch(1);
-        CountDownLatch doneSignal = new CountDownLatch(1);
+      int[] counters = {10, 10, 10};
 
-        messageCount.put("worker1", 0);
-        messageGroups.put("worker1", new HashSet<String>());
-        Worker worker1 = new Worker(connection, destination, "worker1", startSignal, doneSignal, counters, messageCount, messageGroups);
-        messageCount.put("worker2", 0);
-        messageGroups.put("worker2", new HashSet<String>());
-        Worker worker2 = new Worker(connection, destination, "worker2", startSignal, doneSignal, counters, messageCount, messageGroups);
-        messageCount.put("worker3", 0);
-        messageGroups.put("worker3", new HashSet<String>());
-        Worker worker3 = new Worker(connection, destination, "worker3", startSignal, doneSignal, counters, messageCount, messageGroups);
+      CountDownLatch startSignal = new CountDownLatch(1);
+      CountDownLatch doneSignal = new CountDownLatch(1);
 
-        new Thread(worker1).start();
-        new Thread(worker2).start();
-        new Thread(worker3).start();
+      messageCount.put("worker1", 0);
+      messageGroups.put("worker1", new HashSet<String>());
+      Worker worker1 = new Worker(connection, destination, "worker1", startSignal, doneSignal, counters, messageCount, messageGroups);
+      messageCount.put("worker2", 0);
+      messageGroups.put("worker2", new HashSet<String>());
+      Worker worker2 = new Worker(connection, destination, "worker2", startSignal, doneSignal, counters, messageCount, messageGroups);
+      messageCount.put("worker3", 0);
+      messageGroups.put("worker3", new HashSet<String>());
+      Worker worker3 = new Worker(connection, destination, "worker3", startSignal, doneSignal, counters, messageCount, messageGroups);
 
-        startSignal.countDown();
-        doneSignal.await();
+      new Thread(worker1).start();
+      new Thread(worker2).start();
+      new Thread(worker3).start();
 
-        // check results
-        if (consumersBeforeDispatchStarts == 0 && timeBeforeDispatchStarts == 0) {
-            log.info("Ignoring results because both parameters are 0");
-            return;
-        }
+      startSignal.countDown();
+      doneSignal.await();
 
-        for (String worker : messageCount.keySet()) {
-            log.info("worker " + worker + " received " + messageCount.get(worker) + " messages from groups " + messageGroups.get(worker));
-            assertEquals("worker " + worker + " received " + messageCount.get(worker) + " messages from groups " + messageGroups.get(worker), 10, messageCount
-                .get(worker).intValue());
-            assertEquals("worker " + worker + " received " + messageCount.get(worker) + " messages from groups " + messageGroups.get(worker), 1, messageGroups
-                .get(worker).size());
-        }
+      // check results
+      if (consumersBeforeDispatchStarts == 0 && timeBeforeDispatchStarts == 0) {
+         log.info("Ignoring results because both parameters are 0");
+         return;
+      }
 
-    }
+      for (String worker : messageCount.keySet()) {
+         log.info("worker " + worker + " received " + messageCount.get(worker) + " messages from groups " + messageGroups.get(worker));
+         assertEquals("worker " + worker + " received " + messageCount.get(worker) + " messages from groups " + messageGroups.get(worker), 10, messageCount.get(worker).intValue());
+         assertEquals("worker " + worker + " received " + messageCount.get(worker) + " messages from groups " + messageGroups.get(worker), 1, messageGroups.get(worker).size());
+      }
 
-    private static final class Worker implements Runnable {
-        private Connection connection = null;
-        private Destination queueName = null;
-        private String workerName = null;
-        private CountDownLatch startSignal = null;
-        private CountDownLatch doneSignal = null;
-        private int[] counters = null;
-        private final HashMap<String, Integer> messageCount;
-        private final HashMap<String, Set<String>> messageGroups;
+   }
 
-        private Worker(Connection connection, Destination queueName, String workerName, CountDownLatch startSignal, CountDownLatch doneSignal, int[] counters,
-            HashMap<String, Integer> messageCount, HashMap<String, Set<String>> messageGroups) {
-            this.connection = connection;
-            this.queueName = queueName;
-            this.workerName = workerName;
-            this.startSignal = startSignal;
-            this.doneSignal = doneSignal;
-            this.counters = counters;
-            this.messageCount = messageCount;
-            this.messageGroups = messageGroups;
-        }
+   private static final class Worker implements Runnable {
 
-        private void update(String group) {
-            int msgCount = messageCount.get(workerName);
-            messageCount.put(workerName, msgCount + 1);
-            Set<String> groups = messageGroups.get(workerName);
-            groups.add(group);
-            messageGroups.put(workerName, groups);
-        }
+      private Connection connection = null;
+      private Destination queueName = null;
+      private String workerName = null;
+      private CountDownLatch startSignal = null;
+      private CountDownLatch doneSignal = null;
+      private int[] counters = null;
+      private final HashMap<String, Integer> messageCount;
+      private final HashMap<String, Set<String>> messageGroups;
 
-        @Override
-        public void run() {
+      private Worker(Connection connection,
+                     Destination queueName,
+                     String workerName,
+                     CountDownLatch startSignal,
+                     CountDownLatch doneSignal,
+                     int[] counters,
+                     HashMap<String, Integer> messageCount,
+                     HashMap<String, Set<String>> messageGroups) {
+         this.connection = connection;
+         this.queueName = queueName;
+         this.workerName = workerName;
+         this.startSignal = startSignal;
+         this.doneSignal = doneSignal;
+         this.counters = counters;
+         this.messageCount = messageCount;
+         this.messageGroups = messageGroups;
+      }
 
-            try {
-                log.info(workerName);
-                startSignal.await();
-                Session sess = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
-                MessageConsumer consumer = sess.createConsumer(queueName);
+      private void update(String group) {
+         int msgCount = messageCount.get(workerName);
+         messageCount.put(workerName, msgCount + 1);
+         Set<String> groups = messageGroups.get(workerName);
+         groups.add(group);
+         messageGroups.put(workerName, groups);
+      }
 
-                while (true) {
-                    if (counters[0] == 0 && counters[1] == 0 && counters[2] == 0) {
-                        doneSignal.countDown();
-                        log.info(workerName + " done...");
-                        break;
-                    }
+      @Override
+      public void run() {
 
-                    Message msg = consumer.receive(500);
-                    if (msg == null)
-                        continue;
+         try {
+            log.info(workerName);
+            startSignal.await();
+            Session sess = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
+            MessageConsumer consumer = sess.createConsumer(queueName);
 
-                    String group = msg.getStringProperty("JMSXGroupID");
-                    msg.getBooleanProperty("JMSXGroupFirstForConsumer");
+            while (true) {
+               if (counters[0] == 0 && counters[1] == 0 && counters[2] == 0) {
+                  doneSignal.countDown();
+                  log.info(workerName + " done...");
+                  break;
+               }
 
-                    if ("A".equals(group)) {
-                        --counters[0];
-                        update(group);
-                        Thread.sleep(500);
-                    } else if ("B".equals(group)) {
-                        --counters[1];
-                        update(group);
-                        Thread.sleep(100);
-                    } else if ("C".equals(group)) {
-                        --counters[2];
-                        update(group);
-                        Thread.sleep(10);
-                    } else {
-                        log.warn("unknown group");
-                    }
-                    if (counters[0] != 0 || counters[1] != 0 || counters[2] != 0) {
-                        msg.acknowledge();
-                    }
-                }
-                consumer.close();
-                sess.close();
-            } catch (Exception e) {
-                e.printStackTrace();
+               Message msg = consumer.receive(500);
+               if (msg == null)
+                  continue;
+
+               String group = msg.getStringProperty("JMSXGroupID");
+               msg.getBooleanProperty("JMSXGroupFirstForConsumer");
+
+               if ("A".equals(group)) {
+                  --counters[0];
+                  update(group);
+                  Thread.sleep(500);
+               }
+               else if ("B".equals(group)) {
+                  --counters[1];
+                  update(group);
+                  Thread.sleep(100);
+               }
+               else if ("C".equals(group)) {
+                  --counters[2];
+                  update(group);
+                  Thread.sleep(10);
+               }
+               else {
+                  log.warn("unknown group");
+               }
+               if (counters[0] != 0 || counters[1] != 0 || counters[2] != 0) {
+                  msg.acknowledge();
+               }
             }
-        }
-    }
+            consumer.close();
+            sess.close();
+         }
+         catch (Exception e) {
+            e.printStackTrace();
+         }
+      }
+   }
 }

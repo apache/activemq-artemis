@@ -27,124 +27,89 @@ import org.apache.activemq.command.ConsumerId;
 import org.apache.activemq.command.ProducerId;
 import org.apache.activemq.command.SessionId;
 
-public class AMQMapTransportConnectionStateRegister implements
-      AMQTransportConnectionStateRegister
-{
+public class AMQMapTransportConnectionStateRegister implements AMQTransportConnectionStateRegister {
 
    private Map<ConnectionId, AMQTransportConnectionState> connectionStates = new ConcurrentHashMap<ConnectionId, AMQTransportConnectionState>();
 
-   public AMQTransportConnectionState registerConnectionState(
-         ConnectionId connectionId, AMQTransportConnectionState state)
-   {
-      AMQTransportConnectionState rc = connectionStates
-            .put(connectionId, state);
+   public AMQTransportConnectionState registerConnectionState(ConnectionId connectionId,
+                                                              AMQTransportConnectionState state) {
+      AMQTransportConnectionState rc = connectionStates.put(connectionId, state);
       return rc;
    }
 
-   public AMQTransportConnectionState unregisterConnectionState(
-         ConnectionId connectionId)
-   {
+   public AMQTransportConnectionState unregisterConnectionState(ConnectionId connectionId) {
       AMQTransportConnectionState rc = connectionStates.remove(connectionId);
-      if (rc.getReferenceCounter().get() > 1)
-      {
+      if (rc.getReferenceCounter().get() > 1) {
          rc.decrementReference();
          connectionStates.put(connectionId, rc);
       }
       return rc;
    }
 
-   public List<AMQTransportConnectionState> listConnectionStates()
-   {
+   public List<AMQTransportConnectionState> listConnectionStates() {
 
       List<AMQTransportConnectionState> rc = new ArrayList<AMQTransportConnectionState>();
       rc.addAll(connectionStates.values());
       return rc;
    }
 
-   public AMQTransportConnectionState lookupConnectionState(String connectionId)
-   {
+   public AMQTransportConnectionState lookupConnectionState(String connectionId) {
       return connectionStates.get(new ConnectionId(connectionId));
    }
 
-   public AMQTransportConnectionState lookupConnectionState(ConsumerId id)
-   {
-      AMQTransportConnectionState cs = lookupConnectionState(id
-            .getConnectionId());
-      if (cs == null)
-      {
-         throw new IllegalStateException(
-               "Cannot lookup a consumer from a connection that had not been registered: "
-                     + id.getParentId().getParentId());
+   public AMQTransportConnectionState lookupConnectionState(ConsumerId id) {
+      AMQTransportConnectionState cs = lookupConnectionState(id.getConnectionId());
+      if (cs == null) {
+         throw new IllegalStateException("Cannot lookup a consumer from a connection that had not been registered: " + id.getParentId().getParentId());
       }
       return cs;
    }
 
-   public AMQTransportConnectionState lookupConnectionState(ProducerId id)
-   {
-      AMQTransportConnectionState cs = lookupConnectionState(id
-            .getConnectionId());
-      if (cs == null)
-      {
-         throw new IllegalStateException(
-               "Cannot lookup a producer from a connection that had not been registered: "
-                     + id.getParentId().getParentId());
+   public AMQTransportConnectionState lookupConnectionState(ProducerId id) {
+      AMQTransportConnectionState cs = lookupConnectionState(id.getConnectionId());
+      if (cs == null) {
+         throw new IllegalStateException("Cannot lookup a producer from a connection that had not been registered: " + id.getParentId().getParentId());
       }
       return cs;
    }
 
-   public AMQTransportConnectionState lookupConnectionState(SessionId id)
-   {
-      AMQTransportConnectionState cs = lookupConnectionState(id
-            .getConnectionId());
-      if (cs == null)
-      {
-         throw new IllegalStateException(
-               "Cannot lookup a session from a connection that had not been registered: "
-                     + id.getParentId());
+   public AMQTransportConnectionState lookupConnectionState(SessionId id) {
+      AMQTransportConnectionState cs = lookupConnectionState(id.getConnectionId());
+      if (cs == null) {
+         throw new IllegalStateException("Cannot lookup a session from a connection that had not been registered: " + id.getParentId());
       }
       return cs;
    }
 
-   public AMQTransportConnectionState lookupConnectionState(
-         ConnectionId connectionId)
-   {
+   public AMQTransportConnectionState lookupConnectionState(ConnectionId connectionId) {
       AMQTransportConnectionState cs = connectionStates.get(connectionId);
-      if (cs == null)
-      {
-         throw new IllegalStateException(
-               "Cannot lookup a connection that had not been registered: "
-                     + connectionId);
+      if (cs == null) {
+         throw new IllegalStateException("Cannot lookup a connection that had not been registered: " + connectionId);
       }
       return cs;
    }
 
-   public boolean doesHandleMultipleConnectionStates()
-   {
+   public boolean doesHandleMultipleConnectionStates() {
       return true;
    }
 
-   public boolean isEmpty()
-   {
+   public boolean isEmpty() {
       return connectionStates.isEmpty();
    }
 
-   public void clear()
-   {
+   public void clear() {
       connectionStates.clear();
 
    }
 
-   public void intialize(AMQTransportConnectionStateRegister other)
-   {
+   public void intialize(AMQTransportConnectionStateRegister other) {
       connectionStates.clear();
       connectionStates.putAll(other.mapStates());
 
    }
 
-   public Map<ConnectionId, AMQTransportConnectionState> mapStates()
-   {
-      HashMap<ConnectionId, AMQTransportConnectionState> map = new HashMap<ConnectionId, AMQTransportConnectionState>(
-            connectionStates);
+   public Map<ConnectionId, AMQTransportConnectionState> mapStates() {
+      HashMap<ConnectionId, AMQTransportConnectionState> map = new HashMap<ConnectionId, AMQTransportConnectionState>(connectionStates);
       return map;
    }
 

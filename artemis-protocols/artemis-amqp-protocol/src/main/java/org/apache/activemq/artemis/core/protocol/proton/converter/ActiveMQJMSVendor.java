@@ -35,92 +35,75 @@ import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.server.impl.ServerMessageImpl;
 import org.apache.activemq.artemis.utils.IDGenerator;
 
-public class ActiveMQJMSVendor extends JMSVendor
-{
+public class ActiveMQJMSVendor extends JMSVendor {
 
    private final IDGenerator serverGenerator;
 
-   ActiveMQJMSVendor(IDGenerator idGenerator)
-   {
+   ActiveMQJMSVendor(IDGenerator idGenerator) {
       this.serverGenerator = idGenerator;
    }
 
    @Override
-   public BytesMessage createBytesMessage()
-   {
+   public BytesMessage createBytesMessage() {
       return new ServerJMSBytesMessage(newMessage(org.apache.activemq.artemis.api.core.Message.BYTES_TYPE), 0);
    }
 
    @Override
-   public StreamMessage createStreamMessage()
-   {
+   public StreamMessage createStreamMessage() {
       return new ServerJMSStreamMessage(newMessage(org.apache.activemq.artemis.api.core.Message.STREAM_TYPE), 0);
    }
 
    @Override
-   public Message createMessage()
-   {
-      return new ServerJMSMessage(newMessage(org.apache.activemq.artemis.api.core.Message.DEFAULT_TYPE), 0 );
+   public Message createMessage() {
+      return new ServerJMSMessage(newMessage(org.apache.activemq.artemis.api.core.Message.DEFAULT_TYPE), 0);
    }
 
    @Override
-   public TextMessage createTextMessage()
-   {
+   public TextMessage createTextMessage() {
       return new ServerJMSTextMessage(newMessage(org.apache.activemq.artemis.api.core.Message.TEXT_TYPE), 0);
    }
 
    @Override
-   public ObjectMessage createObjectMessage()
-   {
+   public ObjectMessage createObjectMessage() {
       return null;
    }
 
    @Override
-   public MapMessage createMapMessage()
-   {
+   public MapMessage createMapMessage() {
       return new ServerJMSMapMessage(newMessage(org.apache.activemq.artemis.api.core.Message.MAP_TYPE), 0);
    }
 
    @Override
-   public void setJMSXUserID(Message message, String s)
-   {
+   public void setJMSXUserID(Message message, String s) {
    }
 
    @Override
-   public Destination createDestination(String name)
-   {
+   public Destination createDestination(String name) {
       return super.createDestination(name);
    }
 
    @Override
-   public <T extends Destination> T createDestination(String name, Class<T> kind)
-   {
+   public <T extends Destination> T createDestination(String name, Class<T> kind) {
       return super.createDestination(name, kind);
    }
 
    @Override
-   public void setJMSXGroupID(Message message, String s)
-   {
+   public void setJMSXGroupID(Message message, String s) {
 
    }
 
    @Override
-   public void setJMSXGroupSequence(Message message, int i)
-   {
+   public void setJMSXGroupSequence(Message message, int i) {
 
    }
 
    @Override
-   public void setJMSXDeliveryCount(Message message, long l)
-   {
+   public void setJMSXDeliveryCount(Message message, long l) {
 
    }
 
-
-   public ServerJMSMessage wrapMessage(int messageType, ServerMessage wrapped, int deliveryCount)
-   {
-      switch (messageType)
-      {
+   public ServerJMSMessage wrapMessage(int messageType, ServerMessage wrapped, int deliveryCount) {
+      switch (messageType) {
          case org.apache.activemq.artemis.api.core.Message.STREAM_TYPE:
             return new ServerJMSStreamMessage(wrapped, deliveryCount);
          case org.apache.activemq.artemis.api.core.Message.BYTES_TYPE:
@@ -135,19 +118,15 @@ public class ActiveMQJMSVendor extends JMSVendor
 
    }
 
-
    @Override
-   public String toAddress(Destination destination)
-   {
+   public String toAddress(Destination destination) {
       return null;
    }
 
-
-   private ServerMessageImpl newMessage(byte messageType)
-   {
+   private ServerMessageImpl newMessage(byte messageType) {
       ServerMessageImpl message = new ServerMessageImpl(serverGenerator.generateID(), 512);
       message.setType(messageType);
-      ((ResetLimitWrappedActiveMQBuffer)message.getBodyBuffer()).setMessage(null);
+      ((ResetLimitWrappedActiveMQBuffer) message.getBodyBuffer()).setMessage(null);
       return message;
    }
 

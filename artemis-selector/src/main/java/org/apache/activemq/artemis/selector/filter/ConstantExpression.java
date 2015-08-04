@@ -18,24 +18,20 @@ package org.apache.activemq.artemis.selector.filter;
 
 import java.math.BigDecimal;
 
-
 /**
  * Represents a constant expression
  *
  * @version $Revision: 1.2 $
  */
-public class ConstantExpression implements Expression
-{
+public class ConstantExpression implements Expression {
 
-   static class BooleanConstantExpression extends ConstantExpression implements BooleanExpression
-   {
-      public BooleanConstantExpression(Object value)
-      {
+   static class BooleanConstantExpression extends ConstantExpression implements BooleanExpression {
+
+      public BooleanConstantExpression(Object value) {
          super(value);
       }
 
-      public boolean matches(Filterable message) throws FilterException
-      {
+      public boolean matches(Filterable message) throws FilterException {
          Object object = evaluate(message);
          return object != null && object == Boolean.TRUE;
       }
@@ -47,92 +43,75 @@ public class ConstantExpression implements Expression
 
    private Object value;
 
-   public ConstantExpression(Object value)
-   {
+   public ConstantExpression(Object value) {
       this.value = value;
    }
 
-   public static ConstantExpression createFromDecimal(String text)
-   {
+   public static ConstantExpression createFromDecimal(String text) {
 
       // Strip off the 'l' or 'L' if needed.
-      if (text.endsWith("l") || text.endsWith("L"))
-      {
+      if (text.endsWith("l") || text.endsWith("L")) {
          text = text.substring(0, text.length() - 1);
       }
 
       Number value;
-      try
-      {
+      try {
          value = new Long(text);
       }
-      catch (NumberFormatException e)
-      {
+      catch (NumberFormatException e) {
          // The number may be too big to fit in a long.
          value = new BigDecimal(text);
       }
 
       long l = value.longValue();
-      if (Integer.MIN_VALUE <= l && l <= Integer.MAX_VALUE)
-      {
+      if (Integer.MIN_VALUE <= l && l <= Integer.MAX_VALUE) {
          value = Integer.valueOf(value.intValue());
       }
       return new ConstantExpression(value);
    }
 
-   public static ConstantExpression createFromHex(String text)
-   {
+   public static ConstantExpression createFromHex(String text) {
       Number value = Long.valueOf(Long.parseLong(text.substring(2), 16));
       long l = value.longValue();
-      if (Integer.MIN_VALUE <= l && l <= Integer.MAX_VALUE)
-      {
+      if (Integer.MIN_VALUE <= l && l <= Integer.MAX_VALUE) {
          value = Integer.valueOf(value.intValue());
       }
       return new ConstantExpression(value);
    }
 
-   public static ConstantExpression createFromOctal(String text)
-   {
+   public static ConstantExpression createFromOctal(String text) {
       Number value = Long.valueOf(Long.parseLong(text, 8));
       long l = value.longValue();
-      if (Integer.MIN_VALUE <= l && l <= Integer.MAX_VALUE)
-      {
+      if (Integer.MIN_VALUE <= l && l <= Integer.MAX_VALUE) {
          value = Integer.valueOf(value.intValue());
       }
       return new ConstantExpression(value);
    }
 
-   public static ConstantExpression createFloat(String text)
-   {
+   public static ConstantExpression createFloat(String text) {
       Number value = new Double(text);
       return new ConstantExpression(value);
    }
 
-   public Object evaluate(Filterable message) throws FilterException
-   {
+   public Object evaluate(Filterable message) throws FilterException {
       return value;
    }
 
-   public Object getValue()
-   {
+   public Object getValue() {
       return value;
    }
 
    /**
     * @see java.lang.Object#toString()
     */
-   public String toString()
-   {
-      if (value == null)
-      {
+   public String toString() {
+      if (value == null) {
          return "NULL";
       }
-      if (value instanceof Boolean)
-      {
+      if (value instanceof Boolean) {
          return ((Boolean) value).booleanValue() ? "TRUE" : "FALSE";
       }
-      if (value instanceof String)
-      {
+      if (value instanceof String) {
          return encodeString((String) value);
       }
       return value.toString();
@@ -141,27 +120,22 @@ public class ConstantExpression implements Expression
    /**
     * @see java.lang.Object#hashCode()
     */
-   public int hashCode()
-   {
+   public int hashCode() {
       return value != null ? value.hashCode() : 0;
    }
 
    /**
     * @see java.lang.Object#equals(Object)
     */
-   public boolean equals(final Object o)
-   {
-      if (this == o)
-      {
+   public boolean equals(final Object o) {
+      if (this == o) {
          return true;
       }
-      if (o == null || getClass() != o.getClass())
-      {
+      if (o == null || getClass() != o.getClass()) {
          return false;
       }
-      final ConstantExpression that = (ConstantExpression)o;
-      if (value != null && !value.equals(that.value))
-      {
+      final ConstantExpression that = (ConstantExpression) o;
+      if (value != null && !value.equals(that.value)) {
          return false;
       }
       return true;
@@ -174,15 +148,12 @@ public class ConstantExpression implements Expression
     * @param s
     * @return
     */
-   public static String encodeString(String s)
-   {
+   public static String encodeString(String s) {
       StringBuffer b = new StringBuffer();
       b.append('\'');
-      for (int i = 0; i < s.length(); i++)
-      {
+      for (int i = 0; i < s.length(); i++) {
          char c = s.charAt(i);
-         if (c == '\'')
-         {
+         if (c == '\'') {
             b.append(c);
          }
          b.append(c);

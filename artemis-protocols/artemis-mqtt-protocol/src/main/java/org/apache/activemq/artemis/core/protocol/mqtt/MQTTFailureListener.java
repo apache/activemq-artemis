@@ -24,24 +24,21 @@ import org.apache.activemq.artemis.core.remoting.FailureListener;
  * Registered with the server and called during connection failure.  This class informs the ConnectionManager when a
  * connection failure has occurred, which subsequently cleans up any connection data.
  */
-public class MQTTFailureListener implements FailureListener
-{
+public class MQTTFailureListener implements FailureListener {
+
    private MQTTConnectionManager connectionManager;
 
-   public MQTTFailureListener(MQTTConnectionManager connectionManager)
-   {
+   public MQTTFailureListener(MQTTConnectionManager connectionManager) {
       this.connectionManager = connectionManager;
    }
 
    @Override
-   public void connectionFailed(ActiveMQException exception, boolean failedOver)
-   {
+   public void connectionFailed(ActiveMQException exception, boolean failedOver) {
       connectionManager.disconnect();
    }
 
    @Override
-   public void connectionFailed(ActiveMQException exception, boolean failedOver, String scaleDownTargetNodeID)
-   {
+   public void connectionFailed(ActiveMQException exception, boolean failedOver, String scaleDownTargetNodeID) {
       connectionManager.disconnect();
    }
 }

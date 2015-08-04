@@ -22,58 +22,50 @@ import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.core.server.cluster.qourum.QuorumVoteHandler;
 import org.apache.activemq.artemis.core.server.cluster.qourum.Vote;
 
-public class QuorumVoteReplyMessage extends PacketImpl
-{
+public class QuorumVoteReplyMessage extends PacketImpl {
+
    private SimpleString handler;
    private Vote vote;
    private ActiveMQBuffer voteBuffer;
 
-   public QuorumVoteReplyMessage(SimpleString handler, Vote vote)
-   {
+   public QuorumVoteReplyMessage(SimpleString handler, Vote vote) {
       super(QUORUM_VOTE_REPLY);
       this.handler = handler;
       this.vote = vote;
    }
 
-   public QuorumVoteReplyMessage()
-   {
+   public QuorumVoteReplyMessage() {
       super(QUORUM_VOTE_REPLY);
    }
 
-   public Vote getVote()
-   {
+   public Vote getVote() {
       return vote;
    }
 
-   public SimpleString getHandler()
-   {
+   public SimpleString getHandler() {
       return handler;
    }
 
    @Override
-   public boolean isResponse()
-   {
+   public boolean isResponse() {
       return true;
    }
 
    @Override
-   public void encodeRest(ActiveMQBuffer buffer)
-   {
+   public void encodeRest(ActiveMQBuffer buffer) {
       super.encodeRest(buffer);
       buffer.writeSimpleString(handler);
       vote.encode(buffer);
    }
 
    @Override
-   public void decodeRest(ActiveMQBuffer buffer)
-   {
+   public void decodeRest(ActiveMQBuffer buffer) {
       super.decodeRest(buffer);
       handler = buffer.readSimpleString();
       voteBuffer = buffer.readSlice(buffer.readableBytes());
    }
 
-   public void decodeRest(QuorumVoteHandler voteHandler)
-   {
+   public void decodeRest(QuorumVoteHandler voteHandler) {
       vote = voteHandler.decode(voteBuffer);
    }
 }

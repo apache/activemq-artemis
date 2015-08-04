@@ -29,19 +29,16 @@ import java.util.Set;
 import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
 import org.junit.Test;
 
-public class QueueTest extends JMSTestCase
-{
+public class QueueTest extends JMSTestCase {
 
    /**
     * The simplest possible queue test.
     */
    @Test
-   public void testQueue() throws Exception
-   {
+   public void testQueue() throws Exception {
       Connection conn = null;
 
-      try
-      {
+      try {
          conn = createConnection();
 
          Session s = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -54,10 +51,8 @@ public class QueueTest extends JMSTestCase
 
          ProxyAssertSupport.assertEquals("payload", m.getText());
       }
-      finally
-      {
-         if (conn != null)
-         {
+      finally {
+         if (conn != null) {
             conn.close();
          }
       }
@@ -65,8 +60,7 @@ public class QueueTest extends JMSTestCase
 
    // http://jira.jboss.com/jira/browse/JBMESSAGING-1101
    @Test
-   public void testBytesMessagePersistence() throws Exception
-   {
+   public void testBytesMessagePersistence() throws Exception {
       Connection conn = null;
 
       byte[] bytes = new byte[]{'a', 'b', 'c', 'd', 'e', 'f', 'g', 123, 55, 0, 12, -100, -11};
@@ -75,8 +69,7 @@ public class QueueTest extends JMSTestCase
       MessageProducer prod = sess.createProducer(queue1);
       prod.setDeliveryMode(DeliveryMode.PERSISTENT);
 
-      for (int i = 0; i < 1; i++)
-      {
+      for (int i = 0; i < 1; i++) {
          BytesMessage bm = sess.createBytesMessage();
 
          bm.writeBytes(bytes);
@@ -97,8 +90,7 @@ public class QueueTest extends JMSTestCase
       sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
       conn.start();
       MessageConsumer cons = sess.createConsumer(queue1);
-      for (int i = 0; i < 1; i++)
-      {
+      for (int i = 0; i < 1; i++) {
          BytesMessage bm = (BytesMessage) cons.receive(3000);
 
          ProxyAssertSupport.assertNotNull(bm);
@@ -107,8 +99,7 @@ public class QueueTest extends JMSTestCase
 
          bm.readBytes(bytes2);
 
-         for (int j = 0; j < bytes.length; j++)
-         {
+         for (int j = 0; j < bytes.length; j++) {
             ProxyAssertSupport.assertEquals(bytes[j], bytes2[j]);
          }
       }
@@ -116,17 +107,14 @@ public class QueueTest extends JMSTestCase
 
    // added for http://jira.jboss.org/jira/browse/JBMESSAGING-899
    @Test
-   public void testClosedConsumerAfterStart() throws Exception
-   {
+   public void testClosedConsumerAfterStart() throws Exception {
       // This loop is to increase chances of a failure.
-      for (int counter = 0; counter < 20; counter++)
-      {
+      for (int counter = 0; counter < 20; counter++) {
          Connection conn1 = null;
 
          Connection conn2 = null;
 
-         try
-         {
+         try {
             conn1 = createConnection();
 
             conn2 = createConnection();
@@ -135,8 +123,7 @@ public class QueueTest extends JMSTestCase
 
             MessageProducer p = s.createProducer(queue1);
 
-            for (int i = 0; i < 20; i++)
-            {
+            for (int i = 0; i < 20; i++) {
                p.send(s.createTextMessage("message " + i));
             }
 
@@ -157,15 +144,13 @@ public class QueueTest extends JMSTestCase
             // There is nothing much we can do about this
             Set<String> texts = new HashSet<String>();
 
-            for (int i = 0; i < 20; i++)
-            {
+            for (int i = 0; i < 20; i++) {
                TextMessage txt = (TextMessage) c2.receive(5000);
                ProxyAssertSupport.assertNotNull(txt);
                texts.add(txt.getText());
             }
 
-            for (int i = 0; i < 20; i++)
-            {
+            for (int i = 0; i < 20; i++) {
                ProxyAssertSupport.assertTrue(texts.contains("message " + i));
             }
 
@@ -173,14 +158,11 @@ public class QueueTest extends JMSTestCase
 
             checkEmpty(queue1);
          }
-         finally
-         {
-            if (conn1 != null)
-            {
+         finally {
+            if (conn1 != null) {
                conn1.close();
             }
-            if (conn2 != null)
-            {
+            if (conn2 != null) {
                conn2.close();
             }
          }
@@ -188,8 +170,7 @@ public class QueueTest extends JMSTestCase
    }
 
    @Test
-   public void testRedeployQueue() throws Exception
-   {
+   public void testRedeployQueue() throws Exception {
       Connection conn = createConnection();
 
       Session s = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -197,8 +178,7 @@ public class QueueTest extends JMSTestCase
       MessageConsumer c = s.createConsumer(queue1);
       conn.start();
 
-      for (int i = 0; i < 500; i++)
-      {
+      for (int i = 0; i < 500; i++) {
          p.send(s.createTextMessage("payload " + i));
       }
 
@@ -216,8 +196,7 @@ public class QueueTest extends JMSTestCase
       c = s.createConsumer(queue1);
       conn.start();
 
-      for (int i = 0; i < 500; i++)
-      {
+      for (int i = 0; i < 500; i++) {
          TextMessage message = (TextMessage) c.receive(3000);
          ProxyAssertSupport.assertNotNull(message);
          ProxyAssertSupport.assertNotNull(message.getJMSDestination());
@@ -225,8 +204,7 @@ public class QueueTest extends JMSTestCase
    }
 
    @Test
-   public void testQueueName() throws Exception
-   {
+   public void testQueueName() throws Exception {
       ProxyAssertSupport.assertEquals("Queue1", queue1.getQueueName());
    }
 }

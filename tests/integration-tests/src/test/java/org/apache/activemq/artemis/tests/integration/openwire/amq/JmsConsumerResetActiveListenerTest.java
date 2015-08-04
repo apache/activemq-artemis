@@ -37,8 +37,7 @@ import org.junit.Test;
 /**
  * adapted from: org.apache.activemq.JmsConsumerResetActiveListenerTest
  */
-public class JmsConsumerResetActiveListenerTest extends BasicOpenWireTest
-{
+public class JmsConsumerResetActiveListenerTest extends BasicOpenWireTest {
 
    /**
     * verify the (undefined by spec) behaviour of setting a listener while
@@ -47,35 +46,27 @@ public class JmsConsumerResetActiveListenerTest extends BasicOpenWireTest
     * @throws Exception
     */
    @Test
-   public void testSetListenerFromListener() throws Exception
-   {
-      Session session = connection.createSession(false,
-            Session.CLIENT_ACKNOWLEDGE);
+   public void testSetListenerFromListener() throws Exception {
+      Session session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
       Destination dest = session.createQueue(queueName);
       final MessageConsumer consumer = session.createConsumer(dest);
 
       final CountDownLatch latch = new CountDownLatch(2);
       final AtomicBoolean first = new AtomicBoolean(true);
       final Vector<Object> results = new Vector<Object>();
-      consumer.setMessageListener(new MessageListener()
-      {
+      consumer.setMessageListener(new MessageListener() {
 
-         public void onMessage(Message message)
-         {
-            if (first.compareAndSet(true, false))
-            {
-               try
-               {
+         public void onMessage(Message message) {
+            if (first.compareAndSet(true, false)) {
+               try {
                   consumer.setMessageListener(this);
                   results.add(message);
                }
-               catch (JMSException e)
-               {
+               catch (JMSException e) {
                   results.add(e);
                }
             }
-            else
-            {
+            else {
                results.add(message);
             }
             latch.countDown();
@@ -97,8 +88,7 @@ public class JmsConsumerResetActiveListenerTest extends BasicOpenWireTest
       assertEquals("result is first", "First", ((TextMessage) result).getText());
       result = results.get(1);
       assertTrue(result instanceof TextMessage);
-      assertEquals("result is first", "Second",
-            ((TextMessage) result).getText());
+      assertEquals("result is first", "Second", ((TextMessage) result).getText());
    }
 
    /**
@@ -107,37 +97,28 @@ public class JmsConsumerResetActiveListenerTest extends BasicOpenWireTest
     * @throws Exception
     */
    @Test
-   public void testNewConsumerSetListenerFromListener() throws Exception
-   {
-      final Session session = connection.createSession(false,
-            Session.CLIENT_ACKNOWLEDGE);
+   public void testNewConsumerSetListenerFromListener() throws Exception {
+      final Session session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
       final Destination dest = session.createQueue(queueName);
       final MessageConsumer consumer = session.createConsumer(dest);
 
       final CountDownLatch latch = new CountDownLatch(2);
       final AtomicBoolean first = new AtomicBoolean(true);
       final Vector<Object> results = new Vector<Object>();
-      consumer.setMessageListener(new MessageListener()
-      {
+      consumer.setMessageListener(new MessageListener() {
 
-         public void onMessage(Message message)
-         {
-            if (first.compareAndSet(true, false))
-            {
-               try
-               {
-                  MessageConsumer anotherConsumer = session
-                        .createConsumer(dest);
+         public void onMessage(Message message) {
+            if (first.compareAndSet(true, false)) {
+               try {
+                  MessageConsumer anotherConsumer = session.createConsumer(dest);
                   anotherConsumer.setMessageListener(this);
                   results.add(message);
                }
-               catch (JMSException e)
-               {
+               catch (JMSException e) {
                   results.add(e);
                }
             }
-            else
-            {
+            else {
                results.add(message);
             }
             latch.countDown();
@@ -159,8 +140,7 @@ public class JmsConsumerResetActiveListenerTest extends BasicOpenWireTest
       assertEquals("result is first", "First", ((TextMessage) result).getText());
       result = results.get(1);
       assertTrue(result instanceof TextMessage);
-      assertEquals("result is first", "Second",
-            ((TextMessage) result).getText());
+      assertEquals("result is first", "Second", ((TextMessage) result).getText());
    }
 
 }

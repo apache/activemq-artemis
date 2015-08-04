@@ -32,78 +32,62 @@ import org.proton.plug.util.ByteUtil;
 import org.proton.plug.util.DebugInfo;
 import org.proton.plug.util.ReusableLatch;
 
-public class AMQPClientSPI implements AMQPConnectionCallback
-{
+public class AMQPClientSPI implements AMQPConnectionCallback {
 
    final Channel channel;
    protected AMQPConnectionContext connection;
 
-   public AMQPClientSPI(Channel channel)
-   {
+   public AMQPClientSPI(Channel channel) {
       this.channel = channel;
    }
 
-   public void setConnection(AMQPConnectionContext connection)
-   {
+   public void setConnection(AMQPConnectionContext connection) {
       this.connection = connection;
    }
 
-   public AMQPConnectionContext getConnection()
-   {
+   public AMQPConnectionContext getConnection() {
       return connection;
    }
 
    @Override
-   public void close()
-   {
+   public void close() {
 
    }
 
    @Override
-   public ServerSASL[] getSASLMechnisms()
-   {
+   public ServerSASL[] getSASLMechnisms() {
       return new ServerSASL[]{new AnonymousServerSASL(), new ServerSASLPlain()};
    }
-
 
    final ReusableLatch latch = new ReusableLatch(0);
 
    @Override
-   public void onTransport(final ByteBuf bytes, final AMQPConnectionContext connection)
-   {
-      if (DebugInfo.debug)
-      {
+   public void onTransport(final ByteBuf bytes, final AMQPConnectionContext connection) {
+      if (DebugInfo.debug) {
          ByteUtil.debugFrame("Bytes leaving client", bytes);
       }
 
       final int bufferSize = bytes.writerIndex();
 
-
       latch.countUp();
 
-      channel.writeAndFlush(bytes).addListener(new ChannelFutureListener()
-      {
+      channel.writeAndFlush(bytes).addListener(new ChannelFutureListener() {
          @Override
-         public void operationComplete(ChannelFuture future) throws Exception
-         {
-              //
-//            connection.outputDone(bufferSize);
+         public void operationComplete(ChannelFuture future) throws Exception {
+            //
+            //            connection.outputDone(bufferSize);
             latch.countDown();
          }
       });
 
-      if (connection.isSyncOnFlush())
-      {
-         try
-         {
-            if (!latch.await(5, TimeUnit.SECONDS))
-            {
+      if (connection.isSyncOnFlush()) {
+         try {
+            if (!latch.await(5, TimeUnit.SECONDS)) {
                // TODO logs
                System.err.println("Flush took longer than 5 seconds!!!");
             }
          }
-         catch (Throwable e)
-         {
+         catch (Throwable e) {
             e.printStackTrace();
          }
       }
@@ -113,8 +97,7 @@ public class AMQPClientSPI implements AMQPConnectionCallback
    }
 
    @Override
-   public AMQPSessionCallback createSessionCallback(AMQPConnectionContext connection)
-   {
+   public AMQPSessionCallback createSessionCallback(AMQPConnectionContext connection) {
       return null;
    }
 }

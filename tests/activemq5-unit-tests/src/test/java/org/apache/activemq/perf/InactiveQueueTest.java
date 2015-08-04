@@ -34,30 +34,31 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class InactiveQueueTest extends TestCase {
-    private static final transient Logger LOG = LoggerFactory.getLogger(InactiveQueueTest.class);
 
-    private static final int MESSAGE_COUNT = 0;
-    private static final String DEFAULT_PASSWORD = "";
-    private static final String USERNAME = "testuser";
-    private static final String QUEUE_NAME = "testevent";
-    private static final int DELIVERY_MODE = javax.jms.DeliveryMode.PERSISTENT;
-    private static final int DELIVERY_PRIORITY = javax.jms.Message.DEFAULT_PRIORITY;
+   private static final transient Logger LOG = LoggerFactory.getLogger(InactiveQueueTest.class);
 
-    ActiveMQConnectionFactory connectionFactory;
-    BrokerService broker;
+   private static final int MESSAGE_COUNT = 0;
+   private static final String DEFAULT_PASSWORD = "";
+   private static final String USERNAME = "testuser";
+   private static final String QUEUE_NAME = "testevent";
+   private static final int DELIVERY_MODE = javax.jms.DeliveryMode.PERSISTENT;
+   private static final int DELIVERY_PRIORITY = javax.jms.Message.DEFAULT_PRIORITY;
 
-    private Connection connection;
-    private MessageProducer publisher;
-    private Destination destination;
-    private Session session;
+   ActiveMQConnectionFactory connectionFactory;
+   BrokerService broker;
 
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
-        broker = new BrokerService();
+   private Connection connection;
+   private MessageProducer publisher;
+   private Destination destination;
+   private Session session;
 
-        // broker.setPersistenceAdapter(new KahaPersistenceAdapter(new File
-        // ("TEST_STUFD")));
+   @Override
+   protected void setUp() throws Exception {
+      super.setUp();
+      broker = new BrokerService();
+
+      // broker.setPersistenceAdapter(new KahaPersistenceAdapter(new File
+      // ("TEST_STUFD")));
         /*
          * JournalPersistenceAdapterFactory factory = new
          * JournalPersistenceAdapterFactory();
@@ -65,50 +66,50 @@ public class InactiveQueueTest extends TestCase {
          * factory.setTaskRunnerFactory(broker.getTaskRunnerFactory());
          * factory.setUseJournal(false); broker.setPersistenceFactory(factory);
          */
-        broker.addConnector(ActiveMQConnectionFactory.DEFAULT_BROKER_BIND_URL);
-        broker.start();
-        connectionFactory = new ActiveMQConnectionFactory(ActiveMQConnectionFactory.DEFAULT_BROKER_URL);
+      broker.addConnector(ActiveMQConnectionFactory.DEFAULT_BROKER_BIND_URL);
+      broker.start();
+      connectionFactory = new ActiveMQConnectionFactory(ActiveMQConnectionFactory.DEFAULT_BROKER_URL);
         /*
          * Doesn't matter if you enable or disable these, so just leaving them
          * out for this test case connectionFactory.setAlwaysSessionAsync(true);
          * connectionFactory.setAsyncDispatch(true);
          */
-        connectionFactory.setUseAsyncSend(true);
-    }
+      connectionFactory.setUseAsyncSend(true);
+   }
 
-    @Override
-    protected void tearDown() throws Exception {
-        super.tearDown();
-        broker.stop();
-    }
+   @Override
+   protected void tearDown() throws Exception {
+      super.tearDown();
+      broker.stop();
+   }
 
-    public void testNoSubscribers() throws Exception {
-        connection = connectionFactory.createConnection(USERNAME, DEFAULT_PASSWORD);
-        assertNotNull(connection);
-        connection.start();
-        session = connection.createSession(false, javax.jms.Session.AUTO_ACKNOWLEDGE);
-        assertNotNull(session);
-        destination = session.createQueue(QUEUE_NAME);
-        assertNotNull(destination);
-        publisher = session.createProducer(destination);
-        assertNotNull(publisher);
-        MapMessage msg = session.createMapMessage();
-        assertNotNull(msg);
-        msg.setString("key1", "value1");
-        int loop;
-        for (loop = 0; loop < MESSAGE_COUNT; loop++) {
-            msg.setInt("key2", loop);
-            publisher.send(msg, DELIVERY_MODE, DELIVERY_PRIORITY, Message.DEFAULT_TIME_TO_LIVE);
-            if (loop % 500 == 0) {
-                LOG.debug("Sent " + loop + " messages");
-            }
-        }
-        Thread.sleep(1000000);
-        assertEquals(loop, MESSAGE_COUNT);
-        publisher.close();
-        session.close();
-        connection.stop();
-        connection.stop();
-    }
+   public void testNoSubscribers() throws Exception {
+      connection = connectionFactory.createConnection(USERNAME, DEFAULT_PASSWORD);
+      assertNotNull(connection);
+      connection.start();
+      session = connection.createSession(false, javax.jms.Session.AUTO_ACKNOWLEDGE);
+      assertNotNull(session);
+      destination = session.createQueue(QUEUE_NAME);
+      assertNotNull(destination);
+      publisher = session.createProducer(destination);
+      assertNotNull(publisher);
+      MapMessage msg = session.createMapMessage();
+      assertNotNull(msg);
+      msg.setString("key1", "value1");
+      int loop;
+      for (loop = 0; loop < MESSAGE_COUNT; loop++) {
+         msg.setInt("key2", loop);
+         publisher.send(msg, DELIVERY_MODE, DELIVERY_PRIORITY, Message.DEFAULT_TIME_TO_LIVE);
+         if (loop % 500 == 0) {
+            LOG.debug("Sent " + loop + " messages");
+         }
+      }
+      Thread.sleep(1000000);
+      assertEquals(loop, MESSAGE_COUNT);
+      publisher.close();
+      session.close();
+      connection.stop();
+      connection.stop();
+   }
 
 }

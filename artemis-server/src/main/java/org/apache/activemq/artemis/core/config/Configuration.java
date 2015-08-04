@@ -34,8 +34,8 @@ import org.apache.activemq.artemis.core.settings.impl.ResourceLimitSettings;
 /**
  * A Configuration is used to configure ActiveMQ Artemis servers.
  */
-public interface Configuration
-{
+public interface Configuration {
+
    /**
     * To be used on dependency management on the application server
     */
@@ -187,7 +187,7 @@ public interface Configuration
 
    /**
     * Sets the domain used by JMX MBeans (provided JMX management is enabled).
-    * <p>
+    * <br>
     * Changing this JMX domain is required if multiple ActiveMQ Artemis servers are run inside
     * the same JVM and all servers are using the same MBeanServer.
     */
@@ -295,7 +295,8 @@ public interface Configuration
     */
    Configuration setDiscoveryGroupConfigurations(Map<String, DiscoveryGroupConfiguration> configs);
 
-   Configuration addDiscoveryGroupConfiguration(final String key, DiscoveryGroupConfiguration discoveryGroupConfiguration);
+   Configuration addDiscoveryGroupConfiguration(final String key,
+                                                DiscoveryGroupConfiguration discoveryGroupConfiguration);
 
    /**
     * Returns the grouping handler configured for this server.
@@ -331,7 +332,7 @@ public interface Configuration
 
    /**
     * Returns the cluster connections configured for this server.
-    * <p>
+    * <br>
     * Modifying the returned list will modify the list of {@link ClusterConnectionConfiguration}
     * used by this configuration.
     */
@@ -447,14 +448,14 @@ public interface Configuration
 
    /**
     * The max number of concurrent reads allowed on paging.
-    * <p>
+    * <br>
     * Default value is {@link org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration#DEFAULT_MAX_CONCURRENT_PAGE_IO}.
     */
    int getPageMaxConcurrentIO();
 
    /**
     * The max number of concurrent reads allowed on paging.
-    * <p>
+    * <br>
     * Default = 5
     */
    Configuration setPageMaxConcurrentIO(int maxIO);
@@ -467,6 +468,7 @@ public interface Configuration
 
    /**
     * The location of the journal related to artemis.instance.
+    *
     * @return
     */
    File getJournalLocation();
@@ -687,7 +689,6 @@ public interface Configuration
     */
    Configuration setPagingDirectory(String dir);
 
-
    /**
     * The paging location related to artemis.instance
     */
@@ -701,7 +702,9 @@ public interface Configuration
     */
    String getLargeMessagesDirectory();
 
-   /** The large message location related to artemis.instance */
+   /**
+    * The large message location related to artemis.instance
+    */
    File getLargeMessagesLocation();
 
    /**

@@ -82,14 +82,13 @@ import org.apache.activemq.artemis.utils.TypedProperties;
 /**
  * A Netty TCP Acceptor that supports SSL
  */
-public class NettyAcceptor implements Acceptor
-{
+public class NettyAcceptor implements Acceptor {
 
-   static
-   {
+   static {
       // Disable resource leak detection for performance reasons by default
       ResourceLeakDetector.setLevel(ResourceLeakDetector.Level.DISABLED);
    }
+
    //just for debug
    private final String protocolsString;
 
@@ -176,8 +175,7 @@ public class NettyAcceptor implements Acceptor
                         final BufferHandler handler,
                         final ConnectionLifeCycleListener listener,
                         final ScheduledExecutorService scheduledThreadPool,
-                        final Map<String, ProtocolManager> protocolMap)
-   {
+                        final Map<String, ProtocolManager> protocolMap) {
       this.name = name;
 
       this.clusterConnection = clusterConnection;
@@ -188,74 +186,38 @@ public class NettyAcceptor implements Acceptor
 
       this.listener = listener;
 
-      sslEnabled = ConfigurationHelper.getBooleanProperty(TransportConstants.SSL_ENABLED_PROP_NAME,
-                                                          TransportConstants.DEFAULT_SSL_ENABLED,
-                                                          configuration);
+      sslEnabled = ConfigurationHelper.getBooleanProperty(TransportConstants.SSL_ENABLED_PROP_NAME, TransportConstants.DEFAULT_SSL_ENABLED, configuration);
 
-      nioRemotingThreads = ConfigurationHelper.getIntProperty(TransportConstants.NIO_REMOTING_THREADS_PROPNAME,
-                                                              -1,
-                                                              configuration);
-      backlog = ConfigurationHelper.getIntProperty(TransportConstants.BACKLOG_PROP_NAME,
-                                                   -1,
-                                                   configuration);
-      useInvm = ConfigurationHelper.getBooleanProperty(TransportConstants.USE_INVM_PROP_NAME,
-                                                       TransportConstants.DEFAULT_USE_INVM,
-                                                       configuration);
+      nioRemotingThreads = ConfigurationHelper.getIntProperty(TransportConstants.NIO_REMOTING_THREADS_PROPNAME, -1, configuration);
+      backlog = ConfigurationHelper.getIntProperty(TransportConstants.BACKLOG_PROP_NAME, -1, configuration);
+      useInvm = ConfigurationHelper.getBooleanProperty(TransportConstants.USE_INVM_PROP_NAME, TransportConstants.DEFAULT_USE_INVM, configuration);
 
       this.protocolHandler = new ProtocolHandler(protocolMap, this, configuration, scheduledThreadPool);
 
       this.protocolsString = getProtocols(protocolMap);
 
-      host = ConfigurationHelper.getStringProperty(TransportConstants.HOST_PROP_NAME,
-                                                   TransportConstants.DEFAULT_HOST,
-                                                   configuration);
-      port = ConfigurationHelper.getIntProperty(TransportConstants.PORT_PROP_NAME,
-                                                TransportConstants.DEFAULT_PORT,
-                                                configuration);
-      if (sslEnabled)
-      {
-         keyStoreProvider = ConfigurationHelper.getStringProperty(TransportConstants.KEYSTORE_PROVIDER_PROP_NAME,
-                                                                  TransportConstants.DEFAULT_KEYSTORE_PROVIDER,
-                                                                  configuration);
+      host = ConfigurationHelper.getStringProperty(TransportConstants.HOST_PROP_NAME, TransportConstants.DEFAULT_HOST, configuration);
+      port = ConfigurationHelper.getIntProperty(TransportConstants.PORT_PROP_NAME, TransportConstants.DEFAULT_PORT, configuration);
+      if (sslEnabled) {
+         keyStoreProvider = ConfigurationHelper.getStringProperty(TransportConstants.KEYSTORE_PROVIDER_PROP_NAME, TransportConstants.DEFAULT_KEYSTORE_PROVIDER, configuration);
 
-         keyStorePath = ConfigurationHelper.getStringProperty(TransportConstants.KEYSTORE_PATH_PROP_NAME,
-                                                              TransportConstants.DEFAULT_KEYSTORE_PATH,
-                                                              configuration);
+         keyStorePath = ConfigurationHelper.getStringProperty(TransportConstants.KEYSTORE_PATH_PROP_NAME, TransportConstants.DEFAULT_KEYSTORE_PATH, configuration);
 
-         keyStorePassword = ConfigurationHelper.getPasswordProperty(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME,
-                                                                    TransportConstants.DEFAULT_KEYSTORE_PASSWORD,
-                                                                    configuration,
-                                                                    ActiveMQDefaultConfiguration.getPropMaskPassword(),
-                                                                    ActiveMQDefaultConfiguration.getPropMaskPassword());
+         keyStorePassword = ConfigurationHelper.getPasswordProperty(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME, TransportConstants.DEFAULT_KEYSTORE_PASSWORD, configuration, ActiveMQDefaultConfiguration.getPropMaskPassword(), ActiveMQDefaultConfiguration.getPropMaskPassword());
 
-         trustStoreProvider = ConfigurationHelper.getStringProperty(TransportConstants.TRUSTSTORE_PROVIDER_PROP_NAME,
-                                                                    TransportConstants.DEFAULT_TRUSTSTORE_PROVIDER,
-                                                                    configuration);
+         trustStoreProvider = ConfigurationHelper.getStringProperty(TransportConstants.TRUSTSTORE_PROVIDER_PROP_NAME, TransportConstants.DEFAULT_TRUSTSTORE_PROVIDER, configuration);
 
-         trustStorePath = ConfigurationHelper.getStringProperty(TransportConstants.TRUSTSTORE_PATH_PROP_NAME,
-                                                                TransportConstants.DEFAULT_TRUSTSTORE_PATH,
-                                                                configuration);
+         trustStorePath = ConfigurationHelper.getStringProperty(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, TransportConstants.DEFAULT_TRUSTSTORE_PATH, configuration);
 
-         trustStorePassword = ConfigurationHelper.getPasswordProperty(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME,
-                                                                      TransportConstants.DEFAULT_TRUSTSTORE_PASSWORD,
-                                                                      configuration,
-                                                                      ActiveMQDefaultConfiguration.getPropMaskPassword(),
-                                                                      ActiveMQDefaultConfiguration.getPropMaskPassword());
+         trustStorePassword = ConfigurationHelper.getPasswordProperty(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, TransportConstants.DEFAULT_TRUSTSTORE_PASSWORD, configuration, ActiveMQDefaultConfiguration.getPropMaskPassword(), ActiveMQDefaultConfiguration.getPropMaskPassword());
 
-         enabledCipherSuites = ConfigurationHelper.getStringProperty(TransportConstants.ENABLED_CIPHER_SUITES_PROP_NAME,
-                                                                     TransportConstants.DEFAULT_ENABLED_CIPHER_SUITES,
-                                                                     configuration);
+         enabledCipherSuites = ConfigurationHelper.getStringProperty(TransportConstants.ENABLED_CIPHER_SUITES_PROP_NAME, TransportConstants.DEFAULT_ENABLED_CIPHER_SUITES, configuration);
 
-         enabledProtocols = ConfigurationHelper.getStringProperty(TransportConstants.ENABLED_PROTOCOLS_PROP_NAME,
-                                                                  TransportConstants.DEFAULT_ENABLED_PROTOCOLS,
-                                                                  configuration);
+         enabledProtocols = ConfigurationHelper.getStringProperty(TransportConstants.ENABLED_PROTOCOLS_PROP_NAME, TransportConstants.DEFAULT_ENABLED_PROTOCOLS, configuration);
 
-         needClientAuth = ConfigurationHelper.getBooleanProperty(TransportConstants.NEED_CLIENT_AUTH_PROP_NAME,
-                                                                 TransportConstants.DEFAULT_NEED_CLIENT_AUTH,
-                                                                 configuration);
+         needClientAuth = ConfigurationHelper.getBooleanProperty(TransportConstants.NEED_CLIENT_AUTH_PROP_NAME, TransportConstants.DEFAULT_NEED_CLIENT_AUTH, configuration);
       }
-      else
-      {
+      else {
          keyStoreProvider = TransportConstants.DEFAULT_KEYSTORE_PROVIDER;
          keyStorePath = TransportConstants.DEFAULT_KEYSTORE_PATH;
          keyStorePassword = TransportConstants.DEFAULT_KEYSTORE_PASSWORD;
@@ -267,60 +229,40 @@ public class NettyAcceptor implements Acceptor
          needClientAuth = TransportConstants.DEFAULT_NEED_CLIENT_AUTH;
       }
 
-      tcpNoDelay = ConfigurationHelper.getBooleanProperty(TransportConstants.TCP_NODELAY_PROPNAME,
-                                                          TransportConstants.DEFAULT_TCP_NODELAY,
-                                                          configuration);
-      tcpSendBufferSize = ConfigurationHelper.getIntProperty(TransportConstants.TCP_SENDBUFFER_SIZE_PROPNAME,
-                                                             TransportConstants.DEFAULT_TCP_SENDBUFFER_SIZE,
-                                                             configuration);
-      tcpReceiveBufferSize = ConfigurationHelper.getIntProperty(TransportConstants.TCP_RECEIVEBUFFER_SIZE_PROPNAME,
-                                                                TransportConstants.DEFAULT_TCP_RECEIVEBUFFER_SIZE,
-                                                                configuration);
+      tcpNoDelay = ConfigurationHelper.getBooleanProperty(TransportConstants.TCP_NODELAY_PROPNAME, TransportConstants.DEFAULT_TCP_NODELAY, configuration);
+      tcpSendBufferSize = ConfigurationHelper.getIntProperty(TransportConstants.TCP_SENDBUFFER_SIZE_PROPNAME, TransportConstants.DEFAULT_TCP_SENDBUFFER_SIZE, configuration);
+      tcpReceiveBufferSize = ConfigurationHelper.getIntProperty(TransportConstants.TCP_RECEIVEBUFFER_SIZE_PROPNAME, TransportConstants.DEFAULT_TCP_RECEIVEBUFFER_SIZE, configuration);
 
       this.scheduledThreadPool = scheduledThreadPool;
 
-      batchDelay = ConfigurationHelper.getLongProperty(TransportConstants.BATCH_DELAY,
-                                                       TransportConstants.DEFAULT_BATCH_DELAY,
-                                                       configuration);
+      batchDelay = ConfigurationHelper.getLongProperty(TransportConstants.BATCH_DELAY, TransportConstants.DEFAULT_BATCH_DELAY, configuration);
 
-      directDeliver = ConfigurationHelper.getBooleanProperty(TransportConstants.DIRECT_DELIVER,
-                                                             TransportConstants.DEFAULT_DIRECT_DELIVER,
-                                                             configuration);
+      directDeliver = ConfigurationHelper.getBooleanProperty(TransportConstants.DIRECT_DELIVER, TransportConstants.DEFAULT_DIRECT_DELIVER, configuration);
 
-      httpUpgradeEnabled = ConfigurationHelper.getBooleanProperty(TransportConstants.HTTP_UPGRADE_ENABLED_PROP_NAME,
-                                                                  TransportConstants.DEFAULT_HTTP_UPGRADE_ENABLED,
-                                                                  configuration);
+      httpUpgradeEnabled = ConfigurationHelper.getBooleanProperty(TransportConstants.HTTP_UPGRADE_ENABLED_PROP_NAME, TransportConstants.DEFAULT_HTTP_UPGRADE_ENABLED, configuration);
 
-      connectionsAllowed = ConfigurationHelper.getLongProperty(TransportConstants.CONNECTIONS_ALLOWED,
-                                                               TransportConstants.DEFAULT_CONNECTIONS_ALLOWED,
-                                                               configuration);
+      connectionsAllowed = ConfigurationHelper.getLongProperty(TransportConstants.CONNECTIONS_ALLOWED, TransportConstants.DEFAULT_CONNECTIONS_ALLOWED, configuration);
    }
 
-   public synchronized void start() throws Exception
-   {
-      if (channelClazz != null)
-      {
+   public synchronized void start() throws Exception {
+      if (channelClazz != null) {
          // Already started
          return;
       }
 
-      if (useInvm)
-      {
+      if (useInvm) {
          channelClazz = LocalServerChannel.class;
          eventLoopGroup = new LocalEventLoopGroup();
       }
-      else
-      {
+      else {
          int threadsToUse;
 
-         if (nioRemotingThreads == -1)
-         {
+         if (nioRemotingThreads == -1) {
             // Default to number of cores * 3
 
             threadsToUse = Runtime.getRuntime().availableProcessors() * 3;
          }
-         else
-         {
+         else {
             threadsToUse = this.nioRemotingThreads;
          }
          channelClazz = NioServerSocketChannel.class;
@@ -331,39 +273,32 @@ public class NettyAcceptor implements Acceptor
       bootstrap.group(eventLoopGroup);
       bootstrap.channel(channelClazz);
       final SSLContext context;
-      if (sslEnabled)
-      {
-         try
-         {
+      if (sslEnabled) {
+         try {
             if (keyStorePath == null && TransportConstants.DEFAULT_TRUSTSTORE_PROVIDER.equals(keyStoreProvider))
                throw new IllegalArgumentException("If \"" + TransportConstants.SSL_ENABLED_PROP_NAME +
                                                      "\" is true then \"" + TransportConstants.KEYSTORE_PATH_PROP_NAME + "\" must be non-null " +
                                                      "unless an alternative \"" + TransportConstants.KEYSTORE_PROVIDER_PROP_NAME + "\" has been specified.");
             context = SSLSupport.createContext(keyStoreProvider, keyStorePath, keyStorePassword, trustStoreProvider, trustStorePath, trustStorePassword);
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             IllegalStateException ise = new IllegalStateException("Unable to create NettyAcceptor for " + host +
                                                                      ":" + port);
             ise.initCause(e);
             throw ise;
          }
       }
-      else
-      {
+      else {
          context = null; // Unused
       }
 
       final AtomicBoolean warningPrinted = new AtomicBoolean(false);
 
-      ChannelInitializer<Channel> factory = new ChannelInitializer<Channel>()
-      {
+      ChannelInitializer<Channel> factory = new ChannelInitializer<Channel>() {
          @Override
-         public void initChannel(Channel channel) throws Exception
-         {
+         public void initChannel(Channel channel) throws Exception {
             ChannelPipeline pipeline = channel.pipeline();
-            if (sslEnabled)
-            {
+            if (sslEnabled) {
                SSLEngine engine = context.createSSLEngine();
 
                engine.setUseClientMode(false);
@@ -376,33 +311,26 @@ public class NettyAcceptor implements Acceptor
                // we can reset the enabled protocols if a customer protocol isn't specified
                String[] originalProtocols = engine.getEnabledProtocols();
 
-               if (enabledCipherSuites != null)
-               {
-                  try
-                  {
+               if (enabledCipherSuites != null) {
+                  try {
                      engine.setEnabledCipherSuites(SSLSupport.parseCommaSeparatedListIntoArray(enabledCipherSuites));
                   }
-                  catch (IllegalArgumentException e)
-                  {
+                  catch (IllegalArgumentException e) {
                      ActiveMQServerLogger.LOGGER.invalidCipherSuite(SSLSupport.parseArrayIntoCommandSeparatedList(engine.getSupportedCipherSuites()));
                      throw e;
                   }
                }
 
-               if (enabledProtocols != null)
-               {
-                  try
-                  {
+               if (enabledProtocols != null) {
+                  try {
                      engine.setEnabledProtocols(SSLSupport.parseCommaSeparatedListIntoArray(enabledProtocols));
                   }
-                  catch (IllegalArgumentException e)
-                  {
+                  catch (IllegalArgumentException e) {
                      ActiveMQServerLogger.LOGGER.invalidProtocol(SSLSupport.parseArrayIntoCommandSeparatedList(engine.getSupportedProtocols()));
                      throw e;
                   }
                }
-               else
-               {
+               else {
                   engine.setEnabledProtocols(originalProtocols);
                }
 
@@ -410,12 +338,9 @@ public class NettyAcceptor implements Acceptor
                // This recommendation came from http://www.oracle.com/technetwork/java/javase/documentation/cve-2014-3566-2342133.html
                String[] protocols = engine.getEnabledProtocols();
                Set<String> set = new HashSet<>();
-               for (String s : protocols)
-               {
-                  if (s.equals("SSLv3") || s.equals("SSLv2Hello"))
-                  {
-                     if (!warningPrinted.get())
-                     {
+               for (String s : protocols) {
+                  if (s.equals("SSLv3") || s.equals("SSLv2Hello")) {
+                     if (!warningPrinted.get()) {
                         ActiveMQServerLogger.LOGGER.disallowedProtocol(s);
                      }
                      continue;
@@ -436,16 +361,13 @@ public class NettyAcceptor implements Acceptor
 
       // Bind
       bootstrap.childOption(ChannelOption.TCP_NODELAY, tcpNoDelay);
-      if (tcpReceiveBufferSize != -1)
-      {
+      if (tcpReceiveBufferSize != -1) {
          bootstrap.childOption(ChannelOption.SO_RCVBUF, tcpReceiveBufferSize);
       }
-      if (tcpSendBufferSize != -1)
-      {
+      if (tcpSendBufferSize != -1) {
          bootstrap.childOption(ChannelOption.SO_SNDBUF, tcpSendBufferSize);
       }
-      if (backlog != -1)
-      {
+      if (backlog != -1) {
          bootstrap.option(ChannelOption.SO_BACKLOG, backlog);
       }
       bootstrap.option(ChannelOption.SO_REUSEADDR, true);
@@ -456,36 +378,28 @@ public class NettyAcceptor implements Acceptor
 
       serverChannelGroup = new DefaultChannelGroup("activemq-acceptor-channels", GlobalEventExecutor.INSTANCE);
 
-      if (httpUpgradeEnabled)
-      {
+      if (httpUpgradeEnabled) {
          // the channel will be bound by the Web container and hand over after the HTTP Upgrade
          // handshake is successful
       }
-      else
-      {
+      else {
          startServerChannels();
 
          paused = false;
 
-         if (notificationService != null)
-         {
+         if (notificationService != null) {
             TypedProperties props = new TypedProperties();
-            props.putSimpleStringProperty(new SimpleString("factory"),
-                                          new SimpleString(NettyAcceptorFactory.class.getName()));
+            props.putSimpleStringProperty(new SimpleString("factory"), new SimpleString(NettyAcceptorFactory.class.getName()));
             props.putSimpleStringProperty(new SimpleString("host"), new SimpleString(host));
             props.putIntProperty(new SimpleString("port"), port);
             Notification notification = new Notification(null, CoreNotificationType.ACCEPTOR_STARTED, props);
             notificationService.sendNotification(notification);
          }
 
-         if (batchDelay > 0)
-         {
+         if (batchDelay > 0) {
             flusher = new BatchFlusher();
 
-            batchFlusherFuture = scheduledThreadPool.scheduleWithFixedDelay(flusher,
-                                                                            batchDelay,
-                                                                            batchDelay,
-                                                                            TimeUnit.MILLISECONDS);
+            batchFlusherFuture = scheduledThreadPool.scheduleWithFixedDelay(flusher, batchDelay, batchDelay, TimeUnit.MILLISECONDS);
          }
 
          ActiveMQServerLogger.LOGGER.startedAcceptor(host, port, protocolsString);
@@ -498,23 +412,18 @@ public class NettyAcceptor implements Acceptor
     *
     * @param channel A Netty channel created outside this NettyAcceptor.
     */
-   public void transfer(Channel channel)
-   {
+   public void transfer(Channel channel) {
       channel.pipeline().addLast(protocolHandler.getProtocolDecoder());
    }
 
-   private void startServerChannels()
-   {
+   private void startServerChannels() {
       String[] hosts = TransportConfiguration.splitHosts(host);
-      for (String h : hosts)
-      {
+      for (String h : hosts) {
          SocketAddress address;
-         if (useInvm)
-         {
+         if (useInvm) {
             address = new LocalAddress(h);
          }
-         else
-         {
+         else {
             address = new InetSocketAddress(h, port);
          }
          Channel serverChannel = bootstrap.bind(address).syncUninterruptibly().channel();
@@ -522,25 +431,20 @@ public class NettyAcceptor implements Acceptor
       }
    }
 
-   public Map<String, Object> getConfiguration()
-   {
+   public Map<String, Object> getConfiguration() {
       return this.configuration;
    }
 
-   public synchronized void stop()
-   {
-      if (channelClazz == null)
-      {
+   public synchronized void stop() {
+      if (channelClazz == null) {
          return;
       }
 
-      if (protocolHandler != null)
-      {
+      if (protocolHandler != null) {
          protocolHandler.close();
       }
 
-      if (batchFlusherFuture != null)
-      {
+      if (batchFlusherFuture != null) {
          batchFlusherFuture.cancel(false);
 
          flusher.cancel();
@@ -550,26 +454,20 @@ public class NettyAcceptor implements Acceptor
          batchFlusherFuture = null;
       }
 
-
       // serverChannelGroup has been unbound in pause()
-      if (serverChannelGroup != null)
-      {
+      if (serverChannelGroup != null) {
          serverChannelGroup.close().awaitUninterruptibly();
       }
 
-      if (channelGroup != null)
-      {
+      if (channelGroup != null) {
          ChannelGroupFuture future = channelGroup.close().awaitUninterruptibly();
 
-         if (!future.isSuccess())
-         {
+         if (!future.isSuccess()) {
             ActiveMQServerLogger.LOGGER.nettyChannelGroupError();
             Iterator<Channel> iterator = future.group().iterator();
-            while (iterator.hasNext())
-            {
+            while (iterator.hasNext()) {
                Channel channel = iterator.next();
-               if (channel.isActive())
-               {
+               if (channel.isActive()) {
                   ActiveMQServerLogger.LOGGER.nettyChannelStillOpen(channel, channel.remoteAddress());
                }
             }
@@ -583,27 +481,22 @@ public class NettyAcceptor implements Acceptor
 
       channelClazz = null;
 
-      for (Connection connection : connections.values())
-      {
+      for (Connection connection : connections.values()) {
          listener.connectionDestroyed(connection.getID());
       }
 
       connections.clear();
 
-      if (notificationService != null)
-      {
+      if (notificationService != null) {
          TypedProperties props = new TypedProperties();
-         props.putSimpleStringProperty(new SimpleString("factory"),
-                                       new SimpleString(NettyAcceptorFactory.class.getName()));
+         props.putSimpleStringProperty(new SimpleString("factory"), new SimpleString(NettyAcceptorFactory.class.getName()));
          props.putSimpleStringProperty(new SimpleString("host"), new SimpleString(host));
          props.putIntProperty(new SimpleString("port"), port);
          Notification notification = new Notification(null, CoreNotificationType.ACCEPTOR_STOPPED, props);
-         try
-         {
+         try {
             notificationService.sendNotification(notification);
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
          }
@@ -612,36 +505,28 @@ public class NettyAcceptor implements Acceptor
       paused = false;
    }
 
-   public boolean isStarted()
-   {
+   public boolean isStarted() {
       return channelClazz != null;
    }
 
-   public synchronized void pause()
-   {
-      if (paused)
-      {
+   public synchronized void pause() {
+      if (paused) {
          return;
       }
 
-      if (channelClazz == null)
-      {
+      if (channelClazz == null) {
          return;
       }
 
       // We *pause* the acceptor so no new connections are made
-      if (serverChannelGroup != null)
-      {
+      if (serverChannelGroup != null) {
          ChannelGroupFuture future = serverChannelGroup.close().awaitUninterruptibly();
-         if (!future.isSuccess())
-         {
+         if (!future.isSuccess()) {
             ActiveMQServerLogger.LOGGER.nettyChannelGroupBindError();
             Iterator<Channel> iterator = future.group().iterator();
-            while (iterator.hasNext())
-            {
+            while (iterator.hasNext()) {
                Channel channel = iterator.next();
-               if (channel.isActive())
-               {
+               if (channel.isActive()) {
                   ActiveMQServerLogger.LOGGER.nettyChannelStillBound(channel, channel.remoteAddress());
                }
             }
@@ -650,8 +535,7 @@ public class NettyAcceptor implements Acceptor
       paused = true;
    }
 
-   public void setNotificationService(final NotificationService notificationService)
-   {
+   public void setNotificationService(final NotificationService notificationService) {
       this.notificationService = notificationService;
    }
 
@@ -660,8 +544,7 @@ public class NettyAcceptor implements Acceptor
     *
     * @param defaultActiveMQPrincipal
     */
-   public void setDefaultActiveMQPrincipal(ActiveMQPrincipal defaultActiveMQPrincipal)
-   {
+   public void setDefaultActiveMQPrincipal(ActiveMQPrincipal defaultActiveMQPrincipal) {
       throw new IllegalStateException("unsecure connections not allowed");
    }
 
@@ -670,32 +553,25 @@ public class NettyAcceptor implements Acceptor
     *
     * @return
     */
-   public boolean isUnsecurable()
-   {
+   public boolean isUnsecurable() {
       return false;
    }
 
    @Override
-   public ClusterConnection getClusterConnection()
-   {
+   public ClusterConnection getClusterConnection() {
       return clusterConnection;
    }
 
-   public ConnectionCreator createConnectionCreator()
-   {
+   public ConnectionCreator createConnectionCreator() {
       return new ActiveMQServerChannelHandler(channelGroup, handler, new Listener());
    }
 
-   private static String getProtocols(Map<String, ProtocolManager> protocolManager)
-   {
+   private static String getProtocols(Map<String, ProtocolManager> protocolManager) {
       StringBuilder sb = new StringBuilder();
-      if (protocolManager != null)
-      {
+      if (protocolManager != null) {
          Set<String> strings = protocolManager.keySet();
-         for (String string : strings)
-         {
-            if (sb.length() > 0)
-            {
+         for (String string : strings) {
+            if (sb.length() > 0) {
                sb.append(",");
             }
             sb.append(string);
@@ -705,20 +581,18 @@ public class NettyAcceptor implements Acceptor
    }
    // Inner classes -----------------------------------------------------------------------------
 
-   private final class ActiveMQServerChannelHandler extends ActiveMQChannelHandler implements ConnectionCreator
-   {
+   private final class ActiveMQServerChannelHandler extends ActiveMQChannelHandler implements ConnectionCreator {
 
       ActiveMQServerChannelHandler(final ChannelGroup group,
                                    final BufferHandler handler,
-                                   final ConnectionLifeCycleListener listener)
-      {
+                                   final ConnectionLifeCycleListener listener) {
          super(group, handler, listener);
       }
 
-      public NettyServerConnection createConnection(final ChannelHandlerContext ctx, String protocol, boolean httpEnabled) throws Exception
-      {
-         if (connectionsAllowed == -1 || connections.size() < connectionsAllowed)
-         {
+      public NettyServerConnection createConnection(final ChannelHandlerContext ctx,
+                                                    String protocol,
+                                                    boolean httpEnabled) throws Exception {
+         if (connectionsAllowed == -1 || connections.size() < connectionsAllowed) {
             super.channelActive(ctx);
             Listener connectionListener = new Listener();
 
@@ -727,33 +601,25 @@ public class NettyAcceptor implements Acceptor
             connectionListener.connectionCreated(NettyAcceptor.this, nc, protocol);
 
             SslHandler sslHandler = ctx.pipeline().get(SslHandler.class);
-            if (sslHandler != null)
-            {
-               sslHandler.handshakeFuture().addListener(new GenericFutureListener<io.netty.util.concurrent.Future<Channel>>()
-               {
-                  public void operationComplete(final io.netty.util.concurrent.Future<Channel> future) throws Exception
-                  {
-                     if (future.isSuccess())
-                     {
+            if (sslHandler != null) {
+               sslHandler.handshakeFuture().addListener(new GenericFutureListener<io.netty.util.concurrent.Future<Channel>>() {
+                  public void operationComplete(final io.netty.util.concurrent.Future<Channel> future) throws Exception {
+                     if (future.isSuccess()) {
                         active = true;
                      }
-                     else
-                     {
+                     else {
                         future.getNow().close();
                      }
                   }
                });
             }
-            else
-            {
+            else {
                active = true;
             }
             return nc;
          }
-         else
-         {
-            if (ActiveMQServerLogger.LOGGER.isDebugEnabled())
-            {
+         else {
+            if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
                ActiveMQServerLogger.LOGGER.debug(new StringBuilder().append("Connection limit of ").append(connectionsAllowed).append(" reached. Refusing connection from ").append(ctx.channel().remoteAddress()));
             }
             throw new Exception();
@@ -761,78 +627,64 @@ public class NettyAcceptor implements Acceptor
       }
    }
 
-   private class Listener implements ConnectionLifeCycleListener
-   {
-      public void connectionCreated(final ActiveMQComponent component, final Connection connection, final String protocol)
-      {
-         if (connections.putIfAbsent(connection.getID(), (NettyServerConnection) connection) != null)
-         {
+   private class Listener implements ConnectionLifeCycleListener {
+
+      public void connectionCreated(final ActiveMQComponent component,
+                                    final Connection connection,
+                                    final String protocol) {
+         if (connections.putIfAbsent(connection.getID(), (NettyServerConnection) connection) != null) {
             throw ActiveMQMessageBundle.BUNDLE.connectionExists(connection.getID());
          }
 
          listener.connectionCreated(component, connection, protocol);
       }
 
-      public void connectionDestroyed(final Object connectionID)
-      {
-         if (connections.remove(connectionID) != null)
-         {
+      public void connectionDestroyed(final Object connectionID) {
+         if (connections.remove(connectionID) != null) {
             listener.connectionDestroyed(connectionID);
          }
       }
 
-      public void connectionException(final Object connectionID, final ActiveMQException me)
-      {
+      public void connectionException(final Object connectionID, final ActiveMQException me) {
          // Execute on different thread to avoid deadlocks
-         new Thread()
-         {
+         new Thread() {
             @Override
-            public void run()
-            {
+            public void run() {
                listener.connectionException(connectionID, me);
             }
          }.start();
 
       }
 
-      public void connectionReadyForWrites(final Object connectionID, boolean ready)
-      {
+      public void connectionReadyForWrites(final Object connectionID, boolean ready) {
          NettyServerConnection conn = connections.get(connectionID);
 
-         if (conn != null)
-         {
+         if (conn != null) {
             conn.fireReady(ready);
          }
       }
    }
 
-   private class BatchFlusher implements Runnable
-   {
+   private class BatchFlusher implements Runnable {
+
       private boolean cancelled;
 
-      public synchronized void run()
-      {
-         if (!cancelled)
-         {
-            for (Connection connection : connections.values())
-            {
+      public synchronized void run() {
+         if (!cancelled) {
+            for (Connection connection : connections.values()) {
                connection.checkFlushBatchBuffer();
             }
          }
       }
 
-      public synchronized void cancel()
-      {
+      public synchronized void cancel() {
          cancelled = true;
       }
    }
 
-   private static ClassLoader getThisClassLoader()
-   {
-      return AccessController.doPrivileged(new PrivilegedAction<ClassLoader>()
-      {
-         public ClassLoader run()
-         {
+   private static ClassLoader getThisClassLoader() {
+      return AccessController.doPrivileged(new PrivilegedAction<ClassLoader>() {
+         public ClassLoader run() {
             return ClientSessionFactoryImpl.class.getClassLoader();
          }
       });

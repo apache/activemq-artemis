@@ -27,120 +27,110 @@ import org.junit.Test;
 
 public class FailoverTransportUriHandlingTest {
 
-    @Test
-    public void testFailoverTransportAddWithInitialUnknown() throws Exception {
-        FailoverTransport transport = new FailoverTransport();
+   @Test
+   public void testFailoverTransportAddWithInitialUnknown() throws Exception {
+      FailoverTransport transport = new FailoverTransport();
 
-        final String initialUri = "tcp://no.existing.hostname:61616";
+      final String initialUri = "tcp://no.existing.hostname:61616";
 
-        transport.add(false, initialUri);
+      transport.add(false, initialUri);
 
-        String[] uriArray = new String[] {"tcp://127.0.0.2:61616",
-                                          "tcp://localhost:61616",
-                                          "tcp://localhost:61617"};
+      String[] uriArray = new String[]{"tcp://127.0.0.2:61616", "tcp://localhost:61616", "tcp://localhost:61617"};
 
-        for(String uri : uriArray) {
-            transport.add(false, uri);
-        }
+      for (String uri : uriArray) {
+         transport.add(false, uri);
+      }
 
-        Collection<URI> uris = getRegisteredUrlsFromPrivateField(transport);
+      Collection<URI> uris = getRegisteredUrlsFromPrivateField(transport);
 
-        for(String uri : uriArray) {
-            assertTrue("Collection should contain: " + uri, uris.contains(new URI(uri)));
-        }
-    }
+      for (String uri : uriArray) {
+         assertTrue("Collection should contain: " + uri, uris.contains(new URI(uri)));
+      }
+   }
 
-    @Test
-    public void testFailoverTransportAddWithInitialKnown() throws Exception {
-        FailoverTransport transport = new FailoverTransport();
+   @Test
+   public void testFailoverTransportAddWithInitialKnown() throws Exception {
+      FailoverTransport transport = new FailoverTransport();
 
-        final String initialUri = "tcp://localhost:61616";
+      final String initialUri = "tcp://localhost:61616";
 
-        transport.add(false, initialUri);
+      transport.add(false, initialUri);
 
-        String[] uriArray = new String[] {"tcp://127.0.0.2:61616",
-                                          "tcp://no.existing.hostname:61616",
-                                          "tcp://localhost:61617"};
+      String[] uriArray = new String[]{"tcp://127.0.0.2:61616", "tcp://no.existing.hostname:61616", "tcp://localhost:61617"};
 
-        for(String uri : uriArray) {
-            transport.add(false, uri);
-        }
+      for (String uri : uriArray) {
+         transport.add(false, uri);
+      }
 
-        Collection<URI> uris = getRegisteredUrlsFromPrivateField(transport);
+      Collection<URI> uris = getRegisteredUrlsFromPrivateField(transport);
 
-        for(String uri : uriArray) {
-            assertTrue("Collection should contain: " + uri, uris.contains(new URI(uri)));
-        }
-    }
+      for (String uri : uriArray) {
+         assertTrue("Collection should contain: " + uri, uris.contains(new URI(uri)));
+      }
+   }
 
-    @Test
-    public void testFailoverTransportAddWithPreventsDups() throws Exception {
-        FailoverTransport transport = new FailoverTransport();
+   @Test
+   public void testFailoverTransportAddWithPreventsDups() throws Exception {
+      FailoverTransport transport = new FailoverTransport();
 
-        final String initialUri = "tcp://localhost:61616";
+      final String initialUri = "tcp://localhost:61616";
 
-        transport.add(false, initialUri);
+      transport.add(false, initialUri);
 
-        String[] uriArray = new String[] {"tcp://127.0.0.2:61616",
-                                          "tcp://localhost:61616",
-                                          "tcp://no.existing.hostname:61616",
-                                          "tcp://localhost:61617",
-                                          "tcp://127.0.0.1:61616"};
+      String[] uriArray = new String[]{"tcp://127.0.0.2:61616", "tcp://localhost:61616", "tcp://no.existing.hostname:61616", "tcp://localhost:61617", "tcp://127.0.0.1:61616"};
 
-        for(String uri : uriArray) {
-            transport.add(false, uri);
-        }
+      for (String uri : uriArray) {
+         transport.add(false, uri);
+      }
 
-        Collection<URI> uris = getRegisteredUrlsFromPrivateField(transport);
+      Collection<URI> uris = getRegisteredUrlsFromPrivateField(transport);
 
-        assertEquals(4, uris.size());
+      assertEquals(4, uris.size());
 
-        // Ensure even the unknowns get checked.
-        transport.add(false, "tcp://no.existing.hostname:61616");
+      // Ensure even the unknowns get checked.
+      transport.add(false, "tcp://no.existing.hostname:61616");
 
-        uris = getRegisteredUrlsFromPrivateField(transport);
+      uris = getRegisteredUrlsFromPrivateField(transport);
 
-        assertEquals(4, uris.size());
-    }
+      assertEquals(4, uris.size());
+   }
 
-    @Test
-    public void testFailoverTransportAddArray() throws Exception {
-        FailoverTransport transport = new FailoverTransport();
+   @Test
+   public void testFailoverTransportAddArray() throws Exception {
+      FailoverTransport transport = new FailoverTransport();
 
-        final String initialUri = "tcp://no.existing.hostname:61616";
+      final String initialUri = "tcp://no.existing.hostname:61616";
 
-        transport.add(false, initialUri);
+      transport.add(false, initialUri);
 
-        URI[] uriArray = new URI[] {new URI("tcp://127.0.0.2:61616"),
-                                    new URI("tcp://localhost:61616"),
-                                    new URI("tcp://localhost:61617")};
+      URI[] uriArray = new URI[]{new URI("tcp://127.0.0.2:61616"), new URI("tcp://localhost:61616"), new URI("tcp://localhost:61617")};
 
-        transport.add(false, uriArray);
+      transport.add(false, uriArray);
 
-        Collection<URI> uris = getRegisteredUrlsFromPrivateField(transport);
+      Collection<URI> uris = getRegisteredUrlsFromPrivateField(transport);
 
-        for(URI uri : uriArray) {
-            assertTrue("Collection should contain: " + uri, uris.contains(uri));
-        }
+      for (URI uri : uriArray) {
+         assertTrue("Collection should contain: " + uri, uris.contains(uri));
+      }
 
-        assertEquals(4, uris.size());
+      assertEquals(4, uris.size());
 
-        // Ensure even the unknowns get checked.
-        transport.add(false, "tcp://no.existing.hostname:61616");
+      // Ensure even the unknowns get checked.
+      transport.add(false, "tcp://no.existing.hostname:61616");
 
-        uris = getRegisteredUrlsFromPrivateField(transport);
+      uris = getRegisteredUrlsFromPrivateField(transport);
 
-        assertEquals(4, uris.size());
+      assertEquals(4, uris.size());
 
-        transport.add(false, uriArray);
+      transport.add(false, uriArray);
 
-        assertEquals(4, uris.size());
-    }
+      assertEquals(4, uris.size());
+   }
 
-    @SuppressWarnings("unchecked")
-    private Collection<URI> getRegisteredUrlsFromPrivateField(FailoverTransport failoverTransport) throws SecurityException, NoSuchFieldException, IllegalAccessException {
-        Field urisField = failoverTransport.getClass().getDeclaredField("uris");
-        urisField.setAccessible(true);
-        return (Collection<URI>) urisField.get(failoverTransport);
-    }
+   @SuppressWarnings("unchecked")
+   private Collection<URI> getRegisteredUrlsFromPrivateField(FailoverTransport failoverTransport) throws SecurityException, NoSuchFieldException, IllegalAccessException {
+      Field urisField = failoverTransport.getClass().getDeclaredField("uris");
+      urisField.setAccessible(true);
+      return (Collection<URI>) urisField.get(failoverTransport);
+   }
 }

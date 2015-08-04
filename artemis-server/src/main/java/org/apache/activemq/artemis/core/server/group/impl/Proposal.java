@@ -21,31 +21,27 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 /**
  * A proposal to select a group id
  */
-public class Proposal
-{
+public class Proposal {
+
    private final SimpleString groupId;
 
    private final SimpleString clusterName;
 
-   public Proposal(final SimpleString groupId, final SimpleString clusterName)
-   {
+   public Proposal(final SimpleString groupId, final SimpleString clusterName) {
       this.clusterName = clusterName;
       this.groupId = groupId;
    }
 
-   public SimpleString getGroupId()
-   {
+   public SimpleString getGroupId() {
       return groupId;
    }
 
-   public SimpleString getClusterName()
-   {
+   public SimpleString getClusterName() {
       return clusterName;
    }
 
    @Override
-   public String toString()
-   {
+   public String toString() {
       return "Proposal:" + getGroupId() + ":" + clusterName;
    }
 }

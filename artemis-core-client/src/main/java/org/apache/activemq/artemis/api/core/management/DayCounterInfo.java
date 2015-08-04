@@ -26,8 +26,7 @@ import org.apache.activemq.artemis.utils.json.JSONObject;
  * Helper class to create Java Objects from the
  * JSON serialization returned by {@link QueueControl#listMessageCounterHistory()}.
  */
-public final class DayCounterInfo
-{
+public final class DayCounterInfo {
 
    private final String date;
 
@@ -35,12 +34,10 @@ public final class DayCounterInfo
 
    // Static --------------------------------------------------------
 
-   public static String toJSON(final DayCounterInfo[] infos) throws JSONException
-   {
+   public static String toJSON(final DayCounterInfo[] infos) throws JSONException {
       JSONObject json = new JSONObject();
       JSONArray counters = new JSONArray();
-      for (DayCounterInfo info : infos)
-      {
+      for (DayCounterInfo info : infos) {
          JSONObject counter = new JSONObject();
          counter.put("date", info.getDate());
          counter.put("counters", Arrays.asList(info.getCounters()));
@@ -54,19 +51,16 @@ public final class DayCounterInfo
     * Returns an array of RoleInfo corresponding to the JSON serialization returned
     * by {@link QueueControl#listMessageCounterHistory()}.
     */
-   public static DayCounterInfo[] fromJSON(final String jsonString) throws JSONException
-   {
+   public static DayCounterInfo[] fromJSON(final String jsonString) throws JSONException {
       JSONObject json = new JSONObject(jsonString);
       JSONArray dayCounters = json.getJSONArray("dayCounters");
       DayCounterInfo[] infos = new DayCounterInfo[dayCounters.length()];
-      for (int i = 0; i < dayCounters.length(); i++)
-      {
+      for (int i = 0; i < dayCounters.length(); i++) {
 
-         JSONObject counter = (JSONObject)dayCounters.get(i);
-         JSONArray hour = (JSONArray)counter.getJSONArray("counters").get(0);
+         JSONObject counter = (JSONObject) dayCounters.get(i);
+         JSONArray hour = (JSONArray) counter.getJSONArray("counters").get(0);
          int[] hourCounters = new int[24];
-         for (int j = 0; j < 24; j++)
-         {
+         for (int j = 0; j < 24; j++) {
             hourCounters[j] = hour.getInt(j);
          }
          DayCounterInfo info = new DayCounterInfo(counter.getString("date"), hourCounters);
@@ -77,8 +71,7 @@ public final class DayCounterInfo
 
    // Constructors --------------------------------------------------
 
-   public DayCounterInfo(final String date, final int[] counters)
-   {
+   public DayCounterInfo(final String date, final int[] counters) {
       this.date = date;
       this.counters = counters;
    }
@@ -88,8 +81,7 @@ public final class DayCounterInfo
    /**
     * Returns the date of the counter.
     */
-   public String getDate()
-   {
+   public String getDate() {
       return date;
    }
 
@@ -97,8 +89,7 @@ public final class DayCounterInfo
     * Returns a 24-length array corresponding to the number of messages added to the queue
     * for the given hour of the day.
     */
-   public int[] getCounters()
-   {
+   public int[] getCounters() {
       return counters;
    }
 }

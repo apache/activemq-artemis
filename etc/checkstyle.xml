@@ -67,9 +67,9 @@ under the License.
       <module name="CovariantEquals"/>
       <!-- Checks the style of array type definitions. -->
       <module name="ArrayTypeStyle"/>
-      <!-- Make sure left curly braces are on a new line. Note, this is not the recommendation from Sun. It is a legacy preference. -->
+      <!-- Make sure left curly braces are on the same line. -->
       <module name="LeftCurly">
-         <property name="option" value="nl"/>
+         <property name="option" value="eol"/>
       </module>
       <!-- Make sure right curly braces are on a new line by itself. Note, this is not the recommendation from Sun. It is a legacy preference. -->
       <module name="RightCurly">

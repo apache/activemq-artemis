@@ -29,108 +29,89 @@ import org.junit.Test;
 /**
  * adapted from: org.apache.activemq.TransactionContextTest
  */
-public class TransactionContextTest extends BasicOpenWireTest
-{
+public class TransactionContextTest extends BasicOpenWireTest {
+
    TransactionContext underTest;
 
    @Before
-   public void setup() throws Exception
-   {
+   public void setup() throws Exception {
       underTest = new TransactionContext(connection);
    }
 
    @Test
-   public void testSyncBeforeEndCalledOnceOnRollback() throws Exception
-   {
+   public void testSyncBeforeEndCalledOnceOnRollback() throws Exception {
       final AtomicInteger beforeEndCountA = new AtomicInteger(0);
       final AtomicInteger beforeEndCountB = new AtomicInteger(0);
       final AtomicInteger rollbackCountA = new AtomicInteger(0);
       final AtomicInteger rollbackCountB = new AtomicInteger(0);
-      underTest.addSynchronization(new Synchronization()
-      {
+      underTest.addSynchronization(new Synchronization() {
          @Override
-         public void beforeEnd() throws Exception
-         {
-            if (beforeEndCountA.getAndIncrement() == 0)
-            {
+         public void beforeEnd() throws Exception {
+            if (beforeEndCountA.getAndIncrement() == 0) {
                throw new TransactionRolledBackException("force rollback");
             }
          }
 
          @Override
-         public void afterCommit() throws Exception
-         {
+         public void afterCommit() throws Exception {
             fail("exepcted rollback exception");
          }
 
          @Override
-         public void afterRollback() throws Exception
-         {
+         public void afterRollback() throws Exception {
             rollbackCountA.incrementAndGet();
          }
 
       });
 
-      underTest.addSynchronization(new Synchronization()
-      {
+      underTest.addSynchronization(new Synchronization() {
          @Override
-         public void beforeEnd() throws Exception
-         {
+         public void beforeEnd() throws Exception {
             beforeEndCountB.getAndIncrement();
          }
 
          @Override
-         public void afterCommit() throws Exception
-         {
+         public void afterCommit() throws Exception {
             fail("exepcted rollback exception");
          }
 
          @Override
-         public void afterRollback() throws Exception
-         {
+         public void afterRollback() throws Exception {
             rollbackCountB.incrementAndGet();
          }
 
       });
 
-      try
-      {
+      try {
          underTest.commit();
          fail("exepcted rollback exception");
       }
-      catch (TransactionRolledBackException expected)
-      {
+      catch (TransactionRolledBackException expected) {
       }
 
       assertEquals("beforeEnd A called once", 1, beforeEndCountA.get());
       assertEquals("beforeEnd B called once", 1, beforeEndCountA.get());
       assertEquals("rollbackCount B 0", 1, rollbackCountB.get());
-      assertEquals("rollbackCount A B", rollbackCountA.get(),
-            rollbackCountB.get());
+      assertEquals("rollbackCount A B", rollbackCountA.get(), rollbackCountB.get());
    }
 
    @Test
-   public void testSyncIndexCleared() throws Exception
-   {
+   public void testSyncIndexCleared() throws Exception {
       final AtomicInteger beforeEndCountA = new AtomicInteger(0);
       final AtomicInteger rollbackCountA = new AtomicInteger(0);
-      Synchronization sync = new Synchronization()
-      {
+      Synchronization sync = new Synchronization() {
          @Override
-         public void beforeEnd() throws Exception
-         {
+         public void beforeEnd() throws Exception {
             beforeEndCountA.getAndIncrement();
          }
 
          @Override
-         public void afterCommit() throws Exception
-         {
+         public void afterCommit() throws Exception {
             fail("exepcted rollback exception");
          }
 
          @Override
-         public void afterRollback() throws Exception
-         {
+         public void afterRollback() throws Exception {
             rollbackCountA.incrementAndGet();
          }
       };

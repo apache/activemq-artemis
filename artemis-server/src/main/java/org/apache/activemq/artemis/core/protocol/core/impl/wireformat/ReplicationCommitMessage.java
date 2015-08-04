@@ -19,24 +19,22 @@ package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 
-public final class ReplicationCommitMessage extends PacketImpl
-{
+public final class ReplicationCommitMessage extends PacketImpl {
 
-   /** 0 - BindingsImpl, 1 - MessagesJournal */
+   /**
+    * 0 - BindingsImpl, 1 - MessagesJournal
+    */
    private byte journalID;
 
    private boolean rollback;
 
    private long txId;
 
-
-   public ReplicationCommitMessage()
-   {
+   public ReplicationCommitMessage() {
       super(PacketImpl.REPLICATION_COMMIT_ROLLBACK);
    }
 
-   public ReplicationCommitMessage(final byte journalID, final boolean rollback, final long txId)
-   {
+   public ReplicationCommitMessage(final byte journalID, final boolean rollback, final long txId) {
       this();
       this.journalID = journalID;
       this.rollback = rollback;
@@ -44,60 +42,53 @@ public final class ReplicationCommitMessage extends PacketImpl
    }
 
    @Override
-   public void encodeRest(final ActiveMQBuffer buffer)
-   {
+   public void encodeRest(final ActiveMQBuffer buffer) {
       buffer.writeByte(journalID);
       buffer.writeBoolean(rollback);
       buffer.writeLong(txId);
    }
 
    @Override
-   public void decodeRest(final ActiveMQBuffer buffer)
-   {
+   public void decodeRest(final ActiveMQBuffer buffer) {
       journalID = buffer.readByte();
       rollback = buffer.readBoolean();
       txId = buffer.readLong();
    }
 
-   public boolean isRollback()
-   {
+   public boolean isRollback() {
       return rollback;
    }
 
-   public long getTxId()
-   {
+   public long getTxId() {
       return txId;
    }
 
    /**
     * @return the journalID
     */
-   public byte getJournalID()
-   {
+   public byte getJournalID() {
       return journalID;
    }
 
    @Override
-   public int hashCode()
-   {
+   public int hashCode() {
       final int prime = 31;
       int result = super.hashCode();
       result = prime * result + journalID;
       result = prime * result + (rollback ? 1231 : 1237);
-      result = prime * result + (int)(txId ^ (txId >>> 32));
+      result = prime * result + (int) (txId ^ (txId >>> 32));
       return result;
    }
 
    @Override
-   public boolean equals(Object obj)
-   {
+   public boolean equals(Object obj) {
       if (this == obj)
          return true;
       if (!super.equals(obj))
          return false;
       if (!(obj instanceof ReplicationCommitMessage))
          return false;
-      ReplicationCommitMessage other = (ReplicationCommitMessage)obj;
+      ReplicationCommitMessage other = (ReplicationCommitMessage) obj;
       if (journalID != other.journalID)
          return false;
       if (rollback != other.rollback)
@@ -108,10 +99,9 @@ public final class ReplicationCommitMessage extends PacketImpl
    }
 
    @Override
-   public String toString()
-   {
+   public String toString() {
       String txOperation = rollback ? "rollback" : "commmit";
       return ReplicationCommitMessage.class.getSimpleName() + "[type=" + getType() + ", channel=" + getChannelID() +
-               ", journalID=" + journalID + ", txAction='" + txOperation + "']";
+         ", journalID=" + journalID + ", txAction='" + txOperation + "']";
    }
 }

@@ -36,8 +36,8 @@ import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.journal.ActiveMQJournalBundle;
 import org.apache.activemq.artemis.journal.ActiveMQJournalLogger;
 
-public final class NIOSequentialFile extends AbstractSequentialFile
-{
+public final class NIOSequentialFile extends AbstractSequentialFile {
+
    private FileChannel channel;
 
    private RandomAccessFile rfile;
@@ -55,24 +55,20 @@ public final class NIOSequentialFile extends AbstractSequentialFile
                             final File directory,
                             final String file,
                             final int maxIO,
-                            final Executor writerExecutor)
-   {
+                            final Executor writerExecutor) {
       super(directory, file, factory, writerExecutor);
       defaultMaxIO = maxIO;
    }
 
-   public int getAlignment()
-   {
+   public int getAlignment() {
       return 1;
    }
 
-   public int calculateBlockStart(final int position)
-   {
+   public int calculateBlockStart(final int position) {
       return position;
    }
 
-   public synchronized boolean isOpen()
-   {
+   public synchronized boolean isOpen() {
       return channel != null;
    }
 
@@ -80,50 +76,42 @@ public final class NIOSequentialFile extends AbstractSequentialFile
     * this.maxIO represents the default maxIO.
     * Some operations while initializing files on the journal may require a different maxIO
     */
-   public synchronized void open() throws IOException
-   {
+   public synchronized void open() throws IOException {
       open(defaultMaxIO, true);
    }
 
-   public void open(final int maxIO, final boolean useExecutor) throws IOException
-   {
-      try
-      {
+   public void open(final int maxIO, final boolean useExecutor) throws IOException {
+      try {
          rfile = new RandomAccessFile(getFile(), "rw");
 
          channel = rfile.getChannel();
 
          fileSize = channel.size();
       }
-      catch (IOException e)
-      {
+      catch (IOException e) {
          factory.onIOError(new ActiveMQIOErrorException(e.getMessage(), e), e.getMessage(), this);
          throw e;
       }
 
-      if (writerExecutor != null && useExecutor)
-      {
+      if (writerExecutor != null && useExecutor) {
          maxIOSemaphore = new Semaphore(maxIO);
          this.maxIO = maxIO;
       }
    }
 
-   public void fill(final int size) throws IOException
-   {
+   public void fill(final int size) throws IOException {
       ByteBuffer bb = ByteBuffer.allocate(size);
 
       bb.limit(size);
       bb.position(0);
 
-      try
-      {
+      try {
          channel.position(0);
          channel.write(bb);
          channel.force(false);
          channel.position(0);
       }
-      catch (IOException e)
-      {
+      catch (IOException e) {
          factory.onIOError(new ActiveMQIOErrorException(e.getMessage(), e), e.getMessage(), this);
          throw e;
       }
@@ -132,33 +120,26 @@ public final class NIOSequentialFile extends AbstractSequentialFile
    }
 
    @Override
-   public synchronized void close() throws IOException, InterruptedException, ActiveMQException
-   {
+   public synchronized void close() throws IOException, InterruptedException, ActiveMQException {
       super.close();
 
-      if (maxIOSemaphore != null)
-      {
-         while (!maxIOSemaphore.tryAcquire(maxIO, 60, TimeUnit.SECONDS))
-         {
+      if (maxIOSemaphore != null) {
+         while (!maxIOSemaphore.tryAcquire(maxIO, 60, TimeUnit.SECONDS)) {
             ActiveMQJournalLogger.LOGGER.errorClosingFile(getFileName());
          }
       }
 
       maxIOSemaphore = null;
-      try
-      {
-         if (channel != null)
-         {
+      try {
+         if (channel != null) {
             channel.close();
          }
 
-         if (rfile != null)
-         {
+         if (rfile != null) {
             rfile.close();
          }
       }
-      catch (IOException e)
-      {
+      catch (IOException e) {
          factory.onIOError(new ActiveMQIOErrorException(e.getMessage(), e), e.getMessage(), this);
          throw e;
       }
@@ -169,24 +150,19 @@ public final class NIOSequentialFile extends AbstractSequentialFile
       notifyAll();
    }
 
-   public int read(final ByteBuffer bytes) throws Exception
-   {
+   public int read(final ByteBuffer bytes) throws Exception {
       return read(bytes, null);
    }
 
-   public synchronized int read(final ByteBuffer bytes, final IOCallback callback) throws IOException,
-      ActiveMQIllegalStateException
-   {
-      try
-      {
-         if (channel == null)
-         {
+   public synchronized int read(final ByteBuffer bytes,
+                                final IOCallback callback) throws IOException, ActiveMQIllegalStateException {
+      try {
+         if (channel == null) {
             throw new ActiveMQIllegalStateException("File " + this.getFileName() + " has a null channel");
          }
          int bytesRead = channel.read(bytes);
 
-         if (callback != null)
-         {
+         if (callback != null) {
             callback.done();
          }
 
@@ -194,10 +170,8 @@ public final class NIOSequentialFile extends AbstractSequentialFile
 
          return bytesRead;
       }
-      catch (IOException e)
-      {
-         if (callback != null)
-         {
+      catch (IOException e) {
+         if (callback != null) {
             callback.onError(ActiveMQExceptionType.IO_ERROR.getCode(), e.getLocalizedMessage());
          }
 
@@ -207,96 +181,76 @@ public final class NIOSequentialFile extends AbstractSequentialFile
       }
    }
 
-   public void sync() throws IOException
-   {
-      if (channel != null)
-      {
-         try
-         {
+   public void sync() throws IOException {
+      if (channel != null) {
+         try {
             channel.force(false);
          }
-         catch (IOException e)
-         {
+         catch (IOException e) {
             factory.onIOError(new ActiveMQIOErrorException(e.getMessage(), e), e.getMessage(), this);
             throw e;
          }
       }
    }
 
-   public long size() throws IOException
-   {
-      if (channel == null)
-      {
+   public long size() throws IOException {
+      if (channel == null) {
          return getFile().length();
       }
 
-      try
-      {
+      try {
          return channel.size();
       }
-      catch (IOException e)
-      {
+      catch (IOException e) {
          factory.onIOError(new ActiveMQIOErrorException(e.getMessage(), e), e.getMessage(), this);
          throw e;
       }
    }
 
    @Override
-   public void position(final long pos) throws IOException
-   {
-      try
-      {
+   public void position(final long pos) throws IOException {
+      try {
          super.position(pos);
          channel.position(pos);
       }
-      catch (IOException e)
-      {
+      catch (IOException e) {
          factory.onIOError(new ActiveMQIOErrorException(e.getMessage(), e), e.getMessage(), this);
          throw e;
       }
    }
 
    @Override
-   public String toString()
-   {
+   public String toString() {
       return "NIOSequentialFile " + getFile();
    }
 
-   public SequentialFile cloneFile()
-   {
+   public SequentialFile cloneFile() {
       return new NIOSequentialFile(factory, directory, getFileName(), maxIO, writerExecutor);
    }
 
-   public void writeDirect(final ByteBuffer bytes, final boolean sync, final IOCallback callback)
-   {
-      if (callback == null)
-      {
+   public void writeDirect(final ByteBuffer bytes, final boolean sync, final IOCallback callback) {
+      if (callback == null) {
          throw new NullPointerException("callback parameter need to be set");
       }
 
-      try
-      {
+      try {
          internalWrite(bytes, sync, callback);
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          callback.onError(ActiveMQExceptionType.GENERIC_EXCEPTION.getCode(), e.getMessage());
       }
    }
 
-   public void writeDirect(final ByteBuffer bytes, final boolean sync) throws Exception
-   {
+   public void writeDirect(final ByteBuffer bytes, final boolean sync) throws Exception {
       internalWrite(bytes, sync, null);
    }
 
-   public void writeInternal(final ByteBuffer bytes) throws Exception
-   {
+   public void writeInternal(final ByteBuffer bytes) throws Exception {
       internalWrite(bytes, true, null);
    }
 
    @Override
-   protected ByteBuffer newBuffer(int size, final int limit)
-   {
+   protected ByteBuffer newBuffer(int size, final int limit) {
       // For NIO, we don't need to allocate a buffer the entire size of the timed buffer, unlike AIO
 
       size = limit;
@@ -304,16 +258,14 @@ public final class NIOSequentialFile extends AbstractSequentialFile
       return super.newBuffer(size, limit);
    }
 
-   private void internalWrite(final ByteBuffer bytes, final boolean sync, final IOCallback callback) throws IOException, ActiveMQIOErrorException, InterruptedException
-   {
-      if (!isOpen())
-      {
-         if (callback != null)
-         {
+   private void internalWrite(final ByteBuffer bytes,
+                              final boolean sync,
+                              final IOCallback callback) throws IOException, ActiveMQIOErrorException, InterruptedException {
+      if (!isOpen()) {
+         if (callback != null) {
             callback.onError(ActiveMQExceptionType.IO_ERROR.getCode(), "File not opened");
          }
-         else
-         {
+         else {
             throw ActiveMQJournalBundle.BUNDLE.fileNotOpened();
          }
          return;
@@ -321,47 +273,36 @@ public final class NIOSequentialFile extends AbstractSequentialFile
 
       position.addAndGet(bytes.limit());
 
-      if (maxIOSemaphore == null || callback == null)
-      {
+      if (maxIOSemaphore == null || callback == null) {
          // if maxIOSemaphore == null, that means we are not using executors and the writes are synchronous
-         try
-         {
+         try {
             doInternalWrite(bytes, sync, callback);
          }
-         catch (IOException e)
-         {
+         catch (IOException e) {
             factory.onIOError(new ActiveMQIOErrorException(e.getMessage(), e), e.getMessage(), this);
          }
       }
-      else
-      {
+      else {
          // This is a flow control on writing, just like maxAIO on libaio
          maxIOSemaphore.acquire();
 
-         writerExecutor.execute(new Runnable()
-         {
-            public void run()
-            {
-               try
-               {
-                  try
-                  {
+         writerExecutor.execute(new Runnable() {
+            public void run() {
+               try {
+                  try {
                      doInternalWrite(bytes, sync, callback);
                   }
-                  catch (IOException e)
-                  {
+                  catch (IOException e) {
                      ActiveMQJournalLogger.LOGGER.errorSubmittingWrite(e);
                      factory.onIOError(new ActiveMQIOErrorException(e.getMessage(), e), e.getMessage(), NIOSequentialFile.this);
                      callback.onError(ActiveMQExceptionType.IO_ERROR.getCode(), e.getMessage());
                   }
-                  catch (Throwable e)
-                  {
+                  catch (Throwable e) {
                      ActiveMQJournalLogger.LOGGER.errorSubmittingWrite(e);
                      callback.onError(ActiveMQExceptionType.IO_ERROR.getCode(), e.getMessage());
                   }
                }
-               finally
-               {
+               finally {
                   maxIOSemaphore.release();
                }
             }
@@ -376,17 +317,16 @@ public final class NIOSequentialFile extends AbstractSequentialFile
     * @throws IOException
     * @throws Exception
     */
-   private void doInternalWrite(final ByteBuffer bytes, final boolean sync, final IOCallback callback) throws IOException
-   {
+   private void doInternalWrite(final ByteBuffer bytes,
+                                final boolean sync,
+                                final IOCallback callback) throws IOException {
       channel.write(bytes);
 
-      if (sync)
-      {
+      if (sync) {
          sync();
       }
 
-      if (callback != null)
-      {
+      if (callback != null) {
          callback.done();
       }
    }

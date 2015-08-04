@@ -19,35 +19,30 @@ package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 
-public class CheckFailoverMessage extends PacketImpl
-{
+public class CheckFailoverMessage extends PacketImpl {
+
    private String nodeID;
 
-   public CheckFailoverMessage(final String nodeID)
-   {
+   public CheckFailoverMessage(final String nodeID) {
       super(CHECK_FOR_FAILOVER);
       this.nodeID = nodeID;
    }
 
-   public CheckFailoverMessage()
-   {
+   public CheckFailoverMessage() {
       super(CHECK_FOR_FAILOVER);
    }
 
    @Override
-   public void encodeRest(ActiveMQBuffer buffer)
-   {
+   public void encodeRest(ActiveMQBuffer buffer) {
       buffer.writeNullableString(nodeID);
    }
 
    @Override
-   public void decodeRest(ActiveMQBuffer buffer)
-   {
+   public void decodeRest(ActiveMQBuffer buffer) {
       nodeID = buffer.readNullableString();
    }
 
-   public String getNodeID()
-   {
+   public String getNodeID() {
       return nodeID;
    }
 }

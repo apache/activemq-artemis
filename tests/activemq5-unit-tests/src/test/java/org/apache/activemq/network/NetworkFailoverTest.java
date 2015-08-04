@@ -50,183 +50,185 @@ import org.springframework.core.io.Resource;
 
 public class NetworkFailoverTest extends TestCase {
 
-    protected static final int MESSAGE_COUNT = 10;
-    private static final Logger LOG = LoggerFactory.getLogger(NetworkFailoverTest.class);
+   protected static final int MESSAGE_COUNT = 10;
+   private static final Logger LOG = LoggerFactory.getLogger(NetworkFailoverTest.class);
 
-    protected AbstractApplicationContext context;
-    protected Connection localConnection;
-    protected Connection remoteConnection;
-    protected BrokerService localBroker;
-    protected BrokerService remoteBroker;
-    protected Session localSession;
-    protected Session remoteSession;
-    protected ActiveMQQueue included=new ActiveMQQueue("include.test.foo");
-    private final AtomicInteger replyToNonExistDest = new AtomicInteger(0);
-    private final AtomicInteger roundTripComplete = new AtomicInteger(0);
-    private final AtomicInteger remoteDLQCount = new AtomicInteger(0);
+   protected AbstractApplicationContext context;
+   protected Connection localConnection;
+   protected Connection remoteConnection;
+   protected BrokerService localBroker;
+   protected BrokerService remoteBroker;
+   protected Session localSession;
+   protected Session remoteSession;
+   protected ActiveMQQueue included = new ActiveMQQueue("include.test.foo");
+   private final AtomicInteger replyToNonExistDest = new AtomicInteger(0);
+   private final AtomicInteger roundTripComplete = new AtomicInteger(0);
+   private final AtomicInteger remoteDLQCount = new AtomicInteger(0);
 
-    public void testRequestReply() throws Exception {
-        final MessageProducer remoteProducer = remoteSession.createProducer(null);
-        MessageConsumer remoteConsumer = remoteSession.createConsumer(included);
-        remoteConsumer.setMessageListener(new MessageListener() {
-            @Override
-            public void onMessage(Message msg) {
-                final TextMessage textMsg = (TextMessage)msg;
-                try {
-                    String payload = "REPLY: " + textMsg.getText() + ", " + textMsg.getJMSMessageID();
-                    Destination replyTo;
-                    replyTo = msg.getJMSReplyTo();
-                    textMsg.clearBody();
-                    textMsg.setText(payload);
-                    LOG.info("*** Sending response: {}", textMsg.getText());
-                    remoteProducer.send(replyTo, textMsg);
-                    LOG.info("replied with: " + textMsg.getJMSMessageID());
+   public void testRequestReply() throws Exception {
+      final MessageProducer remoteProducer = remoteSession.createProducer(null);
+      MessageConsumer remoteConsumer = remoteSession.createConsumer(included);
+      remoteConsumer.setMessageListener(new MessageListener() {
+         @Override
+         public void onMessage(Message msg) {
+            final TextMessage textMsg = (TextMessage) msg;
+            try {
+               String payload = "REPLY: " + textMsg.getText() + ", " + textMsg.getJMSMessageID();
+               Destination replyTo;
+               replyTo = msg.getJMSReplyTo();
+               textMsg.clearBody();
+               textMsg.setText(payload);
+               LOG.info("*** Sending response: {}", textMsg.getText());
+               remoteProducer.send(replyTo, textMsg);
+               LOG.info("replied with: " + textMsg.getJMSMessageID());
 
-                } catch (DestinationDoesNotExistException expected) {
-                    // been removed but not yet recreated
-                    replyToNonExistDest.incrementAndGet();
-                    try {
-                        LOG.info("NED: " + textMsg.getJMSMessageID());
-                    } catch (JMSException e) {
-                        e.printStackTrace();
-                    };
-                } catch (Exception e) {
-                    LOG.warn("*** Responder listener caught exception: ", e);
-                    e.printStackTrace();
-                }
             }
-        });
-
-        Queue tempQueue = localSession.createTemporaryQueue();
-        MessageProducer requestProducer = localSession.createProducer(included);
-        requestProducer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
-        MessageConsumer requestConsumer = localSession.createConsumer(tempQueue);
-
-        // track remote dlq for forward failures
-        MessageConsumer dlqconsumer = remoteSession.createConsumer(new ActiveMQQueue(SharedDeadLetterStrategy.DEFAULT_DEAD_LETTER_QUEUE_NAME));
-        dlqconsumer.setMessageListener(new MessageListener() {
-            @Override
-            public void onMessage(Message message) {
-                try {
-                    LOG.info("dlq " + message.getJMSMessageID());
-                } catch (JMSException e) {
-                    e.printStackTrace();
-                }
-                remoteDLQCount.incrementAndGet();
+            catch (DestinationDoesNotExistException expected) {
+               // been removed but not yet recreated
+               replyToNonExistDest.incrementAndGet();
+               try {
+                  LOG.info("NED: " + textMsg.getJMSMessageID());
+               }
+               catch (JMSException e) {
+                  e.printStackTrace();
+               }
+               ;
             }
-        });
-
-        // allow for consumer infos to perculate around
-        Thread.sleep(2000);
-        long done = System.currentTimeMillis() + (MESSAGE_COUNT * 6000);
-        int i = 0;
-        while (MESSAGE_COUNT > roundTripComplete.get() + remoteDLQCount.get() + replyToNonExistDest.get()
-                && done > System.currentTimeMillis()) {
-            if  ( i < MESSAGE_COUNT) {
-                String payload = "test msg " + i;
-                i++;
-                TextMessage msg = localSession.createTextMessage(payload);
-                msg.setJMSReplyTo(tempQueue);
-                requestProducer.send(msg);
-                LOG.info("Sent: " + msg.getJMSMessageID() +", Failing over");
-                ((FailoverTransport) ((TransportFilter) ((TransportFilter)
-                        ((ActiveMQConnection) localConnection)
-                                .getTransport()).getNext()).getNext())
-                        .handleTransportFailure(new IOException("Forcing failover from test"));
+            catch (Exception e) {
+               LOG.warn("*** Responder listener caught exception: ", e);
+               e.printStackTrace();
             }
-            TextMessage result = (TextMessage)requestConsumer.receive(5000);
-            if (result != null) {
-                LOG.info("Got reply: " + result.getJMSMessageID() + ", " + result.getText());
-                roundTripComplete.incrementAndGet();
+         }
+      });
+
+      Queue tempQueue = localSession.createTemporaryQueue();
+      MessageProducer requestProducer = localSession.createProducer(included);
+      requestProducer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
+      MessageConsumer requestConsumer = localSession.createConsumer(tempQueue);
+
+      // track remote dlq for forward failures
+      MessageConsumer dlqconsumer = remoteSession.createConsumer(new ActiveMQQueue(SharedDeadLetterStrategy.DEFAULT_DEAD_LETTER_QUEUE_NAME));
+      dlqconsumer.setMessageListener(new MessageListener() {
+         @Override
+         public void onMessage(Message message) {
+            try {
+               LOG.info("dlq " + message.getJMSMessageID());
             }
-        }
+            catch (JMSException e) {
+               e.printStackTrace();
+            }
+            remoteDLQCount.incrementAndGet();
+         }
+      });
 
-        LOG.info("complete: " + roundTripComplete.get()
-                        + ", remoteDLQCount: " + remoteDLQCount.get()
-                        + ", replyToNonExistDest: " + replyToNonExistDest.get());
-        assertEquals("complete:" + roundTripComplete.get()
-                + ", remoteDLQCount: " + remoteDLQCount.get()
-                + ", replyToNonExistDest: " + replyToNonExistDest.get(),
-                MESSAGE_COUNT, roundTripComplete.get() + remoteDLQCount.get() + replyToNonExistDest.get() );
-    }
+      // allow for consumer infos to perculate around
+      Thread.sleep(2000);
+      long done = System.currentTimeMillis() + (MESSAGE_COUNT * 6000);
+      int i = 0;
+      while (MESSAGE_COUNT > roundTripComplete.get() + remoteDLQCount.get() + replyToNonExistDest.get() && done > System.currentTimeMillis()) {
+         if (i < MESSAGE_COUNT) {
+            String payload = "test msg " + i;
+            i++;
+            TextMessage msg = localSession.createTextMessage(payload);
+            msg.setJMSReplyTo(tempQueue);
+            requestProducer.send(msg);
+            LOG.info("Sent: " + msg.getJMSMessageID() + ", Failing over");
+            ((FailoverTransport) ((TransportFilter) ((TransportFilter) ((ActiveMQConnection) localConnection).getTransport()).getNext()).getNext()).handleTransportFailure(new IOException("Forcing failover from test"));
+         }
+         TextMessage result = (TextMessage) requestConsumer.receive(5000);
+         if (result != null) {
+            LOG.info("Got reply: " + result.getJMSMessageID() + ", " + result.getText());
+            roundTripComplete.incrementAndGet();
+         }
+      }
 
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
-        doSetUp(true);
-    }
+      LOG.info("complete: " + roundTripComplete.get() + ", remoteDLQCount: " + remoteDLQCount.get() + ", replyToNonExistDest: " + replyToNonExistDest.get());
+      assertEquals("complete:" + roundTripComplete.get() + ", remoteDLQCount: " + remoteDLQCount.get() + ", replyToNonExistDest: " + replyToNonExistDest.get(), MESSAGE_COUNT, roundTripComplete.get() + remoteDLQCount.get() + replyToNonExistDest.get());
+   }
 
-    @Override
-    protected void tearDown() throws Exception {
-        doTearDown();
-        super.tearDown();
-    }
+   @Override
+   protected void setUp() throws Exception {
+      super.setUp();
+      doSetUp(true);
+   }
 
-    protected void doTearDown() throws Exception {
-        try {
-            localConnection.close();
-            remoteConnection.close();
-        } catch(Exception ex) {}
+   @Override
+   protected void tearDown() throws Exception {
+      doTearDown();
+      super.tearDown();
+   }
 
-        try {
-            localBroker.stop();
-        } catch(Exception ex) {}
-        try {
-            remoteBroker.stop();
-        } catch(Exception ex) {}
-    }
+   protected void doTearDown() throws Exception {
+      try {
+         localConnection.close();
+         remoteConnection.close();
+      }
+      catch (Exception ex) {
+      }
 
-    protected void doSetUp(boolean deleteAllMessages) throws Exception {
+      try {
+         localBroker.stop();
+      }
+      catch (Exception ex) {
+      }
+      try {
+         remoteBroker.stop();
+      }
+      catch (Exception ex) {
+      }
+   }
 
-        remoteBroker = createRemoteBroker();
-        remoteBroker.setDeleteAllMessagesOnStartup(deleteAllMessages);
-        remoteBroker.setCacheTempDestinations(true);
-        remoteBroker.start();
+   protected void doSetUp(boolean deleteAllMessages) throws Exception {
 
-        localBroker = createLocalBroker();
-        localBroker.setDeleteAllMessagesOnStartup(deleteAllMessages);
-        localBroker.setCacheTempDestinations(true);
-        localBroker.start();
+      remoteBroker = createRemoteBroker();
+      remoteBroker.setDeleteAllMessagesOnStartup(deleteAllMessages);
+      remoteBroker.setCacheTempDestinations(true);
+      remoteBroker.start();
 
-        String localURI = "tcp://localhost:61616";
-        String remoteURI = "tcp://localhost:61617";
-        ActiveMQConnectionFactory fac = new ActiveMQConnectionFactory("failover:("+localURI+","+remoteURI+")?randomize=false&backup=false&trackMessages=true");
-        localConnection = fac.createConnection();
-        localConnection.setClientID("local");
-        localConnection.start();
-        fac = new ActiveMQConnectionFactory("failover:("+remoteURI + ","+localURI+")?randomize=false&backup=false&trackMessages=true");
-        fac.setWatchTopicAdvisories(false);
-        remoteConnection = fac.createConnection();
-        remoteConnection.setClientID("remote");
-        remoteConnection.start();
+      localBroker = createLocalBroker();
+      localBroker.setDeleteAllMessagesOnStartup(deleteAllMessages);
+      localBroker.setCacheTempDestinations(true);
+      localBroker.start();
 
-        localSession = localConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        remoteSession = remoteConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-    }
+      String localURI = "tcp://localhost:61616";
+      String remoteURI = "tcp://localhost:61617";
+      ActiveMQConnectionFactory fac = new ActiveMQConnectionFactory("failover:(" + localURI + "," + remoteURI + ")?randomize=false&backup=false&trackMessages=true");
+      localConnection = fac.createConnection();
+      localConnection.setClientID("local");
+      localConnection.start();
+      fac = new ActiveMQConnectionFactory("failover:(" + remoteURI + "," + localURI + ")?randomize=false&backup=false&trackMessages=true");
+      fac.setWatchTopicAdvisories(false);
+      remoteConnection = fac.createConnection();
+      remoteConnection.setClientID("remote");
+      remoteConnection.start();
 
-    protected String getRemoteBrokerURI() {
-        return "org/apache/activemq/network/remoteBroker.xml";
-    }
+      localSession = localConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      remoteSession = remoteConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+   }
 
-    protected String getLocalBrokerURI() {
-        return "org/apache/activemq/network/localBroker.xml";
-    }
+   protected String getRemoteBrokerURI() {
+      return "org/apache/activemq/network/remoteBroker.xml";
+   }
 
-    protected BrokerService createBroker(String uri) throws Exception {
-        Resource resource = new ClassPathResource(uri);
-        BrokerFactoryBean factory = new BrokerFactoryBean(resource);
-        resource = new ClassPathResource(uri);
-        factory = new BrokerFactoryBean(resource);
-        factory.afterPropertiesSet();
-        BrokerService result = factory.getBroker();
-        return result;
-    }
+   protected String getLocalBrokerURI() {
+      return "org/apache/activemq/network/localBroker.xml";
+   }
 
-    protected BrokerService createLocalBroker() throws Exception {
-        return createBroker(getLocalBrokerURI());
-    }
+   protected BrokerService createBroker(String uri) throws Exception {
+      Resource resource = new ClassPathResource(uri);
+      BrokerFactoryBean factory = new BrokerFactoryBean(resource);
+      resource = new ClassPathResource(uri);
+      factory = new BrokerFactoryBean(resource);
+      factory.afterPropertiesSet();
+      BrokerService result = factory.getBroker();
+      return result;
+   }
 
-    protected BrokerService createRemoteBroker() throws Exception {
-        return createBroker(getRemoteBrokerURI());
-    }
+   protected BrokerService createLocalBroker() throws Exception {
+      return createBroker(getLocalBrokerURI());
+   }
+
+   protected BrokerService createRemoteBroker() throws Exception {
+      return createBroker(getRemoteBrokerURI());
+   }
 }

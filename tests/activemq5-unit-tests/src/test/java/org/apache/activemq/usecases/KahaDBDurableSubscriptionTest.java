@@ -17,11 +17,12 @@
 package org.apache.activemq.usecases;
 
 import java.io.IOException;
+
 import org.apache.activemq.store.PersistenceAdapter;
 
 public class KahaDBDurableSubscriptionTest extends DurableSubscriptionTestSupport {
 
-    protected PersistenceAdapter createPersistenceAdapter() throws IOException {
-        return null; // use default
-    }
+   protected PersistenceAdapter createPersistenceAdapter() throws IOException {
+      return null; // use default
+   }
 }

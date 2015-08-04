@@ -21,8 +21,8 @@ import java.util.Properties;
 /**
  * Class used to provide configurable options in a convenient way
  */
-public class TestConfig
-{
+public class TestConfig {
+
    // name of the configuration file
    private static final String PROP_FILE_NAME = "test.properties";
 
@@ -35,24 +35,20 @@ public class TestConfig
     */
    public static final long TIMEOUT;
 
-   static
-   {
+   static {
       // load tests.properties
       long tempTimeOut = 0;
-      try
-      {
+      try {
          Properties props = new Properties();
          props.load(ClassLoader.getSystemResourceAsStream(TestConfig.PROP_FILE_NAME));
          System.out.println("Found " + TestConfig.PROP_FILE_NAME);
          tempTimeOut = Long.parseLong(props.getProperty(TestConfig.PROP_NAME, "0"));
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          e.printStackTrace();
          tempTimeOut = 30000;
       }
-      finally
-      {
+      finally {
          TIMEOUT = tempTimeOut;
       }
    }

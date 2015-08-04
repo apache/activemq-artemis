@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 package org.objectweb.jtests.jms.framework;
+
 import javax.jms.Session;
 import javax.jms.Topic;
 import javax.jms.TopicConnection;
@@ -41,8 +42,7 @@ import org.junit.Before;
  * Classes which want that convenience should extend <code>PubSubTestCase</code> instead of
  * <code>JMSTestCase</code>.
  */
-public abstract class PubSubTestCase extends JMSTestCase
-{
+public abstract class PubSubTestCase extends JMSTestCase {
 
    private Context ctx;
 
@@ -107,12 +107,10 @@ public abstract class PubSubTestCase extends JMSTestCase
     */
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
-      try
-      {
+      try {
          // ...and creates administrated objects and binds them
          admin.createTopicConnectionFactory(PubSubTestCase.TCF_NAME);
          admin.createTopic(PubSubTestCase.TOPIC_NAME);
@@ -123,15 +121,15 @@ public abstract class PubSubTestCase extends JMSTestCase
          props.put("topic." + PubSubTestCase.TOPIC_NAME, PubSubTestCase.TOPIC_NAME);
          Context ctx = new InitialContext(props);
 
-         publisherTCF = (TopicConnectionFactory)ctx.lookup(PubSubTestCase.TCF_NAME);
-         publisherTopic = (Topic)ctx.lookup(PubSubTestCase.TOPIC_NAME);
+         publisherTCF = (TopicConnectionFactory) ctx.lookup(PubSubTestCase.TCF_NAME);
+         publisherTopic = (Topic) ctx.lookup(PubSubTestCase.TOPIC_NAME);
          publisherConnection = publisherTCF.createTopicConnection();
          publisherConnection.setClientID("publisherConnection");
          publisherSession = publisherConnection.createTopicSession(false, Session.AUTO_ACKNOWLEDGE);
          publisher = publisherSession.createPublisher(publisherTopic);
 
-         subscriberTCF = (TopicConnectionFactory)ctx.lookup(PubSubTestCase.TCF_NAME);
-         subscriberTopic = (Topic)ctx.lookup(PubSubTestCase.TOPIC_NAME);
+         subscriberTCF = (TopicConnectionFactory) ctx.lookup(PubSubTestCase.TCF_NAME);
+         subscriberTopic = (Topic) ctx.lookup(PubSubTestCase.TOPIC_NAME);
          subscriberConnection = subscriberTCF.createTopicConnection();
          subscriberConnection.setClientID("subscriberConnection");
          subscriberSession = subscriberConnection.createTopicSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -141,32 +139,27 @@ public abstract class PubSubTestCase extends JMSTestCase
          subscriberConnection.start();
          // end of client step
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          throw new RuntimeException(e);
       }
    }
 
    /**
-    *  Close connections and delete administrated objects
+    * Close connections and delete administrated objects
     */
    @Override
    @After
-   public void tearDown() throws Exception
-   {
-      try
-      {
+   public void tearDown() throws Exception {
+      try {
          publisherConnection.close();
          subscriberConnection.close();
 
          admin.deleteTopicConnectionFactory(PubSubTestCase.TCF_NAME);
          admin.deleteTopic(PubSubTestCase.TOPIC_NAME);
       }
-      catch (Exception ignored)
-      {
+      catch (Exception ignored) {
       }
-      finally
-      {
+      finally {
          publisherTopic = null;
          publisher = null;
          publisherTCF = null;

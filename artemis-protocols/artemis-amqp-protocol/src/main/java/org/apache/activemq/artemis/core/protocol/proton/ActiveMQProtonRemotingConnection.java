@@ -28,39 +28,36 @@ import org.proton.plug.AMQPConnectionContext;
 /**
  * This is a Server's Connection representation used by ActiveMQ Artemis.
  */
-public class ActiveMQProtonRemotingConnection extends AbstractRemotingConnection
-{
+public class ActiveMQProtonRemotingConnection extends AbstractRemotingConnection {
+
    private final AMQPConnectionContext amqpConnection;
 
    private boolean destroyed = false;
 
    private final ProtonProtocolManager manager;
 
-
-   public ActiveMQProtonRemotingConnection(ProtonProtocolManager manager, AMQPConnectionContext amqpConnection, Connection transportConnection, Executor executor)
-   {
+   public ActiveMQProtonRemotingConnection(ProtonProtocolManager manager,
+                                           AMQPConnectionContext amqpConnection,
+                                           Connection transportConnection,
+                                           Executor executor) {
       super(transportConnection, executor);
       this.manager = manager;
       this.amqpConnection = amqpConnection;
    }
 
-   public Executor getExecutor()
-   {
+   public Executor getExecutor() {
       return this.executor;
    }
 
-   public ProtonProtocolManager getManager()
-   {
+   public ProtonProtocolManager getManager() {
       return manager;
    }
 
    /*
     * This can be called concurrently by more than one thread so needs to be locked
     */
-   public void fail(final ActiveMQException me, String scaleDownTargetNodeID)
-   {
-      if (destroyed)
-      {
+   public void fail(final ActiveMQException me, String scaleDownTargetNodeID) {
+      if (destroyed) {
          return;
       }
 
@@ -76,20 +73,15 @@ public class ActiveMQProtonRemotingConnection extends AbstractRemotingConnection
       internalClose();
    }
 
-
    @Override
-   public void destroy()
-   {
-      synchronized (this)
-      {
-         if (destroyed)
-         {
+   public void destroy() {
+      synchronized (this) {
+         if (destroyed) {
             return;
          }
 
          destroyed = true;
       }
-
 
       callClosingListeners();
 
@@ -98,20 +90,17 @@ public class ActiveMQProtonRemotingConnection extends AbstractRemotingConnection
    }
 
    @Override
-   public boolean isClient()
-   {
+   public boolean isClient() {
       return false;
    }
 
    @Override
-   public boolean isDestroyed()
-   {
+   public boolean isDestroyed() {
       return destroyed;
    }
 
    @Override
-   public void disconnect(boolean criticalError)
-   {
+   public void disconnect(boolean criticalError) {
       getTransportConnection().close();
    }
 
@@ -119,32 +108,27 @@ public class ActiveMQProtonRemotingConnection extends AbstractRemotingConnection
     * Disconnect the connection, closing all channels
     */
    @Override
-   public void disconnect(String scaleDownNodeID, boolean criticalError)
-   {
+   public void disconnect(String scaleDownNodeID, boolean criticalError) {
       getTransportConnection().close();
    }
 
    @Override
-   public boolean checkDataReceived()
-   {
+   public boolean checkDataReceived() {
       return amqpConnection.checkDataReceived();
    }
 
    @Override
-   public void flush()
-   {
+   public void flush() {
       amqpConnection.flush();
    }
 
    @Override
-   public void bufferReceived(Object connectionID, ActiveMQBuffer buffer)
-   {
+   public void bufferReceived(Object connectionID, ActiveMQBuffer buffer) {
       amqpConnection.inputBuffer(buffer.byteBuf());
       super.bufferReceived(connectionID, buffer);
    }
 
-   private void internalClose()
-   {
+   private void internalClose() {
       // We close the underlying transport connection
       getTransportConnection().close();
    }

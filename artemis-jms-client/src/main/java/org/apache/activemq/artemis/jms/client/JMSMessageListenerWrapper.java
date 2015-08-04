@@ -25,8 +25,8 @@ import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.MessageHandler;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSConstants;
 
-public class JMSMessageListenerWrapper implements MessageHandler
-{
+public class JMSMessageListenerWrapper implements MessageHandler {
+
    private final ActiveMQConnection connection;
 
    private final ActiveMQSession session;
@@ -43,8 +43,7 @@ public class JMSMessageListenerWrapper implements MessageHandler
                                        final ActiveMQSession session,
                                        final ClientConsumer consumer,
                                        final MessageListener listener,
-                                       final int ackMode)
-   {
+                                       final int ackMode) {
       this.connection = connection;
 
       this.session = session;
@@ -62,55 +61,43 @@ public class JMSMessageListenerWrapper implements MessageHandler
     * In this method we apply the JMS acknowledgement and redelivery semantics
     * as per JMS spec
     */
-   public void onMessage(final ClientMessage message)
-   {
+   public void onMessage(final ClientMessage message) {
       ActiveMQMessage msg = ActiveMQMessage.createMessage(message, session.getCoreSession());
 
-      if (individualACK)
-      {
+      if (individualACK) {
          msg.setIndividualAcknowledge();
       }
 
-      try
-      {
+      try {
          msg.doBeforeReceive();
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          ActiveMQJMSClientLogger.LOGGER.errorPreparingMessageForReceipt(e);
 
          return;
       }
 
-      if (transactedOrClientAck)
-      {
-         try
-         {
+      if (transactedOrClientAck) {
+         try {
             message.acknowledge();
          }
-         catch (ActiveMQException e)
-         {
+         catch (ActiveMQException e) {
             ActiveMQJMSClientLogger.LOGGER.errorProcessingMessage(e);
          }
       }
 
-      try
-      {
+      try {
          connection.getThreadAwareContext().setCurrentThread(false);
          listener.onMessage(msg);
       }
-      catch (RuntimeException e)
-      {
+      catch (RuntimeException e) {
          // See JMS 1.1 spec, section 4.5.2
 
          ActiveMQJMSClientLogger.LOGGER.onMessageError(e);
 
-         if (!transactedOrClientAck)
-         {
-            try
-            {
-               if (individualACK)
-               {
+         if (!transactedOrClientAck) {
+            try {
+               if (individualACK) {
                   message.individualAcknowledge();
                }
 
@@ -118,28 +105,22 @@ public class JMSMessageListenerWrapper implements MessageHandler
 
                session.setRecoverCalled(true);
             }
-            catch (Exception e2)
-            {
+            catch (Exception e2) {
                ActiveMQJMSClientLogger.LOGGER.errorRecoveringSession(e2);
             }
          }
       }
-      finally
-      {
+      finally {
          connection.getThreadAwareContext().clearCurrentThread(false);
       }
-      if (!session.isRecoverCalled() && !individualACK)
-      {
-         try
-         {
+      if (!session.isRecoverCalled() && !individualACK) {
+         try {
             // We don't want to call this if the consumer was closed from inside onMessage
-            if (!consumer.isClosed() && !transactedOrClientAck)
-            {
+            if (!consumer.isClosed() && !transactedOrClientAck) {
                message.acknowledge();
             }
          }
-         catch (ActiveMQException e)
-         {
+         catch (ActiveMQException e) {
             ActiveMQJMSClientLogger.LOGGER.errorProcessingMessage(e);
          }
       }

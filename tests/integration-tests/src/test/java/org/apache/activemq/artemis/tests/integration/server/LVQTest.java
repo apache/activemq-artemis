@@ -33,8 +33,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class LVQTest extends ActiveMQTestBase
-{
+public class LVQTest extends ActiveMQTestBase {
+
    private ActiveMQServer server;
 
    private ClientSession clientSession;
@@ -48,8 +48,7 @@ public class LVQTest extends ActiveMQTestBase
    private final SimpleString qName1 = new SimpleString("LVQTestQ1");
 
    @Test
-   public void testSimple() throws Exception
-   {
+   public void testSimple() throws Exception {
       ClientProducer producer = clientSession.createProducer(address);
       ClientConsumer consumer = clientSession.createConsumer(qName1);
       ClientMessage m1 = createTextMessage(clientSession, "m1");
@@ -67,8 +66,7 @@ public class LVQTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testMultipleMessages() throws Exception
-   {
+   public void testMultipleMessages() throws Exception {
       ClientProducer producer = clientSession.createProducer(address);
       ClientConsumer consumer = clientSession.createConsumer(qName1);
       SimpleString messageId1 = new SimpleString("SMID1");
@@ -97,8 +95,7 @@ public class LVQTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testFirstMessageReceivedButAckedAfter() throws Exception
-   {
+   public void testFirstMessageReceivedButAckedAfter() throws Exception {
       ClientProducer producer = clientSession.createProducer(address);
       ClientConsumer consumer = clientSession.createConsumer(qName1);
       ClientMessage m1 = createTextMessage(clientSession, "m1");
@@ -120,8 +117,7 @@ public class LVQTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testFirstMessageReceivedAndCancelled() throws Exception
-   {
+   public void testFirstMessageReceivedAndCancelled() throws Exception {
       ClientProducer producer = clientSession.createProducer(address);
       ClientConsumer consumer = clientSession.createConsumer(qName1);
       ClientMessage m1 = createTextMessage(clientSession, "m1");
@@ -146,8 +142,7 @@ public class LVQTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testManyMessagesReceivedAndCancelled() throws Exception
-   {
+   public void testManyMessagesReceivedAndCancelled() throws Exception {
       ClientProducer producer = clientSession.createProducer(address);
       ClientConsumer consumer = clientSession.createConsumer(qName1);
 
@@ -200,8 +195,7 @@ public class LVQTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testSimpleInTx() throws Exception
-   {
+   public void testSimpleInTx() throws Exception {
 
       ClientProducer producer = clientSessionTxReceives.createProducer(address);
       ClientConsumer consumer = clientSessionTxReceives.createConsumer(qName1);
@@ -220,8 +214,7 @@ public class LVQTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testMultipleMessagesInTx() throws Exception
-   {
+   public void testMultipleMessagesInTx() throws Exception {
       ClientProducer producer = clientSessionTxReceives.createProducer(address);
       ClientConsumer consumer = clientSessionTxReceives.createConsumer(qName1);
       SimpleString messageId1 = new SimpleString("SMID1");
@@ -253,8 +246,7 @@ public class LVQTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testMultipleMessagesInTxRollback() throws Exception
-   {
+   public void testMultipleMessagesInTxRollback() throws Exception {
       ClientProducer producer = clientSessionTxReceives.createProducer(address);
       ClientConsumer consumer = clientSessionTxReceives.createConsumer(qName1);
       SimpleString messageId1 = new SimpleString("SMID1");
@@ -300,8 +292,7 @@ public class LVQTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testSingleTXRollback() throws Exception
-   {
+   public void testSingleTXRollback() throws Exception {
       ClientProducer producer = clientSessionTxReceives.createProducer(address);
       ClientConsumer consumer = clientSessionTxReceives.createConsumer(qName1);
       SimpleString messageId1 = new SimpleString("SMID1");
@@ -321,8 +312,7 @@ public class LVQTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testMultipleMessagesInTxSend() throws Exception
-   {
+   public void testMultipleMessagesInTxSend() throws Exception {
       ClientProducer producer = clientSessionTxSends.createProducer(address);
       ClientConsumer consumer = clientSessionTxSends.createConsumer(qName1);
       SimpleString rh = new SimpleString("SMID1");
@@ -353,8 +343,7 @@ public class LVQTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testMultipleMessagesPersistedCorrectly() throws Exception
-   {
+   public void testMultipleMessagesPersistedCorrectly() throws Exception {
       ClientProducer producer = clientSession.createProducer(address);
       ClientConsumer consumer = clientSession.createConsumer(qName1);
       SimpleString rh = new SimpleString("SMID1");
@@ -392,8 +381,7 @@ public class LVQTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testMultipleMessagesPersistedCorrectlyInTx() throws Exception
-   {
+   public void testMultipleMessagesPersistedCorrectlyInTx() throws Exception {
       ClientProducer producer = clientSessionTxSends.createProducer(address);
       ClientConsumer consumer = clientSessionTxSends.createConsumer(qName1);
       SimpleString rh = new SimpleString("SMID1");
@@ -432,8 +420,7 @@ public class LVQTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testMultipleAcksPersistedCorrectly() throws Exception
-   {
+   public void testMultipleAcksPersistedCorrectly() throws Exception {
 
       Queue queue = server.locateQueue(qName1);
       ClientProducer producer = clientSession.createProducer(address);
@@ -493,8 +480,7 @@ public class LVQTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testRemoveMessageThroughManagement() throws Exception
-   {
+   public void testRemoveMessageThroughManagement() throws Exception {
 
       Queue queue = server.locateQueue(qName1);
       ClientProducer producer = clientSession.createProducer(address);
@@ -519,8 +505,7 @@ public class LVQTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testMultipleAcksPersistedCorrectly2() throws Exception
-   {
+   public void testMultipleAcksPersistedCorrectly2() throws Exception {
 
       Queue queue = server.locateQueue(qName1);
       ClientProducer producer = clientSession.createProducer(address);
@@ -548,8 +533,7 @@ public class LVQTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testMultipleAcksPersistedCorrectlyInTx() throws Exception
-   {
+   public void testMultipleAcksPersistedCorrectlyInTx() throws Exception {
       ClientProducer producer = clientSessionTxReceives.createProducer(address);
       ClientConsumer consumer = clientSessionTxReceives.createConsumer(qName1);
       SimpleString rh = new SimpleString("SMID1");
@@ -607,8 +591,7 @@ public class LVQTest extends ActiveMQTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig(), false));
@@ -617,9 +600,7 @@ public class LVQTest extends ActiveMQTestBase
 
       server.getAddressSettingsRepository().addMatch(address.toString(), new AddressSettings().setLastValueQueue(true));
       // then we create a client as normalServer
-      ServerLocator locator = createInVMNonHALocator()
-              .setBlockOnAcknowledge(true)
-              .setAckBatchSize(0);
+      ServerLocator locator = createInVMNonHALocator().setBlockOnAcknowledge(true).setAckBatchSize(0);
 
       ClientSessionFactory sf = createSessionFactory(locator);
       clientSession = addClientSession(sf.createSession(false, true, true));

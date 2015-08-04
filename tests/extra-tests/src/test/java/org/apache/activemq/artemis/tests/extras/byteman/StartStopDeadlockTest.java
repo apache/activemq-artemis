@@ -38,55 +38,40 @@ import java.util.concurrent.atomic.AtomicInteger;
  * This test validates a deadlock identified by https://bugzilla.redhat.com/show_bug.cgi?id=959616
  */
 @RunWith(BMUnitRunner.class)
-public class StartStopDeadlockTest extends ActiveMQTestBase
-{
+public class StartStopDeadlockTest extends ActiveMQTestBase {
+
    /*
    * simple test to make sure connect still works with some network latency  built into netty
    * */
    @Test
-   @BMRules
-      (
+   @BMRules(
 
-         rules =
-            {
-               @BMRule
-                  (
-                     name = "Server.start wait-init",
-                     targetClass = "org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl",
-                     targetMethod = "initialisePart2",
-                     targetLocation = "ENTRY",
-                     condition = "incrementCounter(\"server-Init\") == 2",
-                     action = "System.out.println(\"server backup init\"), waitFor(\"start-init\")"
-                  ),
-               @BMRule(
-                  name = "JMSServer.stop wait-init",
-                  targetClass = "org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl",
-                  targetMethod = "stop",
-                  targetLocation = "ENTRY",
-                  action = "signalWake(\"start-init\", true)"
-               ),
-               @BMRule(
-                  name = "StartStopDeadlockTest tearDown",
-                  targetClass = "org.apache.activemq.artemis.tests.extras.byteman.StartStopDeadlockTest",
-                  targetMethod = "tearDown",
-                  targetLocation = "ENTRY",
-                  action = "deleteCounter(\"server-Init\")"
-               )
-            }
-      )
-   public void testDeadlock() throws Exception
-   {
+      rules = {@BMRule(
+         name = "Server.start wait-init",
+         targetClass = "org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl",
+         targetMethod = "initialisePart2",
+         targetLocation = "ENTRY",
+         condition = "incrementCounter(\"server-Init\") == 2",
+         action = "System.out.println(\"server backup init\"), waitFor(\"start-init\")"), @BMRule(
+         name = "JMSServer.stop wait-init",
+         targetClass = "org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl",
+         targetMethod = "stop",
+         targetLocation = "ENTRY",
+         action = "signalWake(\"start-init\", true)"), @BMRule(
+         name = "StartStopDeadlockTest tearDown",
+         targetClass = "org.apache.activemq.artemis.tests.extras.byteman.StartStopDeadlockTest",
+         targetMethod = "tearDown",
+         targetLocation = "ENTRY",
+         action = "deleteCounter(\"server-Init\")")})
+   public void testDeadlock() throws Exception {
 
       // A live server that will always be crashed
-      Configuration confLive = createDefaultNettyConfig()
-         .setHAPolicyConfiguration(new SharedStoreMasterPolicyConfiguration());
+      Configuration confLive = createDefaultNettyConfig().setHAPolicyConfiguration(new SharedStoreMasterPolicyConfiguration());
       final ActiveMQServer serverLive = addServer(ActiveMQServers.newActiveMQServer(confLive));
       serverLive.start();
 
-
       // A backup that will be waiting to be activated
-      Configuration config = createDefaultNettyConfig()
-         .setHAPolicyConfiguration(new SharedStoreSlavePolicyConfiguration());
+      Configuration config = createDefaultNettyConfig().setHAPolicyConfiguration(new SharedStoreSlavePolicyConfiguration());
 
       final ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(config, true));
 
@@ -100,40 +85,31 @@ public class StartStopDeadlockTest extends ActiveMQTestBase
       final CountDownLatch align = new CountDownLatch(2);
       final CountDownLatch startLatch = new CountDownLatch(1);
 
-
-      Thread tCrasher = new Thread("tStart")
-      {
+      Thread tCrasher = new Thread("tStart") {
          @Override
-         public void run()
-         {
-            try
-            {
+         public void run() {
+            try {
                align.countDown();
                startLatch.await();
                System.out.println("Crashing....");
                serverLive.stop(true);
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                errors.incrementAndGet();
                e.printStackTrace();
             }
          }
       };
 
-      Thread tStop = new Thread("tStop")
-      {
+      Thread tStop = new Thread("tStop") {
          @Override
-         public void run()
-         {
-            try
-            {
+         public void run() {
+            try {
                align.countDown();
                startLatch.await();
                jmsServer.stop();
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                errors.incrementAndGet();
                e.printStackTrace();
             }

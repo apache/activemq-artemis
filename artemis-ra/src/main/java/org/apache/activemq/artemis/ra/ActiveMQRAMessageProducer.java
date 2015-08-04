@@ -22,122 +22,117 @@ import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageProducer;
 
-
 /**
  * ActiveMQMessageProducer.
  */
-public class ActiveMQRAMessageProducer implements MessageProducer
-{
-   /** Whether trace is enabled */
+public class ActiveMQRAMessageProducer implements MessageProducer {
+
+   /**
+    * Whether trace is enabled
+    */
    private static boolean trace = ActiveMQRALogger.LOGGER.isTraceEnabled();
 
-   /** The wrapped message producer */
+   /**
+    * The wrapped message producer
+    */
    protected MessageProducer producer;
 
-   /** The session for this consumer */
+   /**
+    * The session for this consumer
+    */
    protected ActiveMQRASession session;
 
    /**
     * Create a new wrapper
+    *
     * @param producer the producer
-    * @param session the session
+    * @param session  the session
     */
-   public ActiveMQRAMessageProducer(final MessageProducer producer, final ActiveMQRASession session)
-   {
+   public ActiveMQRAMessageProducer(final MessageProducer producer, final ActiveMQRASession session) {
       this.producer = producer;
       this.session = session;
 
-      if (ActiveMQRAMessageProducer.trace)
-      {
+      if (ActiveMQRAMessageProducer.trace) {
          ActiveMQRALogger.LOGGER.trace("new ActiveMQMessageProducer " + this +
-                                            " producer=" +
-                                            producer +
-                                            " session=" +
-                                            session);
+                                          " producer=" +
+                                          producer +
+                                          " session=" +
+                                          session);
       }
    }
 
    /**
     * Close
-    * @exception JMSException Thrown if an error occurs
+    *
+    * @throws JMSException Thrown if an error occurs
     */
-   public void close() throws JMSException
-   {
-      if (ActiveMQRAMessageProducer.trace)
-      {
+   public void close() throws JMSException {
+      if (ActiveMQRAMessageProducer.trace) {
          ActiveMQRALogger.LOGGER.trace("close " + this);
       }
-      try
-      {
+      try {
          closeProducer();
       }
-      finally
-      {
+      finally {
          session.removeProducer(this);
       }
    }
 
    /**
     * Send message
-    * @param destination The destination
-    * @param message The message
+    *
+    * @param destination  The destination
+    * @param message      The message
     * @param deliveryMode The delivery mode
-    * @param priority The priority
-    * @param timeToLive The time to live
-    * @exception JMSException Thrown if an error occurs
+    * @param priority     The priority
+    * @param timeToLive   The time to live
+    * @throws JMSException Thrown if an error occurs
     */
    public void send(final Destination destination,
                     final Message message,
                     final int deliveryMode,
                     final int priority,
-                    final long timeToLive) throws JMSException
-   {
+                    final long timeToLive) throws JMSException {
       session.lock();
-      try
-      {
-         if (ActiveMQRAMessageProducer.trace)
-         {
+      try {
+         if (ActiveMQRAMessageProducer.trace) {
             ActiveMQRALogger.LOGGER.trace("send " + this +
-                                               " destination=" +
-                                               destination +
-                                               " message=" +
-                                               message +
-                                               " deliveryMode=" +
-                                               deliveryMode +
-                                               " priority=" +
-                                               priority +
-                                               " ttl=" +
-                                               timeToLive);
+                                             " destination=" +
+                                             destination +
+                                             " message=" +
+                                             message +
+                                             " deliveryMode=" +
+                                             deliveryMode +
+                                             " priority=" +
+                                             priority +
+                                             " ttl=" +
+                                             timeToLive);
          }
 
          checkState();
 
          producer.send(destination, message, deliveryMode, priority, timeToLive);
 
-         if (ActiveMQRAMessageProducer.trace)
-         {
+         if (ActiveMQRAMessageProducer.trace) {
             ActiveMQRALogger.LOGGER.trace("sent " + this + " result=" + message);
          }
       }
-      finally
-      {
+      finally {
          session.unlock();
       }
    }
 
    /**
     * Send message
+    *
     * @param destination The destination
-    * @param message The message
-    * @exception JMSException Thrown if an error occurs
+    * @param message     The message
+    * @throws JMSException Thrown if an error occurs
     */
-   public void send(final Destination destination, final Message message) throws JMSException
-   {
+   public void send(final Destination destination, final Message message) throws JMSException {
       session.lock();
-      try
-      {
-         if (ActiveMQRAMessageProducer.trace)
-         {
+      try {
+         if (ActiveMQRAMessageProducer.trace) {
             ActiveMQRALogger.LOGGER.trace("send " + this + " destination=" + destination + " message=" + message);
          }
 
@@ -145,70 +140,65 @@ public class ActiveMQRAMessageProducer implements MessageProducer
 
          producer.send(destination, message);
 
-         if (ActiveMQRAMessageProducer.trace)
-         {
+         if (ActiveMQRAMessageProducer.trace) {
             ActiveMQRALogger.LOGGER.trace("sent " + this + " result=" + message);
          }
       }
-      finally
-      {
+      finally {
          session.unlock();
       }
    }
 
    /**
     * Send message
-    * @param message The message
+    *
+    * @param message      The message
     * @param deliveryMode The delivery mode
-    * @param priority The priority
-    * @param timeToLive The time to live
-    * @exception JMSException Thrown if an error occurs
+    * @param priority     The priority
+    * @param timeToLive   The time to live
+    * @throws JMSException Thrown if an error occurs
     */
-   public void send(final Message message, final int deliveryMode, final int priority, final long timeToLive) throws JMSException
-   {
+   public void send(final Message message,
+                    final int deliveryMode,
+                    final int priority,
+                    final long timeToLive) throws JMSException {
       session.lock();
-      try
-      {
-         if (ActiveMQRAMessageProducer.trace)
-         {
+      try {
+         if (ActiveMQRAMessageProducer.trace) {
             ActiveMQRALogger.LOGGER.trace("send " + this +
-                                               " message=" +
-                                               message +
-                                               " deliveryMode=" +
-                                               deliveryMode +
-                                               " priority=" +
-                                               priority +
-                                               " ttl=" +
-                                               timeToLive);
+                                             " message=" +
+                                             message +
+                                             " deliveryMode=" +
+                                             deliveryMode +
+                                             " priority=" +
+                                             priority +
+                                             " ttl=" +
+                                             timeToLive);
          }
 
          checkState();
 
          producer.send(message, deliveryMode, priority, timeToLive);
 
-         if (ActiveMQRAMessageProducer.trace)
-         {
+         if (ActiveMQRAMessageProducer.trace) {
             ActiveMQRALogger.LOGGER.trace("sent " + this + " result=" + message);
          }
       }
-      finally
-      {
+      finally {
          session.unlock();
       }
    }
 
    /**
     * Send message
+    *
     * @param message The message
-    * @exception JMSException Thrown if an error occurs
+    * @throws JMSException Thrown if an error occurs
     */
-   public void send(final Message message) throws JMSException
-   {
+   public void send(final Message message) throws JMSException {
       session.lock();
-      try
-      {
-         if (ActiveMQRAMessageProducer.trace)
-         {
+      try {
+         if (ActiveMQRAMessageProducer.trace) {
             ActiveMQRALogger.LOGGER.trace("send " + this + " message=" + message);
          }
 
@@ -216,26 +206,23 @@ public class ActiveMQRAMessageProducer implements MessageProducer
 
          producer.send(message);
 
-         if (ActiveMQRAMessageProducer.trace)
-         {
+         if (ActiveMQRAMessageProducer.trace) {
             ActiveMQRALogger.LOGGER.trace("sent " + this + " result=" + message);
          }
       }
-      finally
-      {
+      finally {
          session.unlock();
       }
    }
 
    /**
     * Get the delivery mode
+    *
     * @return The mode
-    * @exception JMSException Thrown if an error occurs
+    * @throws JMSException Thrown if an error occurs
     */
-   public int getDeliveryMode() throws JMSException
-   {
-      if (ActiveMQRAMessageProducer.trace)
-      {
+   public int getDeliveryMode() throws JMSException {
+      if (ActiveMQRAMessageProducer.trace) {
          ActiveMQRALogger.LOGGER.trace("getDeliveryMode()");
       }
 
@@ -244,13 +231,12 @@ public class ActiveMQRAMessageProducer implements MessageProducer
 
    /**
     * Get the destination
+    *
     * @return The destination
-    * @exception JMSException Thrown if an error occurs
+    * @throws JMSException Thrown if an error occurs
     */
-   public Destination getDestination() throws JMSException
-   {
-      if (ActiveMQRAMessageProducer.trace)
-      {
+   public Destination getDestination() throws JMSException {
+      if (ActiveMQRAMessageProducer.trace) {
          ActiveMQRALogger.LOGGER.trace("getDestination()");
       }
 
@@ -259,13 +245,12 @@ public class ActiveMQRAMessageProducer implements MessageProducer
 
    /**
     * Disable message id
+    *
     * @return True if disable
-    * @exception JMSException Thrown if an error occurs
+    * @throws JMSException Thrown if an error occurs
     */
-   public boolean getDisableMessageID() throws JMSException
-   {
-      if (ActiveMQRAMessageProducer.trace)
-      {
+   public boolean getDisableMessageID() throws JMSException {
+      if (ActiveMQRAMessageProducer.trace) {
          ActiveMQRALogger.LOGGER.trace("getDisableMessageID()");
       }
 
@@ -274,13 +259,12 @@ public class ActiveMQRAMessageProducer implements MessageProducer
 
    /**
     * Disable message timestamp
+    *
     * @return True if disable
-    * @exception JMSException Thrown if an error occurs
+    * @throws JMSException Thrown if an error occurs
     */
-   public boolean getDisableMessageTimestamp() throws JMSException
-   {
-      if (ActiveMQRAMessageProducer.trace)
-      {
+   public boolean getDisableMessageTimestamp() throws JMSException {
+      if (ActiveMQRAMessageProducer.trace) {
          ActiveMQRALogger.LOGGER.trace("getDisableMessageTimestamp()");
       }
 
@@ -289,13 +273,12 @@ public class ActiveMQRAMessageProducer implements MessageProducer
 
    /**
     * Get the priority
+    *
     * @return The priority
-    * @exception JMSException Thrown if an error occurs
+    * @throws JMSException Thrown if an error occurs
     */
-   public int getPriority() throws JMSException
-   {
-      if (ActiveMQRAMessageProducer.trace)
-      {
+   public int getPriority() throws JMSException {
+      if (ActiveMQRAMessageProducer.trace) {
          ActiveMQRALogger.LOGGER.trace("getPriority()");
       }
 
@@ -304,13 +287,12 @@ public class ActiveMQRAMessageProducer implements MessageProducer
 
    /**
     * Get the time to live
+    *
     * @return The ttl
-    * @exception JMSException Thrown if an error occurs
+    * @throws JMSException Thrown if an error occurs
     */
-   public long getTimeToLive() throws JMSException
-   {
-      if (ActiveMQRAMessageProducer.trace)
-      {
+   public long getTimeToLive() throws JMSException {
+      if (ActiveMQRAMessageProducer.trace) {
          ActiveMQRALogger.LOGGER.trace("getTimeToLive()");
       }
 
@@ -319,13 +301,12 @@ public class ActiveMQRAMessageProducer implements MessageProducer
 
    /**
     * Set the delivery mode
+    *
     * @param deliveryMode The mode
-    * @exception JMSException Thrown if an error occurs
+    * @throws JMSException Thrown if an error occurs
     */
-   public void setDeliveryMode(final int deliveryMode) throws JMSException
-   {
-      if (ActiveMQRAMessageProducer.trace)
-      {
+   public void setDeliveryMode(final int deliveryMode) throws JMSException {
+      if (ActiveMQRAMessageProducer.trace) {
          ActiveMQRALogger.LOGGER.trace("setDeliveryMode(" + deliveryMode + ")");
       }
 
@@ -334,13 +315,12 @@ public class ActiveMQRAMessageProducer implements MessageProducer
 
    /**
     * Set disable message id
+    *
     * @param value The value
-    * @exception JMSException Thrown if an error occurs
+    * @throws JMSException Thrown if an error occurs
     */
-   public void setDisableMessageID(final boolean value) throws JMSException
-   {
-      if (ActiveMQRAMessageProducer.trace)
-      {
+   public void setDisableMessageID(final boolean value) throws JMSException {
+      if (ActiveMQRAMessageProducer.trace) {
          ActiveMQRALogger.LOGGER.trace("setDisableMessageID(" + value + ")");
       }
 
@@ -349,13 +329,12 @@ public class ActiveMQRAMessageProducer implements MessageProducer
 
    /**
     * Set disable message timestamp
+    *
     * @param value The value
-    * @exception JMSException Thrown if an error occurs
+    * @throws JMSException Thrown if an error occurs
     */
-   public void setDisableMessageTimestamp(final boolean value) throws JMSException
-   {
-      if (ActiveMQRAMessageProducer.trace)
-      {
+   public void setDisableMessageTimestamp(final boolean value) throws JMSException {
+      if (ActiveMQRAMessageProducer.trace) {
          ActiveMQRALogger.LOGGER.trace("setDisableMessageTimestamp(" + value + ")");
       }
 
@@ -364,13 +343,12 @@ public class ActiveMQRAMessageProducer implements MessageProducer
 
    /**
     * Set the priority
+    *
     * @param defaultPriority The value
-    * @exception JMSException Thrown if an error occurs
+    * @throws JMSException Thrown if an error occurs
     */
-   public void setPriority(final int defaultPriority) throws JMSException
-   {
-      if (ActiveMQRAMessageProducer.trace)
-      {
+   public void setPriority(final int defaultPriority) throws JMSException {
+      if (ActiveMQRAMessageProducer.trace) {
          ActiveMQRALogger.LOGGER.trace("setPriority(" + defaultPriority + ")");
       }
 
@@ -379,13 +357,12 @@ public class ActiveMQRAMessageProducer implements MessageProducer
 
    /**
     * Set the ttl
+    *
     * @param timeToLive The value
-    * @exception JMSException Thrown if an error occurs
+    * @throws JMSException Thrown if an error occurs
     */
-   public void setTimeToLive(final long timeToLive) throws JMSException
-   {
-      if (ActiveMQRAMessageProducer.trace)
-      {
+   public void setTimeToLive(final long timeToLive) throws JMSException {
+      if (ActiveMQRAMessageProducer.trace) {
          ActiveMQRALogger.LOGGER.trace("setTimeToLive(" + timeToLive + ")");
       }
 
@@ -393,82 +370,81 @@ public class ActiveMQRAMessageProducer implements MessageProducer
    }
 
    @Override
-   public void setDeliveryDelay(long deliveryDelay) throws JMSException
-   {
-      if (ActiveMQRAMessageProducer.trace)
-      {
+   public void setDeliveryDelay(long deliveryDelay) throws JMSException {
+      if (ActiveMQRAMessageProducer.trace) {
          ActiveMQRALogger.LOGGER.trace("setDeliveryDelay(" + deliveryDelay + ")");
       }
       producer.setDeliveryDelay(deliveryDelay);
    }
 
    @Override
-   public long getDeliveryDelay() throws JMSException
-   {
-      if (ActiveMQRAMessageProducer.trace)
-      {
+   public long getDeliveryDelay() throws JMSException {
+      if (ActiveMQRAMessageProducer.trace) {
          ActiveMQRALogger.LOGGER.trace("getDeliveryDelay()");
       }
       return producer.getDeliveryDelay();
    }
 
    @Override
-   public void send(Message message, CompletionListener completionListener) throws JMSException
-   {
-      if (ActiveMQRAMessageProducer.trace)
-      {
+   public void send(Message message, CompletionListener completionListener) throws JMSException {
+      if (ActiveMQRAMessageProducer.trace) {
          ActiveMQRALogger.LOGGER.trace("send(" + message + ", " + completionListener + ")");
       }
       producer.send(message, completionListener);
    }
 
    @Override
-   public void send(Message message, int deliveryMode, int priority, long timeToLive, CompletionListener completionListener) throws JMSException
-   {
-      if (ActiveMQRAMessageProducer.trace)
-      {
+   public void send(Message message,
+                    int deliveryMode,
+                    int priority,
+                    long timeToLive,
+                    CompletionListener completionListener) throws JMSException {
+      if (ActiveMQRAMessageProducer.trace) {
          ActiveMQRALogger.LOGGER.trace("send(" + message + ", " + deliveryMode + ", " + priority + ", " + timeToLive +
-                  ", " + completionListener + ")");
+                                          ", " + completionListener + ")");
       }
       producer.send(message, deliveryMode, priority, timeToLive, completionListener);
    }
 
    @Override
-   public void send(Destination destination, Message message, CompletionListener completionListener) throws JMSException
-   {
-      if (ActiveMQRAMessageProducer.trace)
-      {
+   public void send(Destination destination,
+                    Message message,
+                    CompletionListener completionListener) throws JMSException {
+      if (ActiveMQRAMessageProducer.trace) {
          ActiveMQRALogger.LOGGER.trace("send(" + destination + ", " + message + ", " + completionListener + ")");
       }
       producer.send(destination, message, completionListener);
    }
 
    @Override
-   public void send(Destination destination, Message message, int deliveryMode, int priority, long timeToLive, CompletionListener completionListener) throws JMSException
-   {
-      if (ActiveMQRAMessageProducer.trace)
-      {
+   public void send(Destination destination,
+                    Message message,
+                    int deliveryMode,
+                    int priority,
+                    long timeToLive,
+                    CompletionListener completionListener) throws JMSException {
+      if (ActiveMQRAMessageProducer.trace) {
          ActiveMQRALogger.LOGGER.trace("send(" + destination + ", " + message + ", " + deliveryMode + ", " + priority +
-                  ", " + timeToLive + ", " + completionListener + ")");
+                                          ", " + timeToLive + ", " + completionListener + ")");
       }
       producer.send(destination, message, deliveryMode, priority, timeToLive, completionListener);
    }
 
-    /**
+   /**
     * Check state
-    * @exception JMSException Thrown if an error occurs
+    *
+    * @throws JMSException Thrown if an error occurs
     */
-   void checkState() throws JMSException
-   {
+   void checkState() throws JMSException {
       session.checkState();
    }
 
    /**
     * Close producer
-    * @exception JMSException Thrown if an error occurs
+    *
+    * @throws JMSException Thrown if an error occurs
     */
-   void closeProducer() throws JMSException
-   {
+   void closeProducer() throws JMSException {
       producer.close();
    }
 }

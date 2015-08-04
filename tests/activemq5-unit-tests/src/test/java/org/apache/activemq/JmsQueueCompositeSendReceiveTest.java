@@ -31,89 +31,90 @@ import org.apache.activemq.command.ActiveMQQueue;
 import org.apache.activemq.test.JmsTopicSendReceiveTest;
 import org.apache.activemq.util.Wait;
 
-
 /**
- * 
+ *
  */
 public class JmsQueueCompositeSendReceiveTest extends JmsTopicSendReceiveTest {
-    private static final org.apache.commons.logging.Log LOG = org.apache.commons.logging.LogFactory
-            .getLog(JmsQueueCompositeSendReceiveTest.class);
-    
-    /**
-     * Sets a test to have a queue destination and non-persistent delivery mode.
-     *
-     * @see junit.framework.TestCase#setUp()
-     */
-    protected void setUp() throws Exception {
-        topic = false;
-        deliveryMode = DeliveryMode.NON_PERSISTENT;
-        super.setUp();
-    }
 
-    /**
-     * Returns the consumer subject.
-     *
-     * @return String - consumer subject
-     * @see org.apache.activemq.test.TestSupport#getConsumerSubject()
-     */
-    protected String getConsumerSubject() {
-        return "FOO.BAR.HUMBUG";
-    }
+   private static final org.apache.commons.logging.Log LOG = org.apache.commons.logging.LogFactory.getLog(JmsQueueCompositeSendReceiveTest.class);
 
-    /**
-     * Returns the producer subject.
-     *
-     * @return String - producer subject
-     * @see org.apache.activemq.test.TestSupport#getProducerSubject()
-     */
-    protected String getProducerSubject() {
-        return "FOO.BAR.HUMBUG,FOO.BAR.HUMBUG2";
-    }
-   
-    /**
-     * Test if all the messages sent are being received.
-     *
-     * @throws Exception
-     */
-    public void testSendReceive() throws Exception {
-        super.testSendReceive();
-        messages.clear();
-        Destination consumerDestination = consumeSession.createQueue("FOO.BAR.HUMBUG2");
-        LOG.info("Created  consumer destination: " + consumerDestination + " of type: " + consumerDestination.getClass());
-        MessageConsumer consumer = null;
-        if (durable) {
-            LOG.info("Creating durable consumer");
-            consumer = consumeSession.createDurableSubscriber((Topic) consumerDestination, getName());
-        } else {
-            consumer = consumeSession.createConsumer(consumerDestination);
-        }
-        consumer.setMessageListener(this);
+   /**
+    * Sets a test to have a queue destination and non-persistent delivery mode.
+    *
+    * @see junit.framework.TestCase#setUp()
+    */
+   protected void setUp() throws Exception {
+      topic = false;
+      deliveryMode = DeliveryMode.NON_PERSISTENT;
+      super.setUp();
+   }
 
-        assertMessagesAreReceived();
-        LOG.info("" + data.length + " messages(s) received, closing down connections");
-    }
-    
-    public void testDuplicate() throws Exception {
-    	ActiveMQDestination queue = (ActiveMQDestination)session.createQueue("TEST,TEST");
-        for (int i = 0; i < data.length; i++) {
-            Message message = createMessage(i);
-            configureMessage(message);
-            if (verbose) {
-                LOG.info("About to send a message: " + message + " with text: " + data[i]);
-            }
-            producer.send(queue, message);
-        }
-        
-        Thread.sleep(200); // wait for messages to be queued
-        
-        BrokerService broker = BrokerRegistry.getInstance().lookup("localhost");
-        final Queue dest = (Queue)((RegionBroker)broker.getRegionBroker()).getQueueRegion().getDestinationMap().get(new ActiveMQQueue("TEST"));
-        assertTrue("all messages were received", Wait.waitFor(new Wait.Condition(){
-            public boolean isSatisified() throws Exception {
-                return data.length == dest.getDestinationStatistics().getMessages().getCount();
-            }}));
-        
-        dest.purge();
-        assertEquals(0, dest.getDestinationStatistics().getMessages().getCount());
-    }
+   /**
+    * Returns the consumer subject.
+    *
+    * @return String - consumer subject
+    * @see org.apache.activemq.test.TestSupport#getConsumerSubject()
+    */
+   protected String getConsumerSubject() {
+      return "FOO.BAR.HUMBUG";
+   }
+
+   /**
+    * Returns the producer subject.
+    *
+    * @return String - producer subject
+    * @see org.apache.activemq.test.TestSupport#getProducerSubject()
+    */
+   protected String getProducerSubject() {
+      return "FOO.BAR.HUMBUG,FOO.BAR.HUMBUG2";
+   }
+
+   /**
+    * Test if all the messages sent are being received.
+    *
+    * @throws Exception
+    */
+   public void testSendReceive() throws Exception {
+      super.testSendReceive();
+      messages.clear();
+      Destination consumerDestination = consumeSession.createQueue("FOO.BAR.HUMBUG2");
+      LOG.info("Created  consumer destination: " + consumerDestination + " of type: " + consumerDestination.getClass());
+      MessageConsumer consumer = null;
+      if (durable) {
+         LOG.info("Creating durable consumer");
+         consumer = consumeSession.createDurableSubscriber((Topic) consumerDestination, getName());
+      }
+      else {
+         consumer = consumeSession.createConsumer(consumerDestination);
+      }
+      consumer.setMessageListener(this);
+
+      assertMessagesAreReceived();
+      LOG.info("" + data.length + " messages(s) received, closing down connections");
+   }
+
+   public void testDuplicate() throws Exception {
+      ActiveMQDestination queue = (ActiveMQDestination) session.createQueue("TEST,TEST");
+      for (int i = 0; i < data.length; i++) {
+         Message message = createMessage(i);
+         configureMessage(message);
+         if (verbose) {
+            LOG.info("About to send a message: " + message + " with text: " + data[i]);
+         }
+         producer.send(queue, message);
+      }
+
+      Thread.sleep(200); // wait for messages to be queued
+
+      BrokerService broker = BrokerRegistry.getInstance().lookup("localhost");
+      final Queue dest = (Queue) ((RegionBroker) broker.getRegionBroker()).getQueueRegion().getDestinationMap().get(new ActiveMQQueue("TEST"));
+      assertTrue("all messages were received", Wait.waitFor(new Wait.Condition() {
+         public boolean isSatisified() throws Exception {
+            return data.length == dest.getDestinationStatistics().getMessages().getCount();
+         }
+      }));
+
+      dest.purge();
+      assertEquals(0, dest.getDestinationStatistics().getMessages().getCount());
+   }
 }

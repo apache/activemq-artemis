@@ -24,8 +24,8 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 /**
  * A remote Grouping handler configuration
  */
-public final class GroupingHandlerConfiguration implements Serializable
-{
+public final class GroupingHandlerConfiguration implements Serializable {
+
    public static final long serialVersionUID = -4600283023652477326L;
 
    public static final String GROUP_TIMEOUT_PROP_NAME = "org.apache.activemq.GroupingHandlerConfiguration.groupTimeout";
@@ -44,96 +44,79 @@ public final class GroupingHandlerConfiguration implements Serializable
 
    private long reaperPeriod = ActiveMQDefaultConfiguration.getDefaultGroupingHandlerReaperPeriod();
 
-   public GroupingHandlerConfiguration()
-   {
+   public GroupingHandlerConfiguration() {
    }
 
-   public SimpleString getName()
-   {
+   public SimpleString getName() {
       return name;
    }
 
-   public TYPE getType()
-   {
+   public TYPE getType() {
       return type;
    }
 
-   public SimpleString getAddress()
-   {
+   public SimpleString getAddress() {
       return address;
    }
 
-   public long getTimeout()
-   {
+   public long getTimeout() {
       return timeout;
    }
 
-   public long getGroupTimeout()
-   {
+   public long getGroupTimeout() {
       return groupTimeout;
    }
 
-   public long getReaperPeriod()
-   {
+   public long getReaperPeriod() {
       return reaperPeriod;
    }
 
-   public GroupingHandlerConfiguration setName(SimpleString name)
-   {
+   public GroupingHandlerConfiguration setName(SimpleString name) {
       this.name = name;
       return this;
    }
 
-   public GroupingHandlerConfiguration setType(TYPE type)
-   {
+   public GroupingHandlerConfiguration setType(TYPE type) {
       this.type = type;
       return this;
    }
 
-   public GroupingHandlerConfiguration setAddress(SimpleString address)
-   {
+   public GroupingHandlerConfiguration setAddress(SimpleString address) {
       this.address = address;
       return this;
    }
 
-   public GroupingHandlerConfiguration setTimeout(long timeout)
-   {
+   public GroupingHandlerConfiguration setTimeout(long timeout) {
       this.timeout = timeout;
       return this;
    }
 
-   public GroupingHandlerConfiguration setGroupTimeout(long groupTimeout)
-   {
+   public GroupingHandlerConfiguration setGroupTimeout(long groupTimeout) {
       this.groupTimeout = groupTimeout;
       return this;
    }
 
-   public GroupingHandlerConfiguration setReaperPeriod(long reaperPeriod)
-   {
+   public GroupingHandlerConfiguration setReaperPeriod(long reaperPeriod) {
       this.reaperPeriod = reaperPeriod;
       return this;
    }
 
-   public enum TYPE
-   {
+   public enum TYPE {
       LOCAL("LOCAL"), REMOTE("REMOTE");
 
       private String type;
 
-      TYPE(final String type)
-      {
+      TYPE(final String type) {
          this.type = type;
       }
 
-      public String getType()
-      {
+      public String getType() {
          return type;
       }
    }
 
    @Override
-   public int hashCode()
-   {
+   public int hashCode() {
       final int prime = 31;
       int result = 1;
       result = prime * result + ((address == null) ? 0 : address.hashCode());
@@ -144,24 +127,21 @@ public final class GroupingHandlerConfiguration implements Serializable
    }
 
    @Override
-   public boolean equals(Object obj)
-   {
+   public boolean equals(Object obj) {
       if (this == obj)
          return true;
       if (obj == null)
          return false;
       if (getClass() != obj.getClass())
          return false;
-      GroupingHandlerConfiguration other = (GroupingHandlerConfiguration)obj;
-      if (address == null)
-      {
+      GroupingHandlerConfiguration other = (GroupingHandlerConfiguration) obj;
+      if (address == null) {
          if (other.address != null)
             return false;
       }
       else if (!address.equals(other.address))
          return false;
-      if (name == null)
-      {
+      if (name == null) {
          if (other.name != null)
             return false;
       }

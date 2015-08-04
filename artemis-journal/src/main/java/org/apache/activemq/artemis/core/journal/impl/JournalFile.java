@@ -18,8 +18,8 @@ package org.apache.activemq.artemis.core.journal.impl;
 
 import org.apache.activemq.artemis.core.io.SequentialFile;
 
-public interface JournalFile
-{
+public interface JournalFile {
+
    int getNegCount(JournalFile file);
 
    void incNegCount(JournalFile file);
@@ -36,24 +36,30 @@ public interface JournalFile
 
    int getLiveSize();
 
-   /** The total number of deletes this file has */
+   /**
+    * The total number of deletes this file has
+    */
    int getTotalNegativeToOthers();
 
    /**
     * Whether this file's contents can deleted and the file reused.
+    *
     * @param canDelete if {@code true} then this file's contents are unimportant and may be deleted
-    *           at any time.
+    *                  at any time.
     */
    void setCanReclaim(boolean canDelete);
 
    /**
     * Whether this file's contents can deleted and the file reused.
+    *
     * @return {@code true} if the file can already be deleted.
     */
    boolean isCanReclaim();
 
-   /** This is a field to identify that records on this file actually belong to the current file.
-    *  The possible implementation for this is fileID &amp; Integer.MAX_VALUE */
+   /**
+    * This is a field to identify that records on this file actually belong to the current file.
+    * The possible implementation for this is fileID &amp; Integer.MAX_VALUE
+    */
    int getRecordID();
 
    long getFileID();

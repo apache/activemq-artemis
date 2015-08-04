@@ -20,36 +20,30 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.server.ServerMessage;
 
-public class FakeFilter implements Filter
-{
+public class FakeFilter implements Filter {
+
    private String headerName;
 
    private Object headerValue;
 
-   public FakeFilter(final String headerName, final Object headerValue)
-   {
+   public FakeFilter(final String headerName, final Object headerValue) {
       this.headerName = headerName;
 
       this.headerValue = headerValue;
    }
 
-   public FakeFilter()
-   {
+   public FakeFilter() {
    }
 
-   public boolean match(final ServerMessage message)
-   {
-      if (headerName != null)
-      {
+   public boolean match(final ServerMessage message) {
+      if (headerName != null) {
          Object value = message.getObjectProperty(new SimpleString(headerName));
 
-         if (value instanceof SimpleString)
-         {
-            value = ((SimpleString)value).toString();
+         if (value instanceof SimpleString) {
+            value = ((SimpleString) value).toString();
          }
 
-         if (value != null && headerValue.equals(value))
-         {
+         if (value != null && headerValue.equals(value)) {
             return true;
          }
 
@@ -59,8 +53,7 @@ public class FakeFilter implements Filter
       return true;
    }
 
-   public SimpleString getFilterString()
-   {
+   public SimpleString getFilterString() {
       return null;
    }
 }

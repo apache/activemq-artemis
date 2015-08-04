@@ -48,8 +48,8 @@ import org.apache.activemq.artemis.utils.json.JSONArray;
 import org.apache.activemq.artemis.utils.json.JSONException;
 import org.apache.activemq.artemis.utils.json.JSONObject;
 
-public class QueueControlImpl extends AbstractControl implements QueueControl
-{
+public class QueueControlImpl extends AbstractControl implements QueueControl {
+
    public static final int FLUSH_LIMIT = 500;
    // Constants -----------------------------------------------------
 
@@ -67,29 +67,23 @@ public class QueueControlImpl extends AbstractControl implements QueueControl
 
    // Static --------------------------------------------------------
 
-   private static String toJSON(final Map<String, Object>[] messages)
-   {
+   private static String toJSON(final Map<String, Object>[] messages) {
       JSONArray array = toJSONMsgArray(messages);
       return array.toString();
    }
 
-   private static JSONArray toJSONMsgArray(final Map<String, Object>[] messages)
-   {
+   private static JSONArray toJSONMsgArray(final Map<String, Object>[] messages) {
       JSONArray array = new JSONArray();
-      for (Map<String, Object> message : messages)
-      {
+      for (Map<String, Object> message : messages) {
          array.put(new JSONObject(message));
       }
       return array;
    }
 
-   private static String toJSON(final Map<String, Map<String, Object>[]> messages)
-   {
-      try
-      {
+   private static String toJSON(final Map<String, Map<String, Object>[]> messages) {
+      try {
          JSONArray arrayReturn = new JSONArray();
-         for (Map.Entry<String, Map<String, Object>[]> entry : messages.entrySet())
-         {
+         for (Map.Entry<String, Map<String, Object>[]> entry : messages.entrySet()) {
             JSONObject objectItem = new JSONObject();
             objectItem.put("consumerName", entry.getKey());
             objectItem.put("elements", toJSONMsgArray(entry.getValue()));
@@ -98,12 +92,10 @@ public class QueueControlImpl extends AbstractControl implements QueueControl
 
          return arrayReturn.toString();
       }
-      catch (JSONException e)
-      {
+      catch (JSONException e) {
          return "Invalid conversion " + e.toString();
       }
    }
-
 
    // Constructors --------------------------------------------------
 
@@ -111,8 +103,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl
                            final String address,
                            final PostOffice postOffice,
                            final StorageManager storageManager,
-                           final HierarchicalRepository<AddressSettings> addressSettingsRepository) throws Exception
-   {
+                           final HierarchicalRepository<AddressSettings> addressSettingsRepository) throws Exception {
       super(QueueControl.class, storageManager);
       this.queue = queue;
       this.address = address;
@@ -122,257 +113,207 @@ public class QueueControlImpl extends AbstractControl implements QueueControl
 
    // Public --------------------------------------------------------
 
-   public void setMessageCounter(final MessageCounter counter)
-   {
+   public void setMessageCounter(final MessageCounter counter) {
       this.counter = counter;
    }
 
    // QueueControlMBean implementation ------------------------------
 
-   public String getName()
-   {
+   public String getName() {
       clearIO();
-      try
-      {
+      try {
          return queue.getName().toString();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public String getAddress()
-   {
+   public String getAddress() {
       checkStarted();
 
       return address;
    }
 
-   public String getFilter()
-   {
+   public String getFilter() {
       checkStarted();
 
       clearIO();
-      try
-      {
+      try {
          Filter filter = queue.getFilter();
 
          return filter != null ? filter.getFilterString().toString() : null;
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public boolean isDurable()
-   {
+   public boolean isDurable() {
       checkStarted();
 
       clearIO();
-      try
-      {
+      try {
          return queue.isDurable();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public boolean isTemporary()
-   {
+   public boolean isTemporary() {
       checkStarted();
 
       clearIO();
-      try
-      {
+      try {
          return queue.isTemporary();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public long getMessageCount()
-   {
+   public long getMessageCount() {
       checkStarted();
 
       clearIO();
-      try
-      {
+      try {
          return queue.getMessageCount();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public int getConsumerCount()
-   {
+   public int getConsumerCount() {
       checkStarted();
 
       clearIO();
-      try
-      {
+      try {
          return queue.getConsumerCount();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public int getDeliveringCount()
-   {
+   public int getDeliveringCount() {
       checkStarted();
 
       clearIO();
-      try
-      {
+      try {
          return queue.getDeliveringCount();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public long getMessagesAdded()
-   {
+   public long getMessagesAdded() {
       checkStarted();
 
       clearIO();
-      try
-      {
+      try {
          return queue.getMessagesAdded();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public long getMessagesAcknowledged()
-   {
+   public long getMessagesAcknowledged() {
       checkStarted();
 
       clearIO();
-      try
-      {
+      try {
          return queue.getMessagesAcknowledged();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public long getID()
-   {
+   public long getID() {
       checkStarted();
 
       clearIO();
-      try
-      {
+      try {
          return queue.getID();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public long getScheduledCount()
-   {
+   public long getScheduledCount() {
       checkStarted();
 
       clearIO();
-      try
-      {
+      try {
          return queue.getScheduledCount();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public String getDeadLetterAddress()
-   {
+   public String getDeadLetterAddress() {
       checkStarted();
 
       clearIO();
-      try
-      {
+      try {
          AddressSettings addressSettings = addressSettingsRepository.getMatch(address);
 
-         if (addressSettings != null && addressSettings.getDeadLetterAddress() != null)
-         {
+         if (addressSettings != null && addressSettings.getDeadLetterAddress() != null) {
             return addressSettings.getDeadLetterAddress().toString();
          }
          return null;
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public String getExpiryAddress()
-   {
+   public String getExpiryAddress() {
       checkStarted();
 
       clearIO();
-      try
-      {
+      try {
          AddressSettings addressSettings = addressSettingsRepository.getMatch(address);
 
-         if (addressSettings != null && addressSettings.getExpiryAddress() != null)
-         {
+         if (addressSettings != null && addressSettings.getExpiryAddress() != null) {
             return addressSettings.getExpiryAddress().toString();
          }
-         else
-         {
+         else {
             return null;
          }
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public Map<String, Object>[] listScheduledMessages() throws Exception
-   {
+   public Map<String, Object>[] listScheduledMessages() throws Exception {
       checkStarted();
 
       clearIO();
-      try
-      {
+      try {
          List<MessageReference> refs = queue.getScheduledMessages();
          return convertMessagesToMaps(refs);
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public String listScheduledMessagesAsJSON() throws Exception
-   {
+   public String listScheduledMessagesAsJSON() throws Exception {
       checkStarted();
 
       clearIO();
-      try
-      {
+      try {
          return QueueControlImpl.toJSON(listScheduledMessages());
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
@@ -381,338 +322,277 @@ public class QueueControlImpl extends AbstractControl implements QueueControl
     * @param refs
     * @return
     */
-   private Map<String, Object>[] convertMessagesToMaps(List<MessageReference> refs)
-   {
+   private Map<String, Object>[] convertMessagesToMaps(List<MessageReference> refs) {
       Map<String, Object>[] messages = new Map[refs.size()];
       int i = 0;
-      for (MessageReference ref : refs)
-      {
+      for (MessageReference ref : refs) {
          Message message = ref.getMessage();
          messages[i++] = message.toMap();
       }
       return messages;
    }
 
-
-   public Map<String, Map<String, Object>[]> listDeliveringMessages()
-   {
+   public Map<String, Map<String, Object>[]> listDeliveringMessages() {
       checkStarted();
 
       clearIO();
-      try
-      {
+      try {
          Map<String, List<MessageReference>> msgs = queue.getDeliveringMessages();
 
          Map<String, Map<String, Object>[]> msgRet = new HashMap<String, Map<String, Object>[]>();
 
-         for (Map.Entry<String, List<MessageReference>> entry : msgs.entrySet())
-         {
+         for (Map.Entry<String, List<MessageReference>> entry : msgs.entrySet()) {
             msgRet.put(entry.getKey(), convertMessagesToMaps(entry.getValue()));
          }
          return msgRet;
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
 
    }
 
-   public String listDeliveringMessagesAsJSON() throws Exception
-   {
+   public String listDeliveringMessagesAsJSON() throws Exception {
       checkStarted();
 
       clearIO();
-      try
-      {
+      try {
          return QueueControlImpl.toJSON(listDeliveringMessages());
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public Map<String, Object>[] listMessages(final String filterStr) throws Exception
-   {
+   public Map<String, Object>[] listMessages(final String filterStr) throws Exception {
       checkStarted();
 
       clearIO();
-      try
-      {
+      try {
          Filter filter = FilterImpl.createFilter(filterStr);
          List<Map<String, Object>> messages = new ArrayList<Map<String, Object>>();
          queue.flushExecutor();
          LinkedListIterator<MessageReference> iterator = queue.totalIterator();
-         try
-         {
-            while (iterator.hasNext())
-            {
+         try {
+            while (iterator.hasNext()) {
                MessageReference ref = iterator.next();
-               if (filter == null || filter.match(ref.getMessage()))
-               {
+               if (filter == null || filter.match(ref.getMessage())) {
                   Message message = ref.getMessage();
                   messages.add(message.toMap());
                }
             }
             return messages.toArray(new Map[messages.size()]);
          }
-         finally
-         {
+         finally {
             iterator.close();
          }
       }
-      catch (ActiveMQException e)
-      {
+      catch (ActiveMQException e) {
          throw new IllegalStateException(e.getMessage());
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public String listMessagesAsJSON(final String filter) throws Exception
-   {
+   public String listMessagesAsJSON(final String filter) throws Exception {
       checkStarted();
 
       clearIO();
-      try
-      {
+      try {
          return QueueControlImpl.toJSON(listMessages(filter));
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   protected Map<String, Object>[] getFirstMessage() throws Exception
-   {
+   protected Map<String, Object>[] getFirstMessage() throws Exception {
       checkStarted();
 
       clearIO();
-      try
-      {
+      try {
          List<Map<String, Object>> messages = new ArrayList<Map<String, Object>>();
          queue.flushExecutor();
          LinkedListIterator<MessageReference> iterator = queue.totalIterator();
-         try
-         {
+         try {
             // returns just the first, as it's the first only
-            if (iterator.hasNext())
-            {
+            if (iterator.hasNext()) {
                MessageReference ref = iterator.next();
                Message message = ref.getMessage();
                messages.add(message.toMap());
             }
             return messages.toArray(new Map[1]);
          }
-         finally
-         {
+         finally {
             iterator.close();
          }
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
 
    }
 
-   public String getFirstMessageAsJSON() throws Exception
-   {
+   public String getFirstMessageAsJSON() throws Exception {
       return toJSON(getFirstMessage()).toString();
    }
 
-   public Long getFirstMessageTimestamp() throws Exception
-   {
+   public Long getFirstMessageTimestamp() throws Exception {
       Map<String, Object>[] _message = getFirstMessage();
-      if (_message == null || _message.length == 0 || _message[0] == null)
-      {
+      if (_message == null || _message.length == 0 || _message[0] == null) {
          return null;
       }
       Map<String, Object> message = _message[0];
-      if (!message.containsKey("timestamp"))
-      {
+      if (!message.containsKey("timestamp")) {
          return null;
       }
-      return (Long)message.get("timestamp");
+      return (Long) message.get("timestamp");
    }
 
-   public Long getFirstMessageAge() throws Exception
-   {
+   public Long getFirstMessageAge() throws Exception {
       Long firstMessageTimestamp = getFirstMessageTimestamp();
-      if (firstMessageTimestamp == null)
-      {
+      if (firstMessageTimestamp == null) {
          return null;
       }
       long now = new Date().getTime();
       return now - firstMessageTimestamp.longValue();
    }
 
-   public long countMessages(final String filterStr) throws Exception
-   {
+   public long countMessages(final String filterStr) throws Exception {
       checkStarted();
 
       clearIO();
-      try
-      {
+      try {
          Filter filter = FilterImpl.createFilter(filterStr);
-         if (filter == null)
-         {
+         if (filter == null) {
             return getMessageCount();
          }
-         else
-         {
+         else {
             LinkedListIterator<MessageReference> iterator = queue.totalIterator();
-            try
-            {
+            try {
                int count = 0;
-               while (iterator.hasNext())
-               {
+               while (iterator.hasNext()) {
                   MessageReference ref = iterator.next();
-                  if (filter.match(ref.getMessage()))
-                  {
+                  if (filter.match(ref.getMessage())) {
                      count++;
                   }
                }
                return count;
             }
-            finally
-            {
+            finally {
                iterator.close();
             }
          }
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public boolean removeMessage(final long messageID) throws Exception
-   {
+   public boolean removeMessage(final long messageID) throws Exception {
       checkStarted();
 
       clearIO();
-      try
-      {
+      try {
          return queue.deleteReference(messageID);
       }
-      catch (ActiveMQException e)
-      {
+      catch (ActiveMQException e) {
          throw new IllegalStateException(e.getMessage());
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public int removeMessages(final String filterStr) throws Exception
-   {
+   public int removeMessages(final String filterStr) throws Exception {
       return removeMessages(FLUSH_LIMIT, filterStr);
    }
 
-   public int removeMessages(final int flushLimit, final String filterStr) throws Exception
-   {
+   public int removeMessages(final int flushLimit, final String filterStr) throws Exception {
       checkStarted();
 
       clearIO();
-      try
-      {
+      try {
          Filter filter = FilterImpl.createFilter(filterStr);
 
          return queue.deleteMatchingReferences(flushLimit, filter);
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public boolean expireMessage(final long messageID) throws Exception
-   {
+   public boolean expireMessage(final long messageID) throws Exception {
       checkStarted();
 
       clearIO();
-      try
-      {
+      try {
          return queue.expireReference(messageID);
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public int expireMessages(final String filterStr) throws Exception
-   {
+   public int expireMessages(final String filterStr) throws Exception {
       checkStarted();
 
       clearIO();
-      try
-      {
+      try {
          Filter filter = FilterImpl.createFilter(filterStr);
          return queue.expireReferences(filter);
       }
-      catch (ActiveMQException e)
-      {
+      catch (ActiveMQException e) {
          throw new IllegalStateException(e.getMessage());
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public boolean moveMessage(final long messageID, final String otherQueueName) throws Exception
-   {
+   public boolean moveMessage(final long messageID, final String otherQueueName) throws Exception {
       return moveMessage(messageID, otherQueueName, false);
    }
 
-   public boolean moveMessage(final long messageID, final String otherQueueName, final boolean rejectDuplicates) throws Exception
-   {
+   public boolean moveMessage(final long messageID,
+                              final String otherQueueName,
+                              final boolean rejectDuplicates) throws Exception {
       checkStarted();
 
       clearIO();
-      try
-      {
+      try {
          Binding binding = postOffice.getBinding(new SimpleString(otherQueueName));
 
-         if (binding == null)
-         {
+         if (binding == null) {
             throw ActiveMQMessageBundle.BUNDLE.noQueueFound(otherQueueName);
          }
 
          return queue.moveReference(messageID, binding.getAddress(), rejectDuplicates);
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
 
    }
 
-   public int moveMessages(final String filterStr, final String otherQueueName) throws Exception
-   {
+   public int moveMessages(final String filterStr, final String otherQueueName) throws Exception {
       return moveMessages(filterStr, otherQueueName, false);
    }
 
-   public int moveMessages(final int flushLimit, final String filterStr, final String otherQueueName, final boolean rejectDuplicates) throws Exception
-   {
+   public int moveMessages(final int flushLimit,
+                           final String filterStr,
+                           final String otherQueueName,
+                           final boolean rejectDuplicates) throws Exception {
       checkStarted();
 
       clearIO();
-      try
-      {
+      try {
          Filter filter = FilterImpl.createFilter(filterStr);
 
          Binding binding = postOffice.getBinding(new SimpleString(otherQueueName));
 
-         if (binding == null)
-         {
+         if (binding == null) {
             throw ActiveMQMessageBundle.BUNDLE.noQueueFound(otherQueueName);
          }
 
@@ -720,247 +600,200 @@ public class QueueControlImpl extends AbstractControl implements QueueControl
 
          return retValue;
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
 
    }
 
-   public int moveMessages(final String filterStr, final String otherQueueName, final boolean rejectDuplicates) throws Exception
-   {
+   public int moveMessages(final String filterStr,
+                           final String otherQueueName,
+                           final boolean rejectDuplicates) throws Exception {
       return moveMessages(FLUSH_LIMIT, filterStr, otherQueueName, rejectDuplicates);
    }
 
-   public int sendMessagesToDeadLetterAddress(final String filterStr) throws Exception
-   {
+   public int sendMessagesToDeadLetterAddress(final String filterStr) throws Exception {
       checkStarted();
 
       clearIO();
-      try
-      {
+      try {
          Filter filter = FilterImpl.createFilter(filterStr);
 
          return queue.sendMessagesToDeadLetterAddress(filter);
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public boolean sendMessageToDeadLetterAddress(final long messageID) throws Exception
-   {
+   public boolean sendMessageToDeadLetterAddress(final long messageID) throws Exception {
       checkStarted();
 
       clearIO();
-      try
-      {
+      try {
          return queue.sendMessageToDeadLetterAddress(messageID);
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public int changeMessagesPriority(final String filterStr, final int newPriority) throws Exception
-   {
+   public int changeMessagesPriority(final String filterStr, final int newPriority) throws Exception {
       checkStarted();
 
       clearIO();
-      try
-      {
-         if (newPriority < 0 || newPriority > 9)
-         {
+      try {
+         if (newPriority < 0 || newPriority > 9) {
             throw ActiveMQMessageBundle.BUNDLE.invalidNewPriority(newPriority);
          }
          Filter filter = FilterImpl.createFilter(filterStr);
 
          return queue.changeReferencesPriority(filter, (byte) newPriority);
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public boolean changeMessagePriority(final long messageID, final int newPriority) throws Exception
-   {
+   public boolean changeMessagePriority(final long messageID, final int newPriority) throws Exception {
       checkStarted();
 
       clearIO();
-      try
-      {
-         if (newPriority < 0 || newPriority > 9)
-         {
+      try {
+         if (newPriority < 0 || newPriority > 9) {
             throw ActiveMQMessageBundle.BUNDLE.invalidNewPriority(newPriority);
          }
          return queue.changeReferencePriority(messageID, (byte) newPriority);
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public String listMessageCounter()
-   {
+   public String listMessageCounter() {
       checkStarted();
 
       clearIO();
-      try
-      {
+      try {
          return MessageCounterInfo.toJSon(counter);
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          throw new IllegalStateException(e);
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public void resetMessageCounter()
-   {
+   public void resetMessageCounter() {
       checkStarted();
 
       clearIO();
-      try
-      {
+      try {
          counter.resetCounter();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public String listMessageCounterAsHTML()
-   {
+   public String listMessageCounterAsHTML() {
       checkStarted();
 
       clearIO();
-      try
-      {
+      try {
          return MessageCounterHelper.listMessageCounterAsHTML(new MessageCounter[]{counter});
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public String listMessageCounterHistory() throws Exception
-   {
+   public String listMessageCounterHistory() throws Exception {
       checkStarted();
 
       clearIO();
-      try
-      {
+      try {
          return MessageCounterHelper.listMessageCounterHistory(counter);
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public String listMessageCounterHistoryAsHTML()
-   {
+   public String listMessageCounterHistoryAsHTML() {
       checkStarted();
 
       clearIO();
-      try
-      {
+      try {
          return MessageCounterHelper.listMessageCounterHistoryAsHTML(new MessageCounter[]{counter});
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public void pause()
-   {
+   public void pause() {
       checkStarted();
 
       clearIO();
-      try
-      {
+      try {
          queue.pause();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public void resume()
-   {
+   public void resume() {
       checkStarted();
 
       clearIO();
-      try
-      {
+      try {
          queue.resume();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public boolean isPaused() throws Exception
-   {
+   public boolean isPaused() throws Exception {
       checkStarted();
 
       clearIO();
-      try
-      {
+      try {
          return queue.isPaused();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-
-   public void flushExecutor()
-   {
+   public void flushExecutor() {
       checkStarted();
 
       clearIO();
-      try
-      {
+      try {
          queue.flushExecutor();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
    @Override
-   public String listConsumersAsJSON() throws Exception
-   {
+   public String listConsumersAsJSON() throws Exception {
       checkStarted();
 
       clearIO();
-      try
-      {
+      try {
          Collection<Consumer> consumers = queue.getConsumers();
 
          JSONArray jsonArray = new JSONArray();
 
-         for (Consumer consumer : consumers)
-         {
+         for (Consumer consumer : consumers) {
 
-            if (consumer instanceof ServerConsumer)
-            {
+            if (consumer instanceof ServerConsumer) {
                ServerConsumer serverConsumer = (ServerConsumer) consumer;
 
                JSONObject obj = new JSONObject();
@@ -977,45 +810,37 @@ public class QueueControlImpl extends AbstractControl implements QueueControl
 
          return jsonArray.toString();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
    @Override
-   protected MBeanOperationInfo[] fillMBeanOperationInfo()
-   {
+   protected MBeanOperationInfo[] fillMBeanOperationInfo() {
       return MBeanInfoHelper.getMBeanOperationsInfo(QueueControl.class);
    }
 
-   public void resetMessagesAdded() throws Exception
-   {
+   public void resetMessagesAdded() throws Exception {
       checkStarted();
 
       clearIO();
-      try
-      {
+      try {
          queue.resetMessagesAdded();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
 
    }
 
-   public void resetMessagesAcknowledged() throws Exception
-   {
+   public void resetMessagesAcknowledged() throws Exception {
       checkStarted();
 
       clearIO();
-      try
-      {
+      try {
          queue.resetMessagesAcknowledged();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
 
@@ -1027,14 +852,11 @@ public class QueueControlImpl extends AbstractControl implements QueueControl
 
    // Private -------------------------------------------------------
 
-   private void checkStarted()
-   {
-      if (!postOffice.isStarted())
-      {
+   private void checkStarted() {
+      if (!postOffice.isStarted()) {
          throw new IllegalStateException("Broker is not started. Queue can not be managed yet");
       }
    }
-
 
    // Inner classes -------------------------------------------------
 }

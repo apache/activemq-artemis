@@ -16,27 +16,23 @@
  */
 package org.apache.activemq.artemis.core.protocol.openwire.amq;
 
-public interface AMQSlowConsumerStrategy
-{
+public interface AMQSlowConsumerStrategy {
 
    /**
     * Slow consumer event.
     *
-    * @param context
-    *      Connection context of the subscription.
-    * @param subs
-    *      The subscription object for the slow consumer.
+    * @param context Connection context of the subscription.
+    * @param subs    The subscription object for the slow consumer.
     */
    void slowConsumer(AMQConnectionContext context, AMQSubscription subs);
 
    /**
     * For Strategies that need to examine assigned destination for slow consumers
     * periodically the destination is assigned here.
-    *
+    * <br>
     * If the strategy doesn't is event driven it can just ignore assigned destination.
     *
-    * @param destination
-    *      A destination to add to a watch list.
+    * @param destination A destination to add to a watch list.
     */
    void addDestination(AMQDestination destination);
 

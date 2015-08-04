@@ -39,79 +39,64 @@ import org.junit.Test;
 /**
  * adapted from: org.apache.activemq.JMSConsumerTest
  */
-public class JMSConsumer2Test extends BasicOpenWireTest
-{
+public class JMSConsumer2Test extends BasicOpenWireTest {
+
    @Test
-   public void testMessageListenerWithConsumerCanBeStoppedConcurently() throws Exception
-   {
+   public void testMessageListenerWithConsumerCanBeStoppedConcurently() throws Exception {
 
       final AtomicInteger counter = new AtomicInteger(0);
       final CountDownLatch closeDone = new CountDownLatch(1);
 
       connection.start();
-      Session session = connection.createSession(false,
-            Session.CLIENT_ACKNOWLEDGE);
-      ActiveMQDestination destination = createDestination(session,
-            ActiveMQDestination.QUEUE_TYPE);
+      Session session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
+      ActiveMQDestination destination = createDestination(session, ActiveMQDestination.QUEUE_TYPE);
 
       // preload the queue
       sendMessages(session, destination, 2000);
 
-      final ActiveMQMessageConsumer consumer = (ActiveMQMessageConsumer) session
-            .createConsumer(destination);
+      final ActiveMQMessageConsumer consumer = (ActiveMQMessageConsumer) session.createConsumer(destination);
 
-      final Map<Thread, Throwable> exceptions = Collections
-            .synchronizedMap(new HashMap<Thread, Throwable>());
-      Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler()
-      {
+      final Map<Thread, Throwable> exceptions = Collections.synchronizedMap(new HashMap<Thread, Throwable>());
+      Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler() {
          @Override
-         public void uncaughtException(Thread t, Throwable e)
-         {
+         public void uncaughtException(Thread t, Throwable e) {
             exceptions.put(t, e);
          }
       });
 
-      final class AckAndClose implements Runnable
-      {
+      final class AckAndClose implements Runnable {
+
          private final Message message;
 
-         public AckAndClose(Message m)
-         {
+         public AckAndClose(Message m) {
             this.message = m;
          }
 
          @Override
-         public void run()
-         {
-            try
-            {
+         public void run() {
+            try {
                int count = counter.incrementAndGet();
-               if (count == 590)
-               {
+               if (count == 590) {
                   // close in a separate thread is ok by jms
                   consumer.close();
                   closeDone.countDown();
                }
-               if (count % 200 == 0)
-               {
+               if (count % 200 == 0) {
                   // ensure there are some outstanding messages
                   // ack every 200
                   message.acknowledge();
                }
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                exceptions.put(Thread.currentThread(), e);
             }
          }
       }
 
       final ExecutorService executor = Executors.newCachedThreadPool();
-      consumer.setMessageListener(new MessageListener()
-      {
+      consumer.setMessageListener(new MessageListener() {
          @Override
-         public void onMessage(Message m)
-         {
+         public void onMessage(Message m) {
             // ack and close eventually in separate thread
             executor.execute(new AckAndClose(m));
          }
@@ -124,13 +109,11 @@ public class JMSConsumer2Test extends BasicOpenWireTest
    }
 
    @Test
-   public void testDupsOkConsumer() throws Exception
-   {
+   public void testDupsOkConsumer() throws Exception {
 
       // Receive a message with the JMS API
       connection.start();
-      Session session = connection.createSession(false,
-            Session.DUPS_OK_ACKNOWLEDGE);
+      Session session = connection.createSession(false, Session.DUPS_OK_ACKNOWLEDGE);
       ActiveMQDestination destination = createDestination(session, ActiveMQDestination.QUEUE_TYPE);
       MessageConsumer consumer = session.createConsumer(destination);
 
@@ -138,8 +121,7 @@ public class JMSConsumer2Test extends BasicOpenWireTest
       sendMessages(session, destination, 4);
 
       // Make sure only 4 message are delivered.
-      for (int i = 0; i < 4; i++)
-      {
+      for (int i = 0; i < 4; i++) {
          Message m = consumer.receive(1000);
          assertNotNull(m);
       }
@@ -153,13 +135,10 @@ public class JMSConsumer2Test extends BasicOpenWireTest
    }
 
    @Test
-   public void testRedispatchOfUncommittedTx() throws Exception
-   {
+   public void testRedispatchOfUncommittedTx() throws Exception {
       connection.start();
-      Session session = connection.createSession(true,
-            Session.SESSION_TRANSACTED);
-      ActiveMQDestination destination = createDestination(session,
-            ActiveMQDestination.QUEUE_TYPE);
+      Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
+      ActiveMQDestination destination = createDestination(session, ActiveMQDestination.QUEUE_TYPE);
 
       sendMessages(connection, destination, 2);
 
@@ -172,10 +151,8 @@ public class JMSConsumer2Test extends BasicOpenWireTest
       assertNotNull(m);
 
       // install another consumer while message dispatch is unacked/uncommitted
-      Session redispatchSession = connection.createSession(true,
-            Session.SESSION_TRANSACTED);
-      MessageConsumer redispatchConsumer = redispatchSession
-            .createConsumer(destination);
+      Session redispatchSession = connection.createSession(true, Session.SESSION_TRANSACTED);
+      MessageConsumer redispatchConsumer = redispatchSession.createConsumer(destination);
       System.out.println("redispatch consumer: " + redispatchConsumer);
 
       // no commit so will auto rollback and get re-dispatched to
@@ -201,12 +178,10 @@ public class JMSConsumer2Test extends BasicOpenWireTest
    }
 
    @Test
-   public void testRedispatchOfRolledbackTx() throws Exception
-   {
+   public void testRedispatchOfRolledbackTx() throws Exception {
 
       connection.start();
-      Session session = connection.createSession(true,
-            Session.SESSION_TRANSACTED);
+      Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
       ActiveMQDestination destination = createDestination(session, ActiveMQDestination.QUEUE_TYPE);
 
       sendMessages(connection, destination, 2);
@@ -216,10 +191,8 @@ public class JMSConsumer2Test extends BasicOpenWireTest
       assertNotNull(consumer.receive(1000));
 
       // install another consumer while message dispatch is unacked/uncommitted
-      Session redispatchSession = connection.createSession(true,
-            Session.SESSION_TRANSACTED);
-      MessageConsumer redispatchConsumer = redispatchSession
-            .createConsumer(destination);
+      Session redispatchSession = connection.createSession(true, Session.SESSION_TRANSACTED);
+      MessageConsumer redispatchConsumer = redispatchSession.createConsumer(destination);
 
       session.rollback();
       session.close();

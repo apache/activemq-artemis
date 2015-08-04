@@ -28,184 +28,165 @@ import org.apache.activemq.command.SessionInfo;
 
 import java.util.Arrays;
 
-
 public class DemandForwardingBridgeFilterTest extends NetworkTestSupport {
 
-    private DemandForwardingBridge bridge;
+   private DemandForwardingBridge bridge;
 
-    private StubConnection producerConnection;
+   private StubConnection producerConnection;
 
-    private ProducerInfo producerInfo;
+   private ProducerInfo producerInfo;
 
-    private StubConnection consumerConnection;
+   private StubConnection consumerConnection;
 
-    private SessionInfo consumerSessionInfo;
+   private SessionInfo consumerSessionInfo;
 
-    public void testWildcardOnExcludedDestination() throws Exception {
+   public void testWildcardOnExcludedDestination() throws Exception {
 
-        NetworkBridgeConfiguration configuration = getDefaultBridgeConfiguration();
+      NetworkBridgeConfiguration configuration = getDefaultBridgeConfiguration();
 
-        configuration.setExcludedDestinations(Arrays.asList(ActiveMQDestination.createDestination("OTHER.>",
-                ActiveMQDestination.TOPIC_TYPE)));
-        configuration.setDynamicallyIncludedDestinations(Arrays.asList(ActiveMQDestination.createDestination(
-                "TEST", ActiveMQDestination.QUEUE_TYPE)));
+      configuration.setExcludedDestinations(Arrays.asList(ActiveMQDestination.createDestination("OTHER.>", ActiveMQDestination.TOPIC_TYPE)));
+      configuration.setDynamicallyIncludedDestinations(Arrays.asList(ActiveMQDestination.createDestination("TEST", ActiveMQDestination.QUEUE_TYPE)));
 
-        configureAndStartBridge(configuration);
+      configureAndStartBridge(configuration);
 
-        assertReceiveMessageOn("TEST", ActiveMQDestination.QUEUE_TYPE);
-        assertReceiveNoMessageOn("OTHER.T1", ActiveMQDestination.TOPIC_TYPE);
-    }
+      assertReceiveMessageOn("TEST", ActiveMQDestination.QUEUE_TYPE);
+      assertReceiveNoMessageOn("OTHER.T1", ActiveMQDestination.TOPIC_TYPE);
+   }
 
-    public void testWildcardOnTwoExcludedDestination() throws Exception {
-        NetworkBridgeConfiguration configuration = getDefaultBridgeConfiguration();
+   public void testWildcardOnTwoExcludedDestination() throws Exception {
+      NetworkBridgeConfiguration configuration = getDefaultBridgeConfiguration();
 
-        configuration.setExcludedDestinations(Arrays.asList(ActiveMQDestination.createDestination("OTHER.>", ActiveMQDestination.QUEUE_TYPE),
-                ActiveMQDestination.createDestination("TEST.X1", ActiveMQDestination.QUEUE_TYPE)));
-        configuration.setDynamicallyIncludedDestinations(Arrays.asList(ActiveMQDestination.createDestination(
-                "TEST.X2", ActiveMQDestination.QUEUE_TYPE)));
+      configuration.setExcludedDestinations(Arrays.asList(ActiveMQDestination.createDestination("OTHER.>", ActiveMQDestination.QUEUE_TYPE), ActiveMQDestination.createDestination("TEST.X1", ActiveMQDestination.QUEUE_TYPE)));
+      configuration.setDynamicallyIncludedDestinations(Arrays.asList(ActiveMQDestination.createDestination("TEST.X2", ActiveMQDestination.QUEUE_TYPE)));
 
-        configureAndStartBridge(configuration);
+      configureAndStartBridge(configuration);
 
-        assertReceiveMessageOn("TEST.X2", ActiveMQDestination.QUEUE_TYPE);
-        assertReceiveNoMessageOn("OTHER.X1", ActiveMQDestination.QUEUE_TYPE);
-        assertReceiveNoMessageOn("TEST.X1", ActiveMQDestination.QUEUE_TYPE);
-    }
+      assertReceiveMessageOn("TEST.X2", ActiveMQDestination.QUEUE_TYPE);
+      assertReceiveNoMessageOn("OTHER.X1", ActiveMQDestination.QUEUE_TYPE);
+      assertReceiveNoMessageOn("TEST.X1", ActiveMQDestination.QUEUE_TYPE);
+   }
 
+   public void testWildcardOnDynamicallyIncludedDestination() throws Exception {
 
-    public void testWildcardOnDynamicallyIncludedDestination() throws Exception {
+      NetworkBridgeConfiguration configuration = getDefaultBridgeConfiguration();
 
-        NetworkBridgeConfiguration configuration = getDefaultBridgeConfiguration();
+      configuration.setDynamicallyIncludedDestinations(Arrays.asList(ActiveMQDestination.createDestination("OTHER.>", ActiveMQDestination.QUEUE_TYPE), ActiveMQDestination.createDestination("TEST.X2", ActiveMQDestination.QUEUE_TYPE)));
 
-        configuration.setDynamicallyIncludedDestinations(Arrays.asList(ActiveMQDestination.createDestination("OTHER.>", ActiveMQDestination.QUEUE_TYPE),
-                ActiveMQDestination.createDestination("TEST.X2", ActiveMQDestination.QUEUE_TYPE)));
+      configureAndStartBridge(configuration);
 
-        configureAndStartBridge(configuration);
+      assertReceiveMessageOn("OTHER.X1", ActiveMQDestination.QUEUE_TYPE);
+      assertReceiveMessageOn("TEST.X2", ActiveMQDestination.QUEUE_TYPE);
+   }
 
+   public void testDistinctTopicAndQueue() throws Exception {
 
-        assertReceiveMessageOn("OTHER.X1", ActiveMQDestination.QUEUE_TYPE);
-        assertReceiveMessageOn("TEST.X2", ActiveMQDestination.QUEUE_TYPE);
-    }
+      NetworkBridgeConfiguration configuration = getDefaultBridgeConfiguration();
 
-    public void testDistinctTopicAndQueue() throws Exception {
+      configuration.setExcludedDestinations(Arrays.asList(ActiveMQDestination.createDestination(">", ActiveMQDestination.TOPIC_TYPE)));
+      configuration.setDynamicallyIncludedDestinations(Arrays.asList(ActiveMQDestination.createDestination(">", ActiveMQDestination.QUEUE_TYPE)));
 
-        NetworkBridgeConfiguration configuration = getDefaultBridgeConfiguration();
+      configureAndStartBridge(configuration);
 
-        configuration.setExcludedDestinations(Arrays.asList(ActiveMQDestination.createDestination(">",
-                ActiveMQDestination.TOPIC_TYPE)));
-        configuration.setDynamicallyIncludedDestinations(Arrays.asList(ActiveMQDestination.createDestination(
-                ">", ActiveMQDestination.QUEUE_TYPE)));
+      assertReceiveMessageOn("TEST", ActiveMQDestination.QUEUE_TYPE);
+      assertReceiveNoMessageOn("TEST", ActiveMQDestination.TOPIC_TYPE);
+   }
 
-        configureAndStartBridge(configuration);
+   public void testListOfExcludedDestinationWithWildcard() throws Exception {
 
-        assertReceiveMessageOn("TEST", ActiveMQDestination.QUEUE_TYPE);
-        assertReceiveNoMessageOn("TEST", ActiveMQDestination.TOPIC_TYPE);
-    }
+      NetworkBridgeConfiguration configuration = getDefaultBridgeConfiguration();
 
-    public void testListOfExcludedDestinationWithWildcard() throws Exception {
+      configuration.setExcludedDestinations(Arrays.asList(ActiveMQDestination.createDestination("OTHER.>", ActiveMQDestination.TOPIC_TYPE), ActiveMQDestination.createDestination("TEST.*", ActiveMQDestination.TOPIC_TYPE)));
+      configuration.setDynamicallyIncludedDestinations(Arrays.asList(ActiveMQDestination.createDestination("TEST.X1", ActiveMQDestination.QUEUE_TYPE)));
 
-        NetworkBridgeConfiguration configuration = getDefaultBridgeConfiguration();
+      configureAndStartBridge(configuration);
 
-        configuration.setExcludedDestinations(Arrays.asList(ActiveMQDestination.createDestination("OTHER.>", ActiveMQDestination.TOPIC_TYPE),
-                ActiveMQDestination.createDestination("TEST.*", ActiveMQDestination.TOPIC_TYPE)));
-        configuration.setDynamicallyIncludedDestinations(Arrays.asList(ActiveMQDestination.createDestination(
-                "TEST.X1", ActiveMQDestination.QUEUE_TYPE)));
+      assertReceiveMessageOn("TEST.X1", ActiveMQDestination.QUEUE_TYPE);
+      assertReceiveNoMessageOn("OTHER.T1", ActiveMQDestination.TOPIC_TYPE);
+      assertReceiveNoMessageOn("OTHER.T2", ActiveMQDestination.TOPIC_TYPE);
+   }
 
-        configureAndStartBridge(configuration);
+   private void assertReceiveMessageOn(String destinationName,
+                                       byte destinationType) throws Exception, InterruptedException {
 
-        assertReceiveMessageOn("TEST.X1", ActiveMQDestination.QUEUE_TYPE);
-        assertReceiveNoMessageOn("OTHER.T1", ActiveMQDestination.TOPIC_TYPE);
-        assertReceiveNoMessageOn("OTHER.T2", ActiveMQDestination.TOPIC_TYPE);
-    }
+      ActiveMQDestination destination = ActiveMQDestination.createDestination(destinationName, destinationType);
 
-    private void assertReceiveMessageOn(String destinationName, byte destinationType) throws Exception,
-            InterruptedException {
+      // Send the message to the local broker.
+      producerConnection.send(createMessage(producerInfo, destination, destinationType));
 
-        ActiveMQDestination destination = ActiveMQDestination.createDestination(destinationName, destinationType);
+      // Make sure the message was delivered via the remote.
+      Message m = createConsumerAndReceiveMessage(destination);
 
-        // Send the message to the local broker.
-        producerConnection.send(createMessage(producerInfo, destination, destinationType));
+      assertNotNull(m);
+   }
 
-        // Make sure the message was delivered via the remote.
-        Message m = createConsumerAndReceiveMessage(destination);
+   private void assertReceiveNoMessageOn(String destinationName,
+                                         byte destinationType) throws Exception, InterruptedException {
 
-        assertNotNull(m);
-    }
+      ActiveMQDestination destination = ActiveMQDestination.createDestination(destinationName, destinationType);
 
-    private void assertReceiveNoMessageOn(String destinationName, byte destinationType) throws Exception,
-            InterruptedException {
+      // Send the message to the local broker.
+      producerConnection.send(createMessage(producerInfo, destination, destinationType));
 
-        ActiveMQDestination destination = ActiveMQDestination.createDestination(destinationName, destinationType);
+      // Make sure the message was delivered via the remote.
+      Message m = createConsumerAndReceiveMessage(destination);
+      assertNull(m);
+   }
 
-        // Send the message to the local broker.
-        producerConnection.send(createMessage(producerInfo, destination, destinationType));
+   private Message createConsumerAndReceiveMessage(ActiveMQDestination destination) throws Exception {
+      // Now create remote consumer that should cause message to move to this
+      // remote consumer.
+      ConsumerInfo consumerInfo = createConsumerInfo(consumerSessionInfo, destination);
+      consumerConnection.send(consumerInfo);
 
-        // Make sure the message was delivered via the remote.
-        Message m = createConsumerAndReceiveMessage(destination);
-        assertNull(m);
-    }
+      Message m = receiveMessage(consumerConnection);
+      return m;
+   }
 
-    private Message createConsumerAndReceiveMessage(ActiveMQDestination destination) throws Exception {
-        // Now create remote consumer that should cause message to move to this
-        // remote consumer.
-        ConsumerInfo consumerInfo = createConsumerInfo(consumerSessionInfo, destination);
-        consumerConnection.send(consumerInfo);
+   protected void setUp() throws Exception {
+      super.setUp();
 
-        Message m = receiveMessage(consumerConnection);
-        return m;
-    }
+      producerConnection = createConnection();
+      ConnectionInfo producerConnectionInfo = createConnectionInfo();
+      SessionInfo producerSessionInfo = createSessionInfo(producerConnectionInfo);
+      producerInfo = createProducerInfo(producerSessionInfo);
+      producerConnection.send(producerConnectionInfo);
+      producerConnection.send(producerSessionInfo);
+      producerConnection.send(producerInfo);
 
-    protected void setUp() throws Exception {
-        super.setUp();
+      consumerConnection = createRemoteConnection();
+      ConnectionInfo consumerConnectionInfo = createConnectionInfo();
+      consumerSessionInfo = createSessionInfo(consumerConnectionInfo);
+      consumerConnection.send(consumerConnectionInfo);
+      consumerConnection.send(consumerSessionInfo);
+   }
 
+   protected void tearDown() throws Exception {
+      bridge.stop();
+      super.tearDown();
+   }
 
-        producerConnection = createConnection();
-        ConnectionInfo producerConnectionInfo = createConnectionInfo();
-        SessionInfo producerSessionInfo = createSessionInfo(producerConnectionInfo);
-        producerInfo = createProducerInfo(producerSessionInfo);
-        producerConnection.send(producerConnectionInfo);
-        producerConnection.send(producerSessionInfo);
-        producerConnection.send(producerInfo);
+   public static Test suite() {
+      return suite(DemandForwardingBridgeFilterTest.class);
+   }
 
-        consumerConnection = createRemoteConnection();
-        ConnectionInfo consumerConnectionInfo = createConnectionInfo();
-        consumerSessionInfo = createSessionInfo(consumerConnectionInfo);
-        consumerConnection.send(consumerConnectionInfo);
-        consumerConnection.send(consumerSessionInfo);
-    }
+   public static void main(String[] args) {
+      junit.textui.TestRunner.run(suite());
+   }
 
-    protected void tearDown() throws Exception {
-        bridge.stop();
-        super.tearDown();
-    }
+   public NetworkBridgeConfiguration getDefaultBridgeConfiguration() {
+      NetworkBridgeConfiguration config = new NetworkBridgeConfiguration();
+      config.setBrokerName("local");
+      config.setDispatchAsync(false);
+      return config;
+   }
 
-    public static Test suite() {
-        return suite(DemandForwardingBridgeFilterTest.class);
-    }
-
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(suite());
-    }
-
-    public NetworkBridgeConfiguration getDefaultBridgeConfiguration() {
-        NetworkBridgeConfiguration config = new NetworkBridgeConfiguration();
-        config.setBrokerName("local");
-        config.setDispatchAsync(false);
-        return config;
-    }
-
-    private void configureAndStartBridge(NetworkBridgeConfiguration configuration) throws Exception {
-        bridge = new DemandForwardingBridge(configuration, createTransport(), createRemoteTransport());
-        bridge.setBrokerService(broker);
-        bridge.setDynamicallyIncludedDestinations(configuration.getDynamicallyIncludedDestinations().toArray(
-                new ActiveMQDestination[configuration.getDynamicallyIncludedDestinations().size()]
-        ));
-        bridge.setExcludedDestinations(configuration.getExcludedDestinations().toArray(
-                new ActiveMQDestination[configuration.getExcludedDestinations().size()]
-        ));
-        bridge.setStaticallyIncludedDestinations(configuration.getStaticallyIncludedDestinations().toArray(
-                new ActiveMQDestination[configuration.getStaticallyIncludedDestinations().size()]
-        ));
-        bridge.start();
-    }
+   private void configureAndStartBridge(NetworkBridgeConfiguration configuration) throws Exception {
+      bridge = new DemandForwardingBridge(configuration, createTransport(), createRemoteTransport());
+      bridge.setBrokerService(broker);
+      bridge.setDynamicallyIncludedDestinations(configuration.getDynamicallyIncludedDestinations().toArray(new ActiveMQDestination[configuration.getDynamicallyIncludedDestinations().size()]));
+      bridge.setExcludedDestinations(configuration.getExcludedDestinations().toArray(new ActiveMQDestination[configuration.getExcludedDestinations().size()]));
+      bridge.setStaticallyIncludedDestinations(configuration.getStaticallyIncludedDestinations().toArray(new ActiveMQDestination[configuration.getStaticallyIncludedDestinations().size()]));
+      bridge.start();
+   }
 
 }

@@ -16,36 +16,29 @@
  */
 package org.apache.activemq.artemis.selector.filter;
 
-
 /**
  * A filter performing a comparison of two objects
  *
  * @version $Revision: 1.2 $
  */
-public abstract class LogicExpression extends BinaryExpression implements BooleanExpression
-{
+public abstract class LogicExpression extends BinaryExpression implements BooleanExpression {
 
    /**
     * @param left
     * @param right
     */
-   public LogicExpression(BooleanExpression left, BooleanExpression right)
-   {
+   public LogicExpression(BooleanExpression left, BooleanExpression right) {
       super(left, right);
    }
 
-   public static BooleanExpression createOR(BooleanExpression lvalue, BooleanExpression rvalue)
-   {
-      return new LogicExpression(lvalue, rvalue)
-      {
+   public static BooleanExpression createOR(BooleanExpression lvalue, BooleanExpression rvalue) {
+      return new LogicExpression(lvalue, rvalue) {
 
-         public Object evaluate(Filterable message) throws FilterException
-         {
+         public Object evaluate(Filterable message) throws FilterException {
 
             Boolean lv = (Boolean) left.evaluate(message);
             // Can we do an OR shortcut??
-            if (lv != null && lv.booleanValue())
-            {
+            if (lv != null && lv.booleanValue()) {
                return Boolean.TRUE;
             }
 
@@ -53,30 +46,24 @@ public abstract class LogicExpression extends BinaryExpression implements Boolea
             return rv == null ? null : rv;
          }
 
-         public String getExpressionSymbol()
-         {
+         public String getExpressionSymbol() {
             return "OR";
          }
       };
    }
 
-   public static BooleanExpression createAND(BooleanExpression lvalue, BooleanExpression rvalue)
-   {
-      return new LogicExpression(lvalue, rvalue)
-      {
+   public static BooleanExpression createAND(BooleanExpression lvalue, BooleanExpression rvalue) {
+      return new LogicExpression(lvalue, rvalue) {
 
-         public Object evaluate(Filterable message) throws FilterException
-         {
+         public Object evaluate(Filterable message) throws FilterException {
 
             Boolean lv = (Boolean) left.evaluate(message);
 
             // Can we do an AND shortcut??
-            if (lv == null)
-            {
+            if (lv == null) {
                return null;
             }
-            if (!lv.booleanValue())
-            {
+            if (!lv.booleanValue()) {
                return Boolean.FALSE;
             }
 
@@ -84,8 +71,7 @@ public abstract class LogicExpression extends BinaryExpression implements Boolea
             return rv == null ? null : rv;
          }
 
-         public String getExpressionSymbol()
-         {
+         public String getExpressionSymbol() {
             return "AND";
          }
       };
@@ -93,8 +79,7 @@ public abstract class LogicExpression extends BinaryExpression implements Boolea
 
    public abstract Object evaluate(Filterable message) throws FilterException;
 
-   public boolean matches(Filterable message) throws FilterException
-   {
+   public boolean matches(Filterable message) throws FilterException {
       Object object = evaluate(message);
       return object != null && object == Boolean.TRUE;
    }

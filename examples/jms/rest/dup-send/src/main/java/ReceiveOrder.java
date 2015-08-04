@@ -14,14 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 import org.jboss.resteasy.client.ClientRequest;
 import org.jboss.resteasy.client.ClientResponse;
 import org.jboss.resteasy.spi.Link;
 
-public class ReceiveOrder
-{
-   public static void main(String[] args) throws Exception
-   {
+public class ReceiveOrder {
+
+   public static void main(String[] args) throws Exception {
       // first get the create URL for the shipping queue
       ClientRequest request = new ClientRequest("http://localhost:9095/queues/jms.queue.orders");
       ClientResponse res = request.head();
@@ -30,23 +30,19 @@ public class ReceiveOrder
       res = pullConsumers.request().post();
       Link consumeNext = res.getHeaderAsLink("msg-consume-next");
       res.releaseConnection();
-      while (true)
-      {
+      while (true) {
          System.out.println("Waiting...");
          res = consumeNext.request().header("Accept-Wait", "10").post();
-         if (res.getStatus() == 503)
-         {
+         if (res.getStatus() == 503) {
             System.out.println("Timeout...");
             consumeNext = res.getHeaderAsLink("msg-consume-next");
          }
-         else if (res.getStatus() == 200)
-         {
+         else if (res.getStatus() == 200) {
             Order order = (Order) res.getEntity(Order.class);
             System.out.println(order);
             consumeNext = res.getHeaderAsLink("msg-consume-next");
          }
-         else
-         {
+         else {
             throw new RuntimeException("Failure! " + res.getStatus());
          }
          res.releaseConnection();

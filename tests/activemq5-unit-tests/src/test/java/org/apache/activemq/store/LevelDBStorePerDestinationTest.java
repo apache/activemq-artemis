@@ -21,25 +21,26 @@ import org.junit.Test;
 
 import java.io.IOException;
 
-public class LevelDBStorePerDestinationTest extends StorePerDestinationTest  {
+public class LevelDBStorePerDestinationTest extends StorePerDestinationTest {
 
-
-    @Override
-    protected PersistenceAdapter createStore(boolean delete) throws IOException {
-        LevelDBStore store = new LevelDBStore();
-        store.setLogSize(maxFileLength);
-        if (delete) {
-            store.deleteAllMessages();
-        }
-        return store;
-    }
+   @Override
+   protected PersistenceAdapter createStore(boolean delete) throws IOException {
+      LevelDBStore store = new LevelDBStore();
+      store.setLogSize(maxFileLength);
+      if (delete) {
+         store.deleteAllMessages();
+      }
+      return store;
+   }
 
    @Test
    @Override
-   public void testRollbackRecovery() throws Exception {}
+   public void testRollbackRecovery() throws Exception {
+   }
 
    @Test
    @Override
-   public void testCommitRecovery() throws Exception {}
+   public void testCommitRecovery() throws Exception {
+   }
 
 }

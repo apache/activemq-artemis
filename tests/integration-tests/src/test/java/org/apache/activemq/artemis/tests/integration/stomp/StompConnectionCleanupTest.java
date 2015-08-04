@@ -24,13 +24,12 @@ import javax.jms.MessageConsumer;
 import org.apache.activemq.artemis.core.protocol.stomp.Stomp;
 import org.apache.activemq.artemis.jms.server.JMSServerManager;
 
-public class StompConnectionCleanupTest extends StompTestBase
-{
+public class StompConnectionCleanupTest extends StompTestBase {
+
    private static final long CONNECTION_TTL = 2000;
 
    @Test
-   public void testConnectionCleanup() throws Exception
-   {
+   public void testConnectionCleanup() throws Exception {
       String frame = "CONNECT\n" + "login: brianm\n" + "passcode: wombats\n\n" + Stomp.NULL;
       sendFrame(frame);
       frame = receiveFrame(10000);
@@ -56,31 +55,27 @@ public class StompConnectionCleanupTest extends StompTestBase
 
       long start = System.currentTimeMillis();
 
-      while (true)
-      {
+      while (true) {
          int connCount = server.getActiveMQServer().getRemotingService().getConnections().size();
 
          int sessionCount = server.getActiveMQServer().getSessions().size();
 
          // All connections and sessions should be timed out including STOMP + JMS connection
 
-         if (connCount == 0 && sessionCount == 0)
-         {
+         if (connCount == 0 && sessionCount == 0) {
             break;
          }
 
          Thread.sleep(10);
 
-         if (System.currentTimeMillis() - start > 10000)
-         {
+         if (System.currentTimeMillis() - start > 10000) {
             fail("Timed out waiting for connection to be cleared up");
          }
       }
    }
 
    @Test
-   public void testConnectionNotCleanedUp() throws Exception
-   {
+   public void testConnectionNotCleanedUp() throws Exception {
       String frame = "CONNECT\n" + "login: brianm\n" + "passcode: wombats\n\n" + Stomp.NULL;
       sendFrame(frame);
       frame = receiveFrame(10000);
@@ -96,8 +91,7 @@ public class StompConnectionCleanupTest extends StompTestBase
       long start = System.currentTimeMillis();
 
       //Send msgs for an amount of time > connection_ttl make sure connection is not closed
-      while (true)
-      {
+      while (true) {
          //Send and receive a msg
 
          frame = "SEND\n" + "destination:" + getQueuePrefix() + getQueueName() + "\n\n" + "Hello World" + Stomp.NULL;
@@ -108,8 +102,7 @@ public class StompConnectionCleanupTest extends StompTestBase
 
          Thread.sleep(100);
 
-         if (System.currentTimeMillis() - start > time)
-         {
+         if (System.currentTimeMillis() - start > time) {
             break;
          }
       }
@@ -117,8 +110,7 @@ public class StompConnectionCleanupTest extends StompTestBase
    }
 
    @Override
-   protected JMSServerManager createServer() throws Exception
-   {
+   protected JMSServerManager createServer() throws Exception {
       JMSServerManager s = super.createServer();
 
       s.getActiveMQServer().getConfiguration().setConnectionTTLOverride(CONNECTION_TTL);

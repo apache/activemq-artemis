@@ -17,14 +17,13 @@
 
 package org.apache.activemq.artemis.jlibaio.util;
 
-
 import org.apache.activemq.artemis.jlibaio.SubmitInfo;
 
 /**
  * this is an utility class where you can reuse Callbackk objects for your LibaioContext usage.
  */
-public class CallbackCache<Callback extends SubmitInfo>
-{
+public class CallbackCache<Callback extends SubmitInfo> {
+
    private final SubmitInfo[] pool;
 
    private int put = 0;
@@ -34,34 +33,26 @@ public class CallbackCache<Callback extends SubmitInfo>
 
    private final Object lock = new Object();
 
-   public CallbackCache(int size)
-   {
+   public CallbackCache(int size) {
       this.pool = new SubmitInfo[size];
       this.size = size;
    }
 
-   public Callback get()
-   {
-      synchronized (lock)
-      {
-         if (available <= 0)
-         {
+   public Callback get() {
+      synchronized (lock) {
+         if (available <= 0) {
             return null;
          }
-         else
-         {
-            Callback retValue = (Callback)pool[get];
+         else {
+            Callback retValue = (Callback) pool[get];
             pool[get] = null;
-            if (retValue == null)
-            {
+            if (retValue == null) {
                throw new NullPointerException("You should initialize the pool before using it");
             }
-            if (retValue != null)
-            {
+            if (retValue != null) {
                available--;
                get++;
-               if (get >= size)
-               {
+               if (get >= size) {
                   get = 0;
                }
             }
@@ -70,20 +61,15 @@ public class CallbackCache<Callback extends SubmitInfo>
       }
    }
 
-   public CallbackCache put(Callback callback)
-   {
-      if (callback == null)
-      {
+   public CallbackCache put(Callback callback) {
+      if (callback == null) {
          return null;
       }
-      synchronized (lock)
-      {
-         if (available < size)
-         {
+      synchronized (lock) {
+         if (available < size) {
             available++;
             pool[put++] = callback;
-            if (put >= size)
-            {
+            if (put >= size) {
                put = 0;
             }
          }

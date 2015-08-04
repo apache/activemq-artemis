@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.logs;
 
-
 import org.apache.activemq.artemis.api.core.ActiveMQIllegalStateException;
 import org.jboss.logging.annotations.Cause;
 import org.jboss.logging.annotations.Message;
@@ -25,17 +24,17 @@ import org.jboss.logging.Messages;
 
 /**
  * Logger Code 20
- *
+ * <br>
  * each message id must be 6 digits long starting with 20, the 3rd digit should be 9
- *
+ * <br>
  * so 209000 to 209999
  */
 @MessageBundle(projectCode = "AMQ")
-public interface ActiveMQUtilBundle
-{
+public interface ActiveMQUtilBundle {
+
    ActiveMQUtilBundle BUNDLE = Messages.getBundle(ActiveMQUtilBundle.class);
 
-   @Message(id = 209000, value = "invalid property: {0}" , format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 209000, value = "invalid property: {0}", format = Message.Format.MESSAGE_FORMAT)
    ActiveMQIllegalStateException invalidProperty(String part);
 
    @Message(id = 209001, value = "Invalid type: {0}", format = Message.Format.MESSAGE_FORMAT)

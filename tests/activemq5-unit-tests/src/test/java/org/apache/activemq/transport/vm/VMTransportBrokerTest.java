@@ -17,21 +17,21 @@
 package org.apache.activemq.transport.vm;
 
 import junit.framework.Test;
+
 import org.apache.activemq.transport.TransportBrokerTestSupport;
 
 public class VMTransportBrokerTest extends TransportBrokerTestSupport {
 
-    protected String getBindLocation() {
-        return "vm://localhost";
-    }
+   protected String getBindLocation() {
+      return "vm://localhost";
+   }
 
-    public static Test suite() {
-        return suite(VMTransportBrokerTest.class);
-    }
-    
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(suite());
-    }
+   public static Test suite() {
+      return suite(VMTransportBrokerTest.class);
+   }
 
+   public static void main(String[] args) {
+      junit.textui.TestRunner.run(suite());
+   }
 
 }

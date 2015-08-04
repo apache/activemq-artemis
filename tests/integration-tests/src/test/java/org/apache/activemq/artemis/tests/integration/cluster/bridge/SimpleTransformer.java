@@ -21,14 +21,12 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.server.cluster.Transformer;
 
-public class SimpleTransformer implements Transformer
-{
-   public ServerMessage transform(final ServerMessage message)
-   {
-      SimpleString oldProp = (SimpleString)message.getObjectProperty(new SimpleString("wibble"));
+public class SimpleTransformer implements Transformer {
 
-      if (!oldProp.equals(new SimpleString("bing")))
-      {
+   public ServerMessage transform(final ServerMessage message) {
+      SimpleString oldProp = (SimpleString) message.getObjectProperty(new SimpleString("wibble"));
+
+      if (!oldProp.equals(new SimpleString("bing"))) {
          throw new IllegalStateException("Wrong property value!!");
       }
 
@@ -42,8 +40,7 @@ public class SimpleTransformer implements Transformer
 
       String str = buffer.readString();
 
-      if (!str.equals("doo be doo be doo be doo"))
-      {
+      if (!str.equals("doo be doo be doo be doo")) {
          throw new IllegalStateException("Wrong body!!");
       }
 

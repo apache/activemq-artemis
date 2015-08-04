@@ -29,17 +29,14 @@ import org.apache.activemq.artemis.tests.util.JMSTestBase;
 import org.junit.Before;
 import org.junit.Test;
 
-public class BodyTest extends JMSTestBase
-{
+public class BodyTest extends JMSTestBase {
 
    private static final String Q_NAME = "SomeQueue";
    private javax.jms.Queue queue;
 
-
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       jmsServer.createQueue(false, Q_NAME, null, true, Q_NAME);
@@ -47,12 +44,10 @@ public class BodyTest extends JMSTestBase
    }
 
    @Test
-   public void testBodyConversion() throws Throwable
-   {
+   public void testBodyConversion() throws Throwable {
       try (
          Connection conn = cf.createConnection();
-      )
-      {
+      ) {
 
          Session sess = conn.createSession();
          MessageProducer producer = sess.createProducer(queue);
@@ -66,13 +61,11 @@ public class BodyTest extends JMSTestBase
          Message msg = cons.receiveNoWait();
          assertNotNull(msg);
 
-         try
-         {
+         try {
             msg.getBody(String.class);
             fail("Exception expected");
          }
-         catch (MessageFormatException e)
-         {
+         catch (MessageFormatException e) {
          }
       }
 

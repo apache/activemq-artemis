@@ -41,8 +41,8 @@ import io.netty.util.ReferenceCountUtil;
  * Ensures that every request has a response and also that any uninitiated responses always wait for
  * a response.
  */
-public class HttpAcceptorHandler extends ChannelDuplexHandler
-{
+public class HttpAcceptorHandler extends ChannelDuplexHandler {
+
    private final BlockingQueue<ResponseHolder> responses = new LinkedBlockingQueue<ResponseHolder>();
 
    private final BlockingQueue<Runnable> delayedResponses = new LinkedBlockingQueue<Runnable>();
@@ -55,8 +55,7 @@ public class HttpAcceptorHandler extends ChannelDuplexHandler
 
    private Channel channel;
 
-   public HttpAcceptorHandler(final HttpKeepAliveRunnable httpKeepAliveTask, final long responseTime, Channel channel)
-   {
+   public HttpAcceptorHandler(final HttpKeepAliveRunnable httpKeepAliveTask, final long responseTime, Channel channel) {
       super();
       this.responseTime = responseTime;
       this.httpKeepAliveTask = httpKeepAliveTask;
@@ -65,25 +64,21 @@ public class HttpAcceptorHandler extends ChannelDuplexHandler
    }
 
    @Override
-   public void channelInactive(final ChannelHandlerContext ctx) throws Exception
-   {
+   public void channelInactive(final ChannelHandlerContext ctx) throws Exception {
       super.channelInactive(ctx);
       httpKeepAliveTask.unregisterKeepAliveHandler(this);
       channel = null;
    }
 
    @Override
-   public void channelRead(final ChannelHandlerContext ctx, final Object msg) throws Exception
-   {
+   public void channelRead(final ChannelHandlerContext ctx, final Object msg) throws Exception {
       FullHttpRequest request = (FullHttpRequest) msg;
       HttpMethod method = request.getMethod();
       // if we are a post then we send upstream, otherwise we are just being prompted for a response.
-      if (method.equals(HttpMethod.POST ) )
-      {
+      if (method.equals(HttpMethod.POST)) {
          ctx.fireChannelRead(ReferenceCountUtil.retain(((FullHttpRequest) msg).content()));
          // add a new response
-         responses.put(new ResponseHolder(System.currentTimeMillis() + responseTime,
-               new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK)));
+         responses.put(new ResponseHolder(System.currentTimeMillis() + responseTime, new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK)));
          ReferenceCountUtil.release(msg);
          return;
       }
@@ -91,36 +86,28 @@ public class HttpAcceptorHandler extends ChannelDuplexHandler
    }
 
    @Override
-   public void write(final ChannelHandlerContext ctx, final Object msg, ChannelPromise promise) throws Exception
-   {
+   public void write(final ChannelHandlerContext ctx, final Object msg, ChannelPromise promise) throws Exception {
       // we are either a channel buffer, which gets delayed until a response is available, or we are the actual response
-      if (msg instanceof ByteBuf)
-      {
+      if (msg instanceof ByteBuf) {
          executor.execute(new ResponseRunner((ByteBuf) msg, promise));
       }
-      else
-      {
+      else {
          ctx.write(msg, promise);
       }
    }
 
-   public void keepAlive(final long time)
-   {
+   public void keepAlive(final long time) {
       // send some responses to catch up thus avoiding any timeout.
       int lateResponses = 0;
-      for (ResponseHolder response : responses)
-      {
-         if (response.timeReceived < time)
-         {
+      for (ResponseHolder response : responses) {
+         if (response.timeReceived < time) {
             lateResponses++;
          }
-         else
-         {
+         else {
             break;
          }
       }
-      for (int i = 0; i < lateResponses; i++)
-      {
+      for (int i = 0; i < lateResponses; i++) {
          executor.execute(new ResponseRunner());
       }
    }
@@ -128,54 +115,44 @@ public class HttpAcceptorHandler extends ChannelDuplexHandler
    /**
     * this is prompted to delivery when a response is available in the response queue.
     */
-   final class ResponseRunner implements Runnable
-   {
+   final class ResponseRunner implements Runnable {
+
       private final ByteBuf buffer;
 
       private final boolean bogusResponse;
 
       private final ChannelPromise promise;
 
-      public ResponseRunner(final ByteBuf buffer, ChannelPromise promise)
-      {
+      public ResponseRunner(final ByteBuf buffer, ChannelPromise promise) {
          this.buffer = buffer;
          bogusResponse = false;
          this.promise = promise;
       }
 
-      public ResponseRunner()
-      {
+      public ResponseRunner() {
          bogusResponse = true;
          buffer = Unpooled.buffer(0);
          promise = channel.newPromise();
       }
 
-      public void run()
-      {
+      public void run() {
          ResponseHolder responseHolder = null;
-         do
-         {
-            try
-            {
+         do {
+            try {
                responseHolder = responses.take();
             }
-            catch (InterruptedException e)
-            {
+            catch (InterruptedException e) {
                if (executor.isShutdown())
                   return;
                // otherwise ignore, we'll just try again
             }
-         }
-         while (responseHolder == null);
-         if (!bogusResponse)
-         {
+         } while (responseHolder == null);
+         if (!bogusResponse) {
             piggyBackResponses(responseHolder.response.content());
-            responseHolder.response.headers().set(HttpHeaders.Names.CONTENT_LENGTH,
-                                              String.valueOf(responseHolder.response.content().readableBytes()));
+            responseHolder.response.headers().set(HttpHeaders.Names.CONTENT_LENGTH, String.valueOf(responseHolder.response.content().readableBytes()));
             channel.writeAndFlush(responseHolder.response, promise);
          }
-         else
-         {
+         else {
             responseHolder.response.content().writeBytes(buffer);
             responseHolder.response.headers().set(HttpHeaders.Names.CONTENT_LENGTH, String.valueOf(responseHolder.response.content().readableBytes()));
             channel.writeAndFlush(responseHolder.response, promise);
@@ -186,30 +163,23 @@ public class HttpAcceptorHandler extends ChannelDuplexHandler
       }
 
       // TODO: This can be optimized a lot
-      private void piggyBackResponses(ByteBuf buf)
-      {
+      private void piggyBackResponses(ByteBuf buf) {
          // if we are the last available response then we have to piggy back any remaining responses
-         if (responses.isEmpty())
-         {
+         if (responses.isEmpty()) {
             buf.writeBytes(buffer);
-            do
-            {
-               try
-               {
-                  ResponseRunner responseRunner = (ResponseRunner)delayedResponses.poll(0, TimeUnit.MILLISECONDS);
-                  if (responseRunner == null)
-                  {
+            do {
+               try {
+                  ResponseRunner responseRunner = (ResponseRunner) delayedResponses.poll(0, TimeUnit.MILLISECONDS);
+                  if (responseRunner == null) {
                      break;
                   }
                   buf.writeBytes(responseRunner.buffer);
                   responseRunner.buffer.release();
                }
-               catch (InterruptedException e)
-               {
+               catch (InterruptedException e) {
                   break;
                }
-            }
-            while (responses.isEmpty());
+            } while (responses.isEmpty());
             return;
          }
          buf.writeBytes(buffer);
@@ -217,20 +187,15 @@ public class HttpAcceptorHandler extends ChannelDuplexHandler
 
    }
 
-
-   public void shutdown()
-   {
+   public void shutdown() {
       executor.shutdown();
-      try
-      {
+      try {
          executor.awaitTermination(10, TimeUnit.SECONDS);
       }
-      catch (InterruptedException e)
-      {
+      catch (InterruptedException e) {
          // no-op
       }
-      finally
-      {
+      finally {
          executor.shutdownNow();
       }
       responses.clear();
@@ -239,14 +204,13 @@ public class HttpAcceptorHandler extends ChannelDuplexHandler
    /**
     * a holder class so we know what time  the request first arrived
     */
-   private static final class ResponseHolder
-   {
+   private static final class ResponseHolder {
+
       final FullHttpResponse response;
 
       final long timeReceived;
 
-      public ResponseHolder(final long timeReceived, final FullHttpResponse response)
-      {
+      public ResponseHolder(final long timeReceived, final FullHttpResponse response) {
          this.timeReceived = timeReceived;
          this.response = response;
       }

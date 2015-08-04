@@ -40,8 +40,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(BMUnitRunner.class)
-public class StompInternalStateTest extends ActiveMQTestBase
-{
+public class StompInternalStateTest extends ActiveMQTestBase {
+
    private static final String STOMP_QUEUE_NAME = "jms.queue.StompTestQueue";
 
    private String resultTestStompProtocolManagerLeak = null;
@@ -49,26 +49,17 @@ public class StompInternalStateTest extends ActiveMQTestBase
    protected ActiveMQServer server = null;
 
    @Test
-   @BMRules
-      (
-         rules =
-            {
-               @BMRule
-                  (
-                     name = "StompProtocolManager Leak Server Rule",
-                     targetClass = "org.apache.activemq.artemis.core.protocol.stomp.StompProtocolManager",
-                     targetMethod = "onNotification(org.apache.activemq.artemis.core.server.management.Notification)",
-                     targetLocation = "EXIT",
-                     helper = "org.apache.activemq.artemis.tests.extras.byteman.StompInternalStateTest",
-                     action = "verifyBindingAddRemove($1, $0.destinations)"
-                  )
-            }
-      )
-   public void testStompProtocolManagerLeak() throws Exception
-   {
+   @BMRules(
+      rules = {@BMRule(
+         name = "StompProtocolManager Leak Server Rule",
+         targetClass = "org.apache.activemq.artemis.core.protocol.stomp.StompProtocolManager",
+         targetMethod = "onNotification(org.apache.activemq.artemis.core.server.management.Notification)",
+         targetLocation = "EXIT",
+         helper = "org.apache.activemq.artemis.tests.extras.byteman.StompInternalStateTest",
+         action = "verifyBindingAddRemove($1, $0.destinations)")})
+   public void testStompProtocolManagerLeak() throws Exception {
       ClientSession session = null;
-      try
-      {
+      try {
          assertNull(resultTestStompProtocolManagerLeak);
          ServerLocator locator = createNettyNonHALocator();
          ClientSessionFactory factory = createSessionFactory(locator);
@@ -78,46 +69,36 @@ public class StompInternalStateTest extends ActiveMQTestBase
 
          assertNull(resultTestStompProtocolManagerLeak);
       }
-      finally
-      {
-         if (session != null)
-         {
+      finally {
+         if (session != null) {
             session.close();
          }
       }
    }
 
    @Override
-   protected Configuration createDefaultConfig(final boolean netty) throws Exception
-   {
+   protected Configuration createDefaultConfig(final boolean netty) throws Exception {
       Map<String, Object> params = new HashMap<>();
       params.put(TransportConstants.PROTOCOLS_PROP_NAME, StompProtocolManagerFactory.STOMP_PROTOCOL_NAME);
       params.put(TransportConstants.PORT_PROP_NAME, TransportConstants.DEFAULT_STOMP_PORT);
       params.put(TransportConstants.STOMP_CONSUMERS_CREDIT, "-1");
       TransportConfiguration stompTransport = new TransportConfiguration(NettyAcceptorFactory.class.getName(), params);
 
-      Configuration config = super.createDefaultConfig(netty)
-              .setPersistenceEnabled(false)
-              .addAcceptorConfiguration(stompTransport);
+      Configuration config = super.createDefaultConfig(netty).setPersistenceEnabled(false).addAcceptorConfiguration(stompTransport);
 
       return config;
    }
 
    @SuppressWarnings("unchecked")
-   public void verifyBindingAddRemove(Notification noti, Object obj)
-   {
-      Set<String> destinations = (Set<String>)obj;
-      if (noti.getType() == CoreNotificationType.BINDING_ADDED)
-      {
-         if (!destinations.contains(STOMP_QUEUE_NAME))
-         {
+   public void verifyBindingAddRemove(Notification noti, Object obj) {
+      Set<String> destinations = (Set<String>) obj;
+      if (noti.getType() == CoreNotificationType.BINDING_ADDED) {
+         if (!destinations.contains(STOMP_QUEUE_NAME)) {
             resultTestStompProtocolManagerLeak += "didn't save the queue when binding added " + destinations;
          }
       }
-      else if (noti.getType() == CoreNotificationType.BINDING_REMOVED)
-      {
-         if (destinations.contains(STOMP_QUEUE_NAME))
-         {
+      else if (noti.getType() == CoreNotificationType.BINDING_REMOVED) {
+         if (destinations.contains(STOMP_QUEUE_NAME)) {
             resultTestStompProtocolManagerLeak = "didn't remove the queue when binding removed " + destinations;
          }
       }
@@ -125,8 +106,7 @@ public class StompInternalStateTest extends ActiveMQTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
       server = createServer(createDefaultNettyConfig());
       server.start();

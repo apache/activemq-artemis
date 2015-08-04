@@ -19,8 +19,8 @@ package org.apache.activemq.artemis.integration.vertx;
 import java.util.HashSet;
 import java.util.Set;
 
-public class VertxConstants
-{
+public class VertxConstants {
+
    // org.vertx.java.core.eventbus.impl.MessageFactory
    public static final int TYPE_PING = 0;
    public static final int TYPE_BUFFER = 1;
@@ -39,7 +39,6 @@ public class VertxConstants
    public static final int TYPE_REPLY_FAILURE = 100;
    public static final int TYPE_RAWBYTES = 200;
 
-
    public static final String PORT = "port";
    public static final String HOST = "host";
    public static final String QUEUE_NAME = "queue";
@@ -56,8 +55,7 @@ public class VertxConstants
    public static final String VERTX_MESSAGE_REPLYADDRESS = "VertxMessageReplyAddress";
    public static final String VERTX_MESSAGE_TYPE = "VertxMessageType";
 
-   static
-   {
+   static {
       ALLOWABLE_INCOMING_CONNECTOR_KEYS = new HashSet<String>();
       ALLOWABLE_INCOMING_CONNECTOR_KEYS.add(PORT);
       ALLOWABLE_INCOMING_CONNECTOR_KEYS.add(HOST);

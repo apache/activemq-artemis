@@ -18,27 +18,23 @@ package org.apache.activemq.artemis.rest.topic;
 
 import org.apache.activemq.artemis.rest.queue.DestinationSettings;
 
-public class TopicDeployment extends DestinationSettings
-{
+public class TopicDeployment extends DestinationSettings {
+
    private String name;
 
-   public TopicDeployment()
-   {
+   public TopicDeployment() {
    }
 
-   public TopicDeployment(String name, boolean duplicatesAllowed)
-   {
+   public TopicDeployment(String name, boolean duplicatesAllowed) {
       this.name = name;
       this.duplicatesAllowed = duplicatesAllowed;
    }
 
-   public String getName()
-   {
+   public String getName() {
       return name;
    }
 
-   public void setName(String name)
-   {
+   public void setName(String name) {
       this.name = name;
    }
 }

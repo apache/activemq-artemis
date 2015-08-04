@@ -49,35 +49,28 @@ import static org.jboss.resteasy.test.TestPortProvider.generateURL;
 /**
  * Test durable queue push consumers
  */
-public class PersistentPushTopicConsumerTest
-{
+public class PersistentPushTopicConsumerTest {
+
    public static ActiveMQServer server;
    public static MessageServiceManager manager;
    protected static ResteasyDeployment deployment;
 
    @BeforeClass
-   public static void setup() throws Exception
-   {
-      Configuration configuration = new ConfigurationImpl()
-         .setPersistenceEnabled(false)
-         .setSecurityEnabled(false)
-         .addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName()));
+   public static void setup() throws Exception {
+      Configuration configuration = new ConfigurationImpl().setPersistenceEnabled(false).setSecurityEnabled(false).addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName()));
 
       server = ActiveMQServers.newActiveMQServer(configuration);
       server.start();
    }
 
    @AfterClass
-   public static void cleanup() throws Exception
-   {
+   public static void cleanup() throws Exception {
       server.stop();
       server = null;
    }
 
-   public static void startup() throws Exception
-   {
+   public static void startup() throws Exception {
       deployment = EmbeddedContainer.start();
-
 
       manager = new MessageServiceManager();
       manager.start();
@@ -87,8 +80,7 @@ public class PersistentPushTopicConsumerTest
       deployment.getRegistry().addPerRequestResource(Receiver.class);
    }
 
-   public static void shutdown() throws Exception
-   {
+   public static void shutdown() throws Exception {
       manager.stop();
       manager = null;
       EmbeddedContainer.stop();
@@ -96,10 +88,8 @@ public class PersistentPushTopicConsumerTest
    }
 
    @Test
-   public void testFailure() throws Exception
-   {
-      try
-      {
+   public void testFailure() throws Exception {
+      try {
          String testName = "testFailure";
          startup();
          deployTopic(testName);
@@ -149,18 +139,14 @@ public class PersistentPushTopicConsumerTest
 
          manager.getQueueManager().getPushStore().removeAll();
       }
-      finally
-      {
+      finally {
          shutdown();
       }
    }
 
-
    @Test
-   public void testSuccessFirst() throws Exception
-   {
-      try
-      {
+   public void testSuccessFirst() throws Exception {
+      try {
          String testName = "testSuccessFirst";
          startup();
          deployTopic(testName);
@@ -211,15 +197,14 @@ public class PersistentPushTopicConsumerTest
 
          manager.getTopicManager().getPushStore().removeAll();
       }
-      finally
-      {
+      finally {
          shutdown();
       }
    }
 
    @Path("/subscribers")
-   public static class Receiver
-   {
+   public static class Receiver {
+
       public static String subscriber1;
       public static String subscriber2;
       public static CountDownLatch latch = new CountDownLatch(2);
@@ -227,8 +212,7 @@ public class PersistentPushTopicConsumerTest
       @Path("1")
       @POST
       @Consumes("text/plain")
-      public void postOne(String msg)
-      {
+      public void postOne(String msg) {
          System.out.println("in subscribers 1!!!!!!!!!! " + msg);
          subscriber1 = msg;
          latch.countDown();
@@ -237,22 +221,19 @@ public class PersistentPushTopicConsumerTest
       @Path("2")
       @POST
       @Consumes("text/plain")
-      public void postTwo(String msg)
-      {
+      public void postTwo(String msg) {
          System.out.println("in subscribers 2!!!!!!!!!! " + msg);
          subscriber2 = msg;
          latch.countDown();
       }
    }
 
-   private void deployTopic(String topicName) throws Exception
-   {
+   private void deployTopic(String topicName) throws Exception {
       TopicDeployment deployment = new TopicDeployment();
       deployment.setDuplicatesAllowed(true);
       deployment.setDurableSend(false);
       deployment.setName(topicName);
       manager.getTopicManager().deploy(deployment);
-
 
    }
 }

@@ -26,14 +26,12 @@ import org.apache.activemq.artemis.core.message.impl.MessageInternal;
 import static org.apache.activemq.artemis.reader.TextMessageUtil.readBodyText;
 import static org.apache.activemq.artemis.reader.TextMessageUtil.writeBodyText;
 
-
 /**
  * ActiveMQ Artemis implementation of a JMS TextMessage.
  * <br>
  * This class was ported from SpyTextMessage in JBossMQ.
  */
-public class ServerJMSTextMessage extends ServerJMSMessage implements TextMessage
-{
+public class ServerJMSTextMessage extends ServerJMSMessage implements TextMessage {
    // Constants -----------------------------------------------------
 
    public static final byte TYPE = Message.TEXT_TYPE;
@@ -51,56 +49,45 @@ public class ServerJMSTextMessage extends ServerJMSMessage implements TextMessag
    /*
     * This constructor is used to construct messages prior to sending
     */
-   public ServerJMSTextMessage(MessageInternal message, int deliveryCount)
-   {
+   public ServerJMSTextMessage(MessageInternal message, int deliveryCount) {
       super(message, deliveryCount);
 
    }
    // TextMessage implementation ------------------------------------
 
-   public void setText(final String text) throws JMSException
-   {
-      if (text != null)
-      {
+   public void setText(final String text) throws JMSException {
+      if (text != null) {
          this.text = new SimpleString(text);
       }
-      else
-      {
+      else {
          this.text = null;
       }
 
       writeBodyText(message, this.text);
    }
 
-   public String getText()
-   {
-      if (text != null)
-      {
+   public String getText() {
+      if (text != null) {
          return text.toString();
       }
-      else
-      {
+      else {
          return null;
       }
    }
 
    @Override
-   public void clearBody() throws JMSException
-   {
+   public void clearBody() throws JMSException {
       super.clearBody();
 
       text = null;
    }
 
-
-   public void encode() throws Exception
-   {
+   public void encode() throws Exception {
       super.encode();
       writeBodyText(message, text);
    }
 
-   public void decode() throws Exception
-   {
+   public void decode() throws Exception {
       super.decode();
       text = readBodyText(message);
    }

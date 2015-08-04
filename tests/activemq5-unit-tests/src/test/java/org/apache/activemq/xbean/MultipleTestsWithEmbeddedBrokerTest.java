@@ -26,32 +26,33 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class MultipleTestsWithEmbeddedBrokerTest extends EmbeddedBrokerTestSupport {
-    private static final Logger LOG = LoggerFactory.getLogger(MultipleTestsWithEmbeddedBrokerTest.class);
 
-    protected Connection connection;
+   private static final Logger LOG = LoggerFactory.getLogger(MultipleTestsWithEmbeddedBrokerTest.class);
 
-    public void test1() throws Exception {
-    }
+   protected Connection connection;
 
-    public void test2() throws Exception {
-    }
+   public void test1() throws Exception {
+   }
 
-    @Override
-    protected void setUp() throws Exception {
-        LOG.info("### starting up the test case: " + getName());
+   public void test2() throws Exception {
+   }
 
-        super.setUp();
-        connection = connectionFactory.createConnection();
-        connection.start();
-        LOG.info("### started up the test case: " + getName());
-    }
+   @Override
+   protected void setUp() throws Exception {
+      LOG.info("### starting up the test case: " + getName());
 
-    @Override
-    protected void tearDown() throws Exception {
-        connection.close();
+      super.setUp();
+      connection = connectionFactory.createConnection();
+      connection.start();
+      LOG.info("### started up the test case: " + getName());
+   }
 
-        super.tearDown();
+   @Override
+   protected void tearDown() throws Exception {
+      connection.close();
 
-        LOG.info("### closed down the test case: " + getName());
-    }
+      super.tearDown();
+
+      LOG.info("### closed down the test case: " + getName());
+   }
 }

@@ -20,29 +20,30 @@ import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.test.JmsTopicSendReceiveWithTwoConnectionsTest;
 
 /**
- * 
+ *
  */
 public class BrokerXmlConfigTest extends JmsTopicSendReceiveWithTwoConnectionsTest {
-    protected ActiveMQConnectionFactory createConnectionFactory() throws Exception {
-        // START SNIPPET: bean
 
-        // configure the connection factory using
-        // normal Java Bean property methods
-        ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory();
+   protected ActiveMQConnectionFactory createConnectionFactory() throws Exception {
+      // START SNIPPET: bean
 
-        // configure the embedded broker using an XML config file
-        // which is either a URL or a resource on the classpath
+      // configure the connection factory using
+      // normal Java Bean property methods
+      ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory();
 
-        // TODO ...
+      // configure the embedded broker using an XML config file
+      // which is either a URL or a resource on the classpath
 
-        //connectionFactory.setBrokerXmlConfig("file:src/sample-conf/default.xml");
+      // TODO ...
 
-        // you only need to configure the broker URL if you wish to change the
-        // default connection mechanism, which in this test case we do
-        connectionFactory.setBrokerURL("vm://localhost");
+      //connectionFactory.setBrokerXmlConfig("file:src/sample-conf/default.xml");
 
-        // END SNIPPET: bean
-        return connectionFactory;
-    }
+      // you only need to configure the broker URL if you wish to change the
+      // default connection mechanism, which in this test case we do
+      connectionFactory.setBrokerURL("vm://localhost");
+
+      // END SNIPPET: bean
+      return connectionFactory;
+   }
 
 }

@@ -23,175 +23,139 @@ import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageListener;
 
-public class ActiveMQJMSConsumer implements JMSConsumer
-{
+public class ActiveMQJMSConsumer implements JMSConsumer {
 
    private final ActiveMQJMSContext context;
    private final MessageConsumer consumer;
 
-   ActiveMQJMSConsumer(ActiveMQJMSContext context, MessageConsumer consumer)
-   {
+   ActiveMQJMSConsumer(ActiveMQJMSContext context, MessageConsumer consumer) {
       this.context = context;
       this.consumer = consumer;
    }
 
    @Override
-   public String getMessageSelector()
-   {
-      try
-      {
+   public String getMessageSelector() {
+      try {
          return consumer.getMessageSelector();
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          throw JmsExceptionUtils.convertToRuntimeException(e);
       }
    }
 
    @Override
-   public MessageListener getMessageListener() throws JMSRuntimeException
-   {
-      try
-      {
+   public MessageListener getMessageListener() throws JMSRuntimeException {
+      try {
          return consumer.getMessageListener();
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          throw JmsExceptionUtils.convertToRuntimeException(e);
       }
    }
 
    @Override
-   public void setMessageListener(MessageListener listener) throws JMSRuntimeException
-   {
-      try
-      {
+   public void setMessageListener(MessageListener listener) throws JMSRuntimeException {
+      try {
          consumer.setMessageListener(new MessageListenerWrapper(listener));
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          throw JmsExceptionUtils.convertToRuntimeException(e);
       }
    }
 
    @Override
-   public Message receive()
-   {
-      try
-      {
+   public Message receive() {
+      try {
          return context.setLastMessage(this, consumer.receive());
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          throw JmsExceptionUtils.convertToRuntimeException(e);
       }
    }
 
    @Override
-   public Message receive(long timeout)
-   {
-      try
-      {
+   public Message receive(long timeout) {
+      try {
          return context.setLastMessage(this, consumer.receive(timeout));
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          throw JmsExceptionUtils.convertToRuntimeException(e);
       }
    }
 
    @Override
-   public Message receiveNoWait()
-   {
-      try
-      {
+   public Message receiveNoWait() {
+      try {
          return context.setLastMessage(this, consumer.receiveNoWait());
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          throw JmsExceptionUtils.convertToRuntimeException(e);
       }
    }
 
    @Override
-   public void close()
-   {
-      try
-      {
+   public void close() {
+      try {
          consumer.close();
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          throw JmsExceptionUtils.convertToRuntimeException(e);
       }
    }
 
    @Override
-   public <T> T receiveBody(Class<T> c)
-   {
-      try
-      {
+   public <T> T receiveBody(Class<T> c) {
+      try {
          Message message = consumer.receive();
          context.setLastMessage(ActiveMQJMSConsumer.this, message);
          return message == null ? null : message.getBody(c);
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          throw JmsExceptionUtils.convertToRuntimeException(e);
       }
    }
 
    @Override
-   public <T> T receiveBody(Class<T> c, long timeout)
-   {
-      try
-      {
+   public <T> T receiveBody(Class<T> c, long timeout) {
+      try {
          Message message = consumer.receive(timeout);
          context.setLastMessage(ActiveMQJMSConsumer.this, message);
          return message == null ? null : message.getBody(c);
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          throw JmsExceptionUtils.convertToRuntimeException(e);
       }
    }
 
    @Override
-   public <T> T receiveBodyNoWait(Class<T> c)
-   {
-      try
-      {
+   public <T> T receiveBodyNoWait(Class<T> c) {
+      try {
          Message message = consumer.receiveNoWait();
          context.setLastMessage(ActiveMQJMSConsumer.this, message);
          return message == null ? null : message.getBody(c);
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          throw JmsExceptionUtils.convertToRuntimeException(e);
       }
    }
 
-   final class MessageListenerWrapper implements MessageListener
-   {
+   final class MessageListenerWrapper implements MessageListener {
+
       private final MessageListener wrapped;
 
-      public MessageListenerWrapper(MessageListener wrapped)
-      {
+      public MessageListenerWrapper(MessageListener wrapped) {
          this.wrapped = wrapped;
       }
 
       @Override
-      public void onMessage(Message message)
-      {
+      public void onMessage(Message message) {
          context.setLastMessage(ActiveMQJMSConsumer.this, message);
 
          context.getThreadAwareContext().setCurrentThread(false);
-         try
-         {
+         try {
             wrapped.onMessage(message);
          }
-         finally
-         {
+         finally {
             context.getThreadAwareContext().clearCurrentThread(false);
          }
       }

@@ -36,123 +36,121 @@ import javax.jms.Topic;
  */
 public class JmsConnectionStartStopTest extends TestSupport {
 
-    private static final org.apache.commons.logging.Log LOG = org.apache.commons.logging.LogFactory
-        .getLog(JmsConnectionStartStopTest.class);
+   private static final org.apache.commons.logging.Log LOG = org.apache.commons.logging.LogFactory.getLog(JmsConnectionStartStopTest.class);
 
-    private Connection startedConnection;
-    private Connection stoppedConnection;
+   private Connection startedConnection;
+   private Connection stoppedConnection;
 
-    /**
-     * @see junit.framework.TestCase#setUp()
-     */
-    @Override
-    protected void setUp() throws Exception {
+   /**
+    * @see junit.framework.TestCase#setUp()
+    */
+   @Override
+   protected void setUp() throws Exception {
 
-        LOG.info(getClass().getClassLoader().getResource("log4j.properties"));
+      LOG.info(getClass().getClassLoader().getResource("log4j.properties"));
 
-        ActiveMQConnectionFactory factory = createConnectionFactory();
-        startedConnection = factory.createConnection();
-        startedConnection.start();
-        stoppedConnection = factory.createConnection();
-    }
+      ActiveMQConnectionFactory factory = createConnectionFactory();
+      startedConnection = factory.createConnection();
+      startedConnection.start();
+      stoppedConnection = factory.createConnection();
+   }
 
-    /**
-     * @see junit.framework.TestCase#tearDown()
-     */
-    @Override
-    protected void tearDown() throws Exception {
-        stoppedConnection.close();
-        startedConnection.close();
-    }
+   /**
+    * @see junit.framework.TestCase#tearDown()
+    */
+   @Override
+   protected void tearDown() throws Exception {
+      stoppedConnection.close();
+      startedConnection.close();
+   }
 
-    /**
-     * Tests if the consumer receives the messages that were sent before the
-     * connection was started.
-     *
-     * @throws JMSException
-     */
-    public void testStoppedConsumerHoldsMessagesTillStarted() throws JMSException {
-        Session startedSession = startedConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        Session stoppedSession = stoppedConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+   /**
+    * Tests if the consumer receives the messages that were sent before the
+    * connection was started.
+    *
+    * @throws JMSException
+    */
+   public void testStoppedConsumerHoldsMessagesTillStarted() throws JMSException {
+      Session startedSession = startedConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      Session stoppedSession = stoppedConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-        // Setup the consumers.
-        Topic topic = startedSession.createTopic("test");
-        MessageConsumer startedConsumer = startedSession.createConsumer(topic);
-        MessageConsumer stoppedConsumer = stoppedSession.createConsumer(topic);
+      // Setup the consumers.
+      Topic topic = startedSession.createTopic("test");
+      MessageConsumer startedConsumer = startedSession.createConsumer(topic);
+      MessageConsumer stoppedConsumer = stoppedSession.createConsumer(topic);
 
-        // Send the message.
-        MessageProducer producer = startedSession.createProducer(topic);
-        TextMessage message = startedSession.createTextMessage("Hello");
-        producer.send(message);
+      // Send the message.
+      MessageProducer producer = startedSession.createProducer(topic);
+      TextMessage message = startedSession.createTextMessage("Hello");
+      producer.send(message);
 
-        // Test the assertions.
-        Message m = startedConsumer.receive(1000);
-        assertNotNull(m);
+      // Test the assertions.
+      Message m = startedConsumer.receive(1000);
+      assertNotNull(m);
 
-        m = stoppedConsumer.receive(1000);
-        assertNull(m);
+      m = stoppedConsumer.receive(1000);
+      assertNull(m);
 
-        stoppedConnection.start();
-        m = stoppedConsumer.receive(5000);
-        assertNotNull(m);
+      stoppedConnection.start();
+      m = stoppedConsumer.receive(5000);
+      assertNotNull(m);
 
-        startedSession.close();
-        stoppedSession.close();
-    }
+      startedSession.close();
+      stoppedSession.close();
+   }
 
-    /**
-     * Tests if the consumer is able to receive messages eveb when the
-     * connecction restarts multiple times.
-     *
-     * @throws Exception
-     */
-    public void testMultipleConnectionStops() throws Exception {
-        testStoppedConsumerHoldsMessagesTillStarted();
-        stoppedConnection.stop();
-        testStoppedConsumerHoldsMessagesTillStarted();
-        stoppedConnection.stop();
-        testStoppedConsumerHoldsMessagesTillStarted();
-    }
+   /**
+    * Tests if the consumer is able to receive messages eveb when the
+    * connecction restarts multiple times.
+    *
+    * @throws Exception
+    */
+   public void testMultipleConnectionStops() throws Exception {
+      testStoppedConsumerHoldsMessagesTillStarted();
+      stoppedConnection.stop();
+      testStoppedConsumerHoldsMessagesTillStarted();
+      stoppedConnection.stop();
+      testStoppedConsumerHoldsMessagesTillStarted();
+   }
 
-
-    public void testConcurrentSessionCreateWithStart() throws Exception {
-        ThreadPoolExecutor executor = new ThreadPoolExecutor(50, Integer.MAX_VALUE,
-                                      60L, TimeUnit.SECONDS,
-                                      new SynchronousQueue<Runnable>());
-        final Vector<Throwable> exceptions = new Vector<Throwable>();
-        final Random rand = new Random();
-        Runnable createSessionTask = new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    TimeUnit.MILLISECONDS.sleep(rand.nextInt(10));
-                    stoppedConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-                } catch (Exception e) {
-                    exceptions.add(e);
-                }
+   public void testConcurrentSessionCreateWithStart() throws Exception {
+      ThreadPoolExecutor executor = new ThreadPoolExecutor(50, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS, new SynchronousQueue<Runnable>());
+      final Vector<Throwable> exceptions = new Vector<Throwable>();
+      final Random rand = new Random();
+      Runnable createSessionTask = new Runnable() {
+         @Override
+         public void run() {
+            try {
+               TimeUnit.MILLISECONDS.sleep(rand.nextInt(10));
+               stoppedConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
             }
-        };
-
-        Runnable startStopTask = new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    TimeUnit.MILLISECONDS.sleep(rand.nextInt(10));
-                    stoppedConnection.start();
-                    stoppedConnection.stop();
-                } catch (Exception e) {
-                    exceptions.add(e);
-                }
+            catch (Exception e) {
+               exceptions.add(e);
             }
-        };
+         }
+      };
 
-        for (int i=0; i<1000; i++) {
-            executor.execute(createSessionTask);
-            executor.execute(startStopTask);
-        }
+      Runnable startStopTask = new Runnable() {
+         @Override
+         public void run() {
+            try {
+               TimeUnit.MILLISECONDS.sleep(rand.nextInt(10));
+               stoppedConnection.start();
+               stoppedConnection.stop();
+            }
+            catch (Exception e) {
+               exceptions.add(e);
+            }
+         }
+      };
 
-        executor.shutdown();
-        assertTrue("executor terminated", executor.awaitTermination(30, TimeUnit.SECONDS));
-        assertTrue("no exceptions: " + exceptions, exceptions.isEmpty());
-    }
+      for (int i = 0; i < 1000; i++) {
+         executor.execute(createSessionTask);
+         executor.execute(startStopTask);
+      }
+
+      executor.shutdown();
+      assertTrue("executor terminated", executor.awaitTermination(30, TimeUnit.SECONDS));
+      assertTrue("no exceptions: " + exceptions, exceptions.isEmpty());
+   }
 }

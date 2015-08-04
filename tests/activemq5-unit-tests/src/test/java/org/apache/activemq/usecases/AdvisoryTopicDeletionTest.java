@@ -32,94 +32,96 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class AdvisoryTopicDeletionTest extends TestSupport {
-    private static final Logger LOG = LoggerFactory.getLogger(AdvisoryTopicDeletionTest.class);
 
-    private BrokerService broker;
-    private Connection connection;
+   private static final Logger LOG = LoggerFactory.getLogger(AdvisoryTopicDeletionTest.class);
 
-    @Override
-    protected ActiveMQConnectionFactory createConnectionFactory() throws Exception {
-        return new ActiveMQConnectionFactory("vm://" + getName());
-    }
+   private BrokerService broker;
+   private Connection connection;
 
-    @Override
-    protected void setUp() throws Exception {
-        createBroker();
-        topic = false;
-        super.setUp();
-    }
+   @Override
+   protected ActiveMQConnectionFactory createConnectionFactory() throws Exception {
+      return new ActiveMQConnectionFactory("vm://" + getName());
+   }
 
-    @Override
-    protected void tearDown() throws Exception {
-        super.tearDown();
-        destroyBroker();
-    }
+   @Override
+   protected void setUp() throws Exception {
+      createBroker();
+      topic = false;
+      super.setUp();
+   }
 
-    private void createBroker() throws Exception {
-        broker = BrokerFactory.createBroker("broker:(vm://localhost)");
-        broker.setPersistent(false);
-        broker.setBrokerName(getName());
-        broker.start();
+   @Override
+   protected void tearDown() throws Exception {
+      super.tearDown();
+      destroyBroker();
+   }
 
-        connection = createConnection();
-    }
+   private void createBroker() throws Exception {
+      broker = BrokerFactory.createBroker("broker:(vm://localhost)");
+      broker.setPersistent(false);
+      broker.setBrokerName(getName());
+      broker.start();
 
-    @Override
-    protected Connection createConnection() throws Exception {
-        Connection con = super.createConnection();
-        con.start();
-        return con;
-    }
+      connection = createConnection();
+   }
 
-    private void destroyBroker() throws Exception {
-        if (connection != null)
-            connection.close();
-        if (broker != null)
-            broker.stop();
-    }
+   @Override
+   protected Connection createConnection() throws Exception {
+      Connection con = super.createConnection();
+      con.start();
+      return con;
+   }
 
-    public void doTest() throws Exception {
-        Destination dest = createDestination();
+   private void destroyBroker() throws Exception {
+      if (connection != null)
+         connection.close();
+      if (broker != null)
+         broker.stop();
+   }
 
-        Session producerSession = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        Session consumerSession = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+   public void doTest() throws Exception {
+      Destination dest = createDestination();
 
-        MessageConsumer consumer = consumerSession.createConsumer(dest);
+      Session producerSession = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      Session consumerSession = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-        MessageProducer prod = producerSession.createProducer(dest);
-        Message message = producerSession.createMessage();
-        prod.send(message);
+      MessageConsumer consumer = consumerSession.createConsumer(dest);
 
-        consumer.receive(60 * 1000);
-        connection.close();
-        connection = null;
+      MessageProducer prod = producerSession.createProducer(dest);
+      Message message = producerSession.createMessage();
+      prod.send(message);
 
-        if ( topic ) {
-            broker.getAdminView().removeTopic(((ActiveMQDestination)dest).getPhysicalName());
-        } else {
-            broker.getAdminView().removeQueue(((ActiveMQDestination)dest).getPhysicalName());
-        }
+      consumer.receive(60 * 1000);
+      connection.close();
+      connection = null;
 
-        ActiveMQDestination dests[] = broker.getRegionBroker().getDestinations();
-        int matchingDestinations = 0;
-        for (ActiveMQDestination destination: dests) {
-            String name = destination.getPhysicalName();
-            LOG.debug("Found destination " + name);
-            if (name.startsWith("ActiveMQ.Advisory") && name.contains(getDestinationString())) {
-                matchingDestinations++;
-            }
-        }
+      if (topic) {
+         broker.getAdminView().removeTopic(((ActiveMQDestination) dest).getPhysicalName());
+      }
+      else {
+         broker.getAdminView().removeQueue(((ActiveMQDestination) dest).getPhysicalName());
+      }
 
-        assertEquals("No matching destinations should be found", 0, matchingDestinations);
-    }
+      ActiveMQDestination dests[] = broker.getRegionBroker().getDestinations();
+      int matchingDestinations = 0;
+      for (ActiveMQDestination destination : dests) {
+         String name = destination.getPhysicalName();
+         LOG.debug("Found destination " + name);
+         if (name.startsWith("ActiveMQ.Advisory") && name.contains(getDestinationString())) {
+            matchingDestinations++;
+         }
+      }
 
-    public void testTopic() throws Exception {
-        topic=true;
-        doTest();
-    }
+      assertEquals("No matching destinations should be found", 0, matchingDestinations);
+   }
 
-    public void testQueue() throws Exception {
-        topic=false;
-        doTest();
-    }
+   public void testTopic() throws Exception {
+      topic = true;
+      doTest();
+   }
+
+   public void testQueue() throws Exception {
+      topic = false;
+      doTest();
+   }
 }

@@ -34,26 +34,24 @@ import org.junit.Test;
 
 import static org.jboss.resteasy.test.TestPortProvider.generateURL;
 
-public class PushTopicConsumerTest extends MessageTestBase
-{
+public class PushTopicConsumerTest extends MessageTestBase {
+
    @BeforeClass
-   public static void setup() throws Exception
-   {
-//      TopicDeployment deployment = new TopicDeployment();
-//      deployment.setDuplicatesAllowed(true);
-//      deployment.setDurableSend(false);
-//      deployment.setName("testTopic");
-//      manager.getTopicManager().deploy(deployment);
-//      QueueDeployment deployment2 = new QueueDeployment();
-//      deployment2.setDuplicatesAllowed(true);
-//      deployment2.setDurableSend(false);
-//      deployment2.setName("forwardQueue");
-//      manager.getQueueManager().deploy(deployment2);
+   public static void setup() throws Exception {
+      //      TopicDeployment deployment = new TopicDeployment();
+      //      deployment.setDuplicatesAllowed(true);
+      //      deployment.setDurableSend(false);
+      //      deployment.setName("testTopic");
+      //      manager.getTopicManager().deploy(deployment);
+      //      QueueDeployment deployment2 = new QueueDeployment();
+      //      deployment2.setDuplicatesAllowed(true);
+      //      deployment2.setDurableSend(false);
+      //      deployment2.setName("forwardQueue");
+      //      manager.getQueueManager().deploy(deployment2);
    }
 
    @Test
-   public void testBridge() throws Exception
-   {
+   public void testBridge() throws Exception {
       TopicDeployment deployment = new TopicDeployment();
       deployment.setDuplicatesAllowed(true);
       deployment.setDurableSend(false);
@@ -112,8 +110,7 @@ public class PushTopicConsumerTest extends MessageTestBase
    }
 
    @Test
-   public void testClass() throws Exception
-   {
+   public void testClass() throws Exception {
       TopicDeployment deployment = new TopicDeployment();
       deployment.setDuplicatesAllowed(true);
       deployment.setDurableSend(false);
@@ -172,8 +169,7 @@ public class PushTopicConsumerTest extends MessageTestBase
    }
 
    @Test
-   public void testTemplate() throws Exception
-   {
+   public void testTemplate() throws Exception {
       TopicDeployment deployment = new TopicDeployment();
       deployment.setDuplicatesAllowed(true);
       deployment.setDurableSend(false);
@@ -233,40 +229,35 @@ public class PushTopicConsumerTest extends MessageTestBase
    }
 
    @Path("/my")
-   public static class MyResource
-   {
+   public static class MyResource {
+
       public static String gotit;
 
       @PUT
-      public void put(String str)
-      {
+      public void put(String str) {
          gotit = str;
       }
 
    }
 
    @Path("/myConcurrent")
-   public static class MyConcurrentResource
-   {
+   public static class MyConcurrentResource {
+
       public static AtomicInteger concurrentInvocations = new AtomicInteger();
       public static AtomicInteger maxConcurrentInvocations = new AtomicInteger();
 
       @PUT
-      public void put(String str)
-      {
+      public void put(String str) {
          concurrentInvocations.getAndIncrement();
 
-         if (concurrentInvocations.get() > maxConcurrentInvocations.get())
-         {
+         if (concurrentInvocations.get() > maxConcurrentInvocations.get()) {
             maxConcurrentInvocations.set(concurrentInvocations.get());
          }
-         try
-         {
+         try {
             // sleep here so the concurrent invocations can stack up
             Thread.sleep(1000);
          }
-         catch (InterruptedException e)
-         {
+         catch (InterruptedException e) {
             e.printStackTrace();
          }
 
@@ -275,8 +266,7 @@ public class PushTopicConsumerTest extends MessageTestBase
    }
 
    @Test
-   public void testUri() throws Exception
-   {
+   public void testUri() throws Exception {
       TopicDeployment deployment = new TopicDeployment();
       deployment.setDuplicatesAllowed(true);
       deployment.setDurableSend(false);
@@ -318,8 +308,7 @@ public class PushTopicConsumerTest extends MessageTestBase
    }
 
    @Test
-   public void testUriWithMultipleSessions() throws Exception
-   {
+   public void testUriWithMultipleSessions() throws Exception {
       final int CONCURRENT = 10;
 
       TopicDeployment deployment = new TopicDeployment();
@@ -351,16 +340,14 @@ public class PushTopicConsumerTest extends MessageTestBase
       Link pushSubscription = response.getLocationLink();
       response.releaseConnection();
 
-      for (int i = 0; i < CONCURRENT; i++)
-      {
+      for (int i = 0; i < CONCURRENT; i++) {
          response = sender.request().body("text/plain", Integer.toString(1)).post();
          response.releaseConnection();
          Assert.assertEquals(201, response.getStatus());
       }
 
       // wait until all the invocations have completed
-      while (MyConcurrentResource.concurrentInvocations.get() > 0)
-      {
+      while (MyConcurrentResource.concurrentInvocations.get() > 0) {
          Thread.sleep(100);
       }
 

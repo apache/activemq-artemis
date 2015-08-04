@@ -22,46 +22,46 @@ import javax.jms.Session;
 import junit.framework.TestCase;
 
 /**
- * 
+ *
  */
 public class ConnectionCloseMultipleTimesTest extends TestCase {
 
-    private ActiveMQConnection connection;
+   private ActiveMQConnection connection;
 
-    protected void setUp() throws Exception {
-        ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("vm://localhost");
-        connection = (ActiveMQConnection)factory.createConnection();
-        connection.start();
-    }
+   protected void setUp() throws Exception {
+      ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("vm://localhost");
+      connection = (ActiveMQConnection) factory.createConnection();
+      connection.start();
+   }
 
-    /**
-     * @see junit.framework.TestCase#tearDown()
-     */
-    protected void tearDown() throws Exception {
-        if (connection.isStarted()) {
-            connection.stop();
-        }
-    }
+   /**
+    * @see junit.framework.TestCase#tearDown()
+    */
+   protected void tearDown() throws Exception {
+      if (connection.isStarted()) {
+         connection.stop();
+      }
+   }
 
-    /**
-     * @throws javax.jms.JMSException
-     */
-    public void testCloseMultipleTimes() throws JMSException {
-        connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+   /**
+    * @throws javax.jms.JMSException
+    */
+   public void testCloseMultipleTimes() throws JMSException {
+      connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-        assertTrue(connection.isStarted());
-        assertFalse(connection.isClosed());
+      assertTrue(connection.isStarted());
+      assertFalse(connection.isClosed());
 
-        connection.close();
+      connection.close();
 
-        assertFalse(connection.isStarted());
-        assertTrue(connection.isClosed());
+      assertFalse(connection.isStarted());
+      assertTrue(connection.isClosed());
 
-        // should not fail calling again
-        connection.close();
+      // should not fail calling again
+      connection.close();
 
-        assertFalse(connection.isStarted());
-        assertTrue(connection.isClosed());
-    }
+      assertFalse(connection.isStarted());
+      assertTrue(connection.isClosed());
+   }
 
 }

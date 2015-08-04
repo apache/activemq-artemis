@@ -16,10 +16,13 @@
  */
 package org.apache.activemq.artemis.core.journal;
 
-public class RecordInfo
-{
-   public RecordInfo(final long id, final byte userRecordType, final byte[] data, final boolean isUpdate, final short compactCount)
-   {
+public class RecordInfo {
+
+   public RecordInfo(final long id,
+                     final byte userRecordType,
+                     final byte[] data,
+                     final boolean isUpdate,
+                     final short compactCount) {
       this.id = id;
 
       this.userRecordType = userRecordType;
@@ -46,22 +49,18 @@ public class RecordInfo
 
    public boolean isUpdate;
 
-   public byte getUserRecordType()
-   {
+   public byte getUserRecordType() {
       return userRecordType;
    }
 
    @Override
-   public int hashCode()
-   {
+   public int hashCode() {
       return (int) (id >>> 32 ^ id);
    }
 
    @Override
-   public boolean equals(final Object other)
-   {
-      if (!(other instanceof RecordInfo))
-      {
+   public boolean equals(final Object other) {
+      if (!(other instanceof RecordInfo)) {
          return false;
       }
       RecordInfo r = (RecordInfo) other;
@@ -70,8 +69,7 @@ public class RecordInfo
    }
 
    @Override
-   public String toString()
-   {
+   public String toString() {
       return "RecordInfo (id=" + id +
          ", userRecordType = " +
          userRecordType +

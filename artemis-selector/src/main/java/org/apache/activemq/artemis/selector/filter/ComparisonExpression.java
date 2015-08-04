@@ -21,14 +21,12 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-
 /**
  * A filter performing a comparison of two objects
  *
  * @version $Revision: 1.2 $
  */
-public abstract class ComparisonExpression extends BinaryExpression implements BooleanExpression
-{
+public abstract class ComparisonExpression extends BinaryExpression implements BooleanExpression {
 
    public static final ThreadLocal<Boolean> CONVERT_STRING_EXPRESSIONS = new ThreadLocal<Boolean>();
 
@@ -39,24 +37,20 @@ public abstract class ComparisonExpression extends BinaryExpression implements B
     * @param left
     * @param right
     */
-   public ComparisonExpression(Expression left, Expression right)
-   {
+   public ComparisonExpression(Expression left, Expression right) {
       super(left, right);
       convertStringExpressions = CONVERT_STRING_EXPRESSIONS.get() != null;
    }
 
-   public static BooleanExpression createBetween(Expression value, Expression left, Expression right)
-   {
+   public static BooleanExpression createBetween(Expression value, Expression left, Expression right) {
       return LogicExpression.createAND(createGreaterThanEqual(value, left), createLessThanEqual(value, right));
    }
 
-   public static BooleanExpression createNotBetween(Expression value, Expression left, Expression right)
-   {
+   public static BooleanExpression createNotBetween(Expression value, Expression left, Expression right) {
       return LogicExpression.createOR(createLessThan(value, left), createGreaterThan(value, right));
    }
 
-   static
-   {
+   static {
       REGEXP_CONTROL_CHARS.add(Character.valueOf('.'));
       REGEXP_CONTROL_CHARS.add(Character.valueOf('\\'));
       REGEXP_CONTROL_CHARS.add(Character.valueOf('['));
@@ -79,27 +73,22 @@ public abstract class ComparisonExpression extends BinaryExpression implements B
       REGEXP_CONTROL_CHARS.add(Character.valueOf('!'));
    }
 
-   static class LikeExpression extends UnaryExpression implements BooleanExpression
-   {
+   static class LikeExpression extends UnaryExpression implements BooleanExpression {
 
       Pattern likePattern;
 
       /**
        */
-      public LikeExpression(Expression right, String like, int escape)
-      {
+      public LikeExpression(Expression right, String like, int escape) {
          super(right);
 
          StringBuffer regexp = new StringBuffer(like.length() * 2);
          regexp.append("\\A"); // The beginning of the input
-         for (int i = 0; i < like.length(); i++)
-         {
+         for (int i = 0; i < like.length(); i++) {
             char c = like.charAt(i);
-            if (escape == (0xFFFF & c))
-            {
+            if (escape == (0xFFFF & c)) {
                i++;
-               if (i >= like.length())
-               {
+               if (i >= like.length()) {
                   // nothing left to escape...
                   break;
                }
@@ -108,21 +97,17 @@ public abstract class ComparisonExpression extends BinaryExpression implements B
                regexp.append("\\x");
                regexp.append(Integer.toHexString(0xFFFF & t));
             }
-            else if (c == '%')
-            {
+            else if (c == '%') {
                regexp.append(".*?"); // Do a non-greedy match
             }
-            else if (c == '_')
-            {
+            else if (c == '_') {
                regexp.append("."); // match one
             }
-            else if (REGEXP_CONTROL_CHARS.contains(new Character(c)))
-            {
+            else if (REGEXP_CONTROL_CHARS.contains(new Character(c))) {
                regexp.append("\\x");
                regexp.append(Integer.toHexString(0xFFFF & c));
             }
-            else
-            {
+            else {
                regexp.append(c);
             }
          }
@@ -134,26 +119,22 @@ public abstract class ComparisonExpression extends BinaryExpression implements B
       /**
        * @see org.apache.activemq.filter.UnaryExpression#getExpressionSymbol()
        */
-      public String getExpressionSymbol()
-      {
+      public String getExpressionSymbol() {
          return "LIKE";
       }
 
       /**
        * @see org.apache.activemq.filter.Expression#evaluate(Filterable)
        */
-      public Object evaluate(Filterable message) throws FilterException
-      {
+      public Object evaluate(Filterable message) throws FilterException {
 
          Object rv = this.getRight().evaluate(message);
 
-         if (rv == null)
-         {
+         if (rv == null) {
             return null;
          }
 
-         if (!(rv instanceof String))
-         {
+         if (!(rv instanceof String)) {
             return Boolean.FALSE;
             // throw new RuntimeException("LIKE can only operate on String
             // identifiers. LIKE attempted on: '" + rv.getClass());
@@ -162,186 +143,149 @@ public abstract class ComparisonExpression extends BinaryExpression implements B
          return likePattern.matcher((String) rv).matches() ? Boolean.TRUE : Boolean.FALSE;
       }
 
-      public boolean matches(Filterable message) throws FilterException
-      {
+      public boolean matches(Filterable message) throws FilterException {
          Object object = evaluate(message);
          return object != null && object == Boolean.TRUE;
       }
    }
 
-   public static BooleanExpression createLike(Expression left, String right, String escape)
-   {
-      if (escape != null && escape.length() != 1)
-      {
+   public static BooleanExpression createLike(Expression left, String right, String escape) {
+      if (escape != null && escape.length() != 1) {
          throw new RuntimeException("The ESCAPE string litteral is invalid.  It can only be one character.  Litteral used: " + escape);
       }
       int c = -1;
-      if (escape != null)
-      {
+      if (escape != null) {
          c = 0xFFFF & escape.charAt(0);
       }
 
       return new LikeExpression(left, right, c);
    }
 
-   public static BooleanExpression createNotLike(Expression left, String right, String escape)
-   {
+   public static BooleanExpression createNotLike(Expression left, String right, String escape) {
       return UnaryExpression.createNOT(createLike(left, right, escape));
    }
 
-   public static BooleanExpression createInFilter(Expression left, List elements)
-   {
+   public static BooleanExpression createInFilter(Expression left, List elements) {
 
-      if (!(left instanceof PropertyExpression))
-      {
+      if (!(left instanceof PropertyExpression)) {
          throw new RuntimeException("Expected a property for In expression, got: " + left);
       }
       return UnaryExpression.createInExpression((PropertyExpression) left, elements, false);
 
    }
 
-   public static BooleanExpression createNotInFilter(Expression left, List elements)
-   {
+   public static BooleanExpression createNotInFilter(Expression left, List elements) {
 
-      if (!(left instanceof PropertyExpression))
-      {
+      if (!(left instanceof PropertyExpression)) {
          throw new RuntimeException("Expected a property for In expression, got: " + left);
       }
       return UnaryExpression.createInExpression((PropertyExpression) left, elements, true);
 
    }
 
-   public static BooleanExpression createIsNull(Expression left)
-   {
+   public static BooleanExpression createIsNull(Expression left) {
       return doCreateEqual(left, ConstantExpression.NULL);
    }
 
-   public static BooleanExpression createIsNotNull(Expression left)
-   {
+   public static BooleanExpression createIsNotNull(Expression left) {
       return UnaryExpression.createNOT(doCreateEqual(left, ConstantExpression.NULL));
    }
 
-   public static BooleanExpression createNotEqual(Expression left, Expression right)
-   {
+   public static BooleanExpression createNotEqual(Expression left, Expression right) {
       return UnaryExpression.createNOT(createEqual(left, right));
    }
 
-   public static BooleanExpression createEqual(Expression left, Expression right)
-   {
+   public static BooleanExpression createEqual(Expression left, Expression right) {
       checkEqualOperand(left);
       checkEqualOperand(right);
       checkEqualOperandCompatibility(left, right);
       return doCreateEqual(left, right);
    }
 
-   private static BooleanExpression doCreateEqual(Expression left, Expression right)
-   {
-      return new ComparisonExpression(left, right)
-      {
+   private static BooleanExpression doCreateEqual(Expression left, Expression right) {
+      return new ComparisonExpression(left, right) {
 
-         public Object evaluate(Filterable message) throws FilterException
-         {
+         public Object evaluate(Filterable message) throws FilterException {
             Object lv = left.evaluate(message);
             Object rv = right.evaluate(message);
 
             // Iff one of the values is null
-            if (lv == null ^ rv == null)
-            {
+            if (lv == null ^ rv == null) {
                return Boolean.FALSE;
             }
-            if (lv == rv || lv.equals(rv))
-            {
+            if (lv == rv || lv.equals(rv)) {
                return Boolean.TRUE;
             }
-            if (lv instanceof Comparable && rv instanceof Comparable)
-            {
+            if (lv instanceof Comparable && rv instanceof Comparable) {
                return compare((Comparable) lv, (Comparable) rv);
             }
             return Boolean.FALSE;
          }
 
-         protected boolean asBoolean(int answer)
-         {
+         protected boolean asBoolean(int answer) {
             return answer == 0;
          }
 
-         public String getExpressionSymbol()
-         {
+         public String getExpressionSymbol() {
             return "=";
          }
       };
    }
 
-   public static BooleanExpression createGreaterThan(final Expression left, final Expression right)
-   {
+   public static BooleanExpression createGreaterThan(final Expression left, final Expression right) {
       checkLessThanOperand(left);
       checkLessThanOperand(right);
-      return new ComparisonExpression(left, right)
-      {
-         protected boolean asBoolean(int answer)
-         {
+      return new ComparisonExpression(left, right) {
+         protected boolean asBoolean(int answer) {
             return answer > 0;
          }
 
-         public String getExpressionSymbol()
-         {
+         public String getExpressionSymbol() {
             return ">";
          }
       };
    }
 
-   public static BooleanExpression createGreaterThanEqual(final Expression left, final Expression right)
-   {
+   public static BooleanExpression createGreaterThanEqual(final Expression left, final Expression right) {
       checkLessThanOperand(left);
       checkLessThanOperand(right);
-      return new ComparisonExpression(left, right)
-      {
-         protected boolean asBoolean(int answer)
-         {
+      return new ComparisonExpression(left, right) {
+         protected boolean asBoolean(int answer) {
             return answer >= 0;
          }
 
-         public String getExpressionSymbol()
-         {
+         public String getExpressionSymbol() {
             return ">=";
          }
       };
    }
 
-   public static BooleanExpression createLessThan(final Expression left, final Expression right)
-   {
+   public static BooleanExpression createLessThan(final Expression left, final Expression right) {
       checkLessThanOperand(left);
       checkLessThanOperand(right);
-      return new ComparisonExpression(left, right)
-      {
+      return new ComparisonExpression(left, right) {
 
-         protected boolean asBoolean(int answer)
-         {
+         protected boolean asBoolean(int answer) {
             return answer < 0;
          }
 
-         public String getExpressionSymbol()
-         {
+         public String getExpressionSymbol() {
             return "<";
          }
 
       };
    }
 
-   public static BooleanExpression createLessThanEqual(final Expression left, final Expression right)
-   {
+   public static BooleanExpression createLessThanEqual(final Expression left, final Expression right) {
       checkLessThanOperand(left);
       checkLessThanOperand(right);
-      return new ComparisonExpression(left, right)
-      {
+      return new ComparisonExpression(left, right) {
 
-         protected boolean asBoolean(int answer)
-         {
+         protected boolean asBoolean(int answer) {
             return answer <= 0;
          }
 
-         public String getExpressionSymbol()
-         {
+         public String getExpressionSymbol() {
             return "<=";
          }
       };
@@ -352,21 +296,17 @@ public abstract class ComparisonExpression extends BinaryExpression implements B
     *
     * @param expr
     */
-   public static void checkLessThanOperand(Expression expr)
-   {
-      if (expr instanceof ConstantExpression)
-      {
+   public static void checkLessThanOperand(Expression expr) {
+      if (expr instanceof ConstantExpression) {
          Object value = ((ConstantExpression) expr).getValue();
-         if (value instanceof Number)
-         {
+         if (value instanceof Number) {
             return;
          }
 
          // Else it's boolean or a String..
          throw new RuntimeException("Value '" + expr + "' cannot be compared.");
       }
-      if (expr instanceof BooleanExpression)
-      {
+      if (expr instanceof BooleanExpression) {
          throw new RuntimeException("Value '" + expr + "' cannot be compared.");
       }
    }
@@ -377,13 +317,10 @@ public abstract class ComparisonExpression extends BinaryExpression implements B
     *
     * @param expr
     */
-   public static void checkEqualOperand(Expression expr)
-   {
-      if (expr instanceof ConstantExpression)
-      {
+   public static void checkEqualOperand(Expression expr) {
+      if (expr instanceof ConstantExpression) {
          Object value = ((ConstantExpression) expr).getValue();
-         if (value == null)
-         {
+         if (value == null) {
             throw new RuntimeException("'" + expr + "' cannot be compared.");
          }
       }
@@ -393,247 +330,185 @@ public abstract class ComparisonExpression extends BinaryExpression implements B
     * @param left
     * @param right
     */
-   private static void checkEqualOperandCompatibility(Expression left, Expression right)
-   {
-      if (left instanceof ConstantExpression && right instanceof ConstantExpression)
-      {
-         if (left instanceof BooleanExpression && !(right instanceof BooleanExpression))
-         {
+   private static void checkEqualOperandCompatibility(Expression left, Expression right) {
+      if (left instanceof ConstantExpression && right instanceof ConstantExpression) {
+         if (left instanceof BooleanExpression && !(right instanceof BooleanExpression)) {
             throw new RuntimeException("'" + left + "' cannot be compared with '" + right + "'");
          }
       }
    }
 
-   public Object evaluate(Filterable message) throws FilterException
-   {
+   public Object evaluate(Filterable message) throws FilterException {
       Comparable<Comparable> lv = (Comparable) left.evaluate(message);
-      if (lv == null)
-      {
+      if (lv == null) {
          return null;
       }
       Comparable rv = (Comparable) right.evaluate(message);
-      if (rv == null)
-      {
+      if (rv == null) {
          return null;
       }
       return compare(lv, rv);
    }
 
-   protected Boolean compare(Comparable lv, Comparable rv)
-   {
+   protected Boolean compare(Comparable lv, Comparable rv) {
       Class<? extends Comparable> lc = lv.getClass();
       Class<? extends Comparable> rc = rv.getClass();
       // If the the objects are not of the same type,
       // try to convert up to allow the comparison.
-      if (lc != rc)
-      {
-         try
-         {
-            if (lc == Boolean.class)
-            {
-               if (convertStringExpressions && rc == String.class)
-               {
+      if (lc != rc) {
+         try {
+            if (lc == Boolean.class) {
+               if (convertStringExpressions && rc == String.class) {
                   rv = Boolean.valueOf((String) rv);
                }
-               else
-               {
+               else {
                   return Boolean.FALSE;
                }
             }
-            else if (lc == Byte.class)
-            {
-               if (rc == Short.class)
-               {
+            else if (lc == Byte.class) {
+               if (rc == Short.class) {
                   lv = Short.valueOf(((Number) lv).shortValue());
                }
-               else if (rc == Integer.class)
-               {
+               else if (rc == Integer.class) {
                   lv = Integer.valueOf(((Number) lv).intValue());
                }
-               else if (rc == Long.class)
-               {
+               else if (rc == Long.class) {
                   lv = Long.valueOf(((Number) lv).longValue());
                }
-               else if (rc == Float.class)
-               {
+               else if (rc == Float.class) {
                   lv = new Float(((Number) lv).floatValue());
                }
-               else if (rc == Double.class)
-               {
+               else if (rc == Double.class) {
                   lv = new Double(((Number) lv).doubleValue());
                }
-               else if (convertStringExpressions && rc == String.class)
-               {
+               else if (convertStringExpressions && rc == String.class) {
                   rv = Byte.valueOf((String) rv);
                }
-               else
-               {
+               else {
                   return Boolean.FALSE;
                }
             }
-            else if (lc == Short.class)
-            {
-               if (rc == Integer.class)
-               {
+            else if (lc == Short.class) {
+               if (rc == Integer.class) {
                   lv = Integer.valueOf(((Number) lv).intValue());
                }
-               else if (rc == Long.class)
-               {
+               else if (rc == Long.class) {
                   lv = Long.valueOf(((Number) lv).longValue());
                }
-               else if (rc == Float.class)
-               {
+               else if (rc == Float.class) {
                   lv = new Float(((Number) lv).floatValue());
                }
-               else if (rc == Double.class)
-               {
+               else if (rc == Double.class) {
                   lv = new Double(((Number) lv).doubleValue());
                }
-               else if (convertStringExpressions && rc == String.class)
-               {
+               else if (convertStringExpressions && rc == String.class) {
                   rv = Short.valueOf((String) rv);
                }
-               else
-               {
+               else {
                   return Boolean.FALSE;
                }
             }
-            else if (lc == Integer.class)
-            {
-               if (rc == Long.class)
-               {
+            else if (lc == Integer.class) {
+               if (rc == Long.class) {
                   lv = Long.valueOf(((Number) lv).longValue());
                }
-               else if (rc == Float.class)
-               {
+               else if (rc == Float.class) {
                   lv = new Float(((Number) lv).floatValue());
                }
-               else if (rc == Double.class)
-               {
+               else if (rc == Double.class) {
                   lv = new Double(((Number) lv).doubleValue());
                }
-               else if (convertStringExpressions && rc == String.class)
-               {
+               else if (convertStringExpressions && rc == String.class) {
                   rv = Integer.valueOf((String) rv);
                }
-               else
-               {
+               else {
                   return Boolean.FALSE;
                }
             }
-            else if (lc == Long.class)
-            {
-               if (rc == Integer.class)
-               {
+            else if (lc == Long.class) {
+               if (rc == Integer.class) {
                   rv = Long.valueOf(((Number) rv).longValue());
                }
-               else if (rc == Float.class)
-               {
+               else if (rc == Float.class) {
                   lv = new Float(((Number) lv).floatValue());
                }
-               else if (rc == Double.class)
-               {
+               else if (rc == Double.class) {
                   lv = new Double(((Number) lv).doubleValue());
                }
-               else if (convertStringExpressions && rc == String.class)
-               {
+               else if (convertStringExpressions && rc == String.class) {
                   rv = Long.valueOf((String) rv);
                }
-               else
-               {
+               else {
                   return Boolean.FALSE;
                }
             }
-            else if (lc == Float.class)
-            {
-               if (rc == Integer.class)
-               {
+            else if (lc == Float.class) {
+               if (rc == Integer.class) {
                   rv = new Float(((Number) rv).floatValue());
                }
-               else if (rc == Long.class)
-               {
+               else if (rc == Long.class) {
                   rv = new Float(((Number) rv).floatValue());
                }
-               else if (rc == Double.class)
-               {
+               else if (rc == Double.class) {
                   lv = new Double(((Number) lv).doubleValue());
                }
-               else if (convertStringExpressions && rc == String.class)
-               {
+               else if (convertStringExpressions && rc == String.class) {
                   rv = Float.valueOf((String) rv);
                }
-               else
-               {
+               else {
                   return Boolean.FALSE;
                }
             }
-            else if (lc == Double.class)
-            {
-               if (rc == Integer.class)
-               {
+            else if (lc == Double.class) {
+               if (rc == Integer.class) {
                   rv = new Double(((Number) rv).doubleValue());
                }
-               else if (rc == Long.class)
-               {
+               else if (rc == Long.class) {
                   rv = new Double(((Number) rv).doubleValue());
                }
-               else if (rc == Float.class)
-               {
+               else if (rc == Float.class) {
                   rv = new Double(((Number) rv).doubleValue());
                }
-               else if (convertStringExpressions && rc == String.class)
-               {
+               else if (convertStringExpressions && rc == String.class) {
                   rv = Double.valueOf((String) rv);
                }
-               else
-               {
+               else {
                   return Boolean.FALSE;
                }
             }
-            else if (convertStringExpressions && lc == String.class)
-            {
+            else if (convertStringExpressions && lc == String.class) {
 
-               if (rc == Boolean.class)
-               {
+               if (rc == Boolean.class) {
                   lv = Boolean.valueOf((String) lv);
                }
-               else if (rc == Byte.class)
-               {
+               else if (rc == Byte.class) {
                   lv = Byte.valueOf((String) lv);
                }
-               else if (rc == Short.class)
-               {
+               else if (rc == Short.class) {
                   lv = Short.valueOf((String) lv);
                }
-               else if (rc == Integer.class)
-               {
+               else if (rc == Integer.class) {
                   lv = Integer.valueOf((String) lv);
                }
-               else if (rc == Long.class)
-               {
+               else if (rc == Long.class) {
                   lv = Long.valueOf((String) lv);
                }
-               else if (rc == Float.class)
-               {
+               else if (rc == Float.class) {
                   lv = Float.valueOf((String) lv);
                }
-               else if (rc == Double.class)
-               {
+               else if (rc == Double.class) {
                   lv = Double.valueOf((String) lv);
                }
-               else
-               {
+               else {
                   return Boolean.FALSE;
                }
 
             }
-            else
-            {
+            else {
                return Boolean.FALSE;
             }
          }
-         catch (NumberFormatException e)
-         {
+         catch (NumberFormatException e) {
             return Boolean.FALSE;
          }
       }
@@ -642,8 +517,7 @@ public abstract class ComparisonExpression extends BinaryExpression implements B
 
    protected abstract boolean asBoolean(int answer);
 
-   public boolean matches(Filterable message) throws FilterException
-   {
+   public boolean matches(Filterable message) throws FilterException {
       Object object = evaluate(message);
       return object != null && object == Boolean.TRUE;
    }

@@ -44,8 +44,8 @@ import org.junit.Test;
 /**
  * This test covers the API for ClientSession although XA tests are tested separately.
  */
-public class SessionTest extends ActiveMQTestBase
-{
+public class SessionTest extends ActiveMQTestBase {
+
    private final String queueName = "ClientSessionTestQ";
 
    private ServerLocator locator;
@@ -54,8 +54,7 @@ public class SessionTest extends ActiveMQTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       locator = createInVMNonHALocator();
@@ -65,8 +64,7 @@ public class SessionTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testFailureListener() throws Exception
-   {
+   public void testFailureListener() throws Exception {
 
       cf = createSessionFactory(locator);
       ClientSession clientSession = addClientSession(cf.createSession(false, true, true));
@@ -78,30 +76,25 @@ public class SessionTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testFailureListenerRemoved() throws Exception
-   {
+   public void testFailureListenerRemoved() throws Exception {
       cf = createSessionFactory(locator);
-      try
-      {
+      try {
          ClientSession clientSession = cf.createSession(false, true, true);
-         class MyFailureListener implements SessionFailureListener
-         {
+         class MyFailureListener implements SessionFailureListener {
+
             boolean called = false;
 
             @Override
-            public void connectionFailed(final ActiveMQException me, boolean failedOver)
-            {
+            public void connectionFailed(final ActiveMQException me, boolean failedOver) {
                called = true;
             }
 
             @Override
-            public void connectionFailed(final ActiveMQException me, boolean failedOver, String scaleDownTargetNodeID)
-            {
+            public void connectionFailed(final ActiveMQException me, boolean failedOver, String scaleDownTargetNodeID) {
                connectionFailed(me, failedOver);
             }
 
-            public void beforeReconnect(final ActiveMQException me)
-            {
+            public void beforeReconnect(final ActiveMQException me) {
             }
          }
 
@@ -113,8 +106,7 @@ public class SessionTest extends ActiveMQTestBase
          server.stop();
          Assert.assertFalse(listener.called);
       }
-      finally
-      {
+      finally {
          ((ClientSessionFactoryInternal) cf).causeExit();
          cf.close();
       }
@@ -123,8 +115,7 @@ public class SessionTest extends ActiveMQTestBase
    // Closing a session if the underlying remoting connection is dead should cleanly
    // release all resources
    @Test
-   public void testCloseSessionOnDestroyedConnection() throws Exception
-   {
+   public void testCloseSessionOnDestroyedConnection() throws Exception {
       // Make sure we have a short connection TTL so sessions will be quickly closed on the server
       server.stop();
       long ttl = 500;
@@ -149,19 +140,16 @@ public class SessionTest extends ActiveMQTestBase
 
       long start = System.currentTimeMillis();
 
-      while (true)
-      {
+      while (true) {
          int cons = server.getRemotingService().getConnections().size();
 
-         if (cons == 0)
-         {
+         if (cons == 0) {
             break;
          }
 
          long now = System.currentTimeMillis();
 
-         if (now - start > 10000)
-         {
+         if (now - start > 10000) {
             throw new Exception("Timed out waiting for connections to close");
          }
 
@@ -170,8 +158,7 @@ public class SessionTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testBindingQuery() throws Exception
-   {
+   public void testBindingQuery() throws Exception {
       cf = createSessionFactory(locator);
       ClientSession clientSession = cf.createSession(false, true, true);
       clientSession.createQueue("a1", "q1", false);
@@ -197,8 +184,7 @@ public class SessionTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testQueueQuery() throws Exception
-   {
+   public void testQueueQuery() throws Exception {
       cf = createSessionFactory(locator);
       ClientSession clientSession = cf.createSession(false, true, true);
       clientSession.createQueue("a1", queueName, false);
@@ -218,16 +204,14 @@ public class SessionTest extends ActiveMQTestBase
       clientSession.close();
    }
 
-   private void flushQueue() throws Exception
-   {
+   private void flushQueue() throws Exception {
       Queue queue = server.locateQueue(SimpleString.toSimpleString(queueName));
       assertNotNull(queue);
       queue.flushExecutor();
    }
 
    @Test
-   public void testQueueQueryWithFilter() throws Exception
-   {
+   public void testQueueQueryWithFilter() throws Exception {
       cf = createSessionFactory(locator);
       ClientSession clientSession = cf.createSession(false, true, true);
       clientSession.createQueue("a1", queueName, "foo=bar", false);
@@ -243,8 +227,7 @@ public class SessionTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testQueueQueryNoQ() throws Exception
-   {
+   public void testQueueQueryNoQ() throws Exception {
       cf = createSessionFactory(locator);
       ClientSession clientSession = cf.createSession(false, true, true);
       QueueQuery resp = clientSession.queueQuery(new SimpleString(queueName));
@@ -254,8 +237,7 @@ public class SessionTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testClose() throws Exception
-   {
+   public void testClose() throws Exception {
       cf = createSessionFactory(locator);
       ClientSession clientSession = cf.createSession(false, true, true);
       clientSession.createQueue(queueName, queueName, false);
@@ -272,8 +254,7 @@ public class SessionTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testCreateMessageNonDurable() throws Exception
-   {
+   public void testCreateMessageNonDurable() throws Exception {
       cf = createSessionFactory(locator);
       ClientSession clientSession = cf.createSession(false, true, true);
       ClientMessage clientMessage = clientSession.createMessage(false);
@@ -282,8 +263,7 @@ public class SessionTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testCreateMessageDurable() throws Exception
-   {
+   public void testCreateMessageDurable() throws Exception {
       cf = createSessionFactory(locator);
       ClientSession clientSession = cf.createSession(false, true, true);
       ClientMessage clientMessage = clientSession.createMessage(true);
@@ -292,8 +272,7 @@ public class SessionTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testCreateMessageType() throws Exception
-   {
+   public void testCreateMessageType() throws Exception {
       cf = createSessionFactory(locator);
       ClientSession clientSession = cf.createSession(false, true, true);
       ClientMessage clientMessage = clientSession.createMessage((byte) 99, false);
@@ -302,8 +281,7 @@ public class SessionTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testCreateMessageOverrides() throws Exception
-   {
+   public void testCreateMessageOverrides() throws Exception {
       cf = createSessionFactory(locator);
       ClientSession clientSession = cf.createSession(false, true, true);
       ClientMessage clientMessage = clientSession.createMessage((byte) 88, false, 100L, 300L, (byte) 33);
@@ -315,8 +293,7 @@ public class SessionTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testGetVersion() throws Exception
-   {
+   public void testGetVersion() throws Exception {
       cf = createSessionFactory(locator);
       ClientSession clientSession = cf.createSession(false, true, true);
       Assert.assertEquals(server.getVersion().getIncrementingVersion(), clientSession.getVersion());
@@ -324,8 +301,7 @@ public class SessionTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testStart() throws Exception
-   {
+   public void testStart() throws Exception {
       cf = createSessionFactory(locator);
       ClientSession clientSession = cf.createSession(false, true, true);
       clientSession.createQueue(queueName, queueName, false);
@@ -334,8 +310,7 @@ public class SessionTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testStop() throws Exception
-   {
+   public void testStop() throws Exception {
       cf = createSessionFactory(locator);
       ClientSession clientSession = cf.createSession(false, true, true);
       clientSession.createQueue(queueName, queueName, false);
@@ -345,8 +320,7 @@ public class SessionTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testCommitWithSend() throws Exception
-   {
+   public void testCommitWithSend() throws Exception {
       cf = createSessionFactory(locator);
       ClientSession clientSession = cf.createSession(false, false, true);
       clientSession.createQueue(queueName, queueName, false);
@@ -369,8 +343,7 @@ public class SessionTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testRollbackWithSend() throws Exception
-   {
+   public void testRollbackWithSend() throws Exception {
       cf = createSessionFactory(locator);
       ClientSession clientSession = cf.createSession(false, false, true);
       clientSession.createQueue(queueName, queueName, false);
@@ -396,10 +369,8 @@ public class SessionTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testCommitWithReceive() throws Exception
-   {
-      locator.setBlockOnNonDurableSend(true)
-              .setBlockOnDurableSend(true);
+   public void testCommitWithReceive() throws Exception {
+      locator.setBlockOnNonDurableSend(true).setBlockOnDurableSend(true);
       cf = createSessionFactory(locator);
       ClientSession sendSession = cf.createSession(false, true, true);
       ClientProducer cp = sendSession.createProducer(queueName);
@@ -456,10 +427,8 @@ public class SessionTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testRollbackWithReceive() throws Exception
-   {
-      locator.setBlockOnNonDurableSend(true)
-              .setBlockOnDurableSend(true);
+   public void testRollbackWithReceive() throws Exception {
+      locator.setBlockOnNonDurableSend(true).setBlockOnDurableSend(true);
       cf = createSessionFactory(locator);
       ClientSession sendSession = cf.createSession(false, true, true);
       ClientProducer cp = sendSession.createProducer(queueName);
@@ -516,8 +485,7 @@ public class SessionTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testGetNodeId() throws Exception
-   {
+   public void testGetNodeId() throws Exception {
       cf = createSessionFactory(locator);
       ClientSession clientSession = addClientSession(cf.createSession(false, true, true));
       String nodeId = ((ClientSessionInternal) clientSession).getNodeId();

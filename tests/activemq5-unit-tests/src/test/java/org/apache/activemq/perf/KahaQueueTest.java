@@ -20,18 +20,20 @@ import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.xbean.BrokerFactoryBean;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
+
 /**
- * 
+ *
  */
 public class KahaQueueTest extends SimpleQueueTest {
-    final static String config = "org/apache/activemq/perf/kahadbBroker.xml";
 
-    protected BrokerService createBroker(String uri) throws Exception {
-        Resource resource = new ClassPathResource(config);
-        BrokerFactoryBean brokerFactory = new BrokerFactoryBean(resource);
-        resource = new ClassPathResource(config);
-        brokerFactory = new BrokerFactoryBean(resource);
-        brokerFactory.afterPropertiesSet();
-        return brokerFactory.getBroker();
-    }
+   final static String config = "org/apache/activemq/perf/kahadbBroker.xml";
+
+   protected BrokerService createBroker(String uri) throws Exception {
+      Resource resource = new ClassPathResource(config);
+      BrokerFactoryBean brokerFactory = new BrokerFactoryBean(resource);
+      resource = new ClassPathResource(config);
+      brokerFactory = new BrokerFactoryBean(resource);
+      brokerFactory.afterPropertiesSet();
+      return brokerFactory.getBroker();
+   }
 }

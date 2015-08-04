@@ -41,59 +41,48 @@ import javax.jms.TransactionRolledBackRuntimeException;
 /**
  *
  */
-public final class JmsExceptionUtils
-{
-   private JmsExceptionUtils()
-   {
+public final class JmsExceptionUtils {
+
+   private JmsExceptionUtils() {
       // utility class
    }
 
    /**
     * Converts instances of sub-classes of {@link JMSException} into the corresponding sub-class of
     * {@link JMSRuntimeException}.
+    *
     * @param e
     * @return
     */
-   public static JMSRuntimeException convertToRuntimeException(JMSException e)
-   {
-      if (e instanceof javax.jms.IllegalStateException)
-      {
+   public static JMSRuntimeException convertToRuntimeException(JMSException e) {
+      if (e instanceof javax.jms.IllegalStateException) {
          return new IllegalStateRuntimeException(e.getMessage(), e.getErrorCode(), e);
       }
-      if (e instanceof InvalidClientIDException)
-      {
+      if (e instanceof InvalidClientIDException) {
          return new InvalidClientIDRuntimeException(e.getMessage(), e.getErrorCode(), e);
       }
-      if (e instanceof InvalidDestinationException)
-      {
+      if (e instanceof InvalidDestinationException) {
          return new InvalidDestinationRuntimeException(e.getMessage(), e.getErrorCode(), e);
       }
-      if (e instanceof InvalidSelectorException)
-      {
+      if (e instanceof InvalidSelectorException) {
          return new InvalidSelectorRuntimeException(e.getMessage(), e.getErrorCode(), e);
       }
-      if (e instanceof JMSSecurityException)
-      {
+      if (e instanceof JMSSecurityException) {
          return new JMSSecurityRuntimeException(e.getMessage(), e.getErrorCode(), e);
       }
-      if (e instanceof MessageFormatException)
-      {
+      if (e instanceof MessageFormatException) {
          return new MessageFormatRuntimeException(e.getMessage(), e.getErrorCode(), e);
       }
-      if (e instanceof MessageNotWriteableException)
-      {
+      if (e instanceof MessageNotWriteableException) {
          return new MessageNotWriteableRuntimeException(e.getMessage(), e.getErrorCode(), e);
       }
-      if (e instanceof ResourceAllocationException)
-      {
+      if (e instanceof ResourceAllocationException) {
          return new ResourceAllocationRuntimeException(e.getMessage(), e.getErrorCode(), e);
       }
-      if (e instanceof TransactionInProgressException)
-      {
+      if (e instanceof TransactionInProgressException) {
          return new TransactionInProgressRuntimeException(e.getMessage(), e.getErrorCode(), e);
       }
-      if (e instanceof TransactionRolledBackException)
-      {
+      if (e instanceof TransactionRolledBackException) {
          return new TransactionRolledBackRuntimeException(e.getMessage(), e.getErrorCode(), e);
       }
       return new JMSRuntimeException(e.getMessage(), e.getErrorCode(), e);

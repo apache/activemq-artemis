@@ -25,17 +25,15 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class CreateDestinationTest extends MessageTestBase
-{
+public class CreateDestinationTest extends MessageTestBase {
+
    @BeforeClass
-   public static void reg()
-   {
+   public static void reg() {
       server.getJaxrsServer().getDeployment().getProviderFactory().registerProvider(org.jboss.resteasy.plugins.providers.DocumentProvider.class);
    }
 
    @Test
-   public void testCreateQueue() throws Exception
-   {
+   public void testCreateQueue() throws Exception {
       String queueConfig = "<queue name=\"testQueue\"><durable>true</durable></queue>";
       ClientRequest create = new ClientRequest(TestPortProvider.generateURL("/queues"));
       ClientResponse cRes = create.body("application/activemq.jms.queue+xml", queueConfig).post();
@@ -68,7 +66,6 @@ public class CreateDestinationTest extends MessageTestBase
       consumeNext = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), res, "consume-next");
       System.out.println("consumeNext: " + consumeNext);
 
-
       res = sender.request().body("text/plain", Integer.toString(2)).post();
       res.releaseConnection();
       Assert.assertEquals(201, res.getStatus());
@@ -89,8 +86,7 @@ public class CreateDestinationTest extends MessageTestBase
    }
 
    @Test
-   public void testCreateTopic() throws Exception
-   {
+   public void testCreateTopic() throws Exception {
       String queueConfig = "<topic name=\"testTopic\"></topic>";
       ClientRequest create = new ClientRequest(TestPortProvider.generateURL("/topics"));
       ClientResponse cRes = create.body("application/activemq.jms.topic+xml", queueConfig).post();
@@ -105,7 +101,6 @@ public class CreateDestinationTest extends MessageTestBase
       Link sender = getLinkByTitle(manager.getTopicManager().getLinkStrategy(), response, "create");
       Link subscriptions = getLinkByTitle(manager.getTopicManager().getLinkStrategy(), response, "pull-subscriptions");
 
-
       ClientResponse<?> res = subscriptions.request().post();
       res.releaseConnection();
       Assert.assertEquals(201, res.getStatus());
@@ -115,7 +110,6 @@ public class CreateDestinationTest extends MessageTestBase
       Assert.assertNotNull(consumeNext1);
       System.out.println("consumeNext1: " + consumeNext1);
 
-
       res = subscriptions.request().post();
       res.releaseConnection();
       Assert.assertEquals(201, res.getStatus());
@@ -123,7 +117,6 @@ public class CreateDestinationTest extends MessageTestBase
       Assert.assertNotNull(sub2);
       Link consumeNext2 = getLinkByTitle(manager.getTopicManager().getLinkStrategy(), res, "consume-next");
       Assert.assertNotNull(consumeNext1);
-
 
       res = sender.request().body("text/plain", Integer.toString(1)).post();
       res.releaseConnection();
@@ -164,8 +157,7 @@ public class CreateDestinationTest extends MessageTestBase
    }
 
    @Test
-   public void testCreateQueueWithBadContentType() throws Exception
-   {
+   public void testCreateQueueWithBadContentType() throws Exception {
       String queueConfig = "<queue name=\"testQueue\"><durable>true</durable></queue>";
       ClientRequest create = new ClientRequest(TestPortProvider.generateURL("/queues"));
       ClientResponse cRes = create.body("application/x-www-form-urlencoded", queueConfig).post();
@@ -175,8 +167,7 @@ public class CreateDestinationTest extends MessageTestBase
    }
 
    @Test
-   public void testCreateTopicWithBadContentType() throws Exception
-   {
+   public void testCreateTopicWithBadContentType() throws Exception {
       String queueConfig = "<topic name=\"testTopic\"></topic>";
       ClientRequest create = new ClientRequest(TestPortProvider.generateURL("/topics"));
       ClientResponse cRes = create.body("application/x-www-form-urlencoded", queueConfig).post();

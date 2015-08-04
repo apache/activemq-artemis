@@ -16,34 +16,29 @@
  */
 package org.apache.activemq.artemis.core.security;
 
-public class User
-{
+public class User {
+
    final String user;
 
    final String password;
 
-   public User(final String user, final String password)
-   {
+   public User(final String user, final String password) {
       this.user = user;
       this.password = password;
    }
 
    @Override
-   public boolean equals(final Object o)
-   {
-      if (this == o)
-      {
+   public boolean equals(final Object o) {
+      if (this == o) {
          return true;
       }
-      if (o == null || getClass() != o.getClass())
-      {
+      if (o == null || getClass() != o.getClass()) {
          return false;
       }
 
-      User user1 = (User)o;
+      User user1 = (User) o;
 
-      if (!user.equals(user1.user))
-      {
+      if (!user.equals(user1.user)) {
          return false;
       }
 
@@ -51,27 +46,22 @@ public class User
    }
 
    @Override
-   public int hashCode()
-   {
+   public int hashCode() {
       return user.hashCode();
    }
 
-   public boolean isValid(final String user, final String password)
-   {
-      if (user == null)
-      {
+   public boolean isValid(final String user, final String password) {
+      if (user == null) {
          return false;
       }
       return this.user.equals(user) && this.password.equals(password);
    }
 
-   public String getUser()
-   {
+   public String getUser() {
       return user;
    }
 
-   public String getPassword()
-   {
+   public String getPassword() {
       return password;
    }
 }

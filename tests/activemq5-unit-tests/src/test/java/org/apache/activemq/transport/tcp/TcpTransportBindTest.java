@@ -27,47 +27,52 @@ import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.EmbeddedBrokerTestSupport;
 
 public class TcpTransportBindTest extends EmbeddedBrokerTestSupport {
-    String addr = "tcp://localhost:0";
 
-    /**
-     * exercise some server side socket options
-     * @throws Exception
-     */
-    @Override
-    protected void setUp() throws Exception {
-        bindAddress = addr + "?transport.reuseAddress=true&transport.soTimeout=1000";
-        super.setUp();
+   String addr = "tcp://localhost:0";
 
-        addr = broker.getTransportConnectors().get(0).getPublishableConnectString();
-    }
+   /**
+    * exercise some server side socket options
+    *
+    * @throws Exception
+    */
+   @Override
+   protected void setUp() throws Exception {
+      bindAddress = addr + "?transport.reuseAddress=true&transport.soTimeout=1000";
+      super.setUp();
 
-    public void testConnect() throws Exception {
-        Connection connection = new ActiveMQConnectionFactory(addr).createConnection();
-        connection.start();
-    }
+      addr = broker.getTransportConnectors().get(0).getPublishableConnectString();
+   }
 
-    public void testReceiveThrowsException() throws Exception {
-        Connection connection = new ActiveMQConnectionFactory(addr).createConnection();
-        connection.start();
-        Session sess = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        MessageConsumer consumer = sess.createConsumer(createDestination());
-        class StopTask extends TimerTask {
-            @Override
-            public void run() {
-                try {
-                    broker.stop();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+   public void testConnect() throws Exception {
+      Connection connection = new ActiveMQConnectionFactory(addr).createConnection();
+      connection.start();
+   }
+
+   public void testReceiveThrowsException() throws Exception {
+      Connection connection = new ActiveMQConnectionFactory(addr).createConnection();
+      connection.start();
+      Session sess = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      MessageConsumer consumer = sess.createConsumer(createDestination());
+      class StopTask extends TimerTask {
+
+         @Override
+         public void run() {
+            try {
+               broker.stop();
             }
-        }
-        Timer timer = new Timer();
-        timer.schedule(new StopTask(), 1000);
-        try {
-            consumer.receive(30000);
-            fail("Should have thrown an exception");
-        } catch (Exception e) {
-            // should fail
-        }
-    }
+            catch (Exception e) {
+               e.printStackTrace();
+            }
+         }
+      }
+      Timer timer = new Timer();
+      timer.schedule(new StopTask(), 1000);
+      try {
+         consumer.receive(30000);
+         fail("Should have thrown an exception");
+      }
+      catch (Exception e) {
+         // should fail
+      }
+   }
 }

@@ -40,8 +40,7 @@ import org.junit.Test;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-public class ConsumerCloseTest extends ActiveMQTestBase
-{
+public class ConsumerCloseTest extends ActiveMQTestBase {
 
    private ClientSessionFactory sf;
    private ActiveMQServer server;
@@ -60,38 +59,29 @@ public class ConsumerCloseTest extends ActiveMQTestBase
    // Public --------------------------------------------------------
 
    @Test
-   public void testCanNotUseAClosedConsumer() throws Exception
-   {
+   public void testCanNotUseAClosedConsumer() throws Exception {
       final ClientConsumer consumer = session.createConsumer(queue);
 
       consumer.close();
 
       Assert.assertTrue(consumer.isClosed());
 
-      expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, new ActiveMQAction()
-      {
-         public void run() throws ActiveMQException
-         {
+      expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, new ActiveMQAction() {
+         public void run() throws ActiveMQException {
             consumer.receive();
          }
       });
 
-      expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, new ActiveMQAction()
-      {
-         public void run() throws ActiveMQException
-         {
+      expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, new ActiveMQAction() {
+         public void run() throws ActiveMQException {
             consumer.receiveImmediate();
          }
       });
 
-      expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, new ActiveMQAction()
-      {
-         public void run() throws ActiveMQException
-         {
-            consumer.setMessageHandler(new MessageHandler()
-            {
-               public void onMessage(final ClientMessage message)
-               {
+      expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, new ActiveMQAction() {
+         public void run() throws ActiveMQException {
+            consumer.setMessageHandler(new MessageHandler() {
+               public void onMessage(final ClientMessage message) {
                }
             });
          }
@@ -100,16 +90,14 @@ public class ConsumerCloseTest extends ActiveMQTestBase
 
    // https://jira.jboss.org/jira/browse/JBMESSAGING-1526
    @Test
-   public void testCloseWithManyMessagesInBufferAndSlowConsumer() throws Exception
-   {
+   public void testCloseWithManyMessagesInBufferAndSlowConsumer() throws Exception {
       ClientConsumer consumer = session.createConsumer(queue);
 
       ClientProducer producer = session.createProducer(address);
 
       final int numMessages = 100;
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session.createMessage(false);
 
          producer.send(message);
@@ -117,17 +105,14 @@ public class ConsumerCloseTest extends ActiveMQTestBase
 
       final CountDownLatch received = new CountDownLatch(1);
       final CountDownLatch waitingToProceed = new CountDownLatch(1);
-      class MyHandler implements MessageHandler
-      {
-         public void onMessage(final ClientMessage message)
-         {
-            try
-            {
+      class MyHandler implements MessageHandler {
+
+         public void onMessage(final ClientMessage message) {
+            try {
                received.countDown();
                waitingToProceed.await();
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
             }
          }
       }
@@ -141,13 +126,11 @@ public class ConsumerCloseTest extends ActiveMQTestBase
       long timeout = System.currentTimeMillis() + 1000;
 
       // Instead of waiting a long time (like 1 second) we just make sure the buffer is full on the client
-      while (((ClientConsumerImpl) consumer).getBufferSize() < 2 && System.currentTimeMillis() > timeout)
-      {
+      while (((ClientConsumerImpl) consumer).getBufferSize() < 2 && System.currentTimeMillis() > timeout) {
          Thread.sleep(10);
       }
 
       waitingToProceed.countDown();
-
 
       // Close shouldn't wait for all messages to be processed before closing
       long start = System.currentTimeMillis();
@@ -159,9 +142,7 @@ public class ConsumerCloseTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testCloseWithScheduledRedelivery() throws Exception
-   {
-
+   public void testCloseWithScheduledRedelivery() throws Exception {
 
       AddressSettings settings = new AddressSettings().setRedeliveryDelay(50000);
       server.getAddressSettingsRepository().addMatch("#", settings);
@@ -172,8 +153,7 @@ public class ConsumerCloseTest extends ActiveMQTestBase
 
       final int numMessages = 100;
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session.createMessage(false);
 
          producer.send(message);
@@ -186,19 +166,16 @@ public class ConsumerCloseTest extends ActiveMQTestBase
 
       long timeout = System.currentTimeMillis() + 1000;
 
-      while (((ClientConsumerImpl) consumer).getBufferSize() < 2 && System.currentTimeMillis() > timeout)
-      {
+      while (((ClientConsumerImpl) consumer).getBufferSize() < 2 && System.currentTimeMillis() > timeout) {
          Thread.sleep(10);
       }
 
       consumer.close();
 
-
       consumer = session.createConsumer(queue);
 
       // We received one, so we must receive the others now
-      for (int i = 0; i < numMessages - 1; i++)
-      {
+      for (int i = 0; i < numMessages - 1; i++) {
          msg = consumer.receive(1000);
          assertNotNull("Expected message at i=" + i, msg);
          msg.acknowledge();
@@ -216,9 +193,7 @@ public class ConsumerCloseTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testCloseWithScheduledRedeliveryWithTX() throws Exception
-   {
-
+   public void testCloseWithScheduledRedeliveryWithTX() throws Exception {
 
       AddressSettings settings = new AddressSettings().setRedeliveryDelay(1000);
       server.getAddressSettingsRepository().addMatch("#", settings);
@@ -227,8 +202,7 @@ public class ConsumerCloseTest extends ActiveMQTestBase
 
       final int numMessages = 100;
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session.createMessage(false);
          message.putIntProperty("count", i);
          producer.send(message);
@@ -247,8 +221,7 @@ public class ConsumerCloseTest extends ActiveMQTestBase
 
       long timeout = System.currentTimeMillis() + 1000;
 
-      while (((ClientConsumerImpl) consumer).getBufferSize() < 2 && System.currentTimeMillis() > timeout)
-      {
+      while (((ClientConsumerImpl) consumer).getBufferSize() < 2 && System.currentTimeMillis() > timeout) {
          Thread.sleep(10);
       }
 
@@ -256,12 +229,10 @@ public class ConsumerCloseTest extends ActiveMQTestBase
 
       session.rollback();
 
-
       consumer = session.createConsumer(queue);
 
       // We received one, so we must receive the others now
-      for (int i = 0; i < numMessages - 1; i++)
-      {
+      for (int i = 0; i < numMessages - 1; i++) {
          msg = consumer.receive(1000);
          assertNotNull("Expected message at i=" + i, msg);
          msg.acknowledge();
@@ -278,7 +249,6 @@ public class ConsumerCloseTest extends ActiveMQTestBase
 
       assertNull(consumer.receiveImmediate());
 
-
       // Close shouldn't wait for all messages to be processed before closing
       long start = System.currentTimeMillis();
       consumer.close();
@@ -294,8 +264,7 @@ public class ConsumerCloseTest extends ActiveMQTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       Configuration config = createDefaultInVMConfig();

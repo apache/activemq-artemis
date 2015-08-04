@@ -25,32 +25,28 @@ import org.apache.activemq.artemis.spi.core.remoting.ClientProtocolManagerFactor
 /**
  * A protocol manager that will replace the packet manager for inter-server communications
  */
-public class ActiveMQServerSideProtocolManagerFactory implements ClientProtocolManagerFactory
-{
+public class ActiveMQServerSideProtocolManagerFactory implements ClientProtocolManagerFactory {
+
    private static final ActiveMQServerSideProtocolManagerFactory INSTANCE = new ActiveMQServerSideProtocolManagerFactory();
 
-   public static ActiveMQServerSideProtocolManagerFactory getInstance()
-   {
+   public static ActiveMQServerSideProtocolManagerFactory getInstance() {
       return INSTANCE;
    }
 
-   private ActiveMQServerSideProtocolManagerFactory()
-   {
+   private ActiveMQServerSideProtocolManagerFactory() {
    }
 
    private static final long serialVersionUID = 1;
 
    @Override
-   public ClientProtocolManager newProtocolManager()
-   {
+   public ClientProtocolManager newProtocolManager() {
       return new ActiveMQReplicationProtocolManager();
    }
 
-   class ActiveMQReplicationProtocolManager extends ActiveMQClientProtocolManager
-   {
+   class ActiveMQReplicationProtocolManager extends ActiveMQClientProtocolManager {
+
       @Override
-      protected PacketDecoder getPacketDecoder()
-      {
+      protected PacketDecoder getPacketDecoder() {
          return ServerPacketDecoder.INSTANCE;
       }
    }

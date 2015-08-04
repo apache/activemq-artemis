@@ -34,118 +34,121 @@ import javax.jms.TextMessage;
 
 import junit.framework.TestCase;
 
-
 public class JmsConsumerResetActiveListenerTest extends TestCase {
 
-    private Connection connection;
-    private ActiveMQConnectionFactory factory;
-   
-    protected void setUp() throws Exception {
-        factory = new ActiveMQConnectionFactory("vm://localhost?broker.persistent=false");
-        connection = factory.createConnection();
-    }
+   private Connection connection;
+   private ActiveMQConnectionFactory factory;
 
-    protected void tearDown() throws Exception {
-        if (connection != null) {
-            connection.close();
-            connection = null;
-        }
-    }
-    
-    /**
-     * verify the (undefined by spec) behaviour of setting a listener while receiving a message.
-     * 
-     * @throws Exception
-     */
-    public void testSetListenerFromListener() throws Exception {
-        Session session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
-        Destination dest = session.createQueue("Queue-" + getName());
-        final MessageConsumer consumer = session.createConsumer(dest);
-       
-        final CountDownLatch latch = new CountDownLatch(2);
-        final AtomicBoolean first = new AtomicBoolean(true);
-        final Vector<Object> results = new Vector<Object>();
-        consumer.setMessageListener(new MessageListener() {
+   protected void setUp() throws Exception {
+      factory = new ActiveMQConnectionFactory("vm://localhost?broker.persistent=false");
+      connection = factory.createConnection();
+   }
 
-            public void onMessage(Message message) {
-                if (first.compareAndSet(true, false)) {
-                    try {
-                        consumer.setMessageListener(this);
-                        results.add(message);
-                    } catch (JMSException e) {
-                        results.add(e);
-                    }
-                } else {
-                    results.add(message);
-                }
-                latch.countDown();
+   protected void tearDown() throws Exception {
+      if (connection != null) {
+         connection.close();
+         connection = null;
+      }
+   }
+
+   /**
+    * verify the (undefined by spec) behaviour of setting a listener while receiving a message.
+    *
+    * @throws Exception
+    */
+   public void testSetListenerFromListener() throws Exception {
+      Session session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
+      Destination dest = session.createQueue("Queue-" + getName());
+      final MessageConsumer consumer = session.createConsumer(dest);
+
+      final CountDownLatch latch = new CountDownLatch(2);
+      final AtomicBoolean first = new AtomicBoolean(true);
+      final Vector<Object> results = new Vector<Object>();
+      consumer.setMessageListener(new MessageListener() {
+
+         public void onMessage(Message message) {
+            if (first.compareAndSet(true, false)) {
+               try {
+                  consumer.setMessageListener(this);
+                  results.add(message);
+               }
+               catch (JMSException e) {
+                  results.add(e);
+               }
             }
-        });
-
-        connection.start();
-        
-        MessageProducer producer = session.createProducer(dest);
-        producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
-        producer.send(session.createTextMessage("First"));
-        producer.send(session.createTextMessage("Second"));
-        
-        assertTrue("we did not timeout", latch.await(5, TimeUnit.SECONDS));
-        
-        assertEquals("we have a result", 2, results.size());
-        Object result = results.get(0);
-        assertTrue(result instanceof TextMessage);
-        assertEquals("result is first", "First", ((TextMessage)result).getText());
-        result = results.get(1);
-        assertTrue(result instanceof TextMessage);
-        assertEquals("result is first", "Second", ((TextMessage)result).getText());
-    }
-    
-    /**
-     * and a listener on a new consumer, just in case.
-      *
-     * @throws Exception
-     */
-    public void testNewConsumerSetListenerFromListener() throws Exception {
-        final Session session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
-        final Destination dest = session.createQueue("Queue-" + getName());
-        final MessageConsumer consumer = session.createConsumer(dest);
-       
-        final CountDownLatch latch = new CountDownLatch(2);
-        final AtomicBoolean first = new AtomicBoolean(true);
-        final Vector<Object> results = new Vector<Object>();
-        consumer.setMessageListener(new MessageListener() {
-
-            public void onMessage(Message message) {
-                if (first.compareAndSet(true, false)) {
-                    try {
-                        MessageConsumer anotherConsumer = session.createConsumer(dest);
-                        anotherConsumer.setMessageListener(this);
-                        results.add(message);
-                    } catch (JMSException e) {
-                        results.add(e);
-                    }
-                } else {
-                    results.add(message);
-                }
-                latch.countDown();
+            else {
+               results.add(message);
             }
-        });
+            latch.countDown();
+         }
+      });
 
-        connection.start();
-        
-        MessageProducer producer = session.createProducer(dest);
-        producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
-        producer.send(session.createTextMessage("First"));
-        producer.send(session.createTextMessage("Second"));
-        
-        assertTrue("we did not timeout", latch.await(5, TimeUnit.SECONDS));
-        
-        assertEquals("we have a result", 2, results.size());
-        Object result = results.get(0);
-        assertTrue(result instanceof TextMessage);
-        assertEquals("result is first", "First", ((TextMessage)result).getText());
-        result = results.get(1);
-        assertTrue(result instanceof TextMessage);
-        assertEquals("result is first", "Second", ((TextMessage)result).getText());
-    }
- }
+      connection.start();
+
+      MessageProducer producer = session.createProducer(dest);
+      producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
+      producer.send(session.createTextMessage("First"));
+      producer.send(session.createTextMessage("Second"));
+
+      assertTrue("we did not timeout", latch.await(5, TimeUnit.SECONDS));
+
+      assertEquals("we have a result", 2, results.size());
+      Object result = results.get(0);
+      assertTrue(result instanceof TextMessage);
+      assertEquals("result is first", "First", ((TextMessage) result).getText());
+      result = results.get(1);
+      assertTrue(result instanceof TextMessage);
+      assertEquals("result is first", "Second", ((TextMessage) result).getText());
+   }
+
+   /**
+    * and a listener on a new consumer, just in case.
+    *
+    * @throws Exception
+    */
+   public void testNewConsumerSetListenerFromListener() throws Exception {
+      final Session session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
+      final Destination dest = session.createQueue("Queue-" + getName());
+      final MessageConsumer consumer = session.createConsumer(dest);
+
+      final CountDownLatch latch = new CountDownLatch(2);
+      final AtomicBoolean first = new AtomicBoolean(true);
+      final Vector<Object> results = new Vector<Object>();
+      consumer.setMessageListener(new MessageListener() {
+
+         public void onMessage(Message message) {
+            if (first.compareAndSet(true, false)) {
+               try {
+                  MessageConsumer anotherConsumer = session.createConsumer(dest);
+                  anotherConsumer.setMessageListener(this);
+                  results.add(message);
+               }
+               catch (JMSException e) {
+                  results.add(e);
+               }
+            }
+            else {
+               results.add(message);
+            }
+            latch.countDown();
+         }
+      });
+
+      connection.start();
+
+      MessageProducer producer = session.createProducer(dest);
+      producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
+      producer.send(session.createTextMessage("First"));
+      producer.send(session.createTextMessage("Second"));
+
+      assertTrue("we did not timeout", latch.await(5, TimeUnit.SECONDS));
+
+      assertEquals("we have a result", 2, results.size());
+      Object result = results.get(0);
+      assertTrue(result instanceof TextMessage);
+      assertEquals("result is first", "First", ((TextMessage) result).getText());
+      result = results.get(1);
+      assertTrue(result instanceof TextMessage);
+      assertEquals("result is first", "Second", ((TextMessage) result).getText());
+   }
+}

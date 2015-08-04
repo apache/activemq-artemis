@@ -23,14 +23,16 @@ import org.apache.activemq.artemis.api.core.TransportConfiguration;
 /**
  * Clebert Suconic
  */
-public class ClusterTopologyChangeMessage_V2 extends ClusterTopologyChangeMessage
-{
+public class ClusterTopologyChangeMessage_V2 extends ClusterTopologyChangeMessage {
+
    protected long uniqueEventID;
    protected String backupGroupName;
 
-   public ClusterTopologyChangeMessage_V2(final long uniqueEventID, final String nodeID, final String backupGroupName,
-                                          final Pair<TransportConfiguration, TransportConfiguration> pair, final boolean last)
-   {
+   public ClusterTopologyChangeMessage_V2(final long uniqueEventID,
+                                          final String nodeID,
+                                          final String backupGroupName,
+                                          final Pair<TransportConfiguration, TransportConfiguration> pair,
+                                          final boolean last) {
       super(CLUSTER_TOPOLOGY_V2);
 
       this.nodeID = nodeID;
@@ -46,8 +48,7 @@ public class ClusterTopologyChangeMessage_V2 extends ClusterTopologyChangeMessag
       this.backupGroupName = backupGroupName;
    }
 
-   public ClusterTopologyChangeMessage_V2(final long uniqueEventID, final String nodeID)
-   {
+   public ClusterTopologyChangeMessage_V2(final long uniqueEventID, final String nodeID) {
       super(CLUSTER_TOPOLOGY_V2);
 
       this.exit = true;
@@ -57,53 +58,43 @@ public class ClusterTopologyChangeMessage_V2 extends ClusterTopologyChangeMessag
       this.uniqueEventID = uniqueEventID;
    }
 
-   public ClusterTopologyChangeMessage_V2()
-   {
+   public ClusterTopologyChangeMessage_V2() {
       super(CLUSTER_TOPOLOGY_V2);
    }
 
-   public ClusterTopologyChangeMessage_V2(byte clusterTopologyV3)
-   {
+   public ClusterTopologyChangeMessage_V2(byte clusterTopologyV3) {
       super(clusterTopologyV3);
    }
 
    /**
     * @return the uniqueEventID
     */
-   public long getUniqueEventID()
-   {
+   public long getUniqueEventID() {
       return uniqueEventID;
    }
 
-   public String getBackupGroupName()
-   {
+   public String getBackupGroupName() {
       return backupGroupName;
    }
 
    @Override
-   public void encodeRest(final ActiveMQBuffer buffer)
-   {
+   public void encodeRest(final ActiveMQBuffer buffer) {
       buffer.writeBoolean(exit);
       buffer.writeString(nodeID);
       buffer.writeLong(uniqueEventID);
-      if (!exit)
-      {
-         if (pair.getA() != null)
-         {
+      if (!exit) {
+         if (pair.getA() != null) {
             buffer.writeBoolean(true);
             pair.getA().encode(buffer);
          }
-         else
-         {
+         else {
             buffer.writeBoolean(false);
          }
-         if (pair.getB() != null)
-         {
+         if (pair.getB() != null) {
             buffer.writeBoolean(true);
             pair.getB().encode(buffer);
          }
-         else
-         {
+         else {
             buffer.writeBoolean(false);
          }
          buffer.writeBoolean(last);
@@ -112,47 +103,39 @@ public class ClusterTopologyChangeMessage_V2 extends ClusterTopologyChangeMessag
    }
 
    @Override
-   public void decodeRest(final ActiveMQBuffer buffer)
-   {
+   public void decodeRest(final ActiveMQBuffer buffer) {
       exit = buffer.readBoolean();
       nodeID = buffer.readString();
       uniqueEventID = buffer.readLong();
-      if (!exit)
-      {
+      if (!exit) {
          boolean hasLive = buffer.readBoolean();
          TransportConfiguration a;
-         if (hasLive)
-         {
+         if (hasLive) {
             a = new TransportConfiguration();
             a.decode(buffer);
          }
-         else
-         {
+         else {
             a = null;
          }
          boolean hasBackup = buffer.readBoolean();
          TransportConfiguration b;
-         if (hasBackup)
-         {
+         if (hasBackup) {
             b = new TransportConfiguration();
             b.decode(buffer);
          }
-         else
-         {
+         else {
             b = null;
          }
          pair = new Pair<TransportConfiguration, TransportConfiguration>(a, b);
          last = buffer.readBoolean();
       }
-      if (buffer.readableBytes() > 0)
-      {
+      if (buffer.readableBytes() > 0) {
          backupGroupName = buffer.readNullableString();
       }
    }
 
    @Override
-   public int hashCode()
-   {
+   public int hashCode() {
       final int prime = 31;
       int result = super.hashCode();
       result = prime * result + ((backupGroupName == null) ? 0 : backupGroupName.hashCode());
@@ -161,34 +144,26 @@ public class ClusterTopologyChangeMessage_V2 extends ClusterTopologyChangeMessag
    }
 
    @Override
-   public boolean equals(Object obj)
-   {
-      if (this == obj)
-      {
+   public boolean equals(Object obj) {
+      if (this == obj) {
          return true;
       }
-      if (!super.equals(obj))
-      {
+      if (!super.equals(obj)) {
          return false;
       }
-      if (!(obj instanceof ClusterTopologyChangeMessage_V2))
-      {
+      if (!(obj instanceof ClusterTopologyChangeMessage_V2)) {
          return false;
       }
       ClusterTopologyChangeMessage_V2 other = (ClusterTopologyChangeMessage_V2) obj;
-      if (uniqueEventID != other.uniqueEventID)
-      {
+      if (uniqueEventID != other.uniqueEventID) {
          return false;
       }
-      if (backupGroupName == null)
-      {
-         if (other.backupGroupName != null)
-         {
+      if (backupGroupName == null) {
+         if (other.backupGroupName != null) {
             return false;
          }
       }
-      else if (!backupGroupName.equals(other.backupGroupName))
-      {
+      else if (!backupGroupName.equals(other.backupGroupName)) {
          return false;
       }
       return true;

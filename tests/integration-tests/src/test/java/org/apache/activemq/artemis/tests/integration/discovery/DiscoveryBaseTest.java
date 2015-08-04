@@ -39,8 +39,8 @@ import org.apache.activemq.artemis.core.server.management.NotificationService;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.junit.Assert;
 
-public class DiscoveryBaseTest extends ActiveMQTestBase
-{
+public class DiscoveryBaseTest extends ActiveMQTestBase {
+
    protected static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
    protected final String address1 = getUDPDiscoveryAddress();
@@ -49,13 +49,12 @@ public class DiscoveryBaseTest extends ActiveMQTestBase
 
    protected final String address3 = getUDPDiscoveryAddress(2);
 
-
    /**
     * @param discoveryGroup
     * @throws Exception
     */
-   protected static void verifyBroadcast(BroadcastGroup broadcastGroup, DiscoveryGroup discoveryGroup) throws Exception
-   {
+   protected static void verifyBroadcast(BroadcastGroup broadcastGroup,
+                                         DiscoveryGroup discoveryGroup) throws Exception {
       broadcastGroup.broadcastConnectors();
       Assert.assertTrue("broadcast received", discoveryGroup.waitForBroadcast(2000));
    }
@@ -64,22 +63,17 @@ public class DiscoveryBaseTest extends ActiveMQTestBase
     * @param discoveryGroup
     * @throws Exception
     */
-   protected static void verifyNonBroadcast(BroadcastGroup broadcastGroup, DiscoveryGroup discoveryGroup)
-      throws Exception
-   {
+   protected static void verifyNonBroadcast(BroadcastGroup broadcastGroup,
+                                            DiscoveryGroup discoveryGroup) throws Exception {
       broadcastGroup.broadcastConnectors();
       Assert.assertFalse("NO broadcast received", discoveryGroup.waitForBroadcast(2000));
    }
 
-
-
-   protected TransportConfiguration generateTC()
-   {
+   protected TransportConfiguration generateTC() {
       return generateTC("");
    }
 
-   protected TransportConfiguration generateTC(String debug)
-   {
+   protected TransportConfiguration generateTC(String debug) {
       String className = "org.foo.bar." + debug + "|" + UUIDGenerator.getInstance().generateStringUUID() + "";
       String name = UUIDGenerator.getInstance().generateStringUUID();
       Map<String, Object> params = new HashMap<String, Object>();
@@ -90,66 +84,55 @@ public class DiscoveryBaseTest extends ActiveMQTestBase
       return tc;
    }
 
-   protected static class MyListener implements DiscoveryListener
-   {
+   protected static class MyListener implements DiscoveryListener {
+
       volatile boolean called;
 
-      public void connectorsChanged(List<DiscoveryEntry> newConnectors)
-      {
+      public void connectorsChanged(List<DiscoveryEntry> newConnectors) {
          called = true;
       }
    }
 
-   protected static void assertEqualsDiscoveryEntries(List<TransportConfiguration> expected, List<DiscoveryEntry> actual)
-   {
+   protected static void assertEqualsDiscoveryEntries(List<TransportConfiguration> expected,
+                                                      List<DiscoveryEntry> actual) {
       assertNotNull(actual);
 
       List<TransportConfiguration> sortedExpected = new ArrayList<TransportConfiguration>(expected);
-      Collections.sort(sortedExpected, new Comparator<TransportConfiguration>()
-      {
+      Collections.sort(sortedExpected, new Comparator<TransportConfiguration>() {
 
-         public int compare(TransportConfiguration o1, TransportConfiguration o2)
-         {
+         public int compare(TransportConfiguration o1, TransportConfiguration o2) {
             return o2.toString().compareTo(o1.toString());
          }
       });
       List<DiscoveryEntry> sortedActual = new ArrayList<DiscoveryEntry>(actual);
-      Collections.sort(sortedActual, new Comparator<DiscoveryEntry>()
-      {
-         public int compare(DiscoveryEntry o1, DiscoveryEntry o2)
-         {
+      Collections.sort(sortedActual, new Comparator<DiscoveryEntry>() {
+         public int compare(DiscoveryEntry o1, DiscoveryEntry o2) {
             return o2.getConnector().toString().compareTo(o1.getConnector().toString());
          }
       });
-      if (sortedExpected.size() != sortedActual.size())
-      {
+      if (sortedExpected.size() != sortedActual.size()) {
          dump(sortedExpected, sortedActual);
       }
       assertEquals(sortedExpected.size(), sortedActual.size());
-      for (int i = 0; i < sortedExpected.size(); i++)
-      {
-         if (!sortedExpected.get(i).equals(sortedActual.get(i).getConnector()))
-         {
+      for (int i = 0; i < sortedExpected.size(); i++) {
+         if (!sortedExpected.get(i).equals(sortedActual.get(i).getConnector())) {
             dump(sortedExpected, sortedActual);
          }
          assertEquals(sortedExpected.get(i), sortedActual.get(i).getConnector());
       }
    }
 
-   protected static void dump(List<TransportConfiguration> sortedExpected, List<DiscoveryEntry> sortedActual)
-   {
+   protected static void dump(List<TransportConfiguration> sortedExpected, List<DiscoveryEntry> sortedActual) {
       System.out.println("wrong broadcasts received");
       System.out.println("expected");
       System.out.println("----------------------------");
-      for (TransportConfiguration transportConfiguration : sortedExpected)
-      {
+      for (TransportConfiguration transportConfiguration : sortedExpected) {
          System.out.println("transportConfiguration = " + transportConfiguration);
       }
       System.out.println("----------------------------");
       System.out.println("actual");
       System.out.println("----------------------------");
-      for (DiscoveryEntry discoveryEntry : sortedActual)
-      {
+      for (DiscoveryEntry discoveryEntry : sortedActual) {
          System.out.println("transportConfiguration = " + discoveryEntry.getConnector());
       }
       System.out.println("----------------------------");
@@ -163,92 +146,78 @@ public class DiscoveryBaseTest extends ActiveMQTestBase
                                              final InetAddress localAddress,
                                              int localPort,
                                              final InetAddress groupAddress,
-                                             final int groupPort) throws Exception
-   {
-      return new BroadcastGroupImpl(new FakeNodeManager(nodeID), name, 0, null, new UDPBroadcastEndpointFactory()
-         .setGroupAddress(groupAddress.getHostAddress())
-         .setGroupPort(groupPort)
-         .setLocalBindAddress(localAddress != null ? localAddress.getHostAddress() : null)
-         .setLocalBindPort(localPort));
+                                             final int groupPort) throws Exception {
+      return new BroadcastGroupImpl(new FakeNodeManager(nodeID), name, 0, null, new UDPBroadcastEndpointFactory().setGroupAddress(groupAddress.getHostAddress()).setGroupPort(groupPort).setLocalBindAddress(localAddress != null ? localAddress.getHostAddress() : null).setLocalBindPort(localPort));
    }
 
-   protected DiscoveryGroup newDiscoveryGroup(final String nodeID, final String name, final InetAddress localBindAddress,
-                                              final InetAddress groupAddress, final int groupPort, final long timeout) throws Exception
-   {
+   protected DiscoveryGroup newDiscoveryGroup(final String nodeID,
+                                              final String name,
+                                              final InetAddress localBindAddress,
+                                              final InetAddress groupAddress,
+                                              final int groupPort,
+                                              final long timeout) throws Exception {
       return newDiscoveryGroup(nodeID, name, localBindAddress, groupAddress, groupPort, timeout, null);
    }
 
-   protected DiscoveryGroup newDiscoveryGroup(final String nodeID, final String name, final InetAddress localBindAddress,
-                                              final InetAddress groupAddress, final int groupPort, final long timeout, NotificationService notif) throws Exception
-   {
-      return new DiscoveryGroup(nodeID, name, timeout, new UDPBroadcastEndpointFactory()
-         .setGroupAddress(groupAddress.getHostAddress())
-         .setGroupPort(groupPort)
-         .setLocalBindAddress(localBindAddress != null ? localBindAddress.getHostAddress() : null), notif);
+   protected DiscoveryGroup newDiscoveryGroup(final String nodeID,
+                                              final String name,
+                                              final InetAddress localBindAddress,
+                                              final InetAddress groupAddress,
+                                              final int groupPort,
+                                              final long timeout,
+                                              NotificationService notif) throws Exception {
+      return new DiscoveryGroup(nodeID, name, timeout, new UDPBroadcastEndpointFactory().setGroupAddress(groupAddress.getHostAddress()).setGroupPort(groupPort).setLocalBindAddress(localBindAddress != null ? localBindAddress.getHostAddress() : null), notif);
    }
 
-   protected final class FakeNodeManager extends NodeManager
-   {
+   protected final class FakeNodeManager extends NodeManager {
 
-      public FakeNodeManager(String nodeID)
-      {
+      public FakeNodeManager(String nodeID) {
          super(false, null);
          this.setNodeID(nodeID);
       }
 
       @Override
-      public void awaitLiveNode() throws Exception
-      {
+      public void awaitLiveNode() throws Exception {
       }
 
       @Override
-      public void startBackup() throws Exception
-      {
+      public void startBackup() throws Exception {
       }
 
       @Override
-      public void startLiveNode() throws Exception
-      {
+      public void startLiveNode() throws Exception {
       }
 
       @Override
-      public void pauseLiveServer() throws Exception
-      {
+      public void pauseLiveServer() throws Exception {
       }
 
       @Override
-      public void crashLiveServer() throws Exception
-      {
+      public void crashLiveServer() throws Exception {
       }
 
       @Override
-      public void releaseBackup() throws Exception
-      {
+      public void releaseBackup() throws Exception {
       }
 
       @Override
-      public SimpleString readNodeId()
-      {
+      public SimpleString readNodeId() {
          return null;
       }
 
       @Override
-      public boolean isAwaitingFailback() throws Exception
-      {
+      public boolean isAwaitingFailback() throws Exception {
          return false;
       }
 
       @Override
-      public boolean isBackupLive() throws Exception
-      {
+      public boolean isBackupLive() throws Exception {
          return false;
       }
 
       @Override
-      public void interrupt()
-      {
+      public void interrupt() {
       }
    }
-
 
 }

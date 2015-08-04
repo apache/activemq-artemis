@@ -37,14 +37,13 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class NettyAcceptorTest extends ActiveMQTestBase
-{
+public class NettyAcceptorTest extends ActiveMQTestBase {
+
    private ScheduledExecutorService pool2;
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       ActiveMQTestBase.checkFreePort(TransportConstants.DEFAULT_PORT);
@@ -52,14 +51,11 @@ public class NettyAcceptorTest extends ActiveMQTestBase
 
    @Override
    @After
-   public void tearDown() throws Exception
-   {
-      try
-      {
+   public void tearDown() throws Exception {
+      try {
          ActiveMQTestBase.checkFreePort(TransportConstants.DEFAULT_PORT);
       }
-      finally
-      {
+      finally {
          if (pool2 != null)
             pool2.shutdownNow();
          super.tearDown();
@@ -67,44 +63,32 @@ public class NettyAcceptorTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testStartStop() throws Exception
-   {
-      BufferHandler handler = new BufferHandler()
-      {
+   public void testStartStop() throws Exception {
+      BufferHandler handler = new BufferHandler() {
 
-         public void bufferReceived(final Object connectionID, final ActiveMQBuffer buffer)
-         {
+         public void bufferReceived(final Object connectionID, final ActiveMQBuffer buffer) {
          }
       };
 
       Map<String, Object> params = new HashMap<String, Object>();
-      ConnectionLifeCycleListener listener = new ConnectionLifeCycleListener()
-      {
+      ConnectionLifeCycleListener listener = new ConnectionLifeCycleListener() {
 
-         public void connectionException(final Object connectionID, final ActiveMQException me)
-         {
+         public void connectionException(final Object connectionID, final ActiveMQException me) {
          }
 
-         public void connectionDestroyed(final Object connectionID)
-         {
+         public void connectionDestroyed(final Object connectionID) {
          }
 
-         public void connectionCreated(final ActiveMQComponent component, final Connection connection, final String protocol)
-         {
+         public void connectionCreated(final ActiveMQComponent component,
+                                       final Connection connection,
+                                       final String protocol) {
          }
 
-         public void connectionReadyForWrites(Object connectionID, boolean ready)
-         {
+         public void connectionReadyForWrites(Object connectionID, boolean ready) {
          }
       };
       pool2 = Executors.newScheduledThreadPool(ActiveMQDefaultConfiguration.getDefaultScheduledThreadPoolMaxSize());
-      NettyAcceptor acceptor = new NettyAcceptor("netty",
-                                                 null,
-                                                 params,
-                                                 handler,
-                                                 listener,
-                                                 pool2,
-                                                 null);
+      NettyAcceptor acceptor = new NettyAcceptor("netty", null, params, handler, listener, pool2, null);
 
       addActiveMQComponent(acceptor);
       acceptor.start();

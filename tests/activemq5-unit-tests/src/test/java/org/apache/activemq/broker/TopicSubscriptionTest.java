@@ -17,6 +17,7 @@
 package org.apache.activemq.broker;
 
 import java.util.concurrent.TimeUnit;
+
 import org.apache.activemq.TestSupport;
 import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.util.ThreadTracker;
@@ -28,133 +29,131 @@ import org.junit.runners.BlockJUnit4ClassRunner;
 
 import static org.junit.Assert.*;
 
-
 @RunWith(BlockJUnit4ClassRunner.class)
 public class TopicSubscriptionTest extends QueueSubscriptionTest {
 
-    @Before
-    public void setUp() throws Exception {
-        super.setUp();
-        durable = true;
-        topic = true;
-    }
+   @Before
+   public void setUp() throws Exception {
+      super.setUp();
+      durable = true;
+      topic = true;
+   }
 
-    @After
-    public void tearDown() throws Exception {
-        super.tearDown();
-        ThreadTracker.result();
-    }
+   @After
+   public void tearDown() throws Exception {
+      super.tearDown();
+      ThreadTracker.result();
+   }
 
-    @Test(timeout = 60 * 1000)
-    public void testManyProducersManyConsumers() throws Exception {
-        consumerCount = 40;
-        producerCount = 20;
-        messageCount  = 100;
-        messageSize   = 1; 
-        prefetchCount = 10;
+   @Test(timeout = 60 * 1000)
+   public void testManyProducersManyConsumers() throws Exception {
+      consumerCount = 40;
+      producerCount = 20;
+      messageCount = 100;
+      messageSize = 1;
+      prefetchCount = 10;
 
-        doMultipleClientsTest();
+      doMultipleClientsTest();
 
-        assertTotalMessagesReceived(messageCount * producerCount * consumerCount);
-        assertDestinationMemoryUsageGoesToZero();
-    }
+      assertTotalMessagesReceived(messageCount * producerCount * consumerCount);
+      assertDestinationMemoryUsageGoesToZero();
+   }
 
-    @Test(timeout = 60 * 1000)
-    public void testOneProducerTwoConsumersLargeMessagesOnePrefetch() throws Exception {
-        consumerCount = 2;
-        producerCount = 1;
-        messageCount  = 10;
-        messageSize   = 1024 * 1024 * 1; // 1 MB
-        prefetchCount = 1;
+   @Test(timeout = 60 * 1000)
+   public void testOneProducerTwoConsumersLargeMessagesOnePrefetch() throws Exception {
+      consumerCount = 2;
+      producerCount = 1;
+      messageCount = 10;
+      messageSize = 1024 * 1024 * 1; // 1 MB
+      prefetchCount = 1;
 
-        doMultipleClientsTest();
+      doMultipleClientsTest();
 
-        assertTotalMessagesReceived(messageCount * consumerCount * producerCount);
-        assertDestinationMemoryUsageGoesToZero();
-    }
+      assertTotalMessagesReceived(messageCount * consumerCount * producerCount);
+      assertDestinationMemoryUsageGoesToZero();
+   }
 
-    @Test(timeout = 60 * 1000)
-    public void testOneProducerTwoConsumersSmallMessagesOnePrefetch() throws Exception {
-        consumerCount = 2;
-        producerCount = 1;
-        prefetchCount = 1;
-        messageSize   = 1024;
-        messageCount  = 1000;
+   @Test(timeout = 60 * 1000)
+   public void testOneProducerTwoConsumersSmallMessagesOnePrefetch() throws Exception {
+      consumerCount = 2;
+      producerCount = 1;
+      prefetchCount = 1;
+      messageSize = 1024;
+      messageCount = 1000;
 
-        doMultipleClientsTest();
+      doMultipleClientsTest();
 
-        assertTotalMessagesReceived(messageCount * consumerCount * producerCount);
-        assertDestinationMemoryUsageGoesToZero();
-    }
+      assertTotalMessagesReceived(messageCount * consumerCount * producerCount);
+      assertDestinationMemoryUsageGoesToZero();
+   }
 
-    @Test(timeout = 60 * 1000)
-    public void testOneProducerTwoConsumersSmallMessagesLargePrefetch() throws Exception {
-        consumerCount = 2;
-        producerCount = 1;
-        messageCount  = 1000;
-        messageSize   = 1024;
-        prefetchCount = messageCount * 2;
+   @Test(timeout = 60 * 1000)
+   public void testOneProducerTwoConsumersSmallMessagesLargePrefetch() throws Exception {
+      consumerCount = 2;
+      producerCount = 1;
+      messageCount = 1000;
+      messageSize = 1024;
+      prefetchCount = messageCount * 2;
 
-        doMultipleClientsTest();
+      doMultipleClientsTest();
 
-        assertTotalMessagesReceived(messageCount * consumerCount * producerCount);
-    }
+      assertTotalMessagesReceived(messageCount * consumerCount * producerCount);
+   }
 
-    @Test(timeout = 60 * 1000)
-    public void testOneProducerTwoConsumersLargeMessagesLargePrefetch() throws Exception {
-        consumerCount = 2;
-        producerCount = 1;
-        messageCount  = 10;
-        messageSize   = 1024 * 1024 * 1; // 1 MB
-        prefetchCount = messageCount * 2;
+   @Test(timeout = 60 * 1000)
+   public void testOneProducerTwoConsumersLargeMessagesLargePrefetch() throws Exception {
+      consumerCount = 2;
+      producerCount = 1;
+      messageCount = 10;
+      messageSize = 1024 * 1024 * 1; // 1 MB
+      prefetchCount = messageCount * 2;
 
-        doMultipleClientsTest();
+      doMultipleClientsTest();
 
-        assertTotalMessagesReceived(messageCount * consumerCount * producerCount);
-        assertDestinationMemoryUsageGoesToZero();
-    }
+      assertTotalMessagesReceived(messageCount * consumerCount * producerCount);
+      assertDestinationMemoryUsageGoesToZero();
+   }
 
-    @Test(timeout = 60 * 1000)
-    public void testOneProducerManyConsumersFewMessages() throws Exception {
-        consumerCount = 50;
-        producerCount = 1;
-        messageCount  = 10;
-        messageSize   = 1; // 1 byte
-        prefetchCount = 10;
+   @Test(timeout = 60 * 1000)
+   public void testOneProducerManyConsumersFewMessages() throws Exception {
+      consumerCount = 50;
+      producerCount = 1;
+      messageCount = 10;
+      messageSize = 1; // 1 byte
+      prefetchCount = 10;
 
-        doMultipleClientsTest();
+      doMultipleClientsTest();
 
-        assertTotalMessagesReceived(messageCount * consumerCount * producerCount);
-        assertDestinationMemoryUsageGoesToZero();
-    }
+      assertTotalMessagesReceived(messageCount * consumerCount * producerCount);
+      assertDestinationMemoryUsageGoesToZero();
+   }
 
-    @Test(timeout = 60 * 1000)
-    public void testOneProducerManyConsumersManyMessages() throws Exception {
-        consumerCount = 50;
-        producerCount = 1;
-        messageCount  = 100;
-        messageSize   = 1; // 1 byte
-        prefetchCount = 10;
+   @Test(timeout = 60 * 1000)
+   public void testOneProducerManyConsumersManyMessages() throws Exception {
+      consumerCount = 50;
+      producerCount = 1;
+      messageCount = 100;
+      messageSize = 1; // 1 byte
+      prefetchCount = 10;
 
-        doMultipleClientsTest();
+      doMultipleClientsTest();
 
-        assertTotalMessagesReceived(messageCount * consumerCount * producerCount);
-        assertDestinationMemoryUsageGoesToZero();
-    }
+      assertTotalMessagesReceived(messageCount * consumerCount * producerCount);
+      assertDestinationMemoryUsageGoesToZero();
+   }
 
+   @Test(timeout = 60 * 1000)
+   public void testManyProducersOneConsumer() throws Exception {
+      consumerCount = 1;
+      producerCount = 20;
+      messageCount = 100;
+      messageSize = 1; // 1 byte
+      prefetchCount = 10;
 
-    @Test(timeout = 60 * 1000)
-    public void testManyProducersOneConsumer() throws Exception {
-        consumerCount = 1;
-        producerCount = 20;
-        messageCount  = 100;
-        messageSize   = 1; // 1 byte
-        prefetchCount = 10;
+      doMultipleClientsTest();
 
-        doMultipleClientsTest();
-
-        assertTotalMessagesReceived(messageCount * producerCount * consumerCount);
-        assertDestinationMemoryUsageGoesToZero();
-    }
+      assertTotalMessagesReceived(messageCount * producerCount * consumerCount);
+      assertDestinationMemoryUsageGoesToZero();
+   }
 
 }

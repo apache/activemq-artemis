@@ -24,61 +24,76 @@ import org.apache.activemq.command.ActiveMQDestination;
 
 public class SimplePojo {
 
-    String name;
-    int age;
-    boolean enabled;
-    URI uri;
-    List<ActiveMQDestination> favorites = new ArrayList<ActiveMQDestination>();
-    List<ActiveMQDestination> nonFavorites = new ArrayList<ActiveMQDestination>();
-    List<ActiveMQDestination> others = new ArrayList<ActiveMQDestination>();
-    String[] systems;
-    
-    public int getAge() {
-        return age;
-    }
-    public void setAge(int age) {
-        this.age = age;
-    }
-    public boolean isEnabled() {
-        return enabled;
-    }
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
-    }
-    public String getName() {
-        return name;
-    }
-    public void setName(String name) {
-        this.name = name;
-    }
-    public URI getUri() {
-        return uri;
-    }
-    public void setUri(URI uri) {
-        this.uri = uri;
-    }
-	public List<ActiveMQDestination> getFavorites() {
-		return favorites;
-	}
-	public void setFavorites(List<ActiveMQDestination> favorites) {
-		this.favorites = favorites;
-	}
-	public List<ActiveMQDestination> getNonFavorites() {
-		return nonFavorites;
-	}
-	public void setNonFavorites(List<ActiveMQDestination> nonFavorites) {
-		this.nonFavorites = nonFavorites;
-	}
-	public List<ActiveMQDestination> getOthers() {
-		return others;
-	}
-	public void setOthers(List<ActiveMQDestination> others) {
-		this.others = others;
-	}
-    public String[] getSystems() {
-        return systems;
-    }
-    public void setSystems(String[] systems) {
-        this.systems = systems;
-    }
+   String name;
+   int age;
+   boolean enabled;
+   URI uri;
+   List<ActiveMQDestination> favorites = new ArrayList<ActiveMQDestination>();
+   List<ActiveMQDestination> nonFavorites = new ArrayList<ActiveMQDestination>();
+   List<ActiveMQDestination> others = new ArrayList<ActiveMQDestination>();
+   String[] systems;
+
+   public int getAge() {
+      return age;
+   }
+
+   public void setAge(int age) {
+      this.age = age;
+   }
+
+   public boolean isEnabled() {
+      return enabled;
+   }
+
+   public void setEnabled(boolean enabled) {
+      this.enabled = enabled;
+   }
+
+   public String getName() {
+      return name;
+   }
+
+   public void setName(String name) {
+      this.name = name;
+   }
+
+   public URI getUri() {
+      return uri;
+   }
+
+   public void setUri(URI uri) {
+      this.uri = uri;
+   }
+
+   public List<ActiveMQDestination> getFavorites() {
+      return favorites;
+   }
+
+   public void setFavorites(List<ActiveMQDestination> favorites) {
+      this.favorites = favorites;
+   }
+
+   public List<ActiveMQDestination> getNonFavorites() {
+      return nonFavorites;
+   }
+
+   public void setNonFavorites(List<ActiveMQDestination> nonFavorites) {
+      this.nonFavorites = nonFavorites;
+   }
+
+   public List<ActiveMQDestination> getOthers() {
+      return others;
+   }
+
+   public void setOthers(List<ActiveMQDestination> others) {
+      this.others = others;
+   }
+
+   public String[] getSystems() {
+      return systems;
+   }
+
+   public void setSystems(String[] systems) {
+      this.systems = systems;
+   }
 }

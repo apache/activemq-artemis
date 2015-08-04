@@ -48,233 +48,236 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class AMQ3405Test extends TestSupport {
-    private static final Logger LOG = LoggerFactory.getLogger(AMQ3405Test.class);
 
-    private Connection connection;
-    private Session session;
-    private MessageConsumer consumer;
-    private MessageProducer producer;
-    private int deliveryMode = DeliveryMode.PERSISTENT;
-    private Destination dlqDestination;
-    private MessageConsumer dlqConsumer;
-    private BrokerService broker;
+   private static final Logger LOG = LoggerFactory.getLogger(AMQ3405Test.class);
 
-    private int messageCount;
-    private Destination destination;
-    private int rollbackCount;
-    private Session dlqSession;
-    private final Error[] error = new Error[1];
-    private boolean topic = true;
-    private boolean durableSubscriber = true;
+   private Connection connection;
+   private Session session;
+   private MessageConsumer consumer;
+   private MessageProducer producer;
+   private int deliveryMode = DeliveryMode.PERSISTENT;
+   private Destination dlqDestination;
+   private MessageConsumer dlqConsumer;
+   private BrokerService broker;
 
-    public void testTransientTopicMessage() throws Exception {
-        topic = true;
-        deliveryMode = DeliveryMode.NON_PERSISTENT;
-        durableSubscriber = true;
-        doTest();
-    }
+   private int messageCount;
+   private Destination destination;
+   private int rollbackCount;
+   private Session dlqSession;
+   private final Error[] error = new Error[1];
+   private boolean topic = true;
+   private boolean durableSubscriber = true;
 
-    protected BrokerService createBroker() throws Exception {
-        BrokerService broker = new BrokerService();
-        broker.setPersistent(false);
-        PolicyEntry policy = new PolicyEntry();
-        DeadLetterStrategy defaultDeadLetterStrategy = policy.getDeadLetterStrategy();
-        if(defaultDeadLetterStrategy!=null) {
-            defaultDeadLetterStrategy.setProcessNonPersistent(true);
-        }
-        PolicyMap pMap = new PolicyMap();
-        pMap.setDefaultEntry(policy);
-        broker.setDestinationPolicy(pMap);
-        return broker;
-    }
+   public void testTransientTopicMessage() throws Exception {
+      topic = true;
+      deliveryMode = DeliveryMode.NON_PERSISTENT;
+      durableSubscriber = true;
+      doTest();
+   }
 
-    protected void doTest() throws Exception {
-        messageCount = 200;
-        connection.start();
+   protected BrokerService createBroker() throws Exception {
+      BrokerService broker = new BrokerService();
+      broker.setPersistent(false);
+      PolicyEntry policy = new PolicyEntry();
+      DeadLetterStrategy defaultDeadLetterStrategy = policy.getDeadLetterStrategy();
+      if (defaultDeadLetterStrategy != null) {
+         defaultDeadLetterStrategy.setProcessNonPersistent(true);
+      }
+      PolicyMap pMap = new PolicyMap();
+      pMap.setDefaultEntry(policy);
+      broker.setDestinationPolicy(pMap);
+      return broker;
+   }
 
-        final QueueViewMBean dlqView = getProxyToDLQ();
+   protected void doTest() throws Exception {
+      messageCount = 200;
+      connection.start();
 
-        ActiveMQConnection amqConnection = (ActiveMQConnection) connection;
-        rollbackCount = amqConnection.getRedeliveryPolicy().getMaximumRedeliveries() + 1;
-        LOG.info("Will redeliver messages: " + rollbackCount + " times");
+      final QueueViewMBean dlqView = getProxyToDLQ();
 
-        makeConsumer();
-        makeDlqConsumer();
-        dlqConsumer.close();
+      ActiveMQConnection amqConnection = (ActiveMQConnection) connection;
+      rollbackCount = amqConnection.getRedeliveryPolicy().getMaximumRedeliveries() + 1;
+      LOG.info("Will redeliver messages: " + rollbackCount + " times");
 
-        sendMessages();
+      makeConsumer();
+      makeDlqConsumer();
+      dlqConsumer.close();
 
-        // now lets receive and rollback N times
-        int maxRollbacks = messageCount * rollbackCount;
+      sendMessages();
 
-        consumer.setMessageListener(new RollbackMessageListener(maxRollbacks, rollbackCount));
+      // now lets receive and rollback N times
+      int maxRollbacks = messageCount * rollbackCount;
 
-        // We receive and rollback into the DLQ N times moving the DLQ messages back to their
-        // original Q to test that they are continually placed back in the DLQ.
-        for (int i = 0; i < 2; ++i) {
+      consumer.setMessageListener(new RollbackMessageListener(maxRollbacks, rollbackCount));
 
-            assertTrue("DLQ was not filled as expected", Wait.waitFor(new Wait.Condition() {
-                @Override
-                public boolean isSatisified() throws Exception {
-                    return dlqView.getQueueSize() == messageCount;
-                }
-            }));
+      // We receive and rollback into the DLQ N times moving the DLQ messages back to their
+      // original Q to test that they are continually placed back in the DLQ.
+      for (int i = 0; i < 2; ++i) {
 
-            connection.stop();
-
-            assertEquals("DLQ should be full now.", messageCount, dlqView.getQueueSize());
-
-            String moveTo;
-            if (topic) {
-                moveTo = "topic://" + ((Topic) getDestination()).getTopicName();
-            } else {
-                moveTo = "queue://" + ((Queue) getDestination()).getQueueName();
+         assertTrue("DLQ was not filled as expected", Wait.waitFor(new Wait.Condition() {
+            @Override
+            public boolean isSatisified() throws Exception {
+               return dlqView.getQueueSize() == messageCount;
             }
+         }));
 
-            LOG.debug("Moving " + messageCount + " messages from ActiveMQ.DLQ to " + moveTo);
-            dlqView.moveMatchingMessagesTo("", moveTo);
+         connection.stop();
 
-            assertTrue("DLQ was not emptied as expected", Wait.waitFor(new Wait.Condition() {
-                @Override
-                public boolean isSatisified() throws Exception {
-                    return dlqView.getQueueSize() == 0;
-                }
-            }));
+         assertEquals("DLQ should be full now.", messageCount, dlqView.getQueueSize());
 
-            connection.start();
-        }
-    }
+         String moveTo;
+         if (topic) {
+            moveTo = "topic://" + ((Topic) getDestination()).getTopicName();
+         }
+         else {
+            moveTo = "queue://" + ((Queue) getDestination()).getQueueName();
+         }
 
-    protected void makeConsumer() throws JMSException {
-        Destination destination = getDestination();
-        LOG.info("Consuming from: " + destination);
-        if (durableSubscriber) {
-            consumer = session.createDurableSubscriber((Topic)destination, destination.toString());
-        } else {
-            consumer = session.createConsumer(destination);
-        }
-    }
+         LOG.debug("Moving " + messageCount + " messages from ActiveMQ.DLQ to " + moveTo);
+         dlqView.moveMatchingMessagesTo("", moveTo);
 
-    protected void makeDlqConsumer() throws JMSException {
-        dlqDestination = createDlqDestination();
-
-        LOG.info("Consuming from dead letter on: " + dlqDestination);
-        dlqConsumer = dlqSession.createConsumer(dlqDestination);
-    }
-
-    @Override
-    protected void setUp() throws Exception {
-        broker = createBroker();
-        broker.start();
-        broker.waitUntilStarted();
-
-        connection = createConnection();
-        connection.setClientID(createClientId());
-
-        session = connection.createSession(true, Session.AUTO_ACKNOWLEDGE);
-        connection.start();
-
-        dlqSession = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-    }
-
-    @Override
-    protected void tearDown() throws Exception {
-        dlqConsumer.close();
-        dlqSession.close();
-        session.close();
-
-        if (broker != null) {
-            broker.stop();
-            broker.waitUntilStopped();
-        }
-    };
-
-    @Override
-    protected ActiveMQConnectionFactory createConnectionFactory()
-            throws Exception {
-        ActiveMQConnectionFactory answer = super.createConnectionFactory();
-        RedeliveryPolicy policy = new RedeliveryPolicy();
-        policy.setMaximumRedeliveries(3);
-        policy.setBackOffMultiplier((short) 1);
-        policy.setRedeliveryDelay(0);
-        policy.setInitialRedeliveryDelay(0);
-        policy.setUseExponentialBackOff(false);
-        answer.setRedeliveryPolicy(policy);
-        return answer;
-    }
-
-    protected void sendMessages() throws JMSException {
-        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        producer = session.createProducer(getDestination());
-        producer.setDeliveryMode(deliveryMode);
-
-        LOG.info("Sending " + messageCount + " messages to: " + getDestination());
-        for (int i = 0; i < messageCount; i++) {
-            Message message = createMessage(session, i);
-            producer.send(message);
-        }
-    }
-
-    protected TextMessage createMessage(Session session, int i) throws JMSException {
-        return session.createTextMessage(getMessageText(i));
-    }
-
-    protected String getMessageText(int i) {
-        return "message: " + i;
-    }
-
-    protected Destination createDlqDestination() {
-        return new ActiveMQQueue("ActiveMQ.DLQ");
-    }
-
-    private QueueViewMBean getProxyToDLQ() throws MalformedObjectNameException, JMSException {
-        ObjectName queueViewMBeanName = new ObjectName(
-            "org.apache.activemq:type=Broker,brokerName=localhost," +
-            "destinationType=Queue,destinationName=ActiveMQ.DLQ");
-        QueueViewMBean proxy = (QueueViewMBean) broker.getManagementContext()
-                .newProxyInstance(queueViewMBeanName, QueueViewMBean.class, true);
-        return proxy;
-    }
-
-    protected Destination getDestination() {
-        if (destination == null) {
-            destination = createDestination();
-        }
-        return destination;
-    }
-
-    protected String createClientId() {
-        return toString();
-    }
-
-    class RollbackMessageListener implements MessageListener {
-
-        final int maxRollbacks;
-        final int deliveryCount;
-        final AtomicInteger rollbacks = new AtomicInteger();
-
-        RollbackMessageListener(int c, int delvery) {
-            maxRollbacks = c;
-            deliveryCount = delvery;
-        }
-
-        @Override
-        public void onMessage(Message message) {
-            try {
-                int expectedMessageId = rollbacks.get() / deliveryCount;
-                LOG.info("expecting messageId: " + expectedMessageId);
-                rollbacks.incrementAndGet();
-                session.rollback();
-            } catch (Throwable e) {
-                LOG.error("unexpected exception:" + e, e);
-                // propagating assertError to execution task will cause a hang
-                // at shutdown
-                if (e instanceof Error) {
-                    error[0] = (Error) e;
-                } else {
-                    fail("unexpected exception: " + e);
-                }
+         assertTrue("DLQ was not emptied as expected", Wait.waitFor(new Wait.Condition() {
+            @Override
+            public boolean isSatisified() throws Exception {
+               return dlqView.getQueueSize() == 0;
             }
-        }
-    }
+         }));
+
+         connection.start();
+      }
+   }
+
+   protected void makeConsumer() throws JMSException {
+      Destination destination = getDestination();
+      LOG.info("Consuming from: " + destination);
+      if (durableSubscriber) {
+         consumer = session.createDurableSubscriber((Topic) destination, destination.toString());
+      }
+      else {
+         consumer = session.createConsumer(destination);
+      }
+   }
+
+   protected void makeDlqConsumer() throws JMSException {
+      dlqDestination = createDlqDestination();
+
+      LOG.info("Consuming from dead letter on: " + dlqDestination);
+      dlqConsumer = dlqSession.createConsumer(dlqDestination);
+   }
+
+   @Override
+   protected void setUp() throws Exception {
+      broker = createBroker();
+      broker.start();
+      broker.waitUntilStarted();
+
+      connection = createConnection();
+      connection.setClientID(createClientId());
+
+      session = connection.createSession(true, Session.AUTO_ACKNOWLEDGE);
+      connection.start();
+
+      dlqSession = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+   }
+
+   @Override
+   protected void tearDown() throws Exception {
+      dlqConsumer.close();
+      dlqSession.close();
+      session.close();
+
+      if (broker != null) {
+         broker.stop();
+         broker.waitUntilStopped();
+      }
+   }
+
+   ;
+
+   @Override
+   protected ActiveMQConnectionFactory createConnectionFactory() throws Exception {
+      ActiveMQConnectionFactory answer = super.createConnectionFactory();
+      RedeliveryPolicy policy = new RedeliveryPolicy();
+      policy.setMaximumRedeliveries(3);
+      policy.setBackOffMultiplier((short) 1);
+      policy.setRedeliveryDelay(0);
+      policy.setInitialRedeliveryDelay(0);
+      policy.setUseExponentialBackOff(false);
+      answer.setRedeliveryPolicy(policy);
+      return answer;
+   }
+
+   protected void sendMessages() throws JMSException {
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      producer = session.createProducer(getDestination());
+      producer.setDeliveryMode(deliveryMode);
+
+      LOG.info("Sending " + messageCount + " messages to: " + getDestination());
+      for (int i = 0; i < messageCount; i++) {
+         Message message = createMessage(session, i);
+         producer.send(message);
+      }
+   }
+
+   protected TextMessage createMessage(Session session, int i) throws JMSException {
+      return session.createTextMessage(getMessageText(i));
+   }
+
+   protected String getMessageText(int i) {
+      return "message: " + i;
+   }
+
+   protected Destination createDlqDestination() {
+      return new ActiveMQQueue("ActiveMQ.DLQ");
+   }
+
+   private QueueViewMBean getProxyToDLQ() throws MalformedObjectNameException, JMSException {
+      ObjectName queueViewMBeanName = new ObjectName("org.apache.activemq:type=Broker,brokerName=localhost," + "destinationType=Queue,destinationName=ActiveMQ.DLQ");
+      QueueViewMBean proxy = (QueueViewMBean) broker.getManagementContext().newProxyInstance(queueViewMBeanName, QueueViewMBean.class, true);
+      return proxy;
+   }
+
+   protected Destination getDestination() {
+      if (destination == null) {
+         destination = createDestination();
+      }
+      return destination;
+   }
+
+   protected String createClientId() {
+      return toString();
+   }
+
+   class RollbackMessageListener implements MessageListener {
+
+      final int maxRollbacks;
+      final int deliveryCount;
+      final AtomicInteger rollbacks = new AtomicInteger();
+
+      RollbackMessageListener(int c, int delvery) {
+         maxRollbacks = c;
+         deliveryCount = delvery;
+      }
+
+      @Override
+      public void onMessage(Message message) {
+         try {
+            int expectedMessageId = rollbacks.get() / deliveryCount;
+            LOG.info("expecting messageId: " + expectedMessageId);
+            rollbacks.incrementAndGet();
+            session.rollback();
+         }
+         catch (Throwable e) {
+            LOG.error("unexpected exception:" + e, e);
+            // propagating assertError to execution task will cause a hang
+            // at shutdown
+            if (e instanceof Error) {
+               error[0] = (Error) e;
+            }
+            else {
+               fail("unexpected exception: " + e);
+            }
+         }
+      }
+   }
 }

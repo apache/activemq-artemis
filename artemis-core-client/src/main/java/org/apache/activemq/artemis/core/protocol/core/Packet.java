@@ -22,8 +22,8 @@ import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 /**
  * A Packet represents a packet of data transmitted over a connection.
  */
-public interface Packet
-{
+public interface Packet {
+
    /**
     * Sets the channel id that should be used once the packet has been successfully decoded it is
     * sent to the correct channel.
@@ -48,7 +48,7 @@ public interface Packet
 
    /**
     * returns the type of the packet.
-    * <p>
+    * <br>
     * This is needed when decoding the packet
     *
     * @return the packet type

@@ -25,15 +25,13 @@ import org.apache.activemq.artemis.api.core.SimpleString;
  * <br>
  * This class can be instantiated directly.
  */
-public class ActiveMQTopic extends ActiveMQDestination implements Topic
-{
+public class ActiveMQTopic extends ActiveMQDestination implements Topic {
    // Constants -----------------------------------------------------
 
    private static final long serialVersionUID = 7873614001276404156L;
    // Static --------------------------------------------------------
 
-   public static SimpleString createAddressFromName(final String name)
-   {
+   public static SimpleString createAddressFromName(final String name) {
       return new SimpleString(JMS_TOPIC_ADDRESS_PREFIX + name);
    }
 
@@ -41,16 +39,13 @@ public class ActiveMQTopic extends ActiveMQDestination implements Topic
 
    // Constructors --------------------------------------------------
 
-   public ActiveMQTopic(final String name)
-   {
+   public ActiveMQTopic(final String name) {
       this(name, false);
    }
 
-   public ActiveMQTopic(final String name, boolean temporary)
-   {
+   public ActiveMQTopic(final String name, boolean temporary) {
       super(JMS_TOPIC_ADDRESS_PREFIX + name, name, temporary, false, null);
    }
-
 
    /**
     * @param address
@@ -58,24 +53,20 @@ public class ActiveMQTopic extends ActiveMQDestination implements Topic
     * @param temporary
     * @param session
     */
-   protected ActiveMQTopic(String address, String name, boolean temporary, ActiveMQSession session)
-   {
+   protected ActiveMQTopic(String address, String name, boolean temporary, ActiveMQSession session) {
       super(address, name, temporary, false, session);
    }
 
-
    // Topic implementation ------------------------------------------
 
-   public String getTopicName()
-   {
+   public String getTopicName() {
       return name;
    }
 
    // Public --------------------------------------------------------
 
    @Override
-   public String toString()
-   {
+   public String toString() {
       return "ActiveMQTopic[" + name + "]";
    }
 

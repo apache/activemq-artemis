@@ -28,8 +28,8 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Before;
 import org.junit.Test;
 
-public class MessagePropertyTest extends ActiveMQTestBase
-{
+public class MessagePropertyTest extends ActiveMQTestBase {
+
    private ActiveMQServer server;
    private ServerLocator locator;
    private ClientSessionFactory sf;
@@ -40,8 +40,7 @@ public class MessagePropertyTest extends ActiveMQTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
       server = createServer(true);
       server.start();
@@ -49,14 +48,12 @@ public class MessagePropertyTest extends ActiveMQTestBase
       sf = createSessionFactory(locator);
    }
 
-   private void sendMessages() throws Exception
-   {
+   private void sendMessages() throws Exception {
       ClientSession session = sf.createSession(true, true);
       session.createQueue(ADDRESS, ADDRESS, null, true);
       ClientProducer producer = session.createProducer(ADDRESS);
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session.createMessage(true);
          setBody(i, message);
          message.putIntProperty("int", i);
@@ -71,31 +68,25 @@ public class MessagePropertyTest extends ActiveMQTestBase
       session.commit();
    }
 
-   private float floatValue(int i)
-   {
+   private float floatValue(int i) {
       return (float) (i * 1.3);
    }
 
-   private byte[] byteArray(int i)
-   {
+   private byte[] byteArray(int i) {
       return new byte[]{(byte) i, (byte) (i / 2)};
    }
 
    @Test
-   public void testProperties() throws Exception
-   {
+   public void testProperties() throws Exception {
       sendMessages();
       receiveMessages();
    }
 
-
-   private void receiveMessages() throws Exception
-   {
+   private void receiveMessages() throws Exception {
       ClientSession session = sf.createSession(true, true);
       session.start();
       ClientConsumer consumer = session.createConsumer(ADDRESS);
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = consumer.receive(100);
          assertNotNull("Expecting a message " + i, message);
          assertMessageBody(i, message);
@@ -103,8 +94,7 @@ public class MessagePropertyTest extends ActiveMQTestBase
          assertEquals((short) i, message.getShortProperty("short").shortValue());
          assertEquals((byte) i, message.getByteProperty("byte").byteValue());
          assertEquals(floatValue(i), message.getFloatProperty("float").floatValue(), 0.001);
-         assertEquals(new SimpleString(Integer.toString(i)),
-                      message.getSimpleStringProperty(SIMPLE_STRING_KEY.toString()));
+         assertEquals(new SimpleString(Integer.toString(i)), message.getSimpleStringProperty(SIMPLE_STRING_KEY.toString()));
          assertEqualsByteArrays(byteArray(i), message.getBytesProperty("byte[]"));
 
          assertTrue(message.containsProperty("null-value"));

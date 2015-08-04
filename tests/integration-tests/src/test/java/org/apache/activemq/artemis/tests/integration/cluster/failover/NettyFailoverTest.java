@@ -32,32 +32,25 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 
-public class NettyFailoverTest extends FailoverTest
-{
+public class NettyFailoverTest extends FailoverTest {
+
    @Override
-   protected TransportConfiguration getAcceptorTransportConfiguration(final boolean live)
-   {
+   protected TransportConfiguration getAcceptorTransportConfiguration(final boolean live) {
       return getNettyAcceptorTransportConfiguration(live);
    }
 
    @Override
-   protected TransportConfiguration getConnectorTransportConfiguration(final boolean live)
-   {
+   protected TransportConfiguration getConnectorTransportConfiguration(final boolean live) {
       return getNettyConnectorTransportConfiguration(live);
    }
 
    @Test
-   public void testFailoverWithHostAlias() throws Exception
-   {
+   public void testFailoverWithHostAlias() throws Exception {
       Map<String, Object> params = new HashMap<String, Object>();
       params.put(TransportConstants.HOST_PROP_NAME, "127.0.0.1");
       TransportConfiguration tc = createTransportConfiguration(true, false, params);
 
-      ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithHA(tc))
-              .setBlockOnNonDurableSend(true)
-              .setBlockOnDurableSend(true)
-              .setBlockOnAcknowledge(true)
-              .setReconnectAttempts(-1);
+      ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithHA(tc)).setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setBlockOnAcknowledge(true).setReconnectAttempts(-1);
 
       ClientSessionFactoryInternal sf = createSessionFactoryAndWaitForTopology(locator, 2);
 

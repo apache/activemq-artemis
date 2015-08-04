@@ -25,107 +25,106 @@ import org.apache.activemq.JmsMultipleBrokersTestSupport;
 import org.apache.activemq.util.MessageIdList;
 
 public class TwoBrokerMessageNotSentToRemoteWhenNoConsumerTest extends JmsMultipleBrokersTestSupport {
-    protected static final int MESSAGE_COUNT = 100;
 
-    /**
-     * BrokerA -> BrokerB
-     */
-    public void testRemoteBrokerHasConsumer() throws Exception {
-        // Setup broker networks
-        bridgeBrokers("BrokerA", "BrokerB");
+   protected static final int MESSAGE_COUNT = 100;
 
-        startAllBrokers();
+   /**
+    * BrokerA -> BrokerB
+    */
+   public void testRemoteBrokerHasConsumer() throws Exception {
+      // Setup broker networks
+      bridgeBrokers("BrokerA", "BrokerB");
 
-        // Setup destination
-        Destination dest = createDestination("TEST.FOO", true);
+      startAllBrokers();
 
-        // Setup consumers
-        MessageConsumer clientA = createConsumer("BrokerA", dest);
-        MessageConsumer clientB = createConsumer("BrokerB", dest);
+      // Setup destination
+      Destination dest = createDestination("TEST.FOO", true);
 
-        Thread.sleep(2000);
-        // Send messages
-        sendMessages("BrokerA", dest, MESSAGE_COUNT);
+      // Setup consumers
+      MessageConsumer clientA = createConsumer("BrokerA", dest);
+      MessageConsumer clientB = createConsumer("BrokerB", dest);
 
-        // Get message count
-        MessageIdList msgsA = getConsumerMessages("BrokerA", clientA);
-        MessageIdList msgsB = getConsumerMessages("BrokerB", clientB);
+      Thread.sleep(2000);
+      // Send messages
+      sendMessages("BrokerA", dest, MESSAGE_COUNT);
 
-        msgsA.waitForMessagesToArrive(MESSAGE_COUNT);
-        msgsB.waitForMessagesToArrive(MESSAGE_COUNT);
+      // Get message count
+      MessageIdList msgsA = getConsumerMessages("BrokerA", clientA);
+      MessageIdList msgsB = getConsumerMessages("BrokerB", clientB);
 
-        assertEquals(MESSAGE_COUNT, msgsA.getMessageCount());
-        assertEquals(MESSAGE_COUNT, msgsB.getMessageCount());
+      msgsA.waitForMessagesToArrive(MESSAGE_COUNT);
+      msgsB.waitForMessagesToArrive(MESSAGE_COUNT);
 
-    }
+      assertEquals(MESSAGE_COUNT, msgsA.getMessageCount());
+      assertEquals(MESSAGE_COUNT, msgsB.getMessageCount());
 
-    /**
-     * BrokerA -> BrokerB
-     */
-    public void testRemoteBrokerHasNoConsumer() throws Exception {
-        // Setup broker networks
-        bridgeBrokers("BrokerA", "BrokerB");
+   }
 
-        startAllBrokers();
+   /**
+    * BrokerA -> BrokerB
+    */
+   public void testRemoteBrokerHasNoConsumer() throws Exception {
+      // Setup broker networks
+      bridgeBrokers("BrokerA", "BrokerB");
 
-        // Setup destination
-        Destination dest = createDestination("TEST.FOO", true);
+      startAllBrokers();
 
-        // Setup consumers
-        MessageConsumer clientA = createConsumer("BrokerA", dest);
+      // Setup destination
+      Destination dest = createDestination("TEST.FOO", true);
 
-        // Send messages
-        sendMessages("BrokerA", dest, MESSAGE_COUNT);
+      // Setup consumers
+      MessageConsumer clientA = createConsumer("BrokerA", dest);
 
-        // Get message count
-        MessageIdList msgsA = getConsumerMessages("BrokerA", clientA);
+      // Send messages
+      sendMessages("BrokerA", dest, MESSAGE_COUNT);
 
-        msgsA.waitForMessagesToArrive(MESSAGE_COUNT);
+      // Get message count
+      MessageIdList msgsA = getConsumerMessages("BrokerA", clientA);
 
-        assertEquals(MESSAGE_COUNT, msgsA.getMessageCount());
+      msgsA.waitForMessagesToArrive(MESSAGE_COUNT);
 
-    }
-    
-    /**
-     * BrokerA -> BrokerB && BrokerB -> BrokerA
-     */
-    public void testDuplexStaticRemoteBrokerHasNoConsumer() throws Exception {
-        // Setup broker networks
-        boolean dynamicOnly = true;
-        int networkTTL = 2;
-        boolean conduit = true;
-        bridgeBrokers("BrokerA", "BrokerB", dynamicOnly, networkTTL, conduit);
-        bridgeBrokers("BrokerB", "BrokerA", dynamicOnly, networkTTL, conduit);
+      assertEquals(MESSAGE_COUNT, msgsA.getMessageCount());
 
-        startAllBrokers();
+   }
 
-        // Setup destination
-        Destination dest = createDestination("TEST.FOO", false);
+   /**
+    * BrokerA -> BrokerB && BrokerB -> BrokerA
+    */
+   public void testDuplexStaticRemoteBrokerHasNoConsumer() throws Exception {
+      // Setup broker networks
+      boolean dynamicOnly = true;
+      int networkTTL = 2;
+      boolean conduit = true;
+      bridgeBrokers("BrokerA", "BrokerB", dynamicOnly, networkTTL, conduit);
+      bridgeBrokers("BrokerB", "BrokerA", dynamicOnly, networkTTL, conduit);
 
-        // Setup consumers
-        MessageConsumer clientA = createConsumer("BrokerA", dest);
+      startAllBrokers();
 
-        Thread.sleep(2*1000);
-        
-        int messageCount = 2000;
-        // Send messages
-        sendMessages("BrokerA", dest, messageCount);
+      // Setup destination
+      Destination dest = createDestination("TEST.FOO", false);
 
-        // Get message count
-        MessageIdList msgsA = getConsumerMessages("BrokerA", clientA);
+      // Setup consumers
+      MessageConsumer clientA = createConsumer("BrokerA", dest);
 
-        msgsA.waitForMessagesToArrive(messageCount);
+      Thread.sleep(2 * 1000);
 
-        assertEquals(messageCount, msgsA.getMessageCount());
+      int messageCount = 2000;
+      // Send messages
+      sendMessages("BrokerA", dest, messageCount);
 
-    }
+      // Get message count
+      MessageIdList msgsA = getConsumerMessages("BrokerA", clientA);
 
-    public void setUp() throws Exception {
-        super.setAutoFail(true);
-        super.setUp();
-        createBroker(new URI(
-                "broker:(tcp://localhost:61616)/BrokerA?persistent=false&useJmx=false"));
-        createBroker(new URI(
-                "broker:(tcp://localhost:61617)/BrokerB?persistent=false&useJmx=false"));
-    }
+      msgsA.waitForMessagesToArrive(messageCount);
+
+      assertEquals(messageCount, msgsA.getMessageCount());
+
+   }
+
+   public void setUp() throws Exception {
+      super.setAutoFail(true);
+      super.setUp();
+      createBroker(new URI("broker:(tcp://localhost:61616)/BrokerA?persistent=false&useJmx=false"));
+      createBroker(new URI("broker:(tcp://localhost:61617)/BrokerB?persistent=false&useJmx=false"));
+   }
 }

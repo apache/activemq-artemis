@@ -22,28 +22,26 @@ import java.util.concurrent.CountDownLatch;
 
 import org.junit.Assert;
 
-
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.utils.DataConstants;
 
-public class SimpleStringTest extends Assert
-{
+public class SimpleStringTest extends Assert {
+
    /**
     * Converting back and forth between char and byte requires care as char is unsigned.
+    *
     * @see SimpleString#getChars(int, int, char[], int)
     * @see SimpleString#charAt(int)
     * @see SimpleString#split(char)
     * @see SimpleString#concat(char)
     */
    @Test
-   public void testGetChar()
-   {
+   public void testGetChar() {
       SimpleString p1 = new SimpleString("foo");
       SimpleString p2 = new SimpleString("bar");
-      for (int i = 0; i < 1 << 16; i++)
-      {
+      for (int i = 0; i < 1 << 16; i++) {
          String msg = "expecting " + i;
-         char c = (char)i;
+         char c = (char) i;
          SimpleString s = new SimpleString(String.valueOf(c));
 
          // test getChars(...)
@@ -66,20 +64,17 @@ public class SimpleStringTest extends Assert
          assertEquals(split1.length + split2.length, chunks.length);
 
          int j = 0;
-         for (SimpleString iS : split1)
-         {
+         for (SimpleString iS : split1) {
             assertEquals(iS.toString(), iS, chunks[j++]);
          }
-         for (SimpleString iS : split2)
-         {
+         for (SimpleString iS : split2) {
             assertEquals(iS.toString(), iS, chunks[j++]);
          }
       }
    }
 
    @Test
-   public void testString() throws Exception
-   {
+   public void testString() throws Exception {
       final String str = "hello123ABC__524`16254`6125!%^$!%$!%$!%$!%!$%!$$!\uA324";
 
       SimpleString s = new SimpleString(str);
@@ -96,8 +91,7 @@ public class SimpleStringTest extends Assert
    }
 
    @Test
-   public void testStartsWith() throws Exception
-   {
+   public void testStartsWith() throws Exception {
       SimpleString s1 = new SimpleString("abcdefghi");
 
       Assert.assertTrue(s1.startsWith(new SimpleString("abc")));
@@ -114,8 +108,7 @@ public class SimpleStringTest extends Assert
    }
 
    @Test
-   public void testCharSequence() throws Exception
-   {
+   public void testCharSequence() throws Exception {
       String s = "abcdefghijkl";
       SimpleString s1 = new SimpleString(s);
 
@@ -125,43 +118,35 @@ public class SimpleStringTest extends Assert
       Assert.assertEquals('k', s1.charAt(10));
       Assert.assertEquals('l', s1.charAt(11));
 
-      try
-      {
+      try {
          s1.charAt(-1);
          Assert.fail("Should throw exception");
       }
-      catch (IndexOutOfBoundsException e)
-      {
+      catch (IndexOutOfBoundsException e) {
          // OK
       }
 
-      try
-      {
+      try {
          s1.charAt(-2);
          Assert.fail("Should throw exception");
       }
-      catch (IndexOutOfBoundsException e)
-      {
+      catch (IndexOutOfBoundsException e) {
          // OK
       }
 
-      try
-      {
+      try {
          s1.charAt(s.length());
          Assert.fail("Should throw exception");
       }
-      catch (IndexOutOfBoundsException e)
-      {
+      catch (IndexOutOfBoundsException e) {
          // OK
       }
 
-      try
-      {
+      try {
          s1.charAt(s.length() + 1);
          Assert.fail("Should throw exception");
       }
-      catch (IndexOutOfBoundsException e)
-      {
+      catch (IndexOutOfBoundsException e) {
          // OK
       }
 
@@ -180,60 +165,49 @@ public class SimpleStringTest extends Assert
       ss = s1.subSequence(5, 12);
       Assert.assertEquals(ss, new SimpleString("fghijkl"));
 
-      try
-      {
+      try {
          s1.subSequence(-1, 2);
          Assert.fail("Should throw exception");
       }
-      catch (IndexOutOfBoundsException e)
-      {
+      catch (IndexOutOfBoundsException e) {
          // OK
       }
 
-      try
-      {
+      try {
          s1.subSequence(-4, -2);
          Assert.fail("Should throw exception");
       }
-      catch (IndexOutOfBoundsException e)
-      {
+      catch (IndexOutOfBoundsException e) {
          // OK
       }
 
-      try
-      {
+      try {
          s1.subSequence(0, s1.length() + 1);
          Assert.fail("Should throw exception");
       }
-      catch (IndexOutOfBoundsException e)
-      {
+      catch (IndexOutOfBoundsException e) {
          // OK
       }
 
-      try
-      {
+      try {
          s1.subSequence(0, s1.length() + 2);
          Assert.fail("Should throw exception");
       }
-      catch (IndexOutOfBoundsException e)
-      {
+      catch (IndexOutOfBoundsException e) {
          // OK
       }
 
-      try
-      {
+      try {
          s1.subSequence(5, 1);
          Assert.fail("Should throw exception");
       }
-      catch (IndexOutOfBoundsException e)
-      {
+      catch (IndexOutOfBoundsException e) {
          // OK
       }
    }
 
    @Test
-   public void testEquals() throws Exception
-   {
+   public void testEquals() throws Exception {
       Assert.assertFalse(new SimpleString("abcdef").equals(new Object()));
 
       Assert.assertFalse(new SimpleString("abcef").equals(null));
@@ -245,8 +219,7 @@ public class SimpleStringTest extends Assert
    }
 
    @Test
-   public void testHashcode() throws Exception
-   {
+   public void testHashcode() throws Exception {
       SimpleString str = new SimpleString("abcdef");
       SimpleString sameStr = new SimpleString("abcdef");
       SimpleString differentStr = new SimpleString("ghijk");
@@ -256,8 +229,7 @@ public class SimpleStringTest extends Assert
    }
 
    @Test
-   public void testUnicode() throws Exception
-   {
+   public void testUnicode() throws Exception {
       String myString = "abcdef&^*&!^ghijkl\uB5E2\uCAC7\uB2BB\uB7DD\uB7C7\uB3A3\uBCE4\uB5A5";
 
       SimpleString s = new SimpleString(myString);
@@ -268,8 +240,7 @@ public class SimpleStringTest extends Assert
    }
 
    @Test
-   public void testUnicodeWithSurrogates() throws Exception
-   {
+   public void testUnicodeWithSurrogates() throws Exception {
       String myString = "abcdef&^*&!^ghijkl\uD900\uDD00";
 
       SimpleString s = new SimpleString(myString);
@@ -280,8 +251,7 @@ public class SimpleStringTest extends Assert
    }
 
    @Test
-   public void testSizeofString() throws Exception
-   {
+   public void testSizeofString() throws Exception {
       Assert.assertEquals(DataConstants.SIZE_INT, SimpleString.sizeofString(new SimpleString("")));
 
       SimpleString str = new SimpleString(RandomUtil.randomString());
@@ -289,8 +259,7 @@ public class SimpleStringTest extends Assert
    }
 
    @Test
-   public void testSizeofNullableString() throws Exception
-   {
+   public void testSizeofNullableString() throws Exception {
       Assert.assertEquals(1, SimpleString.sizeofNullableString(null));
 
       Assert.assertEquals(1 + DataConstants.SIZE_INT, SimpleString.sizeofNullableString(new SimpleString("")));
@@ -300,8 +269,7 @@ public class SimpleStringTest extends Assert
    }
 
    @Test
-   public void testSplitNoDelimeter() throws Exception
-   {
+   public void testSplitNoDelimeter() throws Exception {
       SimpleString s = new SimpleString("abcdefghi");
       SimpleString[] strings = s.split('.');
       Assert.assertNotNull(strings);
@@ -310,8 +278,7 @@ public class SimpleStringTest extends Assert
    }
 
    @Test
-   public void testSplit1Delimeter() throws Exception
-   {
+   public void testSplit1Delimeter() throws Exception {
       SimpleString s = new SimpleString("abcd.efghi");
       SimpleString[] strings = s.split('.');
       Assert.assertNotNull(strings);
@@ -321,8 +288,7 @@ public class SimpleStringTest extends Assert
    }
 
    @Test
-   public void testSplitmanyDelimeters() throws Exception
-   {
+   public void testSplitmanyDelimeters() throws Exception {
       SimpleString s = new SimpleString("abcd.efghi.jklmn.opqrs.tuvw.xyz");
       SimpleString[] strings = s.split('.');
       Assert.assertNotNull(strings);
@@ -336,8 +302,7 @@ public class SimpleStringTest extends Assert
    }
 
    @Test
-   public void testContains()
-   {
+   public void testContains() {
       SimpleString simpleString = new SimpleString("abcdefghijklmnopqrst");
       Assert.assertFalse(simpleString.contains('.'));
       Assert.assertFalse(simpleString.contains('%'));
@@ -366,31 +331,26 @@ public class SimpleStringTest extends Assert
    }
 
    @Test
-   public void testConcat()
-   {
+   public void testConcat() {
       SimpleString start = new SimpleString("abcdefg");
       SimpleString middle = new SimpleString("hijklmnop");
       SimpleString end = new SimpleString("qrstuvwxyz");
       Assert.assertEquals(start.concat(middle).concat(end), new SimpleString("abcdefghijklmnopqrstuvwxyz"));
       Assert.assertEquals(start.concat('.').concat(end), new SimpleString("abcdefg.qrstuvwxyz"));
       // Testing concat of SimpleString with String
-      for (int i = 0; i < 10; i++)
-      {
+      for (int i = 0; i < 10; i++) {
          Assert.assertEquals(new SimpleString("abcdefg-" + i), start.concat("-" + Integer.toString(i)));
 
       }
    }
 
    @Test
-   public void testMultithreadHashCode() throws Exception
-   {
-      for (int repeat = 0; repeat < 10; repeat++)
-      {
+   public void testMultithreadHashCode() throws Exception {
+      for (int repeat = 0; repeat < 10; repeat++) {
 
          StringBuffer buffer = new StringBuffer();
 
-         for (int i = 0; i < 100; i++)
-         {
+         for (int i = 0; i < 100; i++) {
             buffer.append("Some Big String " + i);
          }
          String strvalue = buffer.toString();
@@ -403,27 +363,23 @@ public class SimpleStringTest extends Assert
          final CountDownLatch latch = new CountDownLatch(nThreads);
          final CountDownLatch start = new CountDownLatch(1);
 
-         class T extends Thread
-         {
+         class T extends Thread {
+
             boolean failed = false;
 
             @Override
-            public void run()
-            {
-               try
-               {
+            public void run() {
+               try {
                   latch.countDown();
                   start.await();
 
                   int newhash = value.hashCode();
 
-                  if (newhash != initialhash)
-                  {
+                  if (newhash != initialhash) {
                      failed = true;
                   }
                }
-               catch (Exception e)
-               {
+               catch (Exception e) {
                   e.printStackTrace();
                   failed = true;
                }
@@ -431,8 +387,7 @@ public class SimpleStringTest extends Assert
          }
 
          T[] x = new T[nThreads];
-         for (int i = 0; i < nThreads; i++)
-         {
+         for (int i = 0; i < nThreads; i++) {
             x[i] = new T();
             x[i].start();
          }
@@ -440,13 +395,11 @@ public class SimpleStringTest extends Assert
          ActiveMQTestBase.waitForLatch(latch);
          start.countDown();
 
-         for (T t : x)
-         {
+         for (T t : x) {
             t.join();
          }
 
-         for (T t : x)
-         {
+         for (T t : x) {
             Assert.assertFalse(t.failed);
          }
       }

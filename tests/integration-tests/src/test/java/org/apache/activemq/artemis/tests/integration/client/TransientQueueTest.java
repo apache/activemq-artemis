@@ -28,12 +28,10 @@ import org.apache.activemq.artemis.tests.util.SingleServerTestBase;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.junit.Test;
 
-public class TransientQueueTest extends SingleServerTestBase
-{
+public class TransientQueueTest extends SingleServerTestBase {
 
    @Test
-   public void testSimpleTransientQueue() throws Exception
-   {
+   public void testSimpleTransientQueue() throws Exception {
       SimpleString queue = RandomUtil.randomSimpleString();
       SimpleString address = RandomUtil.randomSimpleString();
 
@@ -54,8 +52,7 @@ public class TransientQueueTest extends SingleServerTestBase
    }
 
    @Test
-   public void testMultipleConsumers() throws Exception
-   {
+   public void testMultipleConsumers() throws Exception {
       SimpleString queue = SimpleString.toSimpleString("queue");
       SimpleString address = SimpleString.toSimpleString("address");
 
@@ -79,19 +76,15 @@ public class TransientQueueTest extends SingleServerTestBase
       session.start();
       session2.start();
 
-
       ClientProducer producer = session.createProducer(address);
 
-      for (int i = 0; i < 1000; i++)
-      {
+      for (int i = 0; i < 1000; i++) {
          ClientMessage msg = session.createMessage(false);
          producer.send(msg);
       }
 
-
       ClientMessage msg;
-      for (int i = 0; i < 500; i++)
-      {
+      for (int i = 0; i < 500; i++) {
          msg = consumer1.receive(1000);
          assertNotNull(msg);
 
@@ -101,13 +94,10 @@ public class TransientQueueTest extends SingleServerTestBase
          msg.acknowledge();
       }
 
-
       assertNull(consumer1.receiveImmediate());
       assertNull(consumer2.receiveImmediate());
 
-
-      for (int i = 0; i < 1000; i++)
-      {
+      for (int i = 0; i < 1000; i++) {
          msg = session.createMessage(false);
          producer.send(msg);
       }
@@ -119,7 +109,6 @@ public class TransientQueueTest extends SingleServerTestBase
       msg = consumer2.receiveImmediate();
       assertNotNull(msg);
       msg.acknowledge();
-
 
       consumer1.close();
 
@@ -141,11 +130,9 @@ public class TransientQueueTest extends SingleServerTestBase
    }
 
    @Test
-   public void testQueueDifferentConfigs() throws Exception
-   {
+   public void testQueueDifferentConfigs() throws Exception {
       SimpleString queue = RandomUtil.randomSimpleString();
       SimpleString address = RandomUtil.randomSimpleString();
-
 
       server.locateQueue(queue);
       SimpleString address2 = RandomUtil.randomSimpleString();
@@ -153,37 +140,30 @@ public class TransientQueueTest extends SingleServerTestBase
       session.createSharedQueue(address, queue, false);
       assertEquals(1, server.getConnectionCount());
 
-
       ServerLocator locator2 = createLocator();
       ClientSessionFactory sf2 = locator2.createSessionFactory();
       ClientSession session2 = sf2.createSession(false, false);
       addClientSession(session2);
 
-
       boolean exHappened = false;
 
-      try
-      {
+      try {
          // There's already a queue with that name, we are supposed to throw an exception
          session2.createSharedQueue(address2, queue, false);
       }
-      catch (ActiveMQInvalidTransientQueueUseException e)
-      {
+      catch (ActiveMQInvalidTransientQueueUseException e) {
          exHappened = true;
       }
 
       assertTrue(exHappened);
 
-
       exHappened = false;
 
-      try
-      {
+      try {
          // There's already a queue with that name, we are supposed to throw an exception
          session2.createSharedQueue(address, queue, SimpleString.toSimpleString("a=1"), false);
       }
-      catch (ActiveMQInvalidTransientQueueUseException e)
-      {
+      catch (ActiveMQInvalidTransientQueueUseException e) {
          exHappened = true;
       }
 
@@ -194,44 +174,33 @@ public class TransientQueueTest extends SingleServerTestBase
 
       assertNull(server.locateQueue(queue));
 
-
       session.createSharedQueue(address, queue, SimpleString.toSimpleString("q=1"), false);
 
       exHappened = false;
 
-      try
-      {
+      try {
          // There's already a queue with that name, we are supposed to throw an exception
          session2.createSharedQueue(address, queue, SimpleString.toSimpleString("q=2"), false);
       }
-      catch (ActiveMQInvalidTransientQueueUseException e)
-      {
+      catch (ActiveMQInvalidTransientQueueUseException e) {
          exHappened = true;
       }
 
       assertTrue(exHappened);
 
-
       exHappened = false;
-      try
-      {
+      try {
          // There's already a queue with that name, we are supposed to throw an exception
          session2.createSharedQueue(address, queue, false);
       }
-      catch (ActiveMQInvalidTransientQueueUseException e)
-      {
+      catch (ActiveMQInvalidTransientQueueUseException e) {
          exHappened = true;
       }
 
       assertTrue(exHappened);
    }
 
-   protected ServerLocator createLocator()
-   {
-      return super.createLocator()
-              .setConsumerWindowSize(0)
-              .setBlockOnAcknowledge(true)
-              .setBlockOnDurableSend(false)
-              .setBlockOnNonDurableSend(false);
+   protected ServerLocator createLocator() {
+      return super.createLocator().setConsumerWindowSize(0).setBlockOnAcknowledge(true).setBlockOnDurableSend(false).setBlockOnNonDurableSend(false);
    }
 }

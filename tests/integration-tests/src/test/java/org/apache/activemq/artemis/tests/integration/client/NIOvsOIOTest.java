@@ -42,8 +42,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
-public class NIOvsOIOTest extends ActiveMQTestBase
-{
+public class NIOvsOIOTest extends ActiveMQTestBase {
+
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
    // Constants -----------------------------------------------------
@@ -57,19 +57,16 @@ public class NIOvsOIOTest extends ActiveMQTestBase
    // Public --------------------------------------------------------
 
    @Test
-   public void testNIOPerf() throws Exception
-   {
+   public void testNIOPerf() throws Exception {
       testPerf(true);
    }
 
    @Test
-   public void testOIOPerf() throws Exception
-   {
+   public void testOIOPerf() throws Exception {
       testPerf(false);
    }
 
-   private void doTest(String dest) throws Exception
-   {
+   private void doTest(String dest) throws Exception {
 
       final int numSenders = 1;
 
@@ -85,8 +82,7 @@ public class NIOvsOIOTest extends ActiveMQTestBase
 
       ServerLocator locator = createInVMNonHALocator();
 
-      for (int i = 0; i < numReceivers; i++)
-      {
+      for (int i = 0; i < numReceivers; i++) {
 
          ClientSessionFactory sf = createSessionFactory(locator);
 
@@ -99,8 +95,7 @@ public class NIOvsOIOTest extends ActiveMQTestBase
          receivers[i].start();
       }
 
-      for (int i = 0; i < numSenders; i++)
-      {
+      for (int i = 0; i < numSenders; i++) {
          ClientSessionFactory sf = createSessionFactory(locator);
 
          factories.add(sf);
@@ -112,47 +107,40 @@ public class NIOvsOIOTest extends ActiveMQTestBase
 
       long start = System.currentTimeMillis();
 
-      for (int i = 0; i < numSenders; i++)
-      {
+      for (int i = 0; i < numSenders; i++) {
          senders[i].start();
       }
 
-      for (int i = 0; i < numSenders; i++)
-      {
+      for (int i = 0; i < numSenders; i++) {
          senders[i].join();
       }
 
-      for (int i = 0; i < numReceivers; i++)
-      {
+      for (int i = 0; i < numReceivers; i++) {
          receivers[i].await();
       }
 
       long end = System.currentTimeMillis();
 
-      double rate = 1000 * (double)(numMessages * numSenders) / (end - start);
+      double rate = 1000 * (double) (numMessages * numSenders) / (end - start);
 
       logAndSystemOut("Rate is " + rate + " msgs sec");
 
-      for (int i = 0; i < numSenders; i++)
-      {
+      for (int i = 0; i < numSenders; i++) {
          senders[i].terminate();
       }
 
-      for (int i = 0; i < numReceivers; i++)
-      {
+      for (int i = 0; i < numReceivers; i++) {
          receivers[i].terminate();
       }
 
-      for (ClientSessionFactory sf: factories)
-      {
+      for (ClientSessionFactory sf : factories) {
          sf.close();
       }
 
       locator.close();
    }
 
-   private void testPerf(boolean nio) throws Exception
-   {
+   private void testPerf(boolean nio) throws Exception {
       Configuration config = createDefaultInVMConfig();
 
       Map<String, Object> params = new HashMap<String, Object>();
@@ -163,9 +151,7 @@ public class NIOvsOIOTest extends ActiveMQTestBase
 
       ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(config, false));
 
-      AddressSettings addressSettings = new AddressSettings()
-              .setAddressFullMessagePolicy(AddressFullMessagePolicy.BLOCK)
-              .setMaxSizeBytes(10 * 1024 * 1024);
+      AddressSettings addressSettings = new AddressSettings().setAddressFullMessagePolicy(AddressFullMessagePolicy.BLOCK).setMaxSizeBytes(10 * 1024 * 1024);
 
       final String dest = "test-destination";
 
@@ -175,14 +161,13 @@ public class NIOvsOIOTest extends ActiveMQTestBase
 
       server.start();
 
-      for (int i = 0; i < 2; i++)
-      {
+      for (int i = 0; i < 2; i++) {
          doTest(dest);
       }
    }
 
-   private class Sender extends Thread
-   {
+   private class Sender extends Thread {
+
       private final ClientSessionFactory sf;
 
       private final int numMessages;
@@ -195,8 +180,7 @@ public class NIOvsOIOTest extends ActiveMQTestBase
 
       private final int id;
 
-      Sender(int id, ClientSessionFactory sf, final int numMessages, final String dest)
-      {
+      Sender(int id, ClientSessionFactory sf, final int numMessages, final String dest) {
          this.id = id;
 
          this.sf = sf;
@@ -206,26 +190,21 @@ public class NIOvsOIOTest extends ActiveMQTestBase
          this.dest = dest;
       }
 
-      void prepare() throws Exception
-      {
+      void prepare() throws Exception {
          session = sf.createSession(true, true);
 
          producer = session.createProducer(dest);
       }
 
       @Override
-      public void run()
-      {
+      public void run() {
          ClientMessage msg = session.createMessage(false);
 
-         for (int i = 0; i < numMessages; i++)
-         {
-            try
-            {
+         for (int i = 0; i < numMessages; i++) {
+            try {
                producer.send(msg);
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                log.error("Caught exception", e);
             }
 
@@ -234,14 +213,13 @@ public class NIOvsOIOTest extends ActiveMQTestBase
          }
       }
 
-      public void terminate() throws Exception
-      {
+      public void terminate() throws Exception {
          session.close();
       }
    }
 
-   private class Receiver implements MessageHandler
-   {
+   private class Receiver implements MessageHandler {
+
       private final ClientSessionFactory sf;
 
       private final int numMessages;
@@ -256,8 +234,7 @@ public class NIOvsOIOTest extends ActiveMQTestBase
 
       private String queueName;
 
-      Receiver(int id, ClientSessionFactory sf, final int numMessages, final String dest)
-      {
+      Receiver(int id, ClientSessionFactory sf, final int numMessages, final String dest) {
          this.id = id;
 
          this.sf = sf;
@@ -267,8 +244,7 @@ public class NIOvsOIOTest extends ActiveMQTestBase
          this.dest = dest;
       }
 
-      void prepare() throws Exception
-      {
+      void prepare() throws Exception {
          session = sf.createSession(true, true, 0);
 
          queueName = UUIDGenerator.getInstance().generateStringUUID();
@@ -280,35 +256,29 @@ public class NIOvsOIOTest extends ActiveMQTestBase
          consumer.setMessageHandler(this);
       }
 
-      void start() throws Exception
-      {
+      void start() throws Exception {
          session.start();
       }
 
       private final CountDownLatch latch = new CountDownLatch(1);
 
-      void await() throws Exception
-      {
+      void await() throws Exception {
          waitForLatch(latch);
       }
 
       private int count;
 
-      public void onMessage(ClientMessage msg)
-      {
-         try
-         {
+      public void onMessage(ClientMessage msg) {
+         try {
             msg.acknowledge();
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             log.error("Caught exception", e);
          }
 
          count++;
 
-         if (count == numMessages)
-         {
+         if (count == numMessages) {
             latch.countDown();
          }
 
@@ -316,8 +286,7 @@ public class NIOvsOIOTest extends ActiveMQTestBase
 
       }
 
-      public void terminate() throws Exception
-      {
+      public void terminate() throws Exception {
          consumer.close();
 
          session.deleteQueue(queueName);

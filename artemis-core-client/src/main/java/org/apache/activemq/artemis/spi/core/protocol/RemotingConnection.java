@@ -27,15 +27,16 @@ import org.apache.activemq.artemis.spi.core.remoting.Connection;
 
 /**
  * A RemotingConnection is a connection between a client and a server.
- *
- *
+ * <br>
+ * <br>
  * Perhaps a better name for this class now would be ProtocolConnection as this
  * represents the link with the used protocol
  */
-public interface RemotingConnection extends BufferHandler
-{
+public interface RemotingConnection extends BufferHandler {
+
    /**
     * Returns the unique id of the {@link RemotingConnection}.
+    *
     * @return the id
     */
    Object getID();
@@ -54,7 +55,7 @@ public interface RemotingConnection extends BufferHandler
 
    /**
     * add a failure listener.
-    * <p>
+    * <br>
     * The listener will be called in the event of connection failure.
     *
     * @param listener the listener
@@ -71,7 +72,7 @@ public interface RemotingConnection extends BufferHandler
 
    /**
     * add a CloseListener.
-    * <p>
+    * <br>
     * This will be called in the event of the connection being closed.
     *
     * @param listener the listener to add
@@ -90,7 +91,6 @@ public interface RemotingConnection extends BufferHandler
 
    void setCloseListeners(List<CloseListener> listeners);
 
-
    /**
     * return all the failure listeners
     *
@@ -100,10 +100,9 @@ public interface RemotingConnection extends BufferHandler
 
    List<FailureListener> removeFailureListeners();
 
-
    /**
     * set the failure listeners.
-    * <p>
+    * <br>
     * These will be called in the event of the connection being closed. Any previosuly added listeners will be removed.
     *
     * @param listeners the listeners to add.
@@ -129,7 +128,7 @@ public interface RemotingConnection extends BufferHandler
    /**
     * called when the underlying connection fails.
     *
-    * @param me the exception that caused the failure
+    * @param me                    the exception that caused the failure
     * @param scaleDownTargetNodeID the ID of the node where scale down is targeted
     */
    void fail(ActiveMQException me, String scaleDownTargetNodeID);
@@ -148,12 +147,14 @@ public interface RemotingConnection extends BufferHandler
 
    /**
     * Returns whether or not the {@link RemotingConnection} is a client
+    *
     * @return true if client, false if a server
     */
    boolean isClient();
 
    /**
     * Returns true if this {@link RemotingConnection} has been destroyed.
+    *
     * @return true if destroyed, otherwise false
     */
    boolean isDestroyed();

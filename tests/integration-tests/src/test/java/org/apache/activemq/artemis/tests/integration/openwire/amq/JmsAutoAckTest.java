@@ -29,19 +29,17 @@ import org.junit.Test;
 /**
  * adapted from: org.apache.activemq.JmsAutoAckTest
  */
-public class JmsAutoAckTest extends BasicOpenWireTest
-{
+public class JmsAutoAckTest extends BasicOpenWireTest {
+
    /**
     * Tests if acknowleged messages are being consumed.
     *
     * @throws javax.jms.JMSException
     */
    @Test
-   public void testAckedMessageAreConsumed() throws JMSException
-   {
+   public void testAckedMessageAreConsumed() throws JMSException {
       connection.start();
-      Session session = connection.createSession(false,
-            Session.AUTO_ACKNOWLEDGE);
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       Queue queue = session.createQueue(queueName);
       MessageProducer producer = session.createProducer(queue);
       producer.send(session.createTextMessage("Hello"));

@@ -26,42 +26,35 @@ import org.apache.activemq.artemis.api.jms.JMSFactoryType;
 /**
  * {@inheritDoc}
  */
-public class ActiveMQXAQueueConnectionFactory extends ActiveMQConnectionFactory implements XAQueueConnectionFactory
-{
+public class ActiveMQXAQueueConnectionFactory extends ActiveMQConnectionFactory implements XAQueueConnectionFactory {
+
    private static final long serialVersionUID = 8612457847251087454L;
 
-   public ActiveMQXAQueueConnectionFactory()
-   {
+   public ActiveMQXAQueueConnectionFactory() {
       super();
    }
 
-   public ActiveMQXAQueueConnectionFactory(String uri)
-   {
+   public ActiveMQXAQueueConnectionFactory(String uri) {
       super(uri);
    }
 
-   public ActiveMQXAQueueConnectionFactory(String url, String user, String password)
-   {
+   public ActiveMQXAQueueConnectionFactory(String url, String user, String password) {
       super(url, user, password);
    }
 
-   public ActiveMQXAQueueConnectionFactory(ServerLocator serverLocator)
-   {
+   public ActiveMQXAQueueConnectionFactory(ServerLocator serverLocator) {
       super(serverLocator);
    }
 
-   public ActiveMQXAQueueConnectionFactory(final boolean ha, final DiscoveryGroupConfiguration groupConfiguration)
-   {
+   public ActiveMQXAQueueConnectionFactory(final boolean ha, final DiscoveryGroupConfiguration groupConfiguration) {
       super(ha, groupConfiguration);
    }
 
-   public ActiveMQXAQueueConnectionFactory(final boolean ha, final TransportConfiguration... initialConnectors)
-   {
+   public ActiveMQXAQueueConnectionFactory(final boolean ha, final TransportConfiguration... initialConnectors) {
       super(ha, initialConnectors);
    }
 
-   public int getFactoryType()
-   {
+   public int getFactoryType() {
       return JMSFactoryType.QUEUE_XA_CF.intValue();
    }
 

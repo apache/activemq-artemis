@@ -21,8 +21,7 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.journal.EncodingSupport;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 
-public class PersistedAddressSetting implements EncodingSupport
-{
+public class PersistedAddressSetting implements EncodingSupport {
    // Constants -----------------------------------------------------
 
    // Attributes ----------------------------------------------------
@@ -37,8 +36,7 @@ public class PersistedAddressSetting implements EncodingSupport
 
    // Constructors --------------------------------------------------
 
-   public PersistedAddressSetting()
-   {
+   public PersistedAddressSetting() {
       super();
    }
 
@@ -46,22 +44,20 @@ public class PersistedAddressSetting implements EncodingSupport
     * @see java.lang.Object#toString()
     */
    @Override
-   public String toString()
-   {
+   public String toString() {
       return "PersistedAddressSetting [storeId=" + storeId +
-             ", addressMatch=" +
-             addressMatch +
-             ", setting=" +
-             setting +
-             "]";
+         ", addressMatch=" +
+         addressMatch +
+         ", setting=" +
+         setting +
+         "]";
    }
 
    /**
     * @param addressMatch
     * @param setting
     */
-   public PersistedAddressSetting(SimpleString addressMatch, AddressSettings setting)
-   {
+   public PersistedAddressSetting(SimpleString addressMatch, AddressSettings setting) {
       super();
       this.addressMatch = addressMatch;
       this.setting = setting;
@@ -69,35 +65,30 @@ public class PersistedAddressSetting implements EncodingSupport
 
    // Public --------------------------------------------------------
 
-   public void setStoreId(long id)
-   {
+   public void setStoreId(long id) {
       this.storeId = id;
    }
 
-   public long getStoreId()
-   {
+   public long getStoreId() {
       return storeId;
    }
 
    /**
     * @return the addressMatch
     */
-   public SimpleString getAddressMatch()
-   {
+   public SimpleString getAddressMatch() {
       return addressMatch;
    }
 
    /**
     * @return the setting
     */
-   public AddressSettings getSetting()
-   {
+   public AddressSettings getSetting() {
       return setting;
    }
 
    @Override
-   public void decode(ActiveMQBuffer buffer)
-   {
+   public void decode(ActiveMQBuffer buffer) {
       addressMatch = buffer.readSimpleString();
 
       setting = new AddressSettings();
@@ -105,16 +96,14 @@ public class PersistedAddressSetting implements EncodingSupport
    }
 
    @Override
-   public void encode(ActiveMQBuffer buffer)
-   {
+   public void encode(ActiveMQBuffer buffer) {
       buffer.writeSimpleString(addressMatch);
 
       setting.encode(buffer);
    }
 
    @Override
-   public int getEncodeSize()
-   {
+   public int getEncodeSize() {
       return addressMatch.sizeof() + setting.getEncodeSize();
    }
 

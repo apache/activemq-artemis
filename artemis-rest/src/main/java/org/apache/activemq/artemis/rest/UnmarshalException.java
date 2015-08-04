@@ -16,17 +16,15 @@
  */
 package org.apache.activemq.artemis.rest;
 
-public class UnmarshalException extends RuntimeException
-{
+public class UnmarshalException extends RuntimeException {
+
    private static final long serialVersionUID = 3932027442263719425L;
 
-   public UnmarshalException(String s)
-   {
+   public UnmarshalException(String s) {
       super(s);
    }
 
-   public UnmarshalException(String s, Throwable throwable)
-   {
+   public UnmarshalException(String s, Throwable throwable) {
       super(s, throwable);
    }
 }

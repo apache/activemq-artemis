@@ -18,52 +18,43 @@ package org.proton.plug.util;
 
 import java.util.concurrent.TimeUnit;
 
-public class FutureRunnable implements Runnable
-{
+public class FutureRunnable implements Runnable {
+
    private final ReusableLatch latch;
 
-   public FutureRunnable(final int initialIterations)
-   {
+   public FutureRunnable(final int initialIterations) {
       latch = new ReusableLatch(initialIterations);
    }
 
-   public FutureRunnable()
-   {
+   public FutureRunnable() {
       this(0);
    }
 
-   public void run()
-   {
+   public void run() {
       latch.countDown();
    }
 
-   public void countUp()
-   {
+   public void countUp() {
       latch.countUp();
    }
 
-   public void countDown()
-   {
+   public void countDown() {
       latch.countDown();
    }
 
-   public int getCount()
-   {
+   public int getCount() {
       return latch.getCount();
    }
 
-   public void await() throws InterruptedException
-   {
+   public void await() throws InterruptedException {
       latch.await();
    }
 
-   public boolean await(long timeWait, TimeUnit timeUnit) throws InterruptedException
-   {
+   public boolean await(long timeWait, TimeUnit timeUnit) throws InterruptedException {
       return latch.await(timeWait, timeUnit);
    }
 
-   public boolean await(long milliseconds) throws InterruptedException
-   {
+   public boolean await(long milliseconds) throws InterruptedException {
       return latch.await(milliseconds);
    }
 }

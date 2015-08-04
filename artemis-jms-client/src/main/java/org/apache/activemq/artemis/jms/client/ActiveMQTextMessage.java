@@ -28,14 +28,12 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import static org.apache.activemq.artemis.reader.TextMessageUtil.readBodyText;
 import static org.apache.activemq.artemis.reader.TextMessageUtil.writeBodyText;
 
-
 /**
  * ActiveMQ Artemis implementation of a JMS TextMessage.
  * <br>
  * This class was ported from SpyTextMessage in JBossMQ.
  */
-public class ActiveMQTextMessage extends ActiveMQMessage implements TextMessage
-{
+public class ActiveMQTextMessage extends ActiveMQMessage implements TextMessage {
    // Constants -----------------------------------------------------
 
    public static final byte TYPE = Message.TEXT_TYPE;
@@ -50,21 +48,18 @@ public class ActiveMQTextMessage extends ActiveMQMessage implements TextMessage
 
    // Constructors --------------------------------------------------
 
-   public ActiveMQTextMessage(final ClientSession session)
-   {
+   public ActiveMQTextMessage(final ClientSession session) {
       super(ActiveMQTextMessage.TYPE, session);
    }
 
-   public ActiveMQTextMessage(final ClientMessage message, final ClientSession session)
-   {
+   public ActiveMQTextMessage(final ClientMessage message, final ClientSession session) {
       super(message, session);
    }
 
    /**
     * A copy constructor for non-ActiveMQ Artemis JMS TextMessages.
     */
-   public ActiveMQTextMessage(final TextMessage foreign, final ClientSession session) throws JMSException
-   {
+   public ActiveMQTextMessage(final TextMessage foreign, final ClientSession session) throws JMSException {
       super(foreign, ActiveMQTextMessage.TYPE, session);
 
       setText(foreign.getText());
@@ -73,44 +68,36 @@ public class ActiveMQTextMessage extends ActiveMQMessage implements TextMessage
    // Public --------------------------------------------------------
 
    @Override
-   public byte getType()
-   {
+   public byte getType() {
       return ActiveMQTextMessage.TYPE;
    }
 
    // TextMessage implementation ------------------------------------
 
-   public void setText(final String text) throws JMSException
-   {
+   public void setText(final String text) throws JMSException {
       checkWrite();
 
-      if (text != null)
-      {
+      if (text != null) {
          this.text = new SimpleString(text);
       }
-      else
-      {
+      else {
          this.text = null;
       }
 
       writeBodyText(message, this.text);
    }
 
-   public String getText()
-   {
-      if (text != null)
-      {
+   public String getText() {
+      if (text != null) {
          return text.toString();
       }
-      else
-      {
+      else {
          return null;
       }
    }
 
    @Override
-   public void clearBody() throws JMSException
-   {
+   public void clearBody() throws JMSException {
       super.clearBody();
 
       text = null;
@@ -119,22 +106,19 @@ public class ActiveMQTextMessage extends ActiveMQMessage implements TextMessage
    // ActiveMQRAMessage override -----------------------------------------
 
    @Override
-   public void doBeforeReceive() throws ActiveMQException
-   {
+   public void doBeforeReceive() throws ActiveMQException {
       super.doBeforeReceive();
 
       text = readBodyText(message);
    }
 
    @Override
-   protected <T> T getBodyInternal(Class<T> c)
-   {
+   protected <T> T getBodyInternal(Class<T> c) {
       return (T) getText();
    }
 
    @Override
-   public boolean isBodyAssignableTo(@SuppressWarnings("rawtypes") Class c)
-   {
+   public boolean isBodyAssignableTo(@SuppressWarnings("rawtypes") Class c) {
       if (text == null)
          return true;
       return c.isAssignableFrom(java.lang.String.class);

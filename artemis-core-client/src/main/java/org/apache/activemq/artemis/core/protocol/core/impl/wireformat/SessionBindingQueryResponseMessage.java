@@ -24,17 +24,15 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 
 /**
- *
  * A SessionBindingQueryResponseMessage
  */
-public class SessionBindingQueryResponseMessage extends PacketImpl
-{
+public class SessionBindingQueryResponseMessage extends PacketImpl {
+
    protected boolean exists;
 
    protected List<SimpleString> queueNames;
 
-   public SessionBindingQueryResponseMessage(final boolean exists, final List<SimpleString> queueNames)
-   {
+   public SessionBindingQueryResponseMessage(final boolean exists, final List<SimpleString> queueNames) {
       super(SESS_BINDINGQUERY_RESP);
 
       this.exists = exists;
@@ -42,58 +40,48 @@ public class SessionBindingQueryResponseMessage extends PacketImpl
       this.queueNames = queueNames;
    }
 
-   public SessionBindingQueryResponseMessage()
-   {
+   public SessionBindingQueryResponseMessage() {
       super(SESS_BINDINGQUERY_RESP);
    }
 
-   public SessionBindingQueryResponseMessage(byte v2)
-   {
+   public SessionBindingQueryResponseMessage(byte v2) {
       super(v2);
    }
 
    @Override
-   public boolean isResponse()
-   {
+   public boolean isResponse() {
       return true;
    }
 
-   public boolean isExists()
-   {
+   public boolean isExists() {
       return exists;
    }
 
-   public List<SimpleString> getQueueNames()
-   {
+   public List<SimpleString> getQueueNames() {
       return queueNames;
    }
 
    @Override
-   public void encodeRest(final ActiveMQBuffer buffer)
-   {
+   public void encodeRest(final ActiveMQBuffer buffer) {
       buffer.writeBoolean(exists);
       buffer.writeInt(queueNames.size());
-      for (SimpleString queueName : queueNames)
-      {
+      for (SimpleString queueName : queueNames) {
          buffer.writeSimpleString(queueName);
       }
    }
 
    @Override
-   public void decodeRest(final ActiveMQBuffer buffer)
-   {
+   public void decodeRest(final ActiveMQBuffer buffer) {
       exists = buffer.readBoolean();
       int numQueues = buffer.readInt();
       queueNames = new ArrayList<SimpleString>(numQueues);
-      for (int i = 0; i < numQueues; i++)
-      {
+      for (int i = 0; i < numQueues; i++) {
          queueNames.add(buffer.readSimpleString());
       }
    }
 
    @Override
-   public int hashCode()
-   {
+   public int hashCode() {
       final int prime = 31;
       int result = super.hashCode();
       result = prime * result + (exists ? 1231 : 1237);
@@ -102,19 +90,17 @@ public class SessionBindingQueryResponseMessage extends PacketImpl
    }
 
    @Override
-   public boolean equals(Object obj)
-   {
+   public boolean equals(Object obj) {
       if (this == obj)
          return true;
       if (!super.equals(obj))
          return false;
       if (!(obj instanceof SessionBindingQueryResponseMessage))
          return false;
-      SessionBindingQueryResponseMessage other = (SessionBindingQueryResponseMessage)obj;
+      SessionBindingQueryResponseMessage other = (SessionBindingQueryResponseMessage) obj;
       if (exists != other.exists)
          return false;
-      if (queueNames == null)
-      {
+      if (queueNames == null) {
          if (other.queueNames != null)
             return false;
       }

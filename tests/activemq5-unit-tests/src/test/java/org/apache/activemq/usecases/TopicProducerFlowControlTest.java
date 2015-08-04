@@ -41,149 +41,154 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class TopicProducerFlowControlTest extends TestCase implements MessageListener {
-    private static final Logger LOG = LoggerFactory.getLogger(TopicProducerFlowControlTest.class);
-    private static final String brokerName = "testBroker";
-    private static final String brokerUrl = "vm://" + brokerName;
-    protected static final int destinationMemLimit = 2097152; // 2MB
-    private static final AtomicLong produced = new AtomicLong();
-    private static final AtomicLong consumed = new AtomicLong();
-    private static final int numMessagesToSend = 50000;
 
-    private BrokerService broker;
+   private static final Logger LOG = LoggerFactory.getLogger(TopicProducerFlowControlTest.class);
+   private static final String brokerName = "testBroker";
+   private static final String brokerUrl = "vm://" + brokerName;
+   protected static final int destinationMemLimit = 2097152; // 2MB
+   private static final AtomicLong produced = new AtomicLong();
+   private static final AtomicLong consumed = new AtomicLong();
+   private static final int numMessagesToSend = 50000;
 
-    protected void setUp() throws Exception {
-        // Setup and start the broker
-        broker = new BrokerService();
-        broker.setBrokerName(brokerName);
-        broker.setPersistent(false);
-        broker.setSchedulerSupport(false);
-        broker.setUseJmx(false);
-        broker.setUseShutdownHook(false);
-        broker.addConnector(brokerUrl);
+   private BrokerService broker;
 
-        // Setup the destination policy
-        PolicyMap pm = new PolicyMap();
+   protected void setUp() throws Exception {
+      // Setup and start the broker
+      broker = new BrokerService();
+      broker.setBrokerName(brokerName);
+      broker.setPersistent(false);
+      broker.setSchedulerSupport(false);
+      broker.setUseJmx(false);
+      broker.setUseShutdownHook(false);
+      broker.addConnector(brokerUrl);
 
-        // Setup the topic destination policy
-        PolicyEntry tpe = new PolicyEntry();
-        tpe.setTopic(">");
-        tpe.setMemoryLimit(destinationMemLimit);
-        tpe.setProducerFlowControl(true);
-        tpe.setAdvisoryWhenFull(true);
+      // Setup the destination policy
+      PolicyMap pm = new PolicyMap();
 
-        // Setup the topic destination policy
-        PolicyEntry qpe = new PolicyEntry();
-        qpe.setQueue(">");
-        qpe.setMemoryLimit(destinationMemLimit);
-        qpe.setProducerFlowControl(true);
-        qpe.setQueuePrefetch(1);
-        qpe.setAdvisoryWhenFull(true);
+      // Setup the topic destination policy
+      PolicyEntry tpe = new PolicyEntry();
+      tpe.setTopic(">");
+      tpe.setMemoryLimit(destinationMemLimit);
+      tpe.setProducerFlowControl(true);
+      tpe.setAdvisoryWhenFull(true);
 
-        pm.setPolicyEntries(Arrays.asList(new PolicyEntry[]{tpe, qpe}));
+      // Setup the topic destination policy
+      PolicyEntry qpe = new PolicyEntry();
+      qpe.setQueue(">");
+      qpe.setMemoryLimit(destinationMemLimit);
+      qpe.setProducerFlowControl(true);
+      qpe.setQueuePrefetch(1);
+      qpe.setAdvisoryWhenFull(true);
 
-        setDestinationPolicy(broker, pm);
+      pm.setPolicyEntries(Arrays.asList(new PolicyEntry[]{tpe, qpe}));
 
-        // Start the broker
-        broker.start();
-        broker.waitUntilStarted();
-    }
+      setDestinationPolicy(broker, pm);
 
-    protected void setDestinationPolicy(BrokerService broker, PolicyMap pm) {
-        broker.setDestinationPolicy(pm);
-    }
+      // Start the broker
+      broker.start();
+      broker.waitUntilStarted();
+   }
 
-    protected void tearDown() throws Exception {
-        broker.stop();
-        broker.waitUntilStopped();
-    }
+   protected void setDestinationPolicy(BrokerService broker, PolicyMap pm) {
+      broker.setDestinationPolicy(pm);
+   }
 
-    public void testTopicProducerFlowControl() throws Exception {
+   protected void tearDown() throws Exception {
+      broker.stop();
+      broker.waitUntilStopped();
+   }
 
-        // Create the connection factory
-        ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(brokerUrl);
-        connectionFactory.setAlwaysSyncSend(true);
-        connectionFactory.setProducerWindowSize(1024);
+   public void testTopicProducerFlowControl() throws Exception {
 
-        ActiveMQPrefetchPolicy prefetchPolicy = new ActiveMQPrefetchPolicy();
-        prefetchPolicy.setAll(5000);
-        connectionFactory.setPrefetchPolicy(prefetchPolicy);
-        // Start the test destination listener
-        Connection c = connectionFactory.createConnection();
-        c.start();
-        Session listenerSession = c.createSession(false, 1);
-        Destination destination = createDestination(listenerSession);
+      // Create the connection factory
+      ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(brokerUrl);
+      connectionFactory.setAlwaysSyncSend(true);
+      connectionFactory.setProducerWindowSize(1024);
 
-        listenerSession.createConsumer(destination).setMessageListener(new TopicProducerFlowControlTest());
-        final AtomicInteger blockedCounter = new AtomicInteger(0);
-        listenerSession.createConsumer(new ActiveMQTopic(AdvisorySupport.FULL_TOPIC_PREFIX + ">")).setMessageListener(new MessageListener() {
-            @Override
-            public void onMessage(Message message) {
-                LOG.info("Got full advisory, blockedCounter: " + blockedCounter.get());
-                blockedCounter.incrementAndGet();
-            }
-        });
+      ActiveMQPrefetchPolicy prefetchPolicy = new ActiveMQPrefetchPolicy();
+      prefetchPolicy.setAll(5000);
+      connectionFactory.setPrefetchPolicy(prefetchPolicy);
+      // Start the test destination listener
+      Connection c = connectionFactory.createConnection();
+      c.start();
+      Session listenerSession = c.createSession(false, 1);
+      Destination destination = createDestination(listenerSession);
 
-        // Start producing the test messages
-        final Session session = connectionFactory.createConnection().createSession(false, Session.AUTO_ACKNOWLEDGE);
-        final MessageProducer producer = session.createProducer(destination);
+      listenerSession.createConsumer(destination).setMessageListener(new TopicProducerFlowControlTest());
+      final AtomicInteger blockedCounter = new AtomicInteger(0);
+      listenerSession.createConsumer(new ActiveMQTopic(AdvisorySupport.FULL_TOPIC_PREFIX + ">")).setMessageListener(new MessageListener() {
+         @Override
+         public void onMessage(Message message) {
+            LOG.info("Got full advisory, blockedCounter: " + blockedCounter.get());
+            blockedCounter.incrementAndGet();
+         }
+      });
 
-        Thread producingThread = new Thread("Producing Thread") {
-            public void run() {
-                try {
-                    for (long i = 0; i < numMessagesToSend; i++) {
-                        producer.send(session.createTextMessage("test"));
+      // Start producing the test messages
+      final Session session = connectionFactory.createConnection().createSession(false, Session.AUTO_ACKNOWLEDGE);
+      final MessageProducer producer = session.createProducer(destination);
 
-                        long count = produced.incrementAndGet();
-                        if (count % 10000 == 0) {
-                            LOG.info("Produced " + count + " messages");
-                        }
-                    }
-                } catch (Throwable ex) {
-                    ex.printStackTrace();
-                } finally {
-                    try {
-                        producer.close();
-                        session.close();
-                    } catch (Exception e) {
-                    }
-                }
-            }
-        };
-
-        producingThread.start();
-
-        Wait.waitFor(new Wait.Condition() {
-            public boolean isSatisified() throws Exception {
-                return consumed.get() == numMessagesToSend;
-            }
-        }, 5 * 60 * 1000); // give it plenty of time before failing
-
-        assertEquals("Didn't produce all messages", numMessagesToSend, produced.get());
-        assertEquals("Didn't consume all messages", numMessagesToSend, consumed.get());
-
-         assertTrue("Producer got blocked", Wait.waitFor(new Wait.Condition() {
-             public boolean isSatisified() throws Exception {
-                 return blockedCounter.get() > 0;
-             }
-         }, 5 * 1000));
-    }
-
-    protected Destination createDestination(Session listenerSession) throws Exception {
-        return new ActiveMQTopic("test");
-    }
-
-    @Override
-    public void onMessage(Message message) {
-        long count = consumed.incrementAndGet();
-        if (count % 100 == 0) {
+      Thread producingThread = new Thread("Producing Thread") {
+         public void run() {
             try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-            }
-        }
-        if (count % 10000 == 0) {
-            LOG.info("\tConsumed " + count + " messages");
-        }
+               for (long i = 0; i < numMessagesToSend; i++) {
+                  producer.send(session.createTextMessage("test"));
 
-    }
+                  long count = produced.incrementAndGet();
+                  if (count % 10000 == 0) {
+                     LOG.info("Produced " + count + " messages");
+                  }
+               }
+            }
+            catch (Throwable ex) {
+               ex.printStackTrace();
+            }
+            finally {
+               try {
+                  producer.close();
+                  session.close();
+               }
+               catch (Exception e) {
+               }
+            }
+         }
+      };
+
+      producingThread.start();
+
+      Wait.waitFor(new Wait.Condition() {
+         public boolean isSatisified() throws Exception {
+            return consumed.get() == numMessagesToSend;
+         }
+      }, 5 * 60 * 1000); // give it plenty of time before failing
+
+      assertEquals("Didn't produce all messages", numMessagesToSend, produced.get());
+      assertEquals("Didn't consume all messages", numMessagesToSend, consumed.get());
+
+      assertTrue("Producer got blocked", Wait.waitFor(new Wait.Condition() {
+         public boolean isSatisified() throws Exception {
+            return blockedCounter.get() > 0;
+         }
+      }, 5 * 1000));
+   }
+
+   protected Destination createDestination(Session listenerSession) throws Exception {
+      return new ActiveMQTopic("test");
+   }
+
+   @Override
+   public void onMessage(Message message) {
+      long count = consumed.incrementAndGet();
+      if (count % 100 == 0) {
+         try {
+            Thread.sleep(100);
+         }
+         catch (InterruptedException e) {
+         }
+      }
+      if (count % 10000 == 0) {
+         LOG.info("\tConsumed " + count + " messages");
+      }
+
+   }
 }

@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.cli.commands.tools;
 
-
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
@@ -63,8 +62,7 @@ import org.apache.activemq.artemis.utils.UUIDGenerator;
  * for speed and simplicity.
  */
 @Command(name = "imp", description = "Import all message-data using an XML that could be interpreted by any system.")
-public final class XmlDataImporter extends ActionAbstract
-{
+public final class XmlDataImporter extends ActionAbstract {
    // Constants -----------------------------------------------------
 
    // Attributes ----------------------------------------------------
@@ -102,37 +100,29 @@ public final class XmlDataImporter extends ActionAbstract
    @Option(name = "--input", description = "The input file name (default=exp.dmp)", required = true)
    public String input = "exp.dmp";
 
-   public String getPassword()
-   {
+   public String getPassword() {
       return password;
    }
 
-   public void setPassword(String password)
-   {
+   public void setPassword(String password) {
       this.password = password;
    }
 
-
-   public String getUser()
-   {
+   public String getUser() {
       return user;
    }
 
-   public void setUser(String user)
-   {
+   public void setUser(String user) {
       this.user = user;
    }
 
-
    @Override
-   public Object execute(ActionContext context) throws Exception
-   {
+   public Object execute(ActionContext context) throws Exception {
       process(input, host, port, transactional);
       return null;
    }
 
-   public void process(String inputFile, String host, int port, boolean transactional) throws Exception
-   {
+   public void process(String inputFile, String host, int port, boolean transactional) throws Exception {
       this.process(new FileInputStream(inputFile), host, port, transactional);
    }
 
@@ -147,8 +137,7 @@ public final class XmlDataImporter extends ActionAbstract
     * @param session     used for sending messages, must use auto-commit for sends
     * @throws Exception
     */
-   public void process(InputStream inputStream, ClientSession session) throws Exception
-   {
+   public void process(InputStream inputStream, ClientSession session) throws Exception {
       this.process(inputStream, session, null);
    }
 
@@ -162,44 +151,36 @@ public final class XmlDataImporter extends ActionAbstract
     * @param session           used for sending messages, doesn't need to auto-commit sends
     * @param managementSession used for management queries, must use auto-commit for sends
     */
-   public void process(InputStream inputStream, ClientSession session, ClientSession managementSession) throws Exception
-   {
+   public void process(InputStream inputStream,
+                       ClientSession session,
+                       ClientSession managementSession) throws Exception {
       reader = XMLInputFactory.newInstance().createXMLStreamReader(inputStream);
       this.session = session;
-      if (managementSession != null)
-      {
+      if (managementSession != null) {
          this.managementSession = managementSession;
       }
-      else
-      {
+      else {
          this.managementSession = session;
       }
       localSession = false;
-
 
       processXml();
 
    }
 
-   public void process(InputStream inputStream, String host, int port, boolean transactional) throws Exception
-   {
+   public void process(InputStream inputStream, String host, int port, boolean transactional) throws Exception {
       reader = XMLInputFactory.newInstance().createXMLStreamReader(inputStream);
       HashMap<String, Object> connectionParams = new HashMap<>();
       connectionParams.put(TransportConstants.HOST_PROP_NAME, host);
       connectionParams.put(TransportConstants.PORT_PROP_NAME, Integer.toString(port));
-      ServerLocator serverLocator =
-         ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(
-            NettyConnectorFactory.class.getName(),
-            connectionParams));
+      ServerLocator serverLocator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(NettyConnectorFactory.class.getName(), connectionParams));
       ClientSessionFactory sf = serverLocator.createSessionFactory();
 
-      if (user != null || password != null)
-      {
+      if (user != null || password != null) {
          session = sf.createSession(user, password, false, !transactional, true, false, 0);
          managementSession = sf.createSession(user, password, false, true, true, false, 0);
       }
-      else
-      {
+      else {
          session = sf.createSession(false, !transactional, true);
          managementSession = sf.createSession(false, true, true);
       }
@@ -208,53 +189,41 @@ public final class XmlDataImporter extends ActionAbstract
       processXml();
    }
 
-   private void processXml() throws Exception
-   {
-      try
-      {
-         while (reader.hasNext())
-         {
+   private void processXml() throws Exception {
+      try {
+         while (reader.hasNext()) {
             ActiveMQServerLogger.LOGGER.debug("EVENT:[" + reader.getLocation().getLineNumber() + "][" + reader.getLocation().getColumnNumber() + "] ");
-            if (reader.getEventType() == XMLStreamConstants.START_ELEMENT)
-            {
-               if (XmlDataConstants.BINDINGS_CHILD.equals(reader.getLocalName()))
-               {
+            if (reader.getEventType() == XMLStreamConstants.START_ELEMENT) {
+               if (XmlDataConstants.BINDINGS_CHILD.equals(reader.getLocalName())) {
                   bindQueue();
                }
-               else if (XmlDataConstants.MESSAGES_CHILD.equals(reader.getLocalName()))
-               {
+               else if (XmlDataConstants.MESSAGES_CHILD.equals(reader.getLocalName())) {
                   processMessage();
                }
-               else if (XmlDataConstants.JMS_CONNECTION_FACTORIES.equals(reader.getLocalName()))
-               {
+               else if (XmlDataConstants.JMS_CONNECTION_FACTORIES.equals(reader.getLocalName())) {
                   createJmsConnectionFactories();
                }
-               else if (XmlDataConstants.JMS_DESTINATIONS.equals(reader.getLocalName()))
-               {
+               else if (XmlDataConstants.JMS_DESTINATIONS.equals(reader.getLocalName())) {
                   createJmsDestinations();
                }
             }
             reader.next();
          }
 
-         if (!session.isAutoCommitSends())
-         {
+         if (!session.isAutoCommitSends()) {
             session.commit();
          }
       }
-      finally
-      {
+      finally {
          // if the session was created in our constructor then close it (otherwise the caller will close it)
-         if (localSession)
-         {
+         if (localSession) {
             session.close();
             managementSession.close();
          }
       }
    }
 
-   private void processMessage() throws Exception
-   {
+   private void processMessage() throws Exception {
       Byte type = 0;
       Byte priority = 0;
       Long expiration = 0L;
@@ -263,11 +232,9 @@ public final class XmlDataImporter extends ActionAbstract
       ArrayList<String> queues = new ArrayList<>();
 
       // get message's attributes
-      for (int i = 0; i < reader.getAttributeCount(); i++)
-      {
+      for (int i = 0; i < reader.getAttributeCount(); i++) {
          String attributeName = reader.getAttributeLocalName(i);
-         switch (attributeName)
-         {
+         switch (attributeName) {
             case XmlDataConstants.MESSAGE_TYPE:
                type = getMessageType(reader.getAttributeValue(i));
                break;
@@ -292,34 +259,27 @@ public final class XmlDataImporter extends ActionAbstract
       boolean endLoop = false;
 
       // loop through the XML and gather up all the message's data (i.e. body, properties, queues, etc.)
-      while (reader.hasNext())
-      {
+      while (reader.hasNext()) {
          int eventType = reader.getEventType();
-         switch (eventType)
-         {
+         switch (eventType) {
             case XMLStreamConstants.START_ELEMENT:
-               if (XmlDataConstants.MESSAGE_BODY.equals(reader.getLocalName()))
-               {
+               if (XmlDataConstants.MESSAGE_BODY.equals(reader.getLocalName())) {
                   processMessageBody(message);
                }
-               else if (XmlDataConstants.PROPERTIES_CHILD.equals(reader.getLocalName()))
-               {
+               else if (XmlDataConstants.PROPERTIES_CHILD.equals(reader.getLocalName())) {
                   processMessageProperties(message);
                }
-               else if (XmlDataConstants.QUEUES_CHILD.equals(reader.getLocalName()))
-               {
+               else if (XmlDataConstants.QUEUES_CHILD.equals(reader.getLocalName())) {
                   processMessageQueues(queues);
                }
                break;
             case XMLStreamConstants.END_ELEMENT:
-               if (XmlDataConstants.MESSAGES_CHILD.equals(reader.getLocalName()))
-               {
+               if (XmlDataConstants.MESSAGES_CHILD.equals(reader.getLocalName())) {
                   endLoop = true;
                }
                break;
          }
-         if (endLoop)
-         {
+         if (endLoop) {
             break;
          }
          reader.next();
@@ -328,11 +288,9 @@ public final class XmlDataImporter extends ActionAbstract
       sendMessage(queues, message);
    }
 
-   private Byte getMessageType(String value)
-   {
+   private Byte getMessageType(String value) {
       Byte type = Message.DEFAULT_TYPE;
-      switch (value)
-      {
+      switch (value) {
          case XmlDataConstants.DEFAULT_TYPE_PRETTY:
             type = Message.DEFAULT_TYPE;
             break;
@@ -355,24 +313,20 @@ public final class XmlDataImporter extends ActionAbstract
       return type;
    }
 
-   private void sendMessage(ArrayList<String> queues, Message message) throws Exception
-   {
+   private void sendMessage(ArrayList<String> queues, Message message) throws Exception {
       StringBuilder logMessage = new StringBuilder();
       String destination = addressMap.get(queues.get(0));
 
       logMessage.append("Sending ").append(message).append(" to address: ").append(destination).append("; routed to queues: ");
       ByteBuffer buffer = ByteBuffer.allocate(queues.size() * 8);
 
-      for (String queue : queues)
-      {
+      for (String queue : queues) {
          long queueID;
 
-         if (queueIDs.containsKey(queue))
-         {
+         if (queueIDs.containsKey(queue)) {
             queueID = queueIDs.get(queue);
          }
-         else
-         {
+         else {
             // Get the ID of the queues involved so the message can be routed properly.  This is done because we cannot
             // send directly to a queue, we have to send to an address instead but not all the queues related to the
             // address may need the message
@@ -400,40 +354,32 @@ public final class XmlDataImporter extends ActionAbstract
       producer.send(message);
       producer.close();
 
-      if (tempFileName.length() > 0)
-      {
+      if (tempFileName.length() > 0) {
          File tempFile = new File(tempFileName);
-         if (!tempFile.delete())
-         {
+         if (!tempFile.delete()) {
             ActiveMQServerLogger.LOGGER.couldNotDeleteTempFile(tempFileName);
          }
          tempFileName = "";
       }
    }
 
-   private void processMessageQueues(ArrayList<String> queues)
-   {
-      for (int i = 0; i < reader.getAttributeCount(); i++)
-      {
-         if (XmlDataConstants.QUEUE_NAME.equals(reader.getAttributeLocalName(i)))
-         {
+   private void processMessageQueues(ArrayList<String> queues) {
+      for (int i = 0; i < reader.getAttributeCount(); i++) {
+         if (XmlDataConstants.QUEUE_NAME.equals(reader.getAttributeLocalName(i))) {
             queues.add(reader.getAttributeValue(i));
          }
       }
    }
 
-   private void processMessageProperties(Message message)
-   {
+   private void processMessageProperties(Message message) {
       String key = "";
       String value = "";
       String propertyType = "";
       String realValue = null;
 
-      for (int i = 0; i < reader.getAttributeCount(); i++)
-      {
+      for (int i = 0; i < reader.getAttributeCount(); i++) {
          String attributeName = reader.getAttributeLocalName(i);
-         switch (attributeName)
-         {
+         switch (attributeName) {
             case XmlDataConstants.PROPERTY_NAME:
                key = reader.getAttributeValue(i);
                break;
@@ -446,8 +392,7 @@ public final class XmlDataImporter extends ActionAbstract
          }
       }
 
-      switch (propertyType)
-      {
+      switch (propertyType) {
          case XmlDataConstants.PROPERTY_TYPE_SHORT:
             message.putShortProperty(key, Short.parseShort(value));
             break;
@@ -473,15 +418,13 @@ public final class XmlDataImporter extends ActionAbstract
             message.putLongProperty(key, Long.parseLong(value));
             break;
          case XmlDataConstants.PROPERTY_TYPE_SIMPLE_STRING:
-            if (!value.equals(XmlDataConstants.NULL))
-            {
+            if (!value.equals(XmlDataConstants.NULL)) {
                realValue = value;
             }
             message.putStringProperty(new SimpleString(key), new SimpleString(realValue));
             break;
          case XmlDataConstants.PROPERTY_TYPE_STRING:
-            if (!value.equals(XmlDataConstants.NULL))
-            {
+            if (!value.equals(XmlDataConstants.NULL)) {
                realValue = value;
             }
             message.putStringProperty(key, realValue);
@@ -489,33 +432,25 @@ public final class XmlDataImporter extends ActionAbstract
       }
    }
 
-   private void processMessageBody(Message message) throws XMLStreamException, IOException
-   {
+   private void processMessageBody(Message message) throws XMLStreamException, IOException {
       boolean isLarge = false;
 
-      for (int i = 0; i < reader.getAttributeCount(); i++)
-      {
+      for (int i = 0; i < reader.getAttributeCount(); i++) {
          String attributeName = reader.getAttributeLocalName(i);
-         if (XmlDataConstants.MESSAGE_IS_LARGE.equals(attributeName))
-         {
+         if (XmlDataConstants.MESSAGE_IS_LARGE.equals(attributeName)) {
             isLarge = Boolean.parseBoolean(reader.getAttributeValue(i));
          }
       }
       reader.next();
-      if (isLarge)
-      {
+      if (isLarge) {
          tempFileName = UUID.randomUUID().toString() + ".tmp";
          ActiveMQServerLogger.LOGGER.debug("Creating temp file " + tempFileName + " for large message.");
-         try (OutputStream out = new FileOutputStream(tempFileName))
-         {
-            while (reader.hasNext())
-            {
-               if (reader.getEventType() == XMLStreamConstants.END_ELEMENT)
-               {
+         try (OutputStream out = new FileOutputStream(tempFileName)) {
+            while (reader.hasNext()) {
+               if (reader.getEventType() == XMLStreamConstants.END_ELEMENT) {
                   break;
                }
-               else
-               {
+               else {
                   String characters = new String(reader.getTextCharacters(), reader.getTextStart(), reader.getTextLength());
                   String trimmedCharacters = characters.trim();
                   if (trimmedCharacters.length() > 0)  // this will skip "indentation" characters
@@ -531,25 +466,21 @@ public final class XmlDataImporter extends ActionAbstract
          BufferedInputStream bufferedInput = new BufferedInputStream(fileInputStream);
          ((ClientMessage) message).setBodyInputStream(bufferedInput);
       }
-      else
-      {
+      else {
          reader.next(); // step past the "indentation" characters to get to the CDATA with the message body
          String characters = new String(reader.getTextCharacters(), reader.getTextStart(), reader.getTextLength());
          message.getBodyBuffer().writeBytes(decode(characters.trim()));
       }
    }
 
-   private void bindQueue() throws Exception
-   {
+   private void bindQueue() throws Exception {
       String queueName = "";
       String address = "";
       String filter = "";
 
-      for (int i = 0; i < reader.getAttributeCount(); i++)
-      {
+      for (int i = 0; i < reader.getAttributeCount(); i++) {
          String attributeName = reader.getAttributeLocalName(i);
-         switch (attributeName)
-         {
+         switch (attributeName) {
             case XmlDataConstants.BINDING_ADDRESS:
                address = reader.getAttributeValue(i);
                break;
@@ -564,81 +495,66 @@ public final class XmlDataImporter extends ActionAbstract
 
       ClientSession.QueueQuery queueQuery = session.queueQuery(new SimpleString(queueName));
 
-      if (!queueQuery.isExists())
-      {
+      if (!queueQuery.isExists()) {
          session.createQueue(address, queueName, filter, true);
          ActiveMQServerLogger.LOGGER.debug("Binding queue(name=" + queueName + ", address=" + address + ", filter=" + filter + ")");
       }
-      else
-      {
+      else {
          ActiveMQServerLogger.LOGGER.debug("Binding " + queueName + " already exists so won't re-bind.");
       }
 
       addressMap.put(queueName, address);
    }
 
-   private void createJmsConnectionFactories() throws Exception
-   {
+   private void createJmsConnectionFactories() throws Exception {
       boolean endLoop = false;
 
-      while (reader.hasNext())
-      {
+      while (reader.hasNext()) {
          int eventType = reader.getEventType();
-         switch (eventType)
-         {
+         switch (eventType) {
             case XMLStreamConstants.START_ELEMENT:
-               if (XmlDataConstants.JMS_CONNECTION_FACTORY.equals(reader.getLocalName()))
-               {
+               if (XmlDataConstants.JMS_CONNECTION_FACTORY.equals(reader.getLocalName())) {
                   createJmsConnectionFactory();
                }
                break;
             case XMLStreamConstants.END_ELEMENT:
-               if (XmlDataConstants.JMS_CONNECTION_FACTORIES.equals(reader.getLocalName()))
-               {
+               if (XmlDataConstants.JMS_CONNECTION_FACTORIES.equals(reader.getLocalName())) {
                   endLoop = true;
                }
                break;
          }
-         if (endLoop)
-         {
+         if (endLoop) {
             break;
          }
          reader.next();
       }
    }
 
-   private void createJmsDestinations() throws Exception
-   {
+   private void createJmsDestinations() throws Exception {
       boolean endLoop = false;
 
-      while (reader.hasNext())
-      {
+      while (reader.hasNext()) {
          int eventType = reader.getEventType();
-         switch (eventType)
-         {
+         switch (eventType) {
             case XMLStreamConstants.START_ELEMENT:
-               if (XmlDataConstants.JMS_DESTINATION.equals(reader.getLocalName()))
-               {
+               if (XmlDataConstants.JMS_DESTINATION.equals(reader.getLocalName())) {
                   createJmsDestination();
                }
                break;
             case XMLStreamConstants.END_ELEMENT:
-               if (XmlDataConstants.JMS_DESTINATIONS.equals(reader.getLocalName()))
-               {
+               if (XmlDataConstants.JMS_DESTINATIONS.equals(reader.getLocalName())) {
                   endLoop = true;
                }
                break;
          }
-         if (endLoop)
-         {
+         if (endLoop) {
             break;
          }
          reader.next();
       }
    }
 
-   private void createJmsConnectionFactory() throws Exception
-   {
+   private void createJmsConnectionFactory() throws Exception {
       String name = "";
       String callFailoverTimeout = "";
       String callTimeout = "";
@@ -678,202 +594,162 @@ public final class XmlDataImporter extends ActionAbstract
 
       boolean endLoop = false;
 
-      while (reader.hasNext())
-      {
+      while (reader.hasNext()) {
          int eventType = reader.getEventType();
-         switch (eventType)
-         {
+         switch (eventType) {
             case XMLStreamConstants.START_ELEMENT:
-               if (XmlDataConstants.JMS_CONNECTION_FACTORY_CALL_FAILOVER_TIMEOUT.equals(reader.getLocalName()))
-               {
+               if (XmlDataConstants.JMS_CONNECTION_FACTORY_CALL_FAILOVER_TIMEOUT.equals(reader.getLocalName())) {
                   callFailoverTimeout = reader.getElementText();
                   ActiveMQServerLogger.LOGGER.debug("JMS connection factory callFailoverTimeout: " + callFailoverTimeout);
                }
-               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_CALL_TIMEOUT.equals(reader.getLocalName()))
-               {
+               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_CALL_TIMEOUT.equals(reader.getLocalName())) {
                   callTimeout = reader.getElementText();
                   ActiveMQServerLogger.LOGGER.debug("JMS connection factory callTimeout: " + callTimeout);
                }
-               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_CLIENT_FAILURE_CHECK_PERIOD.equals(reader.getLocalName()))
-               {
+               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_CLIENT_FAILURE_CHECK_PERIOD.equals(reader.getLocalName())) {
                   clientFailureCheckPeriod = reader.getElementText();
                   ActiveMQServerLogger.LOGGER.debug("JMS connection factory clientFailureCheckPeriod: " + clientFailureCheckPeriod);
                }
-               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_CLIENT_ID.equals(reader.getLocalName()))
-               {
+               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_CLIENT_ID.equals(reader.getLocalName())) {
                   clientId = reader.getElementText();
                   ActiveMQServerLogger.LOGGER.debug("JMS connection factory clientId: " + clientId);
                }
-               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_CONFIRMATION_WINDOW_SIZE.equals(reader.getLocalName()))
-               {
+               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_CONFIRMATION_WINDOW_SIZE.equals(reader.getLocalName())) {
                   confirmationWindowSize = reader.getElementText();
                   ActiveMQServerLogger.LOGGER.debug("JMS connection factory confirmationWindowSize: " + confirmationWindowSize);
                }
-               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_CONNECTION_TTL.equals(reader.getLocalName()))
-               {
+               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_CONNECTION_TTL.equals(reader.getLocalName())) {
                   connectionTtl = reader.getElementText();
                   ActiveMQServerLogger.LOGGER.debug("JMS connection factory connectionTtl: " + connectionTtl);
                }
-               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_CONNECTOR.equals(reader.getLocalName()))
-               {
+               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_CONNECTOR.equals(reader.getLocalName())) {
                   connectors = getConnectors();
                   ActiveMQServerLogger.LOGGER.debug("JMS connection factory getLocalName: " + connectors);
                }
-               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_CONSUMER_MAX_RATE.equals(reader.getLocalName()))
-               {
+               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_CONSUMER_MAX_RATE.equals(reader.getLocalName())) {
                   consumerMaxRate = reader.getElementText();
                   ActiveMQServerLogger.LOGGER.debug("JMS connection factory consumerMaxRate: " + consumerMaxRate);
                }
-               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_CONSUMER_WINDOW_SIZE.equals(reader.getLocalName()))
-               {
+               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_CONSUMER_WINDOW_SIZE.equals(reader.getLocalName())) {
                   consumerWindowSize = reader.getElementText();
                   ActiveMQServerLogger.LOGGER.debug("JMS connection factory consumerWindowSize: " + consumerWindowSize);
                }
-               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_DISCOVERY_GROUP_NAME.equals(reader.getLocalName()))
-               {
+               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_DISCOVERY_GROUP_NAME.equals(reader.getLocalName())) {
                   discoveryGroupName = reader.getElementText();
                   ActiveMQServerLogger.LOGGER.debug("JMS connection factory discoveryGroupName: " + discoveryGroupName);
                }
-               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_DUPS_OK_BATCH_SIZE.equals(reader.getLocalName()))
-               {
+               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_DUPS_OK_BATCH_SIZE.equals(reader.getLocalName())) {
                   dupsOkBatchSize = reader.getElementText();
                   ActiveMQServerLogger.LOGGER.debug("JMS connection factory dupsOkBatchSize: " + dupsOkBatchSize);
                }
-               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_GROUP_ID.equals(reader.getLocalName()))
-               {
+               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_GROUP_ID.equals(reader.getLocalName())) {
                   groupId = reader.getElementText();
                   ActiveMQServerLogger.LOGGER.debug("JMS connection factory groupId: " + groupId);
                }
-               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_LOAD_BALANCING_POLICY_CLASS_NAME.equals(reader.getLocalName()))
-               {
+               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_LOAD_BALANCING_POLICY_CLASS_NAME.equals(reader.getLocalName())) {
                   loadBalancingPolicyClassName = reader.getElementText();
                   ActiveMQServerLogger.LOGGER.debug("JMS connection factory loadBalancingPolicyClassName: " + loadBalancingPolicyClassName);
                }
-               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_MAX_RETRY_INTERVAL.equals(reader.getLocalName()))
-               {
+               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_MAX_RETRY_INTERVAL.equals(reader.getLocalName())) {
                   maxRetryInterval = reader.getElementText();
                   ActiveMQServerLogger.LOGGER.debug("JMS connection factory maxRetryInterval: " + maxRetryInterval);
                }
-               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_MIN_LARGE_MESSAGE_SIZE.equals(reader.getLocalName()))
-               {
+               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_MIN_LARGE_MESSAGE_SIZE.equals(reader.getLocalName())) {
                   minLargeMessageSize = reader.getElementText();
                   ActiveMQServerLogger.LOGGER.debug("JMS connection factory minLargeMessageSize: " + minLargeMessageSize);
                }
-               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_NAME.equals(reader.getLocalName()))
-               {
+               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_NAME.equals(reader.getLocalName())) {
                   name = reader.getElementText();
                   ActiveMQServerLogger.LOGGER.debug("JMS connection factory name: " + name);
                }
-               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_PRODUCER_MAX_RATE.equals(reader.getLocalName()))
-               {
+               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_PRODUCER_MAX_RATE.equals(reader.getLocalName())) {
                   producerMaxRate = reader.getElementText();
                   ActiveMQServerLogger.LOGGER.debug("JMS connection factory producerMaxRate: " + producerMaxRate);
                }
-               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_PRODUCER_WINDOW_SIZE.equals(reader.getLocalName()))
-               {
+               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_PRODUCER_WINDOW_SIZE.equals(reader.getLocalName())) {
                   producerWindowSize = reader.getElementText();
                   ActiveMQServerLogger.LOGGER.debug("JMS connection factory producerWindowSize: " + producerWindowSize);
                }
-               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_RECONNECT_ATTEMPTS.equals(reader.getLocalName()))
-               {
+               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_RECONNECT_ATTEMPTS.equals(reader.getLocalName())) {
                   reconnectAttempts = reader.getElementText();
                   ActiveMQServerLogger.LOGGER.debug("JMS connection factory reconnectAttempts: " + reconnectAttempts);
                }
-               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_RETRY_INTERVAL.equals(reader.getLocalName()))
-               {
+               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_RETRY_INTERVAL.equals(reader.getLocalName())) {
                   retryInterval = reader.getElementText();
                   ActiveMQServerLogger.LOGGER.debug("JMS connection factory retryInterval: " + retryInterval);
                }
-               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_RETRY_INTERVAL_MULTIPLIER.equals(reader.getLocalName()))
-               {
+               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_RETRY_INTERVAL_MULTIPLIER.equals(reader.getLocalName())) {
                   retryIntervalMultiplier = reader.getElementText();
                   ActiveMQServerLogger.LOGGER.debug("JMS connection factory retryIntervalMultiplier: " + retryIntervalMultiplier);
                }
-               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_SCHEDULED_THREAD_POOL_MAX_SIZE.equals(reader.getLocalName()))
-               {
+               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_SCHEDULED_THREAD_POOL_MAX_SIZE.equals(reader.getLocalName())) {
                   scheduledThreadMaxPoolSize = reader.getElementText();
                   ActiveMQServerLogger.LOGGER.debug("JMS connection factory scheduledThreadMaxPoolSize: " + scheduledThreadMaxPoolSize);
                }
-               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_THREAD_POOL_MAX_SIZE.equals(reader.getLocalName()))
-               {
+               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_THREAD_POOL_MAX_SIZE.equals(reader.getLocalName())) {
                   threadMaxPoolSize = reader.getElementText();
                   ActiveMQServerLogger.LOGGER.debug("JMS connection factory threadMaxPoolSize: " + threadMaxPoolSize);
                }
-               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_TRANSACTION_BATCH_SIZE.equals(reader.getLocalName()))
-               {
+               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_TRANSACTION_BATCH_SIZE.equals(reader.getLocalName())) {
                   transactionBatchSize = reader.getElementText();
                   ActiveMQServerLogger.LOGGER.debug("JMS connection factory transactionBatchSize: " + transactionBatchSize);
                }
-               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_TYPE.equals(reader.getLocalName()))
-               {
+               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_TYPE.equals(reader.getLocalName())) {
                   type = reader.getElementText();
                   ActiveMQServerLogger.LOGGER.debug("JMS connection factory type: " + type);
                }
-               else if (XmlDataConstants.JMS_JNDI_ENTRIES.equals(reader.getLocalName()))
-               {
+               else if (XmlDataConstants.JMS_JNDI_ENTRIES.equals(reader.getLocalName())) {
                   entries = getEntries();
                   ActiveMQServerLogger.LOGGER.debug("JMS connection factory entries: " + entries);
                }
-               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_AUTO_GROUP.equals(reader.getLocalName()))
-               {
+               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_AUTO_GROUP.equals(reader.getLocalName())) {
                   autoGroup = reader.getElementText();
                   ActiveMQServerLogger.LOGGER.debug("JMS connection factory autoGroup: " + autoGroup);
                }
-               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_BLOCK_ON_ACKNOWLEDGE.equals(reader.getLocalName()))
-               {
+               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_BLOCK_ON_ACKNOWLEDGE.equals(reader.getLocalName())) {
                   blockOnAcknowledge = reader.getElementText();
                   ActiveMQServerLogger.LOGGER.debug("JMS connection factory blockOnAcknowledge: " + blockOnAcknowledge);
                }
-               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_BLOCK_ON_DURABLE_SEND.equals(reader.getLocalName()))
-               {
+               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_BLOCK_ON_DURABLE_SEND.equals(reader.getLocalName())) {
                   blockOnDurableSend = reader.getElementText();
                   ActiveMQServerLogger.LOGGER.debug("JMS connection factory blockOnDurableSend: " + blockOnDurableSend);
                }
-               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_BLOCK_ON_NON_DURABLE_SEND.equals(reader.getLocalName()))
-               {
+               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_BLOCK_ON_NON_DURABLE_SEND.equals(reader.getLocalName())) {
                   blockOnNonDurableSend = reader.getElementText();
                   ActiveMQServerLogger.LOGGER.debug("JMS connection factory blockOnNonDurableSend: " + blockOnNonDurableSend);
                }
-               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_CACHE_LARGE_MESSAGES_CLIENT.equals(reader.getLocalName()))
-               {
+               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_CACHE_LARGE_MESSAGES_CLIENT.equals(reader.getLocalName())) {
                   cacheLargeMessagesClient = reader.getElementText();
                   ActiveMQServerLogger.LOGGER.info("JMS connection factory " + name + " cacheLargeMessagesClient: " + cacheLargeMessagesClient);
                }
-               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_COMPRESS_LARGE_MESSAGES.equals(reader.getLocalName()))
-               {
+               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_COMPRESS_LARGE_MESSAGES.equals(reader.getLocalName())) {
                   compressLargeMessages = reader.getElementText();
                   ActiveMQServerLogger.LOGGER.debug("JMS connection factory compressLargeMessages: " + compressLargeMessages);
                }
-               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_FAILOVER_ON_INITIAL_CONNECTION.equals(reader.getLocalName()))
-               {
+               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_FAILOVER_ON_INITIAL_CONNECTION.equals(reader.getLocalName())) {
                   failoverOnInitialConnection = reader.getElementText();
                   ActiveMQServerLogger.LOGGER.debug("JMS connection factory failoverOnInitialConnection: " + failoverOnInitialConnection);
                }
-               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_HA.equals(reader.getLocalName()))
-               {
+               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_HA.equals(reader.getLocalName())) {
                   ha = reader.getElementText();
                   ActiveMQServerLogger.LOGGER.debug("JMS connection factory ha: " + ha);
                }
-               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_PREACKNOWLEDGE.equals(reader.getLocalName()))
-               {
+               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_PREACKNOWLEDGE.equals(reader.getLocalName())) {
                   preacknowledge = reader.getElementText();
                   ActiveMQServerLogger.LOGGER.debug("JMS connection factory preacknowledge: " + preacknowledge);
                }
-               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_USE_GLOBAL_POOLS.equals(reader.getLocalName()))
-               {
+               else if (XmlDataConstants.JMS_CONNECTION_FACTORY_USE_GLOBAL_POOLS.equals(reader.getLocalName())) {
                   useGlobalPools = reader.getElementText();
                   ActiveMQServerLogger.LOGGER.debug("JMS connection factory useGlobalPools: " + useGlobalPools);
                }
                break;
             case XMLStreamConstants.END_ELEMENT:
-               if (XmlDataConstants.JMS_CONNECTION_FACTORY.equals(reader.getLocalName()))
-               {
+               if (XmlDataConstants.JMS_CONNECTION_FACTORY.equals(reader.getLocalName())) {
                   endLoop = true;
                }
                break;
          }
-         if (endLoop)
-         {
+         if (endLoop) {
             break;
          }
          reader.next();
@@ -881,102 +757,54 @@ public final class XmlDataImporter extends ActionAbstract
 
       ClientRequestor requestor = new ClientRequestor(managementSession, "jms.queue.activemq.management");
       ClientMessage managementMessage = managementSession.createMessage(false);
-      ManagementHelper.putOperationInvocation(managementMessage,
-                                              ResourceNames.JMS_SERVER,
-                                              "createConnectionFactory",
-                                              name,
-                                              Boolean.parseBoolean(ha),
-                                              discoveryGroupName.length() > 0,
-                                              Integer.parseInt(type),
-                                              connectors,
-                                              entries,
-                                              clientId,
-                                              Long.parseLong(clientFailureCheckPeriod),
-                                              Long.parseLong(connectionTtl),
-                                              Long.parseLong(callTimeout),
-                                              Long.parseLong(callFailoverTimeout),
-                                              Integer.parseInt(minLargeMessageSize),
-                                              Boolean.parseBoolean(compressLargeMessages),
-                                              Integer.parseInt(consumerWindowSize),
-                                              Integer.parseInt(consumerMaxRate),
-                                              Integer.parseInt(confirmationWindowSize),
-                                              Integer.parseInt(producerWindowSize),
-                                              Integer.parseInt(producerMaxRate),
-                                              Boolean.parseBoolean(blockOnAcknowledge),
-                                              Boolean.parseBoolean(blockOnDurableSend),
-                                              Boolean.parseBoolean(blockOnNonDurableSend),
-                                              Boolean.parseBoolean(autoGroup),
-                                              Boolean.parseBoolean(preacknowledge),
-                                              loadBalancingPolicyClassName,
-                                              Integer.parseInt(transactionBatchSize),
-                                              Integer.parseInt(dupsOkBatchSize),
-                                              Boolean.parseBoolean(useGlobalPools),
-                                              Integer.parseInt(scheduledThreadMaxPoolSize),
-                                              Integer.parseInt(threadMaxPoolSize),
-                                              Long.parseLong(retryInterval),
-                                              Double.parseDouble(retryIntervalMultiplier),
-                                              Long.parseLong(maxRetryInterval),
-                                              Integer.parseInt(reconnectAttempts),
-                                              Boolean.parseBoolean(failoverOnInitialConnection),
-                                              groupId);
+      ManagementHelper.putOperationInvocation(managementMessage, ResourceNames.JMS_SERVER, "createConnectionFactory", name, Boolean.parseBoolean(ha), discoveryGroupName.length() > 0, Integer.parseInt(type), connectors, entries, clientId, Long.parseLong(clientFailureCheckPeriod), Long.parseLong(connectionTtl), Long.parseLong(callTimeout), Long.parseLong(callFailoverTimeout), Integer.parseInt(minLargeMessageSize), Boolean.parseBoolean(compressLargeMessages), Integer.parseInt(consumerWindowSize), Integer.parseInt(consumerMaxRate), Integer.parseInt(confirmationWindowSize), Integer.parseInt(producerWindowSize), Integer.parseInt(producerMaxRate), Boolean.parseBoolean(blockOnAcknowledge), Boolean.parseBoolean(blockOnDurableSend), Boolean.parseBoolean(blockOnNonDurableSend), Boolean.parseBoolean(autoGroup), Boolean.parseBoolean(preacknowledge), loadBalancingPolicyClassName, Integer.parseInt(transactionBatchSize), Integer.parseInt(dupsOkBatchSize), Boolean.parseBoolean(useGlobalPools), Integer.parseInt(scheduledThreadMaxPoolSize), Integer.parseInt(threadMaxPoolSize), Long.parseLong(retryInterval), Double.parseDouble(retryIntervalMultiplier), Long.parseLong(maxRetryInterval), Integer.parseInt(reconnectAttempts), Boolean.parseBoolean(failoverOnInitialConnection), groupId);
       //Boolean.parseBoolean(cacheLargeMessagesClient));
       managementSession.start();
       ClientMessage reply = requestor.request(managementMessage);
-      if (ManagementHelper.hasOperationSucceeded(reply))
-      {
+      if (ManagementHelper.hasOperationSucceeded(reply)) {
          ActiveMQServerLogger.LOGGER.debug("Created connection factory " + name);
       }
-      else
-      {
+      else {
          ActiveMQServerLogger.LOGGER.error("Problem creating " + name);
       }
 
       requestor.close();
    }
 
-   private void createJmsDestination() throws Exception
-   {
+   private void createJmsDestination() throws Exception {
       String name = "";
       String selector = "";
       String entries = "";
       String type = "";
       boolean endLoop = false;
 
-      while (reader.hasNext())
-      {
+      while (reader.hasNext()) {
          int eventType = reader.getEventType();
-         switch (eventType)
-         {
+         switch (eventType) {
             case XMLStreamConstants.START_ELEMENT:
-               if (XmlDataConstants.JMS_DESTINATION_NAME.equals(reader.getLocalName()))
-               {
+               if (XmlDataConstants.JMS_DESTINATION_NAME.equals(reader.getLocalName())) {
                   name = reader.getElementText();
                   ActiveMQServerLogger.LOGGER.debug("JMS destination name: " + name);
                }
-               else if (XmlDataConstants.JMS_DESTINATION_SELECTOR.equals(reader.getLocalName()))
-               {
+               else if (XmlDataConstants.JMS_DESTINATION_SELECTOR.equals(reader.getLocalName())) {
                   selector = reader.getElementText();
                   ActiveMQServerLogger.LOGGER.debug("JMS destination selector: " + selector);
                }
-               else if (XmlDataConstants.JMS_DESTINATION_TYPE.equals(reader.getLocalName()))
-               {
+               else if (XmlDataConstants.JMS_DESTINATION_TYPE.equals(reader.getLocalName())) {
                   type = reader.getElementText();
                   ActiveMQServerLogger.LOGGER.debug("JMS destination type: " + type);
                }
-               else if (XmlDataConstants.JMS_JNDI_ENTRIES.equals(reader.getLocalName()))
-               {
+               else if (XmlDataConstants.JMS_JNDI_ENTRIES.equals(reader.getLocalName())) {
                   entries = getEntries();
                }
                break;
             case XMLStreamConstants.END_ELEMENT:
-               if (XmlDataConstants.JMS_DESTINATION.equals(reader.getLocalName()))
-               {
+               if (XmlDataConstants.JMS_DESTINATION.equals(reader.getLocalName())) {
                   endLoop = true;
                }
                break;
          }
-         if (endLoop)
-         {
+         if (endLoop) {
             break;
          }
          reader.next();
@@ -984,55 +812,45 @@ public final class XmlDataImporter extends ActionAbstract
 
       ClientRequestor requestor = new ClientRequestor(managementSession, "jms.queue.activemq.management");
       ClientMessage managementMessage = managementSession.createMessage(false);
-      if ("Queue".equals(type))
-      {
+      if ("Queue".equals(type)) {
          ManagementHelper.putOperationInvocation(managementMessage, ResourceNames.JMS_SERVER, "createQueue", name, entries, selector);
       }
-      else if ("Topic".equals(type))
-      {
+      else if ("Topic".equals(type)) {
          ManagementHelper.putOperationInvocation(managementMessage, ResourceNames.JMS_SERVER, "createTopic", name, entries);
       }
       managementSession.start();
       ClientMessage reply = requestor.request(managementMessage);
-      if (ManagementHelper.hasOperationSucceeded(reply))
-      {
+      if (ManagementHelper.hasOperationSucceeded(reply)) {
          ActiveMQServerLogger.LOGGER.debug("Created " + type.toLowerCase() + " " + name);
       }
-      else
-      {
+      else {
          ActiveMQServerLogger.LOGGER.error("Problem creating " + name);
       }
 
       requestor.close();
    }
 
-   private String getEntries() throws Exception
-   {
+   private String getEntries() throws Exception {
       StringBuilder entry = new StringBuilder();
       boolean endLoop = false;
 
-      while (reader.hasNext())
-      {
+      while (reader.hasNext()) {
          int eventType = reader.getEventType();
-         switch (eventType)
-         {
+         switch (eventType) {
             case XMLStreamConstants.START_ELEMENT:
-               if (XmlDataConstants.JMS_JNDI_ENTRY.equals(reader.getLocalName()))
-               {
+               if (XmlDataConstants.JMS_JNDI_ENTRY.equals(reader.getLocalName())) {
                   String elementText = reader.getElementText();
                   entry.append(elementText).append(", ");
                   ActiveMQServerLogger.LOGGER.debug("JMS admin object JNDI entry: " + entry.toString());
                }
                break;
             case XMLStreamConstants.END_ELEMENT:
-               if (XmlDataConstants.JMS_JNDI_ENTRIES.equals(reader.getLocalName()))
-               {
+               if (XmlDataConstants.JMS_JNDI_ENTRIES.equals(reader.getLocalName())) {
                   endLoop = true;
                }
                break;
          }
-         if (endLoop)
-         {
+         if (endLoop) {
             break;
          }
          reader.next();
@@ -1041,31 +859,25 @@ public final class XmlDataImporter extends ActionAbstract
       return entry.delete(entry.length() - 2, entry.length()).toString();
    }
 
-   private String getConnectors() throws Exception
-   {
+   private String getConnectors() throws Exception {
       StringBuilder entry = new StringBuilder();
       boolean endLoop = false;
 
-      while (reader.hasNext())
-      {
+      while (reader.hasNext()) {
          int eventType = reader.getEventType();
-         switch (eventType)
-         {
+         switch (eventType) {
             case XMLStreamConstants.START_ELEMENT:
-               if (XmlDataConstants.JMS_CONNECTION_FACTORY_CONNECTOR.equals(reader.getLocalName()))
-               {
+               if (XmlDataConstants.JMS_CONNECTION_FACTORY_CONNECTOR.equals(reader.getLocalName())) {
                   entry.append(reader.getElementText()).append(", ");
                }
                break;
             case XMLStreamConstants.END_ELEMENT:
-               if (XmlDataConstants.JMS_CONNECTION_FACTORY_CONNECTORS.equals(reader.getLocalName()))
-               {
+               if (XmlDataConstants.JMS_CONNECTION_FACTORY_CONNECTORS.equals(reader.getLocalName())) {
                   endLoop = true;
                }
                break;
          }
-         if (endLoop)
-         {
+         if (endLoop) {
             break;
          }
          reader.next();
@@ -1080,8 +892,7 @@ public final class XmlDataImporter extends ActionAbstract
 
    // Private -------------------------------------------------------
 
-   private static byte[] decode(String data)
-   {
+   private static byte[] decode(String data) {
       return Base64.decode(data, Base64.DONT_BREAK_LINES | Base64.URL_SAFE);
    }
 

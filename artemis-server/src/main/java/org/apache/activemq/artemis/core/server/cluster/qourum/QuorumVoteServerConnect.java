@@ -26,8 +26,8 @@ import java.util.concurrent.TimeUnit;
 /**
  * A Qourum Vote for deciding if a replicated backup should become live.
  */
-public class QuorumVoteServerConnect extends QuorumVote<BooleanVote, Boolean>
-{
+public class QuorumVoteServerConnect extends QuorumVote<BooleanVote, Boolean> {
+
    private static final SimpleString LIVE_FAILOVER_VOTE = new SimpleString("LIVE_FAILOVER)VOTE");
    private final CountDownLatch latch;
 
@@ -45,26 +45,22 @@ public class QuorumVoteServerConnect extends QuorumVote<BooleanVote, Boolean>
     * 4 remaining nodes would be 3/2 = 2 vote needed
     * 5 remaining nodes would be 4/2 = 3 vote needed
     * 6 remaining nodes would be 5/2 = 3 vote needed
-    * */
-   public QuorumVoteServerConnect(int size, StorageManager storageManager)
-   {
+    */
+   public QuorumVoteServerConnect(int size, StorageManager storageManager) {
       super(LIVE_FAILOVER_VOTE);
       //we don't count ourself
       int actualSize = size - 1;
-      if (actualSize <= 2)
-      {
+      if (actualSize <= 2) {
          votesNeeded = actualSize / 2;
       }
-      else
-      {
+      else {
          //even
          votesNeeded = actualSize / 2 + 1;
       }
       //votes needed could be say 2.5 so we add 1 in this case
       int latchSize = votesNeeded > (int) votesNeeded ? (int) votesNeeded + 1 : (int) votesNeeded;
       latch = new CountDownLatch(latchSize);
-      if (votesNeeded == 0)
-      {
+      if (votesNeeded == 0) {
          decision = true;
       }
    }
@@ -75,18 +71,17 @@ public class QuorumVoteServerConnect extends QuorumVote<BooleanVote, Boolean>
     * @return
     */
    @Override
-   public Vote connected()
-   {
+   public Vote connected() {
       return new BooleanVote(true);
    }
 
    /**
     * if we cant connect to the node
+    *
     * @return
     */
    @Override
-   public Vote notConnected()
-   {
+   public Vote notConnected() {
       return new BooleanVote(false);
    }
 
@@ -98,18 +93,16 @@ public class QuorumVoteServerConnect extends QuorumVote<BooleanVote, Boolean>
     * 4 remaining nodes would be 3/2 = 2 vote needed
     * 5 remaining nodes would be 4/2 = 3 vote needed
     * 6 remaining nodes would be 5/2 = 3 vote needed
+    *
     * @param vote the vote to make.
     */
    @Override
-   public synchronized void vote(BooleanVote vote)
-   {
+   public synchronized void vote(BooleanVote vote) {
       if (decision)
          return;
-      if (vote.getVote())
-      {
+      if (vote.getVote()) {
          total++;
-         if (total >= votesNeeded)
-         {
+         if (total >= votesNeeded) {
             decision = true;
             latch.countDown();
          }
@@ -117,25 +110,21 @@ public class QuorumVoteServerConnect extends QuorumVote<BooleanVote, Boolean>
    }
 
    @Override
-   public void allVotesCast(Topology voteTopology)
-   {
+   public void allVotesCast(Topology voteTopology) {
 
    }
 
    @Override
-   public Boolean getDecision()
-   {
+   public Boolean getDecision() {
       return decision;
    }
 
    @Override
-   public SimpleString getName()
-   {
+   public SimpleString getName() {
       return null;
    }
 
-   public void await(int latchTimeout, TimeUnit unit) throws InterruptedException
-   {
+   public void await(int latchTimeout, TimeUnit unit) throws InterruptedException {
       latch.await(latchTimeout, unit);
    }
 }

@@ -16,10 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.extras.byteman;
 
-public class ScaleDownGroupedFailoverTest extends ScaleDownFailoverTest
-{
-   protected boolean isGrouped()
-   {
+public class ScaleDownGroupedFailoverTest extends ScaleDownFailoverTest {
+
+   protected boolean isGrouped() {
       return true;
    }
 }

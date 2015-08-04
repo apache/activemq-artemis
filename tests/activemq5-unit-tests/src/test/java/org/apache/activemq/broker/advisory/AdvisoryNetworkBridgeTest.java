@@ -17,6 +17,7 @@
 package org.apache.activemq.broker.advisory;
 
 import junit.framework.TestCase;
+
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.advisory.AdvisorySupport;
 import org.apache.activemq.broker.BrokerFactory;
@@ -31,98 +32,96 @@ import java.net.URI;
 
 public class AdvisoryNetworkBridgeTest extends TestCase {
 
-    BrokerService broker1;
-    BrokerService broker2;
+   BrokerService broker1;
+   BrokerService broker2;
 
+   public void testAdvisory() throws Exception {
+      createBroker1();
 
-    public void testAdvisory() throws Exception {
-        createBroker1();
+      ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("vm://broker1");
+      Connection conn = factory.createConnection();
+      Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      conn.start();
+      MessageConsumer consumer = sess.createConsumer(AdvisorySupport.getNetworkBridgeAdvisoryTopic());
 
-        ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("vm://broker1");
-        Connection conn = factory.createConnection();
-        Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        conn.start();
-        MessageConsumer consumer = sess.createConsumer(AdvisorySupport.getNetworkBridgeAdvisoryTopic());
-        
-        Thread.sleep(1000);
+      Thread.sleep(1000);
 
-        createBroker2();
-        
-        ActiveMQMessage advisory = (ActiveMQMessage)consumer.receive(2000);
-        assertNotNull(advisory);
-        assertTrue(advisory.getDataStructure() instanceof BrokerInfo);
-        assertTrue(advisory.getBooleanProperty("started"));
-        assertCreatedByDuplex(advisory.getBooleanProperty("createdByDuplex"));
-        
-        broker2.stop();
-        broker2.waitUntilStopped();
+      createBroker2();
 
-        advisory = (ActiveMQMessage)consumer.receive(2000);
-        assertNotNull(advisory);
-        assertTrue(advisory.getDataStructure() instanceof BrokerInfo);
-        assertFalse(advisory.getBooleanProperty("started"));
+      ActiveMQMessage advisory = (ActiveMQMessage) consumer.receive(2000);
+      assertNotNull(advisory);
+      assertTrue(advisory.getDataStructure() instanceof BrokerInfo);
+      assertTrue(advisory.getBooleanProperty("started"));
+      assertCreatedByDuplex(advisory.getBooleanProperty("createdByDuplex"));
 
-        conn.close();
-    }
+      broker2.stop();
+      broker2.waitUntilStopped();
 
-    public void testAddConsumerLater() throws Exception {
-        createBroker1();
+      advisory = (ActiveMQMessage) consumer.receive(2000);
+      assertNotNull(advisory);
+      assertTrue(advisory.getDataStructure() instanceof BrokerInfo);
+      assertFalse(advisory.getBooleanProperty("started"));
 
-        createBroker2();
+      conn.close();
+   }
 
-        Thread.sleep(1000);
+   public void testAddConsumerLater() throws Exception {
+      createBroker1();
 
-        ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("vm://broker1");
-        Connection conn = factory.createConnection();
-        Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        conn.start();
-        MessageConsumer consumer = sess.createConsumer(AdvisorySupport.getNetworkBridgeAdvisoryTopic());
+      createBroker2();
 
-        ActiveMQMessage advisory = (ActiveMQMessage)consumer.receive(2000);
-        assertNotNull(advisory);
-        assertTrue(advisory.getDataStructure() instanceof BrokerInfo);
-        assertTrue(advisory.getBooleanProperty("started"));
-        assertCreatedByDuplex(advisory.getBooleanProperty("createdByDuplex"));
+      Thread.sleep(1000);
 
-        broker2.stop();
-        broker2.waitUntilStopped();
+      ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("vm://broker1");
+      Connection conn = factory.createConnection();
+      Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      conn.start();
+      MessageConsumer consumer = sess.createConsumer(AdvisorySupport.getNetworkBridgeAdvisoryTopic());
 
-        advisory = (ActiveMQMessage)consumer.receive(2000);
-        assertNotNull(advisory);
-        assertTrue(advisory.getDataStructure() instanceof BrokerInfo);
-        assertFalse(advisory.getBooleanProperty("started"));
+      ActiveMQMessage advisory = (ActiveMQMessage) consumer.receive(2000);
+      assertNotNull(advisory);
+      assertTrue(advisory.getDataStructure() instanceof BrokerInfo);
+      assertTrue(advisory.getBooleanProperty("started"));
+      assertCreatedByDuplex(advisory.getBooleanProperty("createdByDuplex"));
 
-        consumer = sess.createConsumer(AdvisorySupport.getNetworkBridgeAdvisoryTopic());
-        advisory = (ActiveMQMessage)consumer.receive(1000);
-        assertNull(advisory);
+      broker2.stop();
+      broker2.waitUntilStopped();
 
-        conn.close();
+      advisory = (ActiveMQMessage) consumer.receive(2000);
+      assertNotNull(advisory);
+      assertTrue(advisory.getDataStructure() instanceof BrokerInfo);
+      assertFalse(advisory.getBooleanProperty("started"));
 
-    }
+      consumer = sess.createConsumer(AdvisorySupport.getNetworkBridgeAdvisoryTopic());
+      advisory = (ActiveMQMessage) consumer.receive(1000);
+      assertNull(advisory);
 
-    public void assertCreatedByDuplex(boolean createdByDuplex) {
-        assertFalse(createdByDuplex);
-    }
+      conn.close();
 
-    public void createBroker1() throws Exception {
-        broker1 = BrokerFactory.createBroker(new URI("xbean:org/apache/activemq/network/reconnect-broker1.xml"));
-        broker1.start();
-        broker1.waitUntilStarted();
-    }
+   }
 
-    public void createBroker2() throws Exception {
-        broker2 = BrokerFactory.createBroker(new URI("xbean:org/apache/activemq/network/reconnect-broker2.xml"));
-        broker2.start();
-        broker2.waitUntilStarted();
-    }
+   public void assertCreatedByDuplex(boolean createdByDuplex) {
+      assertFalse(createdByDuplex);
+   }
 
+   public void createBroker1() throws Exception {
+      broker1 = BrokerFactory.createBroker(new URI("xbean:org/apache/activemq/network/reconnect-broker1.xml"));
+      broker1.start();
+      broker1.waitUntilStarted();
+   }
 
-    @Override
-    protected void tearDown() throws Exception {
-       broker1.stop();
-       broker1.waitUntilStopped();
+   public void createBroker2() throws Exception {
+      broker2 = BrokerFactory.createBroker(new URI("xbean:org/apache/activemq/network/reconnect-broker2.xml"));
+      broker2.start();
+      broker2.waitUntilStarted();
+   }
 
-       broker2.stop();
-       broker2.waitUntilStopped();
-    }
+   @Override
+   protected void tearDown() throws Exception {
+      broker1.stop();
+      broker1.waitUntilStopped();
+
+      broker2.stop();
+      broker2.waitUntilStopped();
+   }
 }

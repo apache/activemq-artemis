@@ -22,8 +22,8 @@ import java.util.Map;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 
-public interface RoutingContext
-{
+public interface RoutingContext {
+
    Transaction getTransaction();
 
    void setTransaction(Transaction transaction);

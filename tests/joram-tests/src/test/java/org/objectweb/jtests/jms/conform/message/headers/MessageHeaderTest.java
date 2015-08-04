@@ -34,34 +34,27 @@ import org.junit.Test;
 import org.objectweb.jtests.jms.framework.PTPTestCase;
 import org.objectweb.jtests.jms.framework.TestConfig;
 
-
 /**
  * Test the headers of a message
  */
-public class MessageHeaderTest extends PTPTestCase
-{
+public class MessageHeaderTest extends PTPTestCase {
 
    /**
     * Test that the <code>MessageProducer.setPriority()</code> changes effectively
     * priority of the message.
     */
    @Test
-   public void testJMSPriority_2()
-   {
-      try
-      {
+   public void testJMSPriority_2() {
+      try {
          Message message = senderSession.createMessage();
          sender.send(message);
          sender.setPriority(9);
          sender.send(message);
-         Assert.assertEquals("sec. 3.4.9 After completion of the send it holds the value specified by the " + "method sending the message.\n",
-                             9,
-                             message.getJMSPriority());
+         Assert.assertEquals("sec. 3.4.9 After completion of the send it holds the value specified by the " + "method sending the message.\n", 9, message.getJMSPriority());
 
          receiver.receive(TestConfig.TIMEOUT);
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          fail(e);
       }
    }
@@ -72,22 +65,17 @@ public class MessageHeaderTest extends PTPTestCase
     * <code>Message.DEFAULT_PRIORITY</code> in this test).
     */
    @Test
-   public void testJMSPriority_1()
-   {
-      try
-      {
+   public void testJMSPriority_1() {
+      try {
          Message message = senderSession.createMessage();
          message.setJMSPriority(0);
          sender.send(message);
          Assert.assertTrue("sec. 3.4.9 When a message is sent this value is ignored.\n", message.getJMSPriority() != 0);
-         Assert.assertEquals("sec. 3.4.9 After completion of the send it holds the value specified by the " + "method sending the message.\n",
-                             Message.DEFAULT_PRIORITY,
-                             message.getJMSPriority());
+         Assert.assertEquals("sec. 3.4.9 After completion of the send it holds the value specified by the " + "method sending the message.\n", Message.DEFAULT_PRIORITY, message.getJMSPriority());
 
          receiver.receive(TestConfig.TIMEOUT);
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          fail(e);
       }
    }
@@ -97,20 +85,15 @@ public class MessageHeaderTest extends PTPTestCase
     * for the sent message and the received one.
     */
    @Test
-   public void testJMSExpiration()
-   {
-      try
-      {
+   public void testJMSExpiration() {
+      try {
          Message message = senderSession.createMessage();
          sender.send(message);
 
          Message msg = receiver.receive(TestConfig.TIMEOUT);
-         Assert.assertEquals("sec. 3.4.9 When a message is received its JMSExpiration header field contains this same " + "value [i.e. set on return of the send method].\n",
-                             message.getJMSExpiration(),
-                             msg.getJMSExpiration());
+         Assert.assertEquals("sec. 3.4.9 When a message is received its JMSExpiration header field contains this same " + "value [i.e. set on return of the send method].\n", message.getJMSExpiration(), msg.getJMSExpiration());
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          fail(e);
       }
    }
@@ -120,23 +103,17 @@ public class MessageHeaderTest extends PTPTestCase
     * and that it starts with <code>"ID:"</code>.
     */
    @Test
-   public void testJMSMessageID_2()
-   {
-      try
-      {
+   public void testJMSMessageID_2() {
+      try {
          Message message = senderSession.createMessage();
          sender.send(message);
-         Assert.assertTrue("sec. 3.4.3 When the send method returns it contains a provider-assigned value.\n",
-                           message.getJMSMessageID() != null);
-         Assert.assertTrue("sec. 3.4.3 All JMSMessageID values must start with the prefix 'ID:'.\n",
-                           message.getJMSMessageID().startsWith("ID:"));
+         Assert.assertTrue("sec. 3.4.3 When the send method returns it contains a provider-assigned value.\n", message.getJMSMessageID() != null);
+         Assert.assertTrue("sec. 3.4.3 All JMSMessageID values must start with the prefix 'ID:'.\n", message.getJMSMessageID().startsWith("ID:"));
 
          Message msg = receiver.receive(TestConfig.TIMEOUT);
-         Assert.assertTrue("sec. 3.4.3 All JMSMessageID values must start with the prefix 'ID:'.\n",
-                           msg.getJMSMessageID().startsWith("ID:"));
+         Assert.assertTrue("sec. 3.4.3 All JMSMessageID values must start with the prefix 'ID:'.\n", msg.getJMSMessageID().startsWith("ID:"));
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          fail(e);
       }
    }
@@ -146,19 +123,15 @@ public class MessageHeaderTest extends PTPTestCase
     * ignored when the message is sent.
     */
    @Test
-   public void testJMSMessageID_1()
-   {
-      try
-      {
+   public void testJMSMessageID_1() {
+      try {
          Message message = senderSession.createMessage();
          message.setJMSMessageID("ID:foo");
          sender.send(message);
-         Assert.assertTrue("sec. 3.4.3 When a message is sent this value is ignored.\n",
-                           !message.getJMSMessageID().equals("ID:foo"));
+         Assert.assertTrue("sec. 3.4.3 When a message is sent this value is ignored.\n", !message.getJMSMessageID().equals("ID:foo"));
          receiver.receive(TestConfig.TIMEOUT);
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          fail(e);
       }
    }
@@ -169,26 +142,20 @@ public class MessageHeaderTest extends PTPTestCase
     * method (i.e. <code>Message.DEFAULT_DELIVERY_MODE</code> in this test when the message is received.
     */
    @Test
-   public void testJMSDeliveryMode()
-   {
-      try
-      {
+   public void testJMSDeliveryMode() {
+      try {
          // sender has been created with the DEFAULT_DELIVERY_MODE which is PERSISTENT
          Assert.assertEquals(DeliveryMode.PERSISTENT, sender.getDeliveryMode());
          Message message = senderSession.createMessage();
          // send a message specfiying NON_PERSISTENT for the JMSDeliveryMode header field
          message.setJMSDeliveryMode(DeliveryMode.NON_PERSISTENT);
          sender.send(message);
-         Assert.assertTrue("sec. 3.4.2 When a message is sent this value is ignored",
-                           message.getJMSDeliveryMode() != DeliveryMode.NON_PERSISTENT);
-         Assert.assertEquals("sec. 3.4.2 After completion of the send it holds the delivery mode specified " + "by the sending method (persistent by default).\n",
-                             Message.DEFAULT_DELIVERY_MODE,
-                             message.getJMSDeliveryMode());
+         Assert.assertTrue("sec. 3.4.2 When a message is sent this value is ignored", message.getJMSDeliveryMode() != DeliveryMode.NON_PERSISTENT);
+         Assert.assertEquals("sec. 3.4.2 After completion of the send it holds the delivery mode specified " + "by the sending method (persistent by default).\n", Message.DEFAULT_DELIVERY_MODE, message.getJMSDeliveryMode());
 
          receiver.receive(TestConfig.TIMEOUT);
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          fail(e);
       }
    }
@@ -200,10 +167,8 @@ public class MessageHeaderTest extends PTPTestCase
     * Also test that the value of the header on the received message is the same that on the sent message.
     */
    @Test
-   public void testJMSDestination()
-   {
-      try
-      {
+   public void testJMSDestination() {
+      try {
          admin.createQueue("anotherQueue");
 
          Hashtable props = new Hashtable<>();
@@ -211,32 +176,25 @@ public class MessageHeaderTest extends PTPTestCase
          props.put("queue.anotherQueue", "anotherQueue");
 
          Context ctx = new InitialContext(props);
-         Queue anotherQueue = (Queue)ctx.lookup("anotherQueue");
+         Queue anotherQueue = (Queue) ctx.lookup("anotherQueue");
          Assert.assertTrue(anotherQueue != senderQueue);
 
          // set the JMSDestination header field to the anotherQueue Destination
          Message message = senderSession.createMessage();
          message.setJMSDestination(anotherQueue);
          sender.send(message);
-         Assert.assertTrue("sec. 3.4.1 When a message is sent this value is ignored.\n",
-                           message.getJMSDestination() != anotherQueue);
-         Assert.assertEquals("sec. 3.4.1 After completion of the send it holds the destination object specified " + "by the sending method.\n",
-                             senderQueue,
-                             message.getJMSDestination());
+         Assert.assertTrue("sec. 3.4.1 When a message is sent this value is ignored.\n", message.getJMSDestination() != anotherQueue);
+         Assert.assertEquals("sec. 3.4.1 After completion of the send it holds the destination object specified " + "by the sending method.\n", senderQueue, message.getJMSDestination());
 
          Message msg = receiver.receive(TestConfig.TIMEOUT);
-         Assert.assertEquals("sec. 3.4.1 When a message is received, its destination value must be equivalent  " + " to the value assigned when it was sent.\n",
-                             ((Queue)message.getJMSDestination()).getQueueName(),
-                             ((Queue)msg.getJMSDestination()).getQueueName());
+         Assert.assertEquals("sec. 3.4.1 When a message is received, its destination value must be equivalent  " + " to the value assigned when it was sent.\n", ((Queue) message.getJMSDestination()).getQueueName(), ((Queue) msg.getJMSDestination()).getQueueName());
 
          admin.deleteQueue("anotherQueue");
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          fail(e);
       }
-      catch (NamingException e)
-      {
+      catch (NamingException e) {
          Assert.fail(e.getMessage());
       }
    }
@@ -247,10 +205,8 @@ public class MessageHeaderTest extends PTPTestCase
     * the </code>getJMSReplyTo()</code> method.
     */
    @Test
-   public void testJMSReplyTo_1()
-   {
-      try
-      {
+   public void testJMSReplyTo_1() {
+      try {
          Message message = senderSession.createMessage();
          message.setJMSReplyTo(senderQueue);
          sender.send(message);
@@ -258,13 +214,10 @@ public class MessageHeaderTest extends PTPTestCase
          Message msg = receiver.receive(TestConfig.TIMEOUT);
          Destination dest = msg.getJMSReplyTo();
          Assert.assertTrue("JMS ReplyTo header field should be a Queue", dest instanceof Queue);
-         Queue replyTo = (Queue)dest;
-         Assert.assertEquals("JMS ReplyTo header field should be equals to the sender queue",
-                             replyTo.getQueueName(),
-                             senderQueue.getQueueName());
+         Queue replyTo = (Queue) dest;
+         Assert.assertEquals("JMS ReplyTo header field should be equals to the sender queue", replyTo.getQueueName(), senderQueue.getQueueName());
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          fail(e);
       }
    }
@@ -275,10 +228,8 @@ public class MessageHeaderTest extends PTPTestCase
     * (and not only as a <code>Queue</code>).
     */
    @Test
-   public void testJMSReplyTo_2()
-   {
-      try
-      {
+   public void testJMSReplyTo_2() {
+      try {
          TemporaryQueue tempQueue = senderSession.createTemporaryQueue();
          Message message = senderSession.createMessage();
          message.setJMSReplyTo(tempQueue);
@@ -287,13 +238,10 @@ public class MessageHeaderTest extends PTPTestCase
          Message msg = receiver.receive(TestConfig.TIMEOUT);
          Destination dest = msg.getJMSReplyTo();
          Assert.assertTrue("JMS ReplyTo header field should be a TemporaryQueue", dest instanceof TemporaryQueue);
-         Queue replyTo = (Queue)dest;
-         Assert.assertEquals("JMS ReplyTo header field should be equals to the temporary queue",
-                             replyTo.getQueueName(),
-                             tempQueue.getQueueName());
+         Queue replyTo = (Queue) dest;
+         Assert.assertEquals("JMS ReplyTo header field should be equals to the temporary queue", replyTo.getQueueName(), tempQueue.getQueueName());
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          fail(e);
       }
    }

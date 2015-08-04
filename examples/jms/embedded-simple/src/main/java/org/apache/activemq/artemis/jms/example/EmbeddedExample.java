@@ -36,10 +36,9 @@ import java.util.List;
 /**
  * This example demonstrates how to run an ActiveMQ Artemis embedded with JMS
  */
-public class EmbeddedExample
-{
-   public static void main(final String[] args) throws Exception
-   {
+public class EmbeddedExample {
+
+   public static void main(final String[] args) throws Exception {
       EmbeddedJMS jmsServer = new EmbeddedJMS();
 
       SecurityConfiguration securityConfig = new SecurityConfiguration();
@@ -62,8 +61,7 @@ public class EmbeddedExample
 
       // Step 10. Send and receive a message using JMS API
       Connection connection = null;
-      try
-      {
+      try {
          connection = cf.createConnection();
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
          MessageProducer producer = session.createProducer(queue);
@@ -75,10 +73,8 @@ public class EmbeddedExample
          TextMessage messageReceived = (TextMessage) messageConsumer.receive(1000);
          System.out.println("Received message:" + messageReceived.getText());
       }
-      finally
-      {
-         if (connection != null)
-         {
+      finally {
+         if (connection != null) {
             connection.close();
          }
 

@@ -28,43 +28,49 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class DelegatingTransactionalMessageListener implements MessageListener {
-    private static final transient Logger LOG = LoggerFactory.getLogger(DelegatingTransactionalMessageListener.class);
 
-    private final MessageListener underlyingListener;
-    private boolean transacted = true;
-    private int ackMode = Session.AUTO_ACKNOWLEDGE;
-    private Session session;
+   private static final transient Logger LOG = LoggerFactory.getLogger(DelegatingTransactionalMessageListener.class);
 
-    public DelegatingTransactionalMessageListener(MessageListener underlyingListener, Connection connection, Destination destination) {
-        this.underlyingListener = underlyingListener;
+   private final MessageListener underlyingListener;
+   private boolean transacted = true;
+   private int ackMode = Session.AUTO_ACKNOWLEDGE;
+   private Session session;
 
-        try {
-            session = connection.createSession(transacted, ackMode);
-            MessageConsumer consumer = session.createConsumer(destination);
-            consumer.setMessageListener(this);
-        } catch (JMSException e) {
-            throw new IllegalStateException("Could not listen to " + destination, e);
-        }
-    }
+   public DelegatingTransactionalMessageListener(MessageListener underlyingListener,
+                                                 Connection connection,
+                                                 Destination destination) {
+      this.underlyingListener = underlyingListener;
 
-    public void onMessage(Message message) {
-        try {
-            underlyingListener.onMessage(message);
-            session.commit();
-        } catch (Throwable e) {
-            rollback();
-        }
-    }
+      try {
+         session = connection.createSession(transacted, ackMode);
+         MessageConsumer consumer = session.createConsumer(destination);
+         consumer.setMessageListener(this);
+      }
+      catch (JMSException e) {
+         throw new IllegalStateException("Could not listen to " + destination, e);
+      }
+   }
 
-    private void rollback() {
-        try {
-            session.rollback();
-        } catch (JMSException e) {
-            LOG.error("Failed to rollback: " + e, e);
-        }
-    }
+   public void onMessage(Message message) {
+      try {
+         underlyingListener.onMessage(message);
+         session.commit();
+      }
+      catch (Throwable e) {
+         rollback();
+      }
+   }
 
-    public Session getSession() {
-        return session;
-    }
+   private void rollback() {
+      try {
+         session.rollback();
+      }
+      catch (JMSException e) {
+         LOG.error("Failed to rollback: " + e, e);
+      }
+   }
+
+   public Session getSession() {
+      return session;
+   }
 }

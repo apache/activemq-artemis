@@ -22,198 +22,159 @@ import org.apache.activemq.artemis.jms.bridge.QualityOfServiceMode;
 
 import javax.management.StandardMBean;
 
-public class JMSBridgeControlImpl extends StandardMBean implements JMSBridgeControl
-{
+public class JMSBridgeControlImpl extends StandardMBean implements JMSBridgeControl {
 
    private final JMSBridge bridge;
 
    // Constructors --------------------------------------------------
 
-   public JMSBridgeControlImpl(final JMSBridge bridge) throws Exception
-   {
+   public JMSBridgeControlImpl(final JMSBridge bridge) throws Exception {
       super(JMSBridgeControl.class);
       this.bridge = bridge;
    }
 
    // Public --------------------------------------------------------
 
-   public void pause() throws Exception
-   {
+   public void pause() throws Exception {
       bridge.pause();
    }
 
-   public void resume() throws Exception
-   {
+   public void resume() throws Exception {
       bridge.resume();
    }
 
-   public boolean isStarted()
-   {
+   public boolean isStarted() {
       return bridge.isStarted();
    }
 
-   public void start() throws Exception
-   {
+   public void start() throws Exception {
       bridge.start();
    }
 
-   public void stop() throws Exception
-   {
+   public void stop() throws Exception {
       bridge.stop();
    }
 
-   public String getClientID()
-   {
+   public String getClientID() {
       return bridge.getClientID();
    }
 
-   public long getFailureRetryInterval()
-   {
+   public long getFailureRetryInterval() {
       return bridge.getFailureRetryInterval();
    }
 
-   public int getMaxBatchSize()
-   {
+   public int getMaxBatchSize() {
       return bridge.getMaxBatchSize();
    }
 
-   public long getMaxBatchTime()
-   {
+   public long getMaxBatchTime() {
       return bridge.getMaxBatchTime();
    }
 
-   public int getMaxRetries()
-   {
+   public int getMaxRetries() {
       return bridge.getMaxRetries();
    }
 
-   public String getQualityOfServiceMode()
-   {
+   public String getQualityOfServiceMode() {
       QualityOfServiceMode mode = bridge.getQualityOfServiceMode();
-      if (mode != null)
-      {
+      if (mode != null) {
          return mode.name();
       }
-      else
-      {
+      else {
          return null;
       }
    }
 
-   public String getSelector()
-   {
+   public String getSelector() {
       return bridge.getSelector();
    }
 
-   public String getSourcePassword()
-   {
+   public String getSourcePassword() {
       return bridge.getSourcePassword();
    }
 
-   public String getSourceUsername()
-   {
+   public String getSourceUsername() {
       return bridge.getSourceUsername();
    }
 
-   public String getSubscriptionName()
-   {
+   public String getSubscriptionName() {
       return bridge.getSubscriptionName();
    }
 
-   public String getTargetPassword()
-   {
+   public String getTargetPassword() {
       return bridge.getTargetPassword();
    }
 
-   public String getTargetUsername()
-   {
+   public String getTargetUsername() {
       return bridge.getTargetUsername();
    }
 
-   public boolean isAddMessageIDInHeader()
-   {
+   public boolean isAddMessageIDInHeader() {
       return bridge.isAddMessageIDInHeader();
    }
 
-   public boolean isFailed()
-   {
+   public boolean isFailed() {
       return bridge.isFailed();
    }
 
-   public boolean isPaused()
-   {
+   public boolean isPaused() {
       return bridge.isPaused();
    }
 
-   public void setAddMessageIDInHeader(final boolean value)
-   {
+   public void setAddMessageIDInHeader(final boolean value) {
       bridge.setAddMessageIDInHeader(value);
    }
 
-   public void setClientID(final String clientID)
-   {
+   public void setClientID(final String clientID) {
       bridge.setClientID(clientID);
    }
 
-   public void setFailureRetryInterval(final long interval)
-   {
+   public void setFailureRetryInterval(final long interval) {
       bridge.setFailureRetryInterval(interval);
    }
 
-   public void setMaxBatchSize(final int size)
-   {
+   public void setMaxBatchSize(final int size) {
       bridge.setMaxBatchSize(size);
    }
 
-   public void setMaxBatchTime(final long time)
-   {
+   public void setMaxBatchTime(final long time) {
       bridge.setMaxBatchTime(time);
    }
 
-   public void setMaxRetries(final int retries)
-   {
+   public void setMaxRetries(final int retries) {
       bridge.setMaxRetries(retries);
    }
 
-   public void setQualityOfServiceMode(String mode)
-   {
-      if (mode != null)
-      {
+   public void setQualityOfServiceMode(String mode) {
+      if (mode != null) {
          bridge.setQualityOfServiceMode(QualityOfServiceMode.valueOf(mode));
       }
-      else
-      {
+      else {
          mode = null;
       }
    }
 
-   public void setSelector(final String selector)
-   {
+   public void setSelector(final String selector) {
       bridge.setSelector(selector);
    }
 
-   public void setSourcePassword(final String pwd)
-   {
+   public void setSourcePassword(final String pwd) {
       bridge.setSourcePassword(pwd);
    }
 
-   public void setSourceUsername(final String name)
-   {
+   public void setSourceUsername(final String name) {
       bridge.setSourceUsername(name);
    }
 
-   public void setSubscriptionName(final String subname)
-   {
+   public void setSubscriptionName(final String subname) {
       bridge.setSubscriptionName(subname);
    }
 
-   public void setTargetPassword(final String pwd)
-   {
+   public void setTargetPassword(final String pwd) {
       bridge.setTargetPassword(pwd);
    }
 
-   public void setTargetUsername(final String name)
-   {
+   public void setTargetUsername(final String name) {
       bridge.setTargetUsername(name);
    }
 

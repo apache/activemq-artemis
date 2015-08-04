@@ -33,8 +33,8 @@ import org.apache.activemq.artemis.core.server.impl.ServerMessageImpl;
  * A Utility Class for creating Server Side objects and converting MQTT concepts to/from Artemis.
  */
 
-public class MQTTUtil
-{
+public class MQTTUtil {
+
    // TODO These settings should be configurable.
    public static final int DEFAULT_SERVER_MESSAGE_BUFFER_SIZE = 512;
 
@@ -66,44 +66,40 @@ public class MQTTUtil
 
    public static final int DEFAULT_KEEP_ALIVE_FREQUENCY = 5000;
 
-   public static String convertMQTTAddressFilterToCore(String filter)
-   {
+   public static String convertMQTTAddressFilterToCore(String filter) {
       return MQTT_ADDRESS_PREFIX + swapMQTTAndCoreWildCards(filter);
    }
 
-   public static String convertCoreAddressFilterToMQTT(String filter)
-   {
-      if (filter.startsWith(MQTT_RETAIN_ADDRESS_PREFIX.toString()))
-      {
+   public static String convertCoreAddressFilterToMQTT(String filter) {
+      if (filter.startsWith(MQTT_RETAIN_ADDRESS_PREFIX.toString())) {
          filter = filter.substring(MQTT_RETAIN_ADDRESS_PREFIX.length(), filter.length());
       }
-      else if (filter.startsWith(MQTT_ADDRESS_PREFIX.toString()))
-      {
+      else if (filter.startsWith(MQTT_ADDRESS_PREFIX.toString())) {
          filter = filter.substring(MQTT_ADDRESS_PREFIX.length(), filter.length());
       }
       return swapMQTTAndCoreWildCards(filter);
    }
 
-   public static String convertMQTTAddressFilterToCoreRetain(String filter)
-   {
+   public static String convertMQTTAddressFilterToCoreRetain(String filter) {
       return MQTT_RETAIN_ADDRESS_PREFIX + swapMQTTAndCoreWildCards(filter);
    }
 
-   public static String swapMQTTAndCoreWildCards(String filter)
-   {
+   public static String swapMQTTAndCoreWildCards(String filter) {
       char[] topicFilter = filter.toCharArray();
-      for (int i = 0; i < topicFilter.length; i++)
-      {
-         switch (topicFilter[i])
-         {
+      for (int i = 0; i < topicFilter.length; i++) {
+         switch (topicFilter[i]) {
             case '/':
-               topicFilter[i] = '.'; break;
+               topicFilter[i] = '.';
+               break;
             case '.':
-               topicFilter[i] = '/'; break;
+               topicFilter[i] = '/';
+               break;
             case '*':
-               topicFilter[i] = '+'; break;
+               topicFilter[i] = '+';
+               break;
             case '+':
-               topicFilter[i] = '*'; break;
+               topicFilter[i] = '*';
+               break;
             default:
                break;
          }
@@ -111,8 +107,10 @@ public class MQTTUtil
       return String.valueOf(topicFilter);
    }
 
-   private static ServerMessage createServerMessage(MQTTSession session, SimpleString address, boolean retain, int qos)
-   {
+   private static ServerMessage createServerMessage(MQTTSession session,
+                                                    SimpleString address,
+                                                    boolean retain,
+                                                    int qos) {
       long id = session.getServer().getStorageManager().generateID();
 
       ServerMessageImpl message = new ServerMessageImpl(id, DEFAULT_SERVER_MESSAGE_BUFFER_SIZE);
@@ -122,8 +120,11 @@ public class MQTTUtil
       return message;
    }
 
-   public static ServerMessage createServerMessageFromByteBuf(MQTTSession session, String topic, boolean retain, int qos, ByteBuf payload)
-   {
+   public static ServerMessage createServerMessageFromByteBuf(MQTTSession session,
+                                                              String topic,
+                                                              boolean retain,
+                                                              int qos,
+                                                              ByteBuf payload) {
       String coreAddress = convertMQTTAddressFilterToCore(topic);
       ServerMessage message = createServerMessage(session, new SimpleString(coreAddress), retain, qos);
 
@@ -132,41 +133,38 @@ public class MQTTUtil
       return message;
    }
 
-   public static ServerMessage createServerMessageFromString(MQTTSession session, String payload, String topic, int qos, boolean retain)
-   {
+   public static ServerMessage createServerMessageFromString(MQTTSession session,
+                                                             String payload,
+                                                             String topic,
+                                                             int qos,
+                                                             boolean retain) {
       ServerMessage message = createServerMessage(session, new SimpleString(topic), retain, qos);
       message.getBodyBuffer().writeString(payload);
       return message;
    }
 
-   public static ServerMessage createPubRelMessage(MQTTSession session, SimpleString address, int messageId)
-   {
+   public static ServerMessage createPubRelMessage(MQTTSession session, SimpleString address, int messageId) {
       ServerMessage message = createServerMessage(session, address, false, 1);
       message.putIntProperty(new SimpleString(MQTTUtil.MQTT_MESSAGE_ID_KEY), messageId);
       message.putIntProperty(new SimpleString(MQTTUtil.MQTT_MESSAGE_TYPE_KEY), MqttMessageType.PUBREL.value());
       return message;
    }
-   public static void logMessage(MQTTLogger logger, MqttMessage message, boolean inbound)
-   {
+
+   public static void logMessage(MQTTLogger logger, MqttMessage message, boolean inbound) {
       StringBuilder log = inbound ? new StringBuilder("Received ") : new StringBuilder("Sent ");
 
-      if (message.fixedHeader() != null)
-      {
+      if (message.fixedHeader() != null) {
          log.append(message.fixedHeader().messageType().toString());
 
-         if (message.variableHeader() instanceof MqttPublishVariableHeader)
-         {
+         if (message.variableHeader() instanceof MqttPublishVariableHeader) {
             log.append("(" + ((MqttPublishVariableHeader) message.variableHeader()).messageId() + ") " + message.fixedHeader().qosLevel());
          }
-         else if (message.variableHeader() instanceof MqttMessageIdVariableHeader)
-         {
+         else if (message.variableHeader() instanceof MqttMessageIdVariableHeader) {
             log.append("(" + ((MqttMessageIdVariableHeader) message.variableHeader()).messageId() + ")");
          }
 
-         if (message.fixedHeader().messageType() == MqttMessageType.SUBSCRIBE)
-         {
-            for (MqttTopicSubscription sub : ((MqttSubscribeMessage) message).payload().topicSubscriptions())
-            {
+         if (message.fixedHeader().messageType() == MqttMessageType.SUBSCRIBE) {
+            for (MqttTopicSubscription sub : ((MqttSubscribeMessage) message).payload().topicSubscriptions()) {
                log.append("\n\t" + sub.topicName() + " : " + sub.qualityOfService());
             }
          }

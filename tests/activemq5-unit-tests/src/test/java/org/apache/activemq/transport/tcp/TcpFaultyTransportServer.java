@@ -26,21 +26,22 @@ import javax.net.ServerSocketFactory;
 
 /**
  * A TCP based implementation of {@link TransportServer}
- * 
+ *
  * @author David Martin Clavo david(dot)martin(dot)clavo(at)gmail.com (logging improvement modifications)
- * 
  */
 
-public class TcpFaultyTransportServer extends TcpTransportServer implements ServiceListener{
+public class TcpFaultyTransportServer extends TcpTransportServer implements ServiceListener {
 
-    public TcpFaultyTransportServer(TcpFaultyTransportFactory transportFactory, URI location, ServerSocketFactory serverSocketFactory) throws IOException, URISyntaxException {
-	super(transportFactory, location, serverSocketFactory);
-    }
+   public TcpFaultyTransportServer(TcpFaultyTransportFactory transportFactory,
+                                   URI location,
+                                   ServerSocketFactory serverSocketFactory) throws IOException, URISyntaxException {
+      super(transportFactory, location, serverSocketFactory);
+   }
 
-    /**
-     * @return pretty print of this
-     */
-    public String toString() {
-        return "" + getBindLocation();
-    }
+   /**
+    * @return pretty print of this
+    */
+   public String toString() {
+      return "" + getBindLocation();
+   }
 }

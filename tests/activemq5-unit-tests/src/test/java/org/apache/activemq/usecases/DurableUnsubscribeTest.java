@@ -32,88 +32,87 @@ import org.apache.activemq.command.ActiveMQTopic;
 
 public class DurableUnsubscribeTest extends org.apache.activemq.TestSupport {
 
-    private BrokerService broker;
-    private Connection connection;
-    private ActiveMQTopic topic;
+   private BrokerService broker;
+   private Connection connection;
+   private ActiveMQTopic topic;
 
-    public void testUnsubscribe() throws Exception {
-        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        session.createDurableSubscriber(topic, "SubsId");
-        session.close();
+   public void testUnsubscribe() throws Exception {
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      session.createDurableSubscriber(topic, "SubsId");
+      session.close();
 
-        Destination d = broker.getDestination(topic);
-        assertEquals("Subscription is missing.", 1, d.getConsumers().size());
+      Destination d = broker.getDestination(topic);
+      assertEquals("Subscription is missing.", 1, d.getConsumers().size());
 
+      session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      MessageProducer producer = session.createProducer(topic);
+      for (int i = 0; i < 1000; i++) {
+         producer.send(session.createTextMessage("text"));
+      }
 
-        session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        MessageProducer producer = session.createProducer(topic);
-        for (int i = 0; i < 1000; i++) {
-            producer.send(session.createTextMessage("text"));
-        }
+      Thread.sleep(1000);
 
-        Thread.sleep(1000);
+      session.unsubscribe("SubsId");
+      session.close();
 
-        session.unsubscribe("SubsId");
-        session.close();
+      assertEquals("Subscription exists.", 0, d.getConsumers().size());
+   }
 
-        assertEquals("Subscription exists.", 0, d.getConsumers().size());
-    }
+   public void testDestroy() throws Exception {
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      session.createDurableSubscriber(topic, "SubsId2");
+      session.close();
 
-    public void testDestroy() throws Exception {
-        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        session.createDurableSubscriber(topic, "SubsId2");
-        session.close();
+      connection.close();
+      connection = null;
+      Thread.sleep(1000);
 
-        connection.close();
-        connection = null;
-        Thread.sleep(1000);
+      Destination d = broker.getDestination(topic);
+      assertEquals("Subscription is missing.", 1, d.getConsumers().size());
 
-        Destination d = broker.getDestination(topic);
-        assertEquals("Subscription is missing.", 1, d.getConsumers().size());
+      MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
+      ObjectName[] subNames = broker.getAdminView().getInactiveDurableTopicSubscribers();
+      mbs.invoke(subNames[0], "destroy", new Object[0], new String[0]);
 
-        MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
-        ObjectName[] subNames = broker.getAdminView().getInactiveDurableTopicSubscribers();
-        mbs.invoke(subNames[0], "destroy", new Object[0], new String[0]);
+      assertEquals("Subscription exists.", 0, d.getConsumers().size());
+   }
 
-        assertEquals("Subscription exists.", 0, d.getConsumers().size());
-    }
+   protected ActiveMQConnectionFactory createConnectionFactory() throws Exception {
+      return new ActiveMQConnectionFactory("vm://" + getName());
+   }
 
-    protected ActiveMQConnectionFactory createConnectionFactory() throws Exception {
-        return new ActiveMQConnectionFactory("vm://" + getName());
-    }
+   protected Connection createConnection() throws Exception {
+      Connection rc = super.createConnection();
+      rc.setClientID(getName());
+      return rc;
+   }
 
-    protected Connection createConnection() throws Exception {
-        Connection rc = super.createConnection();
-        rc.setClientID(getName());
-        return rc;
-    }
+   protected void setUp() throws Exception {
+      topic = (ActiveMQTopic) createDestination();
+      createBroker();
+      super.setUp();
+   }
 
-    protected void setUp() throws Exception {
-        topic = (ActiveMQTopic) createDestination();
-        createBroker();
-        super.setUp();
-    }
+   protected void tearDown() throws Exception {
+      super.tearDown();
+      destroyBroker();
+   }
 
-    protected void tearDown() throws Exception {
-        super.tearDown();
-        destroyBroker();
-    }
+   private void createBroker() throws Exception {
+      broker = BrokerFactory.createBroker("broker:(vm://localhost)");
+      //broker.setPersistent(false);
+      broker.setUseJmx(true);
+      broker.setBrokerName(getName());
+      broker.deleteAllMessages();
+      broker.start();
 
-    private void createBroker() throws Exception {
-        broker = BrokerFactory.createBroker("broker:(vm://localhost)");
-        //broker.setPersistent(false);
-        broker.setUseJmx(true);
-        broker.setBrokerName(getName());
-        broker.deleteAllMessages();
-        broker.start();
+      connection = createConnection();
+   }
 
-        connection = createConnection();
-    }
-
-    private void destroyBroker() throws Exception {
-        if (connection != null)
-            connection.close();
-        if (broker != null)
-            broker.stop();
-    }
+   private void destroyBroker() throws Exception {
+      if (connection != null)
+         connection.close();
+      if (broker != null)
+         broker.stop();
+   }
 }

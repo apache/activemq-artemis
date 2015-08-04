@@ -41,8 +41,8 @@ import org.apache.activemq.artemis.jms.client.SelectorTranslator;
 /**
  * Auto-acknowleged consumer
  */
-public class QueueConsumer
-{
+public class QueueConsumer {
+
    protected ClientSessionFactory factory;
    protected ClientSession session;
    protected ClientConsumer consumer;
@@ -60,34 +60,33 @@ public class QueueConsumer
    protected long previousIndex = -1;
    protected ConsumedMessage lastConsumed;
 
-   public long getConsumeIndex()
-   {
-      if (lastConsumed == null) return -1;
+   public long getConsumeIndex() {
+      if (lastConsumed == null)
+         return -1;
       return lastConsumed.getMessageID();
    }
 
-   public DestinationServiceManager getServiceManager()
-   {
+   public DestinationServiceManager getServiceManager() {
       return serviceManager;
    }
 
-   public void setServiceManager(DestinationServiceManager serviceManager)
-   {
+   public void setServiceManager(DestinationServiceManager serviceManager) {
       this.serviceManager = serviceManager;
    }
 
-   public long getLastPingTime()
-   {
+   public long getLastPingTime() {
       return lastPing;
    }
 
-   protected void ping(long offsetSecs)
-   {
+   protected void ping(long offsetSecs) {
       lastPing = System.currentTimeMillis() + (offsetSecs * 1000);
    }
 
-   public QueueConsumer(ClientSessionFactory factory, String destination, String id, DestinationServiceManager serviceManager, String selector) throws ActiveMQException
-   {
+   public QueueConsumer(ClientSessionFactory factory,
+                        String destination,
+                        String id,
+                        DestinationServiceManager serviceManager,
+                        String selector) throws ActiveMQException {
       this.factory = factory;
       this.destination = destination;
       this.id = id;
@@ -97,57 +96,47 @@ public class QueueConsumer
       createSession();
    }
 
-   public String getId()
-   {
+   public String getId() {
       return id;
    }
 
-   public boolean isClosed()
-   {
+   public boolean isClosed() {
       return closed;
    }
 
-   public synchronized void shutdown()
-   {
-      if (closed) return;
+   public synchronized void shutdown() {
+      if (closed)
+         return;
       closed = true;
       lastConsumed = null;
       previousIndex = -2;
-      try
-      {
+      try {
          consumer.close();
          ActiveMQRestLogger.LOGGER.debug("Closed consumer: " + consumer);
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
       }
 
-      try
-      {
+      try {
          session.close();
          ActiveMQRestLogger.LOGGER.debug("Closed session: " + session);
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
       }
       session = null;
       consumer = null;
    }
 
-
    @Path("consume-next{index}")
    @POST
    public synchronized Response poll(@HeaderParam(Constants.WAIT_HEADER) @DefaultValue("0") long wait,
                                      @PathParam("index") long index,
-                                     @Context UriInfo info)
-   {
+                                     @Context UriInfo info) {
       ActiveMQRestLogger.LOGGER.debug("Handling POST request for \"" + info.getRequestUri() + "\"");
 
-      if (closed)
-      {
+      if (closed) {
          UriBuilder builder = info.getBaseUriBuilder();
-         builder.path(info.getMatchedURIs().get(1))
-            .path("consume-next");
+         builder.path(info.getMatchedURIs().get(1)).path("consume-next");
          String uri = builder.build().toString();
 
          // redirect to another consume-next
@@ -157,44 +146,34 @@ public class QueueConsumer
       return checkIndexAndPoll(wait, info, info.getMatchedURIs().get(1), index);
    }
 
-   protected Response checkIndexAndPoll(long wait, UriInfo info, String basePath, long index)
-   {
+   protected Response checkIndexAndPoll(long wait, UriInfo info, String basePath, long index) {
       ping(wait);
 
-      if (lastConsumed == null && index > 0)
-      {
+      if (lastConsumed == null && index > 0) {
          return Response.status(412).entity("You are using an old consume-next link and are out of sync with the JMS session on the server").type("text/plain").build();
       }
-      if (lastConsumed != null)
-      {
-         if (index == previousIndex)
-         {
+      if (lastConsumed != null) {
+         if (index == previousIndex) {
             String token = Long.toString(lastConsumed.getMessageID());
             return getMessageResponse(lastConsumed, info, basePath, token).build();
          }
-         if (index != lastConsumed.getMessageID())
-         {
+         if (index != lastConsumed.getMessageID()) {
             return Response.status(412).entity("You are using an old consume-next link and are out of sync with the JMS session on the server").type("text/plain").build();
          }
       }
 
-      try
-      {
+      try {
          return pollWithIndex(wait, info, basePath, index);
       }
-      finally
-      {
+      finally {
          ping(0); // ping again as we don't want wait time included in timeout.
       }
    }
 
-   protected Response pollWithIndex(long wait, UriInfo info, String basePath, long index)
-   {
-      try
-      {
+   protected Response pollWithIndex(long wait, UriInfo info, String basePath, long index) {
+      try {
          ClientMessage message = receive(wait);
-         if (message == null)
-         {
+         if (message == null) {
             Response.ResponseBuilder builder = Response.status(503).entity("Timed out waiting for message receive.").type("text/plain");
             setPollTimeoutLinks(info, basePath, builder, Long.toString(index));
             return builder.build();
@@ -203,40 +182,34 @@ public class QueueConsumer
          lastConsumed = ConsumedMessage.createConsumedMessage(message);
          String token = Long.toString(lastConsumed.getMessageID());
          Response response = getMessageResponse(lastConsumed, info, basePath, token).build();
-         if (autoAck) message.acknowledge();
+         if (autoAck)
+            message.acknowledge();
          return response;
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          throw new RuntimeException(e);
       }
    }
 
-   protected void createSession() throws ActiveMQException
-   {
+   protected void createSession() throws ActiveMQException {
       session = factory.createSession(true, true, 0);
       ActiveMQRestLogger.LOGGER.debug("Created session: " + session);
-      if (selector == null)
-      {
+      if (selector == null) {
          consumer = session.createConsumer(destination);
       }
-      else
-      {
+      else {
          consumer = session.createConsumer(destination, SelectorTranslator.convertToActiveMQFilterString(selector));
       }
       ActiveMQRestLogger.LOGGER.debug("Created consumer: " + consumer);
       session.start();
    }
 
-   protected ClientMessage receiveFromConsumer(long timeoutSecs) throws Exception
-   {
+   protected ClientMessage receiveFromConsumer(long timeoutSecs) throws Exception {
       ClientMessage m = null;
-      if (timeoutSecs <= 0)
-      {
+      if (timeoutSecs <= 0) {
          m = consumer.receive(1);
       }
-      else
-      {
+      else {
          m = consumer.receive(timeoutSecs * 1000);
       }
 
@@ -245,43 +218,47 @@ public class QueueConsumer
       return m;
    }
 
-   protected ClientMessage receive(long timeoutSecs) throws Exception
-   {
+   protected ClientMessage receive(long timeoutSecs) throws Exception {
       return receiveFromConsumer(timeoutSecs);
    }
 
-   protected void setPollTimeoutLinks(UriInfo info, String basePath, Response.ResponseBuilder builder, String index)
-   {
+   protected void setPollTimeoutLinks(UriInfo info, String basePath, Response.ResponseBuilder builder, String index) {
       setSessionLink(builder, info, basePath);
       setConsumeNextLink(serviceManager.getLinkStrategy(), builder, info, basePath, index);
    }
 
-   protected Response.ResponseBuilder getMessageResponse(ConsumedMessage msg, UriInfo info, String basePath, String index)
-   {
+   protected Response.ResponseBuilder getMessageResponse(ConsumedMessage msg,
+                                                         UriInfo info,
+                                                         String basePath,
+                                                         String index) {
       Response.ResponseBuilder responseBuilder = Response.ok();
       setMessageResponseLinks(info, basePath, responseBuilder, index);
       msg.build(responseBuilder);
       return responseBuilder;
    }
 
-   protected void setMessageResponseLinks(UriInfo info, String basePath, Response.ResponseBuilder responseBuilder, String index)
-   {
+   protected void setMessageResponseLinks(UriInfo info,
+                                          String basePath,
+                                          Response.ResponseBuilder responseBuilder,
+                                          String index) {
       setConsumeNextLink(serviceManager.getLinkStrategy(), responseBuilder, info, basePath, index);
       setSessionLink(responseBuilder, info, basePath);
    }
 
-   public static void setConsumeNextLink(LinkStrategy linkStrategy, Response.ResponseBuilder response, UriInfo info, String basePath, String index)
-   {
-      if (index == null) throw new IllegalArgumentException("index cannot be null");
+   public static void setConsumeNextLink(LinkStrategy linkStrategy,
+                                         Response.ResponseBuilder response,
+                                         UriInfo info,
+                                         String basePath,
+                                         String index) {
+      if (index == null)
+         throw new IllegalArgumentException("index cannot be null");
       UriBuilder builder = info.getBaseUriBuilder();
-      builder.path(basePath)
-         .path("consume-next" + index);
+      builder.path(basePath).path("consume-next" + index);
       String uri = builder.build().toString();
       linkStrategy.setLinkHeader(response, "consume-next", "consume-next", uri, MediaType.APPLICATION_FORM_URLENCODED);
    }
 
-   public void setSessionLink(Response.ResponseBuilder response, UriInfo info, String basePath)
-   {
+   public void setSessionLink(Response.ResponseBuilder response, UriInfo info, String basePath) {
       UriBuilder builder = info.getBaseUriBuilder();
       builder.path(basePath);
       String uri = builder.build().toString();

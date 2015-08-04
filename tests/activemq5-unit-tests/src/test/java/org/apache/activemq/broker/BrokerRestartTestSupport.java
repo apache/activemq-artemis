@@ -24,44 +24,44 @@ import org.apache.activemq.util.IOHelper;
 
 public class BrokerRestartTestSupport extends BrokerTestSupport {
 
-    @Override
-    protected BrokerService createBroker() throws Exception {
-        BrokerService broker = new BrokerService();
-        File dir = broker.getBrokerDataDirectory();
-        if (dir != null) {
-            IOHelper.deleteChildren(dir);
-        }
-        broker.setDeleteAllMessagesOnStartup(true);
-        configureBroker(broker);
-        return broker;
-    }
+   @Override
+   protected BrokerService createBroker() throws Exception {
+      BrokerService broker = new BrokerService();
+      File dir = broker.getBrokerDataDirectory();
+      if (dir != null) {
+         IOHelper.deleteChildren(dir);
+      }
+      broker.setDeleteAllMessagesOnStartup(true);
+      configureBroker(broker);
+      return broker;
+   }
 
-    /**
-     * @return
-     * @throws Exception
-     */
-    protected BrokerService createRestartedBroker() throws Exception {
-        BrokerService broker = new BrokerService();
-        configureBroker(broker);
-        return broker;
-    }
+   /**
+    * @return
+    * @throws Exception
+    */
+   protected BrokerService createRestartedBroker() throws Exception {
+      BrokerService broker = new BrokerService();
+      configureBroker(broker);
+      return broker;
+   }
 
-    protected void configureBroker(BrokerService broker) throws Exception {
-         broker.setDestinationPolicy(policyMap);
-    }
+   protected void configureBroker(BrokerService broker) throws Exception {
+      broker.setDestinationPolicy(policyMap);
+   }
 
-    /**
-     * Simulates a broker restart. The memory based persistence adapter is
-     * reused so that it does not "loose" it's "persistent" messages.
-     * 
-     * @throws IOException
-     * @throws URISyntaxException
-     */
-    protected void restartBroker() throws Exception {
-        broker.stop();
-        broker.waitUntilStopped();
-        broker = createRestartedBroker();
-        broker.start();
-    }
+   /**
+    * Simulates a broker restart. The memory based persistence adapter is
+    * reused so that it does not "loose" it's "persistent" messages.
+    *
+    * @throws IOException
+    * @throws URISyntaxException
+    */
+   protected void restartBroker() throws Exception {
+      broker.stop();
+      broker.waitUntilStopped();
+      broker = createRestartedBroker();
+      broker.start();
+   }
 
 }

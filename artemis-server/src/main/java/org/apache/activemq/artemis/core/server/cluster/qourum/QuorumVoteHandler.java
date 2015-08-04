@@ -22,8 +22,8 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 /**
  * used to handle votes received by a quorum from a particular node
  */
-public interface QuorumVoteHandler
-{
+public interface QuorumVoteHandler {
+
    /**
     * @param vote
     * @return

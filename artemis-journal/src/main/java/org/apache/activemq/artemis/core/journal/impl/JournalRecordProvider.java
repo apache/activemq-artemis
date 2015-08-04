@@ -20,13 +20,13 @@ import java.util.Map;
 
 /**
  * This is an interface used only internally.
- *
+ * <br>
  * During a TX.commit, the JournalTransaction needs to get a valid list of records from either the JournalImpl or JournalCompactor.
- *
+ * <br>
  * when a commit is read, the JournalTransaction will inquire the JournalCompactor about the existent records
  */
-public interface JournalRecordProvider
-{
+public interface JournalRecordProvider {
+
    JournalCompactor getCompactor();
 
    Map<Long, JournalRecord> getRecords();

@@ -35,76 +35,77 @@ import org.springframework.core.io.ClassPathResource;
  */
 public class ConnectionHangOnStartupTest {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ConnectionHangOnStartupTest.class);
+   private static final Logger LOG = LoggerFactory.getLogger(ConnectionHangOnStartupTest.class);
 
-    // short maxInactivityDurationInitalDelay to trigger the bug, short
-    // maxReconnectDelay so that the test runs faster (because it will retry
-    // connection sooner)
-    protected String uriString = "failover://(tcp://localhost:62001?wireFormat.maxInactivityDurationInitalDelay=1,tcp://localhost:62002?wireFormat.maxInactivityDurationInitalDelay=1)?randomize=false&maxReconnectDelay=200";
-    protected BrokerService master = null;
-    protected AtomicReference<BrokerService> slave = new AtomicReference<BrokerService>();
+   // short maxInactivityDurationInitalDelay to trigger the bug, short
+   // maxReconnectDelay so that the test runs faster (because it will retry
+   // connection sooner)
+   protected String uriString = "failover://(tcp://localhost:62001?wireFormat.maxInactivityDurationInitalDelay=1,tcp://localhost:62002?wireFormat.maxInactivityDurationInitalDelay=1)?randomize=false&maxReconnectDelay=200";
+   protected BrokerService master = null;
+   protected AtomicReference<BrokerService> slave = new AtomicReference<BrokerService>();
 
-    @After
-    public void tearDown() throws Exception {
+   @After
+   public void tearDown() throws Exception {
 
-        BrokerService brokerService = slave.get();
-        if (brokerService != null) {
-            brokerService.stop();
-        }
-        if (master != null)
-            master.stop();
-    }
+      BrokerService brokerService = slave.get();
+      if (brokerService != null) {
+         brokerService.stop();
+      }
+      if (master != null)
+         master.stop();
+   }
 
-    protected ActiveMQConnectionFactory createConnectionFactory() throws Exception {
-        return new ActiveMQConnectionFactory(uriString);
-    }
+   protected ActiveMQConnectionFactory createConnectionFactory() throws Exception {
+      return new ActiveMQConnectionFactory(uriString);
+   }
 
-    protected void createMaster() throws Exception {
-        BrokerFactoryBean brokerFactory = new BrokerFactoryBean(new ClassPathResource(getMasterXml()));
-        brokerFactory.afterPropertiesSet();
-        master = brokerFactory.getBroker();
-        master.start();
-    }
+   protected void createMaster() throws Exception {
+      BrokerFactoryBean brokerFactory = new BrokerFactoryBean(new ClassPathResource(getMasterXml()));
+      brokerFactory.afterPropertiesSet();
+      master = brokerFactory.getBroker();
+      master.start();
+   }
 
-    protected void createSlave() throws Exception {
-        BrokerFactoryBean brokerFactory = new BrokerFactoryBean(new ClassPathResource(getSlaveXml()));
-        brokerFactory.afterPropertiesSet();
-        BrokerService broker = brokerFactory.getBroker();
-        broker.start();
-        slave.set(broker);
-    }
+   protected void createSlave() throws Exception {
+      BrokerFactoryBean brokerFactory = new BrokerFactoryBean(new ClassPathResource(getSlaveXml()));
+      brokerFactory.afterPropertiesSet();
+      BrokerService broker = brokerFactory.getBroker();
+      broker.start();
+      slave.set(broker);
+   }
 
-    protected String getSlaveXml() {
-        return "org/apache/activemq/broker/ft/sharedFileSlave.xml";
-    }
+   protected String getSlaveXml() {
+      return "org/apache/activemq/broker/ft/sharedFileSlave.xml";
+   }
 
-    protected String getMasterXml() {
-        return "org/apache/activemq/broker/ft/sharedFileMaster.xml";
-    }
+   protected String getMasterXml() {
+      return "org/apache/activemq/broker/ft/sharedFileMaster.xml";
+   }
 
-    @Test(timeout=60000)
-    public void testInitialWireFormatNegotiationTimeout() throws Exception {
-        final AtomicReference<Connection> conn = new AtomicReference<Connection>();
-        final CountDownLatch connStarted = new CountDownLatch(1);
+   @Test(timeout = 60000)
+   public void testInitialWireFormatNegotiationTimeout() throws Exception {
+      final AtomicReference<Connection> conn = new AtomicReference<Connection>();
+      final CountDownLatch connStarted = new CountDownLatch(1);
 
-        Thread t = new Thread() {
-            @Override
-            public void run() {
-                try {
-                    conn.set(createConnectionFactory().createConnection());
-                    conn.get().start();
-                } catch (Exception ex) {
-                    LOG.error("could not create or start connection", ex);
-                }
-                connStarted.countDown();
+      Thread t = new Thread() {
+         @Override
+         public void run() {
+            try {
+               conn.set(createConnectionFactory().createConnection());
+               conn.get().start();
             }
-        };
-        t.start();
-        createMaster();
-        // slave will never start unless the master dies!
-        //createSlave();
+            catch (Exception ex) {
+               LOG.error("could not create or start connection", ex);
+            }
+            connStarted.countDown();
+         }
+      };
+      t.start();
+      createMaster();
+      // slave will never start unless the master dies!
+      //createSlave();
 
-        conn.get().stop();
-    }
+      conn.get().stop();
+   }
 
 }

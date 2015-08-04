@@ -22,53 +22,60 @@ import org.apache.activemq.artemis.api.core.ActiveMQException;
 
 /**
  * A channel is a way of interleaving data meant for different endpoints over the same {@link org.apache.activemq.artemis.core.protocol.core.CoreRemotingConnection}.
- * <p>
+ * <br>
  * Any packet sent will have its channel id set to the specific channel sending so it can be routed to its correct channel
  * when received by the {@link org.apache.activemq.artemis.core.protocol.core.CoreRemotingConnection}. see {@link org.apache.activemq.artemis.core.protocol.core.Packet#setChannelID(long)}.
- * <p>
+ * <br>
  * Each Channel should will forward any packets received to its {@link org.apache.activemq.artemis.core.protocol.core.ChannelHandler}.
- * <p>
+ * <br>
  * A Channel *does not* support concurrent access by more than one thread!
  */
-public interface Channel
-{
+public interface Channel {
+
    /**
     * Returns the id of this channel.
+    *
     * @return the id
     */
    long getID();
 
-   /** For protocol check */
+   /**
+    * For protocol check
+    */
    boolean supports(byte packetID);
 
    /**
     * Sends a packet on this channel.
+    *
     * @param packet the packet to send
     * @return false if the packet was rejected by an outgoing interceptor; true if the send was
-    *         successful
+    * successful
     */
    boolean send(Packet packet);
 
    /**
     * Sends a packet on this channel using batching algorithm if appropriate
+    *
     * @param packet the packet to send
     * @return false if the packet was rejected by an outgoing interceptor; true if the send was
-    *         successful
+    * successful
     */
    boolean sendBatched(Packet packet);
 
    /**
     * Sends a packet on this channel and then blocks until it has been written to the connection.
+    *
     * @param packet the packet to send
     * @return false if the packet was rejected by an outgoing interceptor; true if the send was
-    *         successful
+    * successful
     */
    boolean sendAndFlush(Packet packet);
 
    /**
     * Sends a packet on this channel and then blocks until a response is received or a timeout
     * occurs.
-    * @param packet the packet to send
+    *
+    * @param packet         the packet to send
     * @param expectedPacket the packet being expected.
     * @return the response
     * @throws ActiveMQException if an error occurs during the send
@@ -78,6 +85,7 @@ public interface Channel
    /**
     * Sets the {@link org.apache.activemq.artemis.core.protocol.core.ChannelHandler} that this channel should
     * forward received packets to.
+    *
     * @param handler the handler
     */
    void setHandler(ChannelHandler handler);
@@ -85,28 +93,30 @@ public interface Channel
    /**
     * Gets the {@link org.apache.activemq.artemis.core.protocol.core.ChannelHandler} that this channel should
     * forward received packets to.
+    *
     * @return the current channel handler
     */
    ChannelHandler getHandler();
 
    /**
     * Closes this channel.
-    * <p>
+    * <br>
     * once closed no packets can be sent.
     */
    void close();
 
    /**
     * Transfers the connection used by this channel to the one specified.
-    * <p>
+    * <br>
     * All new packets will be sent via this connection.
+    *
     * @param newConnection the new connection
     */
    void transferConnection(CoreRemotingConnection newConnection);
 
    /**
     * resends any packets that have not received confirmations yet.
-    * <p>
+    * <br>
     * Typically called after a connection has been transferred.
     *
     * @param lastConfirmedCommandID the last confirmed packet
@@ -122,7 +132,7 @@ public interface Channel
 
    /**
     * locks the channel.
-    * <p>
+    * <br>
     * While locked no packets can be sent or received
     */
    void lock();
@@ -175,7 +185,7 @@ public interface Channel
 
    /**
     * Called by {@link org.apache.activemq.artemis.core.protocol.core.CoreRemotingConnection} when a packet is received.
-    * <p>
+    * <br>
     * This method should then call its {@link org.apache.activemq.artemis.core.protocol.core.ChannelHandler} after appropriate processing of
     * the packet
     *

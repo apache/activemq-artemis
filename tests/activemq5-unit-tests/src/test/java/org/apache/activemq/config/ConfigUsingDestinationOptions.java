@@ -28,45 +28,48 @@ import org.apache.activemq.ActiveMQMessageConsumer;
 import org.apache.activemq.command.ActiveMQQueue;
 
 public class ConfigUsingDestinationOptions extends TestCase {
-    public void testValidSelectorConfig() throws JMSException {
-        ActiveMQQueue queue = new ActiveMQQueue("TEST.FOO?consumer.selector=test=1");
 
-        ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("vm://localhost");
-        Connection conn = factory.createConnection();
-        Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+   public void testValidSelectorConfig() throws JMSException {
+      ActiveMQQueue queue = new ActiveMQQueue("TEST.FOO?consumer.selector=test=1");
 
-        ActiveMQMessageConsumer cons;
-        // JMS selector should be priority
-        cons = (ActiveMQMessageConsumer) sess.createConsumer(queue, "test=2");
-        assertEquals("test=2", cons.getMessageSelector());
+      ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("vm://localhost");
+      Connection conn = factory.createConnection();
+      Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-        // Test setting using JMS destinations
-        cons = (ActiveMQMessageConsumer) sess.createConsumer(queue);
-        assertEquals("test=1", cons.getMessageSelector());
-    }
+      ActiveMQMessageConsumer cons;
+      // JMS selector should be priority
+      cons = (ActiveMQMessageConsumer) sess.createConsumer(queue, "test=2");
+      assertEquals("test=2", cons.getMessageSelector());
 
-    public void testInvalidSelectorConfig() throws JMSException {
-        ActiveMQQueue queue = new ActiveMQQueue("TEST.FOO?consumer.selector=test||1");
+      // Test setting using JMS destinations
+      cons = (ActiveMQMessageConsumer) sess.createConsumer(queue);
+      assertEquals("test=1", cons.getMessageSelector());
+   }
 
-        ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("vm://localhost");
-        Connection conn = factory.createConnection();
-        Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+   public void testInvalidSelectorConfig() throws JMSException {
+      ActiveMQQueue queue = new ActiveMQQueue("TEST.FOO?consumer.selector=test||1");
 
-        ActiveMQMessageConsumer cons;
-        // JMS selector should be priority
-        try {
-            cons = (ActiveMQMessageConsumer) sess.createConsumer(queue, "test||1");
-            fail("Selector should be invalid" + cons);
-        } catch (InvalidSelectorException e) {
+      ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("vm://localhost");
+      Connection conn = factory.createConnection();
+      Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-        }
+      ActiveMQMessageConsumer cons;
+      // JMS selector should be priority
+      try {
+         cons = (ActiveMQMessageConsumer) sess.createConsumer(queue, "test||1");
+         fail("Selector should be invalid" + cons);
+      }
+      catch (InvalidSelectorException e) {
 
-        // Test setting using JMS destinations
-        try {
-            cons = (ActiveMQMessageConsumer) sess.createConsumer(queue);
-            fail("Selector should be invalid" + cons);
-        } catch (InvalidSelectorException e) {
+      }
 
-        }
-    }
+      // Test setting using JMS destinations
+      try {
+         cons = (ActiveMQMessageConsumer) sess.createConsumer(queue);
+         fail("Selector should be invalid" + cons);
+      }
+      catch (InvalidSelectorException e) {
+
+      }
+   }
 }

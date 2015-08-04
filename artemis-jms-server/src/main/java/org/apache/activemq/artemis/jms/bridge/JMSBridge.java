@@ -20,8 +20,8 @@ import javax.transaction.TransactionManager;
 
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 
-public interface JMSBridge extends ActiveMQComponent
-{
+public interface JMSBridge extends ActiveMQComponent {
+
    void pause() throws Exception;
 
    void resume() throws Exception;

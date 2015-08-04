@@ -18,8 +18,7 @@ package org.apache.activemq.artemis.jms.client;
 
 import javax.jms.TemporaryTopic;
 
-public class ActiveMQTemporaryTopic extends ActiveMQTopic implements TemporaryTopic
-{
+public class ActiveMQTemporaryTopic extends ActiveMQTopic implements TemporaryTopic {
 
    // Constants -----------------------------------------------------
 
@@ -31,9 +30,7 @@ public class ActiveMQTemporaryTopic extends ActiveMQTopic implements TemporaryTo
 
    // Constructors --------------------------------------------------
 
-   protected ActiveMQTemporaryTopic(final String address, final String name,
-                                    final ActiveMQSession session)
-   {
+   protected ActiveMQTemporaryTopic(final String address, final String name, final ActiveMQSession session) {
       super(address, name, true, session);
    }
 

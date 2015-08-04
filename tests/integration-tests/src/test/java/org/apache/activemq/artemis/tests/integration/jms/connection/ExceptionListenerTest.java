@@ -42,11 +42,10 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 /**
- *
  * ExceptionListenerTest
  */
-public class ExceptionListenerTest extends ActiveMQTestBase
-{
+public class ExceptionListenerTest extends ActiveMQTestBase {
+
    private ActiveMQServer server;
 
    private JMSServerManagerImpl jmsServer;
@@ -57,8 +56,7 @@ public class ExceptionListenerTest extends ActiveMQTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig(), false));
@@ -71,34 +69,31 @@ public class ExceptionListenerTest extends ActiveMQTestBase
       cf.setPreAcknowledge(true);
    }
 
-   private class MyExceptionListener implements ExceptionListener
-   {
+   private class MyExceptionListener implements ExceptionListener {
+
       volatile int numCalls;
 
       private final CountDownLatch latch;
 
-      public MyExceptionListener(final CountDownLatch latch)
-      {
+      public MyExceptionListener(final CountDownLatch latch) {
          this.latch = latch;
       }
 
-      public synchronized void onException(final JMSException arg0)
-      {
+      public synchronized void onException(final JMSException arg0) {
          numCalls++;
          latch.countDown();
       }
    }
 
    @Test
-   public void testListenerCalledForOneConnection() throws Exception
-   {
+   public void testListenerCalledForOneConnection() throws Exception {
       Connection conn = cf.createConnection();
       CountDownLatch latch = new CountDownLatch(1);
       MyExceptionListener listener = new MyExceptionListener(latch);
 
       conn.setExceptionListener(listener);
 
-      ClientSessionInternal coreSession = (ClientSessionInternal)((ActiveMQConnection)conn).getInitialSession();
+      ClientSessionInternal coreSession = (ClientSessionInternal) ((ActiveMQConnection) conn).getInitialSession();
 
       coreSession.getConnection().fail(new ActiveMQInternalErrorException("blah"));
 
@@ -110,8 +105,7 @@ public class ExceptionListenerTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testListenerCalledForOneConnectionAndSessions() throws Exception
-   {
+   public void testListenerCalledForOneConnectionAndSessions() throws Exception {
       Connection conn = cf.createConnection();
 
       CountDownLatch latch = new CountDownLatch(1);
@@ -125,13 +119,13 @@ public class ExceptionListenerTest extends ActiveMQTestBase
 
       Session sess3 = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-      ClientSessionInternal coreSession0 = (ClientSessionInternal)((ActiveMQConnection)conn).getInitialSession();
+      ClientSessionInternal coreSession0 = (ClientSessionInternal) ((ActiveMQConnection) conn).getInitialSession();
 
-      ClientSessionInternal coreSession1 = (ClientSessionInternal)((ActiveMQSession)sess1).getCoreSession();
+      ClientSessionInternal coreSession1 = (ClientSessionInternal) ((ActiveMQSession) sess1).getCoreSession();
 
-      ClientSessionInternal coreSession2 = (ClientSessionInternal)((ActiveMQSession)sess2).getCoreSession();
+      ClientSessionInternal coreSession2 = (ClientSessionInternal) ((ActiveMQSession) sess2).getCoreSession();
 
-      ClientSessionInternal coreSession3 = (ClientSessionInternal)((ActiveMQSession)sess3).getCoreSession();
+      ClientSessionInternal coreSession3 = (ClientSessionInternal) ((ActiveMQSession) sess3).getCoreSession();
 
       coreSession0.getConnection().fail(new ActiveMQInternalErrorException("blah"));
 

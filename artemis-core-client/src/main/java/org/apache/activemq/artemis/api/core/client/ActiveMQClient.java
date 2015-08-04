@@ -27,13 +27,13 @@ import java.net.URI;
 
 /**
  * Utility class for creating ActiveMQ Artemis {@link ClientSessionFactory} objects.
- * <p>
+ * <br>
  * Once a {@link ClientSessionFactory} has been created, it can be further configured using its
  * setter methods before creating the sessions. Once a session is created, the factory can no longer
  * be modified (its setter methods will throw a {@link IllegalStateException}.
  */
-public final class ActiveMQClient
-{
+public final class ActiveMQClient {
+
    public static final String DEFAULT_CONNECTION_LOAD_BALANCING_POLICY_CLASS_NAME = RoundRobinConnectionLoadBalancingPolicy.class.getCanonicalName();
 
    public static final long DEFAULT_CLIENT_FAILURE_CHECK_PERIOD = ActiveMQDefaultConfiguration.getDefaultClientFailureCheckPeriod();
@@ -119,8 +119,7 @@ public final class ActiveMQClient
     *
     * @return the ActiveMQConnectionFactory
     */
-   public static ServerLocator createServerLocator(final String url) throws Exception
-   {
+   public static ServerLocator createServerLocator(final String url) throws Exception {
       ServerLocatorParser parser = new ServerLocatorParser();
       return parser.newObject(new URI(url), null);
    }
@@ -132,8 +131,7 @@ public final class ActiveMQClient
     * @param transportConfigurations
     * @return the ServerLocator
     */
-   public static ServerLocator createServerLocatorWithoutHA(TransportConfiguration... transportConfigurations)
-   {
+   public static ServerLocator createServerLocatorWithoutHA(TransportConfiguration... transportConfigurations) {
       return new ServerLocatorImpl(false, transportConfigurations);
    }
 
@@ -141,86 +139,84 @@ public final class ActiveMQClient
     * Create a ServerLocator which creates session factories using a static list of transportConfigurations, the ServerLocator is not updated automatically
     * as the cluster topology changes, and no HA backup information is propagated to the client
     *
-    * @param ha The Locator will support topology updates and ha (this required the server to be clustered, otherwise the first connection will timeout)
+    * @param ha                      The Locator will support topology updates and ha (this required the server to be clustered, otherwise the first connection will timeout)
     * @param transportConfigurations
     * @return the ServerLocator
     */
-   public static ServerLocator createServerLocator(final boolean ha, TransportConfiguration... transportConfigurations)
-   {
+   public static ServerLocator createServerLocator(final boolean ha,
+                                                   TransportConfiguration... transportConfigurations) {
       return new ServerLocatorImpl(ha, transportConfigurations);
    }
 
    /**
     * Create a ServerLocator which creates session factories from a set of live servers, no HA
     * backup information is propagated to the client
-    * <p>
+    * <br>
     * The UDP address and port are used to listen for live servers in the cluster
+    *
     * @param groupConfiguration
     * @return the ServerLocator
     */
-   public static ServerLocator createServerLocatorWithoutHA(final DiscoveryGroupConfiguration groupConfiguration)
-   {
+   public static ServerLocator createServerLocatorWithoutHA(final DiscoveryGroupConfiguration groupConfiguration) {
       return new ServerLocatorImpl(false, groupConfiguration);
    }
-
 
    /**
     * Create a ServerLocator which creates session factories from a set of live servers, no HA
     * backup information is propagated to the client The UDP address and port are used to listen for
     * live servers in the cluster
-    * @param ha The Locator will support topology updates and ha (this required the server to be
-    *           clustered, otherwise the first connection will timeout)
+    *
+    * @param ha                 The Locator will support topology updates and ha (this required the server to be
+    *                           clustered, otherwise the first connection will timeout)
     * @param groupConfiguration
     * @return the ServerLocator
     */
-   public static ServerLocator createServerLocator(final boolean ha, final DiscoveryGroupConfiguration groupConfiguration)
-   {
+   public static ServerLocator createServerLocator(final boolean ha,
+                                                   final DiscoveryGroupConfiguration groupConfiguration) {
       return new ServerLocatorImpl(ha, groupConfiguration);
    }
 
    /**
     * Create a ServerLocator which will receive cluster topology updates from the cluster as servers
     * leave or join and new backups are appointed or removed.
-    * <p>
+    * <br>
     * The initial list of servers supplied in this method is simply to make an initial connection to
     * the cluster, once that connection is made, up to date cluster topology information is
     * downloaded and automatically updated whenever the cluster topology changes.
-    * <p>
+    * <br>
     * If the topology includes backup servers that information is also propagated to the client so
     * that it can know which server to failover onto in case of live server failure.
+    *
     * @param initialServers The initial set of servers used to make a connection to the cluster.
-    *           Each one is tried in turn until a successful connection is made. Once a connection
-    *           is made, the cluster topology is downloaded and the rest of the list is ignored.
+    *                       Each one is tried in turn until a successful connection is made. Once a connection
+    *                       is made, the cluster topology is downloaded and the rest of the list is ignored.
     * @return the ServerLocator
     */
-   public static ServerLocator createServerLocatorWithHA(TransportConfiguration... initialServers)
-   {
+   public static ServerLocator createServerLocatorWithHA(TransportConfiguration... initialServers) {
       return new ServerLocatorImpl(true, initialServers);
    }
 
    /**
     * Create a ServerLocator which will receive cluster topology updates from the cluster as servers
     * leave or join and new backups are appointed or removed.
-    * <p>
+    * <br>
     * The discoveryAddress and discoveryPort parameters in this method are used to listen for UDP
     * broadcasts which contain connection information for members of the cluster. The broadcasted
     * connection information is simply used to make an initial connection to the cluster, once that
     * connection is made, up to date cluster topology information is downloaded and automatically
     * updated whenever the cluster topology changes.
-    * <p>
+    * <br>
     * If the topology includes backup servers that information is also propagated to the client so
     * that it can know which server to failover onto in case of live server failure.
+    *
     * @param groupConfiguration
     * @return the ServerLocator
     */
-   public static ServerLocator createServerLocatorWithHA(final DiscoveryGroupConfiguration groupConfiguration)
-   {
+   public static ServerLocator createServerLocatorWithHA(final DiscoveryGroupConfiguration groupConfiguration) {
       return new ServerLocatorImpl(true, groupConfiguration);
    }
 
-
-   private ActiveMQClient()
-   {
+   private ActiveMQClient() {
       // Utility class
    }
 }

@@ -31,36 +31,36 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
  */
 public class SslContextBrokerServiceTest extends TestCase {
 
-    private ClassPathXmlApplicationContext context;
-    private BrokerService broker;
-    private TransportConnector connector;
+   private ClassPathXmlApplicationContext context;
+   private BrokerService broker;
+   private TransportConnector connector;
 
-    public void testConfiguration() throws URISyntaxException {
+   public void testConfiguration() throws URISyntaxException {
 
-        assertNotNull(broker);
-        assertNotNull(connector);
+      assertNotNull(broker);
+      assertNotNull(connector);
 
-        assertEquals(new URI("ssl://localhost:61616"), connector.getUri());
+      assertEquals(new URI("ssl://localhost:61616"), connector.getUri());
 
-        assertNotNull(broker.getSslContext());
-        assertFalse(broker.getSslContext().getKeyManagers().isEmpty());
-        assertFalse(broker.getSslContext().getTrustManagers().isEmpty());
+      assertNotNull(broker.getSslContext());
+      assertFalse(broker.getSslContext().getKeyManagers().isEmpty());
+      assertFalse(broker.getSslContext().getTrustManagers().isEmpty());
 
-    }
+   }
 
-    @Override
-    protected void setUp() throws Exception {
-        Thread.currentThread().setContextClassLoader(SslContextBrokerServiceTest.class.getClassLoader());
-        context = new ClassPathXmlApplicationContext("org/apache/activemq/transport/tcp/activemq-ssl.xml");
-        Map<String, BrokerService> beansOfType = context.getBeansOfType(BrokerService.class);
-        broker = beansOfType.values().iterator().next();
-        connector = broker.getTransportConnectors().get(0);
-    }
+   @Override
+   protected void setUp() throws Exception {
+      Thread.currentThread().setContextClassLoader(SslContextBrokerServiceTest.class.getClassLoader());
+      context = new ClassPathXmlApplicationContext("org/apache/activemq/transport/tcp/activemq-ssl.xml");
+      Map<String, BrokerService> beansOfType = context.getBeansOfType(BrokerService.class);
+      broker = beansOfType.values().iterator().next();
+      connector = broker.getTransportConnectors().get(0);
+   }
 
-    @Override
-    protected void tearDown() throws Exception {
+   @Override
+   protected void tearDown() throws Exception {
 
-        context.destroy();
-    }
+      context.destroy();
+   }
 
 }

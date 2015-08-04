@@ -21,8 +21,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 
-public class ActiveMQExceptionMessage extends PacketImpl
-{
+public class ActiveMQExceptionMessage extends PacketImpl {
 
    private ActiveMQException exception;
 
@@ -30,41 +29,35 @@ public class ActiveMQExceptionMessage extends PacketImpl
 
    // Constructors --------------------------------------------------
 
-   public ActiveMQExceptionMessage(final ActiveMQException exception)
-   {
+   public ActiveMQExceptionMessage(final ActiveMQException exception) {
       super(EXCEPTION);
 
       this.exception = exception;
    }
 
-   public ActiveMQExceptionMessage()
-   {
+   public ActiveMQExceptionMessage() {
       super(EXCEPTION);
    }
 
    // Public --------------------------------------------------------
 
    @Override
-   public boolean isResponse()
-   {
+   public boolean isResponse() {
       return true;
    }
 
-   public ActiveMQException getException()
-   {
+   public ActiveMQException getException() {
       return exception;
    }
 
    @Override
-   public void encodeRest(final ActiveMQBuffer buffer)
-   {
+   public void encodeRest(final ActiveMQBuffer buffer) {
       buffer.writeInt(exception.getType().getCode());
       buffer.writeNullableString(exception.getMessage());
    }
 
    @Override
-   public void decodeRest(final ActiveMQBuffer buffer)
-   {
+   public void decodeRest(final ActiveMQBuffer buffer) {
       int code = buffer.readInt();
       String msg = buffer.readNullableString();
 
@@ -72,14 +65,12 @@ public class ActiveMQExceptionMessage extends PacketImpl
    }
 
    @Override
-   public String toString()
-   {
+   public String toString() {
       return getParentString() + ", exception= " + exception + "]";
    }
 
    @Override
-   public int hashCode()
-   {
+   public int hashCode() {
       final int prime = 31;
       int result = super.hashCode();
       result = prime * result + ((exception == null) ? 0 : exception.hashCode());
@@ -87,30 +78,23 @@ public class ActiveMQExceptionMessage extends PacketImpl
    }
 
    @Override
-   public boolean equals(Object obj)
-   {
-      if (this == obj)
-      {
+   public boolean equals(Object obj) {
+      if (this == obj) {
          return true;
       }
-      if (!super.equals(obj))
-      {
+      if (!super.equals(obj)) {
          return false;
       }
-      if (!(obj instanceof ActiveMQExceptionMessage))
-      {
+      if (!(obj instanceof ActiveMQExceptionMessage)) {
          return false;
       }
-      ActiveMQExceptionMessage other = (ActiveMQExceptionMessage)obj;
-      if (exception == null)
-      {
-         if (other.exception != null)
-         {
+      ActiveMQExceptionMessage other = (ActiveMQExceptionMessage) obj;
+      if (exception == null) {
+         if (other.exception != null) {
             return false;
          }
       }
-      else if (!exception.equals(other.exception))
-      {
+      else if (!exception.equals(other.exception)) {
          return false;
       }
       return true;

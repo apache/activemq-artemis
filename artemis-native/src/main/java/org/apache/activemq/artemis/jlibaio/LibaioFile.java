@@ -22,8 +22,8 @@ import java.nio.ByteBuffer;
 /**
  * This is an extension to use libaio.
  */
-public final class LibaioFile<Callback extends SubmitInfo>
-{
+public final class LibaioFile<Callback extends SubmitInfo> {
+
    protected boolean open;
    /**
     * This represents a structure allocated on the native
@@ -33,29 +33,25 @@ public final class LibaioFile<Callback extends SubmitInfo>
 
    private int fd;
 
-   LibaioFile(int fd, LibaioContext ctx)
-   {
+   LibaioFile(int fd, LibaioContext ctx) {
       this.ctx = ctx;
       this.fd = fd;
    }
 
-   public int getBlockSize()
-   {
+   public int getBlockSize() {
       return 512;
       // FIXME
       //return LibaioContext.getBlockSizeFD(fd);
    }
 
-   public boolean lock()
-   {
+   public boolean lock() {
       return LibaioContext.lock(fd);
    }
 
    /**
     * {@inheritDoc}
     */
-   public void close() throws IOException
-   {
+   public void close() throws IOException {
       open = false;
       LibaioContext.close(fd);
    }
@@ -63,8 +59,7 @@ public final class LibaioFile<Callback extends SubmitInfo>
    /**
     * @return The size of the file.
     */
-   public long getSize()
-   {
+   public long getSize() {
       return LibaioContext.getSize(fd);
    }
 
@@ -82,8 +77,7 @@ public final class LibaioFile<Callback extends SubmitInfo>
     * @param callback A callback to be returned on the poll method.
     * @throws java.io.IOException in case of error
     */
-   public void write(long position, int size, ByteBuffer buffer, Callback callback) throws IOException
-   {
+   public void write(long position, int size, ByteBuffer buffer, Callback callback) throws IOException {
       ctx.submitWrite(fd, position, size, buffer, callback);
    }
 
@@ -103,8 +97,7 @@ public final class LibaioFile<Callback extends SubmitInfo>
     * @throws java.io.IOException in case of error
     * @see LibaioContext#poll(SubmitInfo[], int, int)
     */
-   public void read(long position, int size, ByteBuffer buffer, Callback callback) throws IOException
-   {
+   public void read(long position, int size, ByteBuffer buffer, Callback callback) throws IOException {
       ctx.submitRead(fd, position, size, buffer, callback);
    }
 
@@ -118,23 +111,20 @@ public final class LibaioFile<Callback extends SubmitInfo>
     * @param size the size of the buffer.
     * @return the buffer allocated.
     */
-   public ByteBuffer newBuffer(int size)
-   {
+   public ByteBuffer newBuffer(int size) {
       return LibaioContext.newAlignedBuffer(size, 512);
    }
 
    /**
     * It will preallocate the file with a given size.
+    *
     * @param size number of bytes to be filled on the file
     */
-   public void fill(long size)
-   {
-      try
-      {
+   public void fill(long size) {
+      try {
          LibaioContext.fill(fd, size);
       }
-      catch (OutOfMemoryError e)
-      {
+      catch (OutOfMemoryError e) {
          NativeLogger.LOGGER.debug("Didn't have enough memory to allocate " + size + " bytes in memory, using simple fallocate");
          LibaioContext.fallocate(fd, size);
       }
@@ -142,10 +132,10 @@ public final class LibaioFile<Callback extends SubmitInfo>
 
    /**
     * It will use fallocate to initialize a file.
+    *
     * @param size number of bytes to be filled on the file
     */
-   public void fallocate(long size)
-   {
+   public void fallocate(long size) {
       LibaioContext.fallocate(fd, size);
    }
 

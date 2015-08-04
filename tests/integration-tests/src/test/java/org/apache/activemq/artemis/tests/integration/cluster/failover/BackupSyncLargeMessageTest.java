@@ -35,46 +35,38 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class BackupSyncLargeMessageTest extends BackupSyncJournalTest
-{
+public class BackupSyncLargeMessageTest extends BackupSyncJournalTest {
 
    @Override
-   protected void assertMessageBody(final int i, final ClientMessage message)
-   {
+   protected void assertMessageBody(final int i, final ClientMessage message) {
       assertLargeMessageBody(i, message);
    }
 
    @Override
-   protected ServerLocatorInternal getServerLocator() throws Exception
-   {
-      return (ServerLocatorInternal) super.getServerLocator()
-              .setMinLargeMessageSize(MIN_LARGE_MESSAGE);
+   protected ServerLocatorInternal getServerLocator() throws Exception {
+      return (ServerLocatorInternal) super.getServerLocator().setMinLargeMessageSize(MIN_LARGE_MESSAGE);
    }
 
    @Override
-   protected void setBody(final int i, final ClientMessage message)
-   {
+   protected void setBody(final int i, final ClientMessage message) {
       setLargeMessageBody(i, message);
    }
 
    // ------------------------
 
    @Test
-   public void testDeleteLargeMessages() throws Exception
-   {
+   public void testDeleteLargeMessages() throws Exception {
       // 200 will increase the odds of a failure
       setNumberOfMessages(200);
       File dir = new File(backupServer.getServer().getConfiguration().getLargeMessagesDirectory());
-      assertEquals("Should not have any large messages... previous test failed to clean up?", 0,
-                   getAllMessageFileIds(dir).size());
+      assertEquals("Should not have any large messages... previous test failed to clean up?", 0, getAllMessageFileIds(dir).size());
       createProducerSendSomeMessages();
       startBackupFinishSyncing();
       receiveMsgsInRange(0, getNumberOfMessages() / 2);
       finishSyncAndFailover();
       final int target = getNumberOfMessages() / 2;
       long timeout = System.currentTimeMillis() + 5000;
-      while (getAllMessageFileIds(dir).size() != target && System.currentTimeMillis() < timeout)
-      {
+      while (getAllMessageFileIds(dir).size() != target && System.currentTimeMillis() < timeout) {
          Thread.sleep(50);
       }
       assertEquals("we really ought to delete these after delivery", target, getAllMessageFileIds(dir).size());
@@ -84,13 +76,11 @@ public class BackupSyncLargeMessageTest extends BackupSyncJournalTest
     * @throws Exception
     */
    @Test
-   public void testDeleteLargeMessagesDuringSync() throws Exception
-   {
+   public void testDeleteLargeMessagesDuringSync() throws Exception {
       setNumberOfMessages(200);
       File backupLMdir = new File(backupServer.getServer().getConfiguration().getLargeMessagesDirectory());
       File liveLMDir = new File(liveServer.getServer().getConfiguration().getLargeMessagesDirectory());
-      assertEquals("Should not have any large messages... previous test failed to clean up?", 0,
-                   getAllMessageFileIds(backupLMdir).size());
+      assertEquals("Should not have any large messages... previous test failed to clean up?", 0, getAllMessageFileIds(backupLMdir).size());
       createProducerSendSomeMessages();
 
       backupServer.start();
@@ -106,21 +96,19 @@ public class BackupSyncLargeMessageTest extends BackupSyncJournalTest
       Set<Long> backupLM = getAllMessageFileIds(backupLMdir);
       Set<Long> liveLM = getAllMessageFileIds(liveLMDir);
       assertEquals("live and backup should have the same files ", liveLM, backupLM);
-      assertEquals("we really ought to delete these after delivery: " + backupLM, getNumberOfMessages() / 2,
-                   backupLM.size());
-      assertEquals("we really ought to delete these after delivery", getNumberOfMessages() / 2,
-                   getAllMessageFileIds(backupLMdir).size());
+      assertEquals("we really ought to delete these after delivery: " + backupLM, getNumberOfMessages() / 2, backupLM.size());
+      assertEquals("we really ought to delete these after delivery", getNumberOfMessages() / 2, getAllMessageFileIds(backupLMdir).size());
    }
 
    /**
     * LargeMessages are passed from the client to the server in chunks. Here we test the backup
     * starting the data synchronization with the live in the middle of a multiple chunks large
     * message upload from the client to the live server.
+    *
     * @throws Exception
     */
    @Test
-   public void testBackupStartsWhenLiveIsReceivingLargeMessage() throws Exception
-   {
+   public void testBackupStartsWhenLiveIsReceivingLargeMessage() throws Exception {
       final ClientSession session = addClientSession(sessionFactory.createSession(true, true));
       session.createQueue(FailoverTestBase.ADDRESS, FailoverTestBase.ADDRESS, null, true);
       final ClientProducer producer = session.createProducer(FailoverTestBase.ADDRESS);
@@ -132,25 +120,20 @@ public class BackupSyncLargeMessageTest extends BackupSyncJournalTest
       final CountDownLatch latch = new CountDownLatch(1);
       final CountDownLatch latch2 = new CountDownLatch(1);
 
-      Runnable r = new Runnable()
-      {
+      Runnable r = new Runnable() {
          @Override
-         public void run()
-         {
-            try
-            {
+         public void run() {
+            try {
                latch.countDown();
                producer.send(message);
                sendMessages(session, producer, 20);
                session.commit();
             }
-            catch (ActiveMQException e)
-            {
+            catch (ActiveMQException e) {
                e.printStackTrace();
                caughtException.set(true);
             }
-            finally
-            {
+            finally {
                latch2.countDown();
             }
          }
@@ -167,8 +150,7 @@ public class BackupSyncLargeMessageTest extends BackupSyncJournalTest
       ClientMessage msg = consumer.receive(2000);
       ActiveMQBuffer buffer = msg.getBodyBuffer();
 
-      for (int j = 0; j < largeMessageSize; j++)
-      {
+      for (int j = 0; j < largeMessageSize; j++) {
          Assert.assertTrue("large msg , expecting " + largeMessageSize + " bytes, got " + j, buffer.readable());
          Assert.assertEquals("equal at " + j, ActiveMQTestBase.getSamplebyte(j), buffer.readByte());
       }
@@ -178,16 +160,12 @@ public class BackupSyncLargeMessageTest extends BackupSyncJournalTest
       session.commit();
    }
 
-   private Set<Long> getAllMessageFileIds(File dir)
-   {
+   private Set<Long> getAllMessageFileIds(File dir) {
       Set<Long> idsOnBkp = new TreeSet<Long>();
       String[] fileList = dir.list();
-      if (fileList != null)
-      {
-         for (String filename : fileList)
-         {
-            if (filename.endsWith(".msg"))
-            {
+      if (fileList != null) {
+         for (String filename : fileList) {
+            if (filename.endsWith(".msg")) {
                idsOnBkp.add(Long.valueOf(filename.split("\\.")[0]));
             }
          }

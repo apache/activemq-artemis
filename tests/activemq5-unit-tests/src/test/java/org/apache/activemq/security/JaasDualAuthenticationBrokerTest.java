@@ -47,170 +47,166 @@ import org.apache.activemq.transport.tcp.TcpTransportServer;
  */
 public class JaasDualAuthenticationBrokerTest extends TestCase {
 
-    private static final String INSECURE_GROUP = "insecureGroup";
-    private static final String INSECURE_USERNAME = "insecureUserName";
-    private static final String DN_GROUP = "dnGroup";
-    private static final String DN_USERNAME = "dnUserName";
+   private static final String INSECURE_GROUP = "insecureGroup";
+   private static final String INSECURE_USERNAME = "insecureUserName";
+   private static final String DN_GROUP = "dnGroup";
+   private static final String DN_USERNAME = "dnUserName";
 
-    StubBroker receiveBroker;
-    JaasDualAuthenticationBroker authBroker;
+   StubBroker receiveBroker;
+   JaasDualAuthenticationBroker authBroker;
 
-    ConnectionContext connectionContext;
-    ConnectionInfo connectionInfo;
+   ConnectionContext connectionContext;
+   ConnectionInfo connectionInfo;
 
-    SslTransportServer sslTransportServer;
-    TcpTransportServer nonSslTransportServer;
+   SslTransportServer sslTransportServer;
+   TcpTransportServer nonSslTransportServer;
 
-    /** create a dual login config, for both SSL and non-SSL connections
-     * using the StubLoginModule
-     *
-     */
-    void createLoginConfig() {
-        HashMap<String, String> sslConfigOptions = new HashMap<String, String>();
-        HashMap<String, String> configOptions = new HashMap<String, String>();
+   /**
+    * create a dual login config, for both SSL and non-SSL connections
+    * using the StubLoginModule
+    */
+   void createLoginConfig() {
+      HashMap<String, String> sslConfigOptions = new HashMap<String, String>();
+      HashMap<String, String> configOptions = new HashMap<String, String>();
 
-        sslConfigOptions.put(StubLoginModule.ALLOW_LOGIN_PROPERTY, "true");
-        sslConfigOptions.put(StubLoginModule.USERS_PROPERTY, DN_USERNAME);
-        sslConfigOptions.put(StubLoginModule.GROUPS_PROPERTY, DN_GROUP);
-        AppConfigurationEntry sslConfigEntry = new AppConfigurationEntry("org.apache.activemq.security.StubLoginModule",
-                AppConfigurationEntry.LoginModuleControlFlag.REQUIRED, sslConfigOptions);
+      sslConfigOptions.put(StubLoginModule.ALLOW_LOGIN_PROPERTY, "true");
+      sslConfigOptions.put(StubLoginModule.USERS_PROPERTY, DN_USERNAME);
+      sslConfigOptions.put(StubLoginModule.GROUPS_PROPERTY, DN_GROUP);
+      AppConfigurationEntry sslConfigEntry = new AppConfigurationEntry("org.apache.activemq.security.StubLoginModule", AppConfigurationEntry.LoginModuleControlFlag.REQUIRED, sslConfigOptions);
 
-        configOptions.put(StubLoginModule.ALLOW_LOGIN_PROPERTY, "true");
-        configOptions.put(StubLoginModule.USERS_PROPERTY, INSECURE_USERNAME);
-        configOptions.put(StubLoginModule.GROUPS_PROPERTY, INSECURE_GROUP);
-        AppConfigurationEntry configEntry = new AppConfigurationEntry("org.apache.activemq.security.StubLoginModule",
-                AppConfigurationEntry.LoginModuleControlFlag.REQUIRED, configOptions);
+      configOptions.put(StubLoginModule.ALLOW_LOGIN_PROPERTY, "true");
+      configOptions.put(StubLoginModule.USERS_PROPERTY, INSECURE_USERNAME);
+      configOptions.put(StubLoginModule.GROUPS_PROPERTY, INSECURE_GROUP);
+      AppConfigurationEntry configEntry = new AppConfigurationEntry("org.apache.activemq.security.StubLoginModule", AppConfigurationEntry.LoginModuleControlFlag.REQUIRED, configOptions);
 
-        StubDualJaasConfiguration jaasConfig = new StubDualJaasConfiguration(configEntry, sslConfigEntry);
+      StubDualJaasConfiguration jaasConfig = new StubDualJaasConfiguration(configEntry, sslConfigEntry);
 
-        Configuration.setConfiguration(jaasConfig);
-    }
+      Configuration.setConfiguration(jaasConfig);
+   }
 
-    @Override
-    protected void setUp() throws Exception {
-        receiveBroker = new StubBroker();
+   @Override
+   protected void setUp() throws Exception {
+      receiveBroker = new StubBroker();
 
-        authBroker = new JaasDualAuthenticationBroker(receiveBroker, "activemq-domain", "activemq-ssl-domain");
+      authBroker = new JaasDualAuthenticationBroker(receiveBroker, "activemq-domain", "activemq-ssl-domain");
 
-        connectionContext = new ConnectionContext();
+      connectionContext = new ConnectionContext();
 
-        SSLServerSocket sslServerSocket = new StubSSLServerSocket();
-        StubSSLSocketFactory socketFactory = new StubSSLSocketFactory(sslServerSocket);
+      SSLServerSocket sslServerSocket = new StubSSLServerSocket();
+      StubSSLSocketFactory socketFactory = new StubSSLSocketFactory(sslServerSocket);
 
-        try {
-            sslTransportServer = new SslTransportServer(null, new URI("ssl://localhost:61616?needClientAuth=true"),
-                    socketFactory);
-        } catch (Exception e) {
-            fail("Unable to create SslTransportServer.");
-        }
-        sslTransportServer.setNeedClientAuth(true);
-        sslTransportServer.bind();
+      try {
+         sslTransportServer = new SslTransportServer(null, new URI("ssl://localhost:61616?needClientAuth=true"), socketFactory);
+      }
+      catch (Exception e) {
+         fail("Unable to create SslTransportServer.");
+      }
+      sslTransportServer.setNeedClientAuth(true);
+      sslTransportServer.bind();
 
-        try {
-            nonSslTransportServer = new TcpTransportServer(null, new URI("tcp://localhost:61613"), socketFactory);
-        } catch (Exception e) {
-            fail("Unable to create TcpTransportServer.");
-        }
+      try {
+         nonSslTransportServer = new TcpTransportServer(null, new URI("tcp://localhost:61613"), socketFactory);
+      }
+      catch (Exception e) {
+         fail("Unable to create TcpTransportServer.");
+      }
 
+      connectionInfo = new ConnectionInfo();
 
-        connectionInfo = new ConnectionInfo();
+      createLoginConfig();
+   }
 
-        createLoginConfig();
-    }
+   @Override
+   protected void tearDown() throws Exception {
+      super.tearDown();
+   }
 
-    @Override
-    protected void tearDown() throws Exception {
-            super.tearDown();
-    }
+   public void testSecureConnector() {
+      Connector connector = new TransportConnector(sslTransportServer);
+      connectionContext.setConnector(connector);
+      connectionInfo.setTransportContext(new StubX509Certificate[]{});
 
+      try {
+         authBroker.addConnection(connectionContext, connectionInfo);
+      }
+      catch (Exception e) {
+         fail("Call to addConnection failed: " + e.getMessage());
+      }
 
-    public void testSecureConnector() {
-        Connector connector = new TransportConnector(sslTransportServer);
-        connectionContext.setConnector(connector);
-        connectionInfo.setTransportContext(new StubX509Certificate[] {});
+      assertEquals("Number of addConnection calls to underlying Broker must match number of calls made to " + "AuthenticationBroker.", 1, receiveBroker.addConnectionData.size());
 
-        try {
-            authBroker.addConnection(connectionContext, connectionInfo);
-        } catch (Exception e) {
-            fail("Call to addConnection failed: " + e.getMessage());
-        }
+      ConnectionContext receivedContext = receiveBroker.addConnectionData.getFirst().connectionContext;
 
-        assertEquals("Number of addConnection calls to underlying Broker must match number of calls made to " +
-                "AuthenticationBroker.", 1, receiveBroker.addConnectionData.size());
+      assertEquals("The SecurityContext's userName must be set to that of the UserPrincipal.", DN_USERNAME, receivedContext.getSecurityContext().getUserName());
 
-        ConnectionContext receivedContext = receiveBroker.addConnectionData.getFirst().connectionContext;
+      Set<Principal> receivedPrincipals = receivedContext.getSecurityContext().getPrincipals();
 
-        assertEquals("The SecurityContext's userName must be set to that of the UserPrincipal.",
-                DN_USERNAME, receivedContext.getSecurityContext().getUserName());
+      assertEquals("2 Principals received", 2, receivedPrincipals.size());
 
-        Set<Principal> receivedPrincipals = receivedContext.getSecurityContext().getPrincipals();
+      for (Iterator<Principal> iter = receivedPrincipals.iterator(); iter.hasNext(); ) {
+         Principal currentPrincipal = iter.next();
 
+         if (currentPrincipal instanceof UserPrincipal) {
+            assertEquals("UserPrincipal is '" + DN_USERNAME + "'", DN_USERNAME, currentPrincipal.getName());
+         }
+         else if (currentPrincipal instanceof GroupPrincipal) {
+            assertEquals("GroupPrincipal is '" + DN_GROUP + "'", DN_GROUP, currentPrincipal.getName());
+         }
+         else {
+            fail("Unexpected Principal subclass found.");
+         }
+      }
 
-        assertEquals("2 Principals received", 2, receivedPrincipals.size());
+      try {
+         authBroker.removeConnection(connectionContext, connectionInfo, null);
+      }
+      catch (Exception e) {
+         fail("Call to removeConnection failed: " + e.getMessage());
+      }
+      assertEquals("Number of removeConnection calls to underlying Broker must match number of calls made to " + "AuthenticationBroker.", 1, receiveBroker.removeConnectionData.size());
+   }
 
-        for (Iterator<Principal> iter = receivedPrincipals.iterator(); iter.hasNext();) {
-            Principal currentPrincipal = iter.next();
+   public void testInsecureConnector() {
+      Connector connector = new TransportConnector(nonSslTransportServer);
+      connectionContext.setConnector(connector);
+      connectionInfo.setUserName(INSECURE_USERNAME);
 
-            if (currentPrincipal instanceof UserPrincipal) {
-                assertEquals("UserPrincipal is '" + DN_USERNAME + "'", DN_USERNAME, currentPrincipal.getName());
-            } else if (currentPrincipal instanceof GroupPrincipal) {
-                assertEquals("GroupPrincipal is '" + DN_GROUP + "'", DN_GROUP, currentPrincipal.getName());
-            } else {
-                fail("Unexpected Principal subclass found.");
-            }
-        }
+      try {
+         authBroker.addConnection(connectionContext, connectionInfo);
+      }
+      catch (Exception e) {
+         fail("Call to addConnection failed: " + e.getMessage());
+      }
 
-        try {
-            authBroker.removeConnection(connectionContext, connectionInfo, null);
-        } catch (Exception e) {
-            fail("Call to removeConnection failed: " + e.getMessage());
-        }
-        assertEquals("Number of removeConnection calls to underlying Broker must match number of calls made to " +
-                "AuthenticationBroker.", 1, receiveBroker.removeConnectionData.size());
-    }
+      assertEquals("Number of addConnection calls to underlying Broker must match number of calls made to " + "AuthenticationBroker.", 1, receiveBroker.addConnectionData.size());
 
-    public void testInsecureConnector() {
-        Connector connector = new TransportConnector(nonSslTransportServer);
-        connectionContext.setConnector(connector);
-        connectionInfo.setUserName(INSECURE_USERNAME);
+      ConnectionContext receivedContext = receiveBroker.addConnectionData.getFirst().connectionContext;
 
-        try {
-            authBroker.addConnection(connectionContext, connectionInfo);
-        } catch (Exception e) {
-            fail("Call to addConnection failed: " + e.getMessage());
-        }
+      assertEquals("The SecurityContext's userName must be set to that of the UserPrincipal.", INSECURE_USERNAME, receivedContext.getSecurityContext().getUserName());
 
-        assertEquals("Number of addConnection calls to underlying Broker must match number of calls made to " +
-                "AuthenticationBroker.", 1, receiveBroker.addConnectionData.size());
+      Set<Principal> receivedPrincipals = receivedContext.getSecurityContext().getPrincipals();
 
-        ConnectionContext receivedContext = receiveBroker.addConnectionData.getFirst().connectionContext;
+      assertEquals("2 Principals received", 2, receivedPrincipals.size());
+      for (Iterator<Principal> iter = receivedPrincipals.iterator(); iter.hasNext(); ) {
+         Principal currentPrincipal = iter.next();
 
-        assertEquals("The SecurityContext's userName must be set to that of the UserPrincipal.",
-                INSECURE_USERNAME, receivedContext.getSecurityContext().getUserName());
+         if (currentPrincipal instanceof UserPrincipal) {
+            assertEquals("UserPrincipal is '" + INSECURE_USERNAME + "'", INSECURE_USERNAME, currentPrincipal.getName());
+         }
+         else if (currentPrincipal instanceof GroupPrincipal) {
+            assertEquals("GroupPrincipal is '" + INSECURE_GROUP + "'", INSECURE_GROUP, currentPrincipal.getName());
+         }
+         else {
+            fail("Unexpected Principal subclass found.");
+         }
+      }
 
-        Set<Principal> receivedPrincipals = receivedContext.getSecurityContext().getPrincipals();
-
-        assertEquals("2 Principals received", 2, receivedPrincipals.size());
-        for (Iterator<Principal> iter = receivedPrincipals.iterator(); iter.hasNext();) {
-            Principal currentPrincipal = iter.next();
-
-            if (currentPrincipal instanceof UserPrincipal) {
-                assertEquals("UserPrincipal is '" + INSECURE_USERNAME + "'",
-                        INSECURE_USERNAME, currentPrincipal.getName());
-            } else if (currentPrincipal instanceof GroupPrincipal) {
-                assertEquals("GroupPrincipal is '" + INSECURE_GROUP + "'",
-                        INSECURE_GROUP, currentPrincipal.getName());
-            } else {
-                fail("Unexpected Principal subclass found.");
-            }
-        }
-
-        try {
-            authBroker.removeConnection(connectionContext, connectionInfo, null);
-        } catch (Exception e) {
-            fail("Call to removeConnection failed: " + e.getMessage());
-        }
-        assertEquals("Number of removeConnection calls to underlying Broker must match number of calls made to " +
-                "AuthenticationBroker.", 1, receiveBroker.removeConnectionData.size());
-    }
+      try {
+         authBroker.removeConnection(connectionContext, connectionInfo, null);
+      }
+      catch (Exception e) {
+         fail("Call to removeConnection failed: " + e.getMessage());
+      }
+      assertEquals("Number of removeConnection calls to underlying Broker must match number of calls made to " + "AuthenticationBroker.", 1, receiveBroker.removeConnectionData.size());
+   }
 }

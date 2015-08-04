@@ -37,8 +37,7 @@ import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 /**
  * An abstract SequentialFileFactory containing basic functionality for both AIO and NIO SequentialFactories
  */
-public abstract class AbstractSequentialFileFactory implements SequentialFileFactory
-{
+public abstract class AbstractSequentialFileFactory implements SequentialFileFactory {
 
    // Timeout used to wait executors to shutdown
    protected static final int EXECUTOR_TIMEOUT = 60;
@@ -59,25 +58,22 @@ public abstract class AbstractSequentialFileFactory implements SequentialFileFac
     * Asynchronous writes need to be done at another executor.
     * This needs to be done at NIO, or else we would have the callers thread blocking for the return.
     * At AIO this is necessary as context switches on writes would fire flushes at the kernel.
-    *  */
+    */
    protected ExecutorService writeExecutor;
 
    protected AbstractSequentialFileFactory(final File journalDir,
-                                        final boolean buffered,
-                                        final int bufferSize,
-                                        final int bufferTimeout,
-                                        final int maxIO,
-                                        final boolean logRates,
-                                        final IOCriticalErrorListener criticalErrorListener)
-   {
+                                           final boolean buffered,
+                                           final int bufferSize,
+                                           final int bufferTimeout,
+                                           final int maxIO,
+                                           final boolean logRates,
+                                           final IOCriticalErrorListener criticalErrorListener) {
       this.journalDir = journalDir;
 
-      if (buffered && bufferTimeout > 0)
-      {
+      if (buffered && bufferTimeout > 0) {
          timedBuffer = new TimedBuffer(bufferSize, bufferTimeout, logRates);
       }
-      else
-      {
+      else {
          timedBuffer = null;
       }
       this.bufferSize = bufferSize;
@@ -86,135 +82,104 @@ public abstract class AbstractSequentialFileFactory implements SequentialFileFac
       this.maxIO = maxIO;
    }
 
-   public void stop()
-   {
-      if (timedBuffer != null)
-      {
+   public void stop() {
+      if (timedBuffer != null) {
          timedBuffer.stop();
       }
 
-      if (isSupportsCallbacks() && writeExecutor != null)
-      {
+      if (isSupportsCallbacks() && writeExecutor != null) {
          writeExecutor.shutdown();
 
-         try
-         {
-            if (!writeExecutor.awaitTermination(AbstractSequentialFileFactory.EXECUTOR_TIMEOUT, TimeUnit.SECONDS))
-            {
+         try {
+            if (!writeExecutor.awaitTermination(AbstractSequentialFileFactory.EXECUTOR_TIMEOUT, TimeUnit.SECONDS)) {
                ActiveMQJournalLogger.LOGGER.timeoutOnWriterShutdown(new Exception("trace"));
             }
          }
-         catch (InterruptedException e)
-         {
+         catch (InterruptedException e) {
             throw new ActiveMQInterruptedException(e);
          }
       }
    }
 
    @Override
-   public File getDirectory()
-   {
+   public File getDirectory() {
       return journalDir;
    }
 
-   public void start()
-   {
-      if (timedBuffer != null)
-      {
+   public void start() {
+      if (timedBuffer != null) {
          timedBuffer.start();
       }
 
-      if (isSupportsCallbacks())
-      {
-         writeExecutor = Executors.newSingleThreadExecutor(new ActiveMQThreadFactory("ActiveMQ-Asynchronous-Persistent-Writes" + System.identityHashCode(this),
-                                                                                    true,
-                                                                                    AbstractSequentialFileFactory.getThisClassLoader()));
+      if (isSupportsCallbacks()) {
+         writeExecutor = Executors.newSingleThreadExecutor(new ActiveMQThreadFactory("ActiveMQ-Asynchronous-Persistent-Writes" + System.identityHashCode(this), true, AbstractSequentialFileFactory.getThisClassLoader()));
       }
    }
 
-   public int getMaxIO()
-   {
+   public int getMaxIO() {
       return maxIO;
    }
 
    @Override
-   public void onIOError(Exception exception, String message, SequentialFile file)
-   {
-      if (critialErrorListener != null)
-      {
+   public void onIOError(Exception exception, String message, SequentialFile file) {
+      if (critialErrorListener != null) {
          critialErrorListener.onIOException(exception, message, file);
       }
    }
 
    @Override
-   public void activateBuffer(final SequentialFile file)
-   {
-      if (timedBuffer != null)
-      {
+   public void activateBuffer(final SequentialFile file) {
+      if (timedBuffer != null) {
          file.setTimedBuffer(timedBuffer);
       }
    }
 
-   public void flush()
-   {
-      if (timedBuffer != null)
-      {
+   public void flush() {
+      if (timedBuffer != null) {
          timedBuffer.flush();
       }
    }
 
-   public void deactivateBuffer()
-   {
-      if (timedBuffer != null)
-      {
+   public void deactivateBuffer() {
+      if (timedBuffer != null) {
          // When moving to a new file, we need to make sure any pending buffer will be transferred to the buffer
          timedBuffer.flush();
          timedBuffer.setObserver(null);
       }
    }
 
-   public void releaseBuffer(final ByteBuffer buffer)
-   {
+   public void releaseBuffer(final ByteBuffer buffer) {
    }
 
    /**
     * Create the directory if it doesn't exist yet
     */
-   public void createDirs() throws Exception
-   {
+   public void createDirs() throws Exception {
       boolean ok = journalDir.mkdirs();
-      if (!ok)
-      {
+      if (!ok) {
          throw new IOException("Failed to create directory " + journalDir);
       }
    }
 
-   public List<String> listFiles(final String extension) throws Exception
-   {
-      FilenameFilter fnf = new FilenameFilter()
-      {
-         public boolean accept(final File file, final String name)
-         {
+   public List<String> listFiles(final String extension) throws Exception {
+      FilenameFilter fnf = new FilenameFilter() {
+         public boolean accept(final File file, final String name) {
             return name.endsWith("." + extension);
          }
       };
 
       String[] fileNames = journalDir.list(fnf);
 
-      if (fileNames == null)
-      {
+      if (fileNames == null) {
          return Collections.EMPTY_LIST;
       }
 
       return Arrays.asList(fileNames);
    }
 
-   private static ClassLoader getThisClassLoader()
-   {
-      return AccessController.doPrivileged(new PrivilegedAction<ClassLoader>()
-      {
-         public ClassLoader run()
-         {
+   private static ClassLoader getThisClassLoader() {
+      return AccessController.doPrivileged(new PrivilegedAction<ClassLoader>() {
+         public ClassLoader run() {
             return AbstractSequentialFileFactory.class.getClassLoader();
          }
       });

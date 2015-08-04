@@ -23,14 +23,11 @@ import javax.jms.JMSSecurityException;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 
-public final class JMSExceptionHelper
-{
+public final class JMSExceptionHelper {
 
-   public static JMSException convertFromActiveMQException(final ActiveMQException me)
-   {
+   public static JMSException convertFromActiveMQException(final ActiveMQException me) {
       JMSException je;
-      switch (me.getType())
-      {
+      switch (me.getType()) {
          case CONNECTION_TIMEDOUT:
             je = new JMSException(me.getMessage());
             break;

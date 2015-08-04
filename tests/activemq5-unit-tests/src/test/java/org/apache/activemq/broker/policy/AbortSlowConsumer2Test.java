@@ -21,6 +21,7 @@ import java.util.Collection;
 import java.util.Map.Entry;
 import javax.jms.Connection;
 import javax.jms.MessageConsumer;
+
 import org.apache.activemq.util.MessageIdList;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,25 +30,25 @@ import org.junit.runners.Parameterized;
 @RunWith(value = Parameterized.class)
 public class AbortSlowConsumer2Test extends AbortSlowConsumerBase {
 
-    @Parameterized.Parameters(name = "isTopic({0})")
-    public static Collection<Object[]> getTestParameters() {
-        return Arrays.asList(new Object[][]{{Boolean.TRUE}, {Boolean.FALSE}});
-    }
+   @Parameterized.Parameters(name = "isTopic({0})")
+   public static Collection<Object[]> getTestParameters() {
+      return Arrays.asList(new Object[][]{{Boolean.TRUE}, {Boolean.FALSE}});
+   }
 
-    public AbortSlowConsumer2Test(Boolean isTopic) {
-        this.topic = isTopic;
-    }
+   public AbortSlowConsumer2Test(Boolean isTopic) {
+      this.topic = isTopic;
+   }
 
-    @Test(timeout = 60 * 1000)
-    public void testLittleSlowConsumerIsNotAborted() throws Exception {
-        startConsumers(destination);
-        Entry<MessageConsumer, MessageIdList> consumertoAbort = consumers.entrySet().iterator().next();
-        consumertoAbort.getValue().setProcessingDelay(500);
-        for (Connection c : connections) {
-            c.setExceptionListener(this);
-        }
-        startProducers(destination, 12);
-        allMessagesList.waitForMessagesToArrive(10);
-        allMessagesList.assertAtLeastMessagesReceived(10);
-    }
+   @Test(timeout = 60 * 1000)
+   public void testLittleSlowConsumerIsNotAborted() throws Exception {
+      startConsumers(destination);
+      Entry<MessageConsumer, MessageIdList> consumertoAbort = consumers.entrySet().iterator().next();
+      consumertoAbort.getValue().setProcessingDelay(500);
+      for (Connection c : connections) {
+         c.setExceptionListener(this);
+      }
+      startProducers(destination, 12);
+      allMessagesList.waitForMessagesToArrive(10);
+      allMessagesList.assertAtLeastMessagesReceived(10);
+   }
 }

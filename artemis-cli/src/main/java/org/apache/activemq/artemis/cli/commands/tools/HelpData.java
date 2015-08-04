@@ -25,36 +25,30 @@ import io.airlift.airline.Help;
 import org.apache.activemq.artemis.cli.commands.Action;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 
-public class HelpData extends Help implements Action
-{
+public class HelpData extends Help implements Action {
 
    @Override
-   public boolean isVerbose()
-   {
+   public boolean isVerbose() {
       return false;
    }
 
    @Override
-   public void setHomeValues(File brokerHome, File brokerInstance)
-   {
+   public void setHomeValues(File brokerHome, File brokerInstance) {
 
    }
 
    @Override
-   public String getBrokerInstance()
-   {
+   public String getBrokerInstance() {
       return null;
    }
 
    @Override
-   public String getBrokerHome()
-   {
+   public String getBrokerHome() {
       return null;
    }
 
    @Override
-   public Object execute(ActionContext context) throws Exception
-   {
+   public Object execute(ActionContext context) throws Exception {
 
       List<String> commands = new ArrayList<>(1);
       commands.add("data");

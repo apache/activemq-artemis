@@ -24,8 +24,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class TypedPropertiesConversionTest
-{
+public class TypedPropertiesConversionTest {
 
    // Constants -----------------------------------------------------
 
@@ -44,15 +43,13 @@ public class TypedPropertiesConversionTest
    // Public --------------------------------------------------------
 
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       key = RandomUtil.randomSimpleString();
       props = new TypedProperties();
    }
 
    @Test
-   public void testBooleanProperty() throws Exception
-   {
+   public void testBooleanProperty() throws Exception {
       Boolean val = RandomUtil.randomBoolean();
       props.putBooleanProperty(key, val);
 
@@ -62,51 +59,43 @@ public class TypedPropertiesConversionTest
       props.putSimpleStringProperty(key, new SimpleString(Boolean.toString(val)));
       Assert.assertEquals(val, props.getBooleanProperty(key));
 
-      try
-      {
+      try {
          props.putByteProperty(key, RandomUtil.randomByte());
          props.getBooleanProperty(key);
          Assert.fail();
       }
-      catch (ActiveMQPropertyConversionException e)
-      {
+      catch (ActiveMQPropertyConversionException e) {
       }
 
       Assert.assertFalse(props.getBooleanProperty(unknownKey));
    }
 
    @Test
-   public void testCharProperty() throws Exception
-   {
+   public void testCharProperty() throws Exception {
       Character val = RandomUtil.randomChar();
       props.putCharProperty(key, val);
 
       Assert.assertEquals(val, props.getCharProperty(key));
       Assert.assertEquals(new SimpleString(Character.toString(val)), props.getSimpleStringProperty(key));
 
-      try
-      {
+      try {
          props.putByteProperty(key, RandomUtil.randomByte());
          props.getCharProperty(key);
          Assert.fail();
       }
-      catch (ActiveMQPropertyConversionException e)
-      {
+      catch (ActiveMQPropertyConversionException e) {
       }
 
-      try
-      {
+      try {
          props.getCharProperty(unknownKey);
          Assert.fail();
       }
-      catch (NullPointerException e)
-      {
+      catch (NullPointerException e) {
       }
    }
 
    @Test
-   public void testByteProperty() throws Exception
-   {
+   public void testByteProperty() throws Exception {
       Byte val = RandomUtil.randomByte();
       props.putByteProperty(key, val);
 
@@ -116,29 +105,24 @@ public class TypedPropertiesConversionTest
       props.putSimpleStringProperty(key, new SimpleString(Byte.toString(val)));
       Assert.assertEquals(val, props.getByteProperty(key));
 
-      try
-      {
+      try {
          props.putBooleanProperty(key, RandomUtil.randomBoolean());
          props.getByteProperty(key);
          Assert.fail();
       }
-      catch (ActiveMQPropertyConversionException e)
-      {
+      catch (ActiveMQPropertyConversionException e) {
       }
 
-      try
-      {
+      try {
          props.getByteProperty(unknownKey);
          Assert.fail();
       }
-      catch (NumberFormatException e)
-      {
+      catch (NumberFormatException e) {
       }
    }
 
    @Test
-   public void testIntProperty() throws Exception
-   {
+   public void testIntProperty() throws Exception {
       Integer val = RandomUtil.randomInt();
       props.putIntProperty(key, val);
 
@@ -152,29 +136,24 @@ public class TypedPropertiesConversionTest
       props.putByteProperty(key, byteVal);
       Assert.assertEquals(Integer.valueOf(byteVal), props.getIntProperty(key));
 
-      try
-      {
+      try {
          props.putBooleanProperty(key, RandomUtil.randomBoolean());
          props.getIntProperty(key);
          Assert.fail();
       }
-      catch (ActiveMQPropertyConversionException e)
-      {
+      catch (ActiveMQPropertyConversionException e) {
       }
 
-      try
-      {
+      try {
          props.getIntProperty(unknownKey);
          Assert.fail();
       }
-      catch (NumberFormatException e)
-      {
+      catch (NumberFormatException e) {
       }
    }
 
    @Test
-   public void testLongProperty() throws Exception
-   {
+   public void testLongProperty() throws Exception {
       Long val = RandomUtil.randomLong();
       props.putLongProperty(key, val);
 
@@ -196,29 +175,24 @@ public class TypedPropertiesConversionTest
       props.putIntProperty(key, intVal);
       Assert.assertEquals(Long.valueOf(intVal), props.getLongProperty(key));
 
-      try
-      {
+      try {
          props.putBooleanProperty(key, RandomUtil.randomBoolean());
          props.getLongProperty(key);
          Assert.fail();
       }
-      catch (ActiveMQPropertyConversionException e)
-      {
+      catch (ActiveMQPropertyConversionException e) {
       }
 
-      try
-      {
+      try {
          props.getLongProperty(unknownKey);
          Assert.fail();
       }
-      catch (NumberFormatException e)
-      {
+      catch (NumberFormatException e) {
       }
    }
 
    @Test
-   public void testDoubleProperty() throws Exception
-   {
+   public void testDoubleProperty() throws Exception {
       Double val = RandomUtil.randomDouble();
       props.putDoubleProperty(key, val);
 
@@ -228,29 +202,24 @@ public class TypedPropertiesConversionTest
       props.putSimpleStringProperty(key, new SimpleString(Double.toString(val)));
       Assert.assertEquals(val, props.getDoubleProperty(key));
 
-      try
-      {
+      try {
          props.putBooleanProperty(key, RandomUtil.randomBoolean());
          props.getDoubleProperty(key);
          Assert.fail();
       }
-      catch (ActiveMQPropertyConversionException e)
-      {
+      catch (ActiveMQPropertyConversionException e) {
       }
 
-      try
-      {
+      try {
          props.getDoubleProperty(unknownKey);
          Assert.fail();
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
       }
    }
 
    @Test
-   public void testFloatProperty() throws Exception
-   {
+   public void testFloatProperty() throws Exception {
       Float val = RandomUtil.randomFloat();
       props.putFloatProperty(key, val);
 
@@ -261,29 +230,24 @@ public class TypedPropertiesConversionTest
       props.putSimpleStringProperty(key, new SimpleString(Float.toString(val)));
       Assert.assertEquals(val, props.getFloatProperty(key));
 
-      try
-      {
+      try {
          props.putBooleanProperty(key, RandomUtil.randomBoolean());
          props.getFloatProperty(key);
          Assert.fail();
       }
-      catch (ActiveMQPropertyConversionException e)
-      {
+      catch (ActiveMQPropertyConversionException e) {
       }
 
-      try
-      {
+      try {
          props.getFloatProperty(unknownKey);
          Assert.fail();
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
       }
    }
 
    @Test
-   public void testShortProperty() throws Exception
-   {
+   public void testShortProperty() throws Exception {
       Short val = RandomUtil.randomShort();
       props.putShortProperty(key, val);
 
@@ -298,50 +262,42 @@ public class TypedPropertiesConversionTest
       props.putByteProperty(key, byteVal);
       Assert.assertEquals(Short.valueOf(byteVal), props.getShortProperty(key));
 
-      try
-      {
+      try {
          props.putBooleanProperty(key, RandomUtil.randomBoolean());
          props.getShortProperty(key);
          Assert.fail();
       }
-      catch (ActiveMQPropertyConversionException e)
-      {
+      catch (ActiveMQPropertyConversionException e) {
       }
 
-      try
-      {
+      try {
          props.getShortProperty(unknownKey);
          Assert.fail();
       }
-      catch (NumberFormatException e)
-      {
+      catch (NumberFormatException e) {
       }
    }
 
    @Test
-   public void testSimpleStringProperty() throws Exception
-   {
+   public void testSimpleStringProperty() throws Exception {
       SimpleString strVal = RandomUtil.randomSimpleString();
       props.putSimpleStringProperty(key, strVal);
       Assert.assertEquals(strVal, props.getSimpleStringProperty(key));
    }
 
    @Test
-   public void testBytesProperty() throws Exception
-   {
+   public void testBytesProperty() throws Exception {
       byte[] val = RandomUtil.randomBytes();
       props.putBytesProperty(key, val);
 
       Assert.assertArrayEquals(val, props.getBytesProperty(key));
 
-      try
-      {
+      try {
          props.putBooleanProperty(key, RandomUtil.randomBoolean());
          props.getBytesProperty(key);
          Assert.fail();
       }
-      catch (ActiveMQPropertyConversionException e)
-      {
+      catch (ActiveMQPropertyConversionException e) {
       }
 
       Assert.assertNull(props.getBytesProperty(unknownKey));

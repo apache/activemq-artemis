@@ -31,8 +31,7 @@ import org.proton.plug.test.minimalserver.MinimalSessionSPI;
 import org.proton.plug.util.ByteUtil;
 import org.proton.plug.util.DebugInfo;
 
-public class ProtonINVMSPI implements AMQPConnectionCallback
-{
+public class ProtonINVMSPI implements AMQPConnectionCallback {
 
    AMQPConnectionContext returningConnection;
 
@@ -42,69 +41,52 @@ public class ProtonINVMSPI implements AMQPConnectionCallback
 
    final ExecutorService returningExecutor = Executors.newSingleThreadExecutor();
 
-   public ProtonINVMSPI()
-   {
-      mainExecutor.execute(new Runnable()
-      {
-         public void run()
-         {
+   public ProtonINVMSPI() {
+      mainExecutor.execute(new Runnable() {
+         public void run() {
             Thread.currentThread().setName("MainExecutor-INVM");
          }
       });
-      returningExecutor.execute(new Runnable()
-      {
-         public void run()
-         {
+      returningExecutor.execute(new Runnable() {
+         public void run() {
             Thread.currentThread().setName("ReturningExecutor-INVM");
          }
       });
    }
 
    @Override
-   public void close()
-   {
+   public void close() {
       mainExecutor.shutdown();
    }
 
    @Override
-   public ServerSASL[] getSASLMechnisms()
-   {
+   public ServerSASL[] getSASLMechnisms() {
       return new ServerSASL[]{new AnonymousServerSASL(), new ServerSASLPlain()};
    }
 
-
    @Override
-   public void onTransport(final ByteBuf bytes, final AMQPConnectionContext connection)
-   {
-      if (DebugInfo.debug)
-      {
+   public void onTransport(final ByteBuf bytes, final AMQPConnectionContext connection) {
+      if (DebugInfo.debug) {
          ByteUtil.debugFrame("InVM->", bytes);
       }
       final int size = bytes.writerIndex();
 
       bytes.retain();
-      mainExecutor.execute(new Runnable()
-      {
-         public void run()
-         {
-            try
-            {
-               if (DebugInfo.debug)
-               {
+      mainExecutor.execute(new Runnable() {
+         public void run() {
+            try {
+               if (DebugInfo.debug) {
                   ByteUtil.debugFrame("InVMDone->", bytes);
                }
                serverConnection.inputBuffer(bytes);
-               try
-               {
+               try {
                   connection.outputDone(size);
                }
-               catch (Exception e)
-               {
+               catch (Exception e) {
                   e.printStackTrace();
                }
             }
-            finally
-            {
+            finally {
                bytes.release();
             }
          }
@@ -112,75 +94,59 @@ public class ProtonINVMSPI implements AMQPConnectionCallback
    }
 
    @Override
-   public void setConnection(AMQPConnectionContext connection)
-   {
+   public void setConnection(AMQPConnectionContext connection) {
       returningConnection = connection;
    }
 
    @Override
-   public AMQPConnectionContext getConnection()
-   {
+   public AMQPConnectionContext getConnection() {
       return returningConnection;
    }
 
    @Override
-   public AMQPSessionCallback createSessionCallback(AMQPConnectionContext connection)
-   {
+   public AMQPSessionCallback createSessionCallback(AMQPConnectionContext connection) {
       return null;
    }
 
-   class ReturnSPI implements AMQPConnectionCallback
-   {
+   class ReturnSPI implements AMQPConnectionCallback {
+
       @Override
-      public void close()
-      {
+      public void close() {
 
       }
 
       @Override
-      public ServerSASL[] getSASLMechnisms()
-      {
+      public ServerSASL[] getSASLMechnisms() {
          return new ServerSASL[]{new AnonymousServerSASL(), new ServerSASLPlain()};
       }
 
-
       @Override
-      public void onTransport(final ByteBuf bytes, final AMQPConnectionContext connection)
-      {
+      public void onTransport(final ByteBuf bytes, final AMQPConnectionContext connection) {
 
          final int size = bytes.writerIndex();
-         if (DebugInfo.debug)
-         {
+         if (DebugInfo.debug) {
             ByteUtil.debugFrame("InVM<-", bytes);
          }
 
-
          bytes.retain();
-         returningExecutor.execute(new Runnable()
-         {
-            public void run()
-            {
-               try
-               {
+         returningExecutor.execute(new Runnable() {
+            public void run() {
+               try {
 
-                  if (DebugInfo.debug)
-                  {
+                  if (DebugInfo.debug) {
                      ByteUtil.debugFrame("InVM done<-", bytes);
                   }
 
                   returningConnection.inputBuffer(bytes);
-                  try
-                  {
+                  try {
                      connection.outputDone(size);
                   }
-                  catch (Exception e)
-                  {
+                  catch (Exception e) {
                      e.printStackTrace();
                   }
 
                }
-               finally
-               {
+               finally {
                   bytes.release();
                }
             }
@@ -188,20 +154,17 @@ public class ProtonINVMSPI implements AMQPConnectionCallback
       }
 
       @Override
-      public AMQPSessionCallback createSessionCallback(AMQPConnectionContext connection)
-      {
+      public AMQPSessionCallback createSessionCallback(AMQPConnectionContext connection) {
          return new MinimalSessionSPI();
       }
 
       @Override
-      public void setConnection(AMQPConnectionContext connection)
-      {
+      public void setConnection(AMQPConnectionContext connection) {
 
       }
 
       @Override
-      public AMQPConnectionContext getConnection()
-      {
+      public AMQPConnectionContext getConnection() {
          return null;
       }
    }

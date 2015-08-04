@@ -20,8 +20,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.journal.EncodingSupport;
 import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
 
-public class JournalDeleteRecordTX extends JournalInternalRecord
-{
+public class JournalDeleteRecordTX extends JournalInternalRecord {
 
    private final long txID;
 
@@ -34,8 +33,7 @@ public class JournalDeleteRecordTX extends JournalInternalRecord
     * @param id
     * @param record
     */
-   public JournalDeleteRecordTX(final long txID, final long id, final EncodingSupport record)
-   {
+   public JournalDeleteRecordTX(final long txID, final long id, final EncodingSupport record) {
       this.id = id;
 
       this.txID = txID;
@@ -44,8 +42,7 @@ public class JournalDeleteRecordTX extends JournalInternalRecord
    }
 
    @Override
-   public void encode(final ActiveMQBuffer buffer)
-   {
+   public void encode(final ActiveMQBuffer buffer) {
       buffer.writeByte(JournalImpl.DELETE_RECORD_TX);
 
       buffer.writeInt(fileID);
@@ -58,8 +55,7 @@ public class JournalDeleteRecordTX extends JournalInternalRecord
 
       buffer.writeInt(record != null ? record.getEncodeSize() : 0);
 
-      if (record != null)
-      {
+      if (record != null) {
          record.encode(buffer);
       }
 
@@ -67,8 +63,7 @@ public class JournalDeleteRecordTX extends JournalInternalRecord
    }
 
    @Override
-   public int getEncodeSize()
-   {
+   public int getEncodeSize() {
       return JournalImpl.SIZE_DELETE_RECORD_TX + (record != null ? record.getEncodeSize() : 0) + 1;
    }
 }

@@ -22,12 +22,12 @@ import org.apache.activemq.broker.BrokerService;
 /**
  * @author gtully
  * @see https://issues.apache.org/activemq/browse/AMQ-2020
- **/
+ */
 public class StoreQueueCursorMemoryNoDuplicateTest extends StoreQueueCursorNoDuplicateTest {
-  
-    protected BrokerService createBroker() throws Exception {
-        BrokerService broker = super.createBroker();
-        broker.setPersistent(false);
-        return broker;
-    }
+
+   protected BrokerService createBroker() throws Exception {
+      BrokerService broker = super.createBroker();
+      broker.setPersistent(false);
+      return broker;
+   }
 }

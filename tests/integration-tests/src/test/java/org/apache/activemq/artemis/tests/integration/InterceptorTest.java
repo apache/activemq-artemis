@@ -47,8 +47,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class InterceptorTest extends ActiveMQTestBase
-{
+public class InterceptorTest extends ActiveMQTestBase {
+
    private ActiveMQServer server;
 
    private final SimpleString QUEUE = new SimpleString("InterceptorTestQueue");
@@ -57,8 +57,7 @@ public class InterceptorTest extends ActiveMQTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       server = createServer(false, true);
@@ -70,12 +69,10 @@ public class InterceptorTest extends ActiveMQTestBase
 
    private static final String key = "fruit";
 
-   private class MyInterceptor1 implements Interceptor
-   {
-      public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException
-      {
-         if (packet.getType() == PacketImpl.SESS_SEND)
-         {
+   private class MyInterceptor1 implements Interceptor {
+
+      public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException {
+         if (packet.getType() == PacketImpl.SESS_SEND) {
             SessionSendMessage p = (SessionSendMessage) packet;
 
             ServerMessage sm = (ServerMessage) p.getMessage();
@@ -88,20 +85,17 @@ public class InterceptorTest extends ActiveMQTestBase
 
    }
 
-   private class InterceptUserOnCreateQueue implements Interceptor
-   {
-      public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException
-      {
-         if (packet.getType() == PacketImpl.CREATE_QUEUE)
-         {
+   private class InterceptUserOnCreateQueue implements Interceptor {
+
+      public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException {
+         if (packet.getType() == PacketImpl.CREATE_QUEUE) {
             String userName = getUsername(packet, connection);
             CreateQueueMessage createQueue = (CreateQueueMessage) packet;
             createQueue.setFilterString(new SimpleString("userName='" + userName + "'"));
 
             System.out.println("userName = " + userName);
          }
-         else if (packet.getType() == PacketImpl.SESS_SEND)
-         {
+         else if (packet.getType() == PacketImpl.SESS_SEND) {
             String userName = getUsername(packet, connection);
             MessagePacket msgPacket = (MessagePacket) packet;
             msgPacket.getMessage().putStringProperty("userName", userName);
@@ -112,9 +106,7 @@ public class InterceptorTest extends ActiveMQTestBase
          return true;
       }
 
-
-      public String getUsername(final Packet packet, final RemotingConnection connection)
-      {
+      public String getUsername(final Packet packet, final RemotingConnection connection) {
          RemotingConnectionImpl impl = (RemotingConnectionImpl) connection;
          ChannelImpl channel = (ChannelImpl) impl.getChannel(packet.getChannelID(), -1);
          ServerSessionPacketHandler sessionHandler = (ServerSessionPacketHandler) channel.getHandler();
@@ -123,20 +115,17 @@ public class InterceptorTest extends ActiveMQTestBase
 
    }
 
-   private class InterceptUserOnCreateConsumer implements Interceptor
-   {
-      public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException
-      {
-         if (packet.getType() == PacketImpl.SESS_CREATECONSUMER)
-         {
+   private class InterceptUserOnCreateConsumer implements Interceptor {
+
+      public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException {
+         if (packet.getType() == PacketImpl.SESS_CREATECONSUMER) {
             String userName = getUsername(packet, connection);
             SessionCreateConsumerMessage createQueue = (SessionCreateConsumerMessage) packet;
             createQueue.setFilterString(new SimpleString("userName='" + userName + "'"));
 
             System.out.println("userName = " + userName);
          }
-         else if (packet.getType() == PacketImpl.SESS_SEND)
-         {
+         else if (packet.getType() == PacketImpl.SESS_SEND) {
             String userName = getUsername(packet, connection);
             MessagePacket msgPacket = (MessagePacket) packet;
             msgPacket.getMessage().putStringProperty("userName", userName);
@@ -147,9 +136,7 @@ public class InterceptorTest extends ActiveMQTestBase
          return true;
       }
 
-
-      public String getUsername(final Packet packet, final RemotingConnection connection)
-      {
+      public String getUsername(final Packet packet, final RemotingConnection connection) {
          RemotingConnectionImpl impl = (RemotingConnectionImpl) connection;
          ChannelImpl channel = (ChannelImpl) impl.getChannel(packet.getChannelID(), -1);
          ServerSessionPacketHandler sessionHandler = (ServerSessionPacketHandler) channel.getHandler();
@@ -158,12 +145,10 @@ public class InterceptorTest extends ActiveMQTestBase
 
    }
 
-   private class MyOutgoingInterceptor1 implements Interceptor
-   {
-      public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException
-      {
-         if (packet.getType() == PacketImpl.SESS_RECEIVE_MSG)
-         {
+   private class MyOutgoingInterceptor1 implements Interceptor {
+
+      public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException {
+         if (packet.getType() == PacketImpl.SESS_RECEIVE_MSG) {
             SessionReceiveMessage p = (SessionReceiveMessage) packet;
 
             ServerMessage sm = (ServerMessage) p.getMessage();
@@ -176,12 +161,10 @@ public class InterceptorTest extends ActiveMQTestBase
 
    }
 
-   private class MyInterceptor2 implements Interceptor
-   {
-      public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException
-      {
-         if (packet.getType() == PacketImpl.SESS_SEND)
-         {
+   private class MyInterceptor2 implements Interceptor {
+
+      public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException {
+         if (packet.getType() == PacketImpl.SESS_SEND) {
             return false;
          }
 
@@ -190,17 +173,14 @@ public class InterceptorTest extends ActiveMQTestBase
 
    }
 
-   private class MyOutgoingInterceptor2 implements Interceptor
-   {
-      public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException
-      {
-         if (isForceDeliveryResponse(packet))
-         {
+   private class MyOutgoingInterceptor2 implements Interceptor {
+
+      public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException {
+         if (isForceDeliveryResponse(packet)) {
             return true;
          }
 
-         if (packet.getType() == PacketImpl.SESS_RECEIVE_MSG)
-         {
+         if (packet.getType() == PacketImpl.SESS_RECEIVE_MSG) {
             return false;
          }
 
@@ -208,12 +188,10 @@ public class InterceptorTest extends ActiveMQTestBase
       }
    }
 
-   private class MyInterceptor3 implements Interceptor
-   {
-      public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException
-      {
-         if (packet.getType() == PacketImpl.SESS_RECEIVE_MSG)
-         {
+   private class MyInterceptor3 implements Interceptor {
+
+      public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException {
+         if (packet.getType() == PacketImpl.SESS_RECEIVE_MSG) {
             SessionReceiveMessage p = (SessionReceiveMessage) packet;
 
             ClientMessage cm = (ClientMessage) p.getMessage();
@@ -226,12 +204,10 @@ public class InterceptorTest extends ActiveMQTestBase
 
    }
 
-   private class MyOutgoingInterceptor3 implements Interceptor
-   {
-      public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException
-      {
-         if (packet.getType() == PacketImpl.SESS_SEND)
-         {
+   private class MyOutgoingInterceptor3 implements Interceptor {
+
+      public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException {
+         if (packet.getType() == PacketImpl.SESS_SEND) {
             SessionSendMessage p = (SessionSendMessage) packet;
 
             ClientMessage cm = (ClientMessage) p.getMessage();
@@ -244,17 +220,14 @@ public class InterceptorTest extends ActiveMQTestBase
 
    }
 
-   private class MyInterceptor4 implements Interceptor
-   {
-      public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException
-      {
-         if (isForceDeliveryResponse(packet))
-         {
+   private class MyInterceptor4 implements Interceptor {
+
+      public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException {
+         if (isForceDeliveryResponse(packet)) {
             return true;
          }
 
-         if (packet.getType() == PacketImpl.SESS_RECEIVE_MSG)
-         {
+         if (packet.getType() == PacketImpl.SESS_RECEIVE_MSG) {
             return false;
          }
 
@@ -263,17 +236,14 @@ public class InterceptorTest extends ActiveMQTestBase
 
    }
 
-   private class MyOutgoingInterceptor4 implements Interceptor
-   {
-      public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException
-      {
-         if (isForceDeliveryResponse(packet))
-         {
+   private class MyOutgoingInterceptor4 implements Interceptor {
+
+      public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException {
+         if (isForceDeliveryResponse(packet)) {
             return true;
          }
 
-         if (packet.getType() == PacketImpl.SESS_SEND)
-         {
+         if (packet.getType() == PacketImpl.SESS_SEND) {
             return false;
          }
 
@@ -285,13 +255,10 @@ public class InterceptorTest extends ActiveMQTestBase
    /**
     * @param packet
     */
-   private boolean isForceDeliveryResponse(final Packet packet)
-   {
-      if (packet.getType() == PacketImpl.SESS_RECEIVE_MSG)
-      {
+   private boolean isForceDeliveryResponse(final Packet packet) {
+      if (packet.getType() == PacketImpl.SESS_RECEIVE_MSG) {
          SessionReceiveMessage msg = (SessionReceiveMessage) packet;
-         if (msg.getMessage().containsProperty(ClientConsumerImpl.FORCED_DELIVERY_MESSAGE))
-         {
+         if (msg.getMessage().containsProperty(ClientConsumerImpl.FORCED_DELIVERY_MESSAGE)) {
             return true;
          }
       }
@@ -299,8 +266,8 @@ public class InterceptorTest extends ActiveMQTestBase
       return false;
    }
 
-   private class MyInterceptor5 implements Interceptor
-   {
+   private class MyInterceptor5 implements Interceptor {
+
       private final String key;
 
       private final int num;
@@ -309,32 +276,26 @@ public class InterceptorTest extends ActiveMQTestBase
 
       private volatile boolean wasCalled;
 
-      MyInterceptor5(final String key, final int num)
-      {
+      MyInterceptor5(final String key, final int num) {
          this.key = key;
 
          this.num = num;
       }
 
-      public void setReject(final boolean reject)
-      {
+      public void setReject(final boolean reject) {
          this.reject = reject;
       }
 
-      public boolean wasCalled()
-      {
+      public boolean wasCalled() {
          return wasCalled;
       }
 
-      public void setWasCalled(final boolean wasCalled)
-      {
+      public void setWasCalled(final boolean wasCalled) {
          this.wasCalled = wasCalled;
       }
 
-      public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException
-      {
-         if (packet.getType() == PacketImpl.SESS_SEND)
-         {
+      public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException {
+         if (packet.getType() == PacketImpl.SESS_SEND) {
             SessionSendMessage p = (SessionSendMessage) packet;
 
             ServerMessage sm = (ServerMessage) p.getMessage();
@@ -352,8 +313,8 @@ public class InterceptorTest extends ActiveMQTestBase
 
    }
 
-   private class MyInterceptor6 implements Interceptor
-   {
+   private class MyInterceptor6 implements Interceptor {
+
       private final String key;
 
       private final int num;
@@ -362,38 +323,31 @@ public class InterceptorTest extends ActiveMQTestBase
 
       private volatile boolean wasCalled;
 
-      MyInterceptor6(final String key, final int num)
-      {
+      MyInterceptor6(final String key, final int num) {
          this.key = key;
 
          this.num = num;
       }
 
-      public void setReject(final boolean reject)
-      {
+      public void setReject(final boolean reject) {
          this.reject = reject;
       }
 
-      public boolean wasCalled()
-      {
+      public boolean wasCalled() {
          return wasCalled;
       }
 
-      public void setWasCalled(final boolean wasCalled)
-      {
+      public void setWasCalled(final boolean wasCalled) {
          this.wasCalled = wasCalled;
       }
 
-      public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException
-      {
+      public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException {
 
-         if (isForceDeliveryResponse(packet))
-         {
+         if (isForceDeliveryResponse(packet)) {
             return true;
          }
 
-         if (packet.getType() == PacketImpl.SESS_RECEIVE_MSG)
-         {
+         if (packet.getType() == PacketImpl.SESS_RECEIVE_MSG) {
             SessionReceiveMessage p = (SessionReceiveMessage) packet;
 
             Message sm = p.getMessage();
@@ -412,8 +366,7 @@ public class InterceptorTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testServerInterceptorChangeProperty() throws Exception
-   {
+   public void testServerInterceptorChangeProperty() throws Exception {
       MyInterceptor1 interceptor = new MyInterceptor1();
 
       server.getRemotingService().addIncomingInterceptor(interceptor);
@@ -428,8 +381,7 @@ public class InterceptorTest extends ActiveMQTestBase
 
       final int numMessages = 10;
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session.createMessage(false);
 
          message.putIntProperty("count", i);
@@ -443,8 +395,7 @@ public class InterceptorTest extends ActiveMQTestBase
 
       session.start();
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = consumer.receive(1000);
 
          assertNotNull(message);
@@ -456,8 +407,7 @@ public class InterceptorTest extends ActiveMQTestBase
 
       server.getRemotingService().removeIncomingInterceptor(interceptor);
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session.createMessage(false);
 
          message.putStringProperty(InterceptorTest.key, "apple");
@@ -465,8 +415,7 @@ public class InterceptorTest extends ActiveMQTestBase
          producer.send(message);
       }
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = consumer.receive(1000);
 
          Assert.assertEquals("apple", message.getStringProperty(InterceptorTest.key));
@@ -477,8 +426,7 @@ public class InterceptorTest extends ActiveMQTestBase
 
    // This is testing if it's possible to intercept usernames and do some real stuff as users want
    @Test
-   public void testInterceptUsernameOnQueues() throws Exception
-   {
+   public void testInterceptUsernameOnQueues() throws Exception {
 
       SimpleString ANOTHER_QUEUE = QUEUE.concat("another");
       ActiveMQSecurityManagerImpl securityManager = (ActiveMQSecurityManagerImpl) server.getSecurityManager();
@@ -502,7 +450,6 @@ public class InterceptorTest extends ActiveMQTestBase
 
       ClientProducer prodAnother = sessionAnotherUser.createProducer(QUEUE);
 
-
       ClientMessage msg = session.createMessage(true);
       prod.send(msg);
       session.commit();
@@ -522,7 +469,6 @@ public class InterceptorTest extends ActiveMQTestBase
       msg.acknowledge();
       assertNull(consumer.receiveImmediate());
 
-
       msg = consumerAnother.receive(1000);
       assertNotNull(msg);
       assertEquals("an", msg.getStringProperty("userName"));
@@ -535,8 +481,7 @@ public class InterceptorTest extends ActiveMQTestBase
 
    // This is testing if it's possible to intercept usernames and do some real stuff as users want
    @Test
-   public void testInterceptUsernameOnConsumer() throws Exception
-   {
+   public void testInterceptUsernameOnConsumer() throws Exception {
       ActiveMQSecurityManagerImpl securityManager = (ActiveMQSecurityManagerImpl) server.getSecurityManager();
       securityManager.getConfiguration().addUser("dumb", "dumber");
       securityManager.getConfiguration().addUser("an", "other");
@@ -555,7 +500,6 @@ public class InterceptorTest extends ActiveMQTestBase
       ClientProducer prod = session.createProducer(QUEUE);
 
       ClientProducer prodAnother = sessionAnotherUser.createProducer(QUEUE);
-
 
       ClientMessage msg = session.createMessage(true);
       prod.send(msg);
@@ -576,7 +520,6 @@ public class InterceptorTest extends ActiveMQTestBase
       msg.acknowledge();
       assertNull(consumer.receiveImmediate());
 
-
       msg = consumerAnother.receive(1000);
       assertNotNull(msg);
       assertEquals("an", msg.getStringProperty("userName"));
@@ -588,12 +531,10 @@ public class InterceptorTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testServerInterceptorRejectPacket() throws Exception
-   {
+   public void testServerInterceptorRejectPacket() throws Exception {
       MyInterceptor2 interceptor = new MyInterceptor2();
 
       server.getRemotingService().addIncomingInterceptor(interceptor);
-
 
       locator.setBlockOnNonDurableSend(false);
 
@@ -607,8 +548,7 @@ public class InterceptorTest extends ActiveMQTestBase
 
       final int numMessages = 10;
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session.createMessage(false);
 
          producer.send(message);
@@ -626,8 +566,7 @@ public class InterceptorTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testClientInterceptorChangeProperty() throws Exception
-   {
+   public void testClientInterceptorChangeProperty() throws Exception {
       ClientSessionFactory sf = createSessionFactory(locator);
 
       MyInterceptor3 interceptor = new MyInterceptor3();
@@ -642,8 +581,7 @@ public class InterceptorTest extends ActiveMQTestBase
 
       final int numMessages = 10;
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session.createMessage(false);
 
          message.putStringProperty(InterceptorTest.key, "apple");
@@ -655,8 +593,7 @@ public class InterceptorTest extends ActiveMQTestBase
 
       session.start();
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = consumer.receive(1000);
 
          Assert.assertEquals("orange", message.getStringProperty(InterceptorTest.key));
@@ -664,8 +601,7 @@ public class InterceptorTest extends ActiveMQTestBase
 
       sf.getServerLocator().removeIncomingInterceptor(interceptor);
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session.createMessage(false);
 
          message.putStringProperty(InterceptorTest.key, "apple");
@@ -673,8 +609,7 @@ public class InterceptorTest extends ActiveMQTestBase
          producer.send(message);
       }
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = consumer.receive(1000);
 
          Assert.assertEquals("apple", message.getStringProperty(InterceptorTest.key));
@@ -684,8 +619,7 @@ public class InterceptorTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testClientOutgoingInterceptorChangeProperty() throws Exception
-   {
+   public void testClientOutgoingInterceptorChangeProperty() throws Exception {
       ClientSessionFactory sf = createSessionFactory(locator);
 
       MyOutgoingInterceptor3 interceptor = new MyOutgoingInterceptor3();
@@ -700,8 +634,7 @@ public class InterceptorTest extends ActiveMQTestBase
 
       final int numMessages = 10;
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session.createMessage(false);
 
          message.putStringProperty(InterceptorTest.key, "apple");
@@ -713,8 +646,7 @@ public class InterceptorTest extends ActiveMQTestBase
 
       session.start();
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = consumer.receive(1000);
 
          Assert.assertEquals("orange", message.getStringProperty(InterceptorTest.key));
@@ -722,8 +654,7 @@ public class InterceptorTest extends ActiveMQTestBase
 
       sf.getServerLocator().removeOutgoingInterceptor(interceptor);
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session.createMessage(false);
 
          message.putStringProperty(InterceptorTest.key, "apple");
@@ -731,8 +662,7 @@ public class InterceptorTest extends ActiveMQTestBase
          producer.send(message);
       }
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = consumer.receive(1000);
 
          Assert.assertEquals("apple", message.getStringProperty(InterceptorTest.key));
@@ -742,8 +672,7 @@ public class InterceptorTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testClientInterceptorRejectPacket() throws Exception
-   {
+   public void testClientInterceptorRejectPacket() throws Exception {
       ClientSessionFactory sf = createSessionFactory(locator);
 
       MyInterceptor4 interceptor = new MyInterceptor4();
@@ -758,8 +687,7 @@ public class InterceptorTest extends ActiveMQTestBase
 
       final int numMessages = 10;
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session.createMessage(false);
 
          producer.send(message);
@@ -777,8 +705,7 @@ public class InterceptorTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testClientOutgoingInterceptorRejectPacketOnNonBlockingSend() throws Exception
-   {
+   public void testClientOutgoingInterceptorRejectPacketOnNonBlockingSend() throws Exception {
       locator.setBlockOnNonDurableSend(false);
       ClientSessionFactory sf = createSessionFactory(locator);
 
@@ -794,8 +721,7 @@ public class InterceptorTest extends ActiveMQTestBase
 
       final int numMessages = 10;
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session.createMessage(false);
 
          producer.send(message);
@@ -813,8 +739,7 @@ public class InterceptorTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testClientOutgoingInterceptorRejectPacketOnBlockingSend() throws Exception
-   {
+   public void testClientOutgoingInterceptorRejectPacketOnBlockingSend() throws Exception {
       // must make the call block to exercise the right logic
       locator.setBlockOnNonDurableSend(true);
       ClientSessionFactory sf = createSessionFactory(locator);
@@ -831,21 +756,18 @@ public class InterceptorTest extends ActiveMQTestBase
 
       ClientMessage message = session.createMessage(false);
 
-      try
-      {
+      try {
          producer.send(message);
          Assert.fail();
       }
-      catch (ActiveMQException e)
-      {
+      catch (ActiveMQException e) {
          // expected exception
          Assert.assertTrue(e.getType().getCode() == ActiveMQExceptionType.INTERCEPTOR_REJECTED_PACKET.getCode());
       }
    }
 
    @Test
-   public void testServerMultipleInterceptors() throws Exception
-   {
+   public void testServerMultipleInterceptors() throws Exception {
       MyInterceptor5 interceptor1 = new MyInterceptor5("a", 1);
       MyInterceptor5 interceptor2 = new MyInterceptor5("b", 2);
       MyInterceptor5 interceptor3 = new MyInterceptor5("c", 3);
@@ -866,8 +788,7 @@ public class InterceptorTest extends ActiveMQTestBase
 
       final int numMessages = 10;
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session.createMessage(false);
 
          producer.send(message);
@@ -877,8 +798,7 @@ public class InterceptorTest extends ActiveMQTestBase
 
       session.start();
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = consumer.receive(1000);
 
          Assert.assertEquals(1, message.getIntProperty("a").intValue());
@@ -889,15 +809,13 @@ public class InterceptorTest extends ActiveMQTestBase
 
       server.getRemotingService().removeIncomingInterceptor(interceptor2);
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session.createMessage(false);
 
          producer.send(message);
       }
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = consumer.receive(1000);
 
          Assert.assertEquals(1, message.getIntProperty("a").intValue());
@@ -914,8 +832,7 @@ public class InterceptorTest extends ActiveMQTestBase
       interceptor3.setWasCalled(false);
       interceptor4.setWasCalled(false);
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session.createMessage(false);
 
          producer.send(message);
@@ -934,8 +851,7 @@ public class InterceptorTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testClientMultipleInterceptors() throws Exception
-   {
+   public void testClientMultipleInterceptors() throws Exception {
       MyInterceptor6 interceptor1 = new MyInterceptor6("a", 1);
       MyInterceptor6 interceptor2 = new MyInterceptor6("b", 2);
       MyInterceptor6 interceptor3 = new MyInterceptor6("c", 3);
@@ -956,8 +872,7 @@ public class InterceptorTest extends ActiveMQTestBase
 
       final int numMessages = 10;
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session.createMessage(false);
 
          producer.send(message);
@@ -967,8 +882,7 @@ public class InterceptorTest extends ActiveMQTestBase
 
       session.start();
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = consumer.receive(1000);
 
          Assert.assertEquals(1, message.getIntProperty("a").intValue());
@@ -979,15 +893,13 @@ public class InterceptorTest extends ActiveMQTestBase
 
       sf.getServerLocator().removeIncomingInterceptor(interceptor2);
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session.createMessage(false);
 
          producer.send(message);
       }
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = consumer.receive(1000);
 
          Assert.assertEquals(1, message.getIntProperty("a").intValue());
@@ -1004,8 +916,7 @@ public class InterceptorTest extends ActiveMQTestBase
       interceptor3.setWasCalled(false);
       interceptor4.setWasCalled(false);
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session.createMessage(false);
 
          producer.send(message);
@@ -1024,8 +935,7 @@ public class InterceptorTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testServerOutgoingInterceptorChangeProperty() throws Exception
-   {
+   public void testServerOutgoingInterceptorChangeProperty() throws Exception {
       MyOutgoingInterceptor1 interceptor = new MyOutgoingInterceptor1();
 
       server.getRemotingService().addOutgoingInterceptor(interceptor);
@@ -1040,8 +950,7 @@ public class InterceptorTest extends ActiveMQTestBase
 
       final int numMessages = 10;
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session.createMessage(false);
 
          message.putIntProperty("count", i);
@@ -1055,8 +964,7 @@ public class InterceptorTest extends ActiveMQTestBase
 
       session.start();
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = consumer.receive(1000);
 
          assertNotNull(message);
@@ -1068,8 +976,7 @@ public class InterceptorTest extends ActiveMQTestBase
 
       server.getRemotingService().removeOutgoingInterceptor(interceptor);
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session.createMessage(false);
 
          message.putStringProperty(InterceptorTest.key, "apple");
@@ -1077,8 +984,7 @@ public class InterceptorTest extends ActiveMQTestBase
          producer.send(message);
       }
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = consumer.receive(1000);
 
          Assert.assertEquals("apple", message.getStringProperty(InterceptorTest.key));
@@ -1088,8 +994,7 @@ public class InterceptorTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testServerOutgoingInterceptorRejectMessage() throws Exception
-   {
+   public void testServerOutgoingInterceptorRejectMessage() throws Exception {
       MyOutgoingInterceptor2 interceptor = new MyOutgoingInterceptor2();
 
       server.getRemotingService().addOutgoingInterceptor(interceptor);
@@ -1106,8 +1011,7 @@ public class InterceptorTest extends ActiveMQTestBase
 
       final int numMessages = 10;
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session.createMessage(false);
 
          producer.send(message);

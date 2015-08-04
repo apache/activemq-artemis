@@ -30,8 +30,7 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Before;
 import org.junit.Test;
 
-public class PageCountSyncOnNonTXTest extends ActiveMQTestBase
-{
+public class PageCountSyncOnNonTXTest extends ActiveMQTestBase {
 
    // We will add a random factor on the wait time
    private long timeToRun;
@@ -40,29 +39,22 @@ public class PageCountSyncOnNonTXTest extends ActiveMQTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       timeToRun = 30000 + RandomUtil.randomPositiveInt() % 1000;
    }
 
    @Test
-   public void testSendNoTx() throws Exception
-   {
+   public void testSendNoTx() throws Exception {
       String QUEUE_NAME = "myQueue";
 
       process = PageCountSyncServer.spawnVM(getTestDir(), timeToRun);
 
       ServerLocator locator = createNettyNonHALocator();
 
-      try
-      {
-         locator = createNettyNonHALocator()
-                 .setReconnectAttempts(0)
-                 .setInitialConnectAttempts(10)
-                 .setRetryInterval(500)
-                 .setBlockOnDurableSend(false);
+      try {
+         locator = createNettyNonHALocator().setReconnectAttempts(0).setInitialConnectAttempts(10).setRetryInterval(500).setBlockOnDurableSend(false);
 
          ClientSessionFactory factory = locator.createSessionFactory();
          ClientSession session = factory.createSession(true, true);
@@ -71,27 +63,21 @@ public class PageCountSyncOnNonTXTest extends ActiveMQTestBase
          ClientConsumer consumer = session.createConsumer(QUEUE_NAME);
          session.start();
 
-
          ClientSession sessionTransacted = factory.createSession(false, false);
          ClientProducer producerTransacted = sessionTransacted.createProducer(QUEUE_NAME);
          ClientConsumer consumerTransacted = sessionTransacted.createConsumer(QUEUE_NAME);
          sessionTransacted.start();
 
-
          long start = System.currentTimeMillis();
 
          long nmsgs = 0;
 
-
-         try
-         {
-            while (true)
-            {
+         try {
+            while (true) {
 
                int size = RandomUtil.randomPositiveInt() % 1024;
 
-               if (size == 0)
-               {
+               if (size == 0) {
                   size = 1024;
                }
                ClientMessage msg = session.createMessage(true);
@@ -99,16 +85,13 @@ public class PageCountSyncOnNonTXTest extends ActiveMQTestBase
 
                producer.send(msg);
 
-               if (++nmsgs % 100 == 0)
-               {
+               if (++nmsgs % 100 == 0) {
                   // complicating the test a bit with transacted sends and consuming
                   producerTransacted.send(msg);
 
-                  for (int i = 0; i < 50; i++)
-                  {
+                  for (int i = 0; i < 50; i++) {
                      msg = consumerTransacted.receive(100);
-                     if (msg != null)
-                     {
+                     if (msg != null) {
                         msg.acknowledge();
                      }
                   }
@@ -116,44 +99,37 @@ public class PageCountSyncOnNonTXTest extends ActiveMQTestBase
                   sessionTransacted.commit();
 
                   msg = consumer.receive(100);
-                  if (msg != null)
-                  {
+                  if (msg != null) {
                      msg.acknowledge();
                   }
                }
 
-               if (System.currentTimeMillis() - start > timeToRun)
-               {
+               if (System.currentTimeMillis() - start > timeToRun) {
                   // this will ensure to capture a failure since the server will have crashed
                   session.commit();
                }
             }
          }
-         catch (Exception expected)
-         {
+         catch (Exception expected) {
             expected.printStackTrace();
          }
 
       }
-      finally
-      {
+      finally {
          locator.close();
       }
       assertEquals("Process didn't end as expected", 1, process.waitFor());
 
-
       ActiveMQServer server = PageCountSyncServer.createServer(getTestDir());
 
-      try
-      {
+      try {
          server.start();
 
          Thread.sleep(500);
 
          locator = createNettyNonHALocator();
 
-         try
-         {
+         try {
             Queue queue = server.locateQueue(new SimpleString(QUEUE_NAME));
 
             assertNotNull(queue);
@@ -168,8 +144,7 @@ public class PageCountSyncOnNonTXTest extends ActiveMQTestBase
 
             session.start();
 
-            for (int i = 0; i < msgs; i++)
-            {
+            for (int i = 0; i < msgs; i++) {
                ClientMessage msg = consumer.receive(5000);
                assertNotNull(msg);
                //  msg.acknowledge(); -- we don't ack
@@ -180,21 +155,16 @@ public class PageCountSyncOnNonTXTest extends ActiveMQTestBase
 
             session.close();
 
-
          }
-         finally
-         {
+         finally {
             locator.close();
          }
 
-
       }
-      finally
-      {
+      finally {
          server.stop();
       }
 
    }
-
 
 }

@@ -37,8 +37,8 @@ import org.apache.activemq.artemis.spi.core.remoting.ConnectionLifeCycleListener
 import org.apache.activemq.artemis.spi.core.remoting.ReadyListener;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 
-public class InVMConnection implements Connection
-{
+public class InVMConnection implements Connection {
+
    private static final boolean isTrace = ActiveMQServerLogger.LOGGER.isTraceEnabled();
 
    private final BufferHandler handler;
@@ -65,8 +65,7 @@ public class InVMConnection implements Connection
    public InVMConnection(final int serverID,
                          final BufferHandler handler,
                          final ConnectionLifeCycleListener listener,
-                         final Executor executor)
-   {
+                         final Executor executor) {
       this(serverID, UUIDGenerator.getInstance().generateSimpleStringUUID().toString(), handler, listener, executor);
    }
 
@@ -74,8 +73,7 @@ public class InVMConnection implements Connection
                          final String id,
                          final BufferHandler handler,
                          final ConnectionLifeCycleListener listener,
-                         final Executor executor)
-   {
+                         final Executor executor) {
       this(serverID, id, handler, listener, executor, null);
    }
 
@@ -84,8 +82,7 @@ public class InVMConnection implements Connection
                          final BufferHandler handler,
                          final ConnectionLifeCycleListener listener,
                          final Executor executor,
-                         final ActiveMQPrincipal defaultActiveMQPrincipal)
-   {
+                         final ActiveMQPrincipal defaultActiveMQPrincipal) {
       this.serverID = serverID;
 
       this.handler = handler;
@@ -99,37 +96,27 @@ public class InVMConnection implements Connection
       this.defaultActiveMQPrincipal = defaultActiveMQPrincipal;
    }
 
-
-   public void forceClose()
-   {
+   public void forceClose() {
       // no op
    }
 
-   public RemotingConnection getProtocolConnection()
-   {
+   public RemotingConnection getProtocolConnection() {
       return this.protocolConnection;
    }
 
-   public void setProtocolConnection(RemotingConnection connection)
-   {
+   public void setProtocolConnection(RemotingConnection connection) {
       this.protocolConnection = connection;
    }
 
-
-
-   public void close()
-   {
-      if (closing)
-      {
+   public void close() {
+      if (closing) {
          return;
       }
 
       closing = true;
 
-      synchronized (this)
-      {
-         if (!closed)
-         {
+      synchronized (this) {
+         if (!closed) {
             listener.connectionDestroyed(id);
 
             closed = true;
@@ -137,149 +124,119 @@ public class InVMConnection implements Connection
       }
    }
 
-   public ActiveMQBuffer createTransportBuffer(final int size)
-   {
+   public ActiveMQBuffer createTransportBuffer(final int size) {
       return ActiveMQBuffers.dynamicBuffer(size);
    }
 
-   public Object getID()
-   {
+   public Object getID() {
       return id;
    }
 
-   public void checkFlushBatchBuffer()
-   {
+   public void checkFlushBatchBuffer() {
    }
 
-   public void write(final ActiveMQBuffer buffer)
-   {
+   public void write(final ActiveMQBuffer buffer) {
       write(buffer, false, false, null);
    }
 
-   public void write(final ActiveMQBuffer buffer, final boolean flush, final boolean batch)
-   {
+   public void write(final ActiveMQBuffer buffer, final boolean flush, final boolean batch) {
       write(buffer, flush, batch, null);
    }
 
-   public void write(final ActiveMQBuffer buffer, final boolean flush, final boolean batch, final ChannelFutureListener futureListener)
-   {
+   public void write(final ActiveMQBuffer buffer,
+                     final boolean flush,
+                     final boolean batch,
+                     final ChannelFutureListener futureListener) {
       final ActiveMQBuffer copied = buffer.copy(0, buffer.capacity());
 
       copied.setIndex(buffer.readerIndex(), buffer.writerIndex());
 
-      try
-      {
-         executor.execute(new Runnable()
-         {
-            public void run()
-            {
-               try
-               {
-                  if (!closed)
-                  {
+      try {
+         executor.execute(new Runnable() {
+            public void run() {
+               try {
+                  if (!closed) {
                      copied.readInt(); // read and discard
-                     if (isTrace)
-                     {
+                     if (isTrace) {
                         ActiveMQServerLogger.LOGGER.trace(InVMConnection.this + "::Sending inVM packet");
                      }
                      handler.bufferReceived(id, copied);
-                     if (futureListener != null)
-                     {
-                         // TODO BEFORE MERGE: (is null a good option here?)
+                     if (futureListener != null) {
+                        // TODO BEFORE MERGE: (is null a good option here?)
                         futureListener.operationComplete(null);
                      }
                   }
                }
-               catch (Exception e)
-               {
+               catch (Exception e) {
                   final String msg = "Failed to write to handler on connector " + this;
                   ActiveMQServerLogger.LOGGER.errorWritingToInvmConnector(e, this);
                   throw new IllegalStateException(msg, e);
                }
-               finally
-               {
-                  if (isTrace)
-                  {
+               finally {
+                  if (isTrace) {
                      ActiveMQServerLogger.LOGGER.trace(InVMConnection.this + "::packet sent done");
                   }
                }
             }
          });
 
-         if (flush && flushEnabled)
-         {
+         if (flush && flushEnabled) {
             final CountDownLatch latch = new CountDownLatch(1);
-            executor.execute(new Runnable()
-            {
-               public void run()
-               {
+            executor.execute(new Runnable() {
+               public void run() {
                   latch.countDown();
                }
             });
 
-            try
-            {
-               if (!latch.await(10, TimeUnit.SECONDS))
-               {
+            try {
+               if (!latch.await(10, TimeUnit.SECONDS)) {
                   ActiveMQServerLogger.LOGGER.timedOutFlushingInvmChannel();
                }
             }
-            catch (InterruptedException e)
-            {
+            catch (InterruptedException e) {
                throw new ActiveMQInterruptedException(e);
             }
          }
       }
-      catch (RejectedExecutionException e)
-      {
+      catch (RejectedExecutionException e) {
          // Ignore - this can happen if server/client is shutdown and another request comes in
       }
 
    }
 
-   public String getRemoteAddress()
-   {
+   public String getRemoteAddress() {
       return "invm:" + serverID;
    }
 
-   public int getBatchingBufferSize()
-   {
+   public int getBatchingBufferSize() {
       return -1;
    }
 
-   public void addReadyListener(ReadyListener listener)
-   {
+   public void addReadyListener(ReadyListener listener) {
    }
 
-   public void removeReadyListener(ReadyListener listener)
-   {
+   public void removeReadyListener(ReadyListener listener) {
    }
 
    @Override
-   public boolean isUsingProtocolHandling()
-   {
+   public boolean isUsingProtocolHandling() {
       return false;
    }
 
-   public ActiveMQPrincipal getDefaultActiveMQPrincipal()
-   {
+   public ActiveMQPrincipal getDefaultActiveMQPrincipal() {
       return defaultActiveMQPrincipal;
    }
 
-   public static void setFlushEnabled(boolean enable)
-   {
+   public static void setFlushEnabled(boolean enable) {
       flushEnabled = enable;
    }
 
-   public Executor getExecutor()
-   {
+   public Executor getExecutor() {
       return executor;
    }
 
-
    @Override
-   public TransportConfiguration getConnectorConfig()
-   {
+   public TransportConfiguration getConnectorConfig() {
       Map<String, Object> params = new HashMap<String, Object>();
 
       params.put(org.apache.activemq.artemis.core.remoting.impl.invm.TransportConstants.SERVER_ID_PROP_NAME, serverID);
@@ -288,10 +245,8 @@ public class InVMConnection implements Connection
    }
 
    @Override
-   public String toString()
-   {
+   public String toString() {
       return "InVMConnection [serverID=" + serverID + ", id=" + id + "]";
    }
-
 
 }

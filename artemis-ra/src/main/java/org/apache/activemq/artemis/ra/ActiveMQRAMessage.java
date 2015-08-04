@@ -22,12 +22,11 @@ import javax.jms.Message;
 import java.util.Arrays;
 import java.util.Enumeration;
 
-
 /**
  * A wrapper for a message
  */
-public class ActiveMQRAMessage implements Message
-{
+public class ActiveMQRAMessage implements Message {
+
    /**
     * Whether trace is enabled
     */
@@ -49,10 +48,8 @@ public class ActiveMQRAMessage implements Message
     * @param message the message
     * @param session the session
     */
-   public ActiveMQRAMessage(final Message message, final ActiveMQRASession session)
-   {
-      if (ActiveMQRAMessage.trace)
-      {
+   public ActiveMQRAMessage(final Message message, final ActiveMQRASession session) {
+      if (ActiveMQRAMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("constructor(" + message + ", " + session + ")");
       }
 
@@ -65,10 +62,8 @@ public class ActiveMQRAMessage implements Message
     *
     * @throws JMSException Thrown if an error occurs
     */
-   public void acknowledge() throws JMSException
-   {
-      if (ActiveMQRAMessage.trace)
-      {
+   public void acknowledge() throws JMSException {
+      if (ActiveMQRAMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("acknowledge()");
       }
 
@@ -81,10 +76,8 @@ public class ActiveMQRAMessage implements Message
     *
     * @throws JMSException Thrown if an error occurs
     */
-   public void clearBody() throws JMSException
-   {
-      if (ActiveMQRAMessage.trace)
-      {
+   public void clearBody() throws JMSException {
+      if (ActiveMQRAMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("clearBody()");
       }
 
@@ -96,10 +89,8 @@ public class ActiveMQRAMessage implements Message
     *
     * @throws JMSException Thrown if an error occurs
     */
-   public void clearProperties() throws JMSException
-   {
-      if (ActiveMQRAMessage.trace)
-      {
+   public void clearProperties() throws JMSException {
+      if (ActiveMQRAMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("clearProperties()");
       }
 
@@ -113,10 +104,8 @@ public class ActiveMQRAMessage implements Message
     * @return The value
     * @throws JMSException Thrown if an error occurs
     */
-   public boolean getBooleanProperty(final String name) throws JMSException
-   {
-      if (ActiveMQRAMessage.trace)
-      {
+   public boolean getBooleanProperty(final String name) throws JMSException {
+      if (ActiveMQRAMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("getBooleanProperty(" + name + ")");
       }
 
@@ -130,10 +119,8 @@ public class ActiveMQRAMessage implements Message
     * @return The value
     * @throws JMSException Thrown if an error occurs
     */
-   public byte getByteProperty(final String name) throws JMSException
-   {
-      if (ActiveMQRAMessage.trace)
-      {
+   public byte getByteProperty(final String name) throws JMSException {
+      if (ActiveMQRAMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("getByteProperty(" + name + ")");
       }
 
@@ -147,10 +134,8 @@ public class ActiveMQRAMessage implements Message
     * @return The value
     * @throws JMSException Thrown if an error occurs
     */
-   public double getDoubleProperty(final String name) throws JMSException
-   {
-      if (ActiveMQRAMessage.trace)
-      {
+   public double getDoubleProperty(final String name) throws JMSException {
+      if (ActiveMQRAMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("getDoubleProperty(" + name + ")");
       }
 
@@ -164,10 +149,8 @@ public class ActiveMQRAMessage implements Message
     * @return The value
     * @throws JMSException Thrown if an error occurs
     */
-   public float getFloatProperty(final String name) throws JMSException
-   {
-      if (ActiveMQRAMessage.trace)
-      {
+   public float getFloatProperty(final String name) throws JMSException {
+      if (ActiveMQRAMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("getFloatProperty(" + name + ")");
       }
 
@@ -181,10 +164,8 @@ public class ActiveMQRAMessage implements Message
     * @return The value
     * @throws JMSException Thrown if an error occurs
     */
-   public int getIntProperty(final String name) throws JMSException
-   {
-      if (ActiveMQRAMessage.trace)
-      {
+   public int getIntProperty(final String name) throws JMSException {
+      if (ActiveMQRAMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("getIntProperty(" + name + ")");
       }
 
@@ -197,10 +178,8 @@ public class ActiveMQRAMessage implements Message
     * @return The value
     * @throws JMSException Thrown if an error occurs
     */
-   public String getJMSCorrelationID() throws JMSException
-   {
-      if (ActiveMQRAMessage.trace)
-      {
+   public String getJMSCorrelationID() throws JMSException {
+      if (ActiveMQRAMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("getJMSCorrelationID()");
       }
 
@@ -213,10 +192,8 @@ public class ActiveMQRAMessage implements Message
     * @return The value
     * @throws JMSException Thrown if an error occurs
     */
-   public byte[] getJMSCorrelationIDAsBytes() throws JMSException
-   {
-      if (ActiveMQRAMessage.trace)
-      {
+   public byte[] getJMSCorrelationIDAsBytes() throws JMSException {
+      if (ActiveMQRAMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("getJMSCorrelationIDAsBytes()");
       }
 
@@ -229,10 +206,8 @@ public class ActiveMQRAMessage implements Message
     * @return The value
     * @throws JMSException Thrown if an error occurs
     */
-   public int getJMSDeliveryMode() throws JMSException
-   {
-      if (ActiveMQRAMessage.trace)
-      {
+   public int getJMSDeliveryMode() throws JMSException {
+      if (ActiveMQRAMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("getJMSDeliveryMode()");
       }
 
@@ -245,10 +220,8 @@ public class ActiveMQRAMessage implements Message
     * @return The value
     * @throws JMSException Thrown if an error occurs
     */
-   public Destination getJMSDestination() throws JMSException
-   {
-      if (ActiveMQRAMessage.trace)
-      {
+   public Destination getJMSDestination() throws JMSException {
+      if (ActiveMQRAMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("getJMSDestination()");
       }
 
@@ -261,10 +234,8 @@ public class ActiveMQRAMessage implements Message
     * @return The value
     * @throws JMSException Thrown if an error occurs
     */
-   public long getJMSExpiration() throws JMSException
-   {
-      if (ActiveMQRAMessage.trace)
-      {
+   public long getJMSExpiration() throws JMSException {
+      if (ActiveMQRAMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("getJMSExpiration()");
       }
 
@@ -277,10 +248,8 @@ public class ActiveMQRAMessage implements Message
     * @return The value
     * @throws JMSException Thrown if an error occurs
     */
-   public String getJMSMessageID() throws JMSException
-   {
-      if (ActiveMQRAMessage.trace)
-      {
+   public String getJMSMessageID() throws JMSException {
+      if (ActiveMQRAMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("getJMSMessageID()");
       }
 
@@ -293,10 +262,8 @@ public class ActiveMQRAMessage implements Message
     * @return The value
     * @throws JMSException Thrown if an error occurs
     */
-   public int getJMSPriority() throws JMSException
-   {
-      if (ActiveMQRAMessage.trace)
-      {
+   public int getJMSPriority() throws JMSException {
+      if (ActiveMQRAMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("getJMSPriority()");
       }
 
@@ -309,10 +276,8 @@ public class ActiveMQRAMessage implements Message
     * @return The value
     * @throws JMSException Thrown if an error occurs
     */
-   public boolean getJMSRedelivered() throws JMSException
-   {
-      if (ActiveMQRAMessage.trace)
-      {
+   public boolean getJMSRedelivered() throws JMSException {
+      if (ActiveMQRAMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("getJMSRedelivered()");
       }
 
@@ -325,10 +290,8 @@ public class ActiveMQRAMessage implements Message
     * @return The value
     * @throws JMSException Thrown if an error occurs
     */
-   public Destination getJMSReplyTo() throws JMSException
-   {
-      if (ActiveMQRAMessage.trace)
-      {
+   public Destination getJMSReplyTo() throws JMSException {
+      if (ActiveMQRAMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("getJMSReplyTo()");
       }
 
@@ -341,10 +304,8 @@ public class ActiveMQRAMessage implements Message
     * @return The value
     * @throws JMSException Thrown if an error occurs
     */
-   public long getJMSTimestamp() throws JMSException
-   {
-      if (ActiveMQRAMessage.trace)
-      {
+   public long getJMSTimestamp() throws JMSException {
+      if (ActiveMQRAMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("getJMSTimestamp()");
       }
 
@@ -357,10 +318,8 @@ public class ActiveMQRAMessage implements Message
     * @return The value
     * @throws JMSException Thrown if an error occurs
     */
-   public String getJMSType() throws JMSException
-   {
-      if (ActiveMQRAMessage.trace)
-      {
+   public String getJMSType() throws JMSException {
+      if (ActiveMQRAMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("getJMSType()");
       }
 
@@ -374,10 +333,8 @@ public class ActiveMQRAMessage implements Message
     * @return The value
     * @throws JMSException Thrown if an error occurs
     */
-   public long getLongProperty(final String name) throws JMSException
-   {
-      if (ActiveMQRAMessage.trace)
-      {
+   public long getLongProperty(final String name) throws JMSException {
+      if (ActiveMQRAMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("getLongProperty(" + name + ")");
       }
 
@@ -391,10 +348,8 @@ public class ActiveMQRAMessage implements Message
     * @return The value
     * @throws JMSException Thrown if an error occurs
     */
-   public Object getObjectProperty(final String name) throws JMSException
-   {
-      if (ActiveMQRAMessage.trace)
-      {
+   public Object getObjectProperty(final String name) throws JMSException {
+      if (ActiveMQRAMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("getObjectProperty(" + name + ")");
       }
 
@@ -408,10 +363,8 @@ public class ActiveMQRAMessage implements Message
     * @throws JMSException Thrown if an error occurs
     */
    @SuppressWarnings("rawtypes")
-   public Enumeration getPropertyNames() throws JMSException
-   {
-      if (ActiveMQRAMessage.trace)
-      {
+   public Enumeration getPropertyNames() throws JMSException {
+      if (ActiveMQRAMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("getPropertyNames()");
       }
 
@@ -425,10 +378,8 @@ public class ActiveMQRAMessage implements Message
     * @return The value
     * @throws JMSException Thrown if an error occurs
     */
-   public short getShortProperty(final String name) throws JMSException
-   {
-      if (ActiveMQRAMessage.trace)
-      {
+   public short getShortProperty(final String name) throws JMSException {
+      if (ActiveMQRAMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("getShortProperty(" + name + ")");
       }
 
@@ -442,10 +393,8 @@ public class ActiveMQRAMessage implements Message
     * @return The value
     * @throws JMSException Thrown if an error occurs
     */
-   public String getStringProperty(final String name) throws JMSException
-   {
-      if (ActiveMQRAMessage.trace)
-      {
+   public String getStringProperty(final String name) throws JMSException {
+      if (ActiveMQRAMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("getStringProperty(" + name + ")");
       }
 
@@ -459,10 +408,8 @@ public class ActiveMQRAMessage implements Message
     * @return The value
     * @throws JMSException Thrown if an error occurs
     */
-   public boolean propertyExists(final String name) throws JMSException
-   {
-      if (ActiveMQRAMessage.trace)
-      {
+   public boolean propertyExists(final String name) throws JMSException {
+      if (ActiveMQRAMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("propertyExists(" + name + ")");
       }
 
@@ -476,10 +423,8 @@ public class ActiveMQRAMessage implements Message
     * @param value The value
     * @throws JMSException Thrown if an error occurs
     */
-   public void setBooleanProperty(final String name, final boolean value) throws JMSException
-   {
-      if (ActiveMQRAMessage.trace)
-      {
+   public void setBooleanProperty(final String name, final boolean value) throws JMSException {
+      if (ActiveMQRAMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("setBooleanProperty(" + name + ", " + value + ")");
       }
 
@@ -493,10 +438,8 @@ public class ActiveMQRAMessage implements Message
     * @param value The value
     * @throws JMSException Thrown if an error occurs
     */
-   public void setByteProperty(final String name, final byte value) throws JMSException
-   {
-      if (ActiveMQRAMessage.trace)
-      {
+   public void setByteProperty(final String name, final byte value) throws JMSException {
+      if (ActiveMQRAMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("setByteProperty(" + name + ", " + value + ")");
       }
 
@@ -510,10 +453,8 @@ public class ActiveMQRAMessage implements Message
     * @param value The value
     * @throws JMSException Thrown if an error occurs
     */
-   public void setDoubleProperty(final String name, final double value) throws JMSException
-   {
-      if (ActiveMQRAMessage.trace)
-      {
+   public void setDoubleProperty(final String name, final double value) throws JMSException {
+      if (ActiveMQRAMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("setDoubleProperty(" + name + ", " + value + ")");
       }
 
@@ -527,10 +468,8 @@ public class ActiveMQRAMessage implements Message
     * @param value The value
     * @throws JMSException Thrown if an error occurs
     */
-   public void setFloatProperty(final String name, final float value) throws JMSException
-   {
-      if (ActiveMQRAMessage.trace)
-      {
+   public void setFloatProperty(final String name, final float value) throws JMSException {
+      if (ActiveMQRAMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("setFloatProperty(" + name + ", " + value + ")");
       }
 
@@ -544,10 +483,8 @@ public class ActiveMQRAMessage implements Message
     * @param value The value
     * @throws JMSException Thrown if an error occurs
     */
-   public void setIntProperty(final String name, final int value) throws JMSException
-   {
-      if (ActiveMQRAMessage.trace)
-      {
+   public void setIntProperty(final String name, final int value) throws JMSException {
+      if (ActiveMQRAMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("setIntProperty(" + name + ", " + value + ")");
       }
 
@@ -560,10 +497,8 @@ public class ActiveMQRAMessage implements Message
     * @param correlationID The value
     * @throws JMSException Thrown if an error occurs
     */
-   public void setJMSCorrelationID(final String correlationID) throws JMSException
-   {
-      if (ActiveMQRAMessage.trace)
-      {
+   public void setJMSCorrelationID(final String correlationID) throws JMSException {
+      if (ActiveMQRAMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("setJMSCorrelationID(" + correlationID + ")");
       }
 
@@ -576,10 +511,8 @@ public class ActiveMQRAMessage implements Message
     * @param correlationID The value
     * @throws JMSException Thrown if an error occurs
     */
-   public void setJMSCorrelationIDAsBytes(final byte[] correlationID) throws JMSException
-   {
-      if (ActiveMQRAMessage.trace)
-      {
+   public void setJMSCorrelationIDAsBytes(final byte[] correlationID) throws JMSException {
+      if (ActiveMQRAMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("setJMSCorrelationIDAsBytes(" + Arrays.toString(correlationID) + ")");
       }
 
@@ -592,10 +525,8 @@ public class ActiveMQRAMessage implements Message
     * @param deliveryMode The value
     * @throws JMSException Thrown if an error occurs
     */
-   public void setJMSDeliveryMode(final int deliveryMode) throws JMSException
-   {
-      if (ActiveMQRAMessage.trace)
-      {
+   public void setJMSDeliveryMode(final int deliveryMode) throws JMSException {
+      if (ActiveMQRAMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("setJMSDeliveryMode(" + deliveryMode + ")");
       }
 
@@ -608,10 +539,8 @@ public class ActiveMQRAMessage implements Message
     * @param destination The value
     * @throws JMSException Thrown if an error occurs
     */
-   public void setJMSDestination(final Destination destination) throws JMSException
-   {
-      if (ActiveMQRAMessage.trace)
-      {
+   public void setJMSDestination(final Destination destination) throws JMSException {
+      if (ActiveMQRAMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("setJMSDestination(" + destination + ")");
       }
 
@@ -624,10 +553,8 @@ public class ActiveMQRAMessage implements Message
     * @param expiration The value
     * @throws JMSException Thrown if an error occurs
     */
-   public void setJMSExpiration(final long expiration) throws JMSException
-   {
-      if (ActiveMQRAMessage.trace)
-      {
+   public void setJMSExpiration(final long expiration) throws JMSException {
+      if (ActiveMQRAMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("setJMSExpiration(" + expiration + ")");
       }
 
@@ -640,10 +567,8 @@ public class ActiveMQRAMessage implements Message
     * @param id The value
     * @throws JMSException Thrown if an error occurs
     */
-   public void setJMSMessageID(final String id) throws JMSException
-   {
-      if (ActiveMQRAMessage.trace)
-      {
+   public void setJMSMessageID(final String id) throws JMSException {
+      if (ActiveMQRAMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("setJMSMessageID(" + id + ")");
       }
 
@@ -656,10 +581,8 @@ public class ActiveMQRAMessage implements Message
     * @param priority The value
     * @throws JMSException Thrown if an error occurs
     */
-   public void setJMSPriority(final int priority) throws JMSException
-   {
-      if (ActiveMQRAMessage.trace)
-      {
+   public void setJMSPriority(final int priority) throws JMSException {
+      if (ActiveMQRAMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("setJMSPriority(" + priority + ")");
       }
 
@@ -672,10 +595,8 @@ public class ActiveMQRAMessage implements Message
     * @param redelivered The value
     * @throws JMSException Thrown if an error occurs
     */
-   public void setJMSRedelivered(final boolean redelivered) throws JMSException
-   {
-      if (ActiveMQRAMessage.trace)
-      {
+   public void setJMSRedelivered(final boolean redelivered) throws JMSException {
+      if (ActiveMQRAMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("setJMSRedelivered(" + redelivered + ")");
       }
 
@@ -688,10 +609,8 @@ public class ActiveMQRAMessage implements Message
     * @param replyTo The value
     * @throws JMSException Thrown if an error occurs
     */
-   public void setJMSReplyTo(final Destination replyTo) throws JMSException
-   {
-      if (ActiveMQRAMessage.trace)
-      {
+   public void setJMSReplyTo(final Destination replyTo) throws JMSException {
+      if (ActiveMQRAMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("setJMSReplyTo(" + replyTo + ")");
       }
 
@@ -704,10 +623,8 @@ public class ActiveMQRAMessage implements Message
     * @param timestamp The value
     * @throws JMSException Thrown if an error occurs
     */
-   public void setJMSTimestamp(final long timestamp) throws JMSException
-   {
-      if (ActiveMQRAMessage.trace)
-      {
+   public void setJMSTimestamp(final long timestamp) throws JMSException {
+      if (ActiveMQRAMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("setJMSTimestamp(" + timestamp + ")");
       }
 
@@ -720,10 +637,8 @@ public class ActiveMQRAMessage implements Message
     * @param type The value
     * @throws JMSException Thrown if an error occurs
     */
-   public void setJMSType(final String type) throws JMSException
-   {
-      if (ActiveMQRAMessage.trace)
-      {
+   public void setJMSType(final String type) throws JMSException {
+      if (ActiveMQRAMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("setJMSType(" + type + ")");
       }
 
@@ -737,10 +652,8 @@ public class ActiveMQRAMessage implements Message
     * @param value The value
     * @throws JMSException Thrown if an error occurs
     */
-   public void setLongProperty(final String name, final long value) throws JMSException
-   {
-      if (ActiveMQRAMessage.trace)
-      {
+   public void setLongProperty(final String name, final long value) throws JMSException {
+      if (ActiveMQRAMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("setLongProperty(" + name + ", " + value + ")");
       }
 
@@ -754,10 +667,8 @@ public class ActiveMQRAMessage implements Message
     * @param value The value
     * @throws JMSException Thrown if an error occurs
     */
-   public void setObjectProperty(final String name, final Object value) throws JMSException
-   {
-      if (ActiveMQRAMessage.trace)
-      {
+   public void setObjectProperty(final String name, final Object value) throws JMSException {
+      if (ActiveMQRAMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("setObjectProperty(" + name + ", " + value + ")");
       }
 
@@ -771,10 +682,8 @@ public class ActiveMQRAMessage implements Message
     * @param value The value
     * @throws JMSException Thrown if an error occurs
     */
-   public void setShortProperty(final String name, final short value) throws JMSException
-   {
-      if (ActiveMQRAMessage.trace)
-      {
+   public void setShortProperty(final String name, final short value) throws JMSException {
+      if (ActiveMQRAMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("setShortProperty(" + name + ", " + value + ")");
       }
 
@@ -788,10 +697,8 @@ public class ActiveMQRAMessage implements Message
     * @param value The value
     * @throws JMSException Thrown if an error occurs
     */
-   public void setStringProperty(final String name, final String value) throws JMSException
-   {
-      if (ActiveMQRAMessage.trace)
-      {
+   public void setStringProperty(final String name, final String value) throws JMSException {
+      if (ActiveMQRAMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("setStringProperty(" + name + ", " + value + ")");
       }
 
@@ -799,42 +706,33 @@ public class ActiveMQRAMessage implements Message
    }
 
    @Override
-   public long getJMSDeliveryTime() throws JMSException
-   {
-      if (ActiveMQRAMessage.trace)
-      {
+   public long getJMSDeliveryTime() throws JMSException {
+      if (ActiveMQRAMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("getJMSDeliveryTime()");
       }
       return message.getJMSDeliveryTime();
    }
 
    @Override
-   public void setJMSDeliveryTime(long deliveryTime) throws JMSException
-   {
+   public void setJMSDeliveryTime(long deliveryTime) throws JMSException {
 
-      if (ActiveMQRAMessage.trace)
-      {
+      if (ActiveMQRAMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("setJMSDeliveryTime(" + deliveryTime + ")");
       }
       message.setJMSDeliveryTime(deliveryTime);
    }
 
    @Override
-   public <T> T getBody(Class<T> c) throws JMSException
-   {
-      if (ActiveMQRAMessage.trace)
-      {
+   public <T> T getBody(Class<T> c) throws JMSException {
+      if (ActiveMQRAMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("getBody(" + c + ")");
       }
       return message.getBody(c);
    }
 
    @Override
-   public boolean isBodyAssignableTo(@SuppressWarnings("rawtypes")
-                                     Class c) throws JMSException
-   {
-      if (ActiveMQRAMessage.trace)
-      {
+   public boolean isBodyAssignableTo(@SuppressWarnings("rawtypes") Class c) throws JMSException {
+      if (ActiveMQRAMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("isBodyAssignableTo(" + c + ")");
       }
       return message.isBodyAssignableTo(c);
@@ -846,10 +744,8 @@ public class ActiveMQRAMessage implements Message
     * @return The hash code
     */
    @Override
-   public int hashCode()
-   {
-      if (ActiveMQRAMessage.trace)
-      {
+   public int hashCode() {
+      if (ActiveMQRAMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("hashCode()");
       }
 
@@ -863,19 +759,15 @@ public class ActiveMQRAMessage implements Message
     * @return True / false
     */
    @Override
-   public boolean equals(final Object object)
-   {
-      if (ActiveMQRAMessage.trace)
-      {
+   public boolean equals(final Object object) {
+      if (ActiveMQRAMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("equals(" + object + ")");
       }
 
-      if (object != null && object instanceof ActiveMQRAMessage)
-      {
-         return message.equals(((ActiveMQRAMessage)object).message);
+      if (object != null && object instanceof ActiveMQRAMessage) {
+         return message.equals(((ActiveMQRAMessage) object).message);
       }
-      else
-      {
+      else {
          return message.equals(object);
       }
    }
@@ -886,10 +778,8 @@ public class ActiveMQRAMessage implements Message
     * @return The string
     */
    @Override
-   public String toString()
-   {
-      if (ActiveMQRAMessage.trace)
-      {
+   public String toString() {
+      if (ActiveMQRAMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("toString()");
       }
 

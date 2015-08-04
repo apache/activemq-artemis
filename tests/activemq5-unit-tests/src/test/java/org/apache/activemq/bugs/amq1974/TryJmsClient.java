@@ -27,97 +27,98 @@ import java.io.File;
 import java.net.URISyntaxException;
 import java.util.concurrent.CountDownLatch;
 
-public class TryJmsClient
-{
-    private final BrokerService broker = new BrokerService();
+public class TryJmsClient {
 
-    public static void main(String[] args) throws Exception {
-        new TryJmsClient().start();
-    }
+   private final BrokerService broker = new BrokerService();
 
-    private void start() throws Exception {
+   public static void main(String[] args) throws Exception {
+      new TryJmsClient().start();
+   }
 
-        broker.setUseJmx(false);
-        broker.setPersistent(true);
-        broker.setBrokerName("TestBroker");
-        broker.getSystemUsage().setSendFailIfNoSpace(true);
+   private void start() throws Exception {
 
-        broker.getSystemUsage().getMemoryUsage().setLimit(10 * 1024 * 1024);
+      broker.setUseJmx(false);
+      broker.setPersistent(true);
+      broker.setBrokerName("TestBroker");
+      broker.getSystemUsage().setSendFailIfNoSpace(true);
 
-        LevelDBStore persist = new LevelDBStore();
-        persist.setDirectory(new File("/tmp/broker2"));
-        persist.setLogSize(20 * 1024 * 1024);
-        broker.setPersistenceAdapter(persist);
+      broker.getSystemUsage().getMemoryUsage().setLimit(10 * 1024 * 1024);
 
-        String brokerUrl = "tcp://localhost:4501";
-        broker.addConnector(brokerUrl);
+      LevelDBStore persist = new LevelDBStore();
+      persist.setDirectory(new File("/tmp/broker2"));
+      persist.setLogSize(20 * 1024 * 1024);
+      broker.setPersistenceAdapter(persist);
 
-        broker.start();
+      String brokerUrl = "tcp://localhost:4501";
+      broker.addConnector(brokerUrl);
 
-        addNetworkBroker();
+      broker.start();
 
-        startUsageMonitor(broker);
+      addNetworkBroker();
 
-        startMessageSend();
+      startUsageMonitor(broker);
 
-        new CountDownLatch(1).await();
-    }
+      startMessageSend();
 
-    private void startUsageMonitor(final BrokerService brokerService) {
-        new Thread(new Runnable() {
-            public void run() {
-                while (true) {
-                    try {
-                        Thread.sleep(10000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
+      new CountDownLatch(1).await();
+   }
 
-                    System.out.println("ActiveMQ memeory " + brokerService.getSystemUsage().getMemoryUsage().getPercentUsage()
-                            + " " + brokerService.getSystemUsage().getMemoryUsage().getUsage());
-                    System.out.println("ActiveMQ message store " + brokerService.getSystemUsage().getStoreUsage().getPercentUsage());
-                    System.out.println("ActiveMQ temp space " + brokerService.getSystemUsage().getTempUsage().getPercentUsage());
-                }
+   private void startUsageMonitor(final BrokerService brokerService) {
+      new Thread(new Runnable() {
+         public void run() {
+            while (true) {
+               try {
+                  Thread.sleep(10000);
+               }
+               catch (InterruptedException e) {
+                  e.printStackTrace();
+               }
+
+               System.out.println("ActiveMQ memeory " + brokerService.getSystemUsage().getMemoryUsage().getPercentUsage() + " " + brokerService.getSystemUsage().getMemoryUsage().getUsage());
+               System.out.println("ActiveMQ message store " + brokerService.getSystemUsage().getStoreUsage().getPercentUsage());
+               System.out.println("ActiveMQ temp space " + brokerService.getSystemUsage().getTempUsage().getPercentUsage());
             }
-        }).start();
-    }
+         }
+      }).start();
+   }
 
-    private void addNetworkBroker() throws Exception {
+   private void addNetworkBroker() throws Exception {
 
-        DiscoveryNetworkConnector dnc = new DiscoveryNetworkConnector();
-        dnc.setNetworkTTL(1);
-        dnc.setBrokerName("TestBroker");
-        dnc.setName("Broker1Connector");
-        dnc.setDynamicOnly(true);
+      DiscoveryNetworkConnector dnc = new DiscoveryNetworkConnector();
+      dnc.setNetworkTTL(1);
+      dnc.setBrokerName("TestBroker");
+      dnc.setName("Broker1Connector");
+      dnc.setDynamicOnly(true);
 
-        SimpleDiscoveryAgent discoveryAgent = new SimpleDiscoveryAgent();
-        String remoteUrl = "tcp://localhost:4500";
-        discoveryAgent.setServices(remoteUrl);
+      SimpleDiscoveryAgent discoveryAgent = new SimpleDiscoveryAgent();
+      String remoteUrl = "tcp://localhost:4500";
+      discoveryAgent.setServices(remoteUrl);
 
-        dnc.setDiscoveryAgent(discoveryAgent);
+      dnc.setDiscoveryAgent(discoveryAgent);
 
-        broker.addNetworkConnector(dnc);
-        dnc.start();
-    }
+      broker.addNetworkConnector(dnc);
+      dnc.start();
+   }
 
-    private void startMessageSend() {
-        new Thread(new MessageSend()).start();
-    }
+   private void startMessageSend() {
+      new Thread(new MessageSend()).start();
+   }
 
-    private class MessageSend implements Runnable {
-        public void run() {
-            try {
-                String url = "vm://TestBroker";
-                ActiveMQConnection connection = ActiveMQConnection.makeConnection(url);
-                connection.setDispatchAsync(true);
-                Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-                Destination dest = session.createTopic("TestDestination");
+   private class MessageSend implements Runnable {
 
-                MessageProducer producer = session.createProducer(dest);
-                producer.setDeliveryMode(DeliveryMode.PERSISTENT);
+      public void run() {
+         try {
+            String url = "vm://TestBroker";
+            ActiveMQConnection connection = ActiveMQConnection.makeConnection(url);
+            connection.setDispatchAsync(true);
+            Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+            Destination dest = session.createTopic("TestDestination");
 
-                for(int i = 0; i < 99999999; i++)  {
-                    TextMessage message = session.createTextMessage("test" + i);
+            MessageProducer producer = session.createProducer(dest);
+            producer.setDeliveryMode(DeliveryMode.PERSISTENT);
+
+            for (int i = 0; i < 99999999; i++) {
+               TextMessage message = session.createTextMessage("test" + i);
 
                     /*
                     try {
@@ -127,23 +128,26 @@ public class TryJmsClient
                     }
                     */
 
-                    try {
-                        producer.send(message);
-                    } catch (Exception e ) {
-                        e.printStackTrace();
-                        System.out.println("TOTAL number of messages sent " + i);
-                        break;
-                    }
+               try {
+                  producer.send(message);
+               }
+               catch (Exception e) {
+                  e.printStackTrace();
+                  System.out.println("TOTAL number of messages sent " + i);
+                  break;
+               }
 
-                    if (i % 1000 == 0) {
-                        System.out.println("sent message " + message.getJMSMessageID());
-                    }
-                }
-            } catch (JMSException e) {
-                e.printStackTrace();
-            } catch (URISyntaxException e) {
-                e.printStackTrace();
+               if (i % 1000 == 0) {
+                  System.out.println("sent message " + message.getJMSMessageID());
+               }
             }
-        }
-    }
+         }
+         catch (JMSException e) {
+            e.printStackTrace();
+         }
+         catch (URISyntaxException e) {
+            e.printStackTrace();
+         }
+      }
+   }
 }

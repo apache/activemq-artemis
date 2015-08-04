@@ -19,8 +19,7 @@ package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 
-public class SessionExpireMessage extends PacketImpl
-{
+public class SessionExpireMessage extends PacketImpl {
    // Constants -----------------------------------------------------
 
    // Attributes ----------------------------------------------------
@@ -33,8 +32,7 @@ public class SessionExpireMessage extends PacketImpl
 
    // Constructors --------------------------------------------------
 
-   public SessionExpireMessage(final long consumerID, final long messageID)
-   {
+   public SessionExpireMessage(final long consumerID, final long messageID) {
       super(SESS_EXPIRED);
 
       this.consumerID = consumerID;
@@ -42,59 +40,52 @@ public class SessionExpireMessage extends PacketImpl
       this.messageID = messageID;
    }
 
-   public SessionExpireMessage()
-   {
+   public SessionExpireMessage() {
       super(SESS_EXPIRED);
    }
 
    // Public --------------------------------------------------------
 
-   public long getConsumerID()
-   {
+   public long getConsumerID() {
       return consumerID;
    }
 
-   public long getMessageID()
-   {
+   public long getMessageID() {
       return messageID;
    }
 
    @Override
-   public void encodeRest(final ActiveMQBuffer buffer)
-   {
+   public void encodeRest(final ActiveMQBuffer buffer) {
       buffer.writeLong(consumerID);
 
       buffer.writeLong(messageID);
    }
 
    @Override
-   public void decodeRest(final ActiveMQBuffer buffer)
-   {
+   public void decodeRest(final ActiveMQBuffer buffer) {
       consumerID = buffer.readLong();
 
       messageID = buffer.readLong();
    }
 
    @Override
-   public int hashCode()
-   {
+   public int hashCode() {
       final int prime = 31;
       int result = super.hashCode();
-      result = prime * result + (int)(consumerID ^ (consumerID >>> 32));
-      result = prime * result + (int)(messageID ^ (messageID >>> 32));
+      result = prime * result + (int) (consumerID ^ (consumerID >>> 32));
+      result = prime * result + (int) (messageID ^ (messageID >>> 32));
       return result;
    }
 
    @Override
-   public boolean equals(Object obj)
-   {
+   public boolean equals(Object obj) {
       if (this == obj)
          return true;
       if (!super.equals(obj))
          return false;
       if (!(obj instanceof SessionExpireMessage))
          return false;
-      SessionExpireMessage other = (SessionExpireMessage)obj;
+      SessionExpireMessage other = (SessionExpireMessage) obj;
       if (consumerID != other.consumerID)
          return false;
       if (messageID != other.messageID)

@@ -20,8 +20,8 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 
-public class NodeAnnounceMessage extends PacketImpl
-{
+public class NodeAnnounceMessage extends PacketImpl {
+
    protected String nodeID;
 
    protected String backupGroupName;
@@ -40,8 +40,13 @@ public class NodeAnnounceMessage extends PacketImpl
 
    // Constructors --------------------------------------------------
 
-   public NodeAnnounceMessage(final long currentEventID, final String nodeID, final String backupGroupName, final String scaleDownGroupName, final boolean backup, final TransportConfiguration tc, final TransportConfiguration backupConnector)
-   {
+   public NodeAnnounceMessage(final long currentEventID,
+                              final String nodeID,
+                              final String backupGroupName,
+                              final String scaleDownGroupName,
+                              final boolean backup,
+                              final TransportConfiguration tc,
+                              final TransportConfiguration backupConnector) {
       super(NODE_ANNOUNCE);
 
       this.currentEventID = currentEventID;
@@ -59,99 +64,81 @@ public class NodeAnnounceMessage extends PacketImpl
       this.scaleDownGroupName = scaleDownGroupName;
    }
 
-   public NodeAnnounceMessage()
-   {
+   public NodeAnnounceMessage() {
       super(NODE_ANNOUNCE);
    }
 
-   public NodeAnnounceMessage(byte nodeAnnounceMessage_V2)
-   {
+   public NodeAnnounceMessage(byte nodeAnnounceMessage_V2) {
       super(nodeAnnounceMessage_V2);
    }
 
    // Public --------------------------------------------------------
 
-
-   public String getNodeID()
-   {
+   public String getNodeID() {
       return nodeID;
    }
 
-   public String getBackupGroupName()
-   {
+   public String getBackupGroupName() {
       return backupGroupName;
    }
 
-   public boolean isBackup()
-   {
+   public boolean isBackup() {
       return backup;
    }
 
-   public TransportConfiguration getConnector()
-   {
+   public TransportConfiguration getConnector() {
       return connector;
    }
 
-   public TransportConfiguration getBackupConnector()
-   {
+   public TransportConfiguration getBackupConnector() {
       return backupConnector;
    }
 
-   public String getScaleDownGroupName()
-   {
+   public String getScaleDownGroupName() {
       return scaleDownGroupName;
    }
 
    /**
     * @return the currentEventID
     */
-   public long getCurrentEventID()
-   {
+   public long getCurrentEventID() {
       return currentEventID;
    }
 
    @Override
-   public void encodeRest(final ActiveMQBuffer buffer)
-   {
+   public void encodeRest(final ActiveMQBuffer buffer) {
       buffer.writeString(nodeID);
       buffer.writeNullableString(backupGroupName);
       buffer.writeBoolean(backup);
       buffer.writeLong(currentEventID);
-      if (connector != null)
-      {
+      if (connector != null) {
          buffer.writeBoolean(true);
          connector.encode(buffer);
       }
-      else
-      {
+      else {
          buffer.writeBoolean(false);
       }
-      if (backupConnector != null)
-      {
+      if (backupConnector != null) {
          buffer.writeBoolean(true);
          backupConnector.encode(buffer);
       }
-      else
-      {
+      else {
          buffer.writeBoolean(false);
       }
       buffer.writeNullableString(scaleDownGroupName);
    }
 
    @Override
-   public void decodeRest(final ActiveMQBuffer buffer)
-   {
+   public void decodeRest(final ActiveMQBuffer buffer) {
       this.nodeID = buffer.readString();
       this.backupGroupName = buffer.readNullableString();
       this.backup = buffer.readBoolean();
       this.currentEventID = buffer.readLong();
-      if (buffer.readBoolean())
-      {
+      if (buffer.readBoolean()) {
          connector = new TransportConfiguration();
          connector.decode(buffer);
       }
-      if (buffer.readBoolean())
-      {
+      if (buffer.readBoolean()) {
          backupConnector = new TransportConfiguration();
          backupConnector.decode(buffer);
       }
@@ -159,91 +146,73 @@ public class NodeAnnounceMessage extends PacketImpl
    }
 
    @Override
-   public String toString()
-   {
+   public String toString() {
       return "NodeAnnounceMessage [backup=" + backup +
-             ", connector=" +
-             connector +
-             ", nodeID=" +
-             nodeID +
-             ", toString()=" +
-             super.toString() +
-             "]";
+         ", connector=" +
+         connector +
+         ", nodeID=" +
+         nodeID +
+         ", toString()=" +
+         super.toString() +
+         "]";
    }
 
    @Override
-   public int hashCode()
-   {
+   public int hashCode() {
       final int prime = 31;
       int result = super.hashCode();
       result = prime * result + (backup ? 1231 : 1237);
       result = prime * result + ((backupConnector == null) ? 0 : backupConnector.hashCode());
       result = prime * result + ((connector == null) ? 0 : connector.hashCode());
-      result = prime * result + (int)(currentEventID ^ (currentEventID >>> 32));
+      result = prime * result + (int) (currentEventID ^ (currentEventID >>> 32));
       result = prime * result + ((nodeID == null) ? 0 : nodeID.hashCode());
       result = prime * result + ((scaleDownGroupName == null) ? 0 : scaleDownGroupName.hashCode());
       return result;
    }
 
    @Override
-   public boolean equals(Object obj)
-   {
-      if (this == obj)
-      {
+   public boolean equals(Object obj) {
+      if (this == obj) {
          return true;
       }
-      if (!super.equals(obj))
-      {
+      if (!super.equals(obj)) {
          return false;
       }
-      if (!(obj instanceof NodeAnnounceMessage))
-      {
+      if (!(obj instanceof NodeAnnounceMessage)) {
          return false;
       }
-      NodeAnnounceMessage other = (NodeAnnounceMessage)obj;
-      if (backup != other.backup)
-      {
+      NodeAnnounceMessage other = (NodeAnnounceMessage) obj;
+      if (backup != other.backup) {
          return false;
       }
-      if (backupConnector == null)
-      {
-         if (other.backupConnector != null)
-         {
+      if (backupConnector == null) {
+         if (other.backupConnector != null) {
             return false;
          }
       }
-      else if (!backupConnector.equals(other.backupConnector))
-      {
+      else if (!backupConnector.equals(other.backupConnector)) {
          return false;
       }
-      if (connector == null)
-      {
-         if (other.connector != null)
-         {
+      if (connector == null) {
+         if (other.connector != null) {
             return false;
          }
       }
-      else if (!connector.equals(other.connector))
-      {
+      else if (!connector.equals(other.connector)) {
          return false;
       }
-      if (currentEventID != other.currentEventID)
-      {
+      if (currentEventID != other.currentEventID) {
          return false;
       }
-      if (nodeID == null)
-      {
-         if (other.nodeID != null)
-         {
+      if (nodeID == null) {
+         if (other.nodeID != null) {
             return false;
          }
       }
-      else if (!nodeID.equals(other.nodeID))
-      {
+      else if (!nodeID.equals(other.nodeID)) {
          return false;
       }
-      else if (!scaleDownGroupName.equals(other.scaleDownGroupName))
-      {
+      else if (!scaleDownGroupName.equals(other.scaleDownGroupName)) {
          return false;
       }
       return true;

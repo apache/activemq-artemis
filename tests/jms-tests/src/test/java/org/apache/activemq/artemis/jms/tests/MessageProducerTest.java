@@ -37,11 +37,10 @@ import org.apache.activemq.artemis.jms.tests.message.SimpleJMSTextMessage;
 import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
 import org.junit.Test;
 
-public class MessageProducerTest extends JMSTestCase
-{
+public class MessageProducerTest extends JMSTestCase {
+
    @Test
-   public void testSendForeignWithForeignDestinationSet() throws Exception
-   {
+   public void testSendForeignWithForeignDestinationSet() throws Exception {
       Connection conn = createConnection();
 
       Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -65,8 +64,7 @@ public class MessageProducerTest extends JMSTestCase
       ProxyAssertSupport.assertNotNull(m);
    }
 
-   private static class SimpleDestination implements Destination, Serializable
-   {
+   private static class SimpleDestination implements Destination, Serializable {
 
       /**
        *
@@ -75,24 +73,20 @@ public class MessageProducerTest extends JMSTestCase
    }
 
    @Test
-   public void testSendToQueuePersistent() throws Exception
-   {
+   public void testSendToQueuePersistent() throws Exception {
       sendToQueue(true);
    }
 
    @Test
-   public void testSendToQueueNonPersistent() throws Exception
-   {
+   public void testSendToQueueNonPersistent() throws Exception {
       sendToQueue(false);
    }
 
-   private void sendToQueue(final boolean persistent) throws Exception
-   {
+   private void sendToQueue(final boolean persistent) throws Exception {
       Connection pconn = null;
       Connection cconn = null;
 
-      try
-      {
+      try {
          pconn = createConnection();
          cconn = createConnection();
 
@@ -111,38 +105,31 @@ public class MessageProducerTest extends JMSTestCase
          ProxyAssertSupport.assertEquals(m.getJMSMessageID(), r.getJMSMessageID());
          ProxyAssertSupport.assertEquals("test", r.getText());
       }
-      finally
-      {
-         if (pconn != null)
-         {
+      finally {
+         if (pconn != null) {
             pconn.close();
          }
-         if (cconn != null)
-         {
+         if (cconn != null) {
             cconn.close();
          }
       }
    }
 
    @Test
-   public void testTransactedSendPersistent() throws Exception
-   {
+   public void testTransactedSendPersistent() throws Exception {
       transactedSend(true);
    }
 
    @Test
-   public void testTransactedSendNonPersistent() throws Exception
-   {
+   public void testTransactedSendNonPersistent() throws Exception {
       transactedSend(false);
    }
 
-   private void transactedSend(final boolean persistent) throws Exception
-   {
+   private void transactedSend(final boolean persistent) throws Exception {
       Connection pconn = null;
       Connection cconn = null;
 
-      try
-      {
+      try {
          pconn = createConnection();
          cconn = createConnection();
 
@@ -163,8 +150,7 @@ public class MessageProducerTest extends JMSTestCase
          ProxyAssertSupport.assertEquals(m.getJMSMessageID(), r.getJMSMessageID());
          ProxyAssertSupport.assertEquals("test", r.getText());
       }
-      finally
-      {
+      finally {
          pconn.close();
          cconn.close();
       }
@@ -174,29 +160,25 @@ public class MessageProducerTest extends JMSTestCase
    // Since this test intermittently fails.
    // (As an aside, technically this test is invalid anyway since the sessions is used for sending
    // and consuming concurrently - and sessions are supposed to be single threaded)
-   private class Sender implements Runnable
-   {
+   private class Sender implements Runnable {
+
       volatile Exception ex;
 
       MessageProducer prod;
 
       Message m;
 
-      Sender(final MessageProducer prod, final Message m)
-      {
+      Sender(final MessageProducer prod, final Message m) {
          this.prod = prod;
 
          this.m = m;
       }
 
-      public synchronized void run()
-      {
-         try
-         {
+      public synchronized void run() {
+         try {
             prod.send(m);
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             log.error(e);
 
             ex = e;
@@ -205,25 +187,21 @@ public class MessageProducerTest extends JMSTestCase
    }
 
    @Test
-   public void testPersistentSendToTopic() throws Exception
-   {
+   public void testPersistentSendToTopic() throws Exception {
       sendToTopic(true);
    }
 
    @Test
-   public void testNonPersistentSendToTopic() throws Exception
-   {
+   public void testNonPersistentSendToTopic() throws Exception {
       sendToTopic(false);
    }
 
-   private void sendToTopic(final boolean persistent) throws Exception
-   {
+   private void sendToTopic(final boolean persistent) throws Exception {
 
       Connection pconn = createConnection();
       Connection cconn = createConnection();
 
-      try
-      {
+      try {
          Session ps = pconn.createSession(false, Session.AUTO_ACKNOWLEDGE);
          Session cs = cconn.createSession(false, Session.AUTO_ACKNOWLEDGE);
          final MessageProducer p = ps.createProducer(ActiveMQServerTestCase.topic1);
@@ -244,8 +222,7 @@ public class MessageProducerTest extends JMSTestCase
 
          TextMessage m2 = (TextMessage) c.receive(5000);
 
-         if (sender.ex != null)
-         {
+         if (sender.ex != null) {
             // If an exception was caught in sending we rethrow here so as not to lose it
             throw sender.ex;
          }
@@ -255,8 +232,7 @@ public class MessageProducerTest extends JMSTestCase
 
          t.join();
       }
-      finally
-      {
+      finally {
          pconn.close();
          cconn.close();
       }
@@ -266,13 +242,11 @@ public class MessageProducerTest extends JMSTestCase
     * Test sending via anonymous producer
     */
    @Test
-   public void testSendDestination() throws Exception
-   {
+   public void testSendDestination() throws Exception {
       Connection pconn = createConnection();
       Connection cconn = createConnection();
 
-      try
-      {
+      try {
          Session ps = pconn.createSession(false, Session.AUTO_ACKNOWLEDGE);
          Session cs = cconn.createSession(false, Session.AUTO_ACKNOWLEDGE);
          MessageConsumer c2 = cs.createConsumer(ActiveMQServerTestCase.topic2);
@@ -282,16 +256,12 @@ public class MessageProducerTest extends JMSTestCase
 
          final MessageProducer anonProducer = ps.createProducer(null);
 
-         new Thread(new Runnable()
-         {
-            public void run()
-            {
-               try
-               {
+         new Thread(new Runnable() {
+            public void run() {
+               try {
                   anonProducer.send(ActiveMQServerTestCase.topic2, m1);
                }
-               catch (Exception e)
-               {
+               catch (Exception e) {
                   log.error(e);
                }
             }
@@ -302,21 +272,18 @@ public class MessageProducerTest extends JMSTestCase
 
          log.debug("ending test");
       }
-      finally
-      {
+      finally {
          pconn.close();
          cconn.close();
       }
    }
 
    @Test
-   public void testSendForeignMessage() throws Exception
-   {
+   public void testSendForeignMessage() throws Exception {
       Connection pconn = createConnection();
       Connection cconn = createConnection();
 
-      try
-      {
+      try {
          Session ps = pconn.createSession(false, Session.AUTO_ACKNOWLEDGE);
          Session cs = cconn.createSession(false, Session.AUTO_ACKNOWLEDGE);
          MessageProducer p = ps.createProducer(queue1);
@@ -334,77 +301,63 @@ public class MessageProducerTest extends JMSTestCase
          ProxyAssertSupport.assertEquals("something", rec.getText());
 
       }
-      finally
-      {
+      finally {
          pconn.close();
          cconn.close();
       }
    }
 
    @Test
-   public void testGetDestination() throws Exception
-   {
+   public void testGetDestination() throws Exception {
       Connection pconn = createConnection();
 
-      try
-      {
+      try {
          Session ps = pconn.createSession(false, Session.AUTO_ACKNOWLEDGE);
          MessageProducer p = ps.createProducer(ActiveMQServerTestCase.topic1);
          Destination dest = p.getDestination();
          ProxyAssertSupport.assertEquals(dest, ActiveMQServerTestCase.topic1);
       }
-      finally
-      {
+      finally {
          pconn.close();
       }
    }
 
    @Test
-   public void testGetDestinationOnClosedProducer() throws Exception
-   {
+   public void testGetDestinationOnClosedProducer() throws Exception {
       Connection pconn = createConnection();
 
-      try
-      {
+      try {
          Session ps = pconn.createSession(false, Session.AUTO_ACKNOWLEDGE);
          MessageProducer p = ps.createProducer(ActiveMQServerTestCase.topic1);
          p.close();
 
-         try
-         {
+         try {
             p.getDestination();
             ProxyAssertSupport.fail("should throw exception");
          }
-         catch (javax.jms.IllegalStateException e)
-         {
+         catch (javax.jms.IllegalStateException e) {
             // OK
          }
       }
-      finally
-      {
+      finally {
          pconn.close();
       }
    }
 
    @Test
-   public void testCreateProducerOnInexistentDestination() throws Exception
-   {
+   public void testCreateProducerOnInexistentDestination() throws Exception {
       Connection pconn = createConnection();
-      try
-      {
+      try {
          Session ps = pconn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-         try
-         {
+         try {
             ps.createProducer(ActiveMQJMSClient.createTopic("NoSuchTopic"));
             ProxyAssertSupport.fail("should throw exception");
          }
-         catch (InvalidDestinationException e)
-         {
+         catch (InvalidDestinationException e) {
             // OK
          }
       }
-      finally
-      {
+      finally {
          pconn.close();
       }
    }
@@ -414,47 +367,39 @@ public class MessageProducerTest extends JMSTestCase
    //
 
    @Test
-   public void testGetDisableMessageID() throws Exception
-   {
+   public void testGetDisableMessageID() throws Exception {
       Connection pconn = createConnection();
 
-      try
-      {
+      try {
          Session ps = pconn.createSession(false, Session.AUTO_ACKNOWLEDGE);
          MessageProducer p = ps.createProducer(ActiveMQServerTestCase.topic1);
 
          ProxyAssertSupport.assertFalse(p.getDisableMessageID());
       }
-      finally
-      {
+      finally {
          pconn.close();
       }
    }
 
    @Test
-   public void testGetDisableMessageIDOnClosedProducer() throws Exception
-   {
+   public void testGetDisableMessageIDOnClosedProducer() throws Exception {
       Connection pconn = createConnection();
 
-      try
-      {
+      try {
          Session ps = pconn.createSession(false, Session.AUTO_ACKNOWLEDGE);
          MessageProducer p = ps.createProducer(ActiveMQServerTestCase.topic1);
 
          p.close();
 
-         try
-         {
+         try {
             p.getDisableMessageID();
             ProxyAssertSupport.fail("should throw exception");
          }
-         catch (javax.jms.IllegalStateException e)
-         {
+         catch (javax.jms.IllegalStateException e) {
             // OK
          }
       }
-      finally
-      {
+      finally {
          pconn.close();
       }
    }
@@ -464,32 +409,27 @@ public class MessageProducerTest extends JMSTestCase
    //
 
    @Test
-   public void testDefaultTimestampDisabled() throws Exception
-   {
+   public void testDefaultTimestampDisabled() throws Exception {
       Connection pconn = createConnection();
 
-      try
-      {
+      try {
          Session ps = pconn.createSession(false, Session.AUTO_ACKNOWLEDGE);
          MessageProducer tp = ps.createProducer(ActiveMQServerTestCase.topic1);
          MessageProducer qp = ps.createProducer(queue1);
          ProxyAssertSupport.assertFalse(tp.getDisableMessageTimestamp());
          ProxyAssertSupport.assertFalse(qp.getDisableMessageTimestamp());
       }
-      finally
-      {
+      finally {
          pconn.close();
       }
    }
 
    @Test
-   public void testSetTimestampDisabled() throws Exception
-   {
+   public void testSetTimestampDisabled() throws Exception {
       Connection pconn = createConnection();
       Connection cconn = createConnection();
 
-      try
-      {
+      try {
          Session ps = pconn.createSession(false, Session.AUTO_ACKNOWLEDGE);
          Session cs = cconn.createSession(false, Session.AUTO_ACKNOWLEDGE);
          MessageProducer p = ps.createProducer(queue1);
@@ -521,37 +461,31 @@ public class MessageProducerTest extends JMSTestCase
          ProxyAssertSupport.assertTrue(timestamp >= t1);
          ProxyAssertSupport.assertTrue(timestamp <= t2);
       }
-      finally
-      {
+      finally {
          pconn.close();
          cconn.close();
       }
    }
 
    @Test
-   public void testGetTimestampDisabledOnClosedProducer() throws Exception
-   {
+   public void testGetTimestampDisabledOnClosedProducer() throws Exception {
       Connection pconn = createConnection();
 
-      try
-      {
+      try {
          Session ps = pconn.createSession(false, Session.AUTO_ACKNOWLEDGE);
          MessageProducer p = ps.createProducer(ActiveMQServerTestCase.topic1);
 
          p.close();
 
-         try
-         {
+         try {
             p.getDisableMessageTimestamp();
             ProxyAssertSupport.fail("should throw exception");
          }
-         catch (javax.jms.IllegalStateException e)
-         {
+         catch (javax.jms.IllegalStateException e) {
             // OK
          }
       }
-      finally
-      {
+      finally {
          pconn.close();
       }
    }
@@ -561,12 +495,10 @@ public class MessageProducerTest extends JMSTestCase
    //
 
    @Test
-   public void testDefaultDeliveryMode() throws Exception
-   {
+   public void testDefaultDeliveryMode() throws Exception {
       Connection pconn = createConnection();
 
-      try
-      {
+      try {
          Session ps = pconn.createSession(false, Session.AUTO_ACKNOWLEDGE);
          MessageProducer tp = ps.createProducer(ActiveMQServerTestCase.topic1);
          MessageProducer qp = ps.createProducer(queue1);
@@ -574,19 +506,16 @@ public class MessageProducerTest extends JMSTestCase
          ProxyAssertSupport.assertEquals(DeliveryMode.PERSISTENT, tp.getDeliveryMode());
          ProxyAssertSupport.assertEquals(DeliveryMode.PERSISTENT, qp.getDeliveryMode());
       }
-      finally
-      {
+      finally {
          pconn.close();
       }
    }
 
    @Test
-   public void testSetDeliveryMode() throws Exception
-   {
+   public void testSetDeliveryMode() throws Exception {
       Connection pconn = createConnection();
 
-      try
-      {
+      try {
          Session ps = pconn.createSession(false, Session.AUTO_ACKNOWLEDGE);
          MessageProducer p = ps.createProducer(ActiveMQServerTestCase.topic1);
 
@@ -596,36 +525,30 @@ public class MessageProducerTest extends JMSTestCase
          p.setDeliveryMode(DeliveryMode.PERSISTENT);
          ProxyAssertSupport.assertEquals(DeliveryMode.PERSISTENT, p.getDeliveryMode());
       }
-      finally
-      {
+      finally {
          pconn.close();
       }
    }
 
    @Test
-   public void testGetDeliveryModeOnClosedProducer() throws Exception
-   {
+   public void testGetDeliveryModeOnClosedProducer() throws Exception {
       Connection pconn = createConnection();
 
-      try
-      {
+      try {
          Session ps = pconn.createSession(false, Session.AUTO_ACKNOWLEDGE);
          MessageProducer p = ps.createProducer(ActiveMQServerTestCase.topic1);
 
          p.close();
 
-         try
-         {
+         try {
             p.getDeliveryMode();
             ProxyAssertSupport.fail("should throw exception");
          }
-         catch (javax.jms.IllegalStateException e)
-         {
+         catch (javax.jms.IllegalStateException e) {
             // OK
          }
       }
-      finally
-      {
+      finally {
          pconn.close();
       }
    }
@@ -635,12 +558,10 @@ public class MessageProducerTest extends JMSTestCase
    //
 
    @Test
-   public void testDefaultPriority() throws Exception
-   {
+   public void testDefaultPriority() throws Exception {
       Connection pconn = createConnection();
 
-      try
-      {
+      try {
          Session ps = pconn.createSession(false, Session.AUTO_ACKNOWLEDGE);
          MessageProducer tp = ps.createProducer(ActiveMQServerTestCase.topic1);
          MessageProducer qp = ps.createProducer(queue1);
@@ -648,19 +569,16 @@ public class MessageProducerTest extends JMSTestCase
          ProxyAssertSupport.assertEquals(4, tp.getPriority());
          ProxyAssertSupport.assertEquals(4, qp.getPriority());
       }
-      finally
-      {
+      finally {
          pconn.close();
       }
    }
 
    @Test
-   public void testSetPriority() throws Exception
-   {
+   public void testSetPriority() throws Exception {
       Connection pconn = createConnection();
 
-      try
-      {
+      try {
          Session ps = pconn.createSession(false, Session.AUTO_ACKNOWLEDGE);
          MessageProducer p = ps.createProducer(ActiveMQServerTestCase.topic1);
 
@@ -670,36 +588,30 @@ public class MessageProducerTest extends JMSTestCase
          p.setPriority(0);
          ProxyAssertSupport.assertEquals(0, p.getPriority());
       }
-      finally
-      {
+      finally {
          pconn.close();
       }
    }
 
    @Test
-   public void testGetPriorityOnClosedProducer() throws Exception
-   {
+   public void testGetPriorityOnClosedProducer() throws Exception {
       Connection pconn = createConnection();
 
-      try
-      {
+      try {
          Session ps = pconn.createSession(false, Session.AUTO_ACKNOWLEDGE);
          MessageProducer p = ps.createProducer(ActiveMQServerTestCase.topic1);
 
          p.close();
 
-         try
-         {
+         try {
             p.getPriority();
             ProxyAssertSupport.fail("should throw exception");
          }
-         catch (javax.jms.IllegalStateException e)
-         {
+         catch (javax.jms.IllegalStateException e) {
             // OK
          }
       }
-      finally
-      {
+      finally {
          pconn.close();
       }
    }
@@ -709,8 +621,7 @@ public class MessageProducerTest extends JMSTestCase
    //
 
    @Test
-   public void testDefaultTimeToLive() throws Exception
-   {
+   public void testDefaultTimeToLive() throws Exception {
       Connection pconn = createConnection();
       Session ps = pconn.createSession(false, Session.AUTO_ACKNOWLEDGE);
       MessageProducer tp = ps.createProducer(ActiveMQServerTestCase.topic1);
@@ -721,8 +632,7 @@ public class MessageProducerTest extends JMSTestCase
    }
 
    @Test
-   public void testSetTimeToLive() throws Exception
-   {
+   public void testSetTimeToLive() throws Exception {
       Connection pconn = createConnection();
       Session ps = pconn.createSession(false, Session.AUTO_ACKNOWLEDGE);
       MessageProducer p = ps.createProducer(ActiveMQServerTestCase.topic1);
@@ -735,8 +645,7 @@ public class MessageProducerTest extends JMSTestCase
    }
 
    @Test
-   public void testGetTimeToLiveOnClosedProducer() throws Exception
-   {
+   public void testGetTimeToLiveOnClosedProducer() throws Exception {
       Connection pconn = createConnection();
 
       Session ps = pconn.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -744,20 +653,17 @@ public class MessageProducerTest extends JMSTestCase
 
       p.close();
 
-      try
-      {
+      try {
          p.setTimeToLive(100L);
          ProxyAssertSupport.fail("should throw exception");
       }
-      catch (javax.jms.IllegalStateException e)
-      {
+      catch (javax.jms.IllegalStateException e) {
          // OK
       }
    }
 
    @Test
-   public void testProducerCloseInCompletionListener() throws Exception
-   {
+   public void testProducerCloseInCompletionListener() throws Exception {
       Connection pconn = createConnection();
 
       Session ps = pconn.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -766,9 +672,7 @@ public class MessageProducerTest extends JMSTestCase
       CountDownLatch latch = new CountDownLatch(1);
       CloseCompletionListener listener = new CloseCompletionListener(p, latch);
 
-
-      p.send(ps.createMessage(), DeliveryMode.NON_PERSISTENT,
-             Message.DEFAULT_PRIORITY, 0L, listener);
+      p.send(ps.createMessage(), DeliveryMode.NON_PERSISTENT, Message.DEFAULT_PRIORITY, 0L, listener);
 
       ProxyAssertSupport.assertTrue(latch.await(5, TimeUnit.SECONDS));
 
@@ -778,8 +682,7 @@ public class MessageProducerTest extends JMSTestCase
    }
 
    @Test
-   public void testConnectionCloseInCompletionListener() throws Exception
-   {
+   public void testConnectionCloseInCompletionListener() throws Exception {
       Connection pconn = createConnection();
 
       Session ps = pconn.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -788,9 +691,7 @@ public class MessageProducerTest extends JMSTestCase
       CountDownLatch latch = new CountDownLatch(1);
       ConnectionCloseCompletionListener listener = new ConnectionCloseCompletionListener(pconn, latch);
 
-
-      p.send(ps.createMessage(), DeliveryMode.NON_PERSISTENT,
-             Message.DEFAULT_PRIORITY, 0L, listener);
+      p.send(ps.createMessage(), DeliveryMode.NON_PERSISTENT, Message.DEFAULT_PRIORITY, 0L, listener);
 
       ProxyAssertSupport.assertTrue(latch.await(5, TimeUnit.SECONDS));
 
@@ -800,8 +701,7 @@ public class MessageProducerTest extends JMSTestCase
    }
 
    @Test
-   public void testSessionCloseInCompletionListener() throws Exception
-   {
+   public void testSessionCloseInCompletionListener() throws Exception {
       Connection pconn = createConnection();
 
       Session ps = pconn.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -810,9 +710,7 @@ public class MessageProducerTest extends JMSTestCase
       CountDownLatch latch = new CountDownLatch(1);
       SessionCloseCompletionListener listener = new SessionCloseCompletionListener(ps, latch);
 
-
-      p.send(ps.createMessage(), DeliveryMode.NON_PERSISTENT,
-             Message.DEFAULT_PRIORITY, 0L, listener);
+      p.send(ps.createMessage(), DeliveryMode.NON_PERSISTENT, Message.DEFAULT_PRIORITY, 0L, listener);
 
       ProxyAssertSupport.assertTrue(latch.await(5, TimeUnit.SECONDS));
 
@@ -827,99 +725,84 @@ public class MessageProducerTest extends JMSTestCase
    // Private -------------------------------------------------------
 
    // Inner classes -------------------------------------------------
-   private static class CloseCompletionListener implements CompletionListener
-   {
+   private static class CloseCompletionListener implements CompletionListener {
+
       private MessageProducer p;
       private CountDownLatch latch;
       private JMSException exception;
 
-      public CloseCompletionListener(MessageProducer p, CountDownLatch latch)
-      {
+      public CloseCompletionListener(MessageProducer p, CountDownLatch latch) {
          this.p = p;
          this.latch = latch;
       }
 
       @Override
-      public void onCompletion(Message message)
-      {
-         try
-         {
+      public void onCompletion(Message message) {
+         try {
             p.close();
          }
-         catch (JMSException e)
-         {
+         catch (JMSException e) {
             this.exception = e;
          }
          latch.countDown();
       }
 
       @Override
-      public void onException(Message message, Exception exception)
-      {
+      public void onException(Message message, Exception exception) {
       }
    }
 
-   private static class ConnectionCloseCompletionListener implements CompletionListener
-   {
+   private static class ConnectionCloseCompletionListener implements CompletionListener {
+
       private CountDownLatch latch;
       private JMSException exception;
       private Connection conn;
 
-      public ConnectionCloseCompletionListener(Connection conn, CountDownLatch latch)
-      {
+      public ConnectionCloseCompletionListener(Connection conn, CountDownLatch latch) {
          this.conn = conn;
          this.latch = latch;
       }
 
       @Override
-      public void onCompletion(Message message)
-      {
-         try
-         {
+      public void onCompletion(Message message) {
+         try {
             conn.close();
          }
-         catch (JMSException e)
-         {
+         catch (JMSException e) {
             this.exception = e;
          }
          latch.countDown();
       }
 
       @Override
-      public void onException(Message message, Exception exception)
-      {
+      public void onException(Message message, Exception exception) {
       }
    }
 
-   private static class SessionCloseCompletionListener implements CompletionListener
-   {
+   private static class SessionCloseCompletionListener implements CompletionListener {
+
       private CountDownLatch latch;
       private JMSException exception;
       private Session session;
 
-      public SessionCloseCompletionListener(Session session, CountDownLatch latch)
-      {
+      public SessionCloseCompletionListener(Session session, CountDownLatch latch) {
          this.session = session;
          this.latch = latch;
       }
 
       @Override
-      public void onCompletion(Message message)
-      {
-         try
-         {
+      public void onCompletion(Message message) {
+         try {
             session.close();
          }
-         catch (JMSException e)
-         {
+         catch (JMSException e) {
             this.exception = e;
          }
          latch.countDown();
       }
 
       @Override
-      public void onException(Message message, Exception exception)
-      {
+      public void onException(Message message, Exception exception) {
       }
    }
 }

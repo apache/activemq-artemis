@@ -20,25 +20,23 @@ import org.apache.activemq.broker.BrokerService;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 /**
- * 
+ *
  */
 public class MultipleTestsWithSpringXBeanFactoryBeanTest extends MultipleTestsWithEmbeddedBrokerTest {
 
-    private ClassPathXmlApplicationContext context;
+   private ClassPathXmlApplicationContext context;
 
-    protected BrokerService createBroker() throws Exception {
-        context = new ClassPathXmlApplicationContext("org/apache/activemq/xbean/spring2.xml");
-        return  (BrokerService) context.getBean("broker");
-    }
+   protected BrokerService createBroker() throws Exception {
+      context = new ClassPathXmlApplicationContext("org/apache/activemq/xbean/spring2.xml");
+      return (BrokerService) context.getBean("broker");
+   }
 
-    protected void tearDown() throws Exception {
-        super.tearDown();
-        if (context != null) {
-            context.destroy();
-        }
-    }
-
-    
+   protected void tearDown() throws Exception {
+      super.tearDown();
+      if (context != null) {
+         context.destroy();
+      }
+   }
 
 }
 

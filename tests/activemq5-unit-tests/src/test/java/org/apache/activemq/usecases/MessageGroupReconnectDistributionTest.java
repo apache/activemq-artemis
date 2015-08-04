@@ -31,6 +31,7 @@ import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.broker.TransportConnector;
@@ -45,174 +46,175 @@ import org.junit.runners.Parameterized;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(Parameterized.class)
 public class MessageGroupReconnectDistributionTest {
-    public static final Logger LOG = LoggerFactory.getLogger(MessageGroupReconnectDistributionTest.class);
-    final Random random = new Random();
-    protected Connection connection;
-    protected Session session;
-    protected MessageProducer producer;
-    protected ActiveMQQueue destination = new ActiveMQQueue("GroupQ");
-    protected TransportConnector connector;
-    ActiveMQConnectionFactory connFactory;
-    BrokerService broker;
-    int numMessages = 10000;
-    int groupSize = 10;
-    int batchSize = 20;
 
-    @Parameterized.Parameter(0)
-    public int numConsumers = 4;
+   public static final Logger LOG = LoggerFactory.getLogger(MessageGroupReconnectDistributionTest.class);
+   final Random random = new Random();
+   protected Connection connection;
+   protected Session session;
+   protected MessageProducer producer;
+   protected ActiveMQQueue destination = new ActiveMQQueue("GroupQ");
+   protected TransportConnector connector;
+   ActiveMQConnectionFactory connFactory;
+   BrokerService broker;
+   int numMessages = 10000;
+   int groupSize = 10;
+   int batchSize = 20;
 
-    @Parameterized.Parameter(1)
-    public boolean consumerPriority = true;
+   @Parameterized.Parameter(0)
+   public int numConsumers = 4;
 
-    @Parameterized.Parameters(name="numConsumers={0},consumerPriority={1}")
-    public static Iterable<Object[]> combinations() {
-        return Arrays.asList(new Object[][]{{4, true}, {10, true}});
-    }
+   @Parameterized.Parameter(1)
+   public boolean consumerPriority = true;
 
-    @Before
-    public void setUp() throws Exception {
-        broker = createBroker();
-        broker.start();
-        connFactory = new ActiveMQConnectionFactory(connector.getConnectUri() + "?jms.prefetchPolicy.all=200");
-        connFactory.setWatchTopicAdvisories(false);
-        connection = connFactory.createConnection();
-        session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
-        producer = session.createProducer(destination);
-        connection.start();
-    }
+   @Parameterized.Parameters(name = "numConsumers={0},consumerPriority={1}")
+   public static Iterable<Object[]> combinations() {
+      return Arrays.asList(new Object[][]{{4, true}, {10, true}});
+   }
 
-    protected BrokerService createBroker() throws Exception {
-        BrokerService service = new BrokerService();
-        service.setAdvisorySupport(false);
-        service.setPersistent(false);
-        service.setUseJmx(true);
+   @Before
+   public void setUp() throws Exception {
+      broker = createBroker();
+      broker.start();
+      connFactory = new ActiveMQConnectionFactory(connector.getConnectUri() + "?jms.prefetchPolicy.all=200");
+      connFactory.setWatchTopicAdvisories(false);
+      connection = connFactory.createConnection();
+      session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
+      producer = session.createProducer(destination);
+      connection.start();
+   }
 
-        PolicyMap policyMap = new PolicyMap();
-        PolicyEntry policy = new PolicyEntry();
-        policy.setUseConsumerPriority(consumerPriority);
-        policy.setMessageGroupMapFactoryType("cached?cacheSize=" + (numConsumers - 1));
-        policyMap.setDefaultEntry(policy);
-        service.setDestinationPolicy(policyMap);
+   protected BrokerService createBroker() throws Exception {
+      BrokerService service = new BrokerService();
+      service.setAdvisorySupport(false);
+      service.setPersistent(false);
+      service.setUseJmx(true);
 
-        connector = service.addConnector("tcp://localhost:0");
-        return service;
-    }
+      PolicyMap policyMap = new PolicyMap();
+      PolicyEntry policy = new PolicyEntry();
+      policy.setUseConsumerPriority(consumerPriority);
+      policy.setMessageGroupMapFactoryType("cached?cacheSize=" + (numConsumers - 1));
+      policyMap.setDefaultEntry(policy);
+      service.setDestinationPolicy(policyMap);
 
-    @After
-    public void tearDown() throws Exception {
-        producer.close();
-        session.close();
-        connection.close();
-        broker.stop();
-    }
+      connector = service.addConnector("tcp://localhost:0");
+      return service;
+   }
 
-    @Test(timeout = 5 * 60 * 1000)
-    public void testReconnect() throws Exception {
+   @After
+   public void tearDown() throws Exception {
+      producer.close();
+      session.close();
+      connection.close();
+      broker.stop();
+   }
 
-        final AtomicLong totalConsumed = new AtomicLong(0);
+   @Test(timeout = 5 * 60 * 1000)
+   public void testReconnect() throws Exception {
 
-        ExecutorService executorService = Executors.newFixedThreadPool(numConsumers);
-        final ArrayList<AtomicLong> consumedCounters = new ArrayList<AtomicLong>(numConsumers);
-        final ArrayList<AtomicLong> batchCounters = new ArrayList<AtomicLong>(numConsumers);
+      final AtomicLong totalConsumed = new AtomicLong(0);
 
-        for (int i = 0; i < numConsumers; i++) {
-            consumedCounters.add(new AtomicLong(0L));
-            batchCounters.add(new AtomicLong(0L));
+      ExecutorService executorService = Executors.newFixedThreadPool(numConsumers);
+      final ArrayList<AtomicLong> consumedCounters = new ArrayList<AtomicLong>(numConsumers);
+      final ArrayList<AtomicLong> batchCounters = new ArrayList<AtomicLong>(numConsumers);
 
-            final int id = i;
-            executorService.submit(new Runnable() {
-                int getBatchSize() {
-                    return (id + 1) * batchSize;
-                }
+      for (int i = 0; i < numConsumers; i++) {
+         consumedCounters.add(new AtomicLong(0L));
+         batchCounters.add(new AtomicLong(0L));
 
-                @Override
-                public void run() {
-                    try {
-                        Session connectionSession = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-                        int batchSize = getBatchSize();
-                        MessageConsumer messageConsumer = connectionSession.createConsumer(destWithPrefetch(destination));
-
-                        Message message;
-                        AtomicLong consumed = consumedCounters.get(id);
-                        AtomicLong batches = batchCounters.get(id);
-
-                        LOG.info("Consumer: " + id + ", batchSize:" + batchSize + ", totalConsumed:" + totalConsumed.get() + ", consumed:" + consumed.get());
-
-                        while (totalConsumed.get() < numMessages) {
-
-                            message = messageConsumer.receive(10000);
-
-                            if (message == null) {
-                                LOG.info("Consumer: " + id + ", batchSize:" + batchSize + ", null message (totalConsumed:" + totalConsumed.get() + ") consumed:" + consumed.get());
-                                messageConsumer.close();
-
-                                if (totalConsumed.get() == numMessages) {
-                                    break;
-                                } else {
-                                    batchSize = getBatchSize();
-                                    messageConsumer = connectionSession.createConsumer(destWithPrefetch(destination));
-                                    batches.incrementAndGet();
-                                    continue;
-                                }
-                            }
-
-                            consumed.incrementAndGet();
-                            totalConsumed.incrementAndGet();
-
-                            if (consumed.get() > 0 && consumed.intValue() % batchSize == 0) {
-                                messageConsumer.close();
-                                batchSize = getBatchSize();
-                                messageConsumer = connectionSession.createConsumer(destWithPrefetch(destination));
-                                batches.incrementAndGet();
-                            }
-                        }
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            });
-            TimeUnit.MILLISECONDS.sleep(200);
-        }
-
-        TimeUnit.SECONDS.sleep(1);
-        produceMessages(numMessages);
-
-        executorService.shutdown();
-        assertTrue("threads done on time", executorService.awaitTermination(10, TimeUnit.MINUTES));
-
-        assertEquals("All consumed", numMessages, totalConsumed.intValue());
-
-        LOG.info("Distribution: " + consumedCounters);
-        LOG.info("Batches: " + batchCounters);
-
-        double max = consumedCounters.get(0).longValue() * 1.5;
-        double min = consumedCounters.get(0).longValue() * 0.5;
-
-        for (AtomicLong l : consumedCounters) {
-            assertTrue("Even +/- 50% distribution on consumed:" + consumedCounters + ", outlier:" + l.get(),
-                    l.longValue() < max && l.longValue() > min);
-        }
-    }
-
-    private Destination destWithPrefetch(ActiveMQQueue destination) throws Exception {
-        return destination;
-    }
-
-    private void produceMessages(int numMessages) throws JMSException {
-        int groupID=0;
-        for (int i = 0; i < numMessages; i++) {
-            if (i>0 && i%groupSize==0) {
-                groupID++;
+         final int id = i;
+         executorService.submit(new Runnable() {
+            int getBatchSize() {
+               return (id + 1) * batchSize;
             }
-            TextMessage msga = session.createTextMessage("hello " + i);
-            msga.setStringProperty("JMSXGroupID", "Group-"+groupID);
-            producer.send(msga);
-        }
-    }
+
+            @Override
+            public void run() {
+               try {
+                  Session connectionSession = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+                  int batchSize = getBatchSize();
+                  MessageConsumer messageConsumer = connectionSession.createConsumer(destWithPrefetch(destination));
+
+                  Message message;
+                  AtomicLong consumed = consumedCounters.get(id);
+                  AtomicLong batches = batchCounters.get(id);
+
+                  LOG.info("Consumer: " + id + ", batchSize:" + batchSize + ", totalConsumed:" + totalConsumed.get() + ", consumed:" + consumed.get());
+
+                  while (totalConsumed.get() < numMessages) {
+
+                     message = messageConsumer.receive(10000);
+
+                     if (message == null) {
+                        LOG.info("Consumer: " + id + ", batchSize:" + batchSize + ", null message (totalConsumed:" + totalConsumed.get() + ") consumed:" + consumed.get());
+                        messageConsumer.close();
+
+                        if (totalConsumed.get() == numMessages) {
+                           break;
+                        }
+                        else {
+                           batchSize = getBatchSize();
+                           messageConsumer = connectionSession.createConsumer(destWithPrefetch(destination));
+                           batches.incrementAndGet();
+                           continue;
+                        }
+                     }
+
+                     consumed.incrementAndGet();
+                     totalConsumed.incrementAndGet();
+
+                     if (consumed.get() > 0 && consumed.intValue() % batchSize == 0) {
+                        messageConsumer.close();
+                        batchSize = getBatchSize();
+                        messageConsumer = connectionSession.createConsumer(destWithPrefetch(destination));
+                        batches.incrementAndGet();
+                     }
+                  }
+               }
+               catch (Exception e) {
+                  e.printStackTrace();
+               }
+            }
+         });
+         TimeUnit.MILLISECONDS.sleep(200);
+      }
+
+      TimeUnit.SECONDS.sleep(1);
+      produceMessages(numMessages);
+
+      executorService.shutdown();
+      assertTrue("threads done on time", executorService.awaitTermination(10, TimeUnit.MINUTES));
+
+      assertEquals("All consumed", numMessages, totalConsumed.intValue());
+
+      LOG.info("Distribution: " + consumedCounters);
+      LOG.info("Batches: " + batchCounters);
+
+      double max = consumedCounters.get(0).longValue() * 1.5;
+      double min = consumedCounters.get(0).longValue() * 0.5;
+
+      for (AtomicLong l : consumedCounters) {
+         assertTrue("Even +/- 50% distribution on consumed:" + consumedCounters + ", outlier:" + l.get(), l.longValue() < max && l.longValue() > min);
+      }
+   }
+
+   private Destination destWithPrefetch(ActiveMQQueue destination) throws Exception {
+      return destination;
+   }
+
+   private void produceMessages(int numMessages) throws JMSException {
+      int groupID = 0;
+      for (int i = 0; i < numMessages; i++) {
+         if (i > 0 && i % groupSize == 0) {
+            groupID++;
+         }
+         TextMessage msga = session.createTextMessage("hello " + i);
+         msga.setStringProperty("JMSXGroupID", "Group-" + groupID);
+         producer.send(msga);
+      }
+   }
 }

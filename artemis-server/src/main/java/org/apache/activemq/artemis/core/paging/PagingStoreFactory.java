@@ -26,8 +26,8 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 /**
  * The integration point between the PagingManger and the File System (aka SequentialFiles)
  */
-public interface PagingStoreFactory
-{
+public interface PagingStoreFactory {
+
    PagingStore newStore(SimpleString address, AddressSettings addressSettings);
 
    void stop() throws InterruptedException;

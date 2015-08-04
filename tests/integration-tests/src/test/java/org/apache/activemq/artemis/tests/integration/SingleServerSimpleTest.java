@@ -28,8 +28,8 @@ import java.util.UUID;
 /**
  * A simple test-case used for documentation purposes.
  */
-public class SingleServerSimpleTest extends SingleServerTestBase
-{
+public class SingleServerSimpleTest extends SingleServerTestBase {
+
    /**
     * Because this class extends org.apache.activemq.artemis.tests.util.SingleServerTestBase and only uses a single
     * instance of ActiveMQServer then no explicit setUp is required. The class simply needs tests which will use
@@ -37,8 +37,7 @@ public class SingleServerSimpleTest extends SingleServerTestBase
     */
 
    @Test
-   public void simpleTest() throws Exception
-   {
+   public void simpleTest() throws Exception {
       final String data = "Simple Text " + UUID.randomUUID().toString();
       final String queueName = "simpleQueue";
       final String addressName = "simpleAddress";

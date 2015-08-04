@@ -29,62 +29,62 @@ import org.apache.log4j.Logger;
 import org.springframework.core.io.ClassPathResource;
 
 public class ClientRebalanceTest extends JmsMultipleBrokersTestSupport {
-    private static final Logger LOG = Logger.getLogger(ClientRebalanceTest.class);
-    private static final String QUEUE_NAME = "Test.ClientRebalanceTest";
 
-    protected void setUp() throws Exception {
-        setAutoFail(true);
-        super.setUp();
-    }
+   private static final Logger LOG = Logger.getLogger(ClientRebalanceTest.class);
+   private static final String QUEUE_NAME = "Test.ClientRebalanceTest";
 
+   protected void setUp() throws Exception {
+      setAutoFail(true);
+      super.setUp();
+   }
 
-    public void testRebalance() throws Exception {
-        createBroker(new ClassPathResource("org/apache/activemq/usecases/rebalance-broker1.xml"));
-        createBroker(new ClassPathResource("org/apache/activemq/usecases/rebalance-broker2.xml"));
+   public void testRebalance() throws Exception {
+      createBroker(new ClassPathResource("org/apache/activemq/usecases/rebalance-broker1.xml"));
+      createBroker(new ClassPathResource("org/apache/activemq/usecases/rebalance-broker2.xml"));
 
-        startAllBrokers();
+      startAllBrokers();
 
-        brokers.get("b1").broker.waitUntilStarted();
+      brokers.get("b1").broker.waitUntilStarted();
 
-        LOG.info("Starting connection");
+      LOG.info("Starting connection");
 
-        ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("failover:(tcp://localhost:61616,tcp://localhost:61617)?randomize=false");
-        Connection conn = factory.createConnection();
-        conn.start();
-        Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        Queue theQueue = session.createQueue(QUEUE_NAME);
-        MessageProducer producer = session.createProducer(theQueue);
-        MessageConsumer consumer = session.createConsumer(theQueue);
-        Message message = session.createTextMessage("Test message");
-        producer.send(message);
-        Message msg = consumer.receive(2000);
-        assertNotNull(msg);
+      ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("failover:(tcp://localhost:61616,tcp://localhost:61617)?randomize=false");
+      Connection conn = factory.createConnection();
+      conn.start();
+      Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      Queue theQueue = session.createQueue(QUEUE_NAME);
+      MessageProducer producer = session.createProducer(theQueue);
+      MessageConsumer consumer = session.createConsumer(theQueue);
+      Message message = session.createTextMessage("Test message");
+      producer.send(message);
+      Message msg = consumer.receive(2000);
+      assertNotNull(msg);
 
-        // introduce third broker
-        createBroker(new ClassPathResource("org/apache/activemq/usecases/rebalance-broker3.xml"));
-        brokers.get("b3").broker.waitUntilStarted();
-        
-        Thread.sleep(3000);
+      // introduce third broker
+      createBroker(new ClassPathResource("org/apache/activemq/usecases/rebalance-broker3.xml"));
+      brokers.get("b3").broker.waitUntilStarted();
 
-        LOG.info("Stopping broker 1");
+      Thread.sleep(3000);
 
-        brokers.get("b1").broker.stop();
-        brokers.get("b1").broker.waitUntilStopped();
-        
-        Thread.sleep(3000);
-        // should reconnect to some of the remaining brokers
-        producer.send(message);
-        msg = consumer.receive(2000);
-        assertNotNull(msg);
+      LOG.info("Stopping broker 1");
 
-        LOG.info("Stopping broker 2");
+      brokers.get("b1").broker.stop();
+      brokers.get("b1").broker.waitUntilStopped();
 
-        brokers.get("b2").broker.stop();
-        brokers.get("b2").broker.waitUntilStopped();
+      Thread.sleep(3000);
+      // should reconnect to some of the remaining brokers
+      producer.send(message);
+      msg = consumer.receive(2000);
+      assertNotNull(msg);
 
-        // should reconnect to broker3
-        producer.send(message);
-        msg = consumer.receive(2000);
-        assertNotNull(msg);
-    }
+      LOG.info("Stopping broker 2");
+
+      brokers.get("b2").broker.stop();
+      brokers.get("b2").broker.waitUntilStopped();
+
+      // should reconnect to broker3
+      producer.send(message);
+      msg = consumer.receive(2000);
+      assertNotNull(msg);
+   }
 }

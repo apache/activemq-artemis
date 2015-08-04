@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.unit.core.security.impl;
+
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Before;
 import org.junit.After;
@@ -32,14 +33,13 @@ import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManagerImpl
 /**
  * tests ActiveMQSecurityManagerImpl
  */
-public class ActiveMQSecurityManagerImplTest extends ActiveMQTestBase
-{
+public class ActiveMQSecurityManagerImplTest extends ActiveMQTestBase {
+
    private ActiveMQSecurityManagerImpl securityManager;
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       securityManager = new ActiveMQSecurityManagerImpl();
@@ -47,16 +47,14 @@ public class ActiveMQSecurityManagerImplTest extends ActiveMQTestBase
 
    @Override
    @After
-   public void tearDown() throws Exception
-   {
+   public void tearDown() throws Exception {
       securityManager = null;
 
       super.tearDown();
    }
 
    @Test
-   public void testDefaultSecurity()
-   {
+   public void testDefaultSecurity() {
       securityManager.getConfiguration().addUser("guest", "password");
       securityManager.getConfiguration().addRole("guest", "guest");
       securityManager.getConfiguration().setDefaultUser("guest");
@@ -86,35 +84,29 @@ public class ActiveMQSecurityManagerImplTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testAddingUsers()
-   {
+   public void testAddingUsers() {
       securityManager.getConfiguration().addUser("newuser1", "newpassword1");
       Assert.assertTrue(securityManager.validateUser("newuser1", "newpassword1"));
       Assert.assertFalse(securityManager.validateUser("newuser1", "guest"));
       Assert.assertFalse(securityManager.validateUser("newuser1", null));
-      try
-      {
+      try {
          securityManager.getConfiguration().addUser("newuser2", null);
          Assert.fail("password cannot be null");
       }
-      catch (IllegalArgumentException e)
-      {
+      catch (IllegalArgumentException e) {
          // pass
       }
-      try
-      {
+      try {
          securityManager.getConfiguration().addUser(null, "newpassword2");
          Assert.fail("password cannot be null");
       }
-      catch (IllegalArgumentException e)
-      {
+      catch (IllegalArgumentException e) {
          // pass
       }
    }
 
    @Test
-   public void testRemovingUsers()
-   {
+   public void testRemovingUsers() {
       securityManager.getConfiguration().addUser("newuser1", "newpassword1");
       Assert.assertTrue(securityManager.validateUser("newuser1", "newpassword1"));
       securityManager.getConfiguration().removeUser("newuser1");
@@ -122,8 +114,7 @@ public class ActiveMQSecurityManagerImplTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testRemovingInvalidUsers()
-   {
+   public void testRemovingInvalidUsers() {
       securityManager.getConfiguration().addUser("newuser1", "newpassword1");
       Assert.assertTrue(securityManager.validateUser("newuser1", "newpassword1"));
       securityManager.getConfiguration().removeUser("nonuser");
@@ -131,8 +122,7 @@ public class ActiveMQSecurityManagerImplTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testAddingRoles()
-   {
+   public void testAddingRoles() {
       securityManager.getConfiguration().addUser("newuser1", "newpassword1");
       securityManager.getConfiguration().addRole("newuser1", "role1");
       securityManager.getConfiguration().addRole("newuser1", "role2");
@@ -156,8 +146,7 @@ public class ActiveMQSecurityManagerImplTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testRemovingRoles()
-   {
+   public void testRemovingRoles() {
       securityManager.getConfiguration().addUser("newuser1", "newpassword1");
       securityManager.getConfiguration().addRole("newuser1", "role1");
       securityManager.getConfiguration().addRole("newuser1", "role2");

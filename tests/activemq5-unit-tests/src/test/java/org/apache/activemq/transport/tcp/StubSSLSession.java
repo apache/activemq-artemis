@@ -27,107 +27,109 @@ import javax.net.ssl.SSLSessionContext;
 
 class StubSSLSession implements SSLSession {
 
-    X509Certificate cert;
-    boolean isVerified;
+   X509Certificate cert;
+   boolean isVerified;
 
-    public StubSSLSession(X509Certificate cert) {
-        if (cert != null) {
-            this.isVerified = true;
-            this.cert = cert;
-        } else {
-            this.isVerified = false;
-            this.cert = null;
-        }
-    }
+   public StubSSLSession(X509Certificate cert) {
+      if (cert != null) {
+         this.isVerified = true;
+         this.cert = cert;
+      }
+      else {
+         this.isVerified = false;
+         this.cert = null;
+      }
+   }
 
-    public void setIsVerified(boolean verified) {
-        this.isVerified = verified;
-    }
+   public void setIsVerified(boolean verified) {
+      this.isVerified = verified;
+   }
 
-    public Certificate[] getPeerCertificates() throws SSLPeerUnverifiedException {
-        if (this.isVerified) {
-            return new X509Certificate[] {this.cert};
-        } else {
-            throw new SSLPeerUnverifiedException("Socket is unverified.");
-        }
-    }
+   public Certificate[] getPeerCertificates() throws SSLPeerUnverifiedException {
+      if (this.isVerified) {
+         return new X509Certificate[]{this.cert};
+      }
+      else {
+         throw new SSLPeerUnverifiedException("Socket is unverified.");
+      }
+   }
 
-    // --- Stubbed methods ---
+   // --- Stubbed methods ---
 
-    public byte[] getId() {
-        return null;
-    }
+   public byte[] getId() {
+      return null;
+   }
 
-    public SSLSessionContext getSessionContext() {
-        return null;
-    }
+   public SSLSessionContext getSessionContext() {
+      return null;
+   }
 
-    public long getCreationTime() {
-        return 0;
-    }
+   public long getCreationTime() {
+      return 0;
+   }
 
-    public long getLastAccessedTime() {
-        return 0;
-    }
+   public long getLastAccessedTime() {
+      return 0;
+   }
 
-    public void invalidate() {
-    }
+   public void invalidate() {
+   }
 
-    public boolean isValid() {
-        return false;
-    }
+   public boolean isValid() {
+      return false;
+   }
 
-    public void putValue(String arg0, Object arg1) {
-    }
+   public void putValue(String arg0, Object arg1) {
+   }
 
-    public Object getValue(String arg0) {
-        return null;
-    }
+   public Object getValue(String arg0) {
+      return null;
+   }
 
-    public void removeValue(String arg0) {
-    }
+   public void removeValue(String arg0) {
+   }
 
-    public String[] getValueNames() {
-        return null;
-    }
+   public String[] getValueNames() {
+      return null;
+   }
 
-    public Certificate[] getLocalCertificates() {
-        return null;
-    }
+   public Certificate[] getLocalCertificates() {
+      return null;
+   }
 
-    public javax.security.cert.X509Certificate[] getPeerCertificateChain() throws SSLPeerUnverifiedException {
-        return null;
-    }
+   public javax.security.cert.X509Certificate[] getPeerCertificateChain() throws SSLPeerUnverifiedException {
+      return null;
+   }
 
-    public Principal getPeerPrincipal() throws SSLPeerUnverifiedException {
-        return null;
-    }
+   public Principal getPeerPrincipal() throws SSLPeerUnverifiedException {
+      return null;
+   }
 
-    public Principal getLocalPrincipal() {
-        return null;
-    }
+   public Principal getLocalPrincipal() {
+      return null;
+   }
 
-    public String getCipherSuite() {
-        return null;
-    }
+   public String getCipherSuite() {
+      return null;
+   }
 
-    public String getProtocol() {
-        return null;
-    }
+   public String getProtocol() {
+      return null;
+   }
 
-    public String getPeerHost() {
-        return null;
-    }
+   public String getPeerHost() {
+      return null;
+   }
 
-    public int getPeerPort() {
-        return 0;
-    }
+   public int getPeerPort() {
+      return 0;
+   }
 
-    public int getPacketBufferSize() {
-        return 0;
-    }
+   public int getPacketBufferSize() {
+      return 0;
+   }
 
-    public int getApplicationBufferSize() {
-        return 0;
-    }
+   public int getApplicationBufferSize() {
+      return 0;
+   }
 }

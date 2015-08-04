@@ -43,16 +43,15 @@ import java.nio.ByteBuffer;
  * functionalities that are affected by a server
  * in paging mode.
  */
-public class ManagementWithPagingServerTest extends ManagementTestBase
-{
+public class ManagementWithPagingServerTest extends ManagementTestBase {
+
    private ActiveMQServer server;
    private ClientSession session1;
    private ClientSession session2;
    private ServerLocator locator;
 
    @Test
-   public void testListMessagesAsJSON() throws Exception
-   {
+   public void testListMessagesAsJSON() throws Exception {
       SimpleString address = RandomUtil.randomSimpleString();
       SimpleString queue = RandomUtil.randomSimpleString();
 
@@ -87,7 +86,6 @@ public class ManagementWithPagingServerTest extends ManagementTestBase
       receiver.join();
       assertNull(receiver.getError());
 
-
       result = queueControl.listMessagesAsJSON(null);
 
       array = new JSONArray(result);
@@ -96,8 +94,7 @@ public class ManagementWithPagingServerTest extends ManagementTestBase
    }
 
    @Test
-   public void testListMessagesAsJSONWithFilter() throws Exception
-   {
+   public void testListMessagesAsJSONWithFilter() throws Exception {
       SimpleString address = RandomUtil.randomSimpleString();
       SimpleString queue = RandomUtil.randomSimpleString();
 
@@ -114,21 +111,17 @@ public class ManagementWithPagingServerTest extends ManagementTestBase
 
       byte[] body = new byte[64];
       ByteBuffer bb = ByteBuffer.wrap(body);
-      for (int j = 1; j <= 64; j++)
-      {
+      for (int j = 1; j <= 64; j++) {
          bb.put(getSamplebyte(j));
       }
 
       ClientProducer producer = session1.createProducer(address);
-      for (int i = 0; i < num; i++)
-      {
+      for (int i = 0; i < num; i++) {
          ClientMessage message = session1.createMessage(true);
-         if (i % 2 == 0)
-         {
+         if (i % 2 == 0) {
             message.putLongProperty(key, matchingValue);
          }
-         else
-         {
+         else {
             message.putLongProperty(key, unmatchingValue);
          }
          producer.send(message);
@@ -154,8 +147,7 @@ public class ManagementWithPagingServerTest extends ManagementTestBase
    //of the api doesn't cause any exceptions during internal queue
    //message iteration.
    @Test
-   public void testListMessagesAsJSONWhilePagingOnGoing() throws Exception
-   {
+   public void testListMessagesAsJSONWhilePagingOnGoing() throws Exception {
       SimpleString address = RandomUtil.randomSimpleString();
       SimpleString queue = RandomUtil.randomSimpleString();
 
@@ -194,27 +186,20 @@ public class ManagementWithPagingServerTest extends ManagementTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
-      Configuration config = createDefaultInVMConfig()
-              .setJMXManagementEnabled(true);
+      Configuration config = createDefaultInVMConfig().setJMXManagementEnabled(true);
 
       server = addServer(ActiveMQServers.newActiveMQServer(config, mbeanServer, true));
 
-      AddressSettings defaultSetting = new AddressSettings()
-              .setPageSizeBytes(5120)
-              .setMaxSizeBytes(10240)
-              .setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE);
+      AddressSettings defaultSetting = new AddressSettings().setPageSizeBytes(5120).setMaxSizeBytes(10240).setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE);
 
       server.getAddressSettingsRepository().addMatch("#", defaultSetting);
 
       server.start();
 
-      locator = createInVMNonHALocator()
-              .setBlockOnNonDurableSend(false)
-              .setConsumerWindowSize(0);
+      locator = createInVMNonHALocator().setBlockOnNonDurableSend(false).setConsumerWindowSize(0);
       ClientSessionFactory sf = createSessionFactory(locator);
       session1 = sf.createSession(false, true, false);
       session1.start();
@@ -222,156 +207,130 @@ public class ManagementWithPagingServerTest extends ManagementTestBase
       session2.start();
    }
 
-   private class SenderThread extends Thread
-   {
+   private class SenderThread extends Thread {
+
       private SimpleString address;
       private int num;
       private long delay;
       private volatile Exception error = null;
 
-      public SenderThread(SimpleString address, int num, long delay)
-      {
+      public SenderThread(SimpleString address, int num, long delay) {
          this.address = address;
          this.num = num;
          this.delay = delay;
       }
 
       @Override
-      public void run()
-      {
+      public void run() {
          ClientProducer producer;
 
          byte[] body = new byte[128];
          ByteBuffer bb = ByteBuffer.wrap(body);
-         for (int j = 1; j <= 128; j++)
-         {
+         for (int j = 1; j <= 128; j++) {
             bb.put(getSamplebyte(j));
          }
 
-         try
-         {
+         try {
             producer = session1.createProducer(address);
 
-            for (int i = 0; i < num; i++)
-            {
+            for (int i = 0; i < num; i++) {
                ClientMessage message = session1.createMessage(true);
                ActiveMQBuffer buffer = message.getBodyBuffer();
                buffer.writeBytes(body);
                producer.send(message);
-               try
-               {
+               try {
                   Thread.sleep(delay);
                }
-               catch (InterruptedException e)
-               {
+               catch (InterruptedException e) {
                   //ignore
                }
             }
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             error = e;
          }
       }
 
-      public Exception getError()
-      {
+      public Exception getError() {
          return this.error;
       }
    }
 
-   private class ReceiverThread extends Thread
-   {
+   private class ReceiverThread extends Thread {
+
       private SimpleString queue;
       private int num;
       private long delay;
       private volatile Exception error = null;
 
-      public ReceiverThread(SimpleString queue, int num, long delay)
-      {
+      public ReceiverThread(SimpleString queue, int num, long delay) {
          this.queue = queue;
          this.num = num;
          this.delay = delay;
       }
 
       @Override
-      public void run()
-      {
+      public void run() {
          ClientConsumer consumer;
-         try
-         {
+         try {
             consumer = session2.createConsumer(queue);
 
-            for (int i = 0; i < num; i++)
-            {
+            for (int i = 0; i < num; i++) {
                ClientMessage message = consumer.receive(5000);
                message.acknowledge();
                session2.commit();
-               try
-               {
+               try {
                   Thread.sleep(delay);
                }
-               catch (InterruptedException e)
-               {
+               catch (InterruptedException e) {
                   //ignore
                }
             }
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             error = e;
          }
       }
 
-      public Exception getError()
-      {
+      public Exception getError() {
          return this.error;
       }
    }
 
-   private class ManagementThread extends Thread
-   {
+   private class ManagementThread extends Thread {
+
       private QueueControl queueControl;
       private volatile boolean stop = false;
       private Exception error = null;
 
-      public ManagementThread(QueueControl queueControl)
-      {
+      public ManagementThread(QueueControl queueControl) {
          this.queueControl = queueControl;
       }
 
       @Override
-      public void run()
-      {
-         try
-         {
-            while (!stop)
-            {
+      public void run() {
+         try {
+            while (!stop) {
                queueControl.countMessages(null);
                queueControl.listMessagesAsJSON(null);
-               try
-               {
+               try {
                   Thread.sleep(1000);
                }
-               catch (InterruptedException e)
-               {
+               catch (InterruptedException e) {
                   //ignore
                }
             }
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             error = e;
          }
       }
 
-      public Exception getError()
-      {
+      public Exception getError() {
          return error;
       }
 
-      public void exit()
-      {
+      public void exit() {
          stop = true;
       }
    }

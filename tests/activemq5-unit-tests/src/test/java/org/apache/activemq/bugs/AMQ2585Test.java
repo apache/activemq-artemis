@@ -31,53 +31,52 @@ import org.apache.activemq.command.Message;
 import org.apache.activemq.spring.ConsumerBean;
 
 public class AMQ2585Test extends EmbeddedBrokerAndConnectionTestSupport {
-    private final Destination destination = new ActiveMQQueue("MyQueue");
-    final static String LENGTH10STRING = "1234567890";
-    private Session session;
-    private MessageProducer producer;
-    private ConsumerBean messageList;
 
-    public void testOneMessageWithProperties() throws Exception {
-        TextMessage message = session.createTextMessage(LENGTH10STRING);
-        message.setStringProperty(LENGTH10STRING, LENGTH10STRING);
-        producer.send(message);
+   private final Destination destination = new ActiveMQQueue("MyQueue");
+   final static String LENGTH10STRING = "1234567890";
+   private Session session;
+   private MessageProducer producer;
+   private ConsumerBean messageList;
 
-        messageList.assertMessagesArrived(1);
+   public void testOneMessageWithProperties() throws Exception {
+      TextMessage message = session.createTextMessage(LENGTH10STRING);
+      message.setStringProperty(LENGTH10STRING, LENGTH10STRING);
+      producer.send(message);
 
-        ActiveMQTextMessage received = ((ActiveMQTextMessage) messageList
-                .flushMessages().get(0));
+      messageList.assertMessagesArrived(1);
 
-        assertEquals(LENGTH10STRING, received.getText());
-        assertTrue(received.getProperties().size() > 0);
-        assertTrue(received.propertyExists(LENGTH10STRING));
-        assertEquals(LENGTH10STRING, received.getStringProperty(LENGTH10STRING));
+      ActiveMQTextMessage received = ((ActiveMQTextMessage) messageList.flushMessages().get(0));
 
-        /**
-         * As specified by getSize(), the size (memory usage) of the body should
-         * be length of text * 2. Unsure of how memory usage is calculated for
-         * properties, but should probably not be less than the sum of (string)
-         * lengths for the key name and value.
-         */
+      assertEquals(LENGTH10STRING, received.getText());
+      assertTrue(received.getProperties().size() > 0);
+      assertTrue(received.propertyExists(LENGTH10STRING));
+      assertEquals(LENGTH10STRING, received.getStringProperty(LENGTH10STRING));
 
-        final int sizeShouldBeNoLessThan = LENGTH10STRING.length() * 4 + Message.DEFAULT_MINIMUM_MESSAGE_SIZE;
-        assertTrue("Message size was smaller than expected: " + received.getSize(),
-                received.getSize() >= sizeShouldBeNoLessThan);
-        assertFalse(LENGTH10STRING.length() * 2 == received.getSize());
-    }
+      /**
+       * As specified by getSize(), the size (memory usage) of the body should
+       * be length of text * 2. Unsure of how memory usage is calculated for
+       * properties, but should probably not be less than the sum of (string)
+       * lengths for the key name and value.
+       */
 
-    @Override
-    protected void setUp() throws Exception {
-        bindAddress = bindAddress + "?marshal=true";
-        super.setUp();
-        messageList = new ConsumerBean();
-        messageList.setVerbose(true);
+      final int sizeShouldBeNoLessThan = LENGTH10STRING.length() * 4 + Message.DEFAULT_MINIMUM_MESSAGE_SIZE;
+      assertTrue("Message size was smaller than expected: " + received.getSize(), received.getSize() >= sizeShouldBeNoLessThan);
+      assertFalse(LENGTH10STRING.length() * 2 == received.getSize());
+   }
 
-        session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+   @Override
+   protected void setUp() throws Exception {
+      bindAddress = bindAddress + "?marshal=true";
+      super.setUp();
+      messageList = new ConsumerBean();
+      messageList.setVerbose(true);
 
-        MessageConsumer messageConsumer = session.createConsumer(destination);
+      session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-        messageConsumer.setMessageListener(messageList);
+      MessageConsumer messageConsumer = session.createConsumer(destination);
 
-        producer = session.createProducer(destination);
-    }
+      messageConsumer.setMessageListener(messageList);
+
+      producer = session.createProducer(destination);
+   }
 }

@@ -19,41 +19,34 @@ package org.apache.activemq.artemis.core.protocol.openwire.amq;
 import org.apache.activemq.ActiveMQMessageAudit;
 import org.apache.activemq.command.Message;
 
-public abstract class AMQAbstractDeadLetterStrategy implements AMQDeadLetterStrategy
-{
+public abstract class AMQAbstractDeadLetterStrategy implements AMQDeadLetterStrategy {
+
    private boolean processNonPersistent = false;
    private boolean processExpired = true;
    private boolean enableAudit = true;
    private final ActiveMQMessageAudit messageAudit = new ActiveMQMessageAudit();
 
    @Override
-   public void rollback(Message message)
-   {
-      if (message != null && this.enableAudit)
-      {
+   public void rollback(Message message) {
+      if (message != null && this.enableAudit) {
          messageAudit.rollback(message);
       }
    }
 
    @Override
-   public boolean isSendToDeadLetterQueue(Message message)
-   {
+   public boolean isSendToDeadLetterQueue(Message message) {
       boolean result = false;
-      if (message != null)
-      {
+      if (message != null) {
          result = true;
-         if (enableAudit && messageAudit.isDuplicate(message))
-         {
+         if (enableAudit && messageAudit.isDuplicate(message)) {
             result = false;
             // LOG.debug("Not adding duplicate to DLQ: {}, dest: {}",
             // message.getMessageId(), message.getDestination());
          }
-         if (!message.isPersistent() && !processNonPersistent)
-         {
+         if (!message.isPersistent() && !processNonPersistent) {
             result = false;
          }
-         if (message.isExpired() && !processExpired)
-         {
+         if (message.isExpired() && !processExpired) {
             result = false;
          }
       }
@@ -64,18 +57,15 @@ public abstract class AMQAbstractDeadLetterStrategy implements AMQDeadLetterStra
     * @return the processExpired
     */
    @Override
-   public boolean isProcessExpired()
-   {
+   public boolean isProcessExpired() {
       return this.processExpired;
    }
 
    /**
-    * @param processExpired
-    *           the processExpired to set
+    * @param processExpired the processExpired to set
     */
    @Override
-   public void setProcessExpired(boolean processExpired)
-   {
+   public void setProcessExpired(boolean processExpired) {
       this.processExpired = processExpired;
    }
 
@@ -83,28 +73,23 @@ public abstract class AMQAbstractDeadLetterStrategy implements AMQDeadLetterStra
     * @return the processNonPersistent
     */
    @Override
-   public boolean isProcessNonPersistent()
-   {
+   public boolean isProcessNonPersistent() {
       return this.processNonPersistent;
    }
 
    /**
-    * @param processNonPersistent
-    *           the processNonPersistent to set
+    * @param processNonPersistent the processNonPersistent to set
     */
    @Override
-   public void setProcessNonPersistent(boolean processNonPersistent)
-   {
+   public void setProcessNonPersistent(boolean processNonPersistent) {
       this.processNonPersistent = processNonPersistent;
    }
 
-   public boolean isEnableAudit()
-   {
+   public boolean isEnableAudit() {
       return enableAudit;
    }
 
-   public void setEnableAudit(boolean enableAudit)
-   {
+   public void setEnableAudit(boolean enableAudit) {
       this.enableAudit = enableAudit;
    }
 

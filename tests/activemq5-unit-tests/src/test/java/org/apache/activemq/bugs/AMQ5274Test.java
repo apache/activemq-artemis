@@ -23,6 +23,7 @@ import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
+
 import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.RedeliveryPolicy;
@@ -38,96 +39,95 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class AMQ5274Test {
-    static Logger LOG = LoggerFactory.getLogger(AMQ5274Test.class);
-    String activemqURL;
-    BrokerService brokerService;
-    ActiveMQQueue dest = new ActiveMQQueue("TestQ");
 
+   static Logger LOG = LoggerFactory.getLogger(AMQ5274Test.class);
+   String activemqURL;
+   BrokerService brokerService;
+   ActiveMQQueue dest = new ActiveMQQueue("TestQ");
 
-    @Before
-    public void startBroker() throws Exception {
-        brokerService = new BrokerService();
-        brokerService.setPersistent(false);
-        PolicyMap policyMap = new PolicyMap();
-        PolicyEntry defaultPolicy = new PolicyEntry();
-        defaultPolicy.setExpireMessagesPeriod(1000);
-        policyMap.setDefaultEntry(defaultPolicy);
-        brokerService.setDestinationPolicy(policyMap);
-        activemqURL = brokerService.addConnector("tcp://localhost:0").getPublishableConnectString();
-        brokerService.start();
-    }
+   @Before
+   public void startBroker() throws Exception {
+      brokerService = new BrokerService();
+      brokerService.setPersistent(false);
+      PolicyMap policyMap = new PolicyMap();
+      PolicyEntry defaultPolicy = new PolicyEntry();
+      defaultPolicy.setExpireMessagesPeriod(1000);
+      policyMap.setDefaultEntry(defaultPolicy);
+      brokerService.setDestinationPolicy(policyMap);
+      activemqURL = brokerService.addConnector("tcp://localhost:0").getPublishableConnectString();
+      brokerService.start();
+   }
 
-    @After
-    public void stopBroker() throws Exception {
-        if (brokerService != null) {
-            brokerService.stop();
-        }
-    }
+   @After
+   public void stopBroker() throws Exception {
+      if (brokerService != null) {
+         brokerService.stop();
+      }
+   }
 
-    @Test
-    public void test() throws Exception {
-        LOG.info("Starting Test");
-        assertTrue(brokerService.isStarted());
+   @Test
+   public void test() throws Exception {
+      LOG.info("Starting Test");
+      assertTrue(brokerService.isStarted());
 
-        produce();
-        consumeAndRollback();
+      produce();
+      consumeAndRollback();
 
-        // check reported queue size using JMX
-        long queueSize = getQueueSize();
-        assertEquals("Queue " + dest.getPhysicalName() + " not empty, reporting " + queueSize + " messages.", 0, queueSize);
-    }
+      // check reported queue size using JMX
+      long queueSize = getQueueSize();
+      assertEquals("Queue " + dest.getPhysicalName() + " not empty, reporting " + queueSize + " messages.", 0, queueSize);
+   }
 
-    private void consumeAndRollback() throws JMSException, InterruptedException {
-        ActiveMQConnection connection = createConnection();
-        RedeliveryPolicy noRedelivery = new RedeliveryPolicy();
-        noRedelivery.setMaximumRedeliveries(0);
-        connection.setRedeliveryPolicy(noRedelivery);
-        connection.start();
-        Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
-        MessageConsumer consumer = session.createConsumer(dest);
-        Message m;
-        while ( (m = consumer.receive(4000)) != null) {
-            LOG.info("Got:" + m);
-            TimeUnit.SECONDS.sleep(1);
-            session.rollback();
-        }
-        connection.close();
-    }
+   private void consumeAndRollback() throws JMSException, InterruptedException {
+      ActiveMQConnection connection = createConnection();
+      RedeliveryPolicy noRedelivery = new RedeliveryPolicy();
+      noRedelivery.setMaximumRedeliveries(0);
+      connection.setRedeliveryPolicy(noRedelivery);
+      connection.start();
+      Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
+      MessageConsumer consumer = session.createConsumer(dest);
+      Message m;
+      while ((m = consumer.receive(4000)) != null) {
+         LOG.info("Got:" + m);
+         TimeUnit.SECONDS.sleep(1);
+         session.rollback();
+      }
+      connection.close();
+   }
 
-    private void produce() throws Exception {
-        Connection connection = createConnection();
-        connection.start();
+   private void produce() throws Exception {
+      Connection connection = createConnection();
+      connection.start();
 
-        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        MessageProducer producer = session.createProducer(dest);
-        producer.setTimeToLive(10000);
-        for (int i=0;i<20;i++) {
-            producer.send(session.createTextMessage("i="+i));
-        }
-       connection.close();
-    }
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      MessageProducer producer = session.createProducer(dest);
+      producer.setTimeToLive(10000);
+      for (int i = 0; i < 20; i++) {
+         producer.send(session.createTextMessage("i=" + i));
+      }
+      connection.close();
+   }
 
-    private ActiveMQConnection createConnection() throws JMSException {
-        return (ActiveMQConnection) new ActiveMQConnectionFactory(activemqURL).createConnection();
-    }
+   private ActiveMQConnection createConnection() throws JMSException {
+      return (ActiveMQConnection) new ActiveMQConnectionFactory(activemqURL).createConnection();
+   }
 
-
-    public long getQueueSize() throws Exception {
-        long queueSize = 0;
-        try {
-            QueueViewMBean queueViewMBean = (QueueViewMBean) brokerService.getManagementContext().newProxyInstance(BrokerMBeanSupport.createDestinationName(brokerService.getBrokerObjectName(), dest), QueueViewMBean.class, false);
-            queueSize = queueViewMBean.getQueueSize();
-            LOG.info("QueueSize for destination {} is {}", dest, queueSize);
-        } catch (Exception ex) {
-           LOG.error("Error retrieving QueueSize from JMX ", ex);
-           throw ex;
-        }
-        return queueSize;
-    }
+   public long getQueueSize() throws Exception {
+      long queueSize = 0;
+      try {
+         QueueViewMBean queueViewMBean = (QueueViewMBean) brokerService.getManagementContext().newProxyInstance(BrokerMBeanSupport.createDestinationName(brokerService.getBrokerObjectName(), dest), QueueViewMBean.class, false);
+         queueSize = queueViewMBean.getQueueSize();
+         LOG.info("QueueSize for destination {} is {}", dest, queueSize);
+      }
+      catch (Exception ex) {
+         LOG.error("Error retrieving QueueSize from JMX ", ex);
+         throw ex;
+      }
+      return queueSize;
+   }
 
 }

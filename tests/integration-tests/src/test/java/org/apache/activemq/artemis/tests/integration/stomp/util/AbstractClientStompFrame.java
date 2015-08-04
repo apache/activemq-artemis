@@ -24,8 +24,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-public abstract class AbstractClientStompFrame implements ClientStompFrame
-{
+public abstract class AbstractClientStompFrame implements ClientStompFrame {
+
    protected static final String HEADER_RECEIPT = "receipt";
 
    protected static final Set<String> validCommands = new HashSet<String>();
@@ -34,8 +34,8 @@ public abstract class AbstractClientStompFrame implements ClientStompFrame
    protected Set<String> headerKeys = new HashSet<String>();
    protected String body;
    protected String EOL = "\n";
-   static
-   {
+
+   static {
       validCommands.add("CONNECT");
       validCommands.add("CONNECTED");
       validCommands.add("SEND");
@@ -51,28 +51,24 @@ public abstract class AbstractClientStompFrame implements ClientStompFrame
       validCommands.add("ERROR");
    }
 
-   public AbstractClientStompFrame(String command)
-   {
+   public AbstractClientStompFrame(String command) {
       this(command, true);
    }
 
-   public AbstractClientStompFrame(String command, boolean validate)
-   {
-      if (validate && (!validate(command))) throw new IllegalArgumentException("Invalid command " + command);
+   public AbstractClientStompFrame(String command, boolean validate) {
+      if (validate && (!validate(command)))
+         throw new IllegalArgumentException("Invalid command " + command);
       this.command = command;
    }
 
-   public boolean validate(String command)
-   {
+   public boolean validate(String command) {
       return validCommands.contains(command);
    }
 
-   public String toString()
-   {
+   public String toString() {
       StringBuffer sb = new StringBuffer("Frame: <" + command + ">" + "\n");
       Iterator<Header> iter = headers.iterator();
-      while (iter.hasNext())
-      {
+      while (iter.hasNext()) {
          Header h = iter.next();
          sb.append(h.key + ":" + h.val + "\n");
       }
@@ -82,28 +78,24 @@ public abstract class AbstractClientStompFrame implements ClientStompFrame
    }
 
    @Override
-   public ByteBuffer toByteBuffer()
-   {
-      if (isPing())
-      {
+   public ByteBuffer toByteBuffer() {
+      if (isPing()) {
          ByteBuffer buffer = ByteBuffer.allocateDirect(1);
-         buffer.put((byte)0x0A);
+         buffer.put((byte) 0x0A);
          buffer.rewind();
          return buffer;
       }
       StringBuffer sb = new StringBuffer();
       sb.append(command + EOL);
       int n = headers.size();
-      for (int i = 0; i < n; i++)
-      {
+      for (int i = 0; i < n; i++) {
          sb.append(headers.get(i).key + ":" + headers.get(i).val + EOL);
       }
       sb.append(EOL);
-      if (body != null)
-      {
+      if (body != null) {
          sb.append(body);
       }
-      sb.append((char)0);
+      sb.append((char) 0);
 
       String data = sb.toString();
 
@@ -117,21 +109,18 @@ public abstract class AbstractClientStompFrame implements ClientStompFrame
    }
 
    @Override
-   public ByteBuffer toByteBufferWithExtra(String str)
-   {
+   public ByteBuffer toByteBufferWithExtra(String str) {
       StringBuffer sb = new StringBuffer();
       sb.append(command + EOL);
       int n = headers.size();
-      for (int i = 0; i < n; i++)
-      {
+      for (int i = 0; i < n; i++) {
          sb.append(headers.get(i).key + ":" + headers.get(i).val + EOL);
       }
       sb.append(EOL);
-      if (body != null)
-      {
+      if (body != null) {
          sb.append(body);
       }
-      sb.append((char)0);
+      sb.append((char) 0);
       sb.append(str);
 
       String data = sb.toString();
@@ -146,69 +135,57 @@ public abstract class AbstractClientStompFrame implements ClientStompFrame
    }
 
    @Override
-   public boolean needsReply()
-   {
-      if ("CONNECT".equals(command) || headerKeys.contains(HEADER_RECEIPT))
-      {
+   public boolean needsReply() {
+      if ("CONNECT".equals(command) || headerKeys.contains(HEADER_RECEIPT)) {
          return true;
       }
       return false;
    }
 
    @Override
-   public void setCommand(String command)
-   {
+   public void setCommand(String command) {
       this.command = command;
    }
 
    @Override
-   public void addHeader(String key, String val)
-   {
+   public void addHeader(String key, String val) {
       headers.add(new Header(key, val));
       headerKeys.add(key);
    }
 
    @Override
-   public void setBody(String body)
-   {
+   public void setBody(String body) {
       this.body = body;
    }
 
    @Override
-   public String getBody()
-   {
+   public String getBody() {
       return body;
    }
 
-   private class Header
-   {
+   private class Header {
+
       public String key;
       public String val;
 
-      public Header(String key, String val)
-      {
+      public Header(String key, String val) {
          this.key = key;
          this.val = val;
       }
    }
 
    @Override
-   public String getCommand()
-   {
+   public String getCommand() {
       return command;
    }
 
    @Override
-   public String getHeader(String header)
-   {
-      if (headerKeys.contains(header))
-      {
+   public String getHeader(String header) {
+      if (headerKeys.contains(header)) {
          Iterator<Header> iter = headers.iterator();
-         while (iter.hasNext())
-         {
+         while (iter.hasNext()) {
             Header h = iter.next();
-            if (h.key.equals(header))
-            {
+            if (h.key.equals(header)) {
                return h.val;
             }
          }

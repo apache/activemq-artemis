@@ -42,8 +42,8 @@ import org.jboss.logging.annotations.MessageLogger;
  * so an INFO message would be 151000 to 151999
  */
 @MessageLogger(projectCode = "AMQ")
-public interface ActiveMQRALogger extends BasicLogger
-{
+public interface ActiveMQRALogger extends BasicLogger {
+
    /**
     * The default logger.
     */

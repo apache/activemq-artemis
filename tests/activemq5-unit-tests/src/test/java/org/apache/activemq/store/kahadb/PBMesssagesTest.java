@@ -31,26 +31,26 @@ import org.apache.activemq.util.DataByteArrayOutputStream;
 
 public class PBMesssagesTest extends TestCase {
 
-    @SuppressWarnings("rawtypes")
-    public void testKahaAddMessageCommand() throws IOException {
+   @SuppressWarnings("rawtypes")
+   public void testKahaAddMessageCommand() throws IOException {
 
-       KahaAddMessageCommand expected = new KahaAddMessageCommand();
-       expected.setDestination(new KahaDestination().setName("Foo").setType(DestinationType.QUEUE));
-       expected.setMessage(new Buffer(new byte[] {1,2,3,4,5,6} ));
-       expected.setMessageId("Hello World");
+      KahaAddMessageCommand expected = new KahaAddMessageCommand();
+      expected.setDestination(new KahaDestination().setName("Foo").setType(DestinationType.QUEUE));
+      expected.setMessage(new Buffer(new byte[]{1, 2, 3, 4, 5, 6}));
+      expected.setMessageId("Hello World");
 
-       int size = expected.serializedSizeFramed();
-       DataByteArrayOutputStream os = new DataByteArrayOutputStream(size + 1);
-       os.writeByte(expected.type().getNumber());
-       expected.writeFramed(os);
-       ByteSequence seq = os.toByteSequence();
+      int size = expected.serializedSizeFramed();
+      DataByteArrayOutputStream os = new DataByteArrayOutputStream(size + 1);
+      os.writeByte(expected.type().getNumber());
+      expected.writeFramed(os);
+      ByteSequence seq = os.toByteSequence();
 
-       DataByteArrayInputStream is = new DataByteArrayInputStream(seq);
-       KahaEntryType type = KahaEntryType.valueOf(is.readByte());
-       JournalCommand message = (JournalCommand)type.createMessage();
-       message.mergeFramed(is);
+      DataByteArrayInputStream is = new DataByteArrayInputStream(seq);
+      KahaEntryType type = KahaEntryType.valueOf(is.readByte());
+      JournalCommand message = (JournalCommand) type.createMessage();
+      message.mergeFramed(is);
 
-       assertEquals(expected, message);
-    }
+      assertEquals(expected, message);
+   }
 
 }

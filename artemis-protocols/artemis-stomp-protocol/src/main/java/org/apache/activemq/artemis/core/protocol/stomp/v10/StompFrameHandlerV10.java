@@ -30,10 +30,9 @@ import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 
 import static org.apache.activemq.artemis.core.protocol.stomp.ActiveMQStompProtocolMessageBundle.BUNDLE;
 
-public class StompFrameHandlerV10 extends VersionedStompFrameHandler implements FrameEventListener
-{
-   public StompFrameHandlerV10(StompConnection connection)
-   {
+public class StompFrameHandlerV10 extends VersionedStompFrameHandler implements FrameEventListener {
+
+   public StompFrameHandlerV10(StompConnection connection) {
       super(connection);
       decoder = new StompDecoder(this);
       decoder.init();
@@ -41,8 +40,7 @@ public class StompFrameHandlerV10 extends VersionedStompFrameHandler implements 
    }
 
    @Override
-   public StompFrame onConnect(StompFrame frame)
-   {
+   public StompFrame onConnect(StompFrame frame) {
       StompFrame response = null;
       Map<String, String> headers = frame.getHeadersMap();
       String login = headers.get(Stomp.Headers.Connect.LOGIN);
@@ -50,27 +48,23 @@ public class StompFrameHandlerV10 extends VersionedStompFrameHandler implements 
       String clientID = headers.get(Stomp.Headers.Connect.CLIENT_ID);
       String requestID = headers.get(Stomp.Headers.Connect.REQUEST_ID);
 
-      if (connection.validateUser(login, passcode))
-      {
+      if (connection.validateUser(login, passcode)) {
          connection.setClientID(clientID);
          connection.setValid(true);
 
          response = new StompFrameV10(Stomp.Responses.CONNECTED);
 
-         if (frame.hasHeader(Stomp.Headers.ACCEPT_VERSION))
-         {
+         if (frame.hasHeader(Stomp.Headers.ACCEPT_VERSION)) {
             response.addHeader(Stomp.Headers.Connected.VERSION, StompVersions.V1_0.toString());
          }
 
          response.addHeader(Stomp.Headers.Connected.SESSION, connection.getID().toString());
 
-         if (requestID != null)
-         {
+         if (requestID != null) {
             response.addHeader(Stomp.Headers.Connected.RESPONSE_ID, requestID);
          }
       }
-      else
-      {
+      else {
          //not valid
          response = new StompFrameV10(Stomp.Responses.ERROR);
          response.addHeader(Stomp.Headers.Error.MESSAGE, "Failed to connect");
@@ -80,28 +74,23 @@ public class StompFrameHandlerV10 extends VersionedStompFrameHandler implements 
    }
 
    @Override
-   public StompFrame onDisconnect(StompFrame frame)
-   {
+   public StompFrame onDisconnect(StompFrame frame) {
       return null;
    }
 
    @Override
-   public StompFrame onUnsubscribe(StompFrame request)
-   {
+   public StompFrame onUnsubscribe(StompFrame request) {
       StompFrame response = null;
       String destination = request.getHeader(Stomp.Headers.Unsubscribe.DESTINATION);
       String id = request.getHeader(Stomp.Headers.Unsubscribe.ID);
       String durableSubscriberName = request.getHeader(Stomp.Headers.Unsubscribe.DURABLE_SUBSCRIBER_NAME);
 
       String subscriptionID = null;
-      if (id != null)
-      {
+      if (id != null) {
          subscriptionID = id;
       }
-      else
-      {
-         if (destination == null)
-         {
+      else {
+         if (destination == null) {
             ActiveMQStompException error = BUNDLE.needIDorDestination().setHandler(this);
             response = error.getFrame();
             return response;
@@ -109,36 +98,30 @@ public class StompFrameHandlerV10 extends VersionedStompFrameHandler implements 
          subscriptionID = "subscription/" + destination;
       }
 
-      try
-      {
+      try {
          connection.unsubscribe(subscriptionID, durableSubscriberName);
       }
-      catch (ActiveMQStompException e)
-      {
+      catch (ActiveMQStompException e) {
          return e.getFrame();
       }
       return response;
    }
 
    @Override
-   public StompFrame onAck(StompFrame request)
-   {
+   public StompFrame onAck(StompFrame request) {
       StompFrame response = null;
 
       String messageID = request.getHeader(Stomp.Headers.Ack.MESSAGE_ID);
       String txID = request.getHeader(Stomp.Headers.TRANSACTION);
 
-      if (txID != null)
-      {
+      if (txID != null) {
          ActiveMQServerLogger.LOGGER.stompTXAckNorSupported();
       }
 
-      try
-      {
+      try {
          connection.acknowledge(messageID, null);
       }
-      catch (ActiveMQStompException e)
-      {
+      catch (ActiveMQStompException e) {
          response = e.getFrame();
       }
 
@@ -146,35 +129,29 @@ public class StompFrameHandlerV10 extends VersionedStompFrameHandler implements 
    }
 
    @Override
-   public StompFrame onStomp(StompFrame request)
-   {
+   public StompFrame onStomp(StompFrame request) {
       return onUnknown(request.getCommand());
    }
 
    @Override
-   public StompFrame onNack(StompFrame request)
-   {
+   public StompFrame onNack(StompFrame request) {
       return onUnknown(request.getCommand());
    }
 
    @Override
-   public StompFrame createStompFrame(String command)
-   {
+   public StompFrame createStompFrame(String command) {
       return new StompFrameV10(command);
    }
 
    @Override
-   public void replySent(StompFrame reply)
-   {
-      if (reply.needsDisconnect())
-      {
+   public void replySent(StompFrame reply) {
+      if (reply.needsDisconnect()) {
          connection.destroy();
       }
    }
 
    @Override
-   public void requestAccepted(StompFrame request)
-   {
+   public void requestAccepted(StompFrame request) {
       // TODO Auto-generated method stub
 
    }

@@ -31,47 +31,38 @@ import org.proton.plug.context.AbstractProtonSessionContext;
 import org.proton.plug.exceptions.ActiveMQAMQPException;
 import org.proton.plug.util.FutureRunnable;
 
-public class ProtonClientContext extends AbstractProtonContextSender implements AMQPClientSenderContext
-{
+public class ProtonClientContext extends AbstractProtonContextSender implements AMQPClientSenderContext {
 
    FutureRunnable catchUpRunnable = new FutureRunnable();
 
-   public ProtonClientContext(AbstractConnectionContext connection, Sender sender, AbstractProtonSessionContext protonSession, AMQPSessionCallback server)
-   {
+   public ProtonClientContext(AbstractConnectionContext connection,
+                              Sender sender,
+                              AbstractProtonSessionContext protonSession,
+                              AMQPSessionCallback server) {
       super(connection, sender, protonSession, server);
    }
 
-
    @Override
-   public void onMessage(Delivery delivery) throws ActiveMQAMQPException
-   {
-      if (delivery.getRemoteState() instanceof Accepted)
-      {
-         if (delivery.getContext() instanceof FutureRunnable)
-         {
+   public void onMessage(Delivery delivery) throws ActiveMQAMQPException {
+      if (delivery.getRemoteState() instanceof Accepted) {
+         if (delivery.getContext() instanceof FutureRunnable) {
             ((FutureRunnable) delivery.getContext()).countDown();
          }
       }
    }
 
-   public void send(ProtonJMessage message)
-   {
-      if (sender.getSenderSettleMode() != SenderSettleMode.SETTLED)
-      {
+   public void send(ProtonJMessage message) {
+      if (sender.getSenderSettleMode() != SenderSettleMode.SETTLED) {
          catchUpRunnable.countUp();
       }
       performSend(message, catchUpRunnable);
    }
 
-
-   public boolean sync(long timeout, TimeUnit unit)
-   {
-      try
-      {
+   public boolean sync(long timeout, TimeUnit unit) {
+      try {
          return catchUpRunnable.await(timeout, unit);
       }
-      catch (InterruptedException e)
-      {
+      catch (InterruptedException e) {
          Thread.currentThread().interrupt();
          return false;
       }

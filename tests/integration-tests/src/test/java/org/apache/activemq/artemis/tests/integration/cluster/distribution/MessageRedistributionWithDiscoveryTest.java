@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.integration.cluster.distribution;
+
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
@@ -33,34 +34,29 @@ import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 
-public class MessageRedistributionWithDiscoveryTest extends ClusterTestBase
-{
+public class MessageRedistributionWithDiscoveryTest extends ClusterTestBase {
+
    protected final String groupAddress = ActiveMQTestBase.getUDPDiscoveryAddress();
 
    protected final int groupPort = ActiveMQTestBase.getUDPDiscoveryPort();
 
-   protected boolean isNetty()
-   {
+   protected boolean isNetty() {
       return false;
    }
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
       setupCluster();
    }
 
-   protected void setupCluster() throws Exception
-   {
+   protected void setupCluster() throws Exception {
       setupCluster(MessageLoadBalancingType.ON_DEMAND);
    }
 
-   protected void setupCluster(final MessageLoadBalancingType messageLoadBalancingType) throws Exception
-   {
-      for (int i = 0; i < 5; i++)
-      {
+   protected void setupCluster(final MessageLoadBalancingType messageLoadBalancingType) throws Exception {
+      for (int i = 0; i < 5; i++) {
          setServer(messageLoadBalancingType, i);
       }
    }
@@ -69,18 +65,10 @@ public class MessageRedistributionWithDiscoveryTest extends ClusterTestBase
     * @param messageLoadBalancingType
     * @throws Exception
     */
-   protected void setServer(final MessageLoadBalancingType messageLoadBalancingType, int server) throws Exception
-   {
-      setupLiveServerWithDiscovery(server,
-                                   groupAddress,
-                                   groupPort,
-                                   isFileStorage(),
-                                   isNetty(),
-                                   false);
+   protected void setServer(final MessageLoadBalancingType messageLoadBalancingType, int server) throws Exception {
+      setupLiveServerWithDiscovery(server, groupAddress, groupPort, isFileStorage(), isNetty(), false);
 
-      AddressSettings setting = new AddressSettings()
-              .setRedeliveryDelay(0)
-              .setRedistributionDelay(0);
+      AddressSettings setting = new AddressSettings().setRedeliveryDelay(0).setRedistributionDelay(0);
 
       servers[server].getAddressSettingsRepository().addMatch("#", setting);
 
@@ -88,8 +76,7 @@ public class MessageRedistributionWithDiscoveryTest extends ClusterTestBase
    }
 
    @Test
-   public void testRedistributeWithPreparedAndRestart() throws Exception
-   {
+   public void testRedistributeWithPreparedAndRestart() throws Exception {
       startServers(0);
 
       setupSessionFactory(0, isNetty());
@@ -100,8 +87,7 @@ public class MessageRedistributionWithDiscoveryTest extends ClusterTestBase
 
       ClientProducer prod0 = session0.createProducer("queues.testaddress");
 
-      for (int i = 0; i < 100; i++)
-      {
+      for (int i = 0; i < 100; i++) {
          ClientMessage msg = session0.createMessage(true);
 
          msg.putIntProperty("key", i);
@@ -121,8 +107,7 @@ public class MessageRedistributionWithDiscoveryTest extends ClusterTestBase
 
       ArrayList<Xid> xids = new ArrayList<Xid>();
 
-      for (int i = 0; i < 100; i++)
-      {
+      for (int i = 0; i < 100; i++) {
          Xid xid = newXID();
 
          session0.start(xid, XAResource.TMNOFLAGS);
@@ -177,13 +162,11 @@ public class MessageRedistributionWithDiscoveryTest extends ClusterTestBase
 
       session0 = sfs[0].createSession(true, false, false);
 
-      for (Xid xid : xids)
-      {
+      for (Xid xid : xids) {
          session0.rollback(xid);
       }
 
-      for (int i = 0; i < 100; i++)
-      {
+      for (int i = 0; i < 100; i++) {
          ClientMessage msg = consumer1.receive(15000);
          Assert.assertNotNull(msg);
          msg.acknowledge();

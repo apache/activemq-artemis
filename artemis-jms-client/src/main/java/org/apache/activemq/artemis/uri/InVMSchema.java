@@ -23,27 +23,24 @@ import org.apache.activemq.artemis.utils.uri.SchemaConstants;
 import java.net.URI;
 import java.util.Map;
 
-public class InVMSchema extends AbstractCFSchema
-{
+public class InVMSchema extends AbstractCFSchema {
+
    @Override
-   public String getSchemaName()
-   {
+   public String getSchemaName() {
       return SchemaConstants.VM;
    }
 
    @Override
-   protected ActiveMQConnectionFactory internalNewObject(URI uri, Map<String, String> query, String name) throws Exception
-   {
+   protected ActiveMQConnectionFactory internalNewObject(URI uri,
+                                                         Map<String, String> query,
+                                                         String name) throws Exception {
       JMSConnectionOptions options = newConectionOptions(uri, query);
-      ActiveMQConnectionFactory factory =
-            ActiveMQJMSClient.createConnectionFactoryWithoutHA(options.getFactoryTypeEnum(),
-                                                               InVMTransportConfigurationSchema.createTransportConfiguration(uri, query, name, "org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory"));
+      ActiveMQConnectionFactory factory = ActiveMQJMSClient.createConnectionFactoryWithoutHA(options.getFactoryTypeEnum(), InVMTransportConfigurationSchema.createTransportConfiguration(uri, query, name, "org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory"));
       return setData(uri, factory, query);
    }
 
    @Override
-   protected URI internalNewURI(ActiveMQConnectionFactory bean) throws Exception
-   {
+   protected URI internalNewURI(ActiveMQConnectionFactory bean) throws Exception {
       return InVMServerLocatorSchema.getUri(bean.getStaticConnectors());
    }
 }

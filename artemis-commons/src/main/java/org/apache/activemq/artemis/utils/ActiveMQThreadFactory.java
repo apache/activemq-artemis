@@ -22,8 +22,8 @@ import java.security.PrivilegedAction;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public final class ActiveMQThreadFactory implements ThreadFactory
-{
+public final class ActiveMQThreadFactory implements ThreadFactory {
+
    private final ThreadGroup group;
 
    private final AtomicInteger threadCount = new AtomicInteger(0);
@@ -36,8 +36,7 @@ public final class ActiveMQThreadFactory implements ThreadFactory
 
    private final AccessControlContext acc;
 
-   public ActiveMQThreadFactory(final String groupName, final boolean daemon, final ClassLoader tccl)
-   {
+   public ActiveMQThreadFactory(final String groupName, final boolean daemon, final ClassLoader tccl) {
       group = new ThreadGroup(groupName + "-" + System.identityHashCode(this));
 
       this.threadPriority = Thread.NORM_PRIORITY;
@@ -49,36 +48,30 @@ public final class ActiveMQThreadFactory implements ThreadFactory
       this.acc = (System.getSecurityManager() == null) ? null : AccessController.getContext();
    }
 
-   public Thread newThread(final Runnable command)
-   {
+   public Thread newThread(final Runnable command) {
       // create a thread in a privileged block if running with Security Manager
-      if (acc != null && System.getSecurityManager() != null)
-      {
+      if (acc != null && System.getSecurityManager() != null) {
          return AccessController.doPrivileged(new ThreadCreateAction(command), acc);
       }
-      else
-      {
+      else {
          return createThread(command);
       }
    }
 
-   private final class ThreadCreateAction implements PrivilegedAction<Thread>
-   {
+   private final class ThreadCreateAction implements PrivilegedAction<Thread> {
+
       private final Runnable target;
 
-      private ThreadCreateAction(final Runnable target)
-      {
+      private ThreadCreateAction(final Runnable target) {
          this.target = target;
       }
 
-      public Thread run()
-      {
+      public Thread run() {
          return createThread(target);
       }
    }
 
-   private Thread createThread(final Runnable command)
-   {
+   private Thread createThread(final Runnable command) {
       final Thread t = new Thread(group, command, "Thread-" + threadCount.getAndIncrement() + " (" + group.getName() + ")");
       t.setDaemon(daemon);
       t.setPriority(threadPriority);

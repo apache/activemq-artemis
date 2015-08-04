@@ -29,17 +29,15 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(BMUnitRunner.class)
-public class ScaleDownFailureTest extends ClusterTestBase
-{
+public class ScaleDownFailureTest extends ClusterTestBase {
+
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
       setupLiveServer(0, isFileStorage(), false, isNetty(), true);
       setupLiveServer(1, isFileStorage(), false, isNetty(), true);
-      if (isGrouped())
-      {
+      if (isGrouped()) {
          ScaleDownConfiguration scaleDownConfiguration = new ScaleDownConfiguration();
          scaleDownConfiguration.setGroupName("bill");
          ((LiveOnlyPolicyConfiguration) servers[0].getConfiguration().getHAPolicyConfiguration()).setScaleDownConfiguration(scaleDownConfiguration);
@@ -52,28 +50,23 @@ public class ScaleDownFailureTest extends ClusterTestBase
       setupSessionFactory(1, isNetty());
    }
 
-   protected boolean isNetty()
-   {
+   protected boolean isNetty() {
       return true;
    }
 
-   protected boolean isGrouped()
-   {
+   protected boolean isGrouped() {
       return false;
    }
 
    @Test
-   @BMRule
-      (
-         name = "blow-up",
-         targetClass = "org.apache.activemq.artemis.api.core.client.ServerLocator",
-         targetMethod = "createSessionFactory(org.apache.activemq.artemis.api.core.TransportConfiguration, int, boolean)",
-         isInterface = true,
-         targetLocation = "ENTRY",
-         action = "throw new Exception()"
-      )
-   public void testScaleDownWhenRemoteServerIsUnavailable() throws Exception
-   {
+   @BMRule(
+      name = "blow-up",
+      targetClass = "org.apache.activemq.artemis.api.core.client.ServerLocator",
+      targetMethod = "createSessionFactory(org.apache.activemq.artemis.api.core.TransportConfiguration, int, boolean)",
+      isInterface = true,
+      targetLocation = "ENTRY",
+      action = "throw new Exception()")
+   public void testScaleDownWhenRemoteServerIsUnavailable() throws Exception {
       final int TEST_SIZE = 1;
       final String addressName = "testAddress";
       final String queueName1 = "testQueue1";

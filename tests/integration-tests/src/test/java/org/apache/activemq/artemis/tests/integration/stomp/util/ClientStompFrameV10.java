@@ -19,33 +19,28 @@ package org.apache.activemq.artemis.tests.integration.stomp.util;
 /**
  * pls use factory to create frames.
  */
-public class ClientStompFrameV10 extends AbstractClientStompFrame
-{
-   public ClientStompFrameV10(String command)
-   {
+public class ClientStompFrameV10 extends AbstractClientStompFrame {
+
+   public ClientStompFrameV10(String command) {
       super(command);
    }
 
-   public ClientStompFrameV10(String command, boolean validate)
-   {
+   public ClientStompFrameV10(String command, boolean validate) {
       super(command, validate);
    }
 
    @Override
-   public boolean isPing()
-   {
+   public boolean isPing() {
       return false;
    }
 
    @Override
-   public void setForceOneway()
-   {
+   public void setForceOneway() {
       throw new IllegalStateException("Doesn't apply with V1.0!");
    }
 
    @Override
-   public void setPing(boolean b)
-   {
+   public void setPing(boolean b) {
       throw new IllegalStateException("Doesn't apply with V1.0!");
    }
 

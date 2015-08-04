@@ -28,48 +28,47 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public class AMQ3352Test
-{
-    TransportConnector connector;
-     BrokerService brokerService;
+public class AMQ3352Test {
 
-    @Before
-    public void startBroker() throws Exception {
-        brokerService = new BrokerService();
-        brokerService.setDeleteAllMessagesOnStartup(true);
-        connector = brokerService.addConnector("tcp://0.0.0.0:0");
-        brokerService.start();
-    }
+   TransportConnector connector;
+   BrokerService brokerService;
 
-    @After
-    public void stopBroker() throws Exception {
-        brokerService.stop();
-    }
+   @Before
+   public void startBroker() throws Exception {
+      brokerService = new BrokerService();
+      brokerService.setDeleteAllMessagesOnStartup(true);
+      connector = brokerService.addConnector("tcp://0.0.0.0:0");
+      brokerService.start();
+   }
+
+   @After
+   public void stopBroker() throws Exception {
+      brokerService.stop();
+   }
 
    @Test
    public void verifyEnqueueLargeNumWithStateTracker() throws Exception {
-        String url = "failover:(" + connector.getPublishableConnectString() + ")?jms.useAsyncSend=true&trackMessages=true&maxCacheSize=131072";
+      String url = "failover:(" + connector.getPublishableConnectString() + ")?jms.useAsyncSend=true&trackMessages=true&maxCacheSize=131072";
 
-        ActiveMQConnection conn = (ActiveMQConnection)new ActiveMQConnectionFactory(url).createConnection(null, null);
+      ActiveMQConnection conn = (ActiveMQConnection) new ActiveMQConnectionFactory(url).createConnection(null, null);
 
-        Session session = conn.createSession(false, Session.CLIENT_ACKNOWLEDGE);
+      Session session = conn.createSession(false, Session.CLIENT_ACKNOWLEDGE);
 
-        MessageProducer producer = session.createProducer(session.createQueue("EVENTQ"));
-        producer.setDeliveryMode(DeliveryMode.PERSISTENT);
-        producer.setDisableMessageID(true);
-        producer.setDisableMessageTimestamp(true);
+      MessageProducer producer = session.createProducer(session.createQueue("EVENTQ"));
+      producer.setDeliveryMode(DeliveryMode.PERSISTENT);
+      producer.setDisableMessageID(true);
+      producer.setDisableMessageTimestamp(true);
 
-        StringBuffer buffer = new StringBuffer();
-        for (int i=0;i<1024;i++)
-        {
-            buffer.append(String.valueOf(Math.random()));
-        }
-        String payload = buffer.toString();
+      StringBuffer buffer = new StringBuffer();
+      for (int i = 0; i < 1024; i++) {
+         buffer.append(String.valueOf(Math.random()));
+      }
+      String payload = buffer.toString();
 
-       for (int i=0; i<10000; i++) {
-            StringBuffer buff = new StringBuffer("x");
-            buff.append(payload);
-            producer.send(session.createTextMessage(buff.toString()));
-        }
-    }
+      for (int i = 0; i < 10000; i++) {
+         StringBuffer buff = new StringBuffer("x");
+         buff.append(payload);
+         producer.send(session.createTextMessage(buff.toString()));
+      }
+   }
 }

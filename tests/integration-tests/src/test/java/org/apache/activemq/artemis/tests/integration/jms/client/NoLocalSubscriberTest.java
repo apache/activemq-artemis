@@ -32,12 +32,10 @@ import javax.jms.TopicSubscriber;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
 
-public class NoLocalSubscriberTest extends JMSTestBase
-{
+public class NoLocalSubscriberTest extends JMSTestBase {
    // Constants -----------------------------------------------------
 
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
-
 
    // Static --------------------------------------------------------
 
@@ -52,18 +50,15 @@ public class NoLocalSubscriberTest extends JMSTestBase
     * can be sent by *another* connection and will be received by the nolocal consumer
     */
    @Test
-   public void testNoLocal() throws Exception
-   {
-      if (log.isTraceEnabled())
-      {
+   public void testNoLocal() throws Exception {
+      if (log.isTraceEnabled()) {
          log.trace("testNoLocal");
       }
 
       Connection defaultConn = null;
       Connection newConn = null;
 
-      try
-      {
+      try {
          Topic topic1 = createTopic("topic1");
          defaultConn = cf.createConnection();
          Session defaultSess = defaultConn.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -76,17 +71,15 @@ public class NoLocalSubscriberTest extends JMSTestBase
          String text = RandomUtil.randomString();
          // message is created only once from the same connection than the noLocalConsumer
          TextMessage messageSent = defaultSess.createTextMessage(text);
-         for (int i = 0; i < 10; i++)
-         {
+         for (int i = 0; i < 10; i++) {
             defaultProd.send(messageSent);
          }
 
          Message received = null;
-         for (int i = 0; i < 10; i++)
-         {
+         for (int i = 0; i < 10; i++) {
             received = defaultConsumer.receive(5000);
             assertNotNull(received);
-            assertEquals(text, ((TextMessage)received).getText());
+            assertEquals(text, ((TextMessage) received).getText());
          }
 
          newConn = cf.createConnection();
@@ -102,7 +95,7 @@ public class NoLocalSubscriberTest extends JMSTestBase
 
          received = newConsumer.receive(5000);
          assertNotNull(received);
-         assertEquals(text, ((TextMessage)received).getText());
+         assertEquals(text, ((TextMessage) received).getText());
 
          text = RandomUtil.randomString();
          messageSent.setText(text);
@@ -112,24 +105,20 @@ public class NoLocalSubscriberTest extends JMSTestBase
 
          received = noLocalConsumer.receive(5000);
          assertNotNull("nolocal consumer did not get message", received);
-         assertEquals(text, ((TextMessage)received).getText());
+         assertEquals(text, ((TextMessage) received).getText());
       }
-      finally
-      {
-         if (defaultConn != null)
-         {
+      finally {
+         if (defaultConn != null) {
             defaultConn.close();
          }
-         if (newConn != null)
-         {
+         if (newConn != null) {
             newConn.close();
          }
       }
    }
 
    @Test
-   public void testNoLocalReconnect() throws Exception
-   {
+   public void testNoLocalReconnect() throws Exception {
       ConnectionFactory connectionFactory = cf;
       String uniqueID = Long.toString(System.currentTimeMillis());
       String topicName = "exampleTopic";
@@ -145,8 +134,7 @@ public class NoLocalSubscriberTest extends JMSTestBase
          Connection connection = connectionFactory.createConnection("guest", "guest");
          connection.setClientID(clientID);
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-         TopicSubscriber topicSubscriber =
-            session.createDurableSubscriber(topic, subscriptionName, messageSelector, noLocal);
+         TopicSubscriber topicSubscriber = session.createDurableSubscriber(topic, subscriptionName, messageSelector, noLocal);
          topicSubscriber.close();
          connection.close();
       }
@@ -179,14 +167,13 @@ public class NoLocalSubscriberTest extends JMSTestBase
          Connection connection = connectionFactory.createConnection("guest", "guest");
          connection.setClientID(clientID);
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-         TopicSubscriber topicSubscriber =
-            session.createDurableSubscriber(topic, subscriptionName, messageSelector, noLocal);
+         TopicSubscriber topicSubscriber = session.createDurableSubscriber(topic, subscriptionName, messageSelector, noLocal);
          connection.start();
 
          // now drain the subscription
          // we should not receive message M3, but we should receive message M4
          // However for some reason Artemis doesn't receive either
-         TextMessage textMessage = (TextMessage)topicSubscriber.receive(1000);
+         TextMessage textMessage = (TextMessage) topicSubscriber.receive(1000);
          assertNotNull(textMessage);
 
          assertEquals("M4", textMessage.getText());
@@ -198,8 +185,7 @@ public class NoLocalSubscriberTest extends JMSTestBase
    }
 
    @Test
-   public void testNoLocalReconnect2() throws Exception
-   {
+   public void testNoLocalReconnect2() throws Exception {
 
       ConnectionFactory connectionFactory = cf;
       String uniqueID = Long.toString(System.currentTimeMillis());
@@ -218,8 +204,7 @@ public class NoLocalSubscriberTest extends JMSTestBase
          originalConnection = connectionFactory.createConnection("guest", "guest");
          originalConnection.setClientID(clientID);
          Session session = originalConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-         TopicSubscriber topicSubscriber =
-            session.createDurableSubscriber(topic, subscriptionName, messageSelector, noLocal);
+         TopicSubscriber topicSubscriber = session.createDurableSubscriber(topic, subscriptionName, messageSelector, noLocal);
          topicSubscriber.close();
          session.close();
       }
@@ -248,14 +233,13 @@ public class NoLocalSubscriberTest extends JMSTestBase
 
       {
          Session session = originalConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-         TopicSubscriber topicSubscriber =
-            session.createDurableSubscriber(topic, subscriptionName, messageSelector, noLocal);
+         TopicSubscriber topicSubscriber = session.createDurableSubscriber(topic, subscriptionName, messageSelector, noLocal);
          originalConnection.start();
 
          // now drain the subscription
          // we should not receive message M3, but we should receive message M4
          // However for some reason Artemis doesn't receive either
-         TextMessage textMessage = (TextMessage)topicSubscriber.receive(1000);
+         TextMessage textMessage = (TextMessage) topicSubscriber.receive(1000);
          assertNotNull(textMessage);
 
          assertEquals("M4", textMessage.getText());

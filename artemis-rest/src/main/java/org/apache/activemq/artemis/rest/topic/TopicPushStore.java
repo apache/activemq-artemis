@@ -20,7 +20,7 @@ import org.apache.activemq.artemis.rest.queue.push.PushStore;
 
 import java.util.List;
 
-public interface TopicPushStore extends PushStore
-{
+public interface TopicPushStore extends PushStore {
+
    List<PushTopicRegistration> getByTopic(String topic);
 }

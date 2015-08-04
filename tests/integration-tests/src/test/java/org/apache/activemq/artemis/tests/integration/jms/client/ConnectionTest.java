@@ -38,41 +38,36 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class ConnectionTest extends JMSTestBase
-{
+public class ConnectionTest extends JMSTestBase {
 
    private Connection conn2;
 
    @Test
-   public void testThroughNewConnectionFactory() throws Exception
-   {
+   public void testThroughNewConnectionFactory() throws Exception {
       testThroughNewConnectionFactory(new ActiveMQConnectionFactory("vm://0"));
       testThroughNewConnectionFactory(new ActiveMQConnectionFactory("tcp://localhost:61616?&blockOnNonDurableSend=true&" +
-            "retryIntervalMultiplier=1.0&maxRetryInterval=2000&producerMaxRate=-1&" +
-            "blockOnDurableSend=true&connectionTTL=60000&compressLargeMessage=false&reconnectAttempts=0&" +
-            "cacheLargeMessagesClient=false&scheduledThreadPoolMaxSize=5&useGlobalPools=true&" +
-            "callFailoverTimeout=-1&initialConnectAttempts=1&clientFailureCheckPeriod=30000&" +
-            "blockOnAcknowledge=true&consumerWindowSize=1048576&minLargeMessageSize=102400&" +
-            "autoGroup=false&threadPoolMaxSize=-1&confirmationWindowSize=-1&" +
-            "transactionBatchSize=1048576&callTimeout=30000&preAcknowledge=false&" +
-            "connectionLoadBalancingPolicyClassName=org.apache.activemq.artemis.api.core.client.loadbalance." +
-            "RoundRobinConnectionLoadBalancingPolicy&dupsOKBatchSize=1048576&initialMessagePacketSize=1500&" +
-            "consumerMaxRate=-1&retryInterval=2000&failoverOnInitialConnection=false&producerWindowSize=65536&" +
-            "port=61616&host=localhost#"));
+                                                                       "retryIntervalMultiplier=1.0&maxRetryInterval=2000&producerMaxRate=-1&" +
+                                                                       "blockOnDurableSend=true&connectionTTL=60000&compressLargeMessage=false&reconnectAttempts=0&" +
+                                                                       "cacheLargeMessagesClient=false&scheduledThreadPoolMaxSize=5&useGlobalPools=true&" +
+                                                                       "callFailoverTimeout=-1&initialConnectAttempts=1&clientFailureCheckPeriod=30000&" +
+                                                                       "blockOnAcknowledge=true&consumerWindowSize=1048576&minLargeMessageSize=102400&" +
+                                                                       "autoGroup=false&threadPoolMaxSize=-1&confirmationWindowSize=-1&" +
+                                                                       "transactionBatchSize=1048576&callTimeout=30000&preAcknowledge=false&" +
+                                                                       "connectionLoadBalancingPolicyClassName=org.apache.activemq.artemis.api.core.client.loadbalance." +
+                                                                       "RoundRobinConnectionLoadBalancingPolicy&dupsOKBatchSize=1048576&initialMessagePacketSize=1500&" +
+                                                                       "consumerMaxRate=-1&retryInterval=2000&failoverOnInitialConnection=false&producerWindowSize=65536&" +
+                                                                       "port=61616&host=localhost#"));
    }
 
-   private void testThroughNewConnectionFactory(ActiveMQConnectionFactory factory) throws Exception
-   {
+   private void testThroughNewConnectionFactory(ActiveMQConnectionFactory factory) throws Exception {
       Connection conn = factory.createConnection();
       conn.close();
 
-      try (JMSContext ctx = factory.createContext())
-      {
-         ctx.createProducer().send(ctx.createQueue("queue"),"Test");
+      try (JMSContext ctx = factory.createContext()) {
+         ctx.createProducer().send(ctx.createQueue("queue"), "Test");
       }
 
-      try (JMSContext ctx = factory.createContext())
-      {
+      try (JMSContext ctx = factory.createContext()) {
          Assert.assertNotNull(ctx.createConsumer(ctx.createQueue("queue")).receiveNoWait());
          Assert.assertNull(ctx.createConsumer(ctx.createQueue("queue")).receiveNoWait());
       }
@@ -80,29 +75,24 @@ public class ConnectionTest extends JMSTestBase
       factory.close();
    }
 
-
    @Test
-   public void testSetSameIdToDifferentConnections() throws Exception
-   {
+   public void testSetSameIdToDifferentConnections() throws Exception {
       String id = "somethingElse" + name.getMethodName();
       conn = cf.createConnection();
       conn2 = cf.createConnection();
       conn.getClientID();
       conn.setClientID(id);
-      try
-      {
+      try {
          conn2.setClientID(id);
          Assert.fail("should not happen.");
       }
-      catch (InvalidClientIDException expected)
-      {
+      catch (InvalidClientIDException expected) {
          // expected
       }
    }
 
    @Test
-   public void testGetSetConnectionFactory() throws Exception
-   {
+   public void testGetSetConnectionFactory() throws Exception {
       conn = cf.createConnection();
 
       conn.getClientID();
@@ -111,8 +101,7 @@ public class ConnectionTest extends JMSTestBase
    }
 
    @Test
-   public void testTXTypeInvalid() throws Exception
-   {
+   public void testTXTypeInvalid() throws Exception {
       conn = cf.createConnection();
 
       Session sess = conn.createSession(false, Session.SESSION_TRANSACTED);
@@ -136,8 +125,7 @@ public class ConnectionTest extends JMSTestBase
    }
 
    @Test
-   public void testXAInstanceof() throws Exception
-   {
+   public void testXAInstanceof() throws Exception {
       conn = cf.createConnection();
 
       assertFalse(conn instanceof XAConnection);
@@ -147,8 +135,7 @@ public class ConnectionTest extends JMSTestBase
    }
 
    @Test
-   public void testConnectionFactorySerialization() throws Exception
-   {
+   public void testConnectionFactorySerialization() throws Exception {
       //first try cf without any connection being created
       ConnectionFactory newCF = getCFThruSerialization(cf);
       testCreateConnection(newCF);
@@ -156,24 +143,20 @@ public class ConnectionTest extends JMSTestBase
       //now serialize a cf after a connection has been created
       //https://issues.jboss.org/browse/WFLY-327
       Connection aConn = null;
-      try
-      {
+      try {
          aConn = cf.createConnection();
          newCF = getCFThruSerialization(cf);
          testCreateConnection(newCF);
       }
-      finally
-      {
-         if (aConn != null)
-         {
+      finally {
+         if (aConn != null) {
             aConn.close();
          }
       }
 
    }
 
-   private ConnectionFactory getCFThruSerialization(ConnectionFactory fact) throws Exception
-   {
+   private ConnectionFactory getCFThruSerialization(ConnectionFactory fact) throws Exception {
       ByteArrayOutputStream bos = new ByteArrayOutputStream();
       ObjectOutputStream oos = new ObjectOutputStream(bos);
 
@@ -187,11 +170,9 @@ public class ConnectionTest extends JMSTestBase
       return newCF;
    }
 
-   private void testCreateConnection(ConnectionFactory fact) throws Exception
-   {
+   private void testCreateConnection(ConnectionFactory fact) throws Exception {
       Connection newConn = null;
-      try
-      {
+      try {
          newConn = fact.createConnection();
          newConn.start();
          newConn.stop();
@@ -200,10 +181,8 @@ public class ConnectionTest extends JMSTestBase
          Session session2 = newConn.createSession(true, Session.SESSION_TRANSACTED);
          session2.close();
       }
-      finally
-      {
-         if (newConn != null)
-         {
+      finally {
+         if (newConn != null) {
             newConn.close();
          }
       }
@@ -211,10 +190,8 @@ public class ConnectionTest extends JMSTestBase
 
    @Override
    @After
-   public void tearDown() throws Exception
-   {
-      if (conn2 != null)
-      {
+   public void tearDown() throws Exception {
+      if (conn2 != null) {
          conn2.close();
       }
       super.tearDown();

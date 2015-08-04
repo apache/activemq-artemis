@@ -19,12 +19,10 @@ package org.apache.activemq.artemis.api.core.management;
 import javax.management.MBeanOperationInfo;
 import java.util.Map;
 
-
 /**
  * A QueueControl is used to manage a queue.
  */
-public interface QueueControl
-{
+public interface QueueControl {
    // Attributes ----------------------------------------------------
 
    /**
@@ -248,7 +246,6 @@ public interface QueueControl
    @Operation(desc = "Move the messages corresponding to the given filter (and returns the number of moved messages). RejectDuplicates=false on this case.", impact = MBeanOperationInfo.ACTION)
    int moveMessages(@Parameter(name = "filter", desc = "A message filter (can be empty)") String filter,
                     @Parameter(name = "otherQueueName", desc = "The name of the queue to move the messages to") String otherQueueName) throws Exception;
-
 
    /**
     * Moves all the message corresponding to the specified filter  to the specified other queue.

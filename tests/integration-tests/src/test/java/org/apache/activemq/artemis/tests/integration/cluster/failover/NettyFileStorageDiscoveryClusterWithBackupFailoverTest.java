@@ -16,11 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
-public class NettyFileStorageDiscoveryClusterWithBackupFailoverTest extends DiscoveryClusterWithBackupFailoverTest
-{
+public class NettyFileStorageDiscoveryClusterWithBackupFailoverTest extends DiscoveryClusterWithBackupFailoverTest {
+
    @Override
-   protected boolean isNetty()
-   {
+   protected boolean isNetty() {
       return true;
    }
 }

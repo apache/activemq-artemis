@@ -25,44 +25,43 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class InVMTransportConfigurationSchema extends AbstractTransportConfigurationSchema
-{
+public class InVMTransportConfigurationSchema extends AbstractTransportConfigurationSchema {
+
    /* This is the same as org.apache.activemq.artemis.core.remoting.impl.invm.TransportConstants.CONNECTIONS_ALLOWED,
     * but this Maven module can't see that class.
     */
    public static final String CONNECTIONS_ALLOWED = "connectionsAllowed";
 
    @Override
-   public String getSchemaName()
-   {
+   public String getSchemaName() {
       return SchemaConstants.VM;
    }
 
    @Override
-   protected List<TransportConfiguration> internalNewObject(URI uri, Map<String, String> query, String name) throws Exception
-   {
+   protected List<TransportConfiguration> internalNewObject(URI uri,
+                                                            Map<String, String> query,
+                                                            String name) throws Exception {
       List<TransportConfiguration> configurations = new ArrayList<>();
       configurations.add(createTransportConfiguration(uri, query, name, getFactoryName()));
       return configurations;
    }
 
    @Override
-   protected URI internalNewURI(List<TransportConfiguration> bean) throws Exception
-   {
+   protected URI internalNewURI(List<TransportConfiguration> bean) throws Exception {
       return null;
    }
 
-   protected String getFactoryName()
-   {
+   protected String getFactoryName() {
       return "org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory";
    }
 
-   public static TransportConfiguration createTransportConfiguration(URI uri, Map<String, String> query, String name, String factoryName)
-   {
+   public static TransportConfiguration createTransportConfiguration(URI uri,
+                                                                     Map<String, String> query,
+                                                                     String name,
+                                                                     String factoryName) {
       Map<String, Object> inVmTransportConfig = new HashMap<>();
       inVmTransportConfig.put("serverId", uri.getHost());
-      if (query.containsKey(CONNECTIONS_ALLOWED))
-      {
+      if (query.containsKey(CONNECTIONS_ALLOWED)) {
          inVmTransportConfig.put(CONNECTIONS_ALLOWED, query.get(CONNECTIONS_ALLOWED));
       }
       return new TransportConfiguration(factoryName, inVmTransportConfig, name);

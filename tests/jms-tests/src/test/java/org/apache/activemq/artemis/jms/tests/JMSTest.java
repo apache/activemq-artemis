@@ -34,35 +34,29 @@ import org.junit.Test;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
-
 /**
  * The most comprehensive, yet simple, unit test.
  */
-public class JMSTest extends JMSTestCase
-{
+public class JMSTest extends JMSTestCase {
+
    Connection conn = null;
 
    @Override
    @After
-   public void tearDown() throws Exception
-   {
-      try
-      {
-         if (conn != null)
-         {
+   public void tearDown() throws Exception {
+      try {
+         if (conn != null) {
             conn.close();
             conn = null;
          }
       }
-      finally
-      {
+      finally {
          super.tearDown();
       }
    }
 
    @Test
-   public void test_NonPersistent_NonTransactional() throws Exception
-   {
+   public void test_NonPersistent_NonTransactional() throws Exception {
       conn = createConnection();
 
       Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -92,8 +86,7 @@ public class JMSTest extends JMSTestCase
    }
 
    @Test
-   public void testCreateTextMessageNull() throws Exception
-   {
+   public void testCreateTextMessageNull() throws Exception {
       conn = createConnection();
 
       Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -123,8 +116,7 @@ public class JMSTest extends JMSTestCase
    }
 
    @Test
-   public void testPersistent_NonTransactional() throws Exception
-   {
+   public void testPersistent_NonTransactional() throws Exception {
       conn = createConnection();
 
       Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -152,8 +144,7 @@ public class JMSTest extends JMSTestCase
    }
 
    @Test
-   public void testNonPersistent_Transactional_Send() throws Exception
-   {
+   public void testNonPersistent_Transactional_Send() throws Exception {
       conn = createConnection();
 
       Session session = conn.createSession(true, Session.SESSION_TRANSACTED);
@@ -185,8 +176,7 @@ public class JMSTest extends JMSTestCase
    }
 
    @Test
-   public void testPersistent_Transactional_Send() throws Exception
-   {
+   public void testPersistent_Transactional_Send() throws Exception {
       conn = createConnection();
 
       Session session = conn.createSession(true, Session.SESSION_TRANSACTED);
@@ -218,8 +208,7 @@ public class JMSTest extends JMSTestCase
    }
 
    @Test
-   public void testNonPersistent_Transactional_Acknowledgment() throws Exception
-   {
+   public void testNonPersistent_Transactional_Acknowledgment() throws Exception {
       conn = createConnection();
 
       Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -246,8 +235,7 @@ public class JMSTest extends JMSTestCase
    }
 
    @Test
-   public void testAsynchronous_to_Client() throws Exception
-   {
+   public void testAsynchronous_to_Client() throws Exception {
       conn = createConnection();
 
       final Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -259,36 +247,29 @@ public class JMSTest extends JMSTestCase
       final AtomicReference<Message> message = new AtomicReference<Message>();
       final CountDownLatch latch = new CountDownLatch(1);
 
-      new Thread(new Runnable()
-      {
-         public void run()
-         {
-            try
-            {
+      new Thread(new Runnable() {
+         public void run() {
+            try {
                // sleep a little bit to ensure that
                // prod.send will be called before cons.reveive
                Thread.sleep(500);
 
-               synchronized (session)
-               {
+               synchronized (session) {
                   Message m = cons.receive(5000);
-                  if (m != null)
-                  {
+                  if (m != null) {
                      message.set(m);
                      latch.countDown();
                   }
                }
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                log.error("receive failed", e);
             }
 
          }
       }, "Receiving Thread").start();
 
-      synchronized (session)
-      {
+      synchronized (session) {
          MessageProducer prod = session.createProducer(queue1);
          prod.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
 
@@ -305,8 +286,7 @@ public class JMSTest extends JMSTestCase
    }
 
    @Test
-   public void testMessageListener() throws Exception
-   {
+   public void testMessageListener() throws Exception {
       conn = createConnection();
 
       Session sessionConsumer = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -316,17 +296,14 @@ public class JMSTest extends JMSTestCase
       final AtomicReference<Message> message = new AtomicReference<Message>();
       final CountDownLatch latch = new CountDownLatch(1);
 
-      cons.setMessageListener(new MessageListener()
-      {
-         public void onMessage(final Message m)
-         {
+      cons.setMessageListener(new MessageListener() {
+         public void onMessage(final Message m) {
             message.set(m);
             latch.countDown();
          }
       });
 
       conn.start();
-
 
       Session sessionProducer = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
       MessageProducer prod = sessionProducer.createProducer(queue1);
@@ -342,8 +319,7 @@ public class JMSTest extends JMSTestCase
    }
 
    @Test
-   public void testClientAcknowledge() throws Exception
-   {
+   public void testClientAcknowledge() throws Exception {
       conn = createConnection();
 
       Session session = conn.createSession(false, Session.CLIENT_ACKNOWLEDGE);

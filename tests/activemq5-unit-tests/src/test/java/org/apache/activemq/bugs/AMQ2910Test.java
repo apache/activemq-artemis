@@ -37,93 +37,94 @@ import static org.junit.Assert.assertTrue;
 @RunWith(BlockJUnit4ClassRunner.class)
 public class AMQ2910Test extends JmsMultipleClientsTestSupport {
 
-    final int maxConcurrency = 60;
-    final int msgCount = 200;
-    final Vector<Throwable> exceptions = new Vector<Throwable>();
+   final int maxConcurrency = 60;
+   final int msgCount = 200;
+   final Vector<Throwable> exceptions = new Vector<Throwable>();
 
-    @Override
-    protected BrokerService createBroker() throws Exception {
-        //persistent = true;
-        BrokerService broker = new BrokerService();
-        broker.setDeleteAllMessagesOnStartup(true);
-        broker.addConnector("tcp://localhost:0");
-        PolicyMap policyMap = new PolicyMap();
-        PolicyEntry defaultEntry = new PolicyEntry();
-        defaultEntry.setPendingQueuePolicy(new FilePendingQueueMessageStoragePolicy());
-        defaultEntry.setCursorMemoryHighWaterMark(50);
-        defaultEntry.setMemoryLimit(500*1024);
-        defaultEntry.setProducerFlowControl(false);
-        policyMap.setDefaultEntry(defaultEntry);
-        broker.setDestinationPolicy(policyMap);
+   @Override
+   protected BrokerService createBroker() throws Exception {
+      //persistent = true;
+      BrokerService broker = new BrokerService();
+      broker.setDeleteAllMessagesOnStartup(true);
+      broker.addConnector("tcp://localhost:0");
+      PolicyMap policyMap = new PolicyMap();
+      PolicyEntry defaultEntry = new PolicyEntry();
+      defaultEntry.setPendingQueuePolicy(new FilePendingQueueMessageStoragePolicy());
+      defaultEntry.setCursorMemoryHighWaterMark(50);
+      defaultEntry.setMemoryLimit(500 * 1024);
+      defaultEntry.setProducerFlowControl(false);
+      policyMap.setDefaultEntry(defaultEntry);
+      broker.setDestinationPolicy(policyMap);
 
-        broker.getSystemUsage().getMemoryUsage().setLimit(1000 * 1024);
+      broker.getSystemUsage().getMemoryUsage().setLimit(1000 * 1024);
 
-        return broker;
-    }
+      return broker;
+   }
 
-    @Test(timeout = 30 * 1000)
-    public void testConcurrentSendToPendingCursor() throws Exception {
-        final ActiveMQConnectionFactory factory =
-                new ActiveMQConnectionFactory(broker.getTransportConnectors().get(0).getConnectUri());
-        factory.setCloseTimeout(30000);
-        ExecutorService executor = Executors.newCachedThreadPool();
-        for (int i=0; i<maxConcurrency; i++) {
-            final ActiveMQQueue dest = new ActiveMQQueue("Queue-" + i);
-            executor.execute(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        sendMessages(factory.createConnection(), dest, msgCount);
-                    } catch (Throwable t) {
-                        exceptions.add(t);
-                    }
-                }
-            });
-        }
-
-        executor.shutdown();
-
-        assertTrue("send completed", executor.awaitTermination(60, TimeUnit.SECONDS));
-        assertNoExceptions();
-
-        executor = Executors.newCachedThreadPool();
-        for (int i=0; i<maxConcurrency; i++) {
-            final ActiveMQQueue dest = new ActiveMQQueue("Queue-" + i);
-            executor.execute(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        startConsumers(factory, dest);
-                    } catch (Throwable t) {
-                        exceptions.add(t);
-                    }
-                }
-            });
-        }
-
-        executor.shutdown();
-        assertTrue("consumers completed", executor.awaitTermination(60, TimeUnit.SECONDS));
-
-        allMessagesList.setMaximumDuration(120*1000);
-        final int numExpected = maxConcurrency * msgCount;
-        allMessagesList.waitForMessagesToArrive(numExpected);
-
-        if (allMessagesList.getMessageCount() != numExpected) {
-            dumpAllThreads(getName());
-
-        }
-        allMessagesList.assertMessagesReceivedNoWait(numExpected);
-
-        assertTrue("no exceptions: " + exceptions, exceptions.isEmpty());
-
-    }
-
-    private void assertNoExceptions() {
-        if (!exceptions.isEmpty()) {
-            for (Throwable t: exceptions) {
-                t.printStackTrace();
+   @Test(timeout = 30 * 1000)
+   public void testConcurrentSendToPendingCursor() throws Exception {
+      final ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(broker.getTransportConnectors().get(0).getConnectUri());
+      factory.setCloseTimeout(30000);
+      ExecutorService executor = Executors.newCachedThreadPool();
+      for (int i = 0; i < maxConcurrency; i++) {
+         final ActiveMQQueue dest = new ActiveMQQueue("Queue-" + i);
+         executor.execute(new Runnable() {
+            @Override
+            public void run() {
+               try {
+                  sendMessages(factory.createConnection(), dest, msgCount);
+               }
+               catch (Throwable t) {
+                  exceptions.add(t);
+               }
             }
-        }
-        assertTrue("no exceptions: " + exceptions, exceptions.isEmpty());
-    }
+         });
+      }
+
+      executor.shutdown();
+
+      assertTrue("send completed", executor.awaitTermination(60, TimeUnit.SECONDS));
+      assertNoExceptions();
+
+      executor = Executors.newCachedThreadPool();
+      for (int i = 0; i < maxConcurrency; i++) {
+         final ActiveMQQueue dest = new ActiveMQQueue("Queue-" + i);
+         executor.execute(new Runnable() {
+            @Override
+            public void run() {
+               try {
+                  startConsumers(factory, dest);
+               }
+               catch (Throwable t) {
+                  exceptions.add(t);
+               }
+            }
+         });
+      }
+
+      executor.shutdown();
+      assertTrue("consumers completed", executor.awaitTermination(60, TimeUnit.SECONDS));
+
+      allMessagesList.setMaximumDuration(120 * 1000);
+      final int numExpected = maxConcurrency * msgCount;
+      allMessagesList.waitForMessagesToArrive(numExpected);
+
+      if (allMessagesList.getMessageCount() != numExpected) {
+         dumpAllThreads(getName());
+
+      }
+      allMessagesList.assertMessagesReceivedNoWait(numExpected);
+
+      assertTrue("no exceptions: " + exceptions, exceptions.isEmpty());
+
+   }
+
+   private void assertNoExceptions() {
+      if (!exceptions.isEmpty()) {
+         for (Throwable t : exceptions) {
+            t.printStackTrace();
+         }
+      }
+      assertTrue("no exceptions: " + exceptions, exceptions.isEmpty());
+   }
 }

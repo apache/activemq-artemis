@@ -18,16 +18,16 @@ package org.apache.activemq.artemis.utils;
 
 /**
  * Generator of record IDs for the journals.
- * <p>
+ * <br>
  * Notice that while the bindings and messages journals are independent from one another they use
  * the same {@link IDGenerator} instance.
- * <p>
+ * <br>
  * The next recordID should be persisted in the journals during a normal shutdown. The lack of such
  * a record indicates a server crash. During server restart, if the journals lack a
  * {@literal next-recordID} record, we use the last recorded ID plus {@code MAX_INT}.
  */
-public interface IDGenerator
-{
+public interface IDGenerator {
+
    long generateID();
 
    long getCurrentID();

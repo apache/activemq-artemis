@@ -23,13 +23,12 @@ import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
 import org.apache.activemq.artemis.tests.unit.core.journal.impl.JournalImplTestUnit;
 
-public class NIONoBufferJournalImplTest extends JournalImplTestUnit
-{
+public class NIONoBufferJournalImplTest extends JournalImplTestUnit {
+
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
    @Override
-   protected SequentialFileFactory getFileFactory() throws Exception
-   {
+   protected SequentialFileFactory getFileFactory() throws Exception {
       File file = new File(getTestDir());
 
       NIONoBufferJournalImplTest.log.debug("deleting directory " + getTestDir());
@@ -42,8 +41,7 @@ public class NIONoBufferJournalImplTest extends JournalImplTestUnit
    }
 
    @Override
-   protected int getAlignment()
-   {
+   protected int getAlignment() {
       return 1;
    }
 

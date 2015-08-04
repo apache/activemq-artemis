@@ -24,13 +24,13 @@ import java.io.IOException;
 
 public class QueueBrowsingLevelDBTest extends QueueBrowsingTest {
 
-    @Override
-    public BrokerService createBroker() throws IOException {
-        BrokerService broker = super.createBroker();
-        LevelDBStore store = new LevelDBStore();
-        store.setDirectory(new File("target/test-data/leveldb"));
-        broker.setPersistenceAdapter(store);
-        return broker;
-    }
+   @Override
+   public BrokerService createBroker() throws IOException {
+      BrokerService broker = super.createBroker();
+      LevelDBStore store = new LevelDBStore();
+      store.setDirectory(new File("target/test-data/leveldb"));
+      broker.setPersistenceAdapter(store);
+      return broker;
+   }
 
 }

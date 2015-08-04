@@ -19,11 +19,10 @@ package org.apache.activemq.artemis.core.client.impl;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
 
 /**
- *
  * A ClientProducerInternal
  */
-public interface ClientProducerInternal extends ClientProducer
-{
+public interface ClientProducerInternal extends ClientProducer {
+
    void cleanUp();
 
    ClientProducerCredits getProducerCredits();

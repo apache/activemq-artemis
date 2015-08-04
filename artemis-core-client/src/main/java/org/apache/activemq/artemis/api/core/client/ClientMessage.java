@@ -24,11 +24,10 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.Message;
 
 /**
- *
  * A ClientMessage represents a message sent and/or received by ActiveMQ Artemis.
  */
-public interface ClientMessage extends Message
-{
+public interface ClientMessage extends Message {
+
    /**
     * Returns the number of times this message was delivered.
     */
@@ -36,8 +35,9 @@ public interface ClientMessage extends Message
 
    /**
     * Sets the delivery count for this message.
-    * <p>
+    * <br>
     * This method is not meant to be called by ActiveMQ Artemis clients.
+    *
     * @param deliveryCount message delivery count
     * @return this ClientMessage
     */
@@ -45,10 +45,11 @@ public interface ClientMessage extends Message
 
    /**
     * Acknowledges reception of this message.
-    * <p>
+    * <br>
     * If the session responsible to acknowledge this message has {@code autoCommitAcks} set to
     * {@code true}, the transaction will automatically commit the current transaction. Otherwise,
     * this acknowledgement will not be committed until the client commits the session transaction.
+    *
     * @throws ActiveMQException if an error occurred while acknowledging the message.
     * @see ClientSession#isAutoCommitAcks()
     */
@@ -56,10 +57,11 @@ public interface ClientMessage extends Message
 
    /**
     * Acknowledges reception of a single message.
-    * <p>
+    * <br>
     * If the session responsible to acknowledge this message has {@code autoCommitAcks} set to
     * {@code true}, the transaction will automatically commit the current transaction. Otherwise,
     * this acknowledgement will not be committed until the client commits the session transaction.
+    *
     * @throws ActiveMQException if an error occurred while acknowledging the message.
     * @see ClientSession#isAutoCommitAcks()
     */
@@ -71,6 +73,7 @@ public interface ClientMessage extends Message
     * The use case for this is to make sure there won't be an exception while getting the buffer.
     * Using getBodyBuffer directly would have the same effect but you could get a Runtime non checked Exception
     * instead
+    *
     * @throws ActiveMQException
     */
    void checkCompletion() throws ActiveMQException;
@@ -85,8 +88,8 @@ public interface ClientMessage extends Message
     * <br>
     * This method is used when consuming large messages
     *
-    * @throws ActiveMQException
     * @return this ClientMessage
+    * @throws ActiveMQException
     */
    ClientMessage setOutputStream(OutputStream out) throws ActiveMQException;
 
@@ -101,7 +104,7 @@ public interface ClientMessage extends Message
 
    /**
     * Wait the outputStream completion of the message.
-    *
+    * <br>
     * This method is used when consuming large messages
     *
     * @param timeMilliseconds - 0 means wait forever
@@ -114,10 +117,10 @@ public interface ClientMessage extends Message
     * Sets the body's IntputStream.
     * <br>
     * This method is used when sending large messages
+    *
     * @return this ClientMessage
     */
    ClientMessage setBodyInputStream(InputStream bodyInputStream);
-
 
    /**
     * Overridden from {@link Message} to enable fluent API

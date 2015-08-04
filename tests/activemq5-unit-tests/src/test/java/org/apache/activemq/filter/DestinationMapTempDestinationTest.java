@@ -26,20 +26,20 @@ import org.apache.activemq.util.IdGenerator;
 
 public class DestinationMapTempDestinationTest extends TestCase {
 
-    public void testtestTempDestinations() throws Exception {
-        ConnectionId id = new ConnectionId(new IdGenerator().generateId());
-        DestinationMap map = new DestinationMap();
-        Object value = new Object();
-        int count = 1000;
-        for (int i = 0; i < count; i++) {
-            ActiveMQTempQueue queue = new ActiveMQTempQueue(id, i);
-            map.put(queue, value);
-        }
-        for (int i = 0; i < count; i++) {
-            ActiveMQTempQueue queue = new ActiveMQTempQueue(id, i);
-            map.remove(queue, value);
-            Set<?> set = map.get(queue);
-            assertTrue(set.isEmpty());
-        }
-    }
+   public void testtestTempDestinations() throws Exception {
+      ConnectionId id = new ConnectionId(new IdGenerator().generateId());
+      DestinationMap map = new DestinationMap();
+      Object value = new Object();
+      int count = 1000;
+      for (int i = 0; i < count; i++) {
+         ActiveMQTempQueue queue = new ActiveMQTempQueue(id, i);
+         map.put(queue, value);
+      }
+      for (int i = 0; i < count; i++) {
+         ActiveMQTempQueue queue = new ActiveMQTempQueue(id, i);
+         map.remove(queue, value);
+         Set<?> set = map.get(queue);
+         assertTrue(set.isEmpty());
+      }
+   }
 }

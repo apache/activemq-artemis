@@ -22,42 +22,36 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.utils.XidCodecSupport;
 
-public class SessionXAForgetMessage extends PacketImpl
-{
+public class SessionXAForgetMessage extends PacketImpl {
 
    private Xid xid;
-   public SessionXAForgetMessage(final Xid xid)
-   {
+
+   public SessionXAForgetMessage(final Xid xid) {
       super(SESS_XA_FORGET);
 
       this.xid = xid;
    }
 
-   public SessionXAForgetMessage()
-   {
+   public SessionXAForgetMessage() {
       super(SESS_XA_FORGET);
    }
 
-   public Xid getXid()
-   {
+   public Xid getXid() {
       return xid;
    }
 
    @Override
-   public void encodeRest(final ActiveMQBuffer buffer)
-   {
+   public void encodeRest(final ActiveMQBuffer buffer) {
       XidCodecSupport.encodeXid(xid, buffer);
    }
 
    @Override
-   public void decodeRest(final ActiveMQBuffer buffer)
-   {
+   public void decodeRest(final ActiveMQBuffer buffer) {
       xid = XidCodecSupport.decodeXid(buffer);
    }
 
    @Override
-   public int hashCode()
-   {
+   public int hashCode() {
       final int prime = 31;
       int result = super.hashCode();
       result = prime * result + ((xid == null) ? 0 : xid.hashCode());
@@ -65,17 +59,15 @@ public class SessionXAForgetMessage extends PacketImpl
    }
 
    @Override
-   public boolean equals(Object obj)
-   {
+   public boolean equals(Object obj) {
       if (this == obj)
          return true;
       if (!super.equals(obj))
          return false;
       if (!(obj instanceof SessionXAForgetMessage))
          return false;
-      SessionXAForgetMessage other = (SessionXAForgetMessage)obj;
-      if (xid == null)
-      {
+      SessionXAForgetMessage other = (SessionXAForgetMessage) obj;
+      if (xid == null) {
          if (other.xid != null)
             return false;
       }

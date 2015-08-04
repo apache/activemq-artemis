@@ -28,18 +28,15 @@ import org.apache.activemq.artemis.api.jms.management.JMSQueueControl;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
 import org.junit.Test;
 
-public class JMSMessageCounterTest extends JMSTestBase
-{
+public class JMSMessageCounterTest extends JMSTestBase {
 
    @Override
-   protected boolean usePersistence()
-   {
+   protected boolean usePersistence() {
       return true;
    }
 
    @Test
-   public void testMessageCounter() throws Exception
-   {
+   public void testMessageCounter() throws Exception {
       Connection conn = cf.createConnection();
       Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
@@ -50,8 +47,7 @@ public class JMSMessageCounterTest extends JMSTestBase
 
       final int numMessages = 100;
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          TextMessage mess = sess.createTextMessage("msg" + i);
          producer.send(mess);
       }

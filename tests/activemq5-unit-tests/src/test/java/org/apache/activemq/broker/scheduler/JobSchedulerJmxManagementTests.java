@@ -42,114 +42,114 @@ import org.slf4j.LoggerFactory;
  */
 public class JobSchedulerJmxManagementTests extends JobSchedulerTestSupport {
 
-    private static final Logger LOG = LoggerFactory.getLogger(JobSchedulerJmxManagementTests.class);
+   private static final Logger LOG = LoggerFactory.getLogger(JobSchedulerJmxManagementTests.class);
 
-    @Test
-    public void testJobSchedulerMBeanIsRegistered() throws Exception {
-        JobSchedulerViewMBean view = getJobSchedulerMBean();
-        assertNotNull(view);
-        assertTrue(view.getAllJobs().isEmpty());
-    }
+   @Test
+   public void testJobSchedulerMBeanIsRegistered() throws Exception {
+      JobSchedulerViewMBean view = getJobSchedulerMBean();
+      assertNotNull(view);
+      assertTrue(view.getAllJobs().isEmpty());
+   }
 
-    @Test
-    public void testGetNumberOfJobs() throws Exception {
-        JobSchedulerViewMBean view = getJobSchedulerMBean();
-        assertNotNull(view);
-        assertTrue(view.getAllJobs().isEmpty());
-        scheduleMessage(60000, -1, -1);
-        assertFalse(view.getAllJobs().isEmpty());
-        assertEquals(1, view.getAllJobs().size());
-        scheduleMessage(60000, -1, -1);
-        assertEquals(2, view.getAllJobs().size());
-    }
+   @Test
+   public void testGetNumberOfJobs() throws Exception {
+      JobSchedulerViewMBean view = getJobSchedulerMBean();
+      assertNotNull(view);
+      assertTrue(view.getAllJobs().isEmpty());
+      scheduleMessage(60000, -1, -1);
+      assertFalse(view.getAllJobs().isEmpty());
+      assertEquals(1, view.getAllJobs().size());
+      scheduleMessage(60000, -1, -1);
+      assertEquals(2, view.getAllJobs().size());
+   }
 
-    @Test
-    public void testRemvoeJob() throws Exception {
-        JobSchedulerViewMBean view = getJobSchedulerMBean();
-        assertNotNull(view);
-        assertTrue(view.getAllJobs().isEmpty());
-        scheduleMessage(60000, -1, -1);
-        assertFalse(view.getAllJobs().isEmpty());
-        TabularData jobs = view.getAllJobs();
-        assertEquals(1, jobs.size());
-        for (Object key : jobs.keySet()) {
-            String jobId = ((List<?>)key).get(0).toString();
-            LOG.info("Attempting to remove Job: {}", jobId);
-            view.removeJob(jobId);
-        }
-        assertTrue(view.getAllJobs().isEmpty());
-    }
+   @Test
+   public void testRemvoeJob() throws Exception {
+      JobSchedulerViewMBean view = getJobSchedulerMBean();
+      assertNotNull(view);
+      assertTrue(view.getAllJobs().isEmpty());
+      scheduleMessage(60000, -1, -1);
+      assertFalse(view.getAllJobs().isEmpty());
+      TabularData jobs = view.getAllJobs();
+      assertEquals(1, jobs.size());
+      for (Object key : jobs.keySet()) {
+         String jobId = ((List<?>) key).get(0).toString();
+         LOG.info("Attempting to remove Job: {}", jobId);
+         view.removeJob(jobId);
+      }
+      assertTrue(view.getAllJobs().isEmpty());
+   }
 
-    @Test
-    public void testRemvoeJobInRange() throws Exception {
-        JobSchedulerViewMBean view = getJobSchedulerMBean();
-        assertNotNull(view);
-        assertTrue(view.getAllJobs().isEmpty());
-        scheduleMessage(60000, -1, -1);
-        assertFalse(view.getAllJobs().isEmpty());
-        String now = JobSupport.getDateTime(System.currentTimeMillis());
-        String later = JobSupport.getDateTime(System.currentTimeMillis() + 120 * 1000);
-        view.removeAllJobs(now, later);
-        assertTrue(view.getAllJobs().isEmpty());
-    }
+   @Test
+   public void testRemvoeJobInRange() throws Exception {
+      JobSchedulerViewMBean view = getJobSchedulerMBean();
+      assertNotNull(view);
+      assertTrue(view.getAllJobs().isEmpty());
+      scheduleMessage(60000, -1, -1);
+      assertFalse(view.getAllJobs().isEmpty());
+      String now = JobSupport.getDateTime(System.currentTimeMillis());
+      String later = JobSupport.getDateTime(System.currentTimeMillis() + 120 * 1000);
+      view.removeAllJobs(now, later);
+      assertTrue(view.getAllJobs().isEmpty());
+   }
 
-    @Test
-    public void testGetNextScheduledJob() throws Exception {
-        JobSchedulerViewMBean view = getJobSchedulerMBean();
-        assertNotNull(view);
-        assertTrue(view.getAllJobs().isEmpty());
-        scheduleMessage(60000, -1, -1);
-        assertFalse(view.getAllJobs().isEmpty());
-        long before = System.currentTimeMillis() + 57 * 1000;
-        long toLate = System.currentTimeMillis() + 63 * 1000;
-        String next = view.getNextScheduleTime();
-        long nextTime = JobSupport.getDataTime(next);
-        LOG.info("Next Scheduled Time: {} should be after: {}", next, JobSupport.getDateTime(before));
-        assertTrue(nextTime > before);
-        assertTrue(nextTime < toLate);
-    }
+   @Test
+   public void testGetNextScheduledJob() throws Exception {
+      JobSchedulerViewMBean view = getJobSchedulerMBean();
+      assertNotNull(view);
+      assertTrue(view.getAllJobs().isEmpty());
+      scheduleMessage(60000, -1, -1);
+      assertFalse(view.getAllJobs().isEmpty());
+      long before = System.currentTimeMillis() + 57 * 1000;
+      long toLate = System.currentTimeMillis() + 63 * 1000;
+      String next = view.getNextScheduleTime();
+      long nextTime = JobSupport.getDataTime(next);
+      LOG.info("Next Scheduled Time: {} should be after: {}", next, JobSupport.getDateTime(before));
+      assertTrue(nextTime > before);
+      assertTrue(nextTime < toLate);
+   }
 
-    @Test
-    public void testGetExecutionCount() throws Exception {
-        final JobSchedulerViewMBean view = getJobSchedulerMBean();
-        assertNotNull(view);
-        assertTrue(view.getAllJobs().isEmpty());
-        scheduleMessage(10000, 1000, 10);
-        assertFalse(view.getAllJobs().isEmpty());
-        TabularData jobs = view.getAllJobs();
-        assertEquals(1, jobs.size());
-        String jobId = null;
-        for (Object key : jobs.keySet()) {
-            jobId = ((List<?>)key).get(0).toString();
-        }
+   @Test
+   public void testGetExecutionCount() throws Exception {
+      final JobSchedulerViewMBean view = getJobSchedulerMBean();
+      assertNotNull(view);
+      assertTrue(view.getAllJobs().isEmpty());
+      scheduleMessage(10000, 1000, 10);
+      assertFalse(view.getAllJobs().isEmpty());
+      TabularData jobs = view.getAllJobs();
+      assertEquals(1, jobs.size());
+      String jobId = null;
+      for (Object key : jobs.keySet()) {
+         jobId = ((List<?>) key).get(0).toString();
+      }
 
-        final String fixedJobId = jobId;
-        LOG.info("Attempting to get execution count for Job: {}", jobId);
-        assertEquals(0, view.getExecutionCount(jobId));
+      final String fixedJobId = jobId;
+      LOG.info("Attempting to get execution count for Job: {}", jobId);
+      assertEquals(0, view.getExecutionCount(jobId));
 
-        assertTrue("Should execute again", Wait.waitFor(new Wait.Condition() {
+      assertTrue("Should execute again", Wait.waitFor(new Wait.Condition() {
 
-            @Override
-            public boolean isSatisified() throws Exception {
-                return view.getExecutionCount(fixedJobId) > 0;
-            }
-        }));
-    }
+         @Override
+         public boolean isSatisified() throws Exception {
+            return view.getExecutionCount(fixedJobId) > 0;
+         }
+      }));
+   }
 
-    @Override
-    protected boolean isUseJmx() {
-        return true;
-    }
+   @Override
+   protected boolean isUseJmx() {
+      return true;
+   }
 
-    protected void scheduleMessage(int time, int period, int repeat) throws Exception {
-        Connection connection = createConnection();
-        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        MessageProducer producer = session.createProducer(destination);
-        TextMessage message = session.createTextMessage("test msg");
-        message.setLongProperty(ScheduledMessage.AMQ_SCHEDULED_DELAY, time);
-        message.setLongProperty(ScheduledMessage.AMQ_SCHEDULED_PERIOD, period);
-        message.setIntProperty(ScheduledMessage.AMQ_SCHEDULED_REPEAT, repeat);
-        producer.send(message);
-        connection.close();
-    }
+   protected void scheduleMessage(int time, int period, int repeat) throws Exception {
+      Connection connection = createConnection();
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      MessageProducer producer = session.createProducer(destination);
+      TextMessage message = session.createTextMessage("test msg");
+      message.setLongProperty(ScheduledMessage.AMQ_SCHEDULED_DELAY, time);
+      message.setLongProperty(ScheduledMessage.AMQ_SCHEDULED_PERIOD, period);
+      message.setIntProperty(ScheduledMessage.AMQ_SCHEDULED_REPEAT, repeat);
+      producer.send(message);
+      connection.close();
+   }
 }

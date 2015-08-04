@@ -23,17 +23,15 @@ import org.proton.plug.test.minimalclient.Connector;
 /**
  * This is used for testing, where we bypass Netty or any networking for test conditions only
  */
-public class InVMTestConnector implements Connector
-{
+public class InVMTestConnector implements Connector {
+
    @Override
-   public void start()
-   {
+   public void start() {
 
    }
 
    @Override
-   public AMQPClientConnectionContext connect(String host, int port) throws Exception
-   {
+   public AMQPClientConnectionContext connect(String host, int port) throws Exception {
       return new ProtonClientConnectionContext(new ProtonINVMSPI());
    }
 }

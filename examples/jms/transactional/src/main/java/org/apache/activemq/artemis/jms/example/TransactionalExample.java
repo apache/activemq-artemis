@@ -28,22 +28,20 @@ import javax.naming.InitialContext;
 /**
  * A simple JMS example that sends and consume message transactionally.
  */
-public class TransactionalExample
-{
-   public static void main(final String[] args) throws Exception
-   {
+public class TransactionalExample {
+
+   public static void main(final String[] args) throws Exception {
       Connection connection = null;
       InitialContext initialContext = null;
-      try
-      {
+      try {
          // Step 1. Create an initial context to perform the JNDI lookup.
          initialContext = new InitialContext();
 
          // Step 2. Look-up the JMS topic
-         Queue queue = (Queue)initialContext.lookup("queue/exampleQueue");
+         Queue queue = (Queue) initialContext.lookup("queue/exampleQueue");
 
          // Step 3. Look-up the JMS connection factory
-         ConnectionFactory cf = (ConnectionFactory)initialContext.lookup("ConnectionFactory");
+         ConnectionFactory cf = (ConnectionFactory) initialContext.lookup("ConnectionFactory");
 
          // Step 4. Create a JMS connection
          connection = cf.createConnection();
@@ -72,7 +70,7 @@ public class TransactionalExample
          System.out.println("Sent message: " + message2.getText());
 
          // Step 11. Receive the message, it will return null as the transaction is not committed.
-         TextMessage receivedMessage = (TextMessage)messageConsumer.receive(5000);
+         TextMessage receivedMessage = (TextMessage) messageConsumer.receive(5000);
 
          System.out.println("Message received before send commit: " + receivedMessage);
 
@@ -80,7 +78,7 @@ public class TransactionalExample
          session.commit();
 
          // Step 13. Receive the messages again
-         receivedMessage = (TextMessage)messageConsumer.receive(5000);
+         receivedMessage = (TextMessage) messageConsumer.receive(5000);
 
          System.out.println("Message received after send commit: " + receivedMessage.getText());
 
@@ -88,15 +86,15 @@ public class TransactionalExample
          session.rollback();
 
          // Step 15. Receive the message again, we will get two messages
-         receivedMessage = (TextMessage)messageConsumer.receive(5000);
+         receivedMessage = (TextMessage) messageConsumer.receive(5000);
 
          System.out.println("Message1 received after receive rollback: " + receivedMessage.getText());
 
-         receivedMessage = (TextMessage)messageConsumer.receive(5000);
+         receivedMessage = (TextMessage) messageConsumer.receive(5000);
 
          System.out.println("Message2 received after receive rollback: " + receivedMessage.getText());
 
-         receivedMessage = (TextMessage)messageConsumer.receive(5000);
+         receivedMessage = (TextMessage) messageConsumer.receive(5000);
 
          System.out.println("Message3 received after receive rollback: " + receivedMessage);
 
@@ -104,10 +102,9 @@ public class TransactionalExample
          session.commit();
 
          // Step 17. Receive the message again. Nothing should be received.
-         receivedMessage = (TextMessage)messageConsumer.receive(5000);
+         receivedMessage = (TextMessage) messageConsumer.receive(5000);
 
-         if (receivedMessage != null)
-         {
+         if (receivedMessage != null) {
             // This was not supposed to happen
             throw new IllegalStateException("Message is not null.");
          }
@@ -115,15 +112,12 @@ public class TransactionalExample
          System.out.println("Message received after receive commit: " + receivedMessage);
 
       }
-      finally
-      {
-         if (connection != null)
-         {
+      finally {
+         if (connection != null) {
             // Step 18. Be sure to close our JMS resources!
             connection.close();
          }
-         if (initialContext != null)
-         {
+         if (initialContext != null) {
             // Step 19. Also close initial context!
             initialContext.close();
          }

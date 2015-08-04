@@ -36,96 +36,96 @@ import org.slf4j.LoggerFactory;
 
 public class OutOfOrderTestCase extends TestCase {
 
-    private static final Logger log = LoggerFactory.getLogger(OutOfOrderTestCase.class);
+   private static final Logger log = LoggerFactory.getLogger(OutOfOrderTestCase.class);
 
-    private static final String BROKER_URL = "tcp://localhost:0";
-    private static final int PREFETCH = 10;
-    private static final String CONNECTION_URL_OPTIONS = "?jms.prefetchPolicy.all=" + PREFETCH;
+   private static final String BROKER_URL = "tcp://localhost:0";
+   private static final int PREFETCH = 10;
+   private static final String CONNECTION_URL_OPTIONS = "?jms.prefetchPolicy.all=" + PREFETCH;
 
-    private static final String DESTINATION = "QUEUE?consumer.exclusive=true";
+   private static final String DESTINATION = "QUEUE?consumer.exclusive=true";
 
-    private BrokerService brokerService;
-    private Session session;
-    private Connection connection;
-    private String connectionUri;
+   private BrokerService brokerService;
+   private Session session;
+   private Connection connection;
+   private String connectionUri;
 
-    private int seq = 0;
+   private int seq = 0;
 
-    public void setUp() throws Exception {
-        brokerService = new BrokerService();
-        brokerService.setUseJmx(true);
-        brokerService.addConnector(BROKER_URL);
-        brokerService.deleteAllMessages();
-        brokerService.start();
-        brokerService.waitUntilStarted();
+   public void setUp() throws Exception {
+      brokerService = new BrokerService();
+      brokerService.setUseJmx(true);
+      brokerService.addConnector(BROKER_URL);
+      brokerService.deleteAllMessages();
+      brokerService.start();
+      brokerService.waitUntilStarted();
 
-        connectionUri = brokerService.getTransportConnectors().get(0).getPublishableConnectString();
+      connectionUri = brokerService.getTransportConnectors().get(0).getPublishableConnectString();
 
-        ConnectionFactory connectionFactory = new ActiveMQConnectionFactory(connectionUri + CONNECTION_URL_OPTIONS);
-        connection = connectionFactory.createConnection();
-        connection.start();
-        session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
-    }
+      ConnectionFactory connectionFactory = new ActiveMQConnectionFactory(connectionUri + CONNECTION_URL_OPTIONS);
+      connection = connectionFactory.createConnection();
+      connection.start();
+      session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
+   }
 
-    protected void tearDown() throws Exception {
-        session.close();
-        connection.close();
-        brokerService.stop();
-    }
+   protected void tearDown() throws Exception {
+      session.close();
+      connection.close();
+      brokerService.stop();
+   }
 
-    public void testOrder() throws Exception {
+   public void testOrder() throws Exception {
 
-        log.info("Producing messages 0-29 . . .");
-        Destination destination = session.createQueue(DESTINATION);
-        final MessageProducer messageProducer = session
-                .createProducer(destination);
-        try {
-            for (int i = 0; i < 30; ++i) {
-                final Message message = session
-                        .createTextMessage(createMessageText(i));
-                message.setStringProperty("JMSXGroupID", "FOO");
+      log.info("Producing messages 0-29 . . .");
+      Destination destination = session.createQueue(DESTINATION);
+      final MessageProducer messageProducer = session.createProducer(destination);
+      try {
+         for (int i = 0; i < 30; ++i) {
+            final Message message = session.createTextMessage(createMessageText(i));
+            message.setStringProperty("JMSXGroupID", "FOO");
 
-                messageProducer.send(message);
-                log.info("sent " + toString(message));
-            }
-        } finally {
-            messageProducer.close();
-        }
+            messageProducer.send(message);
+            log.info("sent " + toString(message));
+         }
+      }
+      finally {
+         messageProducer.close();
+      }
 
-        log.info("Consuming messages 0-9 . . .");
-        consumeBatch();
+      log.info("Consuming messages 0-9 . . .");
+      consumeBatch();
 
-        log.info("Consuming messages 10-19 . . .");
-        consumeBatch();
+      log.info("Consuming messages 10-19 . . .");
+      consumeBatch();
 
-        log.info("Consuming messages 20-29 . . .");
-        consumeBatch();
-    }
+      log.info("Consuming messages 20-29 . . .");
+      consumeBatch();
+   }
 
-    protected void consumeBatch() throws Exception {
-        Destination destination = session.createQueue(DESTINATION);
-        final MessageConsumer messageConsumer = session.createConsumer(destination);
-        try {
-            for (int i = 0; i < 10; ++i) {
-                final Message message = messageConsumer.receive(1000L);
-                log.info("received " + toString(message));
-                assertEquals("Message out of order", createMessageText(seq++), ((TextMessage) message).getText());
-                message.acknowledge();
-            }
-        } finally {
-            messageConsumer.close();
-        }
-    }
+   protected void consumeBatch() throws Exception {
+      Destination destination = session.createQueue(DESTINATION);
+      final MessageConsumer messageConsumer = session.createConsumer(destination);
+      try {
+         for (int i = 0; i < 10; ++i) {
+            final Message message = messageConsumer.receive(1000L);
+            log.info("received " + toString(message));
+            assertEquals("Message out of order", createMessageText(seq++), ((TextMessage) message).getText());
+            message.acknowledge();
+         }
+      }
+      finally {
+         messageConsumer.close();
+      }
+   }
 
-    private String toString(final Message message) throws JMSException {
-        String ret = "received message '" + ((TextMessage) message).getText() + "' - " + message.getJMSMessageID();
-        if (message.getJMSRedelivered())
-             ret += " (redelivered)";
-        return ret;
+   private String toString(final Message message) throws JMSException {
+      String ret = "received message '" + ((TextMessage) message).getText() + "' - " + message.getJMSMessageID();
+      if (message.getJMSRedelivered())
+         ret += " (redelivered)";
+      return ret;
 
-    }
+   }
 
-    private static String createMessageText(final int index) {
-        return "message #" + index;
-    }
+   private static String createMessageText(final int index) {
+      return "message #" + index;
+   }
 }

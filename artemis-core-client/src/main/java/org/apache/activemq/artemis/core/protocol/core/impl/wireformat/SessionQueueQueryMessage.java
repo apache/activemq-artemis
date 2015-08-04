@@ -20,42 +20,36 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 
-public class SessionQueueQueryMessage extends PacketImpl
-{
+public class SessionQueueQueryMessage extends PacketImpl {
+
    private SimpleString queueName;
 
-   public SessionQueueQueryMessage(final SimpleString queueName)
-   {
+   public SessionQueueQueryMessage(final SimpleString queueName) {
       super(SESS_QUEUEQUERY);
 
       this.queueName = queueName;
    }
 
-   public SessionQueueQueryMessage()
-   {
+   public SessionQueueQueryMessage() {
       super(SESS_QUEUEQUERY);
    }
 
-   public SimpleString getQueueName()
-   {
+   public SimpleString getQueueName() {
       return queueName;
    }
 
    @Override
-   public void encodeRest(final ActiveMQBuffer buffer)
-   {
+   public void encodeRest(final ActiveMQBuffer buffer) {
       buffer.writeSimpleString(queueName);
    }
 
    @Override
-   public void decodeRest(final ActiveMQBuffer buffer)
-   {
+   public void decodeRest(final ActiveMQBuffer buffer) {
       queueName = buffer.readSimpleString();
    }
 
    @Override
-   public int hashCode()
-   {
+   public int hashCode() {
       final int prime = 31;
       int result = super.hashCode();
       result = prime * result + ((queueName == null) ? 0 : queueName.hashCode());
@@ -63,17 +57,15 @@ public class SessionQueueQueryMessage extends PacketImpl
    }
 
    @Override
-   public boolean equals(Object obj)
-   {
+   public boolean equals(Object obj) {
       if (this == obj)
          return true;
       if (!super.equals(obj))
          return false;
       if (!(obj instanceof SessionQueueQueryMessage))
          return false;
-      SessionQueueQueryMessage other = (SessionQueueQueryMessage)obj;
-      if (queueName == null)
-      {
+      SessionQueueQueryMessage other = (SessionQueueQueryMessage) obj;
+      if (queueName == null) {
          if (other.queueName != null)
             return false;
       }

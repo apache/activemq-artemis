@@ -32,11 +32,13 @@ public class ArtemisBrokerHelper {
    static {
       try {
          serviceClass = Class.forName("org.apache.activemq.broker.BrokerService");
-      } catch (ClassNotFoundException e) {
+      }
+      catch (ClassNotFoundException e) {
          e.printStackTrace();
       }
 
    }
+
    // start a tcp transport artemis broker, the broker need to
    // be invm with client.
    public static void startArtemisBroker(URI location) throws IOException {
@@ -47,17 +49,23 @@ public class ArtemisBrokerHelper {
          service = serviceClass.newInstance();
          Method startMethod = serviceClass.getMethod("start");
          startMethod.invoke(service, (Object[]) null);
-      } catch (InstantiationException e) {
+      }
+      catch (InstantiationException e) {
          throw new IOException("Inst exception", e);
-      } catch (IllegalAccessException e) {
+      }
+      catch (IllegalAccessException e) {
          throw new IOException("IllegalAccess exception ", e);
-      } catch (NoSuchMethodException e) {
+      }
+      catch (NoSuchMethodException e) {
          throw new IOException("Nosuchmethod", e);
-      } catch (SecurityException e) {
+      }
+      catch (SecurityException e) {
          throw new IOException("Security exception", e);
-      } catch (IllegalArgumentException e) {
+      }
+      catch (IllegalArgumentException e) {
          throw new IOException("IllegalArgumentException exception", e);
-      } catch (InvocationTargetException e) {
+      }
+      catch (InvocationTargetException e) {
          throw new IOException("InvocationTargetException exception", e);
       }
    }
@@ -74,21 +82,17 @@ public class ArtemisBrokerHelper {
    }
 
    public static BrokerService getBroker() {
-      return (BrokerService)service;
+      return (BrokerService) service;
    }
 
-   public static void stopArtemisBroker() throws Exception
-   {
-      try
-      {
-         if (service != null)
-         {
+   public static void stopArtemisBroker() throws Exception {
+      try {
+         if (service != null) {
             Method startMethod = serviceClass.getMethod("stop");
             startMethod.invoke(service, (Object[]) null);
          }
       }
-      finally
-      {
+      finally {
          service = null;
       }
    }

@@ -42,117 +42,122 @@ import org.slf4j.LoggerFactory;
 
 public class QueueDuplicatesTest extends TestCase {
 
-    private static final Logger LOG = LoggerFactory.getLogger(QueueDuplicatesTest.class);
+   private static final Logger LOG = LoggerFactory.getLogger(QueueDuplicatesTest.class);
 
-    private static DateFormat formatter = new SimpleDateFormat("HH:mm:ss SSS");
-    private String brokerUrl;
-    private String subject;
-    private Connection brokerConnection;
+   private static DateFormat formatter = new SimpleDateFormat("HH:mm:ss SSS");
+   private String brokerUrl;
+   private String subject;
+   private Connection brokerConnection;
 
-    public QueueDuplicatesTest(String name) {
-        super(name);
-    }
+   public QueueDuplicatesTest(String name) {
+      super(name);
+   }
 
-    protected void setUp() throws Exception {
-        String peerUrl = "peer://localhost:6099";
+   protected void setUp() throws Exception {
+      String peerUrl = "peer://localhost:6099";
 
-        subject = this.getClass().getName();
+      subject = this.getClass().getName();
 
-        ActiveMQConnectionFactory fac = createFactory(peerUrl);
-        brokerConnection = fac.createConnection();
-        brokerConnection.start();
-    }
+      ActiveMQConnectionFactory fac = createFactory(peerUrl);
+      brokerConnection = fac.createConnection();
+      brokerConnection.start();
+   }
 
-    protected void tearDown() throws Exception {
-        if (brokerConnection != null) {
-            brokerConnection.close();
-        }
-    }
+   protected void tearDown() throws Exception {
+      if (brokerConnection != null) {
+         brokerConnection.close();
+      }
+   }
 
-    public void testDuplicates() {
-        try {
-            // Get Session
+   public void testDuplicates() {
+      try {
+         // Get Session
+         Session session = createSession(brokerConnection);
+         // create consumer
+         Destination dest = session.createQueue(subject);
+         MessageConsumer consumer = session.createConsumer(dest);
+         // subscribe to queue
+         consumer.setMessageListener(new SimpleConsumer());
+         // create producer
+         Thread sendingThread = new SendingThread(brokerUrl, subject);
+         // start producer
+         sendingThread.start();
+         // wait about 5 seconds
+         Thread.sleep(5000);
+         // unsubscribe consumer
+         consumer.close();
+         // wait another 5 seconds
+         Thread.sleep(5000);
+         // create new consumer
+         consumer = session.createConsumer(dest);
+         // subscribe to queue
+         consumer.setMessageListener(new SimpleConsumer());
+         // sleep a little while longer
+         Thread.sleep(15000);
+         session.close();
+      }
+      catch (Exception e) {
+         e.printStackTrace();
+      }
+   }
+
+   Session createSession(Connection peerConnection) throws JMSException {
+      // Connect using peer to peer connection
+      Session session = peerConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      return session;
+   }
+
+   private ActiveMQConnectionFactory createFactory(String brokerUrl) {
+      ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory();
+      cf.setBrokerURL(brokerUrl);
+
+      return cf;
+   }
+
+   private class SendingThread extends Thread {
+
+      private String subject;
+
+      SendingThread(String brokerUrl, String subject) {
+         this.subject = subject;
+         setDaemon(false);
+      }
+
+      public void run() {
+         try {
             Session session = createSession(brokerConnection);
-            // create consumer
             Destination dest = session.createQueue(subject);
-            MessageConsumer consumer = session.createConsumer(dest);
-            // subscribe to queue
-            consumer.setMessageListener(new SimpleConsumer());
-            // create producer
-            Thread sendingThread = new SendingThread(brokerUrl, subject);
-            // start producer
-            sendingThread.start();
-            // wait about 5 seconds
-            Thread.sleep(5000);
-            // unsubscribe consumer
-            consumer.close();
-            // wait another 5 seconds
-            Thread.sleep(5000);
-            // create new consumer
-            consumer = session.createConsumer(dest);
-            // subscribe to queue
-            consumer.setMessageListener(new SimpleConsumer());
-            // sleep a little while longer
-            Thread.sleep(15000);
+            MessageProducer producer = session.createProducer(dest);
+            producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
+            for (int i = 0; i < 20; i++) {
+               String txt = "Text Message: " + i;
+               TextMessage msg = session.createTextMessage(txt);
+               producer.send(msg);
+               LOG.info(formatter.format(new Date()) + " Sent ==> " + msg + " to " + subject);
+               Thread.sleep(1000);
+            }
             session.close();
-        } catch (Exception e) {
+         }
+         catch (Exception e) {
             e.printStackTrace();
-        }
-    }
+         }
+      }
+   }
 
-    Session createSession(Connection peerConnection) throws JMSException {
-        // Connect using peer to peer connection
-        Session session = peerConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        return session;
-    }
+   private static class SimpleConsumer implements MessageListener {
 
-    private ActiveMQConnectionFactory createFactory(String brokerUrl) {
-        ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory();
-        cf.setBrokerURL(brokerUrl);
+      private Map<String, Message> msgs = new HashMap<String, Message>();
 
-        return cf;
-    }
-
-    private class SendingThread extends Thread {
-        private String subject;
-
-        SendingThread(String brokerUrl, String subject) {
-            this.subject = subject;
-            setDaemon(false);
-        }
-
-        public void run() {
-            try {
-                Session session = createSession(brokerConnection);
-                Destination dest = session.createQueue(subject);
-                MessageProducer producer = session.createProducer(dest);
-                producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
-                for (int i = 0; i < 20; i++) {
-                    String txt = "Text Message: " + i;
-                    TextMessage msg = session.createTextMessage(txt);
-                    producer.send(msg);
-                    LOG.info(formatter.format(new Date()) + " Sent ==> " + msg + " to " + subject);
-                    Thread.sleep(1000);
-                }
-                session.close();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    private static class SimpleConsumer implements MessageListener {
-        private Map<String, Message> msgs = new HashMap<String, Message>();
-
-        public void onMessage(Message message) {
-            LOG.info(formatter.format(new Date()) + " SimpleConsumer Message Received: " + message);
-            try {
-                String id = message.getJMSMessageID();
-                assertNull("Message is duplicate: " + id, msgs.get(id));
-                msgs.put(id, message);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-    }
+      public void onMessage(Message message) {
+         LOG.info(formatter.format(new Date()) + " SimpleConsumer Message Received: " + message);
+         try {
+            String id = message.getJMSMessageID();
+            assertNull("Message is duplicate: " + id, msgs.get(id));
+            msgs.put(id, message);
+         }
+         catch (Exception e) {
+            e.printStackTrace();
+         }
+      }
+   }
 }

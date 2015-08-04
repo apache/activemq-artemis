@@ -24,11 +24,10 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 /**
  * This tests is placed in duplication here to validate that the libaio module is properly loaded on this
  * test module.
- *
+ * <br>
  * This test should be placed on each one of the tests modules to make sure the library is loaded correctly.
  */
-public class LibaioDependencyCheckTest extends ActiveMQTestBase
-{
+public class LibaioDependencyCheckTest extends ActiveMQTestBase {
 
    // Constants -----------------------------------------------------
 
@@ -41,10 +40,8 @@ public class LibaioDependencyCheckTest extends ActiveMQTestBase
    // Public --------------------------------------------------------
 
    @Test
-   public void testDependency() throws Exception
-   {
-      if (System.getProperties().get("os.name").equals("Linux"))
-      {
+   public void testDependency() throws Exception {
+      if (System.getProperties().get("os.name").equals("Linux")) {
          assertTrue("Libaio is not available on this platform", LibaioContext.isLoaded());
       }
    }

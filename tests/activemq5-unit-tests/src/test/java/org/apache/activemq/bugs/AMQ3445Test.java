@@ -36,115 +36,113 @@ import org.junit.Test;
 
 public class AMQ3445Test {
 
-    private ConnectionFactory connectionFactory;
-    private BrokerService broker;
-    private String connectionUri;
+   private ConnectionFactory connectionFactory;
+   private BrokerService broker;
+   private String connectionUri;
 
-    private final String queueName = "Consumer.MyApp.VirtualTopic.FOO";
-    private final String topicName = "VirtualTopic.FOO";
+   private final String queueName = "Consumer.MyApp.VirtualTopic.FOO";
+   private final String topicName = "VirtualTopic.FOO";
 
-    @Before
-    public void startBroker() throws Exception {
-        createBroker(true);
-    }
+   @Before
+   public void startBroker() throws Exception {
+      createBroker(true);
+   }
 
-    private void createBroker(boolean deleteMessages) throws Exception {
-        broker = new BrokerService();
-        broker.setDeleteAllMessagesOnStartup(deleteMessages);
-        broker.setPersistenceAdapter(new JDBCPersistenceAdapter());
-        broker.setAdvisorySupport(false);
-        broker.addConnector("tcp://0.0.0.0:0");
-        broker.start();
-        broker.waitUntilStarted();
-        connectionUri = broker.getTransportConnectors().get(0).getPublishableConnectString();
-        connectionFactory = new ActiveMQConnectionFactory(connectionUri);
-    }
+   private void createBroker(boolean deleteMessages) throws Exception {
+      broker = new BrokerService();
+      broker.setDeleteAllMessagesOnStartup(deleteMessages);
+      broker.setPersistenceAdapter(new JDBCPersistenceAdapter());
+      broker.setAdvisorySupport(false);
+      broker.addConnector("tcp://0.0.0.0:0");
+      broker.start();
+      broker.waitUntilStarted();
+      connectionUri = broker.getTransportConnectors().get(0).getPublishableConnectString();
+      connectionFactory = new ActiveMQConnectionFactory(connectionUri);
+   }
 
-    private void restartBroker() throws Exception {
-        if (broker != null) {
-            broker.stop();
-            broker.waitUntilStopped();
-        }
+   private void restartBroker() throws Exception {
+      if (broker != null) {
+         broker.stop();
+         broker.waitUntilStopped();
+      }
 
-        createBroker(false);
-    }
+      createBroker(false);
+   }
 
-    @After
-    public void tearDown() throws Exception {
-        if (broker != null) {
-            broker.stop();
-            broker.waitUntilStopped();
-        }
-    }
+   @After
+   public void tearDown() throws Exception {
+      if (broker != null) {
+         broker.stop();
+         broker.waitUntilStopped();
+      }
+   }
 
-    @Test
-    public void testJDBCRetiansDestinationAfterRestart() throws Exception {
+   @Test
+   public void testJDBCRetiansDestinationAfterRestart() throws Exception {
 
-        broker.getAdminView().addQueue(queueName);
-        broker.getAdminView().addTopic(topicName);
+      broker.getAdminView().addQueue(queueName);
+      broker.getAdminView().addTopic(topicName);
 
-        assertTrue(findDestination(queueName, false));
-        assertTrue(findDestination(topicName, true));
+      assertTrue(findDestination(queueName, false));
+      assertTrue(findDestination(topicName, true));
 
-        QueueViewMBean queue = getProxyToQueueViewMBean();
-        assertEquals(0, queue.getQueueSize());
+      QueueViewMBean queue = getProxyToQueueViewMBean();
+      assertEquals(0, queue.getQueueSize());
 
-        restartBroker();
+      restartBroker();
 
-        assertTrue(findDestination(queueName, false));
-        queue = getProxyToQueueViewMBean();
-        assertEquals(0, queue.getQueueSize());
+      assertTrue(findDestination(queueName, false));
+      queue = getProxyToQueueViewMBean();
+      assertEquals(0, queue.getQueueSize());
 
-        sendMessage();
-        restartBroker();
-        assertTrue(findDestination(queueName, false));
+      sendMessage();
+      restartBroker();
+      assertTrue(findDestination(queueName, false));
 
-        queue = getProxyToQueueViewMBean();
-        assertEquals(1, queue.getQueueSize());
-        sendMessage();
-        assertEquals(2, queue.getQueueSize());
+      queue = getProxyToQueueViewMBean();
+      assertEquals(1, queue.getQueueSize());
+      sendMessage();
+      assertEquals(2, queue.getQueueSize());
 
-        restartBroker();
-        assertTrue(findDestination(queueName, false));
-        queue = getProxyToQueueViewMBean();
-        assertEquals(2, queue.getQueueSize());
-    }
+      restartBroker();
+      assertTrue(findDestination(queueName, false));
+      queue = getProxyToQueueViewMBean();
+      assertEquals(2, queue.getQueueSize());
+   }
 
-    private void sendMessage() throws Exception {
-        Connection connection = connectionFactory.createConnection();
-        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        MessageProducer producer = session.createProducer(session.createTopic(topicName));
-        producer.setDeliveryMode(DeliveryMode.PERSISTENT);
-        producer.send(session.createTextMessage("Testing"));
-        producer.close();
-        connection.close();
-    }
+   private void sendMessage() throws Exception {
+      Connection connection = connectionFactory.createConnection();
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      MessageProducer producer = session.createProducer(session.createTopic(topicName));
+      producer.setDeliveryMode(DeliveryMode.PERSISTENT);
+      producer.send(session.createTextMessage("Testing"));
+      producer.close();
+      connection.close();
+   }
 
-    private QueueViewMBean getProxyToQueueViewMBean() throws Exception {
-        ObjectName queueViewMBeanName = new ObjectName("org.apache.activemq"
-                + ":destinationType=Queue,destinationName=" + queueName
-                + ",type=Broker,brokerName=localhost");
-        QueueViewMBean proxy = (QueueViewMBean) broker.getManagementContext()
-                .newProxyInstance(queueViewMBeanName, QueueViewMBean.class, true);
-        return proxy;
-    }
+   private QueueViewMBean getProxyToQueueViewMBean() throws Exception {
+      ObjectName queueViewMBeanName = new ObjectName("org.apache.activemq" + ":destinationType=Queue,destinationName=" + queueName + ",type=Broker,brokerName=localhost");
+      QueueViewMBean proxy = (QueueViewMBean) broker.getManagementContext().newProxyInstance(queueViewMBeanName, QueueViewMBean.class, true);
+      return proxy;
+   }
 
-    private boolean findDestination(String name, boolean topic) throws Exception {
+   private boolean findDestination(String name, boolean topic) throws Exception {
 
-        ObjectName[] destinations;
+      ObjectName[] destinations;
 
-        if (topic) {
-            destinations = broker.getAdminView().getTopics();
-        } else {
-            destinations = broker.getAdminView().getQueues();
-        }
+      if (topic) {
+         destinations = broker.getAdminView().getTopics();
+      }
+      else {
+         destinations = broker.getAdminView().getQueues();
+      }
 
-        for (ObjectName destination : destinations) {
-            if (destination.toString().contains(name)) {
-                return true;
-            }
-        }
+      for (ObjectName destination : destinations) {
+         if (destination.toString().contains(name)) {
+            return true;
+         }
+      }
 
-        return false;
-    }
+      return false;
+   }
 }

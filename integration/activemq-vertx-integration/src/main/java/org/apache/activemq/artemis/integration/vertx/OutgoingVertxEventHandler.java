@@ -43,8 +43,8 @@ import org.vertx.java.platform.PlatformLocator;
 import org.vertx.java.platform.PlatformManager;
 import org.vertx.java.spi.cluster.impl.hazelcast.HazelcastClusterManagerFactory;
 
-public class OutgoingVertxEventHandler implements Consumer, ConnectorService
-{
+public class OutgoingVertxEventHandler implements Consumer, ConnectorService {
+
    private final String connectorName;
 
    private final String queueName;
@@ -73,62 +73,49 @@ public class OutgoingVertxEventHandler implements Consumer, ConnectorService
 
    private boolean isStarted = false;
 
-   public OutgoingVertxEventHandler(String connectorName, Map<String, Object> configuration,
-            StorageManager storageManager, PostOffice postOffice,
-            ScheduledExecutorService scheduledThreadPool)
-   {
+   public OutgoingVertxEventHandler(String connectorName,
+                                    Map<String, Object> configuration,
+                                    StorageManager storageManager,
+                                    PostOffice postOffice,
+                                    ScheduledExecutorService scheduledThreadPool) {
       this.connectorName = connectorName;
-      this.queueName = ConfigurationHelper.getStringProperty(VertxConstants.QUEUE_NAME, null,
-               configuration);
+      this.queueName = ConfigurationHelper.getStringProperty(VertxConstants.QUEUE_NAME, null, configuration);
       this.postOffice = postOffice;
 
       this.port = ConfigurationHelper.getIntProperty(VertxConstants.PORT, 0, configuration);
-      this.host = ConfigurationHelper.getStringProperty(VertxConstants.HOST, "localhost",
-               configuration);
-      this.quorumSize = ConfigurationHelper.getIntProperty(VertxConstants.VERTX_QUORUM_SIZE,
-               -1, configuration);
-      this.haGroup = ConfigurationHelper.getStringProperty(VertxConstants.VERTX_HA_GROUP,
-               "activemq", configuration);
-      this.vertxAddress = ConfigurationHelper.getStringProperty(VertxConstants.VERTX_ADDRESS,
-               "org.apache.activemq", configuration);
-      this.publish = ConfigurationHelper.getBooleanProperty(VertxConstants.VERTX_PUBLISH, false,
-               configuration);
+      this.host = ConfigurationHelper.getStringProperty(VertxConstants.HOST, "localhost", configuration);
+      this.quorumSize = ConfigurationHelper.getIntProperty(VertxConstants.VERTX_QUORUM_SIZE, -1, configuration);
+      this.haGroup = ConfigurationHelper.getStringProperty(VertxConstants.VERTX_HA_GROUP, "activemq", configuration);
+      this.vertxAddress = ConfigurationHelper.getStringProperty(VertxConstants.VERTX_ADDRESS, "org.apache.activemq", configuration);
+      this.publish = ConfigurationHelper.getBooleanProperty(VertxConstants.VERTX_PUBLISH, false, configuration);
    }
 
    @Override
-   public void start() throws Exception
-   {
-      if (this.isStarted)
-      {
+   public void start() throws Exception {
+      if (this.isStarted) {
          return;
       }
-      System.setProperty("vertx.clusterManagerFactory",
-               HazelcastClusterManagerFactory.class.getName());
-      if (quorumSize != -1)
-      {
+      System.setProperty("vertx.clusterManagerFactory", HazelcastClusterManagerFactory.class.getName());
+      if (quorumSize != -1) {
          platformManager = PlatformLocator.factory.createPlatformManager(port, host, quorumSize, haGroup);
       }
-      else
-      {
+      else {
          platformManager = PlatformLocator.factory.createPlatformManager(port, host);
       }
 
       eventBus = platformManager.vertx().eventBus();
 
-      if (this.connectorName == null || this.connectorName.trim().equals(""))
-      {
+      if (this.connectorName == null || this.connectorName.trim().equals("")) {
          throw new Exception("invalid connector name: " + this.connectorName);
       }
 
-      if (this.queueName == null || this.queueName.trim().equals(""))
-      {
+      if (this.queueName == null || this.queueName.trim().equals("")) {
          throw new Exception("invalid queue name: " + queueName);
       }
 
       SimpleString name = new SimpleString(this.queueName);
       Binding b = this.postOffice.getBinding(name);
-      if (b == null)
-      {
+      if (b == null) {
          throw new Exception(connectorName + ": queue " + queueName + " not found");
       }
       this.queue = (Queue) b.getBindable();
@@ -141,10 +128,8 @@ public class OutgoingVertxEventHandler implements Consumer, ConnectorService
    }
 
    @Override
-   public void stop() throws Exception
-   {
-      if (!this.isStarted)
-      {
+   public void stop() throws Exception {
+      if (!this.isStarted) {
          return;
       }
 
@@ -159,27 +144,22 @@ public class OutgoingVertxEventHandler implements Consumer, ConnectorService
    }
 
    @Override
-   public boolean isStarted()
-   {
+   public boolean isStarted() {
       return this.isStarted;
    }
 
    @Override
-   public String getName()
-   {
+   public String getName() {
       return this.connectorName;
    }
 
    @Override
-   public HandleStatus handle(MessageReference ref) throws Exception
-   {
-      if (filter != null && !filter.match(ref.getMessage()))
-      {
+   public HandleStatus handle(MessageReference ref) throws Exception {
+      if (filter != null && !filter.match(ref.getMessage())) {
          return HandleStatus.NO_MATCH;
       }
 
-      synchronized (this)
-      {
+      synchronized (this) {
          ref.handled();
 
          ServerMessage message = ref.getMessage();
@@ -188,8 +168,7 @@ public class OutgoingVertxEventHandler implements Consumer, ConnectorService
          // extract information from message
          Integer type = message.getIntProperty(VertxConstants.VERTX_MESSAGE_TYPE);
 
-         if (type == null)
-         {
+         if (type == null) {
             // log a warning and default to raw bytes
             ActiveMQVertxLogger.LOGGER.nonVertxMessage(message);
             type = VertxConstants.TYPE_RAWBYTES;
@@ -198,35 +177,29 @@ public class OutgoingVertxEventHandler implements Consumer, ConnectorService
          // from vertx
          vertxMsgBody = extractMessageBody(message, type);
 
-         if (vertxMsgBody == null)
-         {
+         if (vertxMsgBody == null) {
             return HandleStatus.NO_MATCH;
          }
 
          // send to bus
-         if (!publish)
-         {
+         if (!publish) {
             eventBus.send(vertxAddress, vertxMsgBody);
          }
-         else
-         {
+         else {
             eventBus.publish(vertxAddress, vertxMsgBody);
          }
 
          queue.acknowledge(ref);
 
-         ActiveMQVertxLogger.LOGGER.debug(connectorName + ": forwarded to vertx: "
-                  + message.getMessageID());
+         ActiveMQVertxLogger.LOGGER.debug(connectorName + ": forwarded to vertx: " + message.getMessageID());
          return HandleStatus.HANDLED;
       }
    }
 
-   private Object extractMessageBody(ServerMessage message, Integer type) throws Exception
-   {
+   private Object extractMessageBody(ServerMessage message, Integer type) throws Exception {
       Object vertxMsgBody = null;
       ActiveMQBuffer bodyBuffer = message.getBodyBuffer();
-      switch (type)
-      {
+      switch (type) {
          case VertxConstants.TYPE_PING:
          case VertxConstants.TYPE_STRING:
             bodyBuffer.resetReaderIndex();
@@ -278,8 +251,7 @@ public class OutgoingVertxEventHandler implements Consumer, ConnectorService
             int failureType = bodyBuffer.readInt();
             int failureCode = bodyBuffer.readInt();
             String errMsg = bodyBuffer.readString();
-            vertxMsgBody = new ReplyException(ReplyFailure.fromInt(failureType), failureCode,
-                     errMsg);
+            vertxMsgBody = new ReplyException(ReplyFailure.fromInt(failureType), failureCode, errMsg);
             break;
          case VertxConstants.TYPE_RAWBYTES:
             int size = bodyBuffer.readableBytes();
@@ -295,38 +267,32 @@ public class OutgoingVertxEventHandler implements Consumer, ConnectorService
    }
 
    @Override
-   public void proceedDeliver(MessageReference reference) throws Exception
-   {
+   public void proceedDeliver(MessageReference reference) throws Exception {
       // no op
    }
 
    @Override
-   public Filter getFilter()
-   {
+   public Filter getFilter() {
       return this.filter;
    }
 
    @Override
-   public String debug()
-   {
+   public String debug() {
       return null;
    }
 
    @Override
-   public String toManagementString()
-   {
+   public String toManagementString() {
       return null;
    }
 
    @Override
-   public List<MessageReference> getDeliveringMessages()
-   {
+   public List<MessageReference> getDeliveringMessages() {
       return null;
    }
 
    @Override
-   public void disconnect()
-   {
+   public void disconnect() {
    }
 
 }

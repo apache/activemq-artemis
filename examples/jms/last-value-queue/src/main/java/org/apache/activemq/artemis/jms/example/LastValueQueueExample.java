@@ -32,22 +32,20 @@ import javax.naming.InitialContext;
  * This example shows how to configure and use a <em>Last-Value</em> queues.
  * Only the last message with a well-defined property is hold by the queue.
  */
-public class LastValueQueueExample
-{
-   public static void main(final String[] args) throws Exception
-   {
+public class LastValueQueueExample {
+
+   public static void main(final String[] args) throws Exception {
       Connection connection = null;
       InitialContext initialContext = null;
-      try
-      {
+      try {
          // Step 1. Create an initial context to perform the JNDI lookup.
          initialContext = new InitialContext();
 
          // Step 2. Perfom a lookup on the queue
-         Queue queue = (Queue)initialContext.lookup("queue/exampleQueue");
+         Queue queue = (Queue) initialContext.lookup("queue/exampleQueue");
 
          // Step 3. Perform a lookup on the Connection Factory
-         ConnectionFactory cf = (ConnectionFactory)initialContext.lookup("ConnectionFactory");
+         ConnectionFactory cf = (ConnectionFactory) initialContext.lookup("ConnectionFactory");
 
          // Step 4.Create a JMS Connection, session and producer on the queue
          connection = cf.createConnection();
@@ -75,9 +73,8 @@ public class LastValueQueueExample
          // Step 8. Browse the queue. There is only 1 message in it, the last sent
          QueueBrowser browser = session.createBrowser(queue);
          Enumeration enumeration = browser.getEnumeration();
-         while (enumeration.hasMoreElements())
-         {
-            TextMessage messageInTheQueue = (TextMessage)enumeration.nextElement();
+         while (enumeration.hasMoreElements()) {
+            TextMessage messageInTheQueue = (TextMessage) enumeration.nextElement();
             System.out.format("Message in the queue: %s%n", messageInTheQueue.getText());
          }
          browser.close();
@@ -90,26 +87,23 @@ public class LastValueQueueExample
 
          // Step 11. Trying to receive a message. Since the queue is configured to keep only the
          // last message with the Last-Value header set, the message received is the last sent
-         TextMessage messageReceived = (TextMessage)messageConsumer.receive(5000);
+         TextMessage messageReceived = (TextMessage) messageConsumer.receive(5000);
          System.out.format("Received message: %s%n", messageReceived.getText());
 
          // Step 12. Trying to receive another message but there will be none.
          // The 1st message was discarded when the 2nd was sent to the queue.
          // The 2nd message was in turn discarded when the 3trd was sent to the queue
-         messageReceived = (TextMessage)messageConsumer.receive(5000);
+         messageReceived = (TextMessage) messageConsumer.receive(5000);
          System.out.format("Received message: %s%n", messageReceived);
 
          initialContext.close();
       }
-      finally
-      {
+      finally {
          // Step 13. Be sure to close our JMS resources!
-         if (initialContext != null)
-         {
+         if (initialContext != null) {
             initialContext.close();
          }
-         if (connection != null)
-         {
+         if (connection != null) {
             connection.close();
          }
       }

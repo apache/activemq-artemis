@@ -25,9 +25,8 @@ import org.apache.activemq.artemis.jms.server.config.JMSConfiguration;
 import org.apache.activemq.artemis.jms.server.config.JMSQueueConfiguration;
 import org.apache.activemq.artemis.jms.server.config.TopicConfiguration;
 
+public class JMSConfigurationImpl implements JMSConfiguration {
 
-public class JMSConfigurationImpl implements JMSConfiguration
-{
    private List<ConnectionFactoryConfiguration> connectionFactoryConfigurations = new ArrayList<ConnectionFactoryConfiguration>();
 
    private List<JMSQueueConfiguration> queueConfigurations = new ArrayList<JMSQueueConfiguration>();
@@ -38,50 +37,41 @@ public class JMSConfigurationImpl implements JMSConfiguration
 
    // JMSConfiguration implementation -------------------------------
 
-   public JMSConfigurationImpl()
-   {
+   public JMSConfigurationImpl() {
    }
 
-   public List<ConnectionFactoryConfiguration> getConnectionFactoryConfigurations()
-   {
+   public List<ConnectionFactoryConfiguration> getConnectionFactoryConfigurations() {
       return connectionFactoryConfigurations;
    }
 
-   public JMSConfigurationImpl setConnectionFactoryConfigurations(List<ConnectionFactoryConfiguration> connectionFactoryConfigurations)
-   {
+   public JMSConfigurationImpl setConnectionFactoryConfigurations(List<ConnectionFactoryConfiguration> connectionFactoryConfigurations) {
       this.connectionFactoryConfigurations = connectionFactoryConfigurations;
       return this;
    }
 
-   public List<JMSQueueConfiguration> getQueueConfigurations()
-   {
+   public List<JMSQueueConfiguration> getQueueConfigurations() {
       return queueConfigurations;
    }
 
-   public JMSConfigurationImpl setQueueConfigurations(List<JMSQueueConfiguration> queueConfigurations)
-   {
+   public JMSConfigurationImpl setQueueConfigurations(List<JMSQueueConfiguration> queueConfigurations) {
       this.queueConfigurations = queueConfigurations;
       return this;
    }
 
-   public List<TopicConfiguration> getTopicConfigurations()
-   {
+   public List<TopicConfiguration> getTopicConfigurations() {
       return topicConfigurations;
    }
 
-   public JMSConfigurationImpl setTopicConfigurations(List<TopicConfiguration> topicConfigurations)
-   {
+   public JMSConfigurationImpl setTopicConfigurations(List<TopicConfiguration> topicConfigurations) {
       this.topicConfigurations = topicConfigurations;
       return this;
    }
 
-   public String getDomain()
-   {
+   public String getDomain() {
       return domain;
    }
 
-   public JMSConfigurationImpl setDomain(final String domain)
-   {
+   public JMSConfigurationImpl setDomain(final String domain) {
       this.domain = domain;
       return this;
    }

@@ -21,8 +21,8 @@ import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 
-public class ClusterTopologyChangeMessage extends PacketImpl
-{
+public class ClusterTopologyChangeMessage extends PacketImpl {
+
    protected boolean exit;
 
    protected String nodeID;
@@ -35,8 +35,9 @@ public class ClusterTopologyChangeMessage extends PacketImpl
 
    // Constructors --------------------------------------------------
 
-   public ClusterTopologyChangeMessage(final String nodeID, final Pair<TransportConfiguration, TransportConfiguration> pair, final boolean last)
-   {
+   public ClusterTopologyChangeMessage(final String nodeID,
+                                       final Pair<TransportConfiguration, TransportConfiguration> pair,
+                                       final boolean last) {
       super(CLUSTER_TOPOLOGY);
 
       this.nodeID = nodeID;
@@ -48,8 +49,7 @@ public class ClusterTopologyChangeMessage extends PacketImpl
       this.exit = false;
    }
 
-   public ClusterTopologyChangeMessage(final String nodeID)
-   {
+   public ClusterTopologyChangeMessage(final String nodeID) {
       super(CLUSTER_TOPOLOGY);
 
       this.exit = true;
@@ -57,8 +57,7 @@ public class ClusterTopologyChangeMessage extends PacketImpl
       this.nodeID = nodeID;
    }
 
-   public ClusterTopologyChangeMessage()
-   {
+   public ClusterTopologyChangeMessage() {
       super(CLUSTER_TOPOLOGY);
    }
 
@@ -67,54 +66,43 @@ public class ClusterTopologyChangeMessage extends PacketImpl
    /**
     * @param clusterTopologyV2
     */
-   public ClusterTopologyChangeMessage(byte clusterTopologyV2)
-   {
+   public ClusterTopologyChangeMessage(byte clusterTopologyV2) {
       super(clusterTopologyV2);
    }
 
-   public String getNodeID()
-   {
+   public String getNodeID() {
       return nodeID;
    }
 
-   public Pair<TransportConfiguration, TransportConfiguration> getPair()
-   {
+   public Pair<TransportConfiguration, TransportConfiguration> getPair() {
       return pair;
    }
 
-   public boolean isLast()
-   {
+   public boolean isLast() {
       return last;
    }
 
-   public boolean isExit()
-   {
+   public boolean isExit() {
       return exit;
    }
 
    @Override
-   public void encodeRest(final ActiveMQBuffer buffer)
-   {
+   public void encodeRest(final ActiveMQBuffer buffer) {
       buffer.writeBoolean(exit);
       buffer.writeString(nodeID);
-      if (!exit)
-      {
-         if (pair.getA() != null)
-         {
+      if (!exit) {
+         if (pair.getA() != null) {
             buffer.writeBoolean(true);
             pair.getA().encode(buffer);
          }
-         else
-         {
+         else {
             buffer.writeBoolean(false);
          }
-         if (pair.getB() != null)
-         {
+         if (pair.getB() != null) {
             buffer.writeBoolean(true);
             pair.getB().encode(buffer);
          }
-         else
-         {
+         else {
             buffer.writeBoolean(false);
          }
          buffer.writeBoolean(last);
@@ -122,32 +110,26 @@ public class ClusterTopologyChangeMessage extends PacketImpl
    }
 
    @Override
-   public void decodeRest(final ActiveMQBuffer buffer)
-   {
+   public void decodeRest(final ActiveMQBuffer buffer) {
       exit = buffer.readBoolean();
       nodeID = buffer.readString();
-      if (!exit)
-      {
+      if (!exit) {
          boolean hasLive = buffer.readBoolean();
          TransportConfiguration a;
-         if (hasLive)
-         {
+         if (hasLive) {
             a = new TransportConfiguration();
             a.decode(buffer);
          }
-         else
-         {
+         else {
             a = null;
          }
          boolean hasBackup = buffer.readBoolean();
          TransportConfiguration b;
-         if (hasBackup)
-         {
+         if (hasBackup) {
             b = new TransportConfiguration();
             b.decode(buffer);
          }
-         else
-         {
+         else {
             b = null;
          }
          pair = new Pair<TransportConfiguration, TransportConfiguration>(a, b);
@@ -156,8 +138,7 @@ public class ClusterTopologyChangeMessage extends PacketImpl
    }
 
    @Override
-   public int hashCode()
-   {
+   public int hashCode() {
       final int prime = 31;
       int result = super.hashCode();
       result = prime * result + (exit ? 1231 : 1237);
@@ -168,49 +149,37 @@ public class ClusterTopologyChangeMessage extends PacketImpl
    }
 
    @Override
-   public boolean equals(Object obj)
-   {
-      if (this == obj)
-      {
+   public boolean equals(Object obj) {
+      if (this == obj) {
          return true;
       }
-      if (!super.equals(obj))
-      {
+      if (!super.equals(obj)) {
          return false;
       }
-      if (!(obj instanceof ClusterTopologyChangeMessage))
-      {
+      if (!(obj instanceof ClusterTopologyChangeMessage)) {
          return false;
       }
       ClusterTopologyChangeMessage other = (ClusterTopologyChangeMessage) obj;
-      if (exit != other.exit)
-      {
+      if (exit != other.exit) {
          return false;
       }
-      if (last != other.last)
-      {
+      if (last != other.last) {
          return false;
       }
-      if (nodeID == null)
-      {
-         if (other.nodeID != null)
-         {
+      if (nodeID == null) {
+         if (other.nodeID != null) {
             return false;
          }
       }
-      else if (!nodeID.equals(other.nodeID))
-      {
+      else if (!nodeID.equals(other.nodeID)) {
          return false;
       }
-      if (pair == null)
-      {
-         if (other.pair != null)
-         {
+      if (pair == null) {
+         if (other.pair != null) {
             return false;
          }
       }
-      else if (!pair.equals(other.pair))
-      {
+      else if (!pair.equals(other.pair)) {
          return false;
       }
       return true;

@@ -37,8 +37,8 @@ import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
 import org.apache.activemq.artemis.utils.ReusableLatch;
 
-public class Redistributor implements Consumer
-{
+public class Redistributor implements Consumer {
+
    private boolean active;
 
    private final StorageManager storageManager;
@@ -62,8 +62,7 @@ public class Redistributor implements Consumer
                         final StorageManager storageManager,
                         final PostOffice postOffice,
                         final Executor executor,
-                        final int batchSize)
-   {
+                        final int batchSize) {
       this.queue = queue;
 
       this.storageManager = storageManager;
@@ -75,79 +74,64 @@ public class Redistributor implements Consumer
       this.batchSize = batchSize;
    }
 
-   public Filter getFilter()
-   {
+   public Filter getFilter() {
       return null;
    }
 
-   public String debug()
-   {
+   public String debug() {
       return toString();
    }
 
-   public String toManagementString()
-   {
+   public String toManagementString() {
       return "Redistributor[" + queue.getName() + "/" + queue.getID() + "]";
    }
 
    @Override
-   public void disconnect()
-   {
+   public void disconnect() {
       //noop
    }
 
-   public synchronized void start()
-   {
+   public synchronized void start() {
       active = true;
    }
 
-   public synchronized void stop() throws Exception
-   {
+   public synchronized void stop() throws Exception {
       active = false;
 
       boolean ok = flushExecutor();
 
-      if (!ok)
-      {
+      if (!ok) {
          ActiveMQServerLogger.LOGGER.errorStoppingRedistributor();
       }
    }
 
-   public synchronized void close()
-   {
+   public synchronized void close() {
       boolean ok = flushExecutor();
 
-      if (!ok)
-      {
+      if (!ok) {
          throw new IllegalStateException("Timed out waiting for executor to complete");
       }
 
       active = false;
    }
 
-   private boolean flushExecutor()
-   {
-      try
-      {
+   private boolean flushExecutor() {
+      try {
          boolean ok = pendingRuns.await(10000);
          return ok;
       }
-      catch (InterruptedException e)
-      {
+      catch (InterruptedException e) {
          ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
          return false;
       }
    }
 
-   public synchronized HandleStatus handle(final MessageReference reference) throws Exception
-   {
-      if (!active)
-      {
+   public synchronized HandleStatus handle(final MessageReference reference) throws Exception {
+      if (!active) {
          return HandleStatus.BUSY;
       }
       //we shouldn't redistribute with message groups return NO_MATCH so other messages can be delivered
-      else if (reference.getMessage().getSimpleStringProperty(Message.HDR_GROUP_ID) != null)
-      {
+      else if (reference.getMessage().getSimpleStringProperty(Message.HDR_GROUP_ID) != null) {
          return HandleStatus.NO_MATCH;
       }
 
@@ -155,36 +139,29 @@ public class Redistributor implements Consumer
 
       final Pair<RoutingContext, ServerMessage> routingInfo = postOffice.redistribute(reference.getMessage(), queue, tx);
 
-      if (routingInfo == null)
-      {
+      if (routingInfo == null) {
          return HandleStatus.BUSY;
       }
 
-      if (!reference.getMessage().isLargeMessage())
-      {
+      if (!reference.getMessage().isLargeMessage()) {
          routingInfo.getB().finishCopy();
 
          postOffice.processRoute(routingInfo.getB(), routingInfo.getA(), false);
 
          ackRedistribution(reference, tx);
       }
-      else
-      {
+      else {
          active = false;
-         executor.execute(new Runnable()
-         {
-            public void run()
-            {
-               try
-               {
+         executor.execute(new Runnable() {
+            public void run() {
+               try {
                   routingInfo.getB().finishCopy();
 
                   postOffice.processRoute(routingInfo.getB(), routingInfo.getA(), false);
 
                   ackRedistribution(reference, tx);
 
-                  synchronized (Redistributor.this)
-                  {
+                  synchronized (Redistributor.this) {
                      active = true;
 
                      count++;
@@ -192,14 +169,11 @@ public class Redistributor implements Consumer
                      queue.deliverAsync();
                   }
                }
-               catch (Exception e)
-               {
-                  try
-                  {
+               catch (Exception e) {
+                  try {
                      tx.rollback();
                   }
-                  catch (Exception e2)
-                  {
+                  catch (Exception e2) {
                      // Nothing much we can do now
 
                      // TODO log
@@ -213,63 +187,49 @@ public class Redistributor implements Consumer
       return HandleStatus.HANDLED;
    }
 
-   public void proceedDeliver(MessageReference ref)
-   {
+   public void proceedDeliver(MessageReference ref) {
       // no op
    }
 
-
-   private void internalExecute(final Runnable runnable)
-   {
+   private void internalExecute(final Runnable runnable) {
       pendingRuns.countUp();
-      executor.execute(new Runnable()
-      {
-         public void run()
-         {
-            try
-            {
+      executor.execute(new Runnable() {
+         public void run() {
+            try {
                runnable.run();
             }
-            finally
-            {
+            finally {
                pendingRuns.countDown();
             }
          }
       });
    }
 
-
-   private void ackRedistribution(final MessageReference reference, final Transaction tx) throws Exception
-   {
+   private void ackRedistribution(final MessageReference reference, final Transaction tx) throws Exception {
       reference.handled();
 
       queue.acknowledge(tx, reference);
 
       tx.commit();
 
-      storageManager.afterCompleteOperations(new IOCallback()
-      {
+      storageManager.afterCompleteOperations(new IOCallback() {
 
-         public void onError(final int errorCode, final String errorMessage)
-         {
+         public void onError(final int errorCode, final String errorMessage) {
             ActiveMQServerLogger.LOGGER.ioErrorRedistributing(errorCode, errorMessage);
          }
 
-         public void done()
-         {
+         public void done() {
             execPrompter();
          }
       });
    }
 
-   private void execPrompter()
-   {
+   private void execPrompter() {
       count++;
 
       // We use >= as the large message redistribution will set count to max_int
       // so we are use the prompter will get called
-      if (count >= batchSize)
-      {
+      if (count >= batchSize) {
          // We continue the next batch on a different thread, so as not to keep the delivery thread busy for a very
          // long time in the case there are many messages in the queue
          active = false;
@@ -281,12 +241,10 @@ public class Redistributor implements Consumer
 
    }
 
-   private class Prompter implements Runnable
-   {
-      public void run()
-      {
-         synchronized (Redistributor.this)
-         {
+   private class Prompter implements Runnable {
+
+      public void run() {
+         synchronized (Redistributor.this) {
             active = true;
 
             queue.deliverAsync();
@@ -298,8 +256,7 @@ public class Redistributor implements Consumer
     * @see org.apache.activemq.artemis.core.server.Consumer#getDeliveringMessages()
     */
    @Override
-   public List<MessageReference> getDeliveringMessages()
-   {
+   public List<MessageReference> getDeliveringMessages() {
       return Collections.emptyList();
    }
 

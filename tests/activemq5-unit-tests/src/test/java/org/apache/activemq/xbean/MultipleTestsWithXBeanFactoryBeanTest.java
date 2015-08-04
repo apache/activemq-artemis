@@ -20,17 +20,16 @@ import org.apache.activemq.broker.BrokerService;
 import org.springframework.core.io.ClassPathResource;
 
 /**
- * 
+ *
  */
 public class MultipleTestsWithXBeanFactoryBeanTest extends MultipleTestsWithEmbeddedBrokerTest {
 
-    protected BrokerService createBroker() throws Exception {
-        BrokerFactoryBean factory = new BrokerFactoryBean();
-        factory.setConfig(new ClassPathResource("org/apache/activemq/xbean/activemq2.xml"));
-        factory.afterPropertiesSet();
-        return factory.getBroker();
-    }
-
+   protected BrokerService createBroker() throws Exception {
+      BrokerFactoryBean factory = new BrokerFactoryBean();
+      factory.setConfig(new ClassPathResource("org/apache/activemq/xbean/activemq2.xml"));
+      factory.afterPropertiesSet();
+      return factory.getBroker();
+   }
 
 }
 

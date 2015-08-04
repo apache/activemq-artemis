@@ -51,8 +51,8 @@ import org.apache.activemq.artemis.utils.ConfigurationHelper;
 import static io.netty.handler.codec.http.HttpResponseStatus.FORBIDDEN;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
-public class ProtocolHandler
-{
+public class ProtocolHandler {
+
    private Map<String, ProtocolManager> protocolMap;
 
    private NettyAcceptor nettyAcceptor;
@@ -66,49 +66,41 @@ public class ProtocolHandler
    public ProtocolHandler(Map<String, ProtocolManager> protocolMap,
                           NettyAcceptor nettyAcceptor,
                           final Map<String, Object> configuration,
-                          ScheduledExecutorService scheduledThreadPool)
-   {
+                          ScheduledExecutorService scheduledThreadPool) {
       this.protocolMap = protocolMap;
       this.nettyAcceptor = nettyAcceptor;
       this.configuration = configuration;
       this.scheduledThreadPool = scheduledThreadPool;
    }
 
-   public ChannelHandler getProtocolDecoder()
-   {
+   public ChannelHandler getProtocolDecoder() {
       return new ProtocolDecoder(true, false);
    }
 
-   public void close()
-   {
-      if (httpKeepAliveRunnable != null)
-      {
+   public void close() {
+      if (httpKeepAliveRunnable != null) {
          httpKeepAliveRunnable.close();
       }
    }
 
-   class ProtocolDecoder extends ByteToMessageDecoder
-   {
+   class ProtocolDecoder extends ByteToMessageDecoder {
+
       private final boolean http;
 
       private final boolean httpEnabled;
 
-      public ProtocolDecoder(boolean http, boolean httpEnabled)
-      {
+      public ProtocolDecoder(boolean http, boolean httpEnabled) {
          this.http = http;
          this.httpEnabled = httpEnabled;
       }
 
       @Override
-      public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception
-      {
-         if (msg instanceof FullHttpRequest)
-         {
+      public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+         if (msg instanceof FullHttpRequest) {
             FullHttpRequest request = (FullHttpRequest) msg;
             HttpHeaders headers = request.headers();
             String upgrade = headers.get("upgrade");
-            if (upgrade != null && upgrade.equalsIgnoreCase("websocket"))
-            {
+            if (upgrade != null && upgrade.equalsIgnoreCase("websocket")) {
                ctx.pipeline().addLast("websocket-handler", new WebSocketServerHandler());
                ctx.pipeline().addLast(new ProtocolDecoder(false, false));
                ctx.pipeline().remove(this);
@@ -116,53 +108,44 @@ public class ProtocolHandler
                ctx.fireChannelRead(msg);
             }
             // HORNETQ-1391
-            else if (upgrade != null && upgrade.equalsIgnoreCase(NettyConnector.ACTIVEMQ_REMOTING))
-            {
+            else if (upgrade != null && upgrade.equalsIgnoreCase(NettyConnector.ACTIVEMQ_REMOTING)) {
                // Send the response and close the connection if necessary.
                ctx.writeAndFlush(new DefaultFullHttpResponse(HTTP_1_1, FORBIDDEN)).addListener(ChannelFutureListener.CLOSE);
             }
          }
-         else
-         {
+         else {
             super.channelRead(ctx, msg);
          }
       }
 
       @Override
-      protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception
-      {
-         if (ctx.isRemoved())
-         {
+      protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
+         if (ctx.isRemoved()) {
             return;
          }
 
          // Will use the first five bytes to detect a protocol.
-         if (in.readableBytes() < 8)
-         {
+         if (in.readableBytes() < 8) {
             return;
          }
 
          final int magic1 = in.getUnsignedByte(in.readerIndex());
          final int magic2 = in.getUnsignedByte(in.readerIndex() + 1);
-         if (http && isHttp(magic1, magic2))
-         {
+         if (http && isHttp(magic1, magic2)) {
             switchToHttp(ctx);
             return;
          }
          String protocolToUse = null;
          Set<String> protocolSet = protocolMap.keySet();
-         if (!protocolSet.isEmpty())
-         {
+         if (!protocolSet.isEmpty()) {
             // Use getBytes(...) as this works with direct and heap buffers.
             // See https://issues.jboss.org/browse/HORNETQ-1406
             byte[] bytes = new byte[8];
             in.getBytes(0, bytes);
 
-            for (String protocol : protocolSet)
-            {
+            for (String protocol : protocolSet) {
                ProtocolManager protocolManager = protocolMap.get(protocol);
-               if (protocolManager.isProtocol(bytes))
-               {
+               if (protocolManager.isProtocol(bytes)) {
                   protocolToUse = protocol;
                   break;
                }
@@ -170,8 +153,7 @@ public class ProtocolHandler
          }
 
          //if we get here we assume we use the core protocol as we match nothing else
-         if (protocolToUse == null)
-         {
+         if (protocolToUse == null) {
             protocolToUse = ActiveMQClient.DEFAULT_CORE_PROTOCOL;
          }
          ProtocolManager protocolManagerToUse = protocolMap.get(protocolToUse);
@@ -185,42 +167,31 @@ public class ProtocolHandler
          ctx.flush();
       }
 
-      private boolean isHttp(int magic1, int magic2)
-      {
-         return
-            magic1 == 'G' && magic2 == 'E' || // GET
-               magic1 == 'P' && magic2 == 'O' || // POST
-               magic1 == 'P' && magic2 == 'U' || // PUT
-               magic1 == 'H' && magic2 == 'E' || // HEAD
-               magic1 == 'O' && magic2 == 'P' || // OPTIONS
-               magic1 == 'P' && magic2 == 'A' || // PATCH
-               magic1 == 'D' && magic2 == 'E' || // DELETE
-               magic1 == 'T' && magic2 == 'R'; // TRACE
+      private boolean isHttp(int magic1, int magic2) {
+         return magic1 == 'G' && magic2 == 'E' || // GET
+            magic1 == 'P' && magic2 == 'O' || // POST
+            magic1 == 'P' && magic2 == 'U' || // PUT
+            magic1 == 'H' && magic2 == 'E' || // HEAD
+            magic1 == 'O' && magic2 == 'P' || // OPTIONS
+            magic1 == 'P' && magic2 == 'A' || // PATCH
+            magic1 == 'D' && magic2 == 'E' || // DELETE
+            magic1 == 'T' && magic2 == 'R'; // TRACE
          //magic1 == 'C' && magic2 == 'O'; // CONNECT
       }
 
-      private void switchToHttp(ChannelHandlerContext ctx)
-      {
+      private void switchToHttp(ChannelHandlerContext ctx) {
          ChannelPipeline p = ctx.pipeline();
          p.addLast("http-decoder", new HttpRequestDecoder());
          p.addLast("http-aggregator", new HttpObjectAggregator(Integer.MAX_VALUE));
          p.addLast("http-encoder", new HttpResponseEncoder());
          //create it lazily if and when we need it
-         if (httpKeepAliveRunnable == null)
-         {
-            long httpServerScanPeriod = ConfigurationHelper.getLongProperty(TransportConstants.HTTP_SERVER_SCAN_PERIOD_PROP_NAME,
-                                                                            TransportConstants.DEFAULT_HTTP_SERVER_SCAN_PERIOD,
-                                                                            configuration);
+         if (httpKeepAliveRunnable == null) {
+            long httpServerScanPeriod = ConfigurationHelper.getLongProperty(TransportConstants.HTTP_SERVER_SCAN_PERIOD_PROP_NAME, TransportConstants.DEFAULT_HTTP_SERVER_SCAN_PERIOD, configuration);
             httpKeepAliveRunnable = new HttpKeepAliveRunnable();
-            Future<?> future = scheduledThreadPool.scheduleAtFixedRate(httpKeepAliveRunnable,
-                                                                       httpServerScanPeriod,
-                                                                       httpServerScanPeriod,
-                                                                       TimeUnit.MILLISECONDS);
+            Future<?> future = scheduledThreadPool.scheduleAtFixedRate(httpKeepAliveRunnable, httpServerScanPeriod, httpServerScanPeriod, TimeUnit.MILLISECONDS);
             httpKeepAliveRunnable.setFuture(future);
          }
-         long httpResponseTime = ConfigurationHelper.getLongProperty(TransportConstants.HTTP_RESPONSE_TIME_PROP_NAME,
-                                                                     TransportConstants.DEFAULT_HTTP_RESPONSE_TIME,
-                                                                     configuration);
+         long httpResponseTime = ConfigurationHelper.getLongProperty(TransportConstants.HTTP_RESPONSE_TIME_PROP_NAME, TransportConstants.DEFAULT_HTTP_RESPONSE_TIME, configuration);
          HttpAcceptorHandler httpHandler = new HttpAcceptorHandler(httpKeepAliveRunnable, httpResponseTime, ctx.channel());
          ctx.pipeline().addLast("http-handler", httpHandler);
          p.addLast(new ProtocolDecoder(false, true));

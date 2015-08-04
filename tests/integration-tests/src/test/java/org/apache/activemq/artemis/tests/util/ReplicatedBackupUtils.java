@@ -21,12 +21,12 @@ import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.ha.ReplicaPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicatedPolicyConfiguration;
 
-public final class ReplicatedBackupUtils
-{
+public final class ReplicatedBackupUtils {
+
    public static final String LIVE_NODE_NAME = "amqLIVE";
    public static final String BACKUP_NODE_NAME = "amqBackup";
-   private ReplicatedBackupUtils()
-   {
+
+   private ReplicatedBackupUtils() {
       // Utility class
    }
 
@@ -35,28 +35,17 @@ public final class ReplicatedBackupUtils
                                                TransportConfiguration backupAcceptor,
                                                Configuration liveConfig,
                                                TransportConfiguration liveConnector,
-                                               TransportConfiguration liveAcceptor)
-   {
-      if (backupAcceptor != null)
-      {
+                                               TransportConfiguration liveAcceptor) {
+      if (backupAcceptor != null) {
          backupConfig.clearAcceptorConfigurations().addAcceptorConfiguration(backupAcceptor);
       }
 
-      if (liveAcceptor != null)
-      {
+      if (liveAcceptor != null) {
          liveConfig.clearAcceptorConfigurations().addAcceptorConfiguration(liveAcceptor);
       }
 
-      backupConfig.addConnectorConfiguration(BACKUP_NODE_NAME, backupConnector)
-         .addConnectorConfiguration(LIVE_NODE_NAME, liveConnector)
-         .addClusterConfiguration(ActiveMQTestBase.basicClusterConnectionConfig(BACKUP_NODE_NAME, LIVE_NODE_NAME))
-         .setHAPolicyConfiguration(new ReplicaPolicyConfiguration());
+      backupConfig.addConnectorConfiguration(BACKUP_NODE_NAME, backupConnector).addConnectorConfiguration(LIVE_NODE_NAME, liveConnector).addClusterConfiguration(ActiveMQTestBase.basicClusterConnectionConfig(BACKUP_NODE_NAME, LIVE_NODE_NAME)).setHAPolicyConfiguration(new ReplicaPolicyConfiguration());
 
-      liveConfig.setName(LIVE_NODE_NAME)
-         .addConnectorConfiguration(LIVE_NODE_NAME, liveConnector)
-         .addConnectorConfiguration(BACKUP_NODE_NAME, backupConnector)
-         .setSecurityEnabled(false)
-         .addClusterConfiguration(ActiveMQTestBase.basicClusterConnectionConfig(LIVE_NODE_NAME, BACKUP_NODE_NAME))
-         .setHAPolicyConfiguration(new ReplicatedPolicyConfiguration());
+      liveConfig.setName(LIVE_NODE_NAME).addConnectorConfiguration(LIVE_NODE_NAME, liveConnector).addConnectorConfiguration(BACKUP_NODE_NAME, backupConnector).setSecurityEnabled(false).addClusterConfiguration(ActiveMQTestBase.basicClusterConnectionConfig(LIVE_NODE_NAME, BACKUP_NODE_NAME)).setHAPolicyConfiguration(new ReplicatedPolicyConfiguration());
    }
 }

@@ -35,64 +35,62 @@ import org.apache.log4j.spi.LoggingEvent;
 import org.slf4j.LoggerFactory;
 
 public class AMQ2902Test extends TestCase {
-    private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(AMQ2580Test.class);
 
-    final AtomicBoolean gotExceptionInLog = new AtomicBoolean(Boolean.FALSE);
-    final AtomicBoolean failedToFindMDC = new AtomicBoolean(Boolean.FALSE);
+   private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(AMQ2580Test.class);
 
-    Appender appender = new DefaultTestAppender() {
-        @Override
-        public void doAppend(LoggingEvent event) {
-            if (event.getThrowableInformation() != null
-                    && event.getThrowableInformation().getThrowable() instanceof TransportDisposedIOException) {
+   final AtomicBoolean gotExceptionInLog = new AtomicBoolean(Boolean.FALSE);
+   final AtomicBoolean failedToFindMDC = new AtomicBoolean(Boolean.FALSE);
 
-                // Prevent StackOverflowException so we can see a sane stack trace.
-                if (gotExceptionInLog.get()) {
-                    return;
-                }
+   Appender appender = new DefaultTestAppender() {
+      @Override
+      public void doAppend(LoggingEvent event) {
+         if (event.getThrowableInformation() != null && event.getThrowableInformation().getThrowable() instanceof TransportDisposedIOException) {
 
-                gotExceptionInLog.set(Boolean.TRUE);
-                LOG.error("got event: " + event + ", ex:" + event.getThrowableInformation().getThrowable(), event.getThrowableInformation().getThrowable());
-                LOG.error("Event source: ", new Throwable("Here"));
+            // Prevent StackOverflowException so we can see a sane stack trace.
+            if (gotExceptionInLog.get()) {
+               return;
             }
-            if( !"Loaded the Bouncy Castle security provider.".equals(event.getMessage()) ) {
-                if (event.getMDC("activemq.broker") == null) {
-                    failedToFindMDC.set(Boolean.TRUE);
-                }
+
+            gotExceptionInLog.set(Boolean.TRUE);
+            LOG.error("got event: " + event + ", ex:" + event.getThrowableInformation().getThrowable(), event.getThrowableInformation().getThrowable());
+            LOG.error("Event source: ", new Throwable("Here"));
+         }
+         if (!"Loaded the Bouncy Castle security provider.".equals(event.getMessage())) {
+            if (event.getMDC("activemq.broker") == null) {
+               failedToFindMDC.set(Boolean.TRUE);
             }
-            return;
-        }
-    };
+         }
+         return;
+      }
+   };
 
-    public void testNoExceptionOnClosewithStartStop() throws JMSException {
-        ConnectionFactory connectionFactory = new ActiveMQConnectionFactory(
-                "vm://localhost?broker.persistent=false");
-        Connection connection = connectionFactory.createConnection();
-        connection.start();
-        connection.stop();
-        connection.close();
-    }
+   public void testNoExceptionOnClosewithStartStop() throws JMSException {
+      ConnectionFactory connectionFactory = new ActiveMQConnectionFactory("vm://localhost?broker.persistent=false");
+      Connection connection = connectionFactory.createConnection();
+      connection.start();
+      connection.stop();
+      connection.close();
+   }
 
-    public void testNoExceptionOnClose() throws JMSException {
-        ConnectionFactory connectionFactory = new ActiveMQConnectionFactory(
-                "vm://localhost?broker.persistent=false");
-        Connection connection = connectionFactory.createConnection();
-        connection.close();
-    }
+   public void testNoExceptionOnClose() throws JMSException {
+      ConnectionFactory connectionFactory = new ActiveMQConnectionFactory("vm://localhost?broker.persistent=false");
+      Connection connection = connectionFactory.createConnection();
+      connection.close();
+   }
 
-    @Override
-    public void setUp() throws Exception {
-        gotExceptionInLog.set(Boolean.FALSE);
-        failedToFindMDC.set(Boolean.FALSE);
-        Logger.getRootLogger().addAppender(appender);
-        Logger.getLogger(TransportConnection.class.getName() + ".Transport").setLevel(Level.DEBUG);
-        Logger.getLogger(TransportConnection.class.getName()).setLevel(Level.DEBUG);
-    }
+   @Override
+   public void setUp() throws Exception {
+      gotExceptionInLog.set(Boolean.FALSE);
+      failedToFindMDC.set(Boolean.FALSE);
+      Logger.getRootLogger().addAppender(appender);
+      Logger.getLogger(TransportConnection.class.getName() + ".Transport").setLevel(Level.DEBUG);
+      Logger.getLogger(TransportConnection.class.getName()).setLevel(Level.DEBUG);
+   }
 
-    @Override
-    public void tearDown() throws Exception {
-        Logger.getRootLogger().removeAppender(appender);
-        assertFalse("got unexpected ex in log on graceful close", gotExceptionInLog.get());
-        assertFalse("MDC is there", failedToFindMDC.get());
-    }
+   @Override
+   public void tearDown() throws Exception {
+      Logger.getRootLogger().removeAppender(appender);
+      assertFalse("got unexpected ex in log on graceful close", gotExceptionInLog.get());
+      assertFalse("MDC is there", failedToFindMDC.get());
+   }
 }

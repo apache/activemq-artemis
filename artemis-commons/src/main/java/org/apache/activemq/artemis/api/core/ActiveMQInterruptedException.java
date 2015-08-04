@@ -19,12 +19,11 @@ package org.apache.activemq.artemis.api.core;
 /**
  * When an interruption happens, we will just throw a non-checked exception.
  */
-public final class ActiveMQInterruptedException extends RuntimeException
-{
+public final class ActiveMQInterruptedException extends RuntimeException {
+
    private static final long serialVersionUID = -5744690023549671221L;
 
-   public ActiveMQInterruptedException(Throwable cause)
-   {
+   public ActiveMQInterruptedException(Throwable cause) {
       super(cause);
    }
 }

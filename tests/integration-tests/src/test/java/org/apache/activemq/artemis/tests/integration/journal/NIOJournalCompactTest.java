@@ -56,8 +56,8 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class NIOJournalCompactTest extends JournalImplTestBase
-{
+public class NIOJournalCompactTest extends JournalImplTestBase {
+
    private static final int NUMBER_OF_RECORDS = 1000;
 
    IDGenerator idGenerator = new SimpleIDGenerator(100000);
@@ -66,20 +66,17 @@ public class NIOJournalCompactTest extends JournalImplTestBase
    // =============
 
    @Test
-   public void testControlFile() throws Exception
-   {
+   public void testControlFile() throws Exception {
       ArrayList<JournalFile> dataFiles = new ArrayList<JournalFile>();
 
-      for (int i = 0; i < 5; i++)
-      {
+      for (int i = 0; i < 5; i++) {
          SequentialFile file = fileFactory.createSequentialFile("file-" + i + ".tst");
          dataFiles.add(new JournalFileImpl(file, 0, JournalImpl.FORMAT_VERSION));
       }
 
       ArrayList<JournalFile> newFiles = new ArrayList<JournalFile>();
 
-      for (int i = 0; i < 3; i++)
-      {
+      for (int i = 0; i < 3; i++) {
          SequentialFile file = fileFactory.createSequentialFile("file-" + i + ".tst.new");
          newFiles.add(new JournalFileImpl(file, 0, JournalImpl.FORMAT_VERSION));
       }
@@ -103,22 +100,19 @@ public class NIOJournalCompactTest extends JournalImplTestBase
       Assert.assertEquals(renames.size(), renamesRead.size());
 
       Iterator<String> iterDataFiles = strDataFiles.iterator();
-      for (JournalFile file : dataFiles)
-      {
+      for (JournalFile file : dataFiles) {
          Assert.assertEquals(file.getFile().getFileName(), iterDataFiles.next());
       }
       Assert.assertFalse(iterDataFiles.hasNext());
 
       Iterator<String> iterNewFiles = strNewFiles.iterator();
-      for (JournalFile file : newFiles)
-      {
+      for (JournalFile file : newFiles) {
          Assert.assertEquals(file.getFile().getFileName(), iterNewFiles.next());
       }
       Assert.assertFalse(iterNewFiles.hasNext());
 
       Iterator<Pair<String, String>> iterRename = renames.iterator();
-      for (Pair<String, String> rename : renamesRead)
-      {
+      for (Pair<String, String> rename : renamesRead) {
          Pair<String, String> original = iterRename.next();
          Assert.assertEquals(original.getA(), rename.getA());
          Assert.assertEquals(original.getB(), rename.getB());
@@ -127,70 +121,61 @@ public class NIOJournalCompactTest extends JournalImplTestBase
 
    }
 
-//   public void testRepeat() throws Exception
-//   {
-//      int i = 0 ;
-//
-//      while (true)
-//      {
-//         System.out.println("#test (" + (i++) + ")");
-//         testCrashRenamingFiles();
-//         tearDown();
-//         setUp();
-//      }
-//   }
+   //   public void testRepeat() throws Exception
+   //   {
+   //      int i = 0 ;
+   //
+   //      while (true)
+   //      {
+   //         System.out.println("#test (" + (i++) + ")");
+   //         testCrashRenamingFiles();
+   //         tearDown();
+   //         setUp();
+   //      }
+   //   }
 
    @Test
-   public void testCrashRenamingFiles() throws Exception
-   {
+   public void testCrashRenamingFiles() throws Exception {
       internalCompactTest(false, false, true, false, false, false, false, false, false, false, true, false, false);
    }
 
    @Test
-   public void testCrashDuringCompacting() throws Exception
-   {
+   public void testCrashDuringCompacting() throws Exception {
       internalCompactTest(false, false, true, false, false, false, false, false, false, false, false, false, false);
    }
 
    @Test
-   public void testCompactwithPendingXACommit() throws Exception
-   {
+   public void testCompactwithPendingXACommit() throws Exception {
       internalCompactTest(true, false, false, false, false, false, false, true, false, false, true, true, true);
    }
 
    @Test
-   public void testCompactwithPendingXAPrepareAndCommit() throws Exception
-   {
+   public void testCompactwithPendingXAPrepareAndCommit() throws Exception {
       internalCompactTest(false, true, false, false, false, false, false, true, false, false, true, true, true);
    }
 
    @Test
-   public void testCompactwithPendingXAPrepareAndDelayedCommit() throws Exception
-   {
+   public void testCompactwithPendingXAPrepareAndDelayedCommit() throws Exception {
       internalCompactTest(false, true, false, false, false, false, false, true, false, true, true, true, true);
    }
 
    @Test
-   public void testCompactwithPendingCommit() throws Exception
-   {
+   public void testCompactwithPendingCommit() throws Exception {
       internalCompactTest(true, false, false, false, false, false, false, true, false, false, true, true, true);
    }
 
    @Test
-   public void testCompactwithDelayedCommit() throws Exception
-   {
+   public void testCompactwithDelayedCommit() throws Exception {
       internalCompactTest(false, true, false, false, false, false, false, true, false, true, true, true, true);
    }
 
    @Test
-   public void testCompactwithPendingCommitFollowedByDelete() throws Exception
-   {
+   public void testCompactwithPendingCommitFollowedByDelete() throws Exception {
       internalCompactTest(false, false, false, false, false, false, false, true, true, false, true, true, true);
    }
 
    @Test
-   public void testCompactwithConcurrentUpdateAndDeletes() throws Exception
-   {
+   public void testCompactwithConcurrentUpdateAndDeletes() throws Exception {
       internalCompactTest(false, false, true, false, true, true, false, false, false, false, true, true, true);
       tearDown();
       setUp();
@@ -198,8 +183,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase
    }
 
    @Test
-   public void testCompactwithConcurrentDeletes() throws Exception
-   {
+   public void testCompactwithConcurrentDeletes() throws Exception {
       internalCompactTest(false, false, true, false, false, true, false, false, false, false, true, true, true);
       tearDown();
       setUp();
@@ -207,20 +191,17 @@ public class NIOJournalCompactTest extends JournalImplTestBase
    }
 
    @Test
-   public void testCompactwithConcurrentUpdates() throws Exception
-   {
+   public void testCompactwithConcurrentUpdates() throws Exception {
       internalCompactTest(false, false, true, false, true, false, false, false, false, false, true, true, true);
    }
 
    @Test
-   public void testCompactWithConcurrentAppend() throws Exception
-   {
+   public void testCompactWithConcurrentAppend() throws Exception {
       internalCompactTest(false, false, true, true, false, false, false, false, false, false, true, true, true);
    }
 
    @Test
-   public void testCompactFirstFileReclaimed() throws Exception
-   {
+   public void testCompactFirstFileReclaimed() throws Exception {
 
       setup(2, 60 * 1024, false);
 
@@ -242,8 +223,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase
 
       journal.appendAddRecord(2, recordType, "finalRecord".getBytes(), true);
 
-      for (int i = 10; i < 100; i++)
-      {
+      for (int i = 10; i < 100; i++) {
          journal.appendAddRecord(i, recordType, ("tst" + i).getBytes(), true);
          journal.forceMoveNextFile();
          journal.appendUpdateRecord(i, recordType, ("uptst" + i).getBytes(), true);
@@ -267,8 +247,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase
    }
 
    @Test
-   public void testCompactPrepareRestart() throws Exception
-   {
+   public void testCompactPrepareRestart() throws Exception {
       setup(2, 60 * 1024, false);
 
       createJournal();
@@ -311,8 +290,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase
    }
 
    @Test
-   public void testCompactPrepareRestart2() throws Exception
-   {
+   public void testCompactPrepareRestart2() throws Exception {
       setup(2, 60 * 1024, false);
 
       createJournal();
@@ -351,8 +329,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase
    }
 
    @Test
-   public void testCompactPrepareRestart3() throws Exception
-   {
+   public void testCompactPrepareRestart3() throws Exception {
       setup(2, 60 * 1024, false);
 
       createJournal();
@@ -383,8 +360,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase
    }
 
    @Test
-   public void testOnRollback() throws Exception
-   {
+   public void testOnRollback() throws Exception {
 
       setup(2, 60 * 1024, false);
 
@@ -415,8 +391,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase
    }
 
    @Test
-   public void testCompactSecondFileReclaimed() throws Exception
-   {
+   public void testCompactSecondFileReclaimed() throws Exception {
 
       setup(2, 60 * 1024, false);
 
@@ -451,8 +426,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase
    }
 
    @Test
-   public void testIncompleteTXDuringcompact() throws Exception
-   {
+   public void testIncompleteTXDuringcompact() throws Exception {
 
       setup(2, 60 * 1024, false);
 
@@ -482,8 +456,10 @@ public class NIOJournalCompactTest extends JournalImplTestBase
 
    }
 
-   private void internalCompactTest(final boolean preXA, // prepare before compact
-                                    final boolean postXA, // prepare after compact
+   private void internalCompactTest(final boolean preXA,
+                                    // prepare before compact
+                                    final boolean postXA,
+                                    // prepare after compact
                                     final boolean regularAdd,
                                     final boolean performAppend,
                                     final boolean performUpdate,
@@ -494,14 +470,11 @@ public class NIOJournalCompactTest extends JournalImplTestBase
                                     final boolean delayCommit,
                                     final boolean createControlFile,
                                     final boolean deleteControlFile,
-                                    final boolean renameFilesAfterCompacting) throws Exception
-   {
-      if (performNonTransactionalDelete)
-      {
+                                    final boolean renameFilesAfterCompacting) throws Exception {
+      if (performNonTransactionalDelete) {
          performDelete = false;
       }
-      if (performDelete)
-      {
+      if (performDelete) {
          performNonTransactionalDelete = false;
       }
 
@@ -513,53 +486,43 @@ public class NIOJournalCompactTest extends JournalImplTestBase
 
       final CountDownLatch latchDone = new CountDownLatch(1);
       final CountDownLatch latchWait = new CountDownLatch(1);
-      journal = new JournalImpl(fileSize, minFiles, 0, 0, fileFactory, filePrefix, fileExtension, maxAIO)
-      {
+      journal = new JournalImpl(fileSize, minFiles, 0, 0, fileFactory, filePrefix, fileExtension, maxAIO) {
 
          @Override
          protected SequentialFile createControlFile(final List<JournalFile> files,
                                                     final List<JournalFile> newFiles,
-                                                    final Pair<String, String> pair) throws Exception
-         {
-            if (createControlFile)
-            {
+                                                    final Pair<String, String> pair) throws Exception {
+            if (createControlFile) {
                return super.createControlFile(files, newFiles, pair);
             }
-            else
-            {
+            else {
                throw new IllegalStateException("Simulating a crash during compact creation");
             }
          }
 
          @Override
-         protected void deleteControlFile(final SequentialFile controlFile) throws Exception
-         {
-            if (deleteControlFile)
-            {
+         protected void deleteControlFile(final SequentialFile controlFile) throws Exception {
+            if (deleteControlFile) {
                super.deleteControlFile(controlFile);
             }
          }
 
          @Override
-         protected void renameFiles(final List<JournalFile> oldFiles, final List<JournalFile> newFiles) throws Exception
-         {
-            if (renameFilesAfterCompacting)
-            {
+         protected void renameFiles(final List<JournalFile> oldFiles,
+                                    final List<JournalFile> newFiles) throws Exception {
+            if (renameFilesAfterCompacting) {
                super.renameFiles(oldFiles, newFiles);
             }
          }
 
          @Override
-         public void onCompactDone()
-         {
+         public void onCompactDone() {
             latchDone.countDown();
             System.out.println("Waiting on Compact");
-            try
-            {
+            try {
                ActiveMQTestBase.waitForLatch(latchWait);
             }
-            catch (InterruptedException e)
-            {
+            catch (InterruptedException e) {
                e.printStackTrace();
             }
             System.out.println("Done");
@@ -573,26 +536,21 @@ public class NIOJournalCompactTest extends JournalImplTestBase
 
       long transactionID = 0;
 
-      if (regularAdd)
-      {
+      if (regularAdd) {
 
-         for (int i = 0; i < NIOJournalCompactTest.NUMBER_OF_RECORDS / 2; i++)
-         {
+         for (int i = 0; i < NIOJournalCompactTest.NUMBER_OF_RECORDS / 2; i++) {
             add(i);
-            if (i % 10 == 0 && i > 0)
-            {
+            if (i % 10 == 0 && i > 0) {
                journal.forceMoveNextFile();
             }
             update(i);
          }
 
-         for (int i = NIOJournalCompactTest.NUMBER_OF_RECORDS / 2; i < NIOJournalCompactTest.NUMBER_OF_RECORDS; i++)
-         {
+         for (int i = NIOJournalCompactTest.NUMBER_OF_RECORDS / 2; i < NIOJournalCompactTest.NUMBER_OF_RECORDS; i++) {
 
             addTx(transactionID, i);
             updateTx(transactionID, i);
-            if (i % 10 == 0)
-            {
+            if (i % 10 == 0) {
                journal.forceMoveNextFile();
             }
             commit(transactionID++);
@@ -600,31 +558,24 @@ public class NIOJournalCompactTest extends JournalImplTestBase
          }
       }
 
-      if (pendingTransactions)
-      {
-         for (long i = 0; i < 100; i++)
-         {
+      if (pendingTransactions) {
+         for (long i = 0; i < 100; i++) {
             long recordID = idGenerator.generateID();
             addTx(transactionID, recordID);
             updateTx(transactionID, recordID);
-            if (preXA)
-            {
+            if (preXA) {
                prepare(transactionID, new SimpleEncoding(10, (byte) 0));
             }
             transactedRecords.add(new Pair<Long, Long>(transactionID++, recordID));
          }
       }
 
-      if (regularAdd)
-      {
-         for (int i = 0; i < NIOJournalCompactTest.NUMBER_OF_RECORDS; i++)
-         {
-            if (!(i % 10 == 0))
-            {
+      if (regularAdd) {
+         for (int i = 0; i < NIOJournalCompactTest.NUMBER_OF_RECORDS; i++) {
+            if (!(i % 10 == 0)) {
                delete(i);
             }
-            else
-            {
+            else {
                liveIDs.add((long) i);
             }
          }
@@ -632,17 +583,13 @@ public class NIOJournalCompactTest extends JournalImplTestBase
 
       journal.forceMoveNextFile();
 
-      Thread t = new Thread()
-      {
+      Thread t = new Thread() {
          @Override
-         public void run()
-         {
-            try
-            {
+         public void run() {
+            try {
                journal.testCompact();
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                e.printStackTrace();
             }
          }
@@ -654,41 +601,32 @@ public class NIOJournalCompactTest extends JournalImplTestBase
 
       int nextID = NIOJournalCompactTest.NUMBER_OF_RECORDS;
 
-      if (performAppend)
-      {
-         for (int i = 0; i < 50; i++)
-         {
+      if (performAppend) {
+         for (int i = 0; i < 50; i++) {
             add(nextID++);
-            if (i % 10 == 0)
-            {
+            if (i % 10 == 0) {
                journal.forceMoveNextFile();
             }
          }
 
-         for (int i = 0; i < 50; i++)
-         {
+         for (int i = 0; i < 50; i++) {
             // A Total new transaction (that was created after the compact started) to add new record while compacting
             // is still working
             addTx(transactionID, nextID++);
             commit(transactionID++);
-            if (i % 10 == 0)
-            {
+            if (i % 10 == 0) {
                journal.forceMoveNextFile();
             }
          }
       }
 
-      if (performUpdate)
-      {
+      if (performUpdate) {
          int count = 0;
-         for (Long liveID : liveIDs)
-         {
-            if (count++ % 2 == 0)
-            {
+         for (Long liveID : liveIDs) {
+            if (count++ % 2 == 0) {
                update(liveID);
             }
-            else
-            {
+            else {
                // A Total new transaction (that was created after the compact started) to update a record that is being
                // compacted
                updateTx(transactionID, liveID);
@@ -697,18 +635,14 @@ public class NIOJournalCompactTest extends JournalImplTestBase
          }
       }
 
-      if (performDelete)
-      {
+      if (performDelete) {
          int count = 0;
-         for (long liveID : liveIDs)
-         {
-            if (count++ % 2 == 0)
-            {
+         for (long liveID : liveIDs) {
+            if (count++ % 2 == 0) {
                System.out.println("Deleting no trans " + liveID);
                delete(liveID);
             }
-            else
-            {
+            else {
                System.out.println("Deleting TX " + liveID);
                // A Total new transaction (that was created after the compact started) to delete a record that is being
                // compacted
@@ -720,47 +654,37 @@ public class NIOJournalCompactTest extends JournalImplTestBase
          }
       }
 
-      if (performNonTransactionalDelete)
-      {
-         for (long liveID : liveIDs)
-         {
+      if (performNonTransactionalDelete) {
+         for (long liveID : liveIDs) {
             delete(liveID);
          }
       }
 
-      if (pendingTransactions && !delayCommit)
-      {
-         for (Pair<Long, Long> tx : transactedRecords)
-         {
-            if (postXA)
-            {
+      if (pendingTransactions && !delayCommit) {
+         for (Pair<Long, Long> tx : transactedRecords) {
+            if (postXA) {
                prepare(tx.getA(), new SimpleEncoding(10, (byte) 0));
             }
-            if (tx.getA() % 2 == 0)
-            {
+            if (tx.getA() % 2 == 0) {
                commit(tx.getA());
 
-               if (deleteTransactRecords)
-               {
+               if (deleteTransactRecords) {
                   delete(tx.getB());
                }
             }
-            else
-            {
+            else {
                rollback(tx.getA());
             }
          }
       }
 
       /** Some independent adds and updates */
-      for (int i = 0; i < 1000; i++)
-      {
+      for (int i = 0; i < 1000; i++) {
          long id = idGenerator.generateID();
          add(id);
          delete(id);
 
-         if (i % 100 == 0)
-         {
+         if (i % 100 == 0) {
             journal.forceMoveNextFile();
          }
       }
@@ -770,25 +694,19 @@ public class NIOJournalCompactTest extends JournalImplTestBase
 
       t.join();
 
-      if (pendingTransactions && delayCommit)
-      {
-         for (Pair<Long, Long> tx : transactedRecords)
-         {
-            if (postXA)
-            {
+      if (pendingTransactions && delayCommit) {
+         for (Pair<Long, Long> tx : transactedRecords) {
+            if (postXA) {
                prepare(tx.getA(), new SimpleEncoding(10, (byte) 0));
             }
-            if (tx.getA() % 2 == 0)
-            {
+            if (tx.getA() % 2 == 0) {
                commit(tx.getA());
 
-               if (deleteTransactRecords)
-               {
+               if (deleteTransactRecords) {
                   delete(tx.getB());
                }
             }
-            else
-            {
+            else {
                rollback(tx.getA());
             }
          }
@@ -798,8 +716,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase
 
       add(lastId);
 
-      if (createControlFile && deleteControlFile && renameFilesAfterCompacting)
-      {
+      if (createControlFile && deleteControlFile && renameFilesAfterCompacting) {
          journal.testCompact();
       }
 
@@ -816,12 +733,10 @@ public class NIOJournalCompactTest extends JournalImplTestBase
       startJournal();
       loadAndCheck();
 
-
    }
 
    @Test
-   public void testCompactAddAndUpdateFollowedByADelete() throws Exception
-   {
+   public void testCompactAddAndUpdateFollowedByADelete() throws Exception {
 
       setup(2, 60 * 1024, false);
 
@@ -875,8 +790,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase
    }
 
    @Test
-   public void testCompactAddAndUpdateFollowedByADelete2() throws Exception
-   {
+   public void testCompactAddAndUpdateFollowedByADelete2() throws Exception {
 
       setup(2, 60 * 1024, false);
 
@@ -926,8 +840,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase
    }
 
    @Test
-   public void testCompactAddAndUpdateFollowedByADelete3() throws Exception
-   {
+   public void testCompactAddAndUpdateFollowedByADelete3() throws Exception {
 
       setup(2, 60 * 1024, false);
 
@@ -968,8 +881,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase
    }
 
    @Test
-   public void testCompactAddAndUpdateFollowedByADelete4() throws Exception
-   {
+   public void testCompactAddAndUpdateFollowedByADelete4() throws Exception {
 
       setup(2, 60 * 1024, false);
 
@@ -1022,8 +934,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase
    }
 
    @Test
-   public void testCompactAddAndUpdateFollowedByADelete6() throws Exception
-   {
+   public void testCompactAddAndUpdateFollowedByADelete6() throws Exception {
 
       setup(2, 60 * 1024, false);
 
@@ -1080,8 +991,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase
    }
 
    @Test
-   public void testDeleteWhileCleanup() throws Exception
-   {
+   public void testDeleteWhileCleanup() throws Exception {
 
       setup(2, 60 * 1024, false);
 
@@ -1090,31 +1000,27 @@ public class NIOJournalCompactTest extends JournalImplTestBase
       startJournal();
       load();
 
-      for (int i = 0; i < 100; i++)
-      {
+      for (int i = 0; i < 100; i++) {
          add(i);
       }
 
       journal.forceMoveNextFile();
 
-      for (int i = 10; i < 90; i++)
-      {
+      for (int i = 10; i < 90; i++) {
          delete(i);
       }
 
       startCompact();
 
       // Delete part of the live records while cleanup still working
-      for (int i = 1; i < 5; i++)
-      {
+      for (int i = 1; i < 5; i++) {
          delete(i);
       }
 
       finishCompact();
 
       // Delete part of the live records after cleanup is done
-      for (int i = 5; i < 10; i++)
-      {
+      for (int i = 5; i < 10; i++) {
          delete(i);
       }
 
@@ -1130,8 +1036,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase
    }
 
    @Test
-   public void testCompactAddAndUpdateFollowedByADelete5() throws Exception
-   {
+   public void testCompactAddAndUpdateFollowedByADelete5() throws Exception {
 
       setup(2, 60 * 1024, false);
 
@@ -1174,8 +1079,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase
    }
 
    @Test
-   public void testSimpleCompacting() throws Exception
-   {
+   public void testSimpleCompacting() throws Exception {
       setup(2, 60 * 1024, false);
 
       createJournal();
@@ -1187,19 +1091,16 @@ public class NIOJournalCompactTest extends JournalImplTestBase
       // add and remove some data to force reclaiming
       {
          ArrayList<Long> ids = new ArrayList<Long>();
-         for (int i = 0; i < NUMBER_OF_RECORDS; i++)
-         {
+         for (int i = 0; i < NUMBER_OF_RECORDS; i++) {
             long id = idGenerator.generateID();
             ids.add(id);
             add(id);
-            if (i > 0 && i % 100 == 0)
-            {
+            if (i > 0 && i % 100 == 0) {
                journal.forceMoveNextFile();
             }
          }
 
-         for (Long id : ids)
-         {
+         for (Long id : ids) {
             delete(id);
          }
 
@@ -1210,33 +1111,27 @@ public class NIOJournalCompactTest extends JournalImplTestBase
 
       long transactionID = 0;
 
-      for (int i = 0; i < NUMBER_OF_RECORDS / 2; i++)
-      {
+      for (int i = 0; i < NUMBER_OF_RECORDS / 2; i++) {
          add(i);
-         if (i % 10 == 0 && i > 0)
-         {
+         if (i % 10 == 0 && i > 0) {
             journal.forceMoveNextFile();
          }
          update(i);
       }
 
-      for (int i = NUMBER_OF_RECORDS / 2; i < NUMBER_OF_RECORDS; i++)
-      {
+      for (int i = NUMBER_OF_RECORDS / 2; i < NUMBER_OF_RECORDS; i++) {
 
          addTx(transactionID, i);
          updateTx(transactionID, i);
-         if (i % 10 == 0)
-         {
+         if (i % 10 == 0) {
             journal.forceMoveNextFile();
          }
          commit(transactionID++);
          update(i);
       }
 
-      for (int i = 0; i < NUMBER_OF_RECORDS; i++)
-      {
-         if (!(i % 10 == 0))
-         {
+      for (int i = 0; i < NUMBER_OF_RECORDS; i++) {
+         if (!(i % 10 == 0)) {
             delete(i);
          }
       }
@@ -1263,8 +1158,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase
    }
 
    @Test
-   public void testLiveSize() throws Exception
-   {
+   public void testLiveSize() throws Exception {
       setup(2, 60 * 1024, true);
 
       createJournal();
@@ -1275,8 +1169,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase
 
       ArrayList<Integer> expectedSizes = new ArrayList<Integer>();
 
-      for (int i = 0; i < 10; i++)
-      {
+      for (int i = 0; i < 10; i++) {
          long id = idGenerator.generateID();
          listToDelete.add(id);
 
@@ -1303,14 +1196,12 @@ public class NIOJournalCompactTest extends JournalImplTestBase
 
       Assert.assertEquals(files.length, files2.length);
 
-      for (int i = 0; i < files.length; i++)
-      {
+      for (int i = 0; i < files.length; i++) {
          Assert.assertEquals(expectedSizes.get(i).intValue(), files[i].getLiveSize());
          Assert.assertEquals(expectedSizes.get(i).intValue(), files2[i].getLiveSize());
       }
 
-      for (long id : listToDelete)
-      {
+      for (long id : listToDelete) {
          delete(id);
       }
 
@@ -1318,8 +1209,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase
 
       JournalFile[] files3 = journal.getDataFiles();
 
-      for (JournalFile file : files3)
-      {
+      for (JournalFile file : files3) {
          Assert.assertEquals(0, file.getLiveSize());
       }
 
@@ -1330,16 +1220,14 @@ public class NIOJournalCompactTest extends JournalImplTestBase
 
       files3 = journal.getDataFiles();
 
-      for (JournalFile file : files3)
-      {
+      for (JournalFile file : files3) {
          Assert.assertEquals(0, file.getLiveSize());
       }
 
    }
 
    @Test
-   public void testCompactFirstFileWithPendingCommits() throws Exception
-   {
+   public void testCompactFirstFileWithPendingCommits() throws Exception {
       setup(2, 60 * 1024, true);
 
       createJournal();
@@ -1347,18 +1235,15 @@ public class NIOJournalCompactTest extends JournalImplTestBase
       loadAndCheck();
 
       long tx = idGenerator.generateID();
-      for (int i = 0; i < 10; i++)
-      {
+      for (int i = 0; i < 10; i++) {
          addTx(tx, idGenerator.generateID());
       }
 
       journal.forceMoveNextFile();
 
       ArrayList<Long> listToDelete = new ArrayList<Long>();
-      for (int i = 0; i < 10; i++)
-      {
-         if (i == 5)
-         {
+      for (int i = 0; i < 10; i++) {
+         if (i == 5) {
             commit(tx);
          }
          long id = idGenerator.generateID();
@@ -1368,8 +1253,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase
 
       journal.forceMoveNextFile();
 
-      for (Long id : listToDelete)
-      {
+      for (Long id : listToDelete) {
          delete(id);
       }
 
@@ -1389,8 +1273,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase
    }
 
    @Test
-   public void testCompactFirstFileWithPendingCommits3() throws Exception
-   {
+   public void testCompactFirstFileWithPendingCommits3() throws Exception {
       setup(2, 60 * 1024, true);
 
       createJournal();
@@ -1398,16 +1281,14 @@ public class NIOJournalCompactTest extends JournalImplTestBase
       loadAndCheck();
 
       long tx = idGenerator.generateID();
-      for (int i = 0; i < 10; i++)
-      {
+      for (int i = 0; i < 10; i++) {
          addTx(tx, idGenerator.generateID());
       }
 
       journal.forceMoveNextFile();
 
       ArrayList<Long> listToDelete = new ArrayList<Long>();
-      for (int i = 0; i < 10; i++)
-      {
+      for (int i = 0; i < 10; i++) {
          long id = idGenerator.generateID();
          listToDelete.add(id);
          add(id);
@@ -1415,8 +1296,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase
 
       journal.forceMoveNextFile();
 
-      for (Long id : listToDelete)
-      {
+      for (Long id : listToDelete) {
          delete(id);
       }
 
@@ -1436,8 +1316,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase
    }
 
    @Test
-   public void testCompactFirstFileWithPendingCommits2() throws Exception
-   {
+   public void testCompactFirstFileWithPendingCommits2() throws Exception {
       setup(2, 60 * 1024, true);
 
       createJournal();
@@ -1445,16 +1324,14 @@ public class NIOJournalCompactTest extends JournalImplTestBase
       loadAndCheck();
 
       long tx = idGenerator.generateID();
-      for (int i = 0; i < 10; i++)
-      {
+      for (int i = 0; i < 10; i++) {
          addTx(tx, idGenerator.generateID());
       }
 
       journal.forceMoveNextFile();
 
       ArrayList<Long> listToDelete = new ArrayList<Long>();
-      for (int i = 0; i < 10; i++)
-      {
+      for (int i = 0; i < 10; i++) {
          long id = idGenerator.generateID();
          listToDelete.add(id);
          add(id);
@@ -1462,8 +1339,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase
 
       journal.forceMoveNextFile();
 
-      for (Long id : listToDelete)
-      {
+      for (Long id : listToDelete) {
          delete(id);
       }
 
@@ -1485,8 +1361,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase
    }
 
    @Test
-   public void testCompactFirstFileWithPendingCommits4() throws Exception
-   {
+   public void testCompactFirstFileWithPendingCommits4() throws Exception {
       setup(2, 60 * 1024, true);
 
       createJournal();
@@ -1496,8 +1371,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase
       long[] ids = new long[10];
 
       long tx0 = idGenerator.generateID();
-      for (int i = 0; i < 10; i++)
-      {
+      for (int i = 0; i < 10; i++) {
          ids[i] = idGenerator.generateID();
          addTx(tx0, ids[i]);
       }
@@ -1507,8 +1381,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase
       journal.forceMoveNextFile();
 
       ArrayList<Long> listToDelete = new ArrayList<Long>();
-      for (int i = 0; i < 10; i++)
-      {
+      for (int i = 0; i < 10; i++) {
          long id = idGenerator.generateID();
          listToDelete.add(id);
          add(id);
@@ -1516,8 +1389,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase
 
       journal.forceMoveNextFile();
 
-      for (Long id : listToDelete)
-      {
+      for (Long id : listToDelete) {
          delete(id);
       }
 
@@ -1526,8 +1398,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase
       startCompact();
       System.out.println("Committing TX " + tx1);
       rollback(tx0);
-      for (int i = 0; i < 10; i++)
-      {
+      for (int i = 0; i < 10; i++) {
          addTx(tx1, ids[i]);
       }
 
@@ -1546,8 +1417,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase
    }
 
    @Test
-   public void testCompactFirstFileWithPendingCommits5() throws Exception
-   {
+   public void testCompactFirstFileWithPendingCommits5() throws Exception {
       setup(2, 60 * 1024, true);
 
       createJournal();
@@ -1557,8 +1427,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase
       long[] ids = new long[10];
 
       long tx0 = idGenerator.generateID();
-      for (int i = 0; i < 10; i++)
-      {
+      for (int i = 0; i < 10; i++) {
          ids[i] = idGenerator.generateID();
          addTx(tx0, ids[i]);
       }
@@ -1568,8 +1437,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase
       journal.forceMoveNextFile();
 
       ArrayList<Long> listToDelete = new ArrayList<Long>();
-      for (int i = 0; i < 10; i++)
-      {
+      for (int i = 0; i < 10; i++) {
          long id = idGenerator.generateID();
          listToDelete.add(id);
          add(id);
@@ -1577,8 +1445,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase
 
       journal.forceMoveNextFile();
 
-      for (Long id : listToDelete)
-      {
+      for (Long id : listToDelete) {
          delete(id);
       }
 
@@ -1587,8 +1454,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase
       startCompact();
       System.out.println("Committing TX " + tx1);
       rollback(tx0);
-      for (int i = 0; i < 10; i++)
-      {
+      for (int i = 0; i < 10; i++) {
          addTx(tx1, ids[i]);
       }
 
@@ -1607,8 +1473,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase
    }
 
    @Test
-   public void testCompactFirstFileWithPendingCommits6() throws Exception
-   {
+   public void testCompactFirstFileWithPendingCommits6() throws Exception {
       setup(2, 60 * 1024, true);
 
       createJournal();
@@ -1618,8 +1483,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase
       long[] ids = new long[10];
 
       long tx0 = idGenerator.generateID();
-      for (int i = 0; i < 10; i++)
-      {
+      for (int i = 0; i < 10; i++) {
          ids[i] = idGenerator.generateID();
          addTx(tx0, ids[i]);
       }
@@ -1627,8 +1491,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase
       commit(tx0);
 
       startCompact();
-      for (int i = 0; i < 10; i++)
-      {
+      for (int i = 0; i < 10; i++) {
          delete(ids[i]);
       }
       finishCompact();
@@ -1640,8 +1503,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase
    }
 
    @Test
-   public void testCompactFirstFileWithPendingCommits7() throws Exception
-   {
+   public void testCompactFirstFileWithPendingCommits7() throws Exception {
       setup(2, 60 * 1024, true);
 
       createJournal();
@@ -1676,8 +1538,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase
    }
 
    @Test
-   public void testLiveSizeTransactional() throws Exception
-   {
+   public void testLiveSizeTransactional() throws Exception {
       setup(2, 60 * 1024, true);
 
       createJournal();
@@ -1688,8 +1549,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase
 
       ArrayList<Integer> expectedSizes = new ArrayList<Integer>();
 
-      for (int i = 0; i < 10; i++)
-      {
+      for (int i = 0; i < 10; i++) {
          long tx = idGenerator.generateID();
          long id = idGenerator.generateID();
          listToDelete.add(id);
@@ -1725,15 +1585,13 @@ public class NIOJournalCompactTest extends JournalImplTestBase
 
       Assert.assertEquals(files.length, files2.length);
 
-      for (int i = 0; i < files.length; i++)
-      {
+      for (int i = 0; i < files.length; i++) {
          Assert.assertEquals(expectedSizes.get(i).intValue(), files[i].getLiveSize());
          Assert.assertEquals(expectedSizes.get(i).intValue(), files2[i].getLiveSize());
       }
 
       long tx = idGenerator.generateID();
-      for (long id : listToDelete)
-      {
+      for (long id : listToDelete) {
          deleteTx(tx, id);
       }
       commit(tx);
@@ -1742,8 +1600,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase
 
       JournalFile[] files3 = journal.getDataFiles();
 
-      for (JournalFile file : files3)
-      {
+      for (JournalFile file : files3) {
          Assert.assertEquals(0, file.getLiveSize());
       }
 
@@ -1754,22 +1611,15 @@ public class NIOJournalCompactTest extends JournalImplTestBase
 
       files3 = journal.getDataFiles();
 
-      for (JournalFile file : files3)
-      {
+      for (JournalFile file : files3) {
          Assert.assertEquals(0, file.getLiveSize());
       }
 
    }
 
    @Test
-   public void testStressDeletesNoSync() throws Exception
-   {
-      Configuration config = createBasicConfig()
-         .setJournalFileSize(100 * 1024)
-         .setJournalSyncNonTransactional(false)
-         .setJournalSyncTransactional(false)
-         .setJournalCompactMinFiles(0)
-         .setJournalCompactPercentage(0);
+   public void testStressDeletesNoSync() throws Exception {
+      Configuration config = createBasicConfig().setJournalFileSize(100 * 1024).setJournalSyncNonTransactional(false).setJournalSyncTransactional(false).setJournalCompactMinFiles(0).setJournalCompactPercentage(0);
 
       final AtomicInteger errors = new AtomicInteger(0);
 
@@ -1791,22 +1641,17 @@ public class NIOJournalCompactTest extends JournalImplTestBase
       ((JournalImpl) storage.getMessageJournal()).setAutoReclaim(false);
       final LinkedList<Long> survivingMsgs = new LinkedList<Long>();
 
-      Runnable producerRunnable = new Runnable()
-      {
-         public void run()
-         {
-            try
-            {
-               while (running.get())
-               {
+      Runnable producerRunnable = new Runnable() {
+         public void run() {
+            try {
+               while (running.get()) {
                   final long[] values = new long[100];
                   long tx = seqGenerator.incrementAndGet();
 
                   OperationContextImpl ctx = new OperationContextImpl(executor);
                   storage.setContext(ctx);
 
-                  for (int i = 0; i < 100; i++)
-                  {
+                  for (int i = 0; i < 100; i++) {
                      long id = seqGenerator.incrementAndGet();
                      values[i] = id;
 
@@ -1825,27 +1670,19 @@ public class NIOJournalCompactTest extends JournalImplTestBase
 
                   storage.commit(tx);
 
-                  ctx.executeOnCompletion(new IOCallback()
-                  {
-                     public void onError(int errorCode, String errorMessage)
-                     {
+                  ctx.executeOnCompletion(new IOCallback() {
+                     public void onError(int errorCode, String errorMessage) {
                      }
 
-                     public void done()
-                     {
-                        deleteExecutor.execute(new Runnable()
-                        {
-                           public void run()
-                           {
-                              try
-                              {
-                                 for (long messageID : values)
-                                 {
+                     public void done() {
+                        deleteExecutor.execute(new Runnable() {
+                           public void run() {
+                              try {
+                                 for (long messageID : values) {
                                     storage.deleteMessage(messageID);
                                  }
                               }
-                              catch (Exception e)
-                              {
+                              catch (Exception e) {
                                  e.printStackTrace();
                                  errors.incrementAndGet();
                               }
@@ -1857,30 +1694,24 @@ public class NIOJournalCompactTest extends JournalImplTestBase
 
                }
             }
-            catch (Throwable e)
-            {
+            catch (Throwable e) {
                e.printStackTrace();
                errors.incrementAndGet();
             }
          }
       };
 
-      Runnable compressRunnable = new Runnable()
-      {
-         public void run()
-         {
-            try
-            {
-               while (running.get())
-               {
+      Runnable compressRunnable = new Runnable() {
+         public void run() {
+            try {
+               while (running.get()) {
                   Thread.sleep(500);
                   System.out.println("Compacting");
                   ((JournalImpl) storage.getMessageJournal()).testCompact();
                   ((JournalImpl) storage.getMessageJournal()).checkReclaimStatus();
                }
             }
-            catch (Throwable e)
-            {
+            catch (Throwable e) {
                e.printStackTrace();
                errors.incrementAndGet();
             }
@@ -1915,21 +1746,17 @@ public class NIOJournalCompactTest extends JournalImplTestBase
 
    @Override
    @After
-   public void tearDown() throws Exception
-   {
+   public void tearDown() throws Exception {
       File testDir = new File(getTestDir());
 
-      File[] files = testDir.listFiles(new FilenameFilter()
-      {
+      File[] files = testDir.listFiles(new FilenameFilter() {
 
-         public boolean accept(File dir, String name)
-         {
+         public boolean accept(File dir, String name) {
             return name.startsWith(filePrefix) && name.endsWith(fileExtension);
          }
       });
 
-      for (File file : files)
-      {
+      for (File file : files) {
          assertEquals("File " + file + " doesn't have the expected number of bytes", fileSize, file.length());
       }
 
@@ -1937,8 +1764,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase
    }
 
    @Override
-   protected SequentialFileFactory getFileFactory() throws Exception
-   {
+   protected SequentialFileFactory getFileFactory() throws Exception {
       return new NIOSequentialFileFactory(getTestDirfile(), 1);
    }
 

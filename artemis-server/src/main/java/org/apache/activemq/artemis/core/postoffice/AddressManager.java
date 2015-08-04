@@ -25,12 +25,13 @@ import org.apache.activemq.artemis.core.transaction.Transaction;
 /**
  * Used to maintain addresses and BindingsImpl.
  */
-public interface AddressManager
-{
+public interface AddressManager {
+
    boolean addBinding(Binding binding) throws Exception;
 
    /**
     * This will use a Transaction as we need to confirm the queue was removed
+    *
     * @param uniqueName
     * @param tx
     * @return

@@ -17,6 +17,7 @@
 package org.apache.activemq.network;
 
 import junit.framework.TestCase;
+
 import org.apache.activemq.advisory.AdvisorySupport;
 import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.command.ActiveMQQueue;
@@ -28,18 +29,17 @@ import java.util.List;
 
 public class NetworkDestinationFilterTest extends TestCase {
 
-    public void testFilter() throws Exception {
-        NetworkBridgeConfiguration config = new NetworkBridgeConfiguration();
-        assertEquals(AdvisorySupport.CONSUMER_ADVISORY_TOPIC_PREFIX + ">", config.getDestinationFilter());
-        List<ActiveMQDestination> dests = new ArrayList<ActiveMQDestination>();
-        config.setDynamicallyIncludedDestinations(dests);
-        assertEquals(AdvisorySupport.CONSUMER_ADVISORY_TOPIC_PREFIX + ">", config.getDestinationFilter());
-        dests.add(new ActiveMQQueue("TEST.>"));
-        dests.add(new ActiveMQTopic("TEST.>"));
-        dests.add(new ActiveMQTempQueue("TEST.>"));
-        String prefix = AdvisorySupport.CONSUMER_ADVISORY_TOPIC_PREFIX;
-        assertEquals(prefix + "Queue.TEST.>," + prefix + "Topic.TEST.>", config.getDestinationFilter());
-    }
-
+   public void testFilter() throws Exception {
+      NetworkBridgeConfiguration config = new NetworkBridgeConfiguration();
+      assertEquals(AdvisorySupport.CONSUMER_ADVISORY_TOPIC_PREFIX + ">", config.getDestinationFilter());
+      List<ActiveMQDestination> dests = new ArrayList<ActiveMQDestination>();
+      config.setDynamicallyIncludedDestinations(dests);
+      assertEquals(AdvisorySupport.CONSUMER_ADVISORY_TOPIC_PREFIX + ">", config.getDestinationFilter());
+      dests.add(new ActiveMQQueue("TEST.>"));
+      dests.add(new ActiveMQTopic("TEST.>"));
+      dests.add(new ActiveMQTempQueue("TEST.>"));
+      String prefix = AdvisorySupport.CONSUMER_ADVISORY_TOPIC_PREFIX;
+      assertEquals(prefix + "Queue.TEST.>," + prefix + "Topic.TEST.>", config.getDestinationFilter());
+   }
 
 }

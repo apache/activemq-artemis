@@ -23,8 +23,7 @@ import org.apache.activemq.artemis.api.core.management.DivertControl;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.junit.Before;
 
-public class DivertControlUsingCoreTest extends DivertControlTest
-{
+public class DivertControlUsingCoreTest extends DivertControlTest {
 
    // Constants -----------------------------------------------------
 
@@ -40,48 +39,39 @@ public class DivertControlUsingCoreTest extends DivertControlTest
    // DivertControlTest overrides --------------------------------
 
    @Override
-   protected DivertControl createManagementControl(final String name) throws Exception
-   {
+   protected DivertControl createManagementControl(final String name) throws Exception {
       ClientSessionFactory sf = createSessionFactory(locator);
       session = sf.createSession(false, true, true);
       session.start();
 
-      return new DivertControl()
-      {
+      return new DivertControl() {
          private final CoreMessagingProxy proxy = new CoreMessagingProxy(session, ResourceNames.CORE_DIVERT + name);
 
-         public String getAddress()
-         {
+         public String getAddress() {
             return (String) proxy.retrieveAttributeValue("address");
          }
 
-         public String getFilter()
-         {
+         public String getFilter() {
             return (String) proxy.retrieveAttributeValue("filter");
          }
 
-         public String getForwardingAddress()
-         {
+         public String getForwardingAddress() {
             return (String) proxy.retrieveAttributeValue("forwardingAddress");
          }
 
-         public String getRoutingName()
-         {
+         public String getRoutingName() {
             return (String) proxy.retrieveAttributeValue("routingName");
          }
 
-         public String getTransformerClassName()
-         {
+         public String getTransformerClassName() {
             return (String) proxy.retrieveAttributeValue("transformerClassName");
          }
 
-         public String getUniqueName()
-         {
+         public String getUniqueName() {
             return (String) proxy.retrieveAttributeValue("uniqueName");
          }
 
-         public boolean isExclusive()
-         {
+         public boolean isExclusive() {
             return (Boolean) proxy.retrieveAttributeValue("exclusive");
          }
 
@@ -94,11 +84,9 @@ public class DivertControlUsingCoreTest extends DivertControlTest
 
    // Protected -----------------------------------------------------
 
-
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       locator = createInVMNonHALocator();

@@ -50,8 +50,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
-public abstract class StompV11TestBase extends ActiveMQTestBase
-{
+public abstract class StompV11TestBase extends ActiveMQTestBase {
+
    protected String hostname = "127.0.0.1";
 
    protected int port = 61613;
@@ -78,8 +78,7 @@ public abstract class StompV11TestBase extends ActiveMQTestBase
    // -------------------------------------------------------------------------
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       server = createServer();
@@ -94,85 +93,70 @@ public abstract class StompV11TestBase extends ActiveMQTestBase
    }
 
    /**
-   * @return
-   * @throws Exception
-   */
-   protected JMSServerManager createServer() throws Exception
-   {
+    * @return
+    * @throws Exception
+    */
+   protected JMSServerManager createServer() throws Exception {
       Map<String, Object> params = new HashMap<String, Object>();
       params.put(TransportConstants.PROTOCOLS_PROP_NAME, StompProtocolManagerFactory.STOMP_PROTOCOL_NAME);
       params.put(TransportConstants.PORT_PROP_NAME, TransportConstants.DEFAULT_STOMP_PORT);
       params.put(TransportConstants.STOMP_CONSUMERS_CREDIT, "-1");
       TransportConfiguration stompTransport = new TransportConfiguration(NettyAcceptorFactory.class.getName(), params);
 
-      Configuration config = createBasicConfig()
-         .setPersistenceEnabled(persistenceEnabled)
-         .addAcceptorConfiguration(stompTransport)
-         .addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName()));
+      Configuration config = createBasicConfig().setPersistenceEnabled(persistenceEnabled).addAcceptorConfiguration(stompTransport).addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName()));
 
       ActiveMQServer activeMQServer = addServer(ActiveMQServers.newActiveMQServer(config, defUser, defPass));
 
       JMSConfiguration jmsConfig = new JMSConfigurationImpl();
-      jmsConfig.getQueueConfigurations().add(new JMSQueueConfigurationImpl()
-                                                .setName(getQueueName())
-                                                .setBindings(getQueueName()));
-      jmsConfig.getTopicConfigurations().add(new TopicConfigurationImpl()
-                                                .setName(getTopicName())
-                                                .setBindings(getTopicName()));
+      jmsConfig.getQueueConfigurations().add(new JMSQueueConfigurationImpl().setName(getQueueName()).setBindings(getQueueName()));
+      jmsConfig.getTopicConfigurations().add(new TopicConfigurationImpl().setName(getTopicName()).setBindings(getTopicName()));
       server = new JMSServerManagerImpl(activeMQServer, jmsConfig);
       server.setRegistry(new JndiBindingRegistry(new InVMNamingContext()));
       return server;
    }
 
-   protected ConnectionFactory createConnectionFactory()
-   {
+   protected ConnectionFactory createConnectionFactory() {
       return new ActiveMQJMSConnectionFactory(false, new TransportConfiguration(InVMConnectorFactory.class.getName()));
    }
 
-   protected String getQueueName()
-   {
+   protected String getQueueName() {
       return "test";
    }
 
-   protected String getQueuePrefix()
-   {
+   protected String getQueuePrefix() {
       return "jms.queue.";
    }
 
-   protected String getTopicName()
-   {
+   protected String getTopicName() {
       return "testtopic";
    }
 
-   protected String getTopicPrefix()
-   {
+   protected String getTopicPrefix() {
       return "jms.topic.";
    }
 
-   public void sendMessage(String msg) throws Exception
-   {
+   public void sendMessage(String msg) throws Exception {
       sendMessage(msg, queue);
    }
 
-   public void sendMessage(String msg, Destination destination) throws Exception
-   {
+   public void sendMessage(String msg, Destination destination) throws Exception {
       MessageProducer producer = session.createProducer(destination);
       TextMessage message = session.createTextMessage(msg);
       producer.send(message);
    }
 
-   public void sendMessage(byte[] data, Destination destination) throws Exception
-   {
+   public void sendMessage(byte[] data, Destination destination) throws Exception {
       sendMessage(data, "foo", "xyz", destination);
    }
 
-   public void sendMessage(String msg, String propertyName, String propertyValue) throws Exception
-   {
+   public void sendMessage(String msg, String propertyName, String propertyValue) throws Exception {
       sendMessage(msg.getBytes(StandardCharsets.UTF_8), propertyName, propertyValue, queue);
    }
 
-   public void sendMessage(byte[] data, String propertyName, String propertyValue, Destination destination) throws Exception
-   {
+   public void sendMessage(byte[] data,
+                           String propertyName,
+                           String propertyValue,
+                           Destination destination) throws Exception {
       MessageProducer producer = session.createProducer(destination);
       BytesMessage message = session.createBytesMessage();
       message.setStringProperty(propertyName, propertyValue);

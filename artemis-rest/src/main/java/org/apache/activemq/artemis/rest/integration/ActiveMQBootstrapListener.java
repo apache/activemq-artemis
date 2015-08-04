@@ -22,33 +22,28 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
-public class ActiveMQBootstrapListener implements ServletContextListener
-{
+public class ActiveMQBootstrapListener implements ServletContextListener {
+
    private EmbeddedJMS jms;
 
-   public void contextInitialized(ServletContextEvent contextEvent)
-   {
+   public void contextInitialized(ServletContextEvent contextEvent) {
       ServletContext context = contextEvent.getServletContext();
       jms = new EmbeddedJMS();
       jms.setRegistry(new ServletContextBindingRegistry(context));
-      try
-      {
+      try {
          jms.start();
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          throw new RuntimeException(e);
       }
    }
 
-   public void contextDestroyed(ServletContextEvent servletContextEvent)
-   {
-      try
-      {
-         if (jms != null) jms.stop();
+   public void contextDestroyed(ServletContextEvent servletContextEvent) {
+      try {
+         if (jms != null)
+            jms.stop();
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          throw new RuntimeException(e);
       }
    }

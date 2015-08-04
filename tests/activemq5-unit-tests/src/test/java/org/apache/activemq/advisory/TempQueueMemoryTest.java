@@ -35,137 +35,140 @@ import org.apache.activemq.command.ActiveMQQueue;
 
 public class TempQueueMemoryTest extends EmbeddedBrokerTestSupport {
 
-    protected Connection serverConnection;
-    protected Session serverSession;
-    protected Connection clientConnection;
-    protected Session clientSession;
-    protected Destination serverDestination;
-    protected int messagesToSend = 10;
-    protected boolean deleteTempQueue = true;
-    protected boolean serverTransactional = false;
-    protected boolean clientTransactional = false;
-    protected int numConsumers = 1;
-    protected int numProducers = 1;
+   protected Connection serverConnection;
+   protected Session serverSession;
+   protected Connection clientConnection;
+   protected Session clientSession;
+   protected Destination serverDestination;
+   protected int messagesToSend = 10;
+   protected boolean deleteTempQueue = true;
+   protected boolean serverTransactional = false;
+   protected boolean clientTransactional = false;
+   protected int numConsumers = 1;
+   protected int numProducers = 1;
 
-    public void testConcurrentProducerRequestReply() throws Exception {
-        numProducers = 10;
-        testLoadRequestReply();
-    }
+   public void testConcurrentProducerRequestReply() throws Exception {
+      numProducers = 10;
+      testLoadRequestReply();
+   }
 
-    public void testLoadRequestReply() throws Exception {
-        for (int i = 0; i < numConsumers; i++) {
-            serverSession.createConsumer(serverDestination).setMessageListener(new MessageListener() {
-                @Override
-                public void onMessage(Message msg) {
-                    try {
-                        Destination replyTo = msg.getJMSReplyTo();
-                        MessageProducer producer = serverSession.createProducer(replyTo);
-                        producer.send(replyTo, msg);
-                        if (serverTransactional) {
-                            serverSession.commit();
-                        }
-                        producer.close();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            });
-        }
-
-        class Producer extends Thread {
-            private final int numToSend;
-
-            public Producer(int numToSend) {
-                this.numToSend = numToSend;
-            }
-
+   public void testLoadRequestReply() throws Exception {
+      for (int i = 0; i < numConsumers; i++) {
+         serverSession.createConsumer(serverDestination).setMessageListener(new MessageListener() {
             @Override
-            public void run() {
-                try {
-                    Session session = clientConnection.createSession(clientTransactional, clientTransactional ?
-                        Session.SESSION_TRANSACTED : Session.AUTO_ACKNOWLEDGE);
-                    MessageProducer producer = session.createProducer(serverDestination);
-
-                    for (int i = 0; i < numToSend; i++) {
-                        TemporaryQueue replyTo = session.createTemporaryQueue();
-                        MessageConsumer consumer = session.createConsumer(replyTo);
-                        Message msg = session.createMessage();
-                        msg.setJMSReplyTo(replyTo);
-                        producer.send(msg);
-                        if (clientTransactional) {
-                            session.commit();
-                        }
-                        consumer.receive();
-                        if (clientTransactional) {
-                            session.commit();
-                        }
-                        consumer.close();
-                        if (deleteTempQueue) {
-                            replyTo.delete();
-                        } else {
-                            // temp queue will be cleaned up on clientConnection.close
-                        }
-                    }
-                } catch (JMSException e) {
-                    e.printStackTrace();
-                }
+            public void onMessage(Message msg) {
+               try {
+                  Destination replyTo = msg.getJMSReplyTo();
+                  MessageProducer producer = serverSession.createProducer(replyTo);
+                  producer.send(replyTo, msg);
+                  if (serverTransactional) {
+                     serverSession.commit();
+                  }
+                  producer.close();
+               }
+               catch (Exception e) {
+                  e.printStackTrace();
+               }
             }
-        }
-        Vector<Thread> threads = new Vector<Thread>(numProducers);
-        for (int i = 0; i < numProducers; i++) {
-            threads.add(new Producer(messagesToSend / numProducers));
-        }
-        startAndJoinThreads(threads);
+         });
+      }
 
-        clientSession.close();
-        serverSession.close();
-        clientConnection.close();
-        serverConnection.close();
+      class Producer extends Thread {
 
-        AdvisoryBroker ab = (AdvisoryBroker) broker.getBroker().getAdaptor(AdvisoryBroker.class);
+         private final int numToSend;
 
-        // The server destination will be left
-        assertTrue(ab.getAdvisoryDestinations().size() == 1);
+         public Producer(int numToSend) {
+            this.numToSend = numToSend;
+         }
 
-        assertTrue("should be zero but is " + ab.getAdvisoryConsumers().size(), ab.getAdvisoryConsumers().size() == 0);
-        assertTrue("should be zero but is " + ab.getAdvisoryProducers().size(), ab.getAdvisoryProducers().size() == 0);
+         @Override
+         public void run() {
+            try {
+               Session session = clientConnection.createSession(clientTransactional, clientTransactional ? Session.SESSION_TRANSACTED : Session.AUTO_ACKNOWLEDGE);
+               MessageProducer producer = session.createProducer(serverDestination);
 
-        RegionBroker rb = (RegionBroker) broker.getBroker().getAdaptor(RegionBroker.class);
+               for (int i = 0; i < numToSend; i++) {
+                  TemporaryQueue replyTo = session.createTemporaryQueue();
+                  MessageConsumer consumer = session.createConsumer(replyTo);
+                  Message msg = session.createMessage();
+                  msg.setJMSReplyTo(replyTo);
+                  producer.send(msg);
+                  if (clientTransactional) {
+                     session.commit();
+                  }
+                  consumer.receive();
+                  if (clientTransactional) {
+                     session.commit();
+                  }
+                  consumer.close();
+                  if (deleteTempQueue) {
+                     replyTo.delete();
+                  }
+                  else {
+                     // temp queue will be cleaned up on clientConnection.close
+                  }
+               }
+            }
+            catch (JMSException e) {
+               e.printStackTrace();
+            }
+         }
+      }
+      Vector<Thread> threads = new Vector<Thread>(numProducers);
+      for (int i = 0; i < numProducers; i++) {
+         threads.add(new Producer(messagesToSend / numProducers));
+      }
+      startAndJoinThreads(threads);
 
-        assertTrue(rb.getDestinationMap().size() >= 6);
-    }
+      clientSession.close();
+      serverSession.close();
+      clientConnection.close();
+      serverConnection.close();
 
-    private void startAndJoinThreads(Vector<Thread> threads) throws Exception {
-        for (Thread thread : threads) {
-            thread.start();
-        }
-        for (Thread thread : threads) {
-            thread.join();
-        }
-    }
+      AdvisoryBroker ab = (AdvisoryBroker) broker.getBroker().getAdaptor(AdvisoryBroker.class);
 
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
-        serverConnection = createConnection();
-        serverConnection.start();
-        serverSession = serverConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        clientConnection = createConnection();
-        clientConnection.start();
-        clientSession = clientConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        serverDestination = createDestination();
-    }
+      // The server destination will be left
+      assertTrue(ab.getAdvisoryDestinations().size() == 1);
 
-    @Override
-    protected void tearDown() throws Exception {
-        super.tearDown();
-        serverTransactional = clientTransactional = false;
-        numConsumers = numProducers = 1;
-        messagesToSend = 2000;
-    }
+      assertTrue("should be zero but is " + ab.getAdvisoryConsumers().size(), ab.getAdvisoryConsumers().size() == 0);
+      assertTrue("should be zero but is " + ab.getAdvisoryProducers().size(), ab.getAdvisoryProducers().size() == 0);
 
-    @Override
-    protected ActiveMQDestination createDestination() {
-        return new ActiveMQQueue(getClass().getName());
-    }
+      RegionBroker rb = (RegionBroker) broker.getBroker().getAdaptor(RegionBroker.class);
+
+      assertTrue(rb.getDestinationMap().size() >= 6);
+   }
+
+   private void startAndJoinThreads(Vector<Thread> threads) throws Exception {
+      for (Thread thread : threads) {
+         thread.start();
+      }
+      for (Thread thread : threads) {
+         thread.join();
+      }
+   }
+
+   @Override
+   protected void setUp() throws Exception {
+      super.setUp();
+      serverConnection = createConnection();
+      serverConnection.start();
+      serverSession = serverConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      clientConnection = createConnection();
+      clientConnection.start();
+      clientSession = clientConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      serverDestination = createDestination();
+   }
+
+   @Override
+   protected void tearDown() throws Exception {
+      super.tearDown();
+      serverTransactional = clientTransactional = false;
+      numConsumers = numProducers = 1;
+      messagesToSend = 2000;
+   }
+
+   @Override
+   protected ActiveMQDestination createDestination() {
+      return new ActiveMQQueue(getClass().getName());
+   }
 }

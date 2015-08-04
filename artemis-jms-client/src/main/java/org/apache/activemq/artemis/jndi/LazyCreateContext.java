@@ -19,19 +19,15 @@ package org.apache.activemq.artemis.jndi;
 import javax.naming.NameNotFoundException;
 import javax.naming.NamingException;
 
-public abstract class LazyCreateContext extends ReadOnlyContext
-{
-   public Object lookup(String name) throws NamingException
-   {
-      try
-      {
+public abstract class LazyCreateContext extends ReadOnlyContext {
+
+   public Object lookup(String name) throws NamingException {
+      try {
          return super.lookup(name);
       }
-      catch (NameNotFoundException e)
-      {
+      catch (NameNotFoundException e) {
          Object answer = createEntry(name);
-         if (answer == null)
-         {
+         if (answer == null) {
             throw e;
          }
          internalBind(name, answer);

@@ -27,10 +27,9 @@ import org.apache.activemq.command.SessionId;
 /**
  * What's the purpose of this?
  */
-public interface AMQTransportConnectionStateRegister
-{
-   AMQTransportConnectionState registerConnectionState(ConnectionId connectionId,
-         AMQTransportConnectionState state);
+public interface AMQTransportConnectionStateRegister {
+
+   AMQTransportConnectionState registerConnectionState(ConnectionId connectionId, AMQTransportConnectionState state);
 
    AMQTransportConnectionState unregisterConnectionState(ConnectionId connectionId);
 

@@ -19,17 +19,15 @@ package org.apache.activemq.artemis.api.core;
 /**
  * A client was disconnected from ActiveMQ Artemis server when the server has shut down.
  */
-public final class ActiveMQDisconnectedException extends ActiveMQException
-{
+public final class ActiveMQDisconnectedException extends ActiveMQException {
+
    private static final long serialVersionUID = 7414966383933311627L;
 
-   public ActiveMQDisconnectedException()
-   {
+   public ActiveMQDisconnectedException() {
       super(ActiveMQExceptionType.DISCONNECTED);
    }
 
-   public ActiveMQDisconnectedException(String message)
-   {
+   public ActiveMQDisconnectedException(String message) {
       super(ActiveMQExceptionType.DISCONNECTED, message);
    }
 }

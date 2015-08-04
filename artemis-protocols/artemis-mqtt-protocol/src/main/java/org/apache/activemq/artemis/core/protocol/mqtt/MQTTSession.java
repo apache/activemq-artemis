@@ -25,9 +25,8 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+public class MQTTSession {
 
-public class MQTTSession
-{
    static Map<String, MQTTSessionState> SESSIONS = new ConcurrentHashMap<>();
 
    private final String id = UUID.randomUUID().toString();
@@ -54,8 +53,7 @@ public class MQTTSession
 
    private MQTTLogger log = MQTTLogger.LOGGER;
 
-   public MQTTSession( MQTTProtocolHandler protocolHandler, MQTTConnection connection) throws Exception
-   {
+   public MQTTSession(MQTTProtocolHandler protocolHandler, MQTTConnection connection) throws Exception {
       this.protocolHandler = protocolHandler;
       this.connection = connection;
 
@@ -69,105 +67,86 @@ public class MQTTSession
    }
 
    // Called after the client has Connected.
-   synchronized void  start() throws Exception
-   {
+   synchronized void start() throws Exception {
       mqttPublishManager.start();
       subscriptionManager.start();
       stopped = false;
    }
 
    // TODO ensure resources are cleaned up for GC.
-   synchronized void stop() throws Exception
-   {
-      if (!stopped)
-      {
+   synchronized void stop() throws Exception {
+      if (!stopped) {
          protocolHandler.stop(false);
          // TODO this should pass in clean session.
          subscriptionManager.stop(false);
          mqttPublishManager.stop(false);
 
-         if (serverSession != null)
-         {
+         if (serverSession != null) {
             serverSession.stop();
             serverSession.close(false);
          }
 
-         if (state != null)
-         {
+         if (state != null) {
             state.setAttached(false);
          }
       }
       stopped = true;
    }
 
-   boolean getStopped()
-   {
+   boolean getStopped() {
       return stopped;
    }
 
-   MQTTPublishManager getMqttPublishManager()
-   {
+   MQTTPublishManager getMqttPublishManager() {
       return mqttPublishManager;
    }
 
-   MQTTSessionState getState()
-   {
+   MQTTSessionState getState() {
       return state;
    }
 
-   MQTTConnectionManager getConnectionManager()
-   {
+   MQTTConnectionManager getConnectionManager() {
       return mqttConnectionManager;
    }
 
-   MQTTSessionState getSessionState()
-   {
+   MQTTSessionState getSessionState() {
       return state;
    }
 
-   ServerSessionImpl getServerSession()
-   {
+   ServerSessionImpl getServerSession() {
       return serverSession;
    }
 
-   ActiveMQServer getServer()
-   {
+   ActiveMQServer getServer() {
       return protocolHandler.getServer();
    }
 
-   MQTTSubscriptionManager getSubscriptionManager()
-   {
+   MQTTSubscriptionManager getSubscriptionManager() {
       return subscriptionManager;
    }
 
-   MQTTProtocolHandler getProtocolHandler()
-   {
+   MQTTProtocolHandler getProtocolHandler() {
       return protocolHandler;
    }
 
-   SessionCallback getSessionCallback()
-   {
+   SessionCallback getSessionCallback() {
       return sessionCallback;
    }
 
-   void setServerSession(ServerSessionImpl serverSession)
-   {
+   void setServerSession(ServerSessionImpl serverSession) {
       this.serverSession = serverSession;
    }
 
-   void setSessionState(MQTTSessionState state)
-   {
+   void setSessionState(MQTTSessionState state) {
       this.state = state;
       state.setAttached(true);
    }
 
-   MQTTRetainMessageManager getRetainMessageManager()
-   {
+   MQTTRetainMessageManager getRetainMessageManager() {
       return retainMessageManager;
    }
 
-   MQTTConnection getConnection()
-   {
+   MQTTConnection getConnection() {
       return connection;
    }
 }

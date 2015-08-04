@@ -26,8 +26,7 @@ import java.security.AccessController;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 
-public class ObjectInputStreamWithClassLoader extends ObjectInputStream
-{
+public class ObjectInputStreamWithClassLoader extends ObjectInputStream {
 
    // Constants ------------------------------------------------------------------------------------
 
@@ -37,8 +36,7 @@ public class ObjectInputStreamWithClassLoader extends ObjectInputStream
 
    // Constructors ---------------------------------------------------------------------------------
 
-   public ObjectInputStreamWithClassLoader(final InputStream in) throws IOException
-   {
+   public ObjectInputStreamWithClassLoader(final InputStream in) throws IOException {
       super(in);
    }
 
@@ -49,54 +47,40 @@ public class ObjectInputStreamWithClassLoader extends ObjectInputStream
    // Protected ------------------------------------------------------------------------------------
 
    @Override
-   protected Class resolveClass(final ObjectStreamClass desc) throws IOException, ClassNotFoundException
-   {
-      if (System.getSecurityManager() == null)
-      {
+   protected Class resolveClass(final ObjectStreamClass desc) throws IOException, ClassNotFoundException {
+      if (System.getSecurityManager() == null) {
          return resolveClass0(desc);
       }
-      else
-      {
-         try
-         {
-            return AccessController.doPrivileged(new PrivilegedExceptionAction<Class>()
-            {
+      else {
+         try {
+            return AccessController.doPrivileged(new PrivilegedExceptionAction<Class>() {
                @Override
-               public Class run() throws Exception
-               {
+               public Class run() throws Exception {
                   return resolveClass0(desc);
                }
             });
          }
-         catch (PrivilegedActionException e)
-         {
+         catch (PrivilegedActionException e) {
             throw unwrapException(e);
          }
       }
    }
 
    @Override
-   protected Class resolveProxyClass(final String[] interfaces) throws IOException, ClassNotFoundException
-   {
-      if (System.getSecurityManager() == null)
-      {
+   protected Class resolveProxyClass(final String[] interfaces) throws IOException, ClassNotFoundException {
+      if (System.getSecurityManager() == null) {
          return resolveProxyClass0(interfaces);
       }
-      else
-      {
-         try
-         {
-            return AccessController.doPrivileged(new PrivilegedExceptionAction<Class>()
-            {
+      else {
+         try {
+            return AccessController.doPrivileged(new PrivilegedExceptionAction<Class>() {
                @Override
-               public Class run() throws Exception
-               {
+               public Class run() throws Exception {
                   return resolveProxyClass0(interfaces);
                }
             });
          }
-         catch (PrivilegedActionException e)
-         {
+         catch (PrivilegedActionException e) {
             throw unwrapException(e);
          }
       }
@@ -104,89 +88,70 @@ public class ObjectInputStreamWithClassLoader extends ObjectInputStream
 
    // Private --------------------------------------------------------------------------------------
 
-   private Class resolveClass0(final ObjectStreamClass desc) throws IOException, ClassNotFoundException
-   {
+   private Class resolveClass0(final ObjectStreamClass desc) throws IOException, ClassNotFoundException {
       String name = desc.getName();
       ClassLoader loader = Thread.currentThread().getContextClassLoader();
-      try
-      {
+      try {
          // HORNETQ-747 https://issues.jboss.org/browse/HORNETQ-747
          // Use Class.forName instead of ClassLoader.loadClass to avoid issues with loading arrays
          Class clazz = Class.forName(name, false, loader);
          // sanity check only.. if a classLoader can't find a clazz, it will throw an exception
-         if (clazz == null)
-         {
+         if (clazz == null) {
             return super.resolveClass(desc);
          }
-         else
-         {
+         else {
             return clazz;
          }
       }
-      catch (ClassNotFoundException e)
-      {
+      catch (ClassNotFoundException e) {
          return super.resolveClass(desc);
       }
    }
 
-   private Class resolveProxyClass0(String[] interfaces) throws IOException, ClassNotFoundException
-   {
+   private Class resolveProxyClass0(String[] interfaces) throws IOException, ClassNotFoundException {
       ClassLoader latestLoader = Thread.currentThread().getContextClassLoader();
       ClassLoader nonPublicLoader = null;
       boolean hasNonPublicInterface = false;
       // define proxy in class loader of non-public interface(s), if any
       Class[] classObjs = new Class[interfaces.length];
-      for (int i = 0; i < interfaces.length; i++)
-      {
+      for (int i = 0; i < interfaces.length; i++) {
          Class cl = Class.forName(interfaces[i], false, latestLoader);
-         if ((cl.getModifiers() & Modifier.PUBLIC) == 0)
-         {
-            if (hasNonPublicInterface)
-            {
-               if (nonPublicLoader != cl.getClassLoader())
-               {
+         if ((cl.getModifiers() & Modifier.PUBLIC) == 0) {
+            if (hasNonPublicInterface) {
+               if (nonPublicLoader != cl.getClassLoader()) {
                   throw new IllegalAccessError("conflicting non-public interface class loaders");
                }
             }
-            else
-            {
+            else {
                nonPublicLoader = cl.getClassLoader();
                hasNonPublicInterface = true;
             }
          }
          classObjs[i] = cl;
       }
-      try
-      {
+      try {
          return Proxy.getProxyClass(hasNonPublicInterface ? nonPublicLoader : latestLoader, classObjs);
       }
-      catch (IllegalArgumentException e)
-      {
+      catch (IllegalArgumentException e) {
          throw new ClassNotFoundException(null, e);
       }
    }
 
-   private RuntimeException unwrapException(PrivilegedActionException e) throws IOException, ClassNotFoundException
-   {
+   private RuntimeException unwrapException(PrivilegedActionException e) throws IOException, ClassNotFoundException {
       Throwable c = e.getCause();
-      if (c instanceof IOException)
-      {
-         throw (IOException)c;
+      if (c instanceof IOException) {
+         throw (IOException) c;
       }
-      else if (c instanceof ClassNotFoundException)
-      {
-         throw (ClassNotFoundException)c;
+      else if (c instanceof ClassNotFoundException) {
+         throw (ClassNotFoundException) c;
       }
-      else if (c instanceof RuntimeException)
-      {
-         throw (RuntimeException)c;
+      else if (c instanceof RuntimeException) {
+         throw (RuntimeException) c;
       }
-      else if (c instanceof Error)
-      {
-         throw (Error)c;
+      else if (c instanceof Error) {
+         throw (Error) c;
       }
-      else
-      {
+      else {
          throw new RuntimeException(c);
       }
    }

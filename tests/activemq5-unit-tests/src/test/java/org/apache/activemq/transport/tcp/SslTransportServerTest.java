@@ -23,70 +23,71 @@ import java.net.URI;
 import junit.framework.TestCase;
 
 public class SslTransportServerTest extends TestCase {
-    private SslTransportServer sslTransportServer;
-    private StubSSLServerSocket sslServerSocket;
 
-    protected void setUp() throws Exception {
-    }
+   private SslTransportServer sslTransportServer;
+   private StubSSLServerSocket sslServerSocket;
 
-    protected void tearDown() throws Exception {
-        super.tearDown();
-    }
+   protected void setUp() throws Exception {
+   }
 
-    private void createAndBindTransportServer(boolean wantClientAuth, boolean needClientAuth, String options) throws IOException {
-        sslServerSocket = new StubSSLServerSocket();
+   protected void tearDown() throws Exception {
+      super.tearDown();
+   }
 
-        StubSSLSocketFactory socketFactory = new StubSSLSocketFactory(sslServerSocket);
+   private void createAndBindTransportServer(boolean wantClientAuth,
+                                             boolean needClientAuth,
+                                             String options) throws IOException {
+      sslServerSocket = new StubSSLServerSocket();
 
-        try {
-            sslTransportServer = new SslTransportServer(null, new URI("ssl://localhost:61616?" + options), socketFactory);
-        } catch (Exception e) {
-            fail("Unable to create SslTransportServer.");
-        }
+      StubSSLSocketFactory socketFactory = new StubSSLSocketFactory(sslServerSocket);
 
-        sslTransportServer.setWantClientAuth(wantClientAuth);
-        sslTransportServer.setNeedClientAuth(needClientAuth);
+      try {
+         sslTransportServer = new SslTransportServer(null, new URI("ssl://localhost:61616?" + options), socketFactory);
+      }
+      catch (Exception e) {
+         fail("Unable to create SslTransportServer.");
+      }
 
-        sslTransportServer.bind();
-    }
+      sslTransportServer.setWantClientAuth(wantClientAuth);
+      sslTransportServer.setNeedClientAuth(needClientAuth);
 
-    public void testWantAndNeedClientAuthSetters() throws IOException {
-        for (int i = 0; i < 4; ++i) {
-            String options = "";
-            singleTest(i, options);
-            }
-    }
+      sslTransportServer.bind();
+   }
 
-    public void testWantAndNeedAuthReflection() throws IOException {
-        for (int i = 0; i < 4; ++i) {
-            String options = "wantClientAuth=" + (getWantClientAuth(i) ? "true" : "false") +
-                "&needClientAuth=" + (getNeedClientAuth(i) ? "true" : "false");
-            singleTest(i, options);
-        }
-    }
+   public void testWantAndNeedClientAuthSetters() throws IOException {
+      for (int i = 0; i < 4; ++i) {
+         String options = "";
+         singleTest(i, options);
+      }
+   }
 
-    private void singleTest(int i, String options) throws IOException {
-        final boolean wantClientAuth = getWantClientAuth(i);
-        final boolean needClientAuth = getNeedClientAuth(i);
+   public void testWantAndNeedAuthReflection() throws IOException {
+      for (int i = 0; i < 4; ++i) {
+         String options = "wantClientAuth=" + (getWantClientAuth(i) ? "true" : "false") +
+            "&needClientAuth=" + (getNeedClientAuth(i) ? "true" : "false");
+         singleTest(i, options);
+      }
+   }
 
-        final int expectedWantStatus = (needClientAuth? StubSSLServerSocket.UNTOUCHED: wantClientAuth ? StubSSLServerSocket.TRUE : StubSSLServerSocket.UNTOUCHED);
-        final int expectedNeedStatus = (needClientAuth ? StubSSLServerSocket.TRUE : StubSSLServerSocket.UNTOUCHED );
+   private void singleTest(int i, String options) throws IOException {
+      final boolean wantClientAuth = getWantClientAuth(i);
+      final boolean needClientAuth = getNeedClientAuth(i);
 
+      final int expectedWantStatus = (needClientAuth ? StubSSLServerSocket.UNTOUCHED : wantClientAuth ? StubSSLServerSocket.TRUE : StubSSLServerSocket.UNTOUCHED);
+      final int expectedNeedStatus = (needClientAuth ? StubSSLServerSocket.TRUE : StubSSLServerSocket.UNTOUCHED);
 
-        createAndBindTransportServer(wantClientAuth, needClientAuth, options);
+      createAndBindTransportServer(wantClientAuth, needClientAuth, options);
 
-        assertEquals("Created ServerSocket did not have correct wantClientAuth status. wantClientAuth: " + wantClientAuth + ", needClientAuth: " + needClientAuth,
-            expectedWantStatus, sslServerSocket.getWantClientAuthStatus());
+      assertEquals("Created ServerSocket did not have correct wantClientAuth status. wantClientAuth: " + wantClientAuth + ", needClientAuth: " + needClientAuth, expectedWantStatus, sslServerSocket.getWantClientAuthStatus());
 
-        assertEquals("Created ServerSocket did not have correct needClientAuth status. wantClientAuth: " + wantClientAuth + ", needClientAuth: " + needClientAuth,
-            expectedNeedStatus, sslServerSocket.getNeedClientAuthStatus());
-    }
+      assertEquals("Created ServerSocket did not have correct needClientAuth status. wantClientAuth: " + wantClientAuth + ", needClientAuth: " + needClientAuth, expectedNeedStatus, sslServerSocket.getNeedClientAuthStatus());
+   }
 
-    private boolean getNeedClientAuth(int i) {
-        return ((i & 0x2) == 0x2);
-    }
+   private boolean getNeedClientAuth(int i) {
+      return ((i & 0x2) == 0x2);
+   }
 
-    private boolean getWantClientAuth(int i) {
-        return ((i & 0x1) == 0x1);
-    }
+   private boolean getWantClientAuth(int i) {
+      return ((i & 0x1) == 0x1);
+   }
 }

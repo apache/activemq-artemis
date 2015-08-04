@@ -25,57 +25,47 @@ import javax.resource.spi.work.WorkListener;
 import javax.resource.spi.work.WorkManager;
 import java.util.Timer;
 
-public class BootstrapContext implements javax.resource.spi.BootstrapContext
-{
-   public Timer createTimer() throws UnavailableException
-   {
+public class BootstrapContext implements javax.resource.spi.BootstrapContext {
+
+   public Timer createTimer() throws UnavailableException {
       return null;
    }
 
-   public WorkManager getWorkManager()
-   {
-      return new WorkManager()
-      {
-         public void doWork(final Work work) throws WorkException
-         {
+   public WorkManager getWorkManager() {
+      return new WorkManager() {
+         public void doWork(final Work work) throws WorkException {
          }
 
          public void doWork(final Work work,
                             final long l,
                             final ExecutionContext executionContext,
-                            final WorkListener workListener) throws WorkException
-         {
+                            final WorkListener workListener) throws WorkException {
          }
 
-         public long startWork(final Work work) throws WorkException
-         {
+         public long startWork(final Work work) throws WorkException {
             return 0;
          }
 
          public long startWork(final Work work,
                                final long l,
                                final ExecutionContext executionContext,
-                               final WorkListener workListener) throws WorkException
-         {
+                               final WorkListener workListener) throws WorkException {
             return 0;
          }
 
-         public void scheduleWork(final Work work) throws WorkException
-         {
+         public void scheduleWork(final Work work) throws WorkException {
             work.run();
          }
 
          public void scheduleWork(final Work work,
                                   final long l,
                                   final ExecutionContext executionContext,
-                                  final WorkListener workListener) throws WorkException
-         {
+                                  final WorkListener workListener) throws WorkException {
          }
       };
    }
 
-   public XATerminator getXATerminator()
-   {
+   public XATerminator getXATerminator() {
       return null;
    }
 }

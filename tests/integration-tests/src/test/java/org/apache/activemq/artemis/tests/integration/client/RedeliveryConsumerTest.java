@@ -40,8 +40,7 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class RedeliveryConsumerTest extends ActiveMQTestBase
-{
+public class RedeliveryConsumerTest extends ActiveMQTestBase {
 
    // Constants -----------------------------------------------------
 
@@ -64,37 +63,31 @@ public class RedeliveryConsumerTest extends ActiveMQTestBase
    // Public --------------------------------------------------------
 
    @Test
-   public void testRedeliveryMessageStrict() throws Exception
-   {
+   public void testRedeliveryMessageStrict() throws Exception {
       testDedeliveryMessageOnPersistent(true);
    }
 
    @Test
-   public void testRedeliveryMessageSimpleCancel() throws Exception
-   {
+   public void testRedeliveryMessageSimpleCancel() throws Exception {
       testDedeliveryMessageOnPersistent(false);
    }
 
    @Test
-   public void testDeliveryNonPersistent() throws Exception
-   {
+   public void testDeliveryNonPersistent() throws Exception {
       testDelivery(false);
    }
 
    @Test
-   public void testDeliveryPersistent() throws Exception
-   {
+   public void testDeliveryPersistent() throws Exception {
       testDelivery(true);
    }
 
-   public void testDelivery(final boolean persistent) throws Exception
-   {
+   public void testDelivery(final boolean persistent) throws Exception {
       setUp(true);
       ClientSession session = factory.createSession(false, false, false);
       ClientProducer prod = session.createProducer(ADDRESS);
 
-      for (int i = 0; i < 10; i++)
-      {
+      for (int i = 0; i < 10; i++) {
          prod.send(createTextMessage(session, Integer.toString(i), persistent));
       }
 
@@ -104,11 +97,9 @@ public class RedeliveryConsumerTest extends ActiveMQTestBase
       session = factory.createSession(null, null, false, true, true, true, 0);
 
       session.start();
-      for (int loopAck = 0; loopAck < 5; loopAck++)
-      {
+      for (int loopAck = 0; loopAck < 5; loopAck++) {
          ClientConsumer browser = session.createConsumer(ADDRESS, null, true);
-         for (int i = 0; i < 10; i++)
-         {
+         for (int i = 0; i < 10; i++) {
             ClientMessage msg = browser.receive(1000);
             Assert.assertNotNull("element i=" + i + " loopAck = " + loopAck + " was expected", msg);
             msg.acknowledge();
@@ -129,10 +120,8 @@ public class RedeliveryConsumerTest extends ActiveMQTestBase
 
       ClientConsumer consumer = session.createConsumer(ADDRESS);
 
-      for (int loopAck = 0; loopAck < 5; loopAck++)
-      {
-         for (int i = 0; i < 10; i++)
-         {
+      for (int loopAck = 0; loopAck < 5; loopAck++) {
+         for (int i = 0; i < 10; i++) {
             ClientMessage msg = consumer.receive(1000);
             Assert.assertNotNull(msg);
             Assert.assertEquals(Integer.toString(i), getTextMessage(msg));
@@ -143,8 +132,7 @@ public class RedeliveryConsumerTest extends ActiveMQTestBase
          session.rollback();
       }
 
-      if (persistent)
-      {
+      if (persistent) {
          session.close();
          server.stop();
          server.start();
@@ -154,20 +142,16 @@ public class RedeliveryConsumerTest extends ActiveMQTestBase
          consumer = session.createConsumer(ADDRESS);
       }
 
-      for (int loopAck = 1; loopAck <= 5; loopAck++)
-      {
-         for (int i = 0; i < 10; i++)
-         {
+      for (int loopAck = 1; loopAck <= 5; loopAck++) {
+         for (int i = 0; i < 10; i++) {
             ClientMessage msg = consumer.receive(1000);
             Assert.assertNotNull(msg);
             msg.acknowledge();
             Assert.assertEquals(Integer.toString(i), getTextMessage(msg));
             Assert.assertEquals(loopAck, msg.getDeliveryCount());
          }
-         if (loopAck < 5)
-         {
-            if (persistent)
-            {
+         if (loopAck < 5) {
+            if (persistent) {
                session.close();
                server.stop();
                server.start();
@@ -176,8 +160,7 @@ public class RedeliveryConsumerTest extends ActiveMQTestBase
                session.start();
                consumer = session.createConsumer(ADDRESS);
             }
-            else
-            {
+            else {
                session.rollback();
             }
          }
@@ -186,8 +169,7 @@ public class RedeliveryConsumerTest extends ActiveMQTestBase
       session.close();
    }
 
-   protected void testDedeliveryMessageOnPersistent(final boolean strictUpdate) throws Exception
-   {
+   protected void testDedeliveryMessageOnPersistent(final boolean strictUpdate) throws Exception {
       setUp(strictUpdate);
       ClientSession session = factory.createSession(false, false, false);
 
@@ -208,8 +190,7 @@ public class RedeliveryConsumerTest extends ActiveMQTestBase
 
       // if strictUpdate == true, this will simulate a crash, where the server is stopped without closing/rolling back
       // the session, but the delivery count still persisted, so the final delivery count is 2 too.
-      if (!strictUpdate)
-      {
+      if (!strictUpdate) {
          // If non Strict, at least rollback/cancel should still update the delivery-counts
          session.rollback(true);
 
@@ -235,15 +216,12 @@ public class RedeliveryConsumerTest extends ActiveMQTestBase
       session.close();
    }
 
-
    @Test
-   public void testInfiniteDedeliveryMessageOnPersistent() throws Exception
-   {
+   public void testInfiniteDedeliveryMessageOnPersistent() throws Exception {
       internaltestInfiniteDedeliveryMessageOnPersistent(false);
    }
 
-   private void internaltestInfiniteDedeliveryMessageOnPersistent(final boolean strict) throws Exception
-   {
+   private void internaltestInfiniteDedeliveryMessageOnPersistent(final boolean strict) throws Exception {
       setUp(strict);
       ClientSession session = factory.createSession(false, false, false);
 
@@ -254,10 +232,8 @@ public class RedeliveryConsumerTest extends ActiveMQTestBase
       session.commit();
       session.close();
 
-
       int expectedCount = 1;
-      for (int i = 0; i < 700; i++)
-      {
+      for (int i = 0; i < 700; i++) {
          session = factory.createSession(false, false, false);
          session.start();
          ClientConsumer consumer = session.createConsumer(ADDRESS);
@@ -265,8 +241,7 @@ public class RedeliveryConsumerTest extends ActiveMQTestBase
          assertNotNull(msg);
          assertEquals(expectedCount, msg.getDeliveryCount());
 
-         if (i % 100 == 0)
-         {
+         if (i % 100 == 0) {
             expectedCount++;
             msg.acknowledge();
             session.rollback();
@@ -279,8 +254,7 @@ public class RedeliveryConsumerTest extends ActiveMQTestBase
 
       setUp(false);
 
-      for (int i = 0; i < 700; i++)
-      {
+      for (int i = 0; i < 700; i++) {
          session = factory.createSession(false, false, false);
          session.start();
          ClientConsumer consumer = session.createConsumer(ADDRESS);
@@ -292,50 +266,33 @@ public class RedeliveryConsumerTest extends ActiveMQTestBase
 
       server.stop();
 
-
-      JournalImpl journal = new JournalImpl(server.getConfiguration().getJournalFileSize(),
-                                            2,
-                                            0,
-                                            0,
-                                            new NIOSequentialFileFactory(server.getConfiguration().getJournalLocation(), 1),
-                                            "activemq-data",
-                                            "amq",
-                                            1);
-
+      JournalImpl journal = new JournalImpl(server.getConfiguration().getJournalFileSize(), 2, 0, 0, new NIOSequentialFileFactory(server.getConfiguration().getJournalLocation(), 1), "activemq-data", "amq", 1);
 
       final AtomicInteger updates = new AtomicInteger();
 
       journal.start();
-      journal.load(new LoaderCallback()
-      {
+      journal.load(new LoaderCallback() {
 
-         public void failedTransaction(long transactionID, List<RecordInfo> records, List<RecordInfo> recordsToDelete)
-         {
+         public void failedTransaction(long transactionID, List<RecordInfo> records, List<RecordInfo> recordsToDelete) {
          }
 
-         public void updateRecord(RecordInfo info)
-         {
-            if (info.userRecordType == JournalRecordIds.UPDATE_DELIVERY_COUNT)
-            {
+         public void updateRecord(RecordInfo info) {
+            if (info.userRecordType == JournalRecordIds.UPDATE_DELIVERY_COUNT) {
                updates.incrementAndGet();
             }
          }
 
-         public void deleteRecord(long id)
-         {
+         public void deleteRecord(long id) {
          }
 
-         public void addRecord(RecordInfo info)
-         {
+         public void addRecord(RecordInfo info) {
          }
 
-         public void addPreparedTransaction(PreparedTransactionInfo preparedTransaction)
-         {
+         public void addPreparedTransaction(PreparedTransactionInfo preparedTransaction) {
          }
       });
 
       journal.stop();
-
 
       assertEquals(7, updates.get());
 
@@ -349,10 +306,8 @@ public class RedeliveryConsumerTest extends ActiveMQTestBase
     * @param persistDeliveryCountBeforeDelivery
     * @throws Exception
     */
-   private void setUp(final boolean persistDeliveryCountBeforeDelivery) throws Exception
-   {
-      Configuration config = createDefaultInVMConfig()
-         .setPersistDeliveryCountBeforeDelivery(persistDeliveryCountBeforeDelivery);
+   private void setUp(final boolean persistDeliveryCountBeforeDelivery) throws Exception {
+      Configuration config = createDefaultInVMConfig().setPersistDeliveryCountBeforeDelivery(persistDeliveryCountBeforeDelivery);
 
       server = createServer(true, config);
 
@@ -361,12 +316,10 @@ public class RedeliveryConsumerTest extends ActiveMQTestBase
       factory = createSessionFactory(locator);
 
       ClientSession session = addClientSession(factory.createSession(false, false, false));
-      try
-      {
+      try {
          session.createQueue(ADDRESS, ADDRESS, true);
       }
-      catch (ActiveMQException expected)
-      {
+      catch (ActiveMQException expected) {
          // in case of restart
       }
 

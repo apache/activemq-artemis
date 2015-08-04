@@ -37,8 +37,7 @@ import java.util.HashMap;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class MultipleConsumersPageStressTest extends ActiveMQTestBase
-{
+public class MultipleConsumersPageStressTest extends ActiveMQTestBase {
 
    private final UnitTestLogger log = UnitTestLogger.LOGGER;
 
@@ -79,15 +78,13 @@ public class MultipleConsumersPageStressTest extends ActiveMQTestBase
    ArrayList<Throwable> exceptions = new ArrayList<Throwable>();
 
    @Test
-   public void testOpenConsumerEveryTimeDefaultFlowControl0() throws Throwable
-   {
+   public void testOpenConsumerEveryTimeDefaultFlowControl0() throws Throwable {
       shareConnectionFactory = true;
       openConsumerOnEveryLoop = true;
       numberOfProducers = 1;
       numberOfConsumers = 1;
 
-      sharedLocator = createInVMNonHALocator()
-              .setConsumerWindowSize(0);
+      sharedLocator = createInVMNonHALocator().setConsumerWindowSize(0);
 
       sharedSf = createSessionFactory(sharedLocator);
 
@@ -96,8 +93,7 @@ public class MultipleConsumersPageStressTest extends ActiveMQTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       HashMap<String, AddressSettings> settings = new HashMap<String, AddressSettings>();
@@ -110,8 +106,7 @@ public class MultipleConsumersPageStressTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testOpenConsumerEveryTimeDefaultFlowControl() throws Throwable
-   {
+   public void testOpenConsumerEveryTimeDefaultFlowControl() throws Throwable {
       shareConnectionFactory = true;
       openConsumerOnEveryLoop = true;
       numberOfProducers = 1;
@@ -128,24 +123,20 @@ public class MultipleConsumersPageStressTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testReuseConsumersFlowControl0() throws Throwable
-   {
+   public void testReuseConsumersFlowControl0() throws Throwable {
       shareConnectionFactory = true;
       openConsumerOnEveryLoop = false;
       numberOfProducers = 1;
       numberOfConsumers = 1;
 
-      sharedLocator = createInVMNonHALocator()
-              .setConsumerWindowSize(0);
+      sharedLocator = createInVMNonHALocator().setConsumerWindowSize(0);
 
       sharedSf = createSessionFactory(sharedLocator);
 
-      try
-      {
+      try {
          internalMultipleConsumers();
       }
-      catch (Throwable e)
-      {
+      catch (Throwable e) {
          TestConsumer tstConsumer = consumers.get(0);
          System.out.println("first retry: " + tstConsumer.consumer.receive(1000));
 
@@ -155,7 +146,6 @@ public class MultipleConsumersPageStressTest extends ActiveMQTestBase
          System.out.println("Second retry: " + tstConsumer.consumer.receive(1000));
 
          System.out.println(pagedServerQueue.debug());
-
 
          tstConsumer.session.commit();
          System.out.println("Third retry:" + tstConsumer.consumer.receive(1000));
@@ -177,44 +167,36 @@ public class MultipleConsumersPageStressTest extends ActiveMQTestBase
 
    }
 
-   public void internalMultipleConsumers() throws Throwable
-   {
-      for (int i = 0; i < numberOfProducers; i++)
-      {
+   public void internalMultipleConsumers() throws Throwable {
+      for (int i = 0; i < numberOfProducers; i++) {
          producers.add(new TestProducer());
       }
 
-      for (int i = 0; i < numberOfConsumers; i++)
-      {
+      for (int i = 0; i < numberOfConsumers; i++) {
          consumers.add(new TestConsumer());
       }
 
-      for (Tester test : producers)
-      {
+      for (Tester test : producers) {
          test.start();
       }
 
       Thread.sleep(2000);
 
-      for (Tester test : consumers)
-      {
+      for (Tester test : consumers) {
          test.start();
       }
 
-      for (Tester test : consumers)
-      {
+      for (Tester test : consumers) {
          test.join();
       }
 
       runningProducer = false;
 
-      for (Tester test : producers)
-      {
+      for (Tester test : producers) {
          test.join();
       }
 
-      for (Throwable e : exceptions)
-      {
+      for (Throwable e : exceptions) {
          throw e;
       }
 
@@ -234,38 +216,33 @@ public class MultipleConsumersPageStressTest extends ActiveMQTestBase
 
    // Inner classes -------------------------------------------------
 
-   abstract class Tester extends Thread
-   {
+   abstract class Tester extends Thread {
+
       Random random = new Random();
 
       public abstract void close();
 
       protected abstract boolean enabled();
 
-      protected void exceptionHappened(final Throwable e)
-      {
+      protected void exceptionHappened(final Throwable e) {
          runningConsumer = false;
          runningProducer = false;
          e.printStackTrace();
          exceptions.add(e);
       }
 
-      public int getNumberOfMessages() throws Exception
-      {
+      public int getNumberOfMessages() throws Exception {
          int numberOfMessages = random.nextInt(20);
-         if (numberOfMessages <= 0)
-         {
+         if (numberOfMessages <= 0) {
             return 1;
          }
-         else
-         {
+         else {
             return numberOfMessages;
          }
       }
    }
 
-   class TestConsumer extends Tester
-   {
+   class TestConsumer extends Tester {
 
       public ClientConsumer consumer = null;
 
@@ -276,55 +253,45 @@ public class MultipleConsumersPageStressTest extends ActiveMQTestBase
       public ClientSessionFactory sf = null;
 
       @Override
-      public void close()
-      {
-         try
-         {
+      public void close() {
+         try {
 
-            if (!openConsumerOnEveryLoop)
-            {
+            if (!openConsumerOnEveryLoop) {
                consumer.close();
             }
             session.rollback();
             session.close();
 
-            if (!shareConnectionFactory)
-            {
+            if (!shareConnectionFactory) {
                sf.close();
                locator.close();
             }
          }
-         catch (Exception ignored)
-         {
+         catch (Exception ignored) {
          }
 
       }
 
       @Override
-      protected boolean enabled()
-      {
+      protected boolean enabled() {
          return runningConsumer;
       }
 
       @Override
-      public int getNumberOfMessages() throws Exception
-      {
-         while (enabled())
-         {
+      public int getNumberOfMessages() throws Exception {
+         while (enabled()) {
             int numberOfMessages = super.getNumberOfMessages();
 
             int resultMessages = messagesAvailable.addAndGet(-numberOfMessages);
 
-            if (resultMessages < 0)
-            {
+            if (resultMessages < 0) {
                messagesAvailable.addAndGet(-numberOfMessages);
                numberOfMessages = 0;
                System.out.println("Negative, giving a little wait");
                Thread.sleep(1000);
             }
 
-            if (numberOfMessages > 0)
-            {
+            if (numberOfMessages > 0) {
                return numberOfMessages;
             }
          }
@@ -333,16 +300,12 @@ public class MultipleConsumersPageStressTest extends ActiveMQTestBase
       }
 
       @Override
-      public void run()
-      {
-         try
-         {
-            if (shareConnectionFactory)
-            {
+      public void run() {
+         try {
+            if (shareConnectionFactory) {
                session = sharedSf.createSession(false, false);
             }
-            else
-            {
+            else {
                locator = createInVMNonHALocator();
                sf = createSessionFactory(locator);
                session = sf.createSession(false, false);
@@ -352,42 +315,36 @@ public class MultipleConsumersPageStressTest extends ActiveMQTestBase
 
             session.start();
 
-            if (!openConsumerOnEveryLoop)
-            {
+            if (!openConsumerOnEveryLoop) {
                consumer = session.createConsumer(MultipleConsumersPageStressTest.ADDRESS);
             }
 
             int count = 0;
 
-            while (enabled() && timeOut > System.currentTimeMillis())
-            {
+            while (enabled() && timeOut > System.currentTimeMillis()) {
 
-               if (openConsumerOnEveryLoop)
-               {
+               if (openConsumerOnEveryLoop) {
                   consumer = session.createConsumer(MultipleConsumersPageStressTest.ADDRESS);
                }
 
                int numberOfMessages = getNumberOfMessages();
 
-               for (int i = 0; i < numberOfMessages; i++)
-               {
+               for (int i = 0; i < numberOfMessages; i++) {
                   ClientMessage msg = consumer.receive(10000);
-                  if (msg == null)
-                  {
+                  if (msg == null) {
                      log.warn("msg " + count +
-                              " was null, currentBatchSize=" +
-                              numberOfMessages +
-                              ", current msg being read=" +
-                              i);
+                                 " was null, currentBatchSize=" +
+                                 numberOfMessages +
+                                 ", current msg being read=" +
+                                 i);
                   }
                   Assert.assertNotNull("msg " + count +
-                                       " was null, currentBatchSize=" +
-                                       numberOfMessages +
-                                       ", current msg being read=" +
-                                       i, msg);
+                                          " was null, currentBatchSize=" +
+                                          numberOfMessages +
+                                          ", current msg being read=" +
+                                          i, msg);
 
-                  if (numberOfConsumers == 1 && numberOfProducers == 1)
-                  {
+                  if (numberOfConsumers == 1 && numberOfProducers == 1) {
                      Assert.assertEquals(count, msg.getIntProperty("count").intValue());
                   }
 
@@ -398,23 +355,21 @@ public class MultipleConsumersPageStressTest extends ActiveMQTestBase
 
                session.commit();
 
-               if (openConsumerOnEveryLoop)
-               {
+               if (openConsumerOnEveryLoop) {
                   consumer.close();
                }
 
             }
          }
-         catch (Throwable e)
-         {
+         catch (Throwable e) {
             exceptionHappened(e);
          }
 
       }
    }
 
-   class TestProducer extends Tester
-   {
+   class TestProducer extends Tester {
+
       ClientSession session = null;
 
       ClientSessionFactory sf = null;
@@ -422,36 +377,28 @@ public class MultipleConsumersPageStressTest extends ActiveMQTestBase
       ServerLocator locator = null;
 
       @Override
-      public void close()
-      {
-         try
-         {
+      public void close() {
+         try {
             session.rollback();
             session.close();
          }
-         catch (Exception ignored)
-         {
+         catch (Exception ignored) {
          }
 
       }
 
       @Override
-      protected boolean enabled()
-      {
+      protected boolean enabled() {
          return runningProducer;
       }
 
       @Override
-      public void run()
-      {
-         try
-         {
-            if (shareConnectionFactory)
-            {
+      public void run() {
+         try {
+            if (shareConnectionFactory) {
                session = sharedSf.createSession(false, false);
             }
-            else
-            {
+            else {
                locator = createInVMNonHALocator();
                sf = createSessionFactory(locator);
                session = sf.createSession(false, false);
@@ -461,12 +408,10 @@ public class MultipleConsumersPageStressTest extends ActiveMQTestBase
 
             int count = 0;
 
-            while (enabled())
-            {
+            while (enabled()) {
                int numberOfMessages = getNumberOfMessages();
 
-               for (int i = 0; i < numberOfMessages; i++)
-               {
+               for (int i = 0; i < numberOfMessages; i++) {
                   ClientMessage msg = session.createMessage(true);
                   msg.putStringProperty("Test", "This is a simple test");
                   msg.putIntProperty("count", count++);
@@ -477,8 +422,7 @@ public class MultipleConsumersPageStressTest extends ActiveMQTestBase
                session.commit();
             }
          }
-         catch (Throwable e)
-         {
+         catch (Throwable e) {
             exceptionHappened(e);
          }
       }

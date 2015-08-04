@@ -33,8 +33,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class SessionSendAcknowledgementHandlerTest extends ActiveMQTestBase
-{
+public class SessionSendAcknowledgementHandlerTest extends ActiveMQTestBase {
+
    private ActiveMQServer server;
 
    private final SimpleString address = new SimpleString("address");
@@ -43,8 +43,7 @@ public class SessionSendAcknowledgementHandlerTest extends ActiveMQTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       server = createServer(false);
@@ -52,8 +51,7 @@ public class SessionSendAcknowledgementHandlerTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testSetInvalidSendACK() throws Exception
-   {
+   public void testSetInvalidSendACK() throws Exception {
       ServerLocator locator = createInVMNonHALocator();
 
       locator.setConfirmationWindowSize(-1);
@@ -62,17 +60,13 @@ public class SessionSendAcknowledgementHandlerTest extends ActiveMQTestBase
       ClientSession session = csf.createSession(null, null, false, true, true, false, 1);
 
       boolean failed = false;
-      try
-      {
-         session.setSendAcknowledgementHandler(new SendAcknowledgementHandler()
-         {
-            public void sendAcknowledged(Message message)
-            {
+      try {
+         session.setSendAcknowledgementHandler(new SendAcknowledgementHandler() {
+            public void sendAcknowledged(Message message) {
             }
          });
       }
-      catch (Throwable expected)
-      {
+      catch (Throwable expected) {
          failed = true;
       }
 
@@ -82,31 +76,26 @@ public class SessionSendAcknowledgementHandlerTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testSendAcknowledgementsNoWindowSize() throws Exception
-   {
+   public void testSendAcknowledgementsNoWindowSize() throws Exception {
       verifySendAcknowledgements(0);
    }
 
    @Test
-   public void testSendAcknowledgements() throws Exception
-   {
+   public void testSendAcknowledgements() throws Exception {
       verifySendAcknowledgements(1024);
    }
 
    @Test
-   public void testSendAcknowledgementsNoWindowSizeProducerOnly() throws Exception
-   {
+   public void testSendAcknowledgementsNoWindowSizeProducerOnly() throws Exception {
       verifySendAcknowledgementsProducerOnly(0);
    }
 
    @Test
-   public void testSendAcknowledgementsProducer() throws Exception
-   {
+   public void testSendAcknowledgementsProducer() throws Exception {
       verifySendAcknowledgementsProducerOnly(1024);
    }
 
-   public void verifySendAcknowledgements(int windowSize) throws Exception
-   {
+   public void verifySendAcknowledgements(int windowSize) throws Exception {
       ServerLocator locator = createInVMNonHALocator();
 
       locator.setConfirmationWindowSize(windowSize);
@@ -126,8 +115,7 @@ public class SessionSendAcknowledgementHandlerTest extends ActiveMQTestBase
 
       session.setSendAcknowledgementHandler(handler);
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage msg = session.createMessage(false);
          ClientMessage msg2 = session.createMessage(false);
 
@@ -136,12 +124,10 @@ public class SessionSendAcknowledgementHandlerTest extends ActiveMQTestBase
       }
 
       Assert.assertTrue("session must have acked, " + handler, handler.latch.await(5, TimeUnit.SECONDS));
-      Assert.assertTrue("producer specific handler must have acked, " + producerHandler,
-                        producerHandler.latch.await(5, TimeUnit.SECONDS));
+      Assert.assertTrue("producer specific handler must have acked, " + producerHandler, producerHandler.latch.await(5, TimeUnit.SECONDS));
    }
 
-   public void verifySendAcknowledgementsProducerOnly(int windowSize) throws Exception
-   {
+   public void verifySendAcknowledgementsProducerOnly(int windowSize) throws Exception {
       ServerLocator locator = createInVMNonHALocator();
 
       locator.setConfirmationWindowSize(windowSize);
@@ -157,38 +143,32 @@ public class SessionSendAcknowledgementHandlerTest extends ActiveMQTestBase
 
       LatchAckHandler producerHandler = new LatchAckHandler("producer", new CountDownLatch(numMessages));
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage msg2 = session.createMessage(false);
 
          prod.send(address, msg2, producerHandler);
       }
 
-      Assert.assertTrue("producer specific handler must have acked, " + producerHandler,
-                        producerHandler.latch.await(5, TimeUnit.SECONDS));
+      Assert.assertTrue("producer specific handler must have acked, " + producerHandler, producerHandler.latch.await(5, TimeUnit.SECONDS));
    }
 
-   public static final class LatchAckHandler implements SendAcknowledgementHandler
-   {
+   public static final class LatchAckHandler implements SendAcknowledgementHandler {
 
       public CountDownLatch latch;
       private final String name;
 
-      public LatchAckHandler(String name, CountDownLatch latch)
-      {
+      public LatchAckHandler(String name, CountDownLatch latch) {
          this.name = name;
          this.latch = latch;
       }
 
       @Override
-      public void sendAcknowledged(Message message)
-      {
+      public void sendAcknowledged(Message message) {
          latch.countDown();
       }
 
       @Override
-      public String toString()
-      {
+      public String toString() {
          return "SendAckHandler(name=" + name + ", latch=" + latch + ")";
       }
    }

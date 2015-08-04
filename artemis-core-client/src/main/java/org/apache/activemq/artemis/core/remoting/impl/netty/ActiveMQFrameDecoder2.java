@@ -24,16 +24,14 @@ import org.apache.activemq.artemis.utils.DataConstants;
 /**
  * A Netty decoder specially optimised to to decode messages on the core protocol only
  */
-public class ActiveMQFrameDecoder2 extends LengthFieldBasedFrameDecoder
-{
-   public ActiveMQFrameDecoder2()
-   {
+public class ActiveMQFrameDecoder2 extends LengthFieldBasedFrameDecoder {
+
+   public ActiveMQFrameDecoder2() {
       super(Integer.MAX_VALUE, 0, DataConstants.SIZE_INT);
    }
 
    @Override
-   protected ByteBuf extractFrame(ChannelHandlerContext ctx, ByteBuf buffer, int index, int length)
-   {
+   protected ByteBuf extractFrame(ChannelHandlerContext ctx, ByteBuf buffer, int index, int length) {
       // This is a work around on https://github.com/netty/netty/commit/55fbf007f04fbba7bf50028f3c8b35d6c5ea5947
       // Right now we need a copy when sending a message on the server otherwise messages won't be resent to the client
       ByteBuf frame = ctx.alloc().buffer(length);

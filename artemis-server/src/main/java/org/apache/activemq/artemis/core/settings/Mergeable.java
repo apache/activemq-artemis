@@ -19,7 +19,7 @@ package org.apache.activemq.artemis.core.settings;
 /**
  * Used when merging objects together.
  */
-public interface Mergeable<T>
-{
+public interface Mergeable<T> {
+
    void merge(T merged);
 }

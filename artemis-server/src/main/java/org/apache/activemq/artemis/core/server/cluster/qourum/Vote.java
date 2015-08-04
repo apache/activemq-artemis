@@ -24,19 +24,17 @@ import java.util.Map;
 /**
  * the vote itself
  */
-public abstract class Vote<T>
-{
+public abstract class Vote<T> {
 
-   public Map<String,Object> getVoteMap()
-   {
+   public Map<String, Object> getVoteMap() {
       HashMap<String, Object> map = new HashMap<>();
       return map;
    }
 
-
    public abstract void encode(final ActiveMQBuffer buff);
 
    public abstract void decode(final ActiveMQBuffer buff);
+
    //whether or note we should ask the target server for an answer or decide ourselves, for instance if we couldn't
    //connect to the node in the first place.
    public abstract boolean isRequestServerVote();

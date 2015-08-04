@@ -54,8 +54,7 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.settings.impl.ResourceLimitSettings;
 import org.apache.activemq.artemis.utils.ObjectInputStreamWithClassLoader;
 
-public class ConfigurationImpl implements Configuration, Serializable
-{
+public class ConfigurationImpl implements Configuration, Serializable {
    // Constants ------------------------------------------------------------------------------
 
    public static final JournalType DEFAULT_JOURNAL_TYPE = JournalType.ASYNCIO;
@@ -70,8 +69,7 @@ public class ConfigurationImpl implements Configuration, Serializable
 
    protected long fileDeploymentScanPeriod = ActiveMQDefaultConfiguration.getDefaultFileDeployerScanPeriod();
 
-   private boolean persistDeliveryCountBeforeDelivery =
-            ActiveMQDefaultConfiguration.isDefaultPersistDeliveryCountBeforeDelivery();
+   private boolean persistDeliveryCountBeforeDelivery = ActiveMQDefaultConfiguration.isDefaultPersistDeliveryCountBeforeDelivery();
 
    private int scheduledThreadPoolMaxSize = ActiveMQDefaultConfiguration.getDefaultScheduledThreadPoolMaxSize();
 
@@ -229,29 +227,24 @@ public class ConfigurationImpl implements Configuration, Serializable
 
    // Public -------------------------------------------------------------------------
 
-   public boolean isClustered()
-   {
+   public boolean isClustered() {
       return !getClusterConfigurations().isEmpty();
    }
 
-   public boolean isPersistenceEnabled()
-   {
+   public boolean isPersistenceEnabled() {
       return persistenceEnabled;
    }
 
-   public ConfigurationImpl setPersistenceEnabled(final boolean enable)
-   {
+   public ConfigurationImpl setPersistenceEnabled(final boolean enable) {
       persistenceEnabled = enable;
       return this;
    }
 
-   public long getFileDeployerScanPeriod()
-   {
+   public long getFileDeployerScanPeriod() {
       return fileDeploymentScanPeriod;
    }
 
-   public ConfigurationImpl setFileDeployerScanPeriod(final long period)
-   {
+   public ConfigurationImpl setFileDeployerScanPeriod(final long period) {
       fileDeploymentScanPeriod = period;
       return this;
    }
@@ -259,864 +252,710 @@ public class ConfigurationImpl implements Configuration, Serializable
    /**
     * @return the persistDeliveryCountBeforeDelivery
     */
-   public boolean isPersistDeliveryCountBeforeDelivery()
-   {
+   public boolean isPersistDeliveryCountBeforeDelivery() {
       return persistDeliveryCountBeforeDelivery;
    }
 
-   public ConfigurationImpl setPersistDeliveryCountBeforeDelivery(final boolean persistDeliveryCountBeforeDelivery)
-   {
+   public ConfigurationImpl setPersistDeliveryCountBeforeDelivery(final boolean persistDeliveryCountBeforeDelivery) {
       this.persistDeliveryCountBeforeDelivery = persistDeliveryCountBeforeDelivery;
       return this;
    }
 
-   public int getScheduledThreadPoolMaxSize()
-   {
+   public int getScheduledThreadPoolMaxSize() {
       return scheduledThreadPoolMaxSize;
    }
 
-   public ConfigurationImpl setScheduledThreadPoolMaxSize(final int maxSize)
-   {
+   public ConfigurationImpl setScheduledThreadPoolMaxSize(final int maxSize) {
       scheduledThreadPoolMaxSize = maxSize;
       return this;
    }
 
-   public int getThreadPoolMaxSize()
-   {
+   public int getThreadPoolMaxSize() {
       return threadPoolMaxSize;
    }
 
-   public ConfigurationImpl setThreadPoolMaxSize(final int maxSize)
-   {
+   public ConfigurationImpl setThreadPoolMaxSize(final int maxSize) {
       threadPoolMaxSize = maxSize;
       return this;
    }
 
-   public long getSecurityInvalidationInterval()
-   {
+   public long getSecurityInvalidationInterval() {
       return securityInvalidationInterval;
    }
 
-   public ConfigurationImpl setSecurityInvalidationInterval(final long interval)
-   {
+   public ConfigurationImpl setSecurityInvalidationInterval(final long interval) {
       securityInvalidationInterval = interval;
       return this;
    }
 
-   public long getConnectionTTLOverride()
-   {
+   public long getConnectionTTLOverride() {
       return connectionTTLOverride;
    }
 
-   public ConfigurationImpl setConnectionTTLOverride(final long ttl)
-   {
+   public ConfigurationImpl setConnectionTTLOverride(final long ttl) {
       connectionTTLOverride = ttl;
       return this;
    }
 
-   public boolean isAsyncConnectionExecutionEnabled()
-   {
+   public boolean isAsyncConnectionExecutionEnabled() {
       return asyncConnectionExecutionEnabled;
    }
 
-   public ConfigurationImpl setEnabledAsyncConnectionExecution(final boolean enabled)
-   {
+   public ConfigurationImpl setEnabledAsyncConnectionExecution(final boolean enabled) {
       asyncConnectionExecutionEnabled = enabled;
       return this;
    }
 
-   public List<String> getIncomingInterceptorClassNames()
-   {
+   public List<String> getIncomingInterceptorClassNames() {
       return incomingInterceptorClassNames;
    }
 
-   public ConfigurationImpl setIncomingInterceptorClassNames(final List<String> interceptors)
-   {
+   public ConfigurationImpl setIncomingInterceptorClassNames(final List<String> interceptors) {
       incomingInterceptorClassNames = interceptors;
       return this;
    }
 
-   public List<String> getOutgoingInterceptorClassNames()
-   {
+   public List<String> getOutgoingInterceptorClassNames() {
       return outgoingInterceptorClassNames;
    }
 
-   public ConfigurationImpl setOutgoingInterceptorClassNames(final List<String> interceptors)
-   {
+   public ConfigurationImpl setOutgoingInterceptorClassNames(final List<String> interceptors) {
       outgoingInterceptorClassNames = interceptors;
       return this;
    }
 
-   public Set<TransportConfiguration> getAcceptorConfigurations()
-   {
+   public Set<TransportConfiguration> getAcceptorConfigurations() {
       return acceptorConfigs;
    }
 
-   public ConfigurationImpl setAcceptorConfigurations(final Set<TransportConfiguration> infos)
-   {
+   public ConfigurationImpl setAcceptorConfigurations(final Set<TransportConfiguration> infos) {
       acceptorConfigs = infos;
       return this;
    }
 
-   public ConfigurationImpl addAcceptorConfiguration(final TransportConfiguration infos)
-   {
+   public ConfigurationImpl addAcceptorConfiguration(final TransportConfiguration infos) {
       acceptorConfigs.add(infos);
       return this;
    }
 
-   public ConfigurationImpl clearAcceptorConfigurations()
-   {
+   public ConfigurationImpl clearAcceptorConfigurations() {
       acceptorConfigs.clear();
       return this;
    }
 
-   public Map<String, TransportConfiguration> getConnectorConfigurations()
-   {
+   public Map<String, TransportConfiguration> getConnectorConfigurations() {
       return connectorConfigs;
    }
 
-   public ConfigurationImpl setConnectorConfigurations(final Map<String, TransportConfiguration> infos)
-   {
+   public ConfigurationImpl setConnectorConfigurations(final Map<String, TransportConfiguration> infos) {
       connectorConfigs = infos;
       return this;
    }
 
-   public ConfigurationImpl addConnectorConfiguration(final String key, final TransportConfiguration info)
-   {
+   public ConfigurationImpl addConnectorConfiguration(final String key, final TransportConfiguration info) {
       connectorConfigs.put(key, info);
       return this;
    }
 
-   public ConfigurationImpl clearConnectorConfigurations()
-   {
+   public ConfigurationImpl clearConnectorConfigurations() {
       connectorConfigs.clear();
       return this;
    }
 
-   public GroupingHandlerConfiguration getGroupingHandlerConfiguration()
-   {
+   public GroupingHandlerConfiguration getGroupingHandlerConfiguration() {
       return groupingHandlerConfiguration;
    }
 
-   public ConfigurationImpl setGroupingHandlerConfiguration(final GroupingHandlerConfiguration groupingHandlerConfiguration)
-   {
+   public ConfigurationImpl setGroupingHandlerConfiguration(final GroupingHandlerConfiguration groupingHandlerConfiguration) {
       this.groupingHandlerConfiguration = groupingHandlerConfiguration;
       return this;
    }
 
-   public List<BridgeConfiguration> getBridgeConfigurations()
-   {
+   public List<BridgeConfiguration> getBridgeConfigurations() {
       return bridgeConfigurations;
    }
 
-   public ConfigurationImpl setBridgeConfigurations(final List<BridgeConfiguration> configs)
-   {
+   public ConfigurationImpl setBridgeConfigurations(final List<BridgeConfiguration> configs) {
       bridgeConfigurations = configs;
       return this;
    }
 
-   public ConfigurationImpl addBridgeConfiguration(final BridgeConfiguration config)
-   {
+   public ConfigurationImpl addBridgeConfiguration(final BridgeConfiguration config) {
       bridgeConfigurations.add(config);
       return this;
    }
 
-   public List<BroadcastGroupConfiguration> getBroadcastGroupConfigurations()
-   {
+   public List<BroadcastGroupConfiguration> getBroadcastGroupConfigurations() {
       return broadcastGroupConfigurations;
    }
 
-   public ConfigurationImpl setBroadcastGroupConfigurations(final List<BroadcastGroupConfiguration> configs)
-   {
+   public ConfigurationImpl setBroadcastGroupConfigurations(final List<BroadcastGroupConfiguration> configs) {
       broadcastGroupConfigurations = configs;
       return this;
    }
 
-   public ConfigurationImpl addBroadcastGroupConfiguration(final BroadcastGroupConfiguration config)
-   {
+   public ConfigurationImpl addBroadcastGroupConfiguration(final BroadcastGroupConfiguration config) {
       broadcastGroupConfigurations.add(config);
       return this;
    }
 
-   public List<ClusterConnectionConfiguration> getClusterConfigurations()
-   {
+   public List<ClusterConnectionConfiguration> getClusterConfigurations() {
       return clusterConfigurations;
    }
 
-   public ConfigurationImpl setClusterConfigurations(final List<ClusterConnectionConfiguration> configs)
-   {
+   public ConfigurationImpl setClusterConfigurations(final List<ClusterConnectionConfiguration> configs) {
       clusterConfigurations = configs;
       return this;
    }
 
-   public ConfigurationImpl addClusterConfiguration(final ClusterConnectionConfiguration config)
-   {
+   public ConfigurationImpl addClusterConfiguration(final ClusterConnectionConfiguration config) {
       clusterConfigurations.add(config);
       return this;
    }
 
-   public ConfigurationImpl clearClusterConfigurations()
-   {
+   public ConfigurationImpl clearClusterConfigurations() {
       clusterConfigurations.clear();
       return this;
    }
 
-   public List<DivertConfiguration> getDivertConfigurations()
-   {
+   public List<DivertConfiguration> getDivertConfigurations() {
       return divertConfigurations;
    }
 
-   public ConfigurationImpl setDivertConfigurations(final List<DivertConfiguration> configs)
-   {
+   public ConfigurationImpl setDivertConfigurations(final List<DivertConfiguration> configs) {
       divertConfigurations = configs;
       return this;
    }
 
-   public ConfigurationImpl addDivertConfiguration(final DivertConfiguration config)
-   {
+   public ConfigurationImpl addDivertConfiguration(final DivertConfiguration config) {
       divertConfigurations.add(config);
       return this;
    }
 
-   public List<CoreQueueConfiguration> getQueueConfigurations()
-   {
+   public List<CoreQueueConfiguration> getQueueConfigurations() {
       return queueConfigurations;
    }
 
-   public ConfigurationImpl setQueueConfigurations(final List<CoreQueueConfiguration> configs)
-   {
+   public ConfigurationImpl setQueueConfigurations(final List<CoreQueueConfiguration> configs) {
       queueConfigurations = configs;
       return this;
    }
 
-   public ConfigurationImpl addQueueConfiguration(final CoreQueueConfiguration config)
-   {
+   public ConfigurationImpl addQueueConfiguration(final CoreQueueConfiguration config) {
       queueConfigurations.add(config);
       return this;
    }
 
-   public Map<String, DiscoveryGroupConfiguration> getDiscoveryGroupConfigurations()
-   {
+   public Map<String, DiscoveryGroupConfiguration> getDiscoveryGroupConfigurations() {
       return discoveryGroupConfigurations;
    }
 
-   public ConfigurationImpl setDiscoveryGroupConfigurations(final Map<String, DiscoveryGroupConfiguration> discoveryGroupConfigurations)
-   {
+   public ConfigurationImpl setDiscoveryGroupConfigurations(final Map<String, DiscoveryGroupConfiguration> discoveryGroupConfigurations) {
       this.discoveryGroupConfigurations = discoveryGroupConfigurations;
       return this;
    }
 
-   public ConfigurationImpl addDiscoveryGroupConfiguration(final String key, DiscoveryGroupConfiguration discoveryGroupConfiguration)
-   {
+   public ConfigurationImpl addDiscoveryGroupConfiguration(final String key,
+                                                           DiscoveryGroupConfiguration discoveryGroupConfiguration) {
       this.discoveryGroupConfigurations.put(key, discoveryGroupConfiguration);
       return this;
    }
 
-   public int getIDCacheSize()
-   {
+   public int getIDCacheSize() {
       return idCacheSize;
    }
 
-   public ConfigurationImpl setIDCacheSize(final int idCacheSize)
-   {
+   public ConfigurationImpl setIDCacheSize(final int idCacheSize) {
       this.idCacheSize = idCacheSize;
       return this;
    }
 
-   public boolean isPersistIDCache()
-   {
+   public boolean isPersistIDCache() {
       return persistIDCache;
    }
 
-   public ConfigurationImpl setPersistIDCache(final boolean persist)
-   {
+   public ConfigurationImpl setPersistIDCache(final boolean persist) {
       persistIDCache = persist;
       return this;
    }
 
-   public File getBindingsLocation()
-   {
+   public File getBindingsLocation() {
       return subFolder(getBindingsDirectory());
    }
 
-   public String getBindingsDirectory()
-   {
+   public String getBindingsDirectory() {
       return bindingsDirectory;
    }
 
-   public ConfigurationImpl setBindingsDirectory(final String dir)
-   {
+   public ConfigurationImpl setBindingsDirectory(final String dir) {
       bindingsDirectory = dir;
       return this;
    }
 
-
    @Override
-   public int getPageMaxConcurrentIO()
-   {
+   public int getPageMaxConcurrentIO() {
       return maxConcurrentPageIO;
    }
 
    @Override
-   public ConfigurationImpl setPageMaxConcurrentIO(int maxIO)
-   {
+   public ConfigurationImpl setPageMaxConcurrentIO(int maxIO) {
       this.maxConcurrentPageIO = maxIO;
       return this;
    }
 
-   public File getJournalLocation()
-   {
+   public File getJournalLocation() {
       return subFolder(getJournalDirectory());
    }
 
-   public String getJournalDirectory()
-   {
+   public String getJournalDirectory() {
       return journalDirectory;
    }
 
-   public ConfigurationImpl setJournalDirectory(final String dir)
-   {
+   public ConfigurationImpl setJournalDirectory(final String dir) {
       journalDirectory = dir;
       return this;
    }
 
-   public JournalType getJournalType()
-   {
+   public JournalType getJournalType() {
       return journalType;
    }
 
-   public ConfigurationImpl setPagingDirectory(final String dir)
-   {
+   public ConfigurationImpl setPagingDirectory(final String dir) {
       pagingDirectory = dir;
       return this;
    }
 
-   public File getPagingLocation()
-   {
+   public File getPagingLocation() {
       return subFolder(getPagingDirectory());
    }
 
-   public String getPagingDirectory()
-   {
+   public String getPagingDirectory() {
       return pagingDirectory;
    }
 
-   public ConfigurationImpl setJournalType(final JournalType type)
-   {
+   public ConfigurationImpl setJournalType(final JournalType type) {
       journalType = type;
       return this;
    }
 
-   public boolean isJournalSyncTransactional()
-   {
+   public boolean isJournalSyncTransactional() {
       return journalSyncTransactional;
    }
 
-   public ConfigurationImpl setJournalSyncTransactional(final boolean sync)
-   {
+   public ConfigurationImpl setJournalSyncTransactional(final boolean sync) {
       journalSyncTransactional = sync;
       return this;
    }
 
-   public boolean isJournalSyncNonTransactional()
-   {
+   public boolean isJournalSyncNonTransactional() {
       return journalSyncNonTransactional;
    }
 
-   public ConfigurationImpl setJournalSyncNonTransactional(final boolean sync)
-   {
+   public ConfigurationImpl setJournalSyncNonTransactional(final boolean sync) {
       journalSyncNonTransactional = sync;
       return this;
    }
 
-   public int getJournalFileSize()
-   {
+   public int getJournalFileSize() {
       return journalFileSize;
    }
 
-   public ConfigurationImpl setJournalFileSize(final int size)
-   {
+   public ConfigurationImpl setJournalFileSize(final int size) {
       journalFileSize = size;
       return this;
    }
 
-   public int getJournalMinFiles()
-   {
+   public int getJournalMinFiles() {
       return journalMinFiles;
    }
 
-   public ConfigurationImpl setJournalMinFiles(final int files)
-   {
+   public ConfigurationImpl setJournalMinFiles(final int files) {
       journalMinFiles = files;
       return this;
    }
 
-   public boolean isLogJournalWriteRate()
-   {
+   public boolean isLogJournalWriteRate() {
       return logJournalWriteRate;
    }
 
-   public ConfigurationImpl setLogJournalWriteRate(final boolean logJournalWriteRate)
-   {
+   public ConfigurationImpl setLogJournalWriteRate(final boolean logJournalWriteRate) {
       this.logJournalWriteRate = logJournalWriteRate;
       return this;
    }
 
-   public int getJournalPerfBlastPages()
-   {
+   public int getJournalPerfBlastPages() {
       return journalPerfBlastPages;
    }
 
-   public ConfigurationImpl setJournalPerfBlastPages(final int journalPerfBlastPages)
-   {
+   public ConfigurationImpl setJournalPerfBlastPages(final int journalPerfBlastPages) {
       this.journalPerfBlastPages = journalPerfBlastPages;
       return this;
    }
 
-   public boolean isRunSyncSpeedTest()
-   {
+   public boolean isRunSyncSpeedTest() {
       return runSyncSpeedTest;
    }
 
-   public ConfigurationImpl setRunSyncSpeedTest(final boolean run)
-   {
+   public ConfigurationImpl setRunSyncSpeedTest(final boolean run) {
       runSyncSpeedTest = run;
       return this;
    }
 
-   public boolean isCreateBindingsDir()
-   {
+   public boolean isCreateBindingsDir() {
       return createBindingsDir;
    }
 
-   public ConfigurationImpl setCreateBindingsDir(final boolean create)
-   {
+   public ConfigurationImpl setCreateBindingsDir(final boolean create) {
       createBindingsDir = create;
       return this;
    }
 
-   public boolean isCreateJournalDir()
-   {
+   public boolean isCreateJournalDir() {
       return createJournalDir;
    }
 
-   public ConfigurationImpl setCreateJournalDir(final boolean create)
-   {
+   public ConfigurationImpl setCreateJournalDir(final boolean create) {
       createJournalDir = create;
       return this;
    }
 
-   public boolean isWildcardRoutingEnabled()
-   {
+   public boolean isWildcardRoutingEnabled() {
       return wildcardRoutingEnabled;
    }
 
-   public ConfigurationImpl setWildcardRoutingEnabled(final boolean enabled)
-   {
+   public ConfigurationImpl setWildcardRoutingEnabled(final boolean enabled) {
       wildcardRoutingEnabled = enabled;
       return this;
    }
 
-   public long getTransactionTimeout()
-   {
+   public long getTransactionTimeout() {
       return transactionTimeout;
    }
 
-   public ConfigurationImpl setTransactionTimeout(final long timeout)
-   {
+   public ConfigurationImpl setTransactionTimeout(final long timeout) {
       transactionTimeout = timeout;
       return this;
    }
 
-   public long getTransactionTimeoutScanPeriod()
-   {
+   public long getTransactionTimeoutScanPeriod() {
       return transactionTimeoutScanPeriod;
    }
 
-   public ConfigurationImpl setTransactionTimeoutScanPeriod(final long period)
-   {
+   public ConfigurationImpl setTransactionTimeoutScanPeriod(final long period) {
       transactionTimeoutScanPeriod = period;
       return this;
    }
 
-   public long getMessageExpiryScanPeriod()
-   {
+   public long getMessageExpiryScanPeriod() {
       return messageExpiryScanPeriod;
    }
 
-   public ConfigurationImpl setMessageExpiryScanPeriod(final long messageExpiryScanPeriod)
-   {
+   public ConfigurationImpl setMessageExpiryScanPeriod(final long messageExpiryScanPeriod) {
       this.messageExpiryScanPeriod = messageExpiryScanPeriod;
       return this;
    }
 
-   public int getMessageExpiryThreadPriority()
-   {
+   public int getMessageExpiryThreadPriority() {
       return messageExpiryThreadPriority;
    }
 
-   public ConfigurationImpl setMessageExpiryThreadPriority(final int messageExpiryThreadPriority)
-   {
+   public ConfigurationImpl setMessageExpiryThreadPriority(final int messageExpiryThreadPriority) {
       this.messageExpiryThreadPriority = messageExpiryThreadPriority;
       return this;
    }
 
-   public boolean isSecurityEnabled()
-   {
+   public boolean isSecurityEnabled() {
       return securityEnabled;
    }
 
-   public ConfigurationImpl setSecurityEnabled(final boolean enabled)
-   {
+   public ConfigurationImpl setSecurityEnabled(final boolean enabled) {
       securityEnabled = enabled;
       return this;
    }
 
-   public boolean isGracefulShutdownEnabled()
-   {
+   public boolean isGracefulShutdownEnabled() {
       return gracefulShutdownEnabled;
    }
 
-   public ConfigurationImpl setGracefulShutdownEnabled(final boolean enabled)
-   {
+   public ConfigurationImpl setGracefulShutdownEnabled(final boolean enabled) {
       gracefulShutdownEnabled = enabled;
       return this;
    }
 
-   public long getGracefulShutdownTimeout()
-   {
+   public long getGracefulShutdownTimeout() {
       return gracefulShutdownTimeout;
    }
 
-   public ConfigurationImpl setGracefulShutdownTimeout(final long timeout)
-   {
+   public ConfigurationImpl setGracefulShutdownTimeout(final long timeout) {
       gracefulShutdownTimeout = timeout;
       return this;
    }
 
-   public boolean isJMXManagementEnabled()
-   {
+   public boolean isJMXManagementEnabled() {
       return jmxManagementEnabled;
    }
 
-   public ConfigurationImpl setJMXManagementEnabled(final boolean enabled)
-   {
+   public ConfigurationImpl setJMXManagementEnabled(final boolean enabled) {
       jmxManagementEnabled = enabled;
       return this;
    }
 
-   public String getJMXDomain()
-   {
+   public String getJMXDomain() {
       return jmxDomain;
    }
 
-   public ConfigurationImpl setJMXDomain(final String domain)
-   {
+   public ConfigurationImpl setJMXDomain(final String domain) {
       jmxDomain = domain;
       return this;
    }
 
-   public String getLargeMessagesDirectory()
-   {
+   public String getLargeMessagesDirectory() {
       return largeMessagesDirectory;
    }
 
-   public File getLargeMessagesLocation()
-   {
+   public File getLargeMessagesLocation() {
       return subFolder(getLargeMessagesDirectory());
    }
 
-   public ConfigurationImpl setLargeMessagesDirectory(final String directory)
-   {
+   public ConfigurationImpl setLargeMessagesDirectory(final String directory) {
       largeMessagesDirectory = directory;
       return this;
    }
 
-   public boolean isMessageCounterEnabled()
-   {
+   public boolean isMessageCounterEnabled() {
       return messageCounterEnabled;
    }
 
-   public ConfigurationImpl setMessageCounterEnabled(final boolean enabled)
-   {
+   public ConfigurationImpl setMessageCounterEnabled(final boolean enabled) {
       messageCounterEnabled = enabled;
       return this;
    }
 
-   public long getMessageCounterSamplePeriod()
-   {
+   public long getMessageCounterSamplePeriod() {
       return messageCounterSamplePeriod;
    }
 
-   public ConfigurationImpl setMessageCounterSamplePeriod(final long period)
-   {
+   public ConfigurationImpl setMessageCounterSamplePeriod(final long period) {
       messageCounterSamplePeriod = period;
       return this;
    }
 
-   public int getMessageCounterMaxDayHistory()
-   {
+   public int getMessageCounterMaxDayHistory() {
       return messageCounterMaxDayHistory;
    }
 
-   public ConfigurationImpl setMessageCounterMaxDayHistory(final int maxDayHistory)
-   {
+   public ConfigurationImpl setMessageCounterMaxDayHistory(final int maxDayHistory) {
       messageCounterMaxDayHistory = maxDayHistory;
       return this;
    }
 
-   public SimpleString getManagementAddress()
-   {
+   public SimpleString getManagementAddress() {
       return managementAddress;
    }
 
-   public ConfigurationImpl setManagementAddress(final SimpleString address)
-   {
+   public ConfigurationImpl setManagementAddress(final SimpleString address) {
       managementAddress = address;
       return this;
    }
 
-   public SimpleString getManagementNotificationAddress()
-   {
+   public SimpleString getManagementNotificationAddress() {
       return managementNotificationAddress;
    }
 
-   public ConfigurationImpl setManagementNotificationAddress(final SimpleString address)
-   {
+   public ConfigurationImpl setManagementNotificationAddress(final SimpleString address) {
       managementNotificationAddress = address;
       return this;
    }
 
-   public String getClusterUser()
-   {
+   public String getClusterUser() {
       return clusterUser;
    }
 
-   public ConfigurationImpl setClusterUser(final String user)
-   {
+   public ConfigurationImpl setClusterUser(final String user) {
       clusterUser = user;
       return this;
    }
 
-   public String getClusterPassword()
-   {
+   public String getClusterPassword() {
       return clusterPassword;
    }
 
-   public boolean isFailoverOnServerShutdown()
-   {
+   public boolean isFailoverOnServerShutdown() {
       return failoverOnServerShutdown;
    }
 
-   public ConfigurationImpl setFailoverOnServerShutdown(boolean failoverOnServerShutdown)
-   {
+   public ConfigurationImpl setFailoverOnServerShutdown(boolean failoverOnServerShutdown) {
       this.failoverOnServerShutdown = failoverOnServerShutdown;
       return this;
    }
 
-   public ConfigurationImpl setClusterPassword(final String theclusterPassword)
-   {
+   public ConfigurationImpl setClusterPassword(final String theclusterPassword) {
       clusterPassword = theclusterPassword;
       return this;
    }
 
-   public int getJournalCompactMinFiles()
-   {
+   public int getJournalCompactMinFiles() {
       return journalCompactMinFiles;
    }
 
-   public int getJournalCompactPercentage()
-   {
+   public int getJournalCompactPercentage() {
       return journalCompactPercentage;
    }
 
-   public ConfigurationImpl setJournalCompactMinFiles(final int minFiles)
-   {
+   public ConfigurationImpl setJournalCompactMinFiles(final int minFiles) {
       journalCompactMinFiles = minFiles;
       return this;
    }
 
-   public ConfigurationImpl setJournalCompactPercentage(final int percentage)
-   {
+   public ConfigurationImpl setJournalCompactPercentage(final int percentage) {
       journalCompactPercentage = percentage;
       return this;
    }
 
-   public long getServerDumpInterval()
-   {
+   public long getServerDumpInterval() {
       return serverDumpInterval;
    }
 
-   public ConfigurationImpl setServerDumpInterval(final long intervalInMilliseconds)
-   {
+   public ConfigurationImpl setServerDumpInterval(final long intervalInMilliseconds) {
       serverDumpInterval = intervalInMilliseconds;
       return this;
    }
 
-   public int getMemoryWarningThreshold()
-   {
+   public int getMemoryWarningThreshold() {
       return memoryWarningThreshold;
    }
 
-   public ConfigurationImpl setMemoryWarningThreshold(final int memoryWarningThreshold)
-   {
+   public ConfigurationImpl setMemoryWarningThreshold(final int memoryWarningThreshold) {
       this.memoryWarningThreshold = memoryWarningThreshold;
       return this;
    }
 
-   public long getMemoryMeasureInterval()
-   {
+   public long getMemoryMeasureInterval() {
       return memoryMeasureInterval;
    }
 
-   public ConfigurationImpl setMemoryMeasureInterval(final long memoryMeasureInterval)
-   {
+   public ConfigurationImpl setMemoryMeasureInterval(final long memoryMeasureInterval) {
       this.memoryMeasureInterval = memoryMeasureInterval;
       return this;
    }
 
-   public int getJournalMaxIO_AIO()
-   {
+   public int getJournalMaxIO_AIO() {
       return journalMaxIO_AIO;
    }
 
-   public ConfigurationImpl setJournalMaxIO_AIO(final int journalMaxIO)
-   {
+   public ConfigurationImpl setJournalMaxIO_AIO(final int journalMaxIO) {
       journalMaxIO_AIO = journalMaxIO;
       return this;
    }
 
-   public int getJournalBufferTimeout_AIO()
-   {
+   public int getJournalBufferTimeout_AIO() {
       return journalBufferTimeout_AIO;
    }
 
-   public ConfigurationImpl setJournalBufferTimeout_AIO(final int journalBufferTimeout)
-   {
+   public ConfigurationImpl setJournalBufferTimeout_AIO(final int journalBufferTimeout) {
       journalBufferTimeout_AIO = journalBufferTimeout;
       return this;
    }
 
-   public int getJournalBufferSize_AIO()
-   {
+   public int getJournalBufferSize_AIO() {
       return journalBufferSize_AIO;
    }
 
-   public ConfigurationImpl setJournalBufferSize_AIO(final int journalBufferSize)
-   {
+   public ConfigurationImpl setJournalBufferSize_AIO(final int journalBufferSize) {
       journalBufferSize_AIO = journalBufferSize;
       return this;
    }
 
-   public int getJournalMaxIO_NIO()
-   {
+   public int getJournalMaxIO_NIO() {
       return journalMaxIO_NIO;
    }
 
-   public ConfigurationImpl setJournalMaxIO_NIO(final int journalMaxIO)
-   {
+   public ConfigurationImpl setJournalMaxIO_NIO(final int journalMaxIO) {
       journalMaxIO_NIO = journalMaxIO;
       return this;
    }
 
-   public int getJournalBufferTimeout_NIO()
-   {
+   public int getJournalBufferTimeout_NIO() {
       return journalBufferTimeout_NIO;
    }
 
-   public ConfigurationImpl setJournalBufferTimeout_NIO(final int journalBufferTimeout)
-   {
+   public ConfigurationImpl setJournalBufferTimeout_NIO(final int journalBufferTimeout) {
       journalBufferTimeout_NIO = journalBufferTimeout;
       return this;
    }
 
-   public int getJournalBufferSize_NIO()
-   {
+   public int getJournalBufferSize_NIO() {
       return journalBufferSize_NIO;
    }
 
-   public ConfigurationImpl setJournalBufferSize_NIO(final int journalBufferSize)
-   {
+   public ConfigurationImpl setJournalBufferSize_NIO(final int journalBufferSize) {
       journalBufferSize_NIO = journalBufferSize;
       return this;
    }
 
    @Override
-   public Map<String, AddressSettings> getAddressesSettings()
-   {
+   public Map<String, AddressSettings> getAddressesSettings() {
       return addressesSettings;
    }
 
    @Override
-   public ConfigurationImpl setAddressesSettings(final Map<String, AddressSettings> addressesSettings)
-   {
+   public ConfigurationImpl setAddressesSettings(final Map<String, AddressSettings> addressesSettings) {
       this.addressesSettings = addressesSettings;
       return this;
    }
 
    @Override
-   public ConfigurationImpl addAddressesSetting(String key, AddressSettings addressesSetting)
-   {
+   public ConfigurationImpl addAddressesSetting(String key, AddressSettings addressesSetting) {
       this.addressesSettings.put(key, addressesSetting);
       return this;
    }
 
    @Override
-   public ConfigurationImpl clearAddressesSettings()
-   {
+   public ConfigurationImpl clearAddressesSettings() {
       this.addressesSettings.clear();
       return this;
    }
 
    @Override
-   public Map<String, ResourceLimitSettings> getResourceLimitSettings()
-   {
+   public Map<String, ResourceLimitSettings> getResourceLimitSettings() {
       return resourceLimitSettings;
    }
 
    @Override
-   public ConfigurationImpl setResourceLimitSettings(final Map<String, ResourceLimitSettings> resourceLimitSettings)
-   {
+   public ConfigurationImpl setResourceLimitSettings(final Map<String, ResourceLimitSettings> resourceLimitSettings) {
       this.resourceLimitSettings = resourceLimitSettings;
       return this;
    }
 
    @Override
-   public ConfigurationImpl addResourceLimitSettings(ResourceLimitSettings resourceLimitSettings)
-   {
+   public ConfigurationImpl addResourceLimitSettings(ResourceLimitSettings resourceLimitSettings) {
       this.resourceLimitSettings.put(resourceLimitSettings.getMatch().toString(), resourceLimitSettings);
       return this;
    }
 
    @Override
-   public Map<String, Set<Role>> getSecurityRoles()
-   {
+   public Map<String, Set<Role>> getSecurityRoles() {
       return securitySettings;
    }
 
    @Override
-   public ConfigurationImpl setSecurityRoles(final Map<String, Set<Role>> securitySettings)
-   {
+   public ConfigurationImpl setSecurityRoles(final Map<String, Set<Role>> securitySettings) {
       this.securitySettings = securitySettings;
       return this;
    }
 
-   public List<ConnectorServiceConfiguration> getConnectorServiceConfigurations()
-   {
+   public List<ConnectorServiceConfiguration> getConnectorServiceConfigurations() {
       return this.connectorServiceConfigurations;
    }
 
-   public File getBrokerInstance()
-   {
-      if (artemisInstance != null)
-      {
+   public File getBrokerInstance() {
+      if (artemisInstance != null) {
          return artemisInstance;
       }
 
       String strartemisInstance = System.getProperty("artemis.instance");
 
-      if (strartemisInstance == null)
-      {
+      if (strartemisInstance == null) {
          strartemisInstance = System.getProperty("user.dir");
       }
 
@@ -1125,36 +964,29 @@ public class ConfigurationImpl implements Configuration, Serializable
       return artemisInstance;
    }
 
-   public void setBrokerInstance(File directory)
-   {
+   public void setBrokerInstance(File directory) {
       this.artemisInstance = directory;
    }
 
-   public boolean isCheckForLiveServer()
-   {
-      if (haPolicyConfiguration instanceof ReplicaPolicyConfiguration)
-      {
-         return ((ReplicatedPolicyConfiguration)haPolicyConfiguration).isCheckForLiveServer();
+   public boolean isCheckForLiveServer() {
+      if (haPolicyConfiguration instanceof ReplicaPolicyConfiguration) {
+         return ((ReplicatedPolicyConfiguration) haPolicyConfiguration).isCheckForLiveServer();
       }
-      else
-      {
+      else {
          return false;
       }
    }
 
-   public ConfigurationImpl setCheckForLiveServer(boolean checkForLiveServer)
-   {
-      if (haPolicyConfiguration instanceof ReplicaPolicyConfiguration)
-      {
-         ((ReplicatedPolicyConfiguration)haPolicyConfiguration).setCheckForLiveServer(checkForLiveServer);
+   public ConfigurationImpl setCheckForLiveServer(boolean checkForLiveServer) {
+      if (haPolicyConfiguration instanceof ReplicaPolicyConfiguration) {
+         ((ReplicatedPolicyConfiguration) haPolicyConfiguration).setCheckForLiveServer(checkForLiveServer);
       }
 
       return this;
    }
 
    @Override
-   public String toString()
-   {
+   public String toString() {
       StringBuilder sb = new StringBuilder("Broker Configuration (");
       sb.append("clustered=").append(isClustered()).append(",");
       sb.append("journalDirectory=").append(journalDirectory).append(",");
@@ -1165,69 +997,58 @@ public class ConfigurationImpl implements Configuration, Serializable
       return sb.toString();
    }
 
-   public ConfigurationImpl setConnectorServiceConfigurations(final List<ConnectorServiceConfiguration> configs)
-   {
+   public ConfigurationImpl setConnectorServiceConfigurations(final List<ConnectorServiceConfiguration> configs) {
       this.connectorServiceConfigurations = configs;
       return this;
    }
 
-   public ConfigurationImpl addConnectorServiceConfiguration(final ConnectorServiceConfiguration config)
-   {
+   public ConfigurationImpl addConnectorServiceConfiguration(final ConnectorServiceConfiguration config) {
       this.connectorServiceConfigurations.add(config);
       return this;
    }
 
-   public boolean isMaskPassword()
-   {
+   public boolean isMaskPassword() {
       return maskPassword;
    }
 
-   public ConfigurationImpl setMaskPassword(boolean maskPassword)
-   {
+   public ConfigurationImpl setMaskPassword(boolean maskPassword) {
       this.maskPassword = maskPassword;
       return this;
    }
 
-   public ConfigurationImpl setPasswordCodec(String codec)
-   {
+   public ConfigurationImpl setPasswordCodec(String codec) {
       passwordCodec = codec;
       return this;
    }
 
-   public String getPasswordCodec()
-   {
+   public String getPasswordCodec() {
       return passwordCodec;
    }
 
    @Override
-   public String getName()
-   {
+   public String getName() {
       return name;
    }
 
    @Override
-   public ConfigurationImpl setName(String name)
-   {
+   public ConfigurationImpl setName(String name) {
       this.name = name;
       return this;
    }
 
    @Override
-   public ConfigurationImpl setResolveProtocols(boolean resolveProtocols)
-   {
+   public ConfigurationImpl setResolveProtocols(boolean resolveProtocols) {
       this.resolveProtocols = resolveProtocols;
       return this;
    }
 
    @Override
-   public boolean isResolveProtocols()
-   {
+   public boolean isResolveProtocols() {
       return resolveProtocols;
    }
 
    @Override
-   public int hashCode()
-   {
+   public int hashCode() {
       final int prime = 31;
       int result = 1;
       result = prime * result + ((acceptorConfigs == null) ? 0 : acceptorConfigs.hashCode());
@@ -1239,22 +1060,18 @@ public class ConfigurationImpl implements Configuration, Serializable
       result = prime * result + ((clusterConfigurations == null) ? 0 : clusterConfigurations.hashCode());
       result = prime * result + ((clusterPassword == null) ? 0 : clusterPassword.hashCode());
       result = prime * result + ((clusterUser == null) ? 0 : clusterUser.hashCode());
-      result = prime * result + (int)(connectionTTLOverride ^ (connectionTTLOverride >>> 32));
+      result = prime * result + (int) (connectionTTLOverride ^ (connectionTTLOverride >>> 32));
       result = prime * result + ((connectorConfigs == null) ? 0 : connectorConfigs.hashCode());
-      result =
-               prime * result +
-                        ((connectorServiceConfigurations == null) ? 0 : connectorServiceConfigurations.hashCode());
+      result = prime * result + ((connectorServiceConfigurations == null) ? 0 : connectorServiceConfigurations.hashCode());
       result = prime * result + (createBindingsDir ? 1231 : 1237);
       result = prime * result + (createJournalDir ? 1231 : 1237);
       result = prime * result + ((discoveryGroupConfigurations == null) ? 0 : discoveryGroupConfigurations.hashCode());
       result = prime * result + ((divertConfigurations == null) ? 0 : divertConfigurations.hashCode());
       result = prime * result + (failoverOnServerShutdown ? 1231 : 1237);
-      result = prime * result + (int)(fileDeploymentScanPeriod ^ (fileDeploymentScanPeriod >>> 32));
+      result = prime * result + (int) (fileDeploymentScanPeriod ^ (fileDeploymentScanPeriod >>> 32));
       result = prime * result + ((groupingHandlerConfiguration == null) ? 0 : groupingHandlerConfiguration.hashCode());
       result = prime * result + idCacheSize;
-      result =
-               prime * result +
-                        ((incomingInterceptorClassNames == null) ? 0 : incomingInterceptorClassNames.hashCode());
+      result = prime * result + ((incomingInterceptorClassNames == null) ? 0 : incomingInterceptorClassNames.hashCode());
       result = prime * result + ((jmxDomain == null) ? 0 : jmxDomain.hashCode());
       result = prime * result + (jmxManagementEnabled ? 1231 : 1237);
       result = prime * result + journalBufferSize_AIO;
@@ -1275,22 +1092,18 @@ public class ConfigurationImpl implements Configuration, Serializable
       result = prime * result + ((largeMessagesDirectory == null) ? 0 : largeMessagesDirectory.hashCode());
       result = prime * result + (logJournalWriteRate ? 1231 : 1237);
       result = prime * result + ((managementAddress == null) ? 0 : managementAddress.hashCode());
-      result =
-               prime * result +
-                        ((managementNotificationAddress == null) ? 0 : managementNotificationAddress.hashCode());
+      result = prime * result + ((managementNotificationAddress == null) ? 0 : managementNotificationAddress.hashCode());
       result = prime * result + (maskPassword ? 1231 : 1237);
       result = prime * result + maxConcurrentPageIO;
-      result = prime * result + (int)(memoryMeasureInterval ^ (memoryMeasureInterval >>> 32));
+      result = prime * result + (int) (memoryMeasureInterval ^ (memoryMeasureInterval >>> 32));
       result = prime * result + memoryWarningThreshold;
       result = prime * result + (messageCounterEnabled ? 1231 : 1237);
       result = prime * result + messageCounterMaxDayHistory;
-      result = prime * result + (int)(messageCounterSamplePeriod ^ (messageCounterSamplePeriod >>> 32));
-      result = prime * result + (int)(messageExpiryScanPeriod ^ (messageExpiryScanPeriod >>> 32));
+      result = prime * result + (int) (messageCounterSamplePeriod ^ (messageCounterSamplePeriod >>> 32));
+      result = prime * result + (int) (messageExpiryScanPeriod ^ (messageExpiryScanPeriod >>> 32));
       result = prime * result + messageExpiryThreadPriority;
       result = prime * result + ((name == null) ? 0 : name.hashCode());
-      result =
-               prime * result +
-                        ((outgoingInterceptorClassNames == null) ? 0 : outgoingInterceptorClassNames.hashCode());
+      result = prime * result + ((outgoingInterceptorClassNames == null) ? 0 : outgoingInterceptorClassNames.hashCode());
       result = prime * result + ((pagingDirectory == null) ? 0 : pagingDirectory.hashCode());
       result = prime * result + (persistDeliveryCountBeforeDelivery ? 1231 : 1237);
       result = prime * result + (persistIDCache ? 1231 : 1237);
@@ -1299,12 +1112,12 @@ public class ConfigurationImpl implements Configuration, Serializable
       result = prime * result + (runSyncSpeedTest ? 1231 : 1237);
       result = prime * result + scheduledThreadPoolMaxSize;
       result = prime * result + (securityEnabled ? 1231 : 1237);
-      result = prime * result + (int)(securityInvalidationInterval ^ (securityInvalidationInterval >>> 32));
+      result = prime * result + (int) (securityInvalidationInterval ^ (securityInvalidationInterval >>> 32));
       result = prime * result + ((securitySettings == null) ? 0 : securitySettings.hashCode());
-      result = prime * result + (int)(serverDumpInterval ^ (serverDumpInterval >>> 32));
+      result = prime * result + (int) (serverDumpInterval ^ (serverDumpInterval >>> 32));
       result = prime * result + threadPoolMaxSize;
-      result = prime * result + (int)(transactionTimeout ^ (transactionTimeout >>> 32));
-      result = prime * result + (int)(transactionTimeoutScanPeriod ^ (transactionTimeoutScanPeriod >>> 32));
+      result = prime * result + (int) (transactionTimeout ^ (transactionTimeout >>> 32));
+      result = prime * result + (int) (transactionTimeoutScanPeriod ^ (transactionTimeoutScanPeriod >>> 32));
       result = prime * result + (wildcardRoutingEnabled ? 1231 : 1237);
       result = prime * result + (resolveProtocols ? 1231 : 1237);
       result = prime * result + (int) (journalLockAcquisitionTimeout ^ (journalLockAcquisitionTimeout >>> 32));
@@ -1312,24 +1125,21 @@ public class ConfigurationImpl implements Configuration, Serializable
    }
 
    @Override
-   public boolean equals(Object obj)
-   {
+   public boolean equals(Object obj) {
       if (this == obj)
          return true;
       if (obj == null)
          return false;
       if (!(obj instanceof ConfigurationImpl))
          return false;
-      ConfigurationImpl other = (ConfigurationImpl)obj;
-      if (acceptorConfigs == null)
-      {
+      ConfigurationImpl other = (ConfigurationImpl) obj;
+      if (acceptorConfigs == null) {
          if (other.acceptorConfigs != null)
             return false;
       }
       else if (!acceptorConfigs.equals(other.acceptorConfigs))
          return false;
-      if (addressesSettings == null)
-      {
+      if (addressesSettings == null) {
          if (other.addressesSettings != null)
             return false;
       }
@@ -1338,43 +1148,37 @@ public class ConfigurationImpl implements Configuration, Serializable
       if (asyncConnectionExecutionEnabled != other.asyncConnectionExecutionEnabled)
          return false;
 
-      if (bindingsDirectory == null)
-      {
+      if (bindingsDirectory == null) {
          if (other.bindingsDirectory != null)
             return false;
       }
       else if (!bindingsDirectory.equals(other.bindingsDirectory))
          return false;
-      if (bridgeConfigurations == null)
-      {
+      if (bridgeConfigurations == null) {
          if (other.bridgeConfigurations != null)
             return false;
       }
       else if (!bridgeConfigurations.equals(other.bridgeConfigurations))
          return false;
-      if (broadcastGroupConfigurations == null)
-      {
+      if (broadcastGroupConfigurations == null) {
          if (other.broadcastGroupConfigurations != null)
             return false;
       }
       else if (!broadcastGroupConfigurations.equals(other.broadcastGroupConfigurations))
          return false;
-      if (clusterConfigurations == null)
-      {
+      if (clusterConfigurations == null) {
          if (other.clusterConfigurations != null)
             return false;
       }
       else if (!clusterConfigurations.equals(other.clusterConfigurations))
          return false;
-      if (clusterPassword == null)
-      {
+      if (clusterPassword == null) {
          if (other.clusterPassword != null)
             return false;
       }
       else if (!clusterPassword.equals(other.clusterPassword))
          return false;
-      if (clusterUser == null)
-      {
+      if (clusterUser == null) {
          if (other.clusterUser != null)
             return false;
       }
@@ -1382,15 +1186,13 @@ public class ConfigurationImpl implements Configuration, Serializable
          return false;
       if (connectionTTLOverride != other.connectionTTLOverride)
          return false;
-      if (connectorConfigs == null)
-      {
+      if (connectorConfigs == null) {
          if (other.connectorConfigs != null)
             return false;
       }
       else if (!connectorConfigs.equals(other.connectorConfigs))
          return false;
-      if (connectorServiceConfigurations == null)
-      {
+      if (connectorServiceConfigurations == null) {
          if (other.connectorServiceConfigurations != null)
             return false;
       }
@@ -1400,15 +1202,13 @@ public class ConfigurationImpl implements Configuration, Serializable
          return false;
       if (createJournalDir != other.createJournalDir)
          return false;
-      if (discoveryGroupConfigurations == null)
-      {
+      if (discoveryGroupConfigurations == null) {
          if (other.discoveryGroupConfigurations != null)
             return false;
       }
       else if (!discoveryGroupConfigurations.equals(other.discoveryGroupConfigurations))
          return false;
-      if (divertConfigurations == null)
-      {
+      if (divertConfigurations == null) {
          if (other.divertConfigurations != null)
             return false;
       }
@@ -1418,8 +1218,7 @@ public class ConfigurationImpl implements Configuration, Serializable
          return false;
       if (fileDeploymentScanPeriod != other.fileDeploymentScanPeriod)
          return false;
-      if (groupingHandlerConfiguration == null)
-      {
+      if (groupingHandlerConfiguration == null) {
          if (other.groupingHandlerConfiguration != null)
             return false;
       }
@@ -1427,15 +1226,13 @@ public class ConfigurationImpl implements Configuration, Serializable
          return false;
       if (idCacheSize != other.idCacheSize)
          return false;
-      if (incomingInterceptorClassNames == null)
-      {
+      if (incomingInterceptorClassNames == null) {
          if (other.incomingInterceptorClassNames != null)
             return false;
       }
       else if (!incomingInterceptorClassNames.equals(other.incomingInterceptorClassNames))
          return false;
-      if (jmxDomain == null)
-      {
+      if (jmxDomain == null) {
          if (other.jmxDomain != null)
             return false;
       }
@@ -1455,8 +1252,7 @@ public class ConfigurationImpl implements Configuration, Serializable
          return false;
       if (journalCompactPercentage != other.journalCompactPercentage)
          return false;
-      if (journalDirectory == null)
-      {
+      if (journalDirectory == null) {
          if (other.journalDirectory != null)
             return false;
       }
@@ -1478,8 +1274,7 @@ public class ConfigurationImpl implements Configuration, Serializable
          return false;
       if (journalType != other.journalType)
          return false;
-      if (largeMessagesDirectory == null)
-      {
+      if (largeMessagesDirectory == null) {
          if (other.largeMessagesDirectory != null)
             return false;
       }
@@ -1487,15 +1282,13 @@ public class ConfigurationImpl implements Configuration, Serializable
          return false;
       if (logJournalWriteRate != other.logJournalWriteRate)
          return false;
-      if (managementAddress == null)
-      {
+      if (managementAddress == null) {
          if (other.managementAddress != null)
             return false;
       }
       else if (!managementAddress.equals(other.managementAddress))
          return false;
-      if (managementNotificationAddress == null)
-      {
+      if (managementNotificationAddress == null) {
          if (other.managementNotificationAddress != null)
             return false;
       }
@@ -1519,23 +1312,20 @@ public class ConfigurationImpl implements Configuration, Serializable
          return false;
       if (messageExpiryThreadPriority != other.messageExpiryThreadPriority)
          return false;
-      if (name == null)
-      {
+      if (name == null) {
          if (other.name != null)
             return false;
       }
       else if (!name.equals(other.name))
          return false;
 
-      if (outgoingInterceptorClassNames == null)
-      {
+      if (outgoingInterceptorClassNames == null) {
          if (other.outgoingInterceptorClassNames != null)
             return false;
       }
       else if (!outgoingInterceptorClassNames.equals(other.outgoingInterceptorClassNames))
          return false;
-      if (pagingDirectory == null)
-      {
+      if (pagingDirectory == null) {
          if (other.pagingDirectory != null)
             return false;
       }
@@ -1547,8 +1337,7 @@ public class ConfigurationImpl implements Configuration, Serializable
          return false;
       if (persistenceEnabled != other.persistenceEnabled)
          return false;
-      if (queueConfigurations == null)
-      {
+      if (queueConfigurations == null) {
          if (other.queueConfigurations != null)
             return false;
       }
@@ -1562,8 +1351,7 @@ public class ConfigurationImpl implements Configuration, Serializable
          return false;
       if (securityInvalidationInterval != other.securityInvalidationInterval)
          return false;
-      if (securitySettings == null)
-      {
+      if (securitySettings == null) {
          if (other.securitySettings != null)
             return false;
       }
@@ -1587,14 +1375,11 @@ public class ConfigurationImpl implements Configuration, Serializable
    }
 
    @Override
-   public Configuration copy() throws Exception
-   {
+   public Configuration copy() throws Exception {
 
-      return AccessController.doPrivileged(new PrivilegedExceptionAction<Configuration>()
-      {
+      return AccessController.doPrivileged(new PrivilegedExceptionAction<Configuration>() {
          @Override
-         public Configuration run() throws Exception
-         {
+         public Configuration run() throws Exception {
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             ObjectOutputStream os = new ObjectOutputStream(bos);
             os.writeObject(ConfigurationImpl.this);
@@ -1614,27 +1399,23 @@ public class ConfigurationImpl implements Configuration, Serializable
    }
 
    @Override
-   public ConfigurationImpl setJournalLockAcquisitionTimeout(long journalLockAcquisitionTimeout)
-   {
+   public ConfigurationImpl setJournalLockAcquisitionTimeout(long journalLockAcquisitionTimeout) {
       this.journalLockAcquisitionTimeout = journalLockAcquisitionTimeout;
       return this;
    }
 
    @Override
-   public long getJournalLockAcquisitionTimeout()
-   {
+   public long getJournalLockAcquisitionTimeout() {
       return journalLockAcquisitionTimeout;
    }
 
    @Override
-   public HAPolicyConfiguration getHAPolicyConfiguration()
-   {
+   public HAPolicyConfiguration getHAPolicyConfiguration() {
       return haPolicyConfiguration;
    }
 
    @Override
-   public ConfigurationImpl setHAPolicyConfiguration(HAPolicyConfiguration haPolicyConfiguration)
-   {
+   public ConfigurationImpl setHAPolicyConfiguration(HAPolicyConfiguration haPolicyConfiguration) {
       this.haPolicyConfiguration = haPolicyConfiguration;
       return this;
    }
@@ -1642,17 +1423,14 @@ public class ConfigurationImpl implements Configuration, Serializable
    /**
     * It will find the right location of a subFolder, related to artemisInstance
     */
-   private File subFolder(String subFolder)
-   {
-      try
-      {
+   private File subFolder(String subFolder) {
+      try {
          // Resolve wont work without "/" as the last character
          URI artemisHome = new URI(getBrokerInstance().toURI() + "/");
          URI relative = artemisHome.resolve(subFolder);
          return new File(relative.getPath());
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          throw new RuntimeException(e);
       }
    }

@@ -19,7 +19,6 @@ package org.apache.activemq.artemis.core.protocol.openwire;
 /**
  * The class holds related states of an activemq broker.
  */
-public class BrokerState
-{
+public class BrokerState {
 
 }

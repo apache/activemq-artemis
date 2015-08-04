@@ -23,34 +23,27 @@ import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.TransientQueueManager;
 import org.apache.activemq.artemis.utils.ReferenceCounterUtil;
 
-public class TransientQueueManagerImpl implements TransientQueueManager
-{
+public class TransientQueueManagerImpl implements TransientQueueManager {
+
    private final SimpleString queueName;
 
    private final ActiveMQServer server;
 
-   private final Runnable runnable = new Runnable()
-   {
-      public void run()
-      {
-         try
-         {
-            if (ActiveMQServerLogger.LOGGER.isDebugEnabled())
-            {
+   private final Runnable runnable = new Runnable() {
+      public void run() {
+         try {
+            if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
                ActiveMQServerLogger.LOGGER.debug("deleting temporary queue " + queueName);
             }
 
-            try
-            {
+            try {
                server.destroyQueue(queueName, null, false);
             }
-            catch (ActiveMQException e)
-            {
+            catch (ActiveMQException e) {
                ActiveMQServerLogger.LOGGER.warn("Error on deleting queue " + queueName + ", " + e.getMessage(), e);
             }
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             ActiveMQServerLogger.LOGGER.errorRemovingTempQueue(e, queueName);
          }
       }
@@ -58,28 +51,24 @@ public class TransientQueueManagerImpl implements TransientQueueManager
 
    private final ReferenceCounterUtil referenceCounterUtil = new ReferenceCounterUtil(runnable);
 
-   public TransientQueueManagerImpl(ActiveMQServer server, SimpleString queueName)
-   {
+   public TransientQueueManagerImpl(ActiveMQServer server, SimpleString queueName) {
       this.server = server;
 
       this.queueName = queueName;
    }
 
    @Override
-   public int increment()
-   {
+   public int increment() {
       return referenceCounterUtil.increment();
    }
 
    @Override
-   public int decrement()
-   {
+   public int decrement() {
       return referenceCounterUtil.decrement();
    }
 
    @Override
-   public SimpleString getQueueName()
-   {
+   public SimpleString getQueueName() {
       return queueName;
    }
 }

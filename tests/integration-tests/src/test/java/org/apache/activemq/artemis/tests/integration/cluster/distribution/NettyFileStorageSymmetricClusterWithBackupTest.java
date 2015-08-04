@@ -16,18 +16,15 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.distribution;
 
-public class NettyFileStorageSymmetricClusterWithBackupTest extends SymmetricClusterWithBackupTest
-{
+public class NettyFileStorageSymmetricClusterWithBackupTest extends SymmetricClusterWithBackupTest {
+
    @Override
-   protected boolean isNetty()
-   {
+   protected boolean isNetty() {
       return true;
    }
 
-   protected boolean isFileStorage()
-   {
+   protected boolean isFileStorage() {
       return true;
    }
-
 
 }

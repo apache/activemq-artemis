@@ -38,11 +38,10 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class AutoCreateJmsQueueTest extends JMSTestBase
-{
+public class AutoCreateJmsQueueTest extends JMSTestBase {
+
    @Test
-   public void testAutoCreateOnSendToQueue() throws Exception
-   {
+   public void testAutoCreateOnSendToQueue() throws Exception {
       Connection connection = cf.createConnection();
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
@@ -52,8 +51,7 @@ public class AutoCreateJmsQueueTest extends JMSTestBase
 
       final int numMessages = 100;
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          TextMessage mess = session.createTextMessage("msg" + i);
          producer.send(mess);
       }
@@ -63,8 +61,7 @@ public class AutoCreateJmsQueueTest extends JMSTestBase
       MessageConsumer messageConsumer = session.createConsumer(queue);
       connection.start();
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          Message m = messageConsumer.receive(5000);
          Assert.assertNotNull(m);
       }
@@ -73,8 +70,7 @@ public class AutoCreateJmsQueueTest extends JMSTestBase
    }
 
    @Test
-   public void testAutoCreateOnSendToQueueAnonymousProducer() throws Exception
-   {
+   public void testAutoCreateOnSendToQueueAnonymousProducer() throws Exception {
       Connection connection = cf.createConnection();
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
@@ -84,8 +80,7 @@ public class AutoCreateJmsQueueTest extends JMSTestBase
 
       final int numMessages = 100;
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          TextMessage mess = session.createTextMessage("msg" + i);
          producer.send(queue, mess);
       }
@@ -95,8 +90,7 @@ public class AutoCreateJmsQueueTest extends JMSTestBase
       MessageConsumer messageConsumer = session.createConsumer(queue);
       connection.start();
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          Message m = messageConsumer.receive(5000);
          Assert.assertNotNull(m);
       }
@@ -105,11 +99,10 @@ public class AutoCreateJmsQueueTest extends JMSTestBase
    }
 
    @Test
-   public void testAutoCreateOnSendToQueueSecurity() throws Exception
-   {
-      ((ActiveMQSecurityManagerImpl)server.getSecurityManager()).getConfiguration().addUser("guest", "guest");
-      ((ActiveMQSecurityManagerImpl)server.getSecurityManager()).getConfiguration().setDefaultUser("guest");
-      ((ActiveMQSecurityManagerImpl)server.getSecurityManager()).getConfiguration().addRole("guest", "rejectAll");
+   public void testAutoCreateOnSendToQueueSecurity() throws Exception {
+      ((ActiveMQSecurityManagerImpl) server.getSecurityManager()).getConfiguration().addUser("guest", "guest");
+      ((ActiveMQSecurityManagerImpl) server.getSecurityManager()).getConfiguration().setDefaultUser("guest");
+      ((ActiveMQSecurityManagerImpl) server.getSecurityManager()).getConfiguration().addRole("guest", "rejectAll");
       Role role = new Role("rejectAll", false, false, false, false, false, false, false);
       Set<Role> roles = new HashSet<Role>();
       roles.add(role);
@@ -119,13 +112,11 @@ public class AutoCreateJmsQueueTest extends JMSTestBase
 
       javax.jms.Queue queue = ActiveMQJMSClient.createQueue("test");
 
-      try
-      {
+      try {
          MessageProducer producer = session.createProducer(queue);
          Assert.fail("Creating a producer here should throw a JMSSecurityException");
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          Assert.assertTrue(e instanceof JMSSecurityException);
       }
 
@@ -133,20 +124,17 @@ public class AutoCreateJmsQueueTest extends JMSTestBase
    }
 
    @Test
-   public void testAutoCreateOnSendToTopic() throws Exception
-   {
+   public void testAutoCreateOnSendToTopic() throws Exception {
       Connection connection = cf.createConnection();
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
       javax.jms.Topic topic = ActiveMQJMSClient.createTopic("test");
 
-      try
-      {
+      try {
          MessageProducer producer = session.createProducer(topic);
          Assert.fail("Creating a producer here should throw an exception");
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          Assert.assertTrue(e instanceof InvalidDestinationException);
       }
 
@@ -154,8 +142,7 @@ public class AutoCreateJmsQueueTest extends JMSTestBase
    }
 
    @Test
-   public void testAutoCreateOnConsumeFromQueue() throws Exception
-   {
+   public void testAutoCreateOnConsumeFromQueue() throws Exception {
       Connection connection = null;
       connection = cf.createConnection();
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -175,21 +162,18 @@ public class AutoCreateJmsQueueTest extends JMSTestBase
    }
 
    @Test
-   public void testAutoCreateOnConsumeFromTopic() throws Exception
-   {
+   public void testAutoCreateOnConsumeFromTopic() throws Exception {
       Connection connection = null;
       connection = cf.createConnection();
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
       javax.jms.Topic topic = ActiveMQJMSClient.createTopic("test");
 
-      try
-      {
+      try {
          MessageConsumer messageConsumer = session.createConsumer(topic);
          Assert.fail("Creating a consumer here should throw an exception");
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          Assert.assertTrue(e instanceof InvalidDestinationException);
       }
 
@@ -198,20 +182,18 @@ public class AutoCreateJmsQueueTest extends JMSTestBase
 
    @Before
    @Override
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
-      ((ActiveMQSecurityManagerImpl)server.getSecurityManager()).getConfiguration().addUser("guest", "guest");
-      ((ActiveMQSecurityManagerImpl)server.getSecurityManager()).getConfiguration().setDefaultUser("guest");
-      ((ActiveMQSecurityManagerImpl)server.getSecurityManager()).getConfiguration().addRole("guest", "allowAll");
+      ((ActiveMQSecurityManagerImpl) server.getSecurityManager()).getConfiguration().addUser("guest", "guest");
+      ((ActiveMQSecurityManagerImpl) server.getSecurityManager()).getConfiguration().setDefaultUser("guest");
+      ((ActiveMQSecurityManagerImpl) server.getSecurityManager()).getConfiguration().addRole("guest", "allowAll");
       Role role = new Role("allowAll", true, true, true, true, true, true, true);
       Set<Role> roles = new HashSet<Role>();
       roles.add(role);
       server.getSecurityRepository().addMatch("#", roles);
    }
 
-   protected boolean useSecurity()
-   {
+   protected boolean useSecurity() {
       return true;
    }
 }

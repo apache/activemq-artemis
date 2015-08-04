@@ -39,76 +39,75 @@ import org.springframework.jms.support.JmsUtils;
 
 public class AMQ4469Test {
 
-    private static final int maxConnections = 100;
+   private static final int maxConnections = 100;
 
-    private final ExecutorService executor = Executors.newCachedThreadPool();
-    private String connectionUri;
-    private BrokerService service;
-    private TransportConnector connector;
+   private final ExecutorService executor = Executors.newCachedThreadPool();
+   private String connectionUri;
+   private BrokerService service;
+   private TransportConnector connector;
 
-    @Before
-    public void setUp() throws Exception {
-        service = new BrokerService();
-        service.setPersistent(false);
-        service.setUseJmx(false);
-        connector = service.addConnector("tcp://0.0.0.0:0?maximumConnections="+maxConnections);
-        connectionUri = connector.getPublishableConnectString();
-        service.start();
-        service.waitUntilStarted();
-    }
+   @Before
+   public void setUp() throws Exception {
+      service = new BrokerService();
+      service.setPersistent(false);
+      service.setUseJmx(false);
+      connector = service.addConnector("tcp://0.0.0.0:0?maximumConnections=" + maxConnections);
+      connectionUri = connector.getPublishableConnectString();
+      service.start();
+      service.waitUntilStarted();
+   }
 
-    protected ConnectionFactory createConnectionFactory() throws Exception {
-        return new ActiveMQConnectionFactory(connectionUri);
-    }
+   protected ConnectionFactory createConnectionFactory() throws Exception {
+      return new ActiveMQConnectionFactory(connectionUri);
+   }
 
-    @Test
-    public void testMaxConnectionControl() throws Exception {
-        final ConnectionFactory cf = createConnectionFactory();
-        final CountDownLatch startupLatch = new CountDownLatch(1);
-        for(int i = 0; i < maxConnections + 20; i++) {
-            executor.submit(new Runnable() {
-                @Override
-                public void run() {
-                    Connection conn = null;
-                    try {
-                        startupLatch.await();
-                        conn = cf.createConnection();
-                        conn.start();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        JmsUtils.closeConnection(conn);
+   @Test
+   public void testMaxConnectionControl() throws Exception {
+      final ConnectionFactory cf = createConnectionFactory();
+      final CountDownLatch startupLatch = new CountDownLatch(1);
+      for (int i = 0; i < maxConnections + 20; i++) {
+         executor.submit(new Runnable() {
+            @Override
+            public void run() {
+               Connection conn = null;
+               try {
+                  startupLatch.await();
+                  conn = cf.createConnection();
+                  conn.start();
+               }
+               catch (Exception e) {
+                  e.printStackTrace();
+                  JmsUtils.closeConnection(conn);
+               }
+            }
+         });
+      }
+
+      TcpTransportServer transportServer = (TcpTransportServer) connector.getServer();
+      // ensure the max connections is in effect
+      assertEquals(maxConnections, transportServer.getMaximumConnections());
+      // No connections at first
+      assertEquals(0, connector.getConnections().size());
+      // Release the latch to set up connections in parallel
+      startupLatch.countDown();
+      TimeUnit.SECONDS.sleep(5);
+
+      final TransportConnector connector = this.connector;
+
+      // Expect the max connections is created
+      assertTrue("Expected: " + maxConnections + " found: " + connector.getConnections().size(), Wait.waitFor(new Wait.Condition() {
+                    @Override
+                    public boolean isSatisified() throws Exception {
+                       return connector.getConnections().size() == maxConnections;
                     }
-                }
-            });
-        }
+                 }));
+   }
 
-        TcpTransportServer transportServer = (TcpTransportServer)connector.getServer();
-        // ensure the max connections is in effect
-        assertEquals(maxConnections, transportServer.getMaximumConnections());
-        // No connections at first
-        assertEquals(0, connector.getConnections().size());
-        // Release the latch to set up connections in parallel
-        startupLatch.countDown();
-        TimeUnit.SECONDS.sleep(5);
+   @After
+   public void tearDown() throws Exception {
+      executor.shutdown();
 
-        final TransportConnector connector = this.connector;
-
-        // Expect the max connections is created
-        assertTrue("Expected: " + maxConnections + " found: " + connector.getConnections().size(),
-            Wait.waitFor(new Wait.Condition() {
-                @Override
-                public boolean isSatisified() throws Exception {
-                    return connector.getConnections().size() == maxConnections;
-                }
-            })
-        );
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        executor.shutdown();
-
-        service.stop();
-        service.waitUntilStopped();
-    }
+      service.stop();
+      service.waitUntilStopped();
+   }
 }

@@ -26,28 +26,25 @@ import org.apache.activemq.artemis.spi.core.remoting.ConnectionLifeCycleListener
 import org.apache.activemq.artemis.spi.core.remoting.Connector;
 import org.apache.activemq.artemis.spi.core.remoting.ConnectorFactory;
 
-public class NettyConnectorFactory implements ConnectorFactory
-{
+public class NettyConnectorFactory implements ConnectorFactory {
+
    public Connector createConnector(final Map<String, Object> configuration,
                                     final BufferHandler handler,
                                     final ConnectionLifeCycleListener listener,
                                     final Executor closeExecutor,
                                     final Executor threadPool,
                                     final ScheduledExecutorService scheduledThreadPool,
-                                    final ClientProtocolManager protocolManager)
-   {
+                                    final ClientProtocolManager protocolManager) {
       return new NettyConnector(configuration, handler, listener, closeExecutor, threadPool, scheduledThreadPool);
    }
 
    @Override
-   public boolean isReliable()
-   {
+   public boolean isReliable() {
       return false;
    }
 
    @Override
-   public Map<String, Object> getDefaults()
-   {
+   public Map<String, Object> getDefaults() {
       return NettyConnector.DEFAULT_CONFIG;
    }
 }

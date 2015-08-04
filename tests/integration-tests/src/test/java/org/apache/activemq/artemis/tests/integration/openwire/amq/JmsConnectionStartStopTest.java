@@ -40,14 +40,13 @@ import org.junit.Test;
 /**
  * adapted from: org.apache.activemq.JmsConnectionStartStopTest
  */
-public class JmsConnectionStartStopTest extends BasicOpenWireTest
-{
+public class JmsConnectionStartStopTest extends BasicOpenWireTest {
+
    private Connection startedConnection;
    private Connection stoppedConnection;
 
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
       startedConnection = factory.createConnection();
       startedConnection.start();
@@ -58,8 +57,7 @@ public class JmsConnectionStartStopTest extends BasicOpenWireTest
     * @see junit.framework.TestCase#tearDown()
     */
    @After
-   public void tearDown() throws Exception
-   {
+   public void tearDown() throws Exception {
       stoppedConnection.close();
       startedConnection.close();
       super.tearDown();
@@ -72,12 +70,9 @@ public class JmsConnectionStartStopTest extends BasicOpenWireTest
     * @throws JMSException
     */
    @Test
-   public void testStoppedConsumerHoldsMessagesTillStarted() throws JMSException
-   {
-      Session startedSession = startedConnection.createSession(false,
-            Session.AUTO_ACKNOWLEDGE);
-      Session stoppedSession = stoppedConnection.createSession(false,
-            Session.AUTO_ACKNOWLEDGE);
+   public void testStoppedConsumerHoldsMessagesTillStarted() throws JMSException {
+      Session startedSession = startedConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      Session stoppedSession = stoppedConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
       // Setup the consumers.
       Topic topic = startedSession.createTopic("test");
@@ -111,8 +106,7 @@ public class JmsConnectionStartStopTest extends BasicOpenWireTest
     * @throws Exception
     */
    @Test
-   public void testMultipleConnectionStops() throws Exception
-   {
+   public void testMultipleConnectionStops() throws Exception {
       testStoppedConsumerHoldsMessagesTillStarted();
       stoppedConnection.stop();
       testStoppedConsumerHoldsMessagesTillStarted();
@@ -121,66 +115,51 @@ public class JmsConnectionStartStopTest extends BasicOpenWireTest
    }
 
    @Test
-   public void testConcurrentSessionCreateWithStart() throws Exception
-   {
-      ThreadPoolExecutor executor = new ThreadPoolExecutor(50,
-            Integer.MAX_VALUE, 60L, TimeUnit.SECONDS,
-            new SynchronousQueue<Runnable>());
+   public void testConcurrentSessionCreateWithStart() throws Exception {
+      ThreadPoolExecutor executor = new ThreadPoolExecutor(50, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS, new SynchronousQueue<Runnable>());
       final Vector<Throwable> exceptions = new Vector<Throwable>();
       final AtomicInteger counter = new AtomicInteger(0);
       final Random rand = new Random();
-      Runnable createSessionTask = new Runnable()
-      {
+      Runnable createSessionTask = new Runnable() {
          @Override
-         public void run()
-         {
-            try
-            {
+         public void run() {
+            try {
                TimeUnit.MILLISECONDS.sleep(rand.nextInt(10));
                stoppedConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
                counter.incrementAndGet();
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                exceptions.add(e);
             }
-            catch (Throwable t)
-            {
+            catch (Throwable t) {
             }
          }
       };
 
-      Runnable startStopTask = new Runnable()
-      {
+      Runnable startStopTask = new Runnable() {
          @Override
-         public void run()
-         {
-            try
-            {
+         public void run() {
+            try {
                TimeUnit.MILLISECONDS.sleep(rand.nextInt(10));
                stoppedConnection.start();
                stoppedConnection.stop();
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                exceptions.add(e);
             }
-            catch (Throwable t)
-            {
+            catch (Throwable t) {
             }
          }
       };
 
-      for (int i = 0; i < 1000; i++)
-      {
+      for (int i = 0; i < 1000; i++) {
          executor.execute(createSessionTask);
          executor.execute(startStopTask);
       }
 
       executor.shutdown();
 
-      assertTrue("executor terminated",
-            executor.awaitTermination(30, TimeUnit.SECONDS));
+      assertTrue("executor terminated", executor.awaitTermination(30, TimeUnit.SECONDS));
       assertTrue("no exceptions: " + exceptions, exceptions.isEmpty());
    }
 

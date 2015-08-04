@@ -18,15 +18,13 @@ package org.proton.plug.exceptions;
 
 import org.apache.qpid.proton.amqp.transport.AmqpError;
 
-public class ActiveMQAMQPInternalErrorException extends ActiveMQAMQPException
-{
-   public ActiveMQAMQPInternalErrorException(String message, Throwable e)
-   {
+public class ActiveMQAMQPInternalErrorException extends ActiveMQAMQPException {
+
+   public ActiveMQAMQPInternalErrorException(String message, Throwable e) {
       super(AmqpError.INTERNAL_ERROR, message, e);
    }
 
-   public ActiveMQAMQPInternalErrorException(String message)
-   {
+   public ActiveMQAMQPInternalErrorException(String message) {
       super(AmqpError.INTERNAL_ERROR, message);
    }
 }

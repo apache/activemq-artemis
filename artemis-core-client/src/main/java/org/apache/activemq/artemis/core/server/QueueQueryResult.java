@@ -18,8 +18,8 @@ package org.apache.activemq.artemis.core.server;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 
-public class QueueQueryResult
-{
+public class QueueQueryResult {
+
    private SimpleString name;
 
    private boolean exists;
@@ -39,27 +39,25 @@ public class QueueQueryResult
    private boolean autoCreateJmsQueues;
 
    public QueueQueryResult(final SimpleString name,
-                                           final SimpleString address,
-                                           final boolean durable,
-                                           final boolean temporary,
-                                           final SimpleString filterString,
-                                           final int consumerCount,
-                                           final long messageCount,
-                                           final boolean autoCreateJmsQueues)
-   {
+                           final SimpleString address,
+                           final boolean durable,
+                           final boolean temporary,
+                           final SimpleString filterString,
+                           final int consumerCount,
+                           final long messageCount,
+                           final boolean autoCreateJmsQueues) {
       this(name, address, durable, temporary, filterString, consumerCount, messageCount, autoCreateJmsQueues, true);
    }
 
    public QueueQueryResult(final SimpleString name,
-                                            final SimpleString address,
-                                            final boolean durable,
-                                            final boolean temporary,
-                                            final SimpleString filterString,
-                                            final int consumerCount,
-                                            final long messageCount,
-                                            final boolean autoCreateJmsQueues,
-                                            final boolean exists)
-   {
+                           final SimpleString address,
+                           final boolean durable,
+                           final boolean temporary,
+                           final SimpleString filterString,
+                           final int consumerCount,
+                           final long messageCount,
+                           final boolean autoCreateJmsQueues,
+                           final boolean exists) {
       this.durable = durable;
 
       this.temporary = temporary;
@@ -79,48 +77,39 @@ public class QueueQueryResult
       this.exists = exists;
    }
 
-   public boolean isExists()
-   {
+   public boolean isExists() {
       return exists;
    }
 
-   public boolean isDurable()
-   {
+   public boolean isDurable() {
       return durable;
    }
 
-   public int getConsumerCount()
-   {
+   public int getConsumerCount() {
       return consumerCount;
    }
 
-   public long getMessageCount()
-   {
+   public long getMessageCount() {
       return messageCount;
    }
 
-   public SimpleString getFilterString()
-   {
+   public SimpleString getFilterString() {
       return filterString;
    }
 
-   public SimpleString getAddress()
-   {
+   public SimpleString getAddress() {
       return address;
    }
 
-   public SimpleString getName()
-   {
+   public SimpleString getName() {
       return name;
    }
 
-   public boolean isTemporary()
-   {
+   public boolean isTemporary() {
       return temporary;
    }
 
-   public boolean isAutoCreateJmsQueues()
-   {
+   public boolean isAutoCreateJmsQueues() {
       return autoCreateJmsQueues;
    }
 

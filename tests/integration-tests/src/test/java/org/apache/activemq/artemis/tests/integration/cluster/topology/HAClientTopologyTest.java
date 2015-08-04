@@ -22,22 +22,19 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 
-public class HAClientTopologyTest extends TopologyClusterTestBase
-{
+public class HAClientTopologyTest extends TopologyClusterTestBase {
+
    @Override
-   protected boolean isNetty()
-   {
+   protected boolean isNetty() {
       return false;
    }
 
    @Override
-   protected void setupCluster() throws Exception
-   {
+   protected void setupCluster() throws Exception {
       setupCluster(MessageLoadBalancingType.ON_DEMAND);
    }
 
-   protected void setupCluster(final MessageLoadBalancingType messageLoadBalancingType) throws Exception
-   {
+   protected void setupCluster(final MessageLoadBalancingType messageLoadBalancingType) throws Exception {
       setupClusterConnection("cluster0", "queues", messageLoadBalancingType, 1, isNetty(), 0, 1, 2, 3, 4);
       setupClusterConnection("cluster1", "queues", messageLoadBalancingType, 1, isNetty(), 1, 0, 2, 3, 4);
       setupClusterConnection("cluster2", "queues", messageLoadBalancingType, 1, isNetty(), 2, 0, 1, 3, 4);
@@ -46,8 +43,7 @@ public class HAClientTopologyTest extends TopologyClusterTestBase
    }
 
    @Override
-   protected void setupServers() throws Exception
-   {
+   protected void setupServers() throws Exception {
       setupServer(0, isFileStorage(), isNetty());
       setupServer(1, isFileStorage(), isNetty());
       setupServer(2, isFileStorage(), isNetty());
@@ -56,12 +52,10 @@ public class HAClientTopologyTest extends TopologyClusterTestBase
    }
 
    @Override
-   protected ServerLocator createHAServerLocator()
-   {
+   protected ServerLocator createHAServerLocator() {
       TransportConfiguration tc = ActiveMQTestBase.createTransportConfiguration(isNetty(), false, ActiveMQTestBase.generateParams(0, isNetty()));
       ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithHA(tc));
-      locator.setBlockOnNonDurableSend(true)
-              .setBlockOnDurableSend(true);
+      locator.setBlockOnNonDurableSend(true).setBlockOnDurableSend(true);
       return locator;
    }
 }

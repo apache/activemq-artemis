@@ -25,10 +25,9 @@ import org.apache.activemq.artemis.core.message.impl.MessageInternal;
 /**
  * A ResetLimitWrappedActiveMQBuffer
  * TODO: Move this to commons
- *
  */
-public final class ResetLimitWrappedActiveMQBuffer extends ChannelBufferWrapper
-{
+public final class ResetLimitWrappedActiveMQBuffer extends ChannelBufferWrapper {
+
    private final int limit;
 
    private MessageInternal message;
@@ -36,23 +35,21 @@ public final class ResetLimitWrappedActiveMQBuffer extends ChannelBufferWrapper
    /**
     * We need to turn of notifications of body changes on reset on the server side when dealing with AMQP conversions,
     * for that reason this method will set the message to null here
+    *
     * @param message
     */
-   public void setMessage(MessageInternal message)
-   {
+   public void setMessage(MessageInternal message) {
       this.message = message;
    }
 
-   public ResetLimitWrappedActiveMQBuffer(final int limit, final ActiveMQBuffer buffer, final MessageInternal message)
-   {
+   public ResetLimitWrappedActiveMQBuffer(final int limit, final ActiveMQBuffer buffer, final MessageInternal message) {
       // a wrapped inside a wrapper will increase the stack size.
       // we fixed this here due to some profiling testing
       super(unwrap(buffer.byteBuf()));
 
       this.limit = limit;
 
-      if (writerIndex() < limit)
-      {
+      if (writerIndex() < limit) {
          writerIndex(limit);
       }
 
@@ -61,26 +58,21 @@ public final class ResetLimitWrappedActiveMQBuffer extends ChannelBufferWrapper
       this.message = message;
    }
 
-   private void changed()
-   {
-      if (message != null)
-      {
+   private void changed() {
+      if (message != null) {
          message.bodyChanged();
       }
    }
 
-   public void setBuffer(final ActiveMQBuffer buffer)
-   {
-      if (this.buffer != null)
-      {
+   public void setBuffer(final ActiveMQBuffer buffer) {
+      if (this.buffer != null) {
          this.buffer.release();
       }
       this.buffer = buffer.byteBuf();
    }
 
    @Override
-   public void clear()
-   {
+   public void clear() {
       changed();
 
       buffer.clear();
@@ -90,12 +82,10 @@ public final class ResetLimitWrappedActiveMQBuffer extends ChannelBufferWrapper
    }
 
    @Override
-   public void readerIndex(int readerIndex)
-   {
+   public void readerIndex(int readerIndex) {
       changed();
 
-      if (readerIndex < limit)
-      {
+      if (readerIndex < limit) {
          readerIndex = limit;
       }
 
@@ -103,44 +93,37 @@ public final class ResetLimitWrappedActiveMQBuffer extends ChannelBufferWrapper
    }
 
    @Override
-   public void resetReaderIndex()
-   {
+   public void resetReaderIndex() {
       changed();
 
       buffer.readerIndex(limit);
    }
 
    @Override
-   public void resetWriterIndex()
-   {
+   public void resetWriterIndex() {
       changed();
 
       buffer.writerIndex(limit);
    }
 
    @Override
-   public void setIndex(int readerIndex, int writerIndex)
-   {
+   public void setIndex(int readerIndex, int writerIndex) {
       changed();
 
-      if (readerIndex < limit)
-      {
+      if (readerIndex < limit) {
          readerIndex = limit;
       }
-      if (writerIndex < limit)
-      {
+      if (writerIndex < limit) {
          writerIndex = limit;
       }
       buffer.setIndex(readerIndex, writerIndex);
    }
 
    @Override
-   public void writerIndex(int writerIndex)
-   {
+   public void writerIndex(int writerIndex) {
       changed();
 
-      if (writerIndex < limit)
-      {
+      if (writerIndex < limit) {
          writerIndex = limit;
       }
 
@@ -148,248 +131,217 @@ public final class ResetLimitWrappedActiveMQBuffer extends ChannelBufferWrapper
    }
 
    @Override
-   public void setByte(final int index, final byte value)
-   {
+   public void setByte(final int index, final byte value) {
       changed();
 
       super.setByte(index, value);
    }
 
    @Override
-   public void setBytes(final int index, final byte[] src, final int srcIndex, final int length)
-   {
+   public void setBytes(final int index, final byte[] src, final int srcIndex, final int length) {
       changed();
 
       super.setBytes(index, src, srcIndex, length);
    }
 
    @Override
-   public void setBytes(final int index, final byte[] src)
-   {
+   public void setBytes(final int index, final byte[] src) {
       changed();
 
       super.setBytes(index, src);
    }
 
    @Override
-   public void setBytes(final int index, final ByteBuffer src)
-   {
+   public void setBytes(final int index, final ByteBuffer src) {
       changed();
 
       super.setBytes(index, src);
    }
 
    @Override
-   public void setBytes(final int index, final ActiveMQBuffer src, final int srcIndex, final int length)
-   {
+   public void setBytes(final int index, final ActiveMQBuffer src, final int srcIndex, final int length) {
       changed();
 
       super.setBytes(index, src, srcIndex, length);
    }
 
    @Override
-   public void setBytes(final int index, final ActiveMQBuffer src, final int length)
-   {
+   public void setBytes(final int index, final ActiveMQBuffer src, final int length) {
       changed();
 
       super.setBytes(index, src, length);
    }
 
    @Override
-   public void setBytes(final int index, final ActiveMQBuffer src)
-   {
+   public void setBytes(final int index, final ActiveMQBuffer src) {
       changed();
 
       super.setBytes(index, src);
    }
 
    @Override
-   public void setChar(final int index, final char value)
-   {
+   public void setChar(final int index, final char value) {
       changed();
 
       super.setChar(index, value);
    }
 
    @Override
-   public void setDouble(final int index, final double value)
-   {
+   public void setDouble(final int index, final double value) {
       changed();
 
       super.setDouble(index, value);
    }
 
    @Override
-   public void setFloat(final int index, final float value)
-   {
+   public void setFloat(final int index, final float value) {
       changed();
 
       super.setFloat(index, value);
    }
 
    @Override
-   public void setInt(final int index, final int value)
-   {
+   public void setInt(final int index, final int value) {
       changed();
 
       super.setInt(index, value);
    }
 
    @Override
-   public void setLong(final int index, final long value)
-   {
+   public void setLong(final int index, final long value) {
       changed();
 
       super.setLong(index, value);
    }
 
    @Override
-   public void setShort(final int index, final short value)
-   {
+   public void setShort(final int index, final short value) {
       changed();
 
       super.setShort(index, value);
    }
 
    @Override
-   public void writeBoolean(final boolean val)
-   {
+   public void writeBoolean(final boolean val) {
       changed();
 
       super.writeBoolean(val);
    }
 
    @Override
-   public void writeByte(final byte value)
-   {
+   public void writeByte(final byte value) {
       changed();
 
       super.writeByte(value);
    }
 
    @Override
-   public void writeBytes(final byte[] src, final int srcIndex, final int length)
-   {
+   public void writeBytes(final byte[] src, final int srcIndex, final int length) {
       changed();
 
       super.writeBytes(src, srcIndex, length);
    }
 
    @Override
-   public void writeBytes(final byte[] src)
-   {
+   public void writeBytes(final byte[] src) {
       changed();
 
       super.writeBytes(src);
    }
 
    @Override
-   public void writeBytes(final ByteBuffer src)
-   {
+   public void writeBytes(final ByteBuffer src) {
       changed();
 
       super.writeBytes(src);
    }
 
    @Override
-   public void writeBytes(final ActiveMQBuffer src, final int srcIndex, final int length)
-   {
+   public void writeBytes(final ActiveMQBuffer src, final int srcIndex, final int length) {
       changed();
 
       super.writeBytes(src, srcIndex, length);
    }
 
    @Override
-   public void writeBytes(final ActiveMQBuffer src, final int length)
-   {
+   public void writeBytes(final ActiveMQBuffer src, final int length) {
       changed();
 
       super.writeBytes(src, length);
    }
 
    @Override
-   public void writeChar(final char chr)
-   {
+   public void writeChar(final char chr) {
       changed();
 
       super.writeChar(chr);
    }
 
    @Override
-   public void writeDouble(final double value)
-   {
+   public void writeDouble(final double value) {
       changed();
 
       super.writeDouble(value);
    }
 
    @Override
-   public void writeFloat(final float value)
-   {
+   public void writeFloat(final float value) {
       changed();
 
       super.writeFloat(value);
    }
 
    @Override
-   public void writeInt(final int value)
-   {
+   public void writeInt(final int value) {
       changed();
 
       super.writeInt(value);
    }
 
    @Override
-   public void writeLong(final long value)
-   {
+   public void writeLong(final long value) {
       changed();
 
       super.writeLong(value);
    }
 
    @Override
-   public void writeNullableSimpleString(final SimpleString val)
-   {
+   public void writeNullableSimpleString(final SimpleString val) {
       changed();
 
       super.writeNullableSimpleString(val);
    }
 
    @Override
-   public void writeNullableString(final String val)
-   {
+   public void writeNullableString(final String val) {
       changed();
 
       super.writeNullableString(val);
    }
 
    @Override
-   public void writeShort(final short value)
-   {
+   public void writeShort(final short value) {
       changed();
 
       super.writeShort(value);
    }
 
    @Override
-   public void writeSimpleString(final SimpleString val)
-   {
+   public void writeSimpleString(final SimpleString val) {
       changed();
 
       super.writeSimpleString(val);
    }
 
    @Override
-   public void writeString(final String val)
-   {
+   public void writeString(final String val) {
       changed();
 
       super.writeString(val);
    }
 
    @Override
-   public void writeUTF(final String utf)
-   {
+   public void writeUTF(final String utf) {
       changed();
 
       super.writeUTF(utf);

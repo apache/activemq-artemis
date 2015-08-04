@@ -20,13 +20,13 @@ import java.util.Map;
 
 /**
  * A SensitiveDataCodec
- *
+ * <br>
  * This interface is used for implementing a value decoder.
- *
+ * <br>
  * It takes in a mask value and decode it.
  */
-public interface SensitiveDataCodec<T>
-{
+public interface SensitiveDataCodec<T> {
+
    T decode(Object mask) throws Exception;
 
    void init(Map<String, String> params);

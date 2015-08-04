@@ -23,57 +23,42 @@ import org.proton.plug.exceptions.ActiveMQAMQPIllegalStateException;
 import org.proton.plug.exceptions.ActiveMQAMQPTimeoutException;
 import org.proton.plug.util.FutureRunnable;
 
-public class ProtonInitializable
-{
+public class ProtonInitializable {
 
    private Runnable afterInit;
 
    private boolean initialized = false;
 
-   public void afterInit(Runnable afterInit)
-   {
+   public void afterInit(Runnable afterInit) {
       this.afterInit = afterInit;
    }
 
-
-   public boolean isInitialized()
-   {
+   public boolean isInitialized() {
       return initialized;
    }
 
-
-   public void initialise() throws Exception
-   {
-      if (!initialized)
-      {
+   public void initialise() throws Exception {
+      if (!initialized) {
          initialized = false;
-         try
-         {
-            if (afterInit != null)
-            {
+         try {
+            if (afterInit != null) {
                afterInit.run();
             }
          }
-         finally
-         {
+         finally {
             afterInit = null;
          }
       }
    }
 
-
-   public void waitWithTimeout(FutureRunnable latch) throws ActiveMQAMQPException
-   {
-      try
-      {
+   public void waitWithTimeout(FutureRunnable latch) throws ActiveMQAMQPException {
+      try {
          // TODO Configure this
-         if (!latch.await(30, TimeUnit.SECONDS))
-         {
+         if (!latch.await(30, TimeUnit.SECONDS)) {
             throw new ActiveMQAMQPTimeoutException("Timed out waiting for response");
          }
       }
-      catch (InterruptedException e)
-      {
+      catch (InterruptedException e) {
          Thread.currentThread().interrupt();
          throw new ActiveMQAMQPIllegalStateException(e.getMessage());
       }

@@ -45,26 +45,24 @@ import org.apache.activemq.artemis.utils.UUIDGenerator;
 /**
  * A simple JMS example showing how to administer un-finished transactions.
  */
-public class XAHeuristicExample
-{
+public class XAHeuristicExample {
+
    private static final String JMX_URL = "service:jmx:rmi:///jndi/rmi://localhost:3001/jmxrmi";
 
-   public static void main(final String[] args) throws Exception
-   {
+   public static void main(final String[] args) throws Exception {
       Boolean result = true;
       final ArrayList<String> receiveHolder = new ArrayList<String>();
       XAConnection connection = null;
       InitialContext initialContext = null;
-      try
-      {
+      try {
          // Step 1. Create an initial context to perform the JNDI lookup.
          initialContext = new InitialContext();
 
          // Step 2. Lookup on the queue
-         Queue queue = (Queue)initialContext.lookup("queue/exampleQueue");
+         Queue queue = (Queue) initialContext.lookup("queue/exampleQueue");
 
          // Step 3. Perform a lookup on the XA Connection Factory
-         XAConnectionFactory cf = (XAConnectionFactory)initialContext.lookup("XAConnectionFactory");
+         XAConnectionFactory cf = (XAConnectionFactory) initialContext.lookup("XAConnectionFactory");
 
          // Step 4.Create a JMS XAConnection
          connection = cf.createXAConnection();
@@ -93,9 +91,7 @@ public class XAHeuristicExample
          TextMessage worldMessage = session.createTextMessage("world");
 
          // Step 12. create a transaction
-         Xid xid1 = new DummyXid("xa-example1".getBytes(StandardCharsets.ISO_8859_1), 1, UUIDGenerator.getInstance()
-                 .generateStringUUID()
-                 .getBytes());
+         Xid xid1 = new DummyXid("xa-example1".getBytes(StandardCharsets.ISO_8859_1), 1, UUIDGenerator.getInstance().generateStringUUID().getBytes());
 
          // Step 13. Get the JMS XAResource
          XAResource xaRes = xaSession.getXAResource();
@@ -118,9 +114,7 @@ public class XAHeuristicExample
          checkNoMessageReceived(receiveHolder);
 
          // Step 19. Create another transaction.
-         Xid xid2 = new DummyXid("xa-example2".getBytes(), 1, UUIDGenerator.getInstance()
-                 .generateStringUUID()
-                 .getBytes());
+         Xid xid2 = new DummyXid("xa-example2".getBytes(), 1, UUIDGenerator.getInstance().generateStringUUID().getBytes());
 
          // Step 20. Begin the transaction work
          xaRes.start(xid2, XAResource.TMNOFLAGS);
@@ -147,25 +141,18 @@ public class XAHeuristicExample
 
          // Step 27. List the prepared transactions
          ObjectName serverObject = ObjectNameBuilder.DEFAULT.getActiveMQServerObjectName();
-         String[] infos = (String[])mbsc.invoke(serverObject, "listPreparedTransactions", null, null);
+         String[] infos = (String[]) mbsc.invoke(serverObject, "listPreparedTransactions", null, null);
 
          System.out.println("Prepared transactions: ");
-         for (String i : infos)
-         {
+         for (String i : infos) {
             System.out.println(i);
          }
 
          // Step 28. Roll back the first transaction
-         mbsc.invoke(serverObject,
-                     "rollbackPreparedTransaction",
-                     new String[] { DummyXid.toBase64String(xid1) },
-                     new String[] { "java.lang.String" });
+         mbsc.invoke(serverObject, "rollbackPreparedTransaction", new String[]{DummyXid.toBase64String(xid1)}, new String[]{"java.lang.String"});
 
          // Step 29. Commit the second one
-         mbsc.invoke(serverObject,
-                     "commitPreparedTransaction",
-                     new String[] { DummyXid.toBase64String(xid2) },
-                     new String[] { "java.lang.String" });
+         mbsc.invoke(serverObject, "commitPreparedTransaction", new String[]{DummyXid.toBase64String(xid2)}, new String[]{"java.lang.String"});
 
          Thread.sleep(2000);
 
@@ -173,70 +160,58 @@ public class XAHeuristicExample
          checkMessageReceived("world", receiveHolder);
 
          // Step 31. Check the prepared transaction again, should have none.
-         infos = (String[])mbsc.invoke(serverObject, "listPreparedTransactions", null, null);
+         infos = (String[]) mbsc.invoke(serverObject, "listPreparedTransactions", null, null);
          System.out.println("No. of prepared transactions now: " + infos.length);
 
          // Step 32. Close the JMX Connector
          connector.close();
       }
-      finally
-      {
+      finally {
          // Step 32. Be sure to close our JMS resources!
-         if (initialContext != null)
-         {
+         if (initialContext != null) {
             initialContext.close();
          }
-         if (connection != null)
-         {
+         if (connection != null) {
             connection.close();
          }
       }
    }
 
-   private static void checkMessageReceived(final String value, ArrayList<String> receiveHolder)
-   {
-      if (receiveHolder.size() != 1)
-      {
+   private static void checkMessageReceived(final String value, ArrayList<String> receiveHolder) {
+      if (receiveHolder.size() != 1) {
          throw new IllegalStateException("Number of messages received not correct ! -- " + receiveHolder.size());
       }
       String msg = receiveHolder.get(0);
-      if (!msg.equals(value))
-      {
+      if (!msg.equals(value)) {
          throw new IllegalStateException("Received message [" + msg + "], but we expect [" + value + "]");
       }
       receiveHolder.clear();
    }
 
-   private static void checkNoMessageReceived(ArrayList<String> receiveHolder)
-   {
-      if (receiveHolder.size() > 0)
-      {
+   private static void checkNoMessageReceived(ArrayList<String> receiveHolder) {
+      if (receiveHolder.size() > 0) {
          throw new IllegalStateException("Message received, wrong!");
       }
       receiveHolder.clear();
    }
 }
 
-class SimpleMessageListener implements MessageListener
-{
+class SimpleMessageListener implements MessageListener {
+
    ArrayList<String> receiveHolder;
    Boolean result;
 
-   SimpleMessageListener(ArrayList<String> receiveHolder, Boolean result)
-   {
+   SimpleMessageListener(ArrayList<String> receiveHolder, Boolean result) {
       this.receiveHolder = receiveHolder;
       this.result = result;
    }
 
-   public void onMessage(final Message message)
-   {
-      try
-      {
-         System.out.println("Message received: " + ((TextMessage)message).getText());
-         receiveHolder.add(((TextMessage)message).getText());
+   public void onMessage(final Message message) {
+      try {
+         System.out.println("Message received: " + ((TextMessage) message).getText());
+         receiveHolder.add(((TextMessage) message).getText());
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          result = false;
          e.printStackTrace();
       }

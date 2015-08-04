@@ -38,128 +38,131 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class AMQ4887Test {
-    private static final transient Logger LOG = LoggerFactory.getLogger(AMQ4887Test.class);
-    private static final Integer ITERATIONS = 10;
 
-    @Rule
-    public TestName name = new TestName();
+   private static final transient Logger LOG = LoggerFactory.getLogger(AMQ4887Test.class);
+   private static final Integer ITERATIONS = 10;
 
-    @Test
-    public void testBytesMessageSetPropertyBeforeCopy() throws Exception {
-        ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("vm://localhost");
-        ActiveMQConnection connection = (ActiveMQConnection) connectionFactory.createConnection();
-        connection.start();
-        doTestBytesMessageSetPropertyBeforeCopy(connection);
-    }
+   @Rule
+   public TestName name = new TestName();
 
-    @Test
-    public void testBytesMessageSetPropertyBeforeCopyCompressed() throws Exception {
-        ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("vm://localhost");
-        connectionFactory.setUseCompression(true);
-        ActiveMQConnection connection = (ActiveMQConnection) connectionFactory.createConnection();
-        connection.start();
-        doTestBytesMessageSetPropertyBeforeCopy(connection);
-    }
+   @Test
+   public void testBytesMessageSetPropertyBeforeCopy() throws Exception {
+      ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("vm://localhost");
+      ActiveMQConnection connection = (ActiveMQConnection) connectionFactory.createConnection();
+      connection.start();
+      doTestBytesMessageSetPropertyBeforeCopy(connection);
+   }
 
-    public void doTestBytesMessageSetPropertyBeforeCopy(Connection connection) throws Exception {
+   @Test
+   public void testBytesMessageSetPropertyBeforeCopyCompressed() throws Exception {
+      ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("vm://localhost");
+      connectionFactory.setUseCompression(true);
+      ActiveMQConnection connection = (ActiveMQConnection) connectionFactory.createConnection();
+      connection.start();
+      doTestBytesMessageSetPropertyBeforeCopy(connection);
+   }
 
-        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        Destination destination = session.createQueue(name.toString());
-        MessageConsumer consumer = session.createConsumer(destination);
-        MessageProducer producer = session.createProducer(destination);
+   public void doTestBytesMessageSetPropertyBeforeCopy(Connection connection) throws Exception {
 
-        BytesMessage message = session.createBytesMessage();
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      Destination destination = session.createQueue(name.toString());
+      MessageConsumer consumer = session.createConsumer(destination);
+      MessageProducer producer = session.createProducer(destination);
 
-        for (int i=0; i < ITERATIONS; i++) {
+      BytesMessage message = session.createBytesMessage();
 
-            long sendTime = System.currentTimeMillis();
-            message.setLongProperty("sendTime", sendTime);
-            producer.send(message);
+      for (int i = 0; i < ITERATIONS; i++) {
 
-            LOG.debug("Receiving message " + i);
-            Message receivedMessage =  consumer.receive(5000);
-            assertNotNull("On message " + i, receivedMessage);
-            assertTrue("On message " + i, receivedMessage instanceof BytesMessage);
+         long sendTime = System.currentTimeMillis();
+         message.setLongProperty("sendTime", sendTime);
+         producer.send(message);
 
-            BytesMessage receivedBytesMessage = (BytesMessage) receivedMessage;
+         LOG.debug("Receiving message " + i);
+         Message receivedMessage = consumer.receive(5000);
+         assertNotNull("On message " + i, receivedMessage);
+         assertTrue("On message " + i, receivedMessage instanceof BytesMessage);
 
-            int numElements = 0;
-            try {
-                while (true) {
-                    receivedBytesMessage.readBoolean();
-                    numElements++;
-                }
-            } catch (Exception ex) {
+         BytesMessage receivedBytesMessage = (BytesMessage) receivedMessage;
+
+         int numElements = 0;
+         try {
+            while (true) {
+               receivedBytesMessage.readBoolean();
+               numElements++;
             }
+         }
+         catch (Exception ex) {
+         }
 
-            LOG.info("Iteration [{}]: Received Message contained {} boolean values.", i, numElements);
-            assertEquals(i, numElements);
+         LOG.info("Iteration [{}]: Received Message contained {} boolean values.", i, numElements);
+         assertEquals(i, numElements);
 
-            long receivedSendTime = receivedBytesMessage.getLongProperty("sendTime");
-            assertEquals("On message " + i, receivedSendTime, sendTime);
+         long receivedSendTime = receivedBytesMessage.getLongProperty("sendTime");
+         assertEquals("On message " + i, receivedSendTime, sendTime);
 
-            // Add a new bool value on each iteration.
-            message.writeBoolean(true);
-        }
-    }
+         // Add a new bool value on each iteration.
+         message.writeBoolean(true);
+      }
+   }
 
-    @Test
-    public void testStreamMessageSetPropertyBeforeCopy() throws Exception {
-        ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("vm://localhost");
-        ActiveMQConnection connection = (ActiveMQConnection) connectionFactory.createConnection();
-        connection.start();
-        doTestStreamMessageSetPropertyBeforeCopy(connection);
-    }
+   @Test
+   public void testStreamMessageSetPropertyBeforeCopy() throws Exception {
+      ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("vm://localhost");
+      ActiveMQConnection connection = (ActiveMQConnection) connectionFactory.createConnection();
+      connection.start();
+      doTestStreamMessageSetPropertyBeforeCopy(connection);
+   }
 
-    @Test
-    public void testStreamMessageSetPropertyBeforeCopyCompressed() throws Exception {
-        ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("vm://localhost");
-        connectionFactory.setUseCompression(true);
-        ActiveMQConnection connection = (ActiveMQConnection) connectionFactory.createConnection();
-        connection.start();
-        doTestStreamMessageSetPropertyBeforeCopy(connection);
-    }
+   @Test
+   public void testStreamMessageSetPropertyBeforeCopyCompressed() throws Exception {
+      ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("vm://localhost");
+      connectionFactory.setUseCompression(true);
+      ActiveMQConnection connection = (ActiveMQConnection) connectionFactory.createConnection();
+      connection.start();
+      doTestStreamMessageSetPropertyBeforeCopy(connection);
+   }
 
-    public void doTestStreamMessageSetPropertyBeforeCopy(Connection connection) throws Exception {
+   public void doTestStreamMessageSetPropertyBeforeCopy(Connection connection) throws Exception {
 
-        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        Destination destination = session.createQueue(name.toString());
-        MessageConsumer consumer = session.createConsumer(destination);
-        MessageProducer producer = session.createProducer(destination);
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      Destination destination = session.createQueue(name.toString());
+      MessageConsumer consumer = session.createConsumer(destination);
+      MessageProducer producer = session.createProducer(destination);
 
-        StreamMessage message = session.createStreamMessage();
+      StreamMessage message = session.createStreamMessage();
 
-        for (int i=0; i < ITERATIONS; i++) {
+      for (int i = 0; i < ITERATIONS; i++) {
 
-            long sendTime = System.currentTimeMillis();
-            message.setLongProperty("sendTime", sendTime);
-            producer.send(message);
+         long sendTime = System.currentTimeMillis();
+         message.setLongProperty("sendTime", sendTime);
+         producer.send(message);
 
-            LOG.debug("Receiving message " + i);
-            Message receivedMessage =  consumer.receive(5000);
-            assertNotNull("On message " + i, receivedMessage);
-            assertTrue("On message " + i, receivedMessage instanceof StreamMessage);
+         LOG.debug("Receiving message " + i);
+         Message receivedMessage = consumer.receive(5000);
+         assertNotNull("On message " + i, receivedMessage);
+         assertTrue("On message " + i, receivedMessage instanceof StreamMessage);
 
-            StreamMessage receivedStreamMessage = (StreamMessage) receivedMessage;
+         StreamMessage receivedStreamMessage = (StreamMessage) receivedMessage;
 
-            int numElements = 0;
-            try {
-                while (true) {
-                    receivedStreamMessage.readBoolean();
-                    numElements++;
-                }
-            } catch (Exception ex) {
+         int numElements = 0;
+         try {
+            while (true) {
+               receivedStreamMessage.readBoolean();
+               numElements++;
             }
+         }
+         catch (Exception ex) {
+         }
 
-            LOG.info("Iteration [{}]: Received Message contained {} boolean values.", i, numElements);
-            assertEquals(i, numElements);
+         LOG.info("Iteration [{}]: Received Message contained {} boolean values.", i, numElements);
+         assertEquals(i, numElements);
 
-            long receivedSendTime = receivedStreamMessage.getLongProperty("sendTime");
-            assertEquals("On message " + i, receivedSendTime, sendTime);
+         long receivedSendTime = receivedStreamMessage.getLongProperty("sendTime");
+         assertEquals("On message " + i, receivedSendTime, sendTime);
 
-            // Add a new bool value on each iteration.
-            message.writeBoolean(true);
-        }
-    }
+         // Add a new bool value on each iteration.
+         message.writeBoolean(true);
+      }
+   }
 
 }

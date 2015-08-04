@@ -47,190 +47,158 @@ import static org.apache.activemq.artemis.reader.BytesMessageUtil.bytesWriteObje
 import static org.apache.activemq.artemis.reader.BytesMessageUtil.bytesWriteShort;
 import static org.apache.activemq.artemis.reader.BytesMessageUtil.bytesWriteUTF;
 
-public class ServerJMSBytesMessage extends ServerJMSMessage implements BytesMessage
-{
-   public ServerJMSBytesMessage(MessageInternal message, int deliveryCount)
-   {
+public class ServerJMSBytesMessage extends ServerJMSMessage implements BytesMessage {
+
+   public ServerJMSBytesMessage(MessageInternal message, int deliveryCount) {
       super(message, deliveryCount);
    }
 
    @Override
-   public long getBodyLength() throws JMSException
-   {
+   public long getBodyLength() throws JMSException {
       return message.getEndOfBodyPosition() - MessageImpl.BODY_OFFSET;
    }
 
    @Override
-   public boolean readBoolean() throws JMSException
-   {
+   public boolean readBoolean() throws JMSException {
       return bytesReadBoolean(message);
    }
 
    @Override
-   public byte readByte() throws JMSException
-   {
+   public byte readByte() throws JMSException {
       return bytesReadByte(message);
    }
 
    @Override
-   public int readUnsignedByte() throws JMSException
-   {
+   public int readUnsignedByte() throws JMSException {
       return bytesReadUnsignedByte(message);
    }
 
    @Override
-   public short readShort() throws JMSException
-   {
+   public short readShort() throws JMSException {
       return bytesReadShort(message);
    }
 
    @Override
-   public int readUnsignedShort() throws JMSException
-   {
+   public int readUnsignedShort() throws JMSException {
       return bytesReadUnsignedShort(message);
    }
 
    @Override
-   public char readChar() throws JMSException
-   {
+   public char readChar() throws JMSException {
       return bytesReadChar(message);
    }
 
    @Override
-   public int readInt() throws JMSException
-   {
+   public int readInt() throws JMSException {
       return bytesReadInt(message);
    }
 
    @Override
-   public long readLong() throws JMSException
-   {
+   public long readLong() throws JMSException {
       return bytesReadLong(message);
    }
 
    @Override
-   public float readFloat() throws JMSException
-   {
+   public float readFloat() throws JMSException {
       return bytesReadFloat(message);
    }
 
    @Override
-   public double readDouble() throws JMSException
-   {
+   public double readDouble() throws JMSException {
       return bytesReadDouble(message);
    }
 
    @Override
-   public String readUTF() throws JMSException
-   {
+   public String readUTF() throws JMSException {
       return bytesReadUTF(message);
    }
 
    @Override
-   public int readBytes(byte[] value) throws JMSException
-   {
+   public int readBytes(byte[] value) throws JMSException {
       return bytesReadBytes(message, value);
    }
 
    @Override
-   public int readBytes(byte[] value, int length) throws JMSException
-   {
+   public int readBytes(byte[] value, int length) throws JMSException {
       return bytesReadBytes(message, value, length);
    }
 
    @Override
-   public void writeBoolean(boolean value) throws JMSException
-   {
+   public void writeBoolean(boolean value) throws JMSException {
       bytesWriteBoolean(message, value);
 
    }
 
    @Override
-   public void writeByte(byte value) throws JMSException
-   {
+   public void writeByte(byte value) throws JMSException {
       bytesWriteByte(message, value);
    }
 
    @Override
-   public void writeShort(short value) throws JMSException
-   {
+   public void writeShort(short value) throws JMSException {
       bytesWriteShort(message, value);
    }
 
    @Override
-   public void writeChar(char value) throws JMSException
-   {
+   public void writeChar(char value) throws JMSException {
       bytesWriteChar(message, value);
    }
 
    @Override
-   public void writeInt(int value) throws JMSException
-   {
+   public void writeInt(int value) throws JMSException {
       bytesWriteInt(message, value);
    }
 
    @Override
-   public void writeLong(long value) throws JMSException
-   {
+   public void writeLong(long value) throws JMSException {
       bytesWriteLong(message, value);
    }
 
    @Override
-   public void writeFloat(float value) throws JMSException
-   {
+   public void writeFloat(float value) throws JMSException {
       bytesWriteFloat(message, value);
    }
 
    @Override
-   public void writeDouble(double value) throws JMSException
-   {
+   public void writeDouble(double value) throws JMSException {
       bytesWriteDouble(message, value);
    }
 
    @Override
-   public void writeUTF(String value) throws JMSException
-   {
+   public void writeUTF(String value) throws JMSException {
       bytesWriteUTF(message, value);
    }
 
    @Override
-   public void writeBytes(byte[] value) throws JMSException
-   {
+   public void writeBytes(byte[] value) throws JMSException {
       bytesWriteBytes(message, value);
    }
 
    @Override
-   public void writeBytes(byte[] value, int offset, int length) throws JMSException
-   {
+   public void writeBytes(byte[] value, int offset, int length) throws JMSException {
       bytesWriteBytes(message, value, offset, length);
    }
 
    @Override
-   public void writeObject(Object value) throws JMSException
-   {
-      if (!bytesWriteObject(message, value))
-      {
+   public void writeObject(Object value) throws JMSException {
+      if (!bytesWriteObject(message, value)) {
          throw new JMSException("Can't make conversion of " + value + " to any known type");
       }
    }
 
-   public void encode() throws Exception
-   {
+   public void encode() throws Exception {
       super.encode();
       // this is to make sure we encode the body-length before it's persisted
       getBodyLength();
    }
 
-
-   public void decode() throws Exception
-   {
+   public void decode() throws Exception {
       super.decode();
 
    }
 
    @Override
-   public void reset() throws JMSException
-   {
+   public void reset() throws JMSException {
       bytesMessageReset(message);
    }
 

@@ -23,8 +23,8 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 
-public interface TestableServer extends ActiveMQComponent
-{
+public interface TestableServer extends ActiveMQComponent {
+
    ActiveMQServer getServer();
 
    void stop() throws Exception;

@@ -41,121 +41,122 @@ import org.slf4j.LoggerFactory;
 
 public class AMQ3675Test {
 
-    private static Logger LOG = LoggerFactory.getLogger(AMQ3675Test.class);
+   private static Logger LOG = LoggerFactory.getLogger(AMQ3675Test.class);
 
-    private final static int deliveryMode = DeliveryMode.NON_PERSISTENT;
-    private final static ActiveMQTopic destination = new ActiveMQTopic("XYZ");
+   private final static int deliveryMode = DeliveryMode.NON_PERSISTENT;
+   private final static ActiveMQTopic destination = new ActiveMQTopic("XYZ");
 
-    private ActiveMQConnectionFactory factory;
-    private BrokerService broker;
+   private ActiveMQConnectionFactory factory;
+   private BrokerService broker;
 
-    public TopicViewMBean getTopicView() throws Exception {
-        ObjectName destinationName = broker.getAdminView().getTopics()[0];
-        TopicViewMBean topicView = (TopicViewMBean) broker.getManagementContext().newProxyInstance(destinationName, TopicViewMBean.class, true);
-        return topicView;
-    }
+   public TopicViewMBean getTopicView() throws Exception {
+      ObjectName destinationName = broker.getAdminView().getTopics()[0];
+      TopicViewMBean topicView = (TopicViewMBean) broker.getManagementContext().newProxyInstance(destinationName, TopicViewMBean.class, true);
+      return topicView;
+   }
 
-    @Test
-    public void countConsumers() throws Exception {
+   @Test
+   public void countConsumers() throws Exception {
 
-        final Connection producerConnection = factory.createConnection();
-        producerConnection.start();
-        final Connection consumerConnection = factory.createConnection();
+      final Connection producerConnection = factory.createConnection();
+      producerConnection.start();
+      final Connection consumerConnection = factory.createConnection();
 
-        consumerConnection.setClientID("subscriber1");
-        Session consumerMQSession = consumerConnection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
-        TopicSubscriber consumer = consumerMQSession.createDurableSubscriber(destination, "myTopic");
-        consumerConnection.start();
+      consumerConnection.setClientID("subscriber1");
+      Session consumerMQSession = consumerConnection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
+      TopicSubscriber consumer = consumerMQSession.createDurableSubscriber(destination, "myTopic");
+      consumerConnection.start();
 
-        Session session = producerConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        MessageProducer producer = session.createProducer(destination);
-        producer.setDeliveryMode(deliveryMode);
+      Session session = producerConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      MessageProducer producer = session.createProducer(destination);
+      producer.setDeliveryMode(deliveryMode);
 
-        final BrokerView brokerView = broker.getAdminView();
-        final TopicViewMBean topicView = getTopicView();
+      final BrokerView brokerView = broker.getAdminView();
+      final TopicViewMBean topicView = getTopicView();
 
-        assertTrue("Should have one consumer on topic: ", Wait.waitFor(new Wait.Condition() {
-            @Override
-            public boolean isSatisified() throws Exception {
-                return topicView.getConsumerCount() == 1;
-            }
-        }));
+      assertTrue("Should have one consumer on topic: ", Wait.waitFor(new Wait.Condition() {
+         @Override
+         public boolean isSatisified() throws Exception {
+            return topicView.getConsumerCount() == 1;
+         }
+      }));
 
-        consumer.close();
+      consumer.close();
 
-        assertTrue("Durable consumer should now be inactive.", Wait.waitFor(new Wait.Condition() {
-            @Override
-            public boolean isSatisified() throws Exception {
-                return brokerView.getInactiveDurableTopicSubscribers().length == 1;
-            }
-        }));
+      assertTrue("Durable consumer should now be inactive.", Wait.waitFor(new Wait.Condition() {
+         @Override
+         public boolean isSatisified() throws Exception {
+            return brokerView.getInactiveDurableTopicSubscribers().length == 1;
+         }
+      }));
 
-        try {
-            brokerView.removeTopic(destination.getTopicName());
-        } catch (Exception e1) {
-            fail("Unable to remove destination:" + destination.getPhysicalName());
-        }
+      try {
+         brokerView.removeTopic(destination.getTopicName());
+      }
+      catch (Exception e1) {
+         fail("Unable to remove destination:" + destination.getPhysicalName());
+      }
 
-        assertTrue("Should have no topics on the broker", Wait.waitFor(new Wait.Condition() {
-            @Override
-            public boolean isSatisified() throws Exception {
-                return brokerView.getTopics().length == 0;
-            }
-        }));
+      assertTrue("Should have no topics on the broker", Wait.waitFor(new Wait.Condition() {
+         @Override
+         public boolean isSatisified() throws Exception {
+            return brokerView.getTopics().length == 0;
+         }
+      }));
 
-        try {
-            brokerView.destroyDurableSubscriber("subscriber1", "myTopic");
-        } catch(Exception e) {
-            fail("Exception not expected when attempting to delete Durable consumer.");
-        }
+      try {
+         brokerView.destroyDurableSubscriber("subscriber1", "myTopic");
+      }
+      catch (Exception e) {
+         fail("Exception not expected when attempting to delete Durable consumer.");
+      }
 
-        assertTrue("Should be no durable consumers active or inactive.", Wait.waitFor(new Wait.Condition() {
-            @Override
-            public boolean isSatisified() throws Exception {
-                return brokerView.getInactiveDurableTopicSubscribers().length == 0 &&
-                       brokerView.getDurableTopicSubscribers().length == 0;
-            }
-        }));
+      assertTrue("Should be no durable consumers active or inactive.", Wait.waitFor(new Wait.Condition() {
+         @Override
+         public boolean isSatisified() throws Exception {
+            return brokerView.getInactiveDurableTopicSubscribers().length == 0 && brokerView.getDurableTopicSubscribers().length == 0;
+         }
+      }));
 
-        consumer = consumerMQSession.createDurableSubscriber(destination, "myTopic");
+      consumer = consumerMQSession.createDurableSubscriber(destination, "myTopic");
 
-        consumer.close();
+      consumer.close();
 
-        assertTrue("Should be one consumer on the Topic.", Wait.waitFor(new Wait.Condition() {
-            @Override
-            public boolean isSatisified() throws Exception {
-                LOG.info("Number of inactive consumers: " + brokerView.getInactiveDurableTopicSubscribers().length);
-                return brokerView.getInactiveDurableTopicSubscribers().length == 1;
-            }
-        }));
+      assertTrue("Should be one consumer on the Topic.", Wait.waitFor(new Wait.Condition() {
+         @Override
+         public boolean isSatisified() throws Exception {
+            LOG.info("Number of inactive consumers: " + brokerView.getInactiveDurableTopicSubscribers().length);
+            return brokerView.getInactiveDurableTopicSubscribers().length == 1;
+         }
+      }));
 
-        final TopicViewMBean recreatedTopicView = getTopicView();
+      final TopicViewMBean recreatedTopicView = getTopicView();
 
-        assertTrue("Should have one consumer on topic: ", Wait.waitFor(new Wait.Condition() {
-            @Override
-            public boolean isSatisified() throws Exception {
-                return recreatedTopicView.getConsumerCount() == 1;
-            }
-        }));
-    }
+      assertTrue("Should have one consumer on topic: ", Wait.waitFor(new Wait.Condition() {
+         @Override
+         public boolean isSatisified() throws Exception {
+            return recreatedTopicView.getConsumerCount() == 1;
+         }
+      }));
+   }
 
-    @Before
-    public void setUp() throws Exception {
-        broker = new BrokerService();
-        broker.setPersistent(false);
-        broker.setUseJmx(true);
-        broker.setAdvisorySupport(false);
-        broker.setDeleteAllMessagesOnStartup(true);
-        TransportConnector connector = broker.addConnector("tcp://localhost:0");
-        broker.start();
+   @Before
+   public void setUp() throws Exception {
+      broker = new BrokerService();
+      broker.setPersistent(false);
+      broker.setUseJmx(true);
+      broker.setAdvisorySupport(false);
+      broker.setDeleteAllMessagesOnStartup(true);
+      TransportConnector connector = broker.addConnector("tcp://localhost:0");
+      broker.start();
 
-        factory = new ActiveMQConnectionFactory(connector.getPublishableConnectString());
-        factory.setAlwaysSyncSend(true);
-        factory.setDispatchAsync(false);
-    }
+      factory = new ActiveMQConnectionFactory(connector.getPublishableConnectString());
+      factory.setAlwaysSyncSend(true);
+      factory.setDispatchAsync(false);
+   }
 
-    @After
-    public void tearDown() throws Exception {
-        broker.stop();
-    }
+   @After
+   public void tearDown() throws Exception {
+      broker.stop();
+   }
 }

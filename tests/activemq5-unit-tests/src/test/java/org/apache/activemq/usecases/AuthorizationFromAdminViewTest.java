@@ -25,41 +25,41 @@ import org.apache.activemq.security.SimpleAuthorizationMap;
 
 public class AuthorizationFromAdminViewTest extends org.apache.activemq.TestSupport {
 
-    private BrokerService broker;
+   private BrokerService broker;
 
-    protected ActiveMQConnectionFactory createConnectionFactory() throws Exception {
-        return new ActiveMQConnectionFactory("vm://" + getName());
-    }
+   protected ActiveMQConnectionFactory createConnectionFactory() throws Exception {
+      return new ActiveMQConnectionFactory("vm://" + getName());
+   }
 
-    protected void setUp() throws Exception {
-        createBroker();
-        super.setUp();
-    }
+   protected void setUp() throws Exception {
+      createBroker();
+      super.setUp();
+   }
 
-    protected void tearDown() throws Exception {
-        super.tearDown();
-        destroyBroker();
-    }
+   protected void tearDown() throws Exception {
+      super.tearDown();
+      destroyBroker();
+   }
 
-    private void createBroker() throws Exception {
-        broker = BrokerFactory.createBroker("broker:(vm://localhost)");
-        broker.setPersistent(false);
-        broker.setBrokerName(getName());
+   private void createBroker() throws Exception {
+      broker = BrokerFactory.createBroker("broker:(vm://localhost)");
+      broker.setPersistent(false);
+      broker.setBrokerName(getName());
 
-        AuthorizationPlugin plugin = new AuthorizationPlugin();
-        plugin.setMap(new SimpleAuthorizationMap());
-        BrokerPlugin[] plugins = new BrokerPlugin[] {plugin};
-        broker.setPlugins(plugins);
+      AuthorizationPlugin plugin = new AuthorizationPlugin();
+      plugin.setMap(new SimpleAuthorizationMap());
+      BrokerPlugin[] plugins = new BrokerPlugin[]{plugin};
+      broker.setPlugins(plugins);
 
-        broker.start();
-    }
+      broker.start();
+   }
 
-    private void destroyBroker() throws Exception {
-        if (broker != null)
-            broker.stop();
-    }
+   private void destroyBroker() throws Exception {
+      if (broker != null)
+         broker.stop();
+   }
 
-    public void testAuthorizationFromAdminView() throws Exception {
-        broker.getAdminView().addQueue(getDestinationString());
-    }
+   public void testAuthorizationFromAdminView() throws Exception {
+      broker.getAdminView().addQueue(getDestinationString());
+   }
 }

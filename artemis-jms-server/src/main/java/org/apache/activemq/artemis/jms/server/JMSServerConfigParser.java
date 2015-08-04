@@ -23,8 +23,8 @@ import org.apache.activemq.artemis.jms.server.config.JMSQueueConfiguration;
 import org.apache.activemq.artemis.jms.server.config.TopicConfiguration;
 import org.w3c.dom.Node;
 
-public interface JMSServerConfigParser
-{
+public interface JMSServerConfigParser {
+
    /**
     * Parse the JMS Configuration XML as a JMSConfiguration object
     */
@@ -37,6 +37,7 @@ public interface JMSServerConfigParser
 
    /**
     * Parse the topic node as a TopicConfiguration object
+    *
     * @param node
     * @return {@link TopicConfiguration} parsed from the node
     * @throws Exception
@@ -45,6 +46,7 @@ public interface JMSServerConfigParser
 
    /**
     * Parse the Queue Configuration node as a QueueConfiguration object
+    *
     * @param node
     * @return {@link JMSQueueConfiguration} parsed from the node
     * @throws Exception

@@ -20,15 +20,14 @@ import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 
-
 /**
  * A ClientSessionFactory is the entry point to create and configure ActiveMQ Artemis resources to produce and consume messages.
  * <br>
  * It is possible to configure a factory using the setter methods only if no session has been created.
  * Once a session is created, the configuration is fixed and any call to a setter method will throw an IllegalStateException.
  */
-public interface ClientSessionFactory extends AutoCloseable
-{
+public interface ClientSessionFactory extends AutoCloseable {
+
    /**
     * Creates a session with XA transaction semantics.
     *
@@ -39,7 +38,7 @@ public interface ClientSessionFactory extends AutoCloseable
 
    /**
     * Creates a <em>transacted</em> session.
-    * <p>
+    * <br>
     * It is up to the client to commit when sending and acknowledging messages.
     *
     * @return a transacted ClientSession
@@ -47,7 +46,6 @@ public interface ClientSessionFactory extends AutoCloseable
     * @see ClientSession#commit()
     */
    ClientSession createTransactedSession() throws ActiveMQException;
-
 
    /**
     * Creates a <em>non-transacted</em> session.
@@ -79,7 +77,9 @@ public interface ClientSessionFactory extends AutoCloseable
     * @return a ClientSession
     * @throws ActiveMQException if an exception occurs while creating the session
     */
-   ClientSession createSession(boolean autoCommitSends, boolean autoCommitAcks, int ackBatchSize) throws ActiveMQException;
+   ClientSession createSession(boolean autoCommitSends,
+                               boolean autoCommitAcks,
+                               int ackBatchSize) throws ActiveMQException;
 
    /**
     * Creates a session.
@@ -94,7 +94,7 @@ public interface ClientSessionFactory extends AutoCloseable
 
    /**
     * Creates a session.
-    * <p>
+    * <br>
     * It is possible to <em>pre-acknowledge messages on the server</em> so that the client can avoid additional network trip
     * to the server to acknowledge messages. While this increase performance, this does not guarantee delivery (as messages
     * can be lost after being pre-acknowledged on the server). Use with caution if your application design permits it.
@@ -106,11 +106,14 @@ public interface ClientSessionFactory extends AutoCloseable
     * @return a ClientSession
     * @throws ActiveMQException if an exception occurs while creating the session
     */
-   ClientSession createSession(boolean xa, boolean autoCommitSends, boolean autoCommitAcks, boolean preAcknowledge) throws ActiveMQException;
+   ClientSession createSession(boolean xa,
+                               boolean autoCommitSends,
+                               boolean autoCommitAcks,
+                               boolean preAcknowledge) throws ActiveMQException;
 
    /**
     * Creates an <em>authenticated</em> session.
-    * <p>
+    * <br>
     * It is possible to <em>pre-acknowledge messages on the server</em> so that the client can avoid additional network trip
     * to the server to acknowledge messages. While this increase performance, this does not guarantee delivery (as messages
     * can be lost after being pre-acknowledged on the server). Use with caution if your application design permits it.
@@ -175,9 +178,9 @@ public interface ClientSessionFactory extends AutoCloseable
     */
    RemotingConnection getConnection();
 
-
    /**
     * Return the configuration used
+    *
     * @return
     */
    TransportConfiguration getConnectorConfiguration();

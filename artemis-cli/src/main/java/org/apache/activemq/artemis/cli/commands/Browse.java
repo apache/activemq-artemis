@@ -28,14 +28,13 @@ import javax.jms.Destination;
 import javax.jms.Session;
 
 @Command(name = "browser", description = "It will send consume messages from an instance")
-public class Browse extends DestAbstract
-{
+public class Browse extends DestAbstract {
+
    @Option(name = "--filter", description = "filter to be used with the consumer")
    String filter;
 
    @Override
-   public Object execute(ActionContext context) throws Exception
-   {
+   public Object execute(ActionContext context) throws Exception {
       super.execute(context);
 
       System.out.println("Consumer:: filter = " + filter);
@@ -43,18 +42,14 @@ public class Browse extends DestAbstract
       ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(brokerURL, user, password);
 
       Destination dest = ActiveMQDestination.createDestination(this.destination, ActiveMQDestination.QUEUE_TYPE);
-      try (Connection connection = factory.createConnection())
-      {
+      try (Connection connection = factory.createConnection()) {
          ConsumerThread[] threadsArray = new ConsumerThread[threads];
-         for (int i = 0; i < threads; i++)
-         {
+         for (int i = 0; i < threads; i++) {
             Session session;
-            if (txBatchSize > 0)
-            {
+            if (txBatchSize > 0) {
                session = connection.createSession(true, Session.SESSION_TRANSACTED);
             }
-            else
-            {
+            else {
                session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
             }
             threadsArray[i] = new ConsumerThread(session, dest, i);
@@ -62,8 +57,7 @@ public class Browse extends DestAbstract
             threadsArray[i].setVerbose(verbose).setSleep(sleep).setMessageCount(messageCount).setFilter(filter).setBrowse(true);
          }
 
-         for (ConsumerThread thread : threadsArray)
-         {
+         for (ConsumerThread thread : threadsArray) {
             thread.start();
          }
 
@@ -71,8 +65,7 @@ public class Browse extends DestAbstract
 
          int received = 0;
 
-         for (ConsumerThread thread : threadsArray)
-         {
+         for (ConsumerThread thread : threadsArray) {
             thread.join();
             received += thread.getReceived();
          }

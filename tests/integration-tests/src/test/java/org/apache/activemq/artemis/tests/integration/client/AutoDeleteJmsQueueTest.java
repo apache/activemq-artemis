@@ -30,11 +30,10 @@ import org.apache.activemq.artemis.core.server.Queue;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class AutoDeleteJmsQueueTest extends JMSTestBase
-{
+public class AutoDeleteJmsQueueTest extends JMSTestBase {
+
    @Test
-   public void testAutoDelete() throws Exception
-   {
+   public void testAutoDelete() throws Exception {
       Connection connection = cf.createConnection();
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
@@ -44,8 +43,7 @@ public class AutoDeleteJmsQueueTest extends JMSTestBase
 
       final int numMessages = 100;
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          TextMessage mess = session.createTextMessage("msg" + i);
          producer.send(mess);
       }
@@ -55,8 +53,7 @@ public class AutoDeleteJmsQueueTest extends JMSTestBase
       MessageConsumer messageConsumer = session.createConsumer(queue);
       connection.start();
 
-      for (int i = 0; i < numMessages - 1; i++)
-      {
+      for (int i = 0; i < numMessages - 1; i++) {
          Message m = messageConsumer.receive(5000);
          Assert.assertNotNull(m);
       }

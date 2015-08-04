@@ -32,10 +32,9 @@ import java.util.Hashtable;
  * A simple example that demonstrates server side load-balancing of messages between the queue instances on different
  * nodes of the cluster. The cluster is created from a static list of nodes.
  */
-public class StaticClusteredQueueExample
-{
-   public static void main(final String[] args) throws Exception
-   {
+public class StaticClusteredQueueExample {
+
+   public static void main(final String[] args) throws Exception {
       Connection initialConnection = null;
 
       Connection connection0 = null;
@@ -48,8 +47,7 @@ public class StaticClusteredQueueExample
 
       InitialContext ic0 = null;
 
-      try
-      {
+      try {
          // Step 1. Get an initial context for looking up JNDI from server 3
          Hashtable<String, Object> properties = new Hashtable<String, Object>();
          properties.put("java.naming.factory.initial", "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
@@ -58,10 +56,10 @@ public class StaticClusteredQueueExample
          ic0 = new InitialContext(properties);
 
          // Step 2. Look-up the JMS Queue object from JNDI
-         Queue queue = (Queue)ic0.lookup("queue/exampleQueue");
+         Queue queue = (Queue) ic0.lookup("queue/exampleQueue");
 
          // Step 3. Look-up a JMS Connection Factory object from JNDI on server 0
-         ConnectionFactory cf0 = (ConnectionFactory)ic0.lookup("ConnectionFactory");
+         ConnectionFactory cf0 = (ConnectionFactory) ic0.lookup("ConnectionFactory");
 
          //grab an initial connection and wait, in reality you wouldn't do it this way but since we want to ensure an
          // equal load balance we do this and then create 4 connections round robined
@@ -85,7 +83,6 @@ public class StaticClusteredQueueExample
 
          // Step 9. We create a JMS Session on server 1
          Session session1 = connection1.createSession(false, Session.AUTO_ACKNOWLEDGE);
-
 
          // Step 8. We create a JMS Session on server 0
          Session session2 = connection2.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -120,8 +117,7 @@ public class StaticClusteredQueueExample
 
          final int numMessages = 20;
 
-         for (int i = 0; i < numMessages; i++)
-         {
+         for (int i = 0; i < numMessages; i++) {
             TextMessage message = session0.createTextMessage("This is text message " + i);
 
             producer.send(message);
@@ -138,60 +134,51 @@ public class StaticClusteredQueueExample
          int con2Node = ServerUtil.getServer(connection2);
          int con3Node = ServerUtil.getServer(connection3);
 
-         if(con0Node + con1Node + con2Node + con3Node != 6)
-         {
+         if (con0Node + con1Node + con2Node + con3Node != 6) {
             throw new IllegalStateException();
          }
-         for (int i = 0; i < numMessages; i += 4)
-         {
-            TextMessage message0 = (TextMessage)consumer0.receive(5000);
+         for (int i = 0; i < numMessages; i += 4) {
+            TextMessage message0 = (TextMessage) consumer0.receive(5000);
 
             System.out.println("Got message: " + message0.getText() + " from node " + con0Node);
 
-            TextMessage message1 = (TextMessage)consumer1.receive(5000);
+            TextMessage message1 = (TextMessage) consumer1.receive(5000);
 
             System.out.println("Got message: " + message1.getText() + " from node " + con1Node);
 
-            TextMessage message2 = (TextMessage)consumer2.receive(5000);
+            TextMessage message2 = (TextMessage) consumer2.receive(5000);
 
             System.out.println("Got message: " + message2.getText() + " from node " + con2Node);
 
-            TextMessage message3 = (TextMessage)consumer3.receive(5000);
+            TextMessage message3 = (TextMessage) consumer3.receive(5000);
 
             System.out.println("Got message: " + message3.getText() + " from node " + con3Node);
          }
       }
-      finally
-      {
+      finally {
          // Step 15. Be sure to close our resources!
 
-         if (initialConnection != null)
-         {
+         if (initialConnection != null) {
             initialConnection.close();
          }
 
-         if (connection0 != null)
-         {
+         if (connection0 != null) {
             connection0.close();
          }
 
-         if (connection1 != null)
-         {
+         if (connection1 != null) {
             connection1.close();
          }
 
-         if (connection2 != null)
-         {
+         if (connection2 != null) {
             connection2.close();
          }
 
-         if (connection3 != null)
-         {
+         if (connection3 != null) {
             connection3.close();
          }
 
-         if (ic0 != null)
-         {
+         if (ic0 != null) {
             ic0.close();
          }
       }

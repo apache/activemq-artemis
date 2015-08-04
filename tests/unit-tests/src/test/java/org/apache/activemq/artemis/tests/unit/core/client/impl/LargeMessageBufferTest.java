@@ -51,8 +51,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class LargeMessageBufferTest extends ActiveMQTestBase
-{
+public class LargeMessageBufferTest extends ActiveMQTestBase {
 
    // Constants -----------------------------------------------------
 
@@ -68,8 +67,7 @@ public class LargeMessageBufferTest extends ActiveMQTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       tmpFileCounter++;
@@ -80,36 +78,29 @@ public class LargeMessageBufferTest extends ActiveMQTestBase
 
    // Test Simple getBytes
    @Test
-   public void testGetBytes() throws Exception
-   {
+   public void testGetBytes() throws Exception {
       LargeMessageControllerImpl buffer = create15BytesSample();
 
-      for (int i = 1; i <= 15; i++)
-      {
-         try
-         {
+      for (int i = 1; i <= 15; i++) {
+         try {
             Assert.assertEquals(i, buffer.readByte());
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             throw new Exception("Exception at position " + i, e);
          }
       }
 
-      try
-      {
+      try {
          buffer.readByte();
          Assert.fail("supposed to throw an exception");
       }
-      catch (IndexOutOfBoundsException e)
-      {
+      catch (IndexOutOfBoundsException e) {
       }
    }
 
    // Test for void getBytes(final int index, final byte[] dst)
    @Test
-   public void testGetBytesIByteArray() throws Exception
-   {
+   public void testGetBytesIByteArray() throws Exception {
       LargeMessageControllerImpl buffer = create15BytesSample();
 
       byte[] bytes = new byte[15];
@@ -117,23 +108,20 @@ public class LargeMessageBufferTest extends ActiveMQTestBase
 
       validateAgainstSample(bytes);
 
-      try
-      {
+      try {
          buffer = create15BytesSample();
 
          bytes = new byte[16];
          buffer.getBytes(0, bytes);
          Assert.fail("supposed to throw an exception");
       }
-      catch (java.lang.IndexOutOfBoundsException e)
-      {
+      catch (java.lang.IndexOutOfBoundsException e) {
       }
    }
 
    // testing void getBytes(int index, ChannelBuffer dst, int dstIndex, int length)
    @Test
-   public void testGetBytesILChannelBufferII() throws Exception
-   {
+   public void testGetBytesILChannelBufferII() throws Exception {
       LargeMessageControllerImpl buffer = create15BytesSample();
 
       ActiveMQBuffer dstBuffer = ActiveMQBuffers.fixedBuffer(20);
@@ -150,34 +138,28 @@ public class LargeMessageBufferTest extends ActiveMQTestBase
 
    // testing void getBytes(int index, ChannelBuffer dst, int dstIndex, int length)
    @Test
-   public void testReadIntegers() throws Exception
-   {
+   public void testReadIntegers() throws Exception {
       LargeMessageControllerImpl buffer = createBufferWithIntegers(3, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15);
 
-      for (int i = 1; i <= 15; i++)
-      {
+      for (int i = 1; i <= 15; i++) {
          Assert.assertEquals(i, buffer.readInt());
       }
 
-      try
-      {
+      try {
          buffer.readByte();
          Assert.fail("supposed to throw an exception");
       }
-      catch (IndexOutOfBoundsException e)
-      {
+      catch (IndexOutOfBoundsException e) {
       }
    }
 
    @Test
-   public void testReadIntegersOverStream() throws Exception
-   {
+   public void testReadIntegersOverStream() throws Exception {
       LargeMessageControllerImpl buffer = createBufferWithIntegers(3, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15);
       ActiveMQBufferInputStream is = new ActiveMQBufferInputStream(buffer);
       DataInputStream dataInput = new DataInputStream(is);
 
-      for (int i = 1; i <= 15; i++)
-      {
+      for (int i = 1; i <= 15; i++) {
          Assert.assertEquals(i, dataInput.readInt());
       }
 
@@ -187,34 +169,28 @@ public class LargeMessageBufferTest extends ActiveMQTestBase
 
    // testing void getBytes(int index, ChannelBuffer dst, int dstIndex, int length)
    @Test
-   public void testReadLongs() throws Exception
-   {
+   public void testReadLongs() throws Exception {
       LargeMessageControllerImpl buffer = createBufferWithLongs(3, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15);
 
-      for (int i = 1; i <= 15; i++)
-      {
+      for (int i = 1; i <= 15; i++) {
          Assert.assertEquals(i, buffer.readLong());
       }
 
-      try
-      {
+      try {
          buffer.readByte();
          Assert.fail("supposed to throw an exception");
       }
-      catch (IndexOutOfBoundsException e)
-      {
+      catch (IndexOutOfBoundsException e) {
       }
    }
 
    @Test
-   public void testReadLongsOverStream() throws Exception
-   {
+   public void testReadLongsOverStream() throws Exception {
       LargeMessageControllerImpl buffer = createBufferWithLongs(3, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15);
       ActiveMQBufferInputStream is = new ActiveMQBufferInputStream(buffer);
       DataInputStream dataInput = new DataInputStream(is);
 
-      for (int i = 1; i <= 15; i++)
-      {
+      for (int i = 1; i <= 15; i++) {
          Assert.assertEquals(i, dataInput.readLong());
       }
 
@@ -223,8 +199,7 @@ public class LargeMessageBufferTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testReadData() throws Exception
-   {
+   public void testReadData() throws Exception {
       ActiveMQBuffer dynamic = ActiveMQBuffers.dynamicBuffer(1);
 
       String str1 = RandomUtil.randomString();
@@ -245,14 +220,12 @@ public class LargeMessageBufferTest extends ActiveMQTestBase
       Assert.assertEquals(f1, readBuffer.readFloat(), 0.000001);
    }
 
-   private File getTestFile()
-   {
+   private File getTestFile() {
       return new File(getTestDir(), "temp." + tmpFileCounter + ".file");
    }
 
    @Test
-   public void testReadDataOverCached() throws Exception
-   {
+   public void testReadDataOverCached() throws Exception {
       clearDataRecreateServerDirs();
 
       ActiveMQBuffer dynamic = ActiveMQBuffers.dynamicBuffer(1);
@@ -285,8 +258,7 @@ public class LargeMessageBufferTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testReadPartialData() throws Exception
-   {
+   public void testReadPartialData() throws Exception {
 
       final LargeMessageControllerImpl buffer = new LargeMessageControllerImpl(new FakeConsumerInternal(), 10, 10);
 
@@ -295,8 +267,7 @@ public class LargeMessageBufferTest extends ActiveMQTestBase
       byte[] bytes = new byte[30];
       buffer.readBytes(bytes, 0, 5);
 
-      for (byte i = 0; i < 5; i++)
-      {
+      for (byte i = 0; i < 5; i++) {
          Assert.assertEquals(i, bytes[i]);
       }
 
@@ -304,26 +275,20 @@ public class LargeMessageBufferTest extends ActiveMQTestBase
 
       final AtomicInteger errorCount = new AtomicInteger(0);
 
-      Thread t = new Thread()
-      {
+      Thread t = new Thread() {
          @Override
-         public void run()
-         {
+         public void run() {
 
-            try
-            {
+            try {
                latchGo.countDown();
                buffer.readBytes(new byte[5]);
             }
-            catch (IndexOutOfBoundsException ignored)
-            {
+            catch (IndexOutOfBoundsException ignored) {
             }
-            catch (IllegalAccessError ignored)
-            {
+            catch (IllegalAccessError ignored) {
 
             }
-            catch (Throwable e)
-            {
+            catch (Throwable e) {
                e.printStackTrace();
                errorCount.incrementAndGet();
             }
@@ -343,36 +308,26 @@ public class LargeMessageBufferTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testInterruptData() throws Exception
-   {
+   public void testInterruptData() throws Exception {
       LargeMessageControllerImpl readBuffer = splitBuffer(3, new byte[]{0, 1, 2, 3, 4});
 
       byte[] bytes = new byte[30];
       readBuffer.readBytes(bytes, 0, 5);
 
-      for (byte i = 0; i < 5; i++)
-      {
+      for (byte i = 0; i < 5; i++) {
          Assert.assertEquals(i, bytes[i]);
       }
    }
 
    @Test
-   public void testSplitBufferOnFile() throws Exception
-   {
-      LargeMessageControllerImpl outBuffer = new LargeMessageControllerImpl(new FakeConsumerInternal(),
-                                                                            1024 * 1024,
-                                                                            1,
-                                                                            getTestFile(),
-                                                                            1024);
-      try
-      {
+   public void testSplitBufferOnFile() throws Exception {
+      LargeMessageControllerImpl outBuffer = new LargeMessageControllerImpl(new FakeConsumerInternal(), 1024 * 1024, 1, getTestFile(), 1024);
+      try {
 
          long count = 0;
-         for (int i = 0; i < 10; i++)
-         {
+         for (int i = 0; i < 10; i++) {
             byte[] buffer = new byte[10240];
-            for (int j = 0; j < 10240; j++)
-            {
+            for (int j = 0; j < 10240; j++) {
                buffer[j] = getSamplebyte(count++);
             }
             outBuffer.addPacket(buffer, 1, true);
@@ -380,31 +335,25 @@ public class LargeMessageBufferTest extends ActiveMQTestBase
 
          outBuffer.readerIndex(0);
 
-         for (int i = 0; i < 10240 * 10; i++)
-         {
+         for (int i = 0; i < 10240 * 10; i++) {
             assertEquals("position " + i, getSamplebyte(i), outBuffer.readByte());
          }
 
          outBuffer.readerIndex(0);
 
-         for (int i = 0; i < 10240 * 10; i++)
-         {
+         for (int i = 0; i < 10240 * 10; i++) {
             assertEquals("position " + i, getSamplebyte(i), outBuffer.readByte());
          }
       }
-      finally
-      {
+      finally {
          outBuffer.close();
       }
 
    }
 
    @Test
-   public void testStreamData() throws Exception
-   {
-      final LargeMessageControllerImpl outBuffer = new LargeMessageControllerImpl(new FakeConsumerInternal(),
-                                                                                  1024 * 11 + 123,
-                                                                                  1000);
+   public void testStreamData() throws Exception {
+      final LargeMessageControllerImpl outBuffer = new LargeMessageControllerImpl(new FakeConsumerInternal(), 1024 * 11 + 123, 1000);
 
       final PipedOutputStream output = new PipedOutputStream();
       final PipedInputStream input = new PipedInputStream(output);
@@ -419,36 +368,28 @@ public class LargeMessageBufferTest extends ActiveMQTestBase
       final AtomicInteger count = new AtomicInteger(0);
       final AtomicInteger totalBytes = new AtomicInteger(0);
 
-      Thread treader = new Thread("treader")
-      {
+      Thread treader = new Thread("treader") {
          @Override
-         public void run()
-         {
-            try
-            {
+         public void run() {
+            try {
 
                byte[] line = new byte[1024];
                int dataRead = 0;
-               while (dataRead >= 0)
-               {
+               while (dataRead >= 0) {
                   dataRead = input.read(line);
-                  if (dataRead > 0)
-                  {
+                  if (dataRead > 0) {
                      totalBytes.addAndGet(dataRead);
-                     if (count.incrementAndGet() == 3)
-                     {
+                     if (count.incrementAndGet() == 3) {
                         done1.countDown();
                      }
                   }
                }
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                e.printStackTrace();
                errors.incrementAndGet();
             }
-            finally
-            {
+            finally {
                done1.countDown();
                done2.countDown();
             }
@@ -458,8 +399,7 @@ public class LargeMessageBufferTest extends ActiveMQTestBase
       treader.setDaemon(true);
       treader.start();
 
-      for (int i = 0; i < 3; i++)
-      {
+      for (int i = 0; i < 3; i++) {
          outBuffer.addPacket(new byte[1024], 1, true);
       }
 
@@ -467,18 +407,14 @@ public class LargeMessageBufferTest extends ActiveMQTestBase
 
       final CountDownLatch waiting = new CountDownLatch(1);
 
-      Thread twaiter = new Thread("twaiter")
-      {
+      Thread twaiter = new Thread("twaiter") {
          @Override
-         public void run()
-         {
-            try
-            {
+         public void run() {
+            try {
                outBuffer.waitCompletion(0);
                waiting.countDown();
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                e.printStackTrace();
                errors.incrementAndGet();
             }
@@ -493,8 +429,7 @@ public class LargeMessageBufferTest extends ActiveMQTestBase
       Assert.assertEquals(3, count.get());
       Assert.assertEquals(1024 * 3, totalBytes.get());
 
-      for (int i = 0; i < 8; i++)
-      {
+      for (int i = 0; i < 8; i++) {
          outBuffer.addPacket(new byte[1024], 1, true);
       }
 
@@ -518,73 +453,58 @@ public class LargeMessageBufferTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testStreamDataWaitCompletionOnCompleteBuffer() throws Exception
-   {
+   public void testStreamDataWaitCompletionOnCompleteBuffer() throws Exception {
       final LargeMessageControllerImpl outBuffer = create15BytesSample();
 
-      outBuffer.saveBuffer(new OutputStream()
-      {
+      outBuffer.saveBuffer(new OutputStream() {
          @Override
-         public void write(final int b) throws IOException
-         {
+         public void write(final int b) throws IOException {
             // nohting to be done
          }
       });
    }
 
    @Test
-   public void testStreamDataWaitCompletionOnInCompleteBuffer() throws Exception
-   {
+   public void testStreamDataWaitCompletionOnInCompleteBuffer() throws Exception {
       final LargeMessageControllerImpl outBuffer = new LargeMessageControllerImpl(new FakeConsumerInternal(), 5, 1000);
 
+      class FakeOutputStream extends OutputStream {
 
-      class FakeOutputStream extends OutputStream
-      {
          @Override
-         public void write(int b) throws IOException
-         {
+         public void write(int b) throws IOException {
          }
       }
 
       outBuffer.setOutputStream(new FakeOutputStream());
 
       long time = System.currentTimeMillis();
-      try
-      {
+      try {
          outBuffer.waitCompletion(0);
          fail("supposed to throw an exception");
       }
-      catch (ActiveMQException e)
-      {
+      catch (ActiveMQException e) {
       }
 
       assertTrue("It was supposed to wait at least 1 second", System.currentTimeMillis() - time > 1000);
    }
 
-
    @Test
-   public void testStreamDataWaitCompletionOnSlowComingBuffer() throws Exception
-   {
+   public void testStreamDataWaitCompletionOnSlowComingBuffer() throws Exception {
       final LargeMessageControllerImpl outBuffer = new LargeMessageControllerImpl(new FakeConsumerInternal(), 5, 1000);
 
+      class FakeOutputStream extends OutputStream {
 
-      class FakeOutputStream extends OutputStream
-      {
          @Override
-         public void write(int b) throws IOException
-         {
+         public void write(int b) throws IOException {
          }
       }
 
       outBuffer.setOutputStream(new FakeOutputStream());
 
-      Thread sender = new Thread()
-      {
+      Thread sender = new Thread() {
          @Override
-         public void run()
-         {
-            try
-            {
+         public void run() {
+            try {
                Thread.sleep(100);
                outBuffer.addPacket(new byte[]{0}, 1, true);
                Thread.sleep(100);
@@ -592,8 +512,7 @@ public class LargeMessageBufferTest extends ActiveMQTestBase
                Thread.sleep(200);
                outBuffer.addPacket(new byte[]{0}, 1, false);
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
             }
          }
       };
@@ -604,8 +523,7 @@ public class LargeMessageBufferTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testErrorOnSetStreaming() throws Exception
-   {
+   public void testErrorOnSetStreaming() throws Exception {
       long start = System.currentTimeMillis();
       final LargeMessageControllerImpl outBuffer = new LargeMessageControllerImpl(new FakeConsumerInternal(), 5, 30000);
 
@@ -614,11 +532,9 @@ public class LargeMessageBufferTest extends ActiveMQTestBase
       final CountDownLatch latchBytesWritten1 = new CountDownLatch(5);
       final CountDownLatch latchBytesWritten2 = new CountDownLatch(10);
 
-      outBuffer.setOutputStream(new OutputStream()
-      {
+      outBuffer.setOutputStream(new OutputStream() {
          @Override
-         public void write(final int b) throws IOException
-         {
+         public void write(final int b) throws IOException {
             latchBytesWritten1.countDown();
             latchBytesWritten2.countDown();
          }
@@ -626,13 +542,11 @@ public class LargeMessageBufferTest extends ActiveMQTestBase
 
       ActiveMQTestBase.waitForLatch(latchBytesWritten1);
 
-      try
-      {
+      try {
          outBuffer.readByte();
          Assert.fail("supposed to throw an exception");
       }
-      catch (IllegalAccessError ignored)
-      {
+      catch (IllegalAccessError ignored) {
       }
 
       Assert.assertTrue("It waited too much", System.currentTimeMillis() - start < 30000);
@@ -640,11 +554,9 @@ public class LargeMessageBufferTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testReadBytesOnStreaming() throws Exception
-   {
+   public void testReadBytesOnStreaming() throws Exception {
       byte[] byteArray = new byte[1024];
-      for (int i = 0; i < byteArray.length; i++)
-      {
+      for (int i = 0; i < byteArray.length; i++) {
          byteArray[i] = getSamplebyte(i);
       }
 
@@ -652,19 +564,16 @@ public class LargeMessageBufferTest extends ActiveMQTestBase
 
       ActiveMQBufferInputStream is = new ActiveMQBufferInputStream(splitbuffer);
 
-      for (int i = 0; i < 100; i++)
-      {
+      for (int i = 0; i < 100; i++) {
          assertEquals(getSamplebyte(i), (byte) is.read());
       }
 
-      for (int i = 100; i < byteArray.length; i += 10)
-      {
+      for (int i = 100; i < byteArray.length; i += 10) {
          byte[] readBytes = new byte[10];
 
          int size = is.read(readBytes);
 
-         for (int j = 0; j < size; j++)
-         {
+         for (int j = 0; j < size; j++) {
             assertEquals(getSamplebyte(i + j), readBytes[j]);
          }
       }
@@ -674,65 +583,58 @@ public class LargeMessageBufferTest extends ActiveMQTestBase
    /**
     * @return
     */
-   private LargeMessageControllerImpl create15BytesSample() throws Exception
-   {
+   private LargeMessageControllerImpl create15BytesSample() throws Exception {
       return splitBuffer(5, new byte[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15});
    }
 
-   private LargeMessageControllerImpl createBufferWithIntegers(final int splitFactor, final int... values) throws Exception
-   {
+   private LargeMessageControllerImpl createBufferWithIntegers(final int splitFactor,
+                                                               final int... values) throws Exception {
       ByteArrayOutputStream byteOut = new ByteArrayOutputStream(values.length * 4);
       DataOutputStream dataOut = new DataOutputStream(byteOut);
 
-      for (int value : values)
-      {
+      for (int value : values) {
          dataOut.writeInt(value);
       }
 
       return splitBuffer(splitFactor, byteOut.toByteArray());
    }
 
-   private LargeMessageControllerImpl createBufferWithLongs(final int splitFactor, final long... values) throws Exception
-   {
+   private LargeMessageControllerImpl createBufferWithLongs(final int splitFactor,
+                                                            final long... values) throws Exception {
       ByteArrayOutputStream byteOut = new ByteArrayOutputStream(values.length * 8);
       DataOutputStream dataOut = new DataOutputStream(byteOut);
 
-      for (long value : values)
-      {
+      for (long value : values) {
          dataOut.writeLong(value);
       }
 
       return splitBuffer(splitFactor, byteOut.toByteArray());
    }
 
-   private LargeMessageControllerImpl splitBuffer(final int splitFactor, final byte[] bytes) throws Exception
-   {
+   private LargeMessageControllerImpl splitBuffer(final int splitFactor, final byte[] bytes) throws Exception {
       return splitBuffer(splitFactor, bytes, null);
    }
 
-   private LargeMessageControllerImpl splitBuffer(final int splitFactor, final byte[] bytes, final File file) throws Exception
-   {
+   private LargeMessageControllerImpl splitBuffer(final int splitFactor,
+                                                  final byte[] bytes,
+                                                  final File file) throws Exception {
       LargeMessageControllerImpl outBuffer = new LargeMessageControllerImpl(new FakeConsumerInternal(), bytes.length, 5000, file);
 
       ByteArrayInputStream input = new ByteArrayInputStream(bytes);
 
-      while (true)
-      {
+      while (true) {
          byte[] splitElement = new byte[splitFactor];
          int size = input.read(splitElement);
-         if (size <= 0)
-         {
+         if (size <= 0) {
             break;
          }
-         if (size < splitFactor)
-         {
+         if (size < splitFactor) {
             byte[] newSplit = new byte[size];
             System.arraycopy(splitElement, 0, newSplit, 0, size);
 
             outBuffer.addPacket(newSplit, 1, input.available() > 0);
          }
-         else
-         {
+         else {
             outBuffer.addPacket(splitElement, 1, input.available() > 0);
          }
       }
@@ -744,10 +646,8 @@ public class LargeMessageBufferTest extends ActiveMQTestBase
    /**
     * @param bytes
     */
-   private void validateAgainstSample(final byte[] bytes)
-   {
-      for (int i = 1; i <= 15; i++)
-      {
+   private void validateAgainstSample(final byte[] bytes) {
+      for (int i = 1; i <= 15; i++) {
          Assert.assertEquals(i, bytes[i - 1]);
       }
    }
@@ -760,160 +660,129 @@ public class LargeMessageBufferTest extends ActiveMQTestBase
 
    // Inner classes -------------------------------------------------
 
-   static class FakeConsumerInternal implements ClientConsumerInternal
-   {
+   static class FakeConsumerInternal implements ClientConsumerInternal {
 
-      public ConsumerContext getConsumerContext()
-      {
+      public ConsumerContext getConsumerContext() {
          return new ActiveMQConsumerContext(0);
       }
 
-
-      public void close() throws ActiveMQException
-      {
+      public void close() throws ActiveMQException {
       }
 
-      public Exception getLastException()
-      {
+      public Exception getLastException() {
          return null;
       }
 
-      public MessageHandler getMessageHandler() throws ActiveMQException
-      {
+      public MessageHandler getMessageHandler() throws ActiveMQException {
          return null;
       }
 
-      public boolean isClosed()
-      {
+      public boolean isClosed() {
          return false;
       }
 
-      public ClientMessage receive() throws ActiveMQException
-      {
+      public ClientMessage receive() throws ActiveMQException {
          return null;
       }
 
-      public ClientMessage receive(final long timeout) throws ActiveMQException
-      {
+      public ClientMessage receive(final long timeout) throws ActiveMQException {
          return null;
       }
 
-      public ClientMessage receiveImmediate() throws ActiveMQException
-      {
+      public ClientMessage receiveImmediate() throws ActiveMQException {
          return null;
       }
 
-      public FakeConsumerInternal setMessageHandler(final MessageHandler handler) throws ActiveMQException
-      {
+      public FakeConsumerInternal setMessageHandler(final MessageHandler handler) throws ActiveMQException {
          return this;
       }
 
-      public void acknowledge(final ClientMessage message) throws ActiveMQException
-      {
+      public void acknowledge(final ClientMessage message) throws ActiveMQException {
       }
 
       @Override
-      public void individualAcknowledge(ClientMessage message) throws ActiveMQException
-      {
+      public void individualAcknowledge(ClientMessage message) throws ActiveMQException {
       }
 
-      public void cleanUp() throws ActiveMQException
-      {
+      public void cleanUp() throws ActiveMQException {
       }
 
-      public void clear(boolean waitForOnMessage) throws ActiveMQException
-      {
+      public void clear(boolean waitForOnMessage) throws ActiveMQException {
       }
 
-      public void clearAtFailover()
-      {
+      public void clearAtFailover() {
       }
 
-      public void flowControl(final int messageBytes, final boolean discountSlowConsumer) throws ActiveMQException
-      {
+      public void flowControl(final int messageBytes, final boolean discountSlowConsumer) throws ActiveMQException {
       }
 
-      public void flushAcks() throws ActiveMQException
-      {
+      public void flushAcks() throws ActiveMQException {
       }
 
-      public int getBufferSize()
-      {
+      public int getBufferSize() {
 
          return 0;
       }
 
-      public int getClientWindowSize()
-      {
+      public int getClientWindowSize() {
 
          return 0;
       }
 
-      public SimpleString getFilterString()
-      {
+      public SimpleString getFilterString() {
 
          return null;
       }
 
-      public long getID()
-      {
+      public long getID() {
 
          return 0;
       }
 
-      public SimpleString getQueueName()
-      {
+      public SimpleString getQueueName() {
 
          return null;
       }
 
-      public boolean isBrowseOnly()
-      {
+      public boolean isBrowseOnly() {
 
          return false;
       }
 
       @Override
-      public void handleMessage(ClientMessageInternal message) throws Exception
-      {
+      public void handleMessage(ClientMessageInternal message) throws Exception {
       }
 
       @Override
-      public void handleLargeMessage(ClientLargeMessageInternal clientLargeMessage, long largeMessageSize) throws Exception
-      {
+      public void handleLargeMessage(ClientLargeMessageInternal clientLargeMessage,
+                                     long largeMessageSize) throws Exception {
       }
 
       @Override
-      public void handleLargeMessageContinuation(byte[] chunk, int flowControlSize, boolean isContinues) throws Exception
-      {
+      public void handleLargeMessageContinuation(byte[] chunk,
+                                                 int flowControlSize,
+                                                 boolean isContinues) throws Exception {
       }
 
-      public void start()
-      {
-
-
-      }
-
-      public void stop() throws ActiveMQException
-      {
-
+      public void start() {
 
       }
 
-      public void stop(boolean waitForOnMessage) throws ActiveMQException
-      {
+      public void stop() throws ActiveMQException {
+
       }
 
-      public ClientSession.QueueQuery getQueueInfo()
-      {
+      public void stop(boolean waitForOnMessage) throws ActiveMQException {
+      }
+
+      public ClientSession.QueueQuery getQueueInfo() {
          return null;
       }
 
       /* (non-Javadoc)
        * @see org.apache.activemq.artemis.core.client.impl.ClientConsumerInternal#getNonXAsession()
        */
-      public ClientSessionInternal getSession()
-      {
+      public ClientSessionInternal getSession() {
 
          return null;
       }
@@ -921,8 +790,7 @@ public class LargeMessageBufferTest extends ActiveMQTestBase
       /* (non-Javadoc)
        * @see org.apache.activemq.artemis.core.client.impl.ClientConsumerInternal#prepareForClose()
        */
-      public Thread prepareForClose(FutureLatch future) throws ActiveMQException
-      {
+      public Thread prepareForClose(FutureLatch future) throws ActiveMQException {
          return null;
       }
    }

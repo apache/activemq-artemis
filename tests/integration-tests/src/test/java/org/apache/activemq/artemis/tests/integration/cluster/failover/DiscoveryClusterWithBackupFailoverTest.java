@@ -16,19 +16,16 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
-
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 
-public class DiscoveryClusterWithBackupFailoverTest extends ClusterWithBackupFailoverTestBase
-{
+public class DiscoveryClusterWithBackupFailoverTest extends ClusterWithBackupFailoverTestBase {
 
    protected final String groupAddress = getUDPDiscoveryAddress();
 
    protected final int groupPort = getUDPDiscoveryPort();
 
    @Override
-   protected void setupCluster(final MessageLoadBalancingType messageLoadBalancingType) throws Exception
-   {
+   protected void setupCluster(final MessageLoadBalancingType messageLoadBalancingType) throws Exception {
       // The lives
 
       setupDiscoveryClusterConnection("cluster0", 0, "dg1", "queues", messageLoadBalancingType, 1, isNetty());
@@ -43,8 +40,7 @@ public class DiscoveryClusterWithBackupFailoverTest extends ClusterWithBackupFai
    }
 
    @Override
-   protected void setupServers() throws Exception
-   {
+   protected void setupServers() throws Exception {
       // The lives
       setupLiveServerWithDiscovery(0, groupAddress, groupPort, isFileStorage(), isNetty(), true);
       setupLiveServerWithDiscovery(1, groupAddress, groupPort, isFileStorage(), isNetty(), true);

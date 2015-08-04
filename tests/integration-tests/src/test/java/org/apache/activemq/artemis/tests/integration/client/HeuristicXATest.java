@@ -39,8 +39,8 @@ import javax.management.MBeanServerFactory;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 
-public class HeuristicXATest extends ActiveMQTestBase
-{
+public class HeuristicXATest extends ActiveMQTestBase {
+
    // Constants -----------------------------------------------------
    final SimpleString ADDRESS = new SimpleString("ADDRESS");
 
@@ -59,10 +59,8 @@ public class HeuristicXATest extends ActiveMQTestBase
    // Public --------------------------------------------------------
 
    @Test
-   public void testInvalidCall() throws Exception
-   {
-      Configuration configuration = createDefaultInVMConfig()
-         .setJMXManagementEnabled(true);
+   public void testInvalidCall() throws Exception {
+      Configuration configuration = createDefaultInVMConfig().setJMXManagementEnabled(true);
 
       ActiveMQServer server = createServer(false, configuration);
       server.setMBeanServer(mbeanServer);
@@ -74,21 +72,17 @@ public class HeuristicXATest extends ActiveMQTestBase
    }
 
    @Test
-   public void testHeuristicCommit() throws Exception
-   {
+   public void testHeuristicCommit() throws Exception {
       internalTest(true);
    }
 
    @Test
-   public void testHeuristicRollback() throws Exception
-   {
+   public void testHeuristicRollback() throws Exception {
       internalTest(false);
    }
 
-   private void internalTest(final boolean isCommit) throws Exception
-   {
-      Configuration configuration = createDefaultInVMConfig()
-         .setJMXManagementEnabled(true);
+   private void internalTest(final boolean isCommit) throws Exception {
+      Configuration configuration = createDefaultInVMConfig().setJMXManagementEnabled(true);
 
       ActiveMQServer server = createServer(false, configuration);
       server.setMBeanServer(mbeanServer);
@@ -128,30 +122,25 @@ public class HeuristicXATest extends ActiveMQTestBase
       Assert.assertEquals(0, jmxServer.listHeuristicCommittedTransactions().length);
       Assert.assertEquals(0, jmxServer.listHeuristicRolledBackTransactions().length);
 
-      if (isCommit)
-      {
+      if (isCommit) {
          jmxServer.commitPreparedTransaction(XidImpl.toBase64String(xid));
       }
-      else
-      {
+      else {
          jmxServer.rollbackPreparedTransaction(XidImpl.toBase64String(xid));
       }
 
       Assert.assertEquals(0, jmxServer.listPreparedTransactions().length);
-      if (isCommit)
-      {
+      if (isCommit) {
          Assert.assertEquals(1, jmxServer.listHeuristicCommittedTransactions().length);
          Assert.assertEquals(0, jmxServer.listHeuristicRolledBackTransactions().length);
       }
-      else
-      {
+      else {
          Assert.assertEquals(0, jmxServer.listHeuristicCommittedTransactions().length);
          Assert.assertEquals(1, jmxServer.listHeuristicRolledBackTransactions().length);
       }
 
-      if (isCommit)
-      {
-         Assert.assertEquals(1, getMessageCount(((Queue)server.getPostOffice().getBinding(ADDRESS).getBindable())));
+      if (isCommit) {
+         Assert.assertEquals(1, getMessageCount(((Queue) server.getPostOffice().getBinding(ADDRESS).getBindable())));
 
          session = sf.createSession(false, false, false);
 
@@ -166,25 +155,21 @@ public class HeuristicXATest extends ActiveMQTestBase
          session.close();
       }
 
-      Assert.assertEquals(0, getMessageCount(((Queue)server.getPostOffice().getBinding(ADDRESS).getBindable())));
+      Assert.assertEquals(0, getMessageCount(((Queue) server.getPostOffice().getBinding(ADDRESS).getBindable())));
    }
 
    @Test
-   public void testHeuristicCommitWithRestart() throws Exception
-   {
+   public void testHeuristicCommitWithRestart() throws Exception {
       doHeuristicCompletionWithRestart(true);
    }
 
    @Test
-   public void testHeuristicRollbackWithRestart() throws Exception
-   {
+   public void testHeuristicRollbackWithRestart() throws Exception {
       doHeuristicCompletionWithRestart(false);
    }
 
-   private void doHeuristicCompletionWithRestart(final boolean isCommit) throws Exception
-   {
-      Configuration configuration = createDefaultInVMConfig()
-         .setJMXManagementEnabled(true);
+   private void doHeuristicCompletionWithRestart(final boolean isCommit) throws Exception {
+      Configuration configuration = createDefaultInVMConfig().setJMXManagementEnabled(true);
 
       ActiveMQServer server = createServer(true, configuration);
       server.setMBeanServer(mbeanServer);
@@ -220,21 +205,18 @@ public class HeuristicXATest extends ActiveMQTestBase
       Assert.assertEquals(1, preparedTransactions.length);
       System.out.println(preparedTransactions[0]);
 
-      if (isCommit)
-      {
+      if (isCommit) {
          jmxServer.commitPreparedTransaction(XidImpl.toBase64String(xid));
       }
-      else
-      {
+      else {
          jmxServer.rollbackPreparedTransaction(XidImpl.toBase64String(xid));
       }
 
       preparedTransactions = jmxServer.listPreparedTransactions();
       Assert.assertEquals(0, preparedTransactions.length);
 
-      if (isCommit)
-      {
-         Assert.assertEquals(1, getMessageCount(((Queue)server.getPostOffice().getBinding(ADDRESS).getBindable())));
+      if (isCommit) {
+         Assert.assertEquals(1, getMessageCount(((Queue) server.getPostOffice().getBinding(ADDRESS).getBindable())));
 
          session = sf.createSession(false, false, false);
 
@@ -249,21 +231,19 @@ public class HeuristicXATest extends ActiveMQTestBase
          session.close();
       }
 
-      Assert.assertEquals(0, getMessageCount(((Queue)server.getPostOffice().getBinding(ADDRESS).getBindable())));
+      Assert.assertEquals(0, getMessageCount(((Queue) server.getPostOffice().getBinding(ADDRESS).getBindable())));
 
       server.stop();
 
       server.start();
 
       jmxServer = ManagementControlHelper.createActiveMQServerControl(mbeanServer);
-      if (isCommit)
-      {
+      if (isCommit) {
          String[] listHeuristicCommittedTransactions = jmxServer.listHeuristicCommittedTransactions();
          Assert.assertEquals(1, listHeuristicCommittedTransactions.length);
          System.out.println(listHeuristicCommittedTransactions[0]);
       }
-      else
-      {
+      else {
          String[] listHeuristicRolledBackTransactions = jmxServer.listHeuristicRolledBackTransactions();
          Assert.assertEquals(1, listHeuristicRolledBackTransactions.length);
          System.out.println(listHeuristicRolledBackTransactions[0]);
@@ -271,21 +251,17 @@ public class HeuristicXATest extends ActiveMQTestBase
    }
 
    @Test
-   public void testRecoverHeuristicCommitWithRestart() throws Exception
-   {
+   public void testRecoverHeuristicCommitWithRestart() throws Exception {
       doRecoverHeuristicCompletedTxWithRestart(true);
    }
 
    @Test
-   public void testRecoverHeuristicRollbackWithRestart() throws Exception
-   {
+   public void testRecoverHeuristicRollbackWithRestart() throws Exception {
       doRecoverHeuristicCompletedTxWithRestart(false);
    }
 
-   private void doRecoverHeuristicCompletedTxWithRestart(final boolean heuristicCommit) throws Exception
-   {
-      Configuration configuration = createDefaultInVMConfig()
-         .setJMXManagementEnabled(true);
+   private void doRecoverHeuristicCompletedTxWithRestart(final boolean heuristicCommit) throws Exception {
+      Configuration configuration = createDefaultInVMConfig().setJMXManagementEnabled(true);
 
       ActiveMQServer server = createServer(true, configuration);
       server.setMBeanServer(mbeanServer);
@@ -321,21 +297,18 @@ public class HeuristicXATest extends ActiveMQTestBase
       Assert.assertEquals(1, preparedTransactions.length);
       System.out.println(preparedTransactions[0]);
 
-      if (heuristicCommit)
-      {
+      if (heuristicCommit) {
          jmxServer.commitPreparedTransaction(XidImpl.toBase64String(xid));
       }
-      else
-      {
+      else {
          jmxServer.rollbackPreparedTransaction(XidImpl.toBase64String(xid));
       }
 
       preparedTransactions = jmxServer.listPreparedTransactions();
       Assert.assertEquals(0, preparedTransactions.length);
 
-      if (heuristicCommit)
-      {
-         Assert.assertEquals(1, getMessageCount(((Queue)server.getPostOffice().getBinding(ADDRESS).getBindable())));
+      if (heuristicCommit) {
+         Assert.assertEquals(1, getMessageCount(((Queue) server.getPostOffice().getBinding(ADDRESS).getBindable())));
 
          session = sf.createSession(false, false, false);
 
@@ -350,7 +323,7 @@ public class HeuristicXATest extends ActiveMQTestBase
          session.close();
       }
 
-      Assert.assertEquals(0, getMessageCount(((Queue)server.getPostOffice().getBinding(ADDRESS).getBindable())));
+      Assert.assertEquals(0, getMessageCount(((Queue) server.getPostOffice().getBinding(ADDRESS).getBindable())));
 
       server.stop();
 
@@ -358,14 +331,12 @@ public class HeuristicXATest extends ActiveMQTestBase
       // we need to recreate the locator and session sf
       sf = createSessionFactory(locator);
       jmxServer = ManagementControlHelper.createActiveMQServerControl(mbeanServer);
-      if (heuristicCommit)
-      {
+      if (heuristicCommit) {
          String[] listHeuristicCommittedTransactions = jmxServer.listHeuristicCommittedTransactions();
          Assert.assertEquals(1, listHeuristicCommittedTransactions.length);
          System.out.println(listHeuristicCommittedTransactions[0]);
       }
-      else
-      {
+      else {
          String[] listHeuristicRolledBackTransactions = jmxServer.listHeuristicRolledBackTransactions();
          Assert.assertEquals(1, listHeuristicRolledBackTransactions.length);
          System.out.println(listHeuristicRolledBackTransactions[0]);
@@ -381,21 +352,17 @@ public class HeuristicXATest extends ActiveMQTestBase
    }
 
    @Test
-   public void testForgetHeuristicCommitAndRestart() throws Exception
-   {
+   public void testForgetHeuristicCommitAndRestart() throws Exception {
       doForgetHeuristicCompletedTxAndRestart(true);
    }
 
    @Test
-   public void testForgetHeuristicRollbackAndRestart() throws Exception
-   {
+   public void testForgetHeuristicRollbackAndRestart() throws Exception {
       doForgetHeuristicCompletedTxAndRestart(false);
    }
 
-   private void doForgetHeuristicCompletedTxAndRestart(final boolean heuristicCommit) throws Exception
-   {
-      Configuration configuration = createDefaultInVMConfig()
-         .setJMXManagementEnabled(true);
+   private void doForgetHeuristicCompletedTxAndRestart(final boolean heuristicCommit) throws Exception {
+      Configuration configuration = createDefaultInVMConfig().setJMXManagementEnabled(true);
 
       ActiveMQServer server = createServer(true, configuration);
       server.setMBeanServer(mbeanServer);
@@ -429,12 +396,10 @@ public class HeuristicXATest extends ActiveMQTestBase
       Assert.assertEquals(1, preparedTransactions.length);
       System.out.println(preparedTransactions[0]);
 
-      if (heuristicCommit)
-      {
+      if (heuristicCommit) {
          jmxServer.commitPreparedTransaction(XidImpl.toBase64String(xid));
       }
-      else
-      {
+      else {
          jmxServer.rollbackPreparedTransaction(XidImpl.toBase64String(xid));
       }
 
@@ -445,12 +410,10 @@ public class HeuristicXATest extends ActiveMQTestBase
 
       session.close();
 
-      if (heuristicCommit)
-      {
+      if (heuristicCommit) {
          Assert.assertEquals(0, jmxServer.listHeuristicCommittedTransactions().length);
       }
-      else
-      {
+      else {
          Assert.assertEquals(0, jmxServer.listHeuristicRolledBackTransactions().length);
       }
 
@@ -463,12 +426,10 @@ public class HeuristicXATest extends ActiveMQTestBase
       Xid[] recoveredXids = session.recover(XAResource.TMSTARTRSCAN);
       Assert.assertEquals(0, recoveredXids.length);
       jmxServer = ManagementControlHelper.createActiveMQServerControl(mbeanServer);
-      if (heuristicCommit)
-      {
+      if (heuristicCommit) {
          Assert.assertEquals(0, jmxServer.listHeuristicCommittedTransactions().length);
       }
-      else
-      {
+      else {
          Assert.assertEquals(0, jmxServer.listHeuristicRolledBackTransactions().length);
       }
 
@@ -481,8 +442,7 @@ public class HeuristicXATest extends ActiveMQTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
       mbeanServer = MBeanServerFactory.createMBeanServer();
       locator = createInVMNonHALocator();

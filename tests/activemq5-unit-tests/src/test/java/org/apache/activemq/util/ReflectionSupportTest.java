@@ -30,86 +30,89 @@ import org.apache.activemq.command.ActiveMQQueue;
 import org.apache.activemq.command.ActiveMQTopic;
 
 public class ReflectionSupportTest extends TestCase {
-	
-    List<ActiveMQDestination> favorites = new ArrayList<ActiveMQDestination>();
-    String favoritesString = "[queue://test, topic://test]";
-    List<ActiveMQDestination> nonFavorites = new ArrayList<ActiveMQDestination>();
-    String nonFavoritesString = "[topic://test1]";
-    
-    public void setUp() {
-        favorites.add(new ActiveMQQueue("test"));
-        favorites.add(new ActiveMQTopic("test"));
-        nonFavorites.add(new ActiveMQTopic("test1"));
-    }
 
-    public void testSetProperties() throws URISyntaxException {
-        SimplePojo pojo = new SimplePojo();
-        HashMap<String, String> map = new HashMap<String, String>();        
-        map.put("age", "27");
-        map.put("name", "Hiram");
-        map.put("enabled", "true");
-        map.put("uri", "test://value");        
-        map.put("favorites", favoritesString);
-        map.put("nonFavorites", nonFavoritesString);
-        map.put("others", null);
-        map.put("systems", "windows,mac");
-        
-        IntrospectionSupport.setProperties(pojo, map);
-        
-        assertEquals(27, pojo.getAge());
-        assertEquals("Hiram", pojo.getName());
-        assertEquals(true, pojo.isEnabled());
-        assertEquals(new URI("test://value"), pojo.getUri());
-        assertEquals(favorites, pojo.getFavorites());
-        assertEquals(nonFavorites, pojo.getNonFavorites());
-        assertNull(pojo.getOthers());
-        assertEquals("windows", pojo.getSystems()[0]);
-        assertEquals("mac", pojo.getSystems()[1]);
-    }
-    
-    public void testGetProperties() {
-    	SimplePojo pojo = new SimplePojo();
-    	pojo.setAge(31);
-    	pojo.setName("Dejan");
-    	pojo.setEnabled(true);
-    	pojo.setFavorites(favorites);
-    	pojo.setNonFavorites(nonFavorites);
-    	pojo.setOthers(null);
-        pojo.setSystems(new String[]{"windows", "mac"});
-    	
-    	Properties props = new Properties();
-    	
-    	IntrospectionSupport.getProperties(pojo, props, null);
-    	
-    	assertEquals("Dejan", props.get("name"));
-    	assertEquals("31", props.get("age"));
-    	assertEquals("true", props.get("enabled"));
-    	assertEquals(favoritesString, props.get("favorites"));
-    	assertEquals(nonFavoritesString, props.get("nonFavorites"));
-    	assertNull(props.get("others"));
-        assertEquals("windows,mac", props.get("systems"));
-    }
-    
-    public void testSetBoolean() {
-                  
-        TestWitBoolean target = new TestWitBoolean();
-        assertTrue(!target.getKeepAlive());
+   List<ActiveMQDestination> favorites = new ArrayList<ActiveMQDestination>();
+   String favoritesString = "[queue://test, topic://test]";
+   List<ActiveMQDestination> nonFavorites = new ArrayList<ActiveMQDestination>();
+   String nonFavoritesString = "[topic://test1]";
 
-        IntrospectionSupport.setProperty(target, "keepAlive", "TRUE");
-        assertTrue(target.getKeepAlive());
-        
-        IntrospectionSupport.setProperty(target, "keepAlive", "false");
-        assertTrue(!target.getKeepAlive());
-    }
+   public void setUp() {
+      favorites.add(new ActiveMQQueue("test"));
+      favorites.add(new ActiveMQTopic("test"));
+      nonFavorites.add(new ActiveMQTopic("test1"));
+   }
 
-    public static class TestWitBoolean {
-        private Boolean keepAlive = new Boolean(false);
-        public Boolean getKeepAlive() {
-            return keepAlive;
-        }
-        public void setKeepAlive(Boolean keepAlive) {
-            this.keepAlive = keepAlive;
-        }
-    }
+   public void testSetProperties() throws URISyntaxException {
+      SimplePojo pojo = new SimplePojo();
+      HashMap<String, String> map = new HashMap<String, String>();
+      map.put("age", "27");
+      map.put("name", "Hiram");
+      map.put("enabled", "true");
+      map.put("uri", "test://value");
+      map.put("favorites", favoritesString);
+      map.put("nonFavorites", nonFavoritesString);
+      map.put("others", null);
+      map.put("systems", "windows,mac");
+
+      IntrospectionSupport.setProperties(pojo, map);
+
+      assertEquals(27, pojo.getAge());
+      assertEquals("Hiram", pojo.getName());
+      assertEquals(true, pojo.isEnabled());
+      assertEquals(new URI("test://value"), pojo.getUri());
+      assertEquals(favorites, pojo.getFavorites());
+      assertEquals(nonFavorites, pojo.getNonFavorites());
+      assertNull(pojo.getOthers());
+      assertEquals("windows", pojo.getSystems()[0]);
+      assertEquals("mac", pojo.getSystems()[1]);
+   }
+
+   public void testGetProperties() {
+      SimplePojo pojo = new SimplePojo();
+      pojo.setAge(31);
+      pojo.setName("Dejan");
+      pojo.setEnabled(true);
+      pojo.setFavorites(favorites);
+      pojo.setNonFavorites(nonFavorites);
+      pojo.setOthers(null);
+      pojo.setSystems(new String[]{"windows", "mac"});
+
+      Properties props = new Properties();
+
+      IntrospectionSupport.getProperties(pojo, props, null);
+
+      assertEquals("Dejan", props.get("name"));
+      assertEquals("31", props.get("age"));
+      assertEquals("true", props.get("enabled"));
+      assertEquals(favoritesString, props.get("favorites"));
+      assertEquals(nonFavoritesString, props.get("nonFavorites"));
+      assertNull(props.get("others"));
+      assertEquals("windows,mac", props.get("systems"));
+   }
+
+   public void testSetBoolean() {
+
+      TestWitBoolean target = new TestWitBoolean();
+      assertTrue(!target.getKeepAlive());
+
+      IntrospectionSupport.setProperty(target, "keepAlive", "TRUE");
+      assertTrue(target.getKeepAlive());
+
+      IntrospectionSupport.setProperty(target, "keepAlive", "false");
+      assertTrue(!target.getKeepAlive());
+   }
+
+   public static class TestWitBoolean {
+
+      private Boolean keepAlive = new Boolean(false);
+
+      public Boolean getKeepAlive() {
+         return keepAlive;
+      }
+
+      public void setKeepAlive(Boolean keepAlive) {
+         this.keepAlive = keepAlive;
+      }
+   }
 }
 

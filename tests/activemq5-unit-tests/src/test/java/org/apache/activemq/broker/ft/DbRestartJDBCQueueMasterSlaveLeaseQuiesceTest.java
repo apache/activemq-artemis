@@ -17,6 +17,7 @@
 package org.apache.activemq.broker.ft;
 
 import java.util.concurrent.TimeUnit;
+
 import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.util.LeaseLockerIOExceptionHandler;
@@ -24,57 +25,62 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class DbRestartJDBCQueueMasterSlaveLeaseQuiesceTest extends DbRestartJDBCQueueMasterSlaveLeaseTest {
-    private static final transient Logger LOG = LoggerFactory.getLogger(DbRestartJDBCQueueMasterSlaveLeaseQuiesceTest.class);
 
-    private long restartDelay = 2000;
+   private static final transient Logger LOG = LoggerFactory.getLogger(DbRestartJDBCQueueMasterSlaveLeaseQuiesceTest.class);
 
-    @Override
-    protected void configureBroker(BrokerService brokerService) {
-        // master and slave survive db restart and retain master/slave status
-        LeaseLockerIOExceptionHandler stopConnectors = new LeaseLockerIOExceptionHandler();
-        brokerService.setIoExceptionHandler(stopConnectors);
-    }
+   private long restartDelay = 2000;
 
-    @Override
-    protected void delayTillRestartRequired() {
-        if (restartDelay > 2000) {
-            LOG.info("delay for more than lease quantum. While Db is offline, master should stay alive but could loose lease");
-        } else {
-            LOG.info("delay for less than lease quantum. While Db is offline, master should stay alive");
-        }
-        try {
-            TimeUnit.MILLISECONDS.sleep(restartDelay);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
+   @Override
+   protected void configureBroker(BrokerService brokerService) {
+      // master and slave survive db restart and retain master/slave status
+      LeaseLockerIOExceptionHandler stopConnectors = new LeaseLockerIOExceptionHandler();
+      brokerService.setIoExceptionHandler(stopConnectors);
+   }
 
-    @Override
-    protected void verifyExpectedBroker(int inflightMessageCount) {
-        if (inflightMessageCount == 0  || (inflightMessageCount == failureCount + 10 && restartDelay <= 500)) {
-            assertEquals("connected to master", master.getBrokerName(), ((ActiveMQConnection)sendConnection).getBrokerName());
-        } else {
-            // lease expired while DB was offline, either or master/slave can grab it so assert is not deterministic
-            // but we still need to validate sent == received
-        }
-    }
+   @Override
+   protected void delayTillRestartRequired() {
+      if (restartDelay > 2000) {
+         LOG.info("delay for more than lease quantum. While Db is offline, master should stay alive but could loose lease");
+      }
+      else {
+         LOG.info("delay for less than lease quantum. While Db is offline, master should stay alive");
+      }
+      try {
+         TimeUnit.MILLISECONDS.sleep(restartDelay);
+      }
+      catch (InterruptedException e) {
+         e.printStackTrace();
+      }
+   }
 
-    @Override
-    public void setUp() throws Exception {
-        restartDelay = 2000;
-        super.setUp();
-    }
+   @Override
+   protected void verifyExpectedBroker(int inflightMessageCount) {
+      if (inflightMessageCount == 0 || (inflightMessageCount == failureCount + 10 && restartDelay <= 500)) {
+         assertEquals("connected to master", master.getBrokerName(), ((ActiveMQConnection) sendConnection).getBrokerName());
+      }
+      else {
+         // lease expired while DB was offline, either or master/slave can grab it so assert is not deterministic
+         // but we still need to validate sent == received
+      }
+   }
 
-    public void testSendReceiveWithLeaseExpiry() throws Exception {
-        restartDelay = 10000;
-        testSendReceive();
-    }
+   @Override
+   public void setUp() throws Exception {
+      restartDelay = 2000;
+      super.setUp();
+   }
 
-    // ignore this test case
-    public void testAdvisory() throws Exception {}
+   public void testSendReceiveWithLeaseExpiry() throws Exception {
+      restartDelay = 10000;
+      testSendReceive();
+   }
+
+   // ignore this test case
+   public void testAdvisory() throws Exception {
+   }
 
    @Override
    public void testSendReceive() throws Exception {
-       // Ignore this test for now, see AMQ-4975
+      // Ignore this test for now, see AMQ-4975
    }
 }

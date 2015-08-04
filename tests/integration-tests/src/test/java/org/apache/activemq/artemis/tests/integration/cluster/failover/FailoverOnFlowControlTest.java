@@ -37,47 +37,34 @@ import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.TransportConfigurationUtils;
 
-public class FailoverOnFlowControlTest extends FailoverTestBase
-{
+public class FailoverOnFlowControlTest extends FailoverTestBase {
 
    private static IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
    @Test
-   public void testOverflowSend() throws Exception
-   {
-      ServerLocator locator = getServerLocator()
-              .setBlockOnNonDurableSend(true)
-              .setBlockOnDurableSend(true)
-              .setReconnectAttempts(-1)
-              .setProducerWindowSize(1000)
-              .setRetryInterval(123);
+   public void testOverflowSend() throws Exception {
+      ServerLocator locator = getServerLocator().setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setReconnectAttempts(-1).setProducerWindowSize(1000).setRetryInterval(123);
       final ArrayList<ClientSession> sessionList = new ArrayList<ClientSession>();
-      Interceptor interceptorClient = new Interceptor()
-      {
+      Interceptor interceptorClient = new Interceptor() {
          AtomicInteger count = new AtomicInteger(0);
-         public boolean intercept(Packet packet, RemotingConnection connection) throws ActiveMQException
-         {
+
+         public boolean intercept(Packet packet, RemotingConnection connection) throws ActiveMQException {
             log.debug("Intercept..." + packet.getClass().getName());
 
-            if (packet instanceof SessionProducerCreditsMessage )
-            {
-               SessionProducerCreditsMessage credit = (SessionProducerCreditsMessage)packet;
+            if (packet instanceof SessionProducerCreditsMessage) {
+               SessionProducerCreditsMessage credit = (SessionProducerCreditsMessage) packet;
 
                log.debug("Credits: " + credit.getCredits());
-               if (count.incrementAndGet() == 2)
-               {
+               if (count.incrementAndGet() == 2) {
                   log.debug("### crashing server");
-                  try
-                  {
+                  try {
                      InVMConnection.setFlushEnabled(false);
                      crash(false, sessionList.get(0));
                   }
-                  catch (Exception e)
-                  {
+                  catch (Exception e) {
                      e.printStackTrace();
                   }
-                  finally
-                  {
+                  finally {
                      InVMConnection.setFlushEnabled(true);
                   }
                   return false;
@@ -97,11 +84,9 @@ public class FailoverOnFlowControlTest extends FailoverTestBase
 
       ClientProducer producer = session.createProducer(ADDRESS);
 
-
       final int numMessages = 10;
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session.createMessage(true);
 
          message.getBodyBuffer().writeBytes(new byte[5000]);
@@ -114,32 +99,25 @@ public class FailoverOnFlowControlTest extends FailoverTestBase
       session.close();
    }
 
-
    @Override
-   protected void createConfigs() throws Exception
-   {
+   protected void createConfigs() throws Exception {
       super.createConfigs();
       liveServer.getServer().getConfiguration().setJournalFileSize(1024 * 1024);
       backupServer.getServer().getConfiguration().setJournalFileSize(1024 * 1024);
    }
 
    @Override
-   protected ServerLocatorInternal getServerLocator() throws Exception
-   {
-      return (ServerLocatorInternal) super.getServerLocator()
-              .setMinLargeMessageSize(1024 * 1024)
-              .setProducerWindowSize(10 * 1024);
+   protected ServerLocatorInternal getServerLocator() throws Exception {
+      return (ServerLocatorInternal) super.getServerLocator().setMinLargeMessageSize(1024 * 1024).setProducerWindowSize(10 * 1024);
    }
 
    @Override
-   protected TransportConfiguration getAcceptorTransportConfiguration(final boolean live)
-   {
+   protected TransportConfiguration getAcceptorTransportConfiguration(final boolean live) {
       return TransportConfigurationUtils.getInVMAcceptor(live);
    }
 
    @Override
-   protected TransportConfiguration getConnectorTransportConfiguration(final boolean live)
-   {
+   protected TransportConfiguration getConnectorTransportConfiguration(final boolean live) {
       return TransportConfigurationUtils.getInVMConnector(live);
    }
 }

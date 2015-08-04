@@ -26,12 +26,10 @@ import org.apache.activemq.artemis.tests.integration.cluster.distribution.Cluste
 import org.junit.Before;
 import org.junit.Test;
 
+public class HAAutomaticBackupSharedStore extends ClusterTestBase {
 
-public class HAAutomaticBackupSharedStore extends ClusterTestBase
-{
    @Before
-   public void setup() throws Exception
-   {
+   public void setup() throws Exception {
       super.setUp();
 
       setupServers();
@@ -48,8 +46,7 @@ public class HAAutomaticBackupSharedStore extends ClusterTestBase
    }
 
    @Test
-   public void basicDiscovery() throws Exception
-   {
+   public void basicDiscovery() throws Exception {
       startServers(0, 1, 2, 3, 4, 5);
 
       createQueue(3, "queues.testaddress", "queue0", null, false);
@@ -58,8 +55,7 @@ public class HAAutomaticBackupSharedStore extends ClusterTestBase
 
    }
 
-   protected void setupServers() throws Exception
-   {
+   protected void setupServers() throws Exception {
       // The lives
       setupLiveServer(0, isFileStorage(), true, isNetty(), false);
       setupLiveServer(1, isFileStorage(), true, isNetty(), false);
@@ -67,8 +63,7 @@ public class HAAutomaticBackupSharedStore extends ClusterTestBase
 
    }
 
-   private void setUpHAPolicy(int node)
-   {
+   private void setUpHAPolicy(int node) {
       ActiveMQServer server = getServer(node);
       ColocatedPolicyConfiguration haPolicyConfiguration = new ColocatedPolicyConfiguration();
       HAPolicyConfiguration liveConfiguration = new SharedStoreMasterPolicyConfiguration();
@@ -79,8 +74,7 @@ public class HAAutomaticBackupSharedStore extends ClusterTestBase
       server.getConfiguration().setHAPolicyConfiguration(haPolicyConfiguration);
    }
 
-   public boolean isNetty()
-   {
+   public boolean isNetty() {
       return true;
    }
 }

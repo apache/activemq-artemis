@@ -21,11 +21,10 @@ import java.io.OutputStream;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 
-public interface LargeMessageController extends ActiveMQBuffer
-{
+public interface LargeMessageController extends ActiveMQBuffer {
+
    /**
     * Returns the size of this buffer.
-
     */
    long getSize();
 

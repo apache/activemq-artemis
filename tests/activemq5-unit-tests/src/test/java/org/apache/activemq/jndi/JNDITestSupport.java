@@ -36,68 +36,65 @@ import org.apache.activemq.ActiveMQConnectionFactory;
  */
 public abstract class JNDITestSupport extends TestCase {
 
-    private static final org.apache.commons.logging.Log LOG = org.apache.commons.logging.LogFactory
-            .getLog(JNDITestSupport.class);
+   private static final org.apache.commons.logging.Log LOG = org.apache.commons.logging.LogFactory.getLog(JNDITestSupport.class);
 
-    protected Hashtable<String, String> environment = new Hashtable<String, String>();
-    protected Context context;
+   protected Hashtable<String, String> environment = new Hashtable<String, String>();
+   protected Context context;
 
-    protected void assertConnectionFactoryPresent(String lookupName) throws NamingException {
-        Object connectionFactory = context.lookup(lookupName);
+   protected void assertConnectionFactoryPresent(String lookupName) throws NamingException {
+      Object connectionFactory = context.lookup(lookupName);
 
-        assertTrue("Should have created a ConnectionFactory for key: " + lookupName
-                + " but got: " + connectionFactory, connectionFactory instanceof ConnectionFactory);
-    }
+      assertTrue("Should have created a ConnectionFactory for key: " + lookupName + " but got: " + connectionFactory, connectionFactory instanceof ConnectionFactory);
+   }
 
-    protected void assertBinding(Binding binding) throws NamingException {
-        Object object = binding.getObject();
-        assertTrue("Should have got a child context but got: " + object, object instanceof Context);
+   protected void assertBinding(Binding binding) throws NamingException {
+      Object object = binding.getObject();
+      assertTrue("Should have got a child context but got: " + object, object instanceof Context);
 
-        Context childContext = (Context) object;
-        NamingEnumeration<Binding> iter = childContext.listBindings("");
-        while (iter.hasMore()) {
-            Binding destinationBinding = iter.next();
-            LOG.info("Found destination: " + destinationBinding.getName());
-            Object destination = destinationBinding.getObject();
-            assertTrue("Should have a Destination but got: " + destination, destination instanceof Destination);
-        }
-    }
+      Context childContext = (Context) object;
+      NamingEnumeration<Binding> iter = childContext.listBindings("");
+      while (iter.hasMore()) {
+         Binding destinationBinding = iter.next();
+         LOG.info("Found destination: " + destinationBinding.getName());
+         Object destination = destinationBinding.getObject();
+         assertTrue("Should have a Destination but got: " + destination, destination instanceof Destination);
+      }
+   }
 
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
+   @Override
+   protected void setUp() throws Exception {
+      super.setUp();
 
-        configureEnvironment();
+      configureEnvironment();
 
-        InitialContextFactory factory = new ActiveMQInitialContextFactory();
-        context = factory.getInitialContext(environment);
-        assertTrue("No context created", context != null);
-    }
+      InitialContextFactory factory = new ActiveMQInitialContextFactory();
+      context = factory.getInitialContext(environment);
+      assertTrue("No context created", context != null);
+   }
 
-    /**
-     * Stops all existing ActiveMQConnectionFactory in Context.
-     *
-     * @throws javax.naming.NamingException
-     */
-    @Override
-    protected void tearDown() throws NamingException, JMSException {
-        NamingEnumeration<Binding> iter = context.listBindings("");
-        while (iter.hasMore()) {
-            Binding binding = iter.next();
-            Object connFactory = binding.getObject();
-            if (connFactory instanceof ActiveMQConnectionFactory) {
-               // ((ActiveMQConnectionFactory) connFactory).stop();
-            }
-        }
-    }
+   /**
+    * Stops all existing ActiveMQConnectionFactory in Context.
+    *
+    * @throws javax.naming.NamingException
+    */
+   @Override
+   protected void tearDown() throws NamingException, JMSException {
+      NamingEnumeration<Binding> iter = context.listBindings("");
+      while (iter.hasMore()) {
+         Binding binding = iter.next();
+         Object connFactory = binding.getObject();
+         if (connFactory instanceof ActiveMQConnectionFactory) {
+            // ((ActiveMQConnectionFactory) connFactory).stop();
+         }
+      }
+   }
 
-    protected void configureEnvironment() {
-        environment.put("brokerURL", "vm://localhost");
-    }
+   protected void configureEnvironment() {
+      environment.put("brokerURL", "vm://localhost");
+   }
 
-    protected void assertDestinationExists(String name) throws NamingException {
-        Object object = context.lookup(name);
-        assertTrue("Should have received a Destination for name: " + name + " but instead found: " + object,
-                object instanceof Destination);
-    }
+   protected void assertDestinationExists(String name) throws NamingException {
+      Object object = context.lookup(name);
+      assertTrue("Should have received a Destination for name: " + name + " but instead found: " + object, object instanceof Destination);
+   }
 }

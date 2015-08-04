@@ -17,13 +17,13 @@
 package org.apache.activemq.usecases;
 
 /**
- * 
+ *
  */
 public class QueueRedeliverTest extends TopicRedeliverTest {
 
-    protected void setUp() throws Exception {
-        super.setUp();
-        topic = false;
-    }
+   protected void setUp() throws Exception {
+      super.setUp();
+      topic = false;
+   }
 
 }

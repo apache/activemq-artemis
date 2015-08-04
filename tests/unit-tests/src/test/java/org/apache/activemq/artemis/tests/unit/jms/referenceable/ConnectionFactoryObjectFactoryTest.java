@@ -19,8 +19,7 @@ package org.apache.activemq.artemis.tests.unit.jms.referenceable;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Test;
 
-public class ConnectionFactoryObjectFactoryTest extends ActiveMQTestBase
-{
+public class ConnectionFactoryObjectFactoryTest extends ActiveMQTestBase {
    // Constants -----------------------------------------------------
 
    // Attributes ----------------------------------------------------
@@ -32,8 +31,7 @@ public class ConnectionFactoryObjectFactoryTest extends ActiveMQTestBase
    // Public --------------------------------------------------------
 
    @Test
-   public void testDummy()
-   {
+   public void testDummy() {
    }
 
    // public void testReference() throws Exception

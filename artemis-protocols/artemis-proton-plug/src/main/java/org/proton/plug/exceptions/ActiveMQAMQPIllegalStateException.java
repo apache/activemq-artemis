@@ -18,10 +18,9 @@ package org.proton.plug.exceptions;
 
 import org.apache.qpid.proton.amqp.transport.AmqpError;
 
-public class ActiveMQAMQPIllegalStateException extends ActiveMQAMQPException
-{
-   public ActiveMQAMQPIllegalStateException(String message)
-   {
+public class ActiveMQAMQPIllegalStateException extends ActiveMQAMQPException {
+
+   public ActiveMQAMQPIllegalStateException(String message) {
       super(AmqpError.ILLEGAL_STATE, message);
    }
 }

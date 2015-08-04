@@ -69,8 +69,7 @@ import static org.apache.activemq.artemis.tests.util.RandomUtil.randomString;
 /**
  * Test that Netty Connector can connect to a Web Server and upgrade from a HTTP request to its remoting protocol.
  */
-public class NettyConnectorWithHTTPUpgradeTest extends ActiveMQTestBase
-{
+public class NettyConnectorWithHTTPUpgradeTest extends ActiveMQTestBase {
 
    private static final SimpleString QUEUE = new SimpleString("NettyConnectorWithHTTPUpgradeTest");
 
@@ -86,8 +85,7 @@ public class NettyConnectorWithHTTPUpgradeTest extends ActiveMQTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
       HashMap<String, Object> httpParams = new HashMap<String, Object>();
       // This prop controls the usage of HTTP Get + Upgrade from Netty connector
@@ -95,8 +93,7 @@ public class NettyConnectorWithHTTPUpgradeTest extends ActiveMQTestBase
       httpParams.put(TransportConstants.PORT_PROP_NAME, HTTP_PORT);
       acceptorName = randomString();
 
-      conf = createDefaultNettyConfig()
-         .addAcceptorConfiguration(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, httpParams, acceptorName));
+      conf = createDefaultNettyConfig().addAcceptorConfiguration(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, httpParams, acceptorName));
 
       server = addServer(ActiveMQServers.newActiveMQServer(conf, false));
 
@@ -109,15 +106,13 @@ public class NettyConnectorWithHTTPUpgradeTest extends ActiveMQTestBase
    }
 
    @After
-   public void tearDown() throws Exception
-   {
+   public void tearDown() throws Exception {
       stopWebServer();
       super.tearDown();
    }
 
    @Test
-   public void sendAndReceiveOverHTTPPort() throws Exception
-   {
+   public void sendAndReceiveOverHTTPPort() throws Exception {
       ClientSessionFactory sf = createSessionFactory(locator);
       ClientSession session = sf.createSession(false, true, true);
 
@@ -127,13 +122,8 @@ public class NettyConnectorWithHTTPUpgradeTest extends ActiveMQTestBase
 
       final int numMessages = 100;
 
-      for (int i = 0; i < numMessages; i++)
-      {
-         ClientMessage message = session.createMessage(ActiveMQTextMessage.TYPE,
-                                                       false,
-                                                       0,
-                                                       System.currentTimeMillis(),
-                                                       (byte) 1);
+      for (int i = 0; i < numMessages; i++) {
+         ClientMessage message = session.createMessage(ActiveMQTextMessage.TYPE, false, 0, System.currentTimeMillis(), (byte) 1);
          message.getBodyBuffer().writeString("sendAndReceiveOverHTTPPort");
          producer.send(message);
       }
@@ -142,8 +132,7 @@ public class NettyConnectorWithHTTPUpgradeTest extends ActiveMQTestBase
 
       session.start();
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message2 = consumer.receive();
 
          assertNotNull(message2);
@@ -156,8 +145,7 @@ public class NettyConnectorWithHTTPUpgradeTest extends ActiveMQTestBase
    }
 
    @Test
-   public void HTTPUpgradeConnectorUsingNormalAcceptor() throws Exception
-   {
+   public void HTTPUpgradeConnectorUsingNormalAcceptor() throws Exception {
       HashMap<String, Object> params = new HashMap<>();
 
       // create a new locator that points an HTTP-upgrade connector to the normal acceptor
@@ -168,15 +156,13 @@ public class NettyConnectorWithHTTPUpgradeTest extends ActiveMQTestBase
 
       Exception e = null;
 
-      try
-      {
+      try {
          createSessionFactory(locator);
 
          // we shouldn't ever get here
          fail();
       }
-      catch (Exception x)
-      {
+      catch (Exception x) {
          e = x;
       }
 
@@ -187,71 +173,60 @@ public class NettyConnectorWithHTTPUpgradeTest extends ActiveMQTestBase
       assertTrue(((ActiveMQException) e).getType() == ActiveMQExceptionType.NOT_CONNECTED);
    }
 
-   private void startWebServer(int port) throws InterruptedException
-   {
+   private void startWebServer(int port) throws InterruptedException {
       bossGroup = new NioEventLoopGroup();
       workerGroup = new NioEventLoopGroup();
       ServerBootstrap b = new ServerBootstrap();
       b.childOption(ChannelOption.ALLOCATOR, PartialPooledByteBufAllocator.INSTANCE);
-      b.group(bossGroup, workerGroup)
-         .channel(NioServerSocketChannel.class)
-         .childHandler(new ChannelInitializer<SocketChannel>()
-         {
-            @Override
-            protected void initChannel(SocketChannel ch) throws Exception
-            {
-               // create a HTTP server
-               ChannelPipeline p = ch.pipeline();
-               p.addLast("decoder", new HttpRequestDecoder());
-               p.addLast("encoder", new HttpResponseEncoder());
-               p.addLast("http-upgrade-handler", new SimpleChannelInboundHandler<Object>()
-               {
-                  // handle HTTP GET + Upgrade with a handshake specific to ActiveMQ Artemis remoting.
-                  @Override
-                  protected void channelRead0(ChannelHandlerContext ctx, Object msg) throws Exception
-                  {
-                     if (msg instanceof HttpRequest)
-                     {
-                        HttpRequest request = (HttpRequest) msg;
+      b.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class).childHandler(new ChannelInitializer<SocketChannel>() {
+         @Override
+         protected void initChannel(SocketChannel ch) throws Exception {
+            // create a HTTP server
+            ChannelPipeline p = ch.pipeline();
+            p.addLast("decoder", new HttpRequestDecoder());
+            p.addLast("encoder", new HttpResponseEncoder());
+            p.addLast("http-upgrade-handler", new SimpleChannelInboundHandler<Object>() {
+               // handle HTTP GET + Upgrade with a handshake specific to ActiveMQ Artemis remoting.
+               @Override
+               protected void channelRead0(ChannelHandlerContext ctx, Object msg) throws Exception {
+                  if (msg instanceof HttpRequest) {
+                     HttpRequest request = (HttpRequest) msg;
 
-                        for (Map.Entry<String, String> entry : request.headers())
-                        {
-                           System.out.println(entry);
-                        }
-                        String upgrade = request.headers().get(UPGRADE);
-                        String secretKey = request.headers().get(SEC_ACTIVEMQ_REMOTING_KEY);
-
-                        FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, SWITCHING_PROTOCOLS);
-                        response.headers().set(UPGRADE, upgrade);
-                        response.headers().set(SEC_ACTIVEMQ_REMOTING_ACCEPT, createExpectedResponse(MAGIC_NUMBER, secretKey));
-                        ctx.writeAndFlush(response);
-
-                        // when the handshake is successful, the HTTP handlers are removed
-                        ctx.pipeline().remove("decoder");
-                        ctx.pipeline().remove("encoder");
-                        ctx.pipeline().remove(this);
-
-                        System.out.println("HTTP handshake sent, transferring channel");
-                        // transfer the control of the channel to the Netty Acceptor
-                        NettyAcceptor acceptor = (NettyAcceptor) server.getRemotingService().getAcceptor(acceptorName);
-                        acceptor.transfer(ctx.channel());
-                        // at this point, the HTTP upgrade process is over and the netty acceptor behaves like regular ones.
+                     for (Map.Entry<String, String> entry : request.headers()) {
+                        System.out.println(entry);
                      }
-                  }
-               });
-            }
+                     String upgrade = request.headers().get(UPGRADE);
+                     String secretKey = request.headers().get(SEC_ACTIVEMQ_REMOTING_KEY);
 
-            @Override
-            public void channelReadComplete(ChannelHandlerContext ctx) throws Exception
-            {
-               ctx.flush();
-            }
-         });
+                     FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, SWITCHING_PROTOCOLS);
+                     response.headers().set(UPGRADE, upgrade);
+                     response.headers().set(SEC_ACTIVEMQ_REMOTING_ACCEPT, createExpectedResponse(MAGIC_NUMBER, secretKey));
+                     ctx.writeAndFlush(response);
+
+                     // when the handshake is successful, the HTTP handlers are removed
+                     ctx.pipeline().remove("decoder");
+                     ctx.pipeline().remove("encoder");
+                     ctx.pipeline().remove(this);
+
+                     System.out.println("HTTP handshake sent, transferring channel");
+                     // transfer the control of the channel to the Netty Acceptor
+                     NettyAcceptor acceptor = (NettyAcceptor) server.getRemotingService().getAcceptor(acceptorName);
+                     acceptor.transfer(ctx.channel());
+                     // at this point, the HTTP upgrade process is over and the netty acceptor behaves like regular ones.
+                  }
+               }
+            });
+         }
+
+         @Override
+         public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
+            ctx.flush();
+         }
+      });
       b.bind(port).sync();
    }
 
-   private void stopWebServer()
-   {
+   private void stopWebServer() {
       bossGroup.shutdownGracefully();
       workerGroup.shutdownGracefully();
    }

@@ -21,37 +21,31 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.LinkedBlockingDeque;
 
-public class DumbServer
-{
+public class DumbServer {
+
    static ConcurrentMap<String, BlockingDeque<Object>> maps = new ConcurrentHashMap<>();
 
-   public static BlockingDeque getQueue(String name)
-   {
+   public static BlockingDeque getQueue(String name) {
       BlockingDeque q = maps.get(name);
-      if (q == null)
-      {
+      if (q == null) {
          q = new LinkedBlockingDeque();
          BlockingDeque oldValue = maps.putIfAbsent(name, q);
-         if (oldValue != null)
-         {
+         if (oldValue != null) {
             q = oldValue;
          }
       }
       return q;
    }
 
-   public static void clear()
-   {
-      for (BlockingDeque<Object> queue : maps.values())
-      {
+   public static void clear() {
+      for (BlockingDeque<Object> queue : maps.values()) {
          // We clear the queues just in case there is a component holding it
          queue.clear();
       }
       maps.clear();
    }
 
-   public static void put(String queue, Object message)
-   {
+   public static void put(String queue, Object message) {
       getQueue(queue).add(message);
    }
 

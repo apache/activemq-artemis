@@ -21,34 +21,32 @@ import java.util.Vector;
 
 import javax.jms.ConnectionMetaData;
 
-
 /**
  * This class implements javax.jms.ConnectionMetaData
  */
-public class ActiveMQRAConnectionMetaData implements ConnectionMetaData
-{
-   /** Trace enabled */
+public class ActiveMQRAConnectionMetaData implements ConnectionMetaData {
+
+   /**
+    * Trace enabled
+    */
    private static boolean trace = ActiveMQRALogger.LOGGER.isTraceEnabled();
 
    /**
     * Constructor
     */
-   public ActiveMQRAConnectionMetaData()
-   {
-      if (ActiveMQRAConnectionMetaData.trace)
-      {
+   public ActiveMQRAConnectionMetaData() {
+      if (ActiveMQRAConnectionMetaData.trace) {
          ActiveMQRALogger.LOGGER.trace("constructor()");
       }
    }
 
    /**
     * Get the JMS version
+    *
     * @return The version
     */
-   public String getJMSVersion()
-   {
-      if (ActiveMQRAConnectionMetaData.trace)
-      {
+   public String getJMSVersion() {
+      if (ActiveMQRAConnectionMetaData.trace) {
          ActiveMQRALogger.LOGGER.trace("getJMSVersion()");
       }
 
@@ -57,12 +55,11 @@ public class ActiveMQRAConnectionMetaData implements ConnectionMetaData
 
    /**
     * Get the JMS major version
+    *
     * @return The major version
     */
-   public int getJMSMajorVersion()
-   {
-      if (ActiveMQRAConnectionMetaData.trace)
-      {
+   public int getJMSMajorVersion() {
+      if (ActiveMQRAConnectionMetaData.trace) {
          ActiveMQRALogger.LOGGER.trace("getJMSMajorVersion()");
       }
 
@@ -71,12 +68,11 @@ public class ActiveMQRAConnectionMetaData implements ConnectionMetaData
 
    /**
     * Get the JMS minor version
+    *
     * @return The minor version
     */
-   public int getJMSMinorVersion()
-   {
-      if (ActiveMQRAConnectionMetaData.trace)
-      {
+   public int getJMSMinorVersion() {
+      if (ActiveMQRAConnectionMetaData.trace) {
          ActiveMQRALogger.LOGGER.trace("getJMSMinorVersion()");
       }
 
@@ -85,12 +81,11 @@ public class ActiveMQRAConnectionMetaData implements ConnectionMetaData
 
    /**
     * Get the JMS provider name
+    *
     * @return The name
     */
-   public String getJMSProviderName()
-   {
-      if (ActiveMQRAConnectionMetaData.trace)
-      {
+   public String getJMSProviderName() {
+      if (ActiveMQRAConnectionMetaData.trace) {
          ActiveMQRALogger.LOGGER.trace("getJMSProviderName()");
       }
 
@@ -99,12 +94,11 @@ public class ActiveMQRAConnectionMetaData implements ConnectionMetaData
 
    /**
     * Get the provider version
+    *
     * @return The version
     */
-   public String getProviderVersion()
-   {
-      if (ActiveMQRAConnectionMetaData.trace)
-      {
+   public String getProviderVersion() {
+      if (ActiveMQRAConnectionMetaData.trace) {
          ActiveMQRALogger.LOGGER.trace("getJMSProviderName()");
       }
 
@@ -113,12 +107,11 @@ public class ActiveMQRAConnectionMetaData implements ConnectionMetaData
 
    /**
     * Get the provider major version
+    *
     * @return The version
     */
-   public int getProviderMajorVersion()
-   {
-      if (ActiveMQRAConnectionMetaData.trace)
-      {
+   public int getProviderMajorVersion() {
+      if (ActiveMQRAConnectionMetaData.trace) {
          ActiveMQRALogger.LOGGER.trace("getProviderMajorVersion()");
       }
 
@@ -127,12 +120,11 @@ public class ActiveMQRAConnectionMetaData implements ConnectionMetaData
 
    /**
     * Get the provider minor version
+    *
     * @return The version
     */
-   public int getProviderMinorVersion()
-   {
-      if (ActiveMQRAConnectionMetaData.trace)
-      {
+   public int getProviderMinorVersion() {
+      if (ActiveMQRAConnectionMetaData.trace) {
          ActiveMQRALogger.LOGGER.trace("getProviderMinorVersion()");
       }
 
@@ -141,10 +133,10 @@ public class ActiveMQRAConnectionMetaData implements ConnectionMetaData
 
    /**
     * Get the JMS XPropertyNames
+    *
     * @return The names
     */
-   public Enumeration<Object> getJMSXPropertyNames()
-   {
+   public Enumeration<Object> getJMSXPropertyNames() {
       Vector<Object> v = new Vector<Object>();
       v.add("JMSXGroupID");
       v.add("JMSXGroupSeq");

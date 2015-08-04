@@ -26,8 +26,7 @@ import org.proton.plug.context.ProtonPlugSender;
 /**
  * These are methods where the Proton Plug component will call your server
  */
-public interface AMQPSessionCallback
-{
+public interface AMQPSessionCallback {
 
    void init(AMQPSessionContext session, SASLResult saslResult) throws Exception;
 
@@ -58,7 +57,6 @@ public interface AMQPSessionCallback
 
    void close() throws Exception;
 
-
    void ack(Object brokerConsumer, Object message) throws Exception;
 
    /**
@@ -70,9 +68,7 @@ public interface AMQPSessionCallback
     */
    void cancel(Object brokerConsumer, Object message, boolean updateCounts) throws Exception;
 
-
    void resumeDelivery(Object consumer);
-
 
    /**
     * @param delivery
@@ -80,6 +76,10 @@ public interface AMQPSessionCallback
     * @param messageFormat
     * @param messageEncoded a Heap Buffer ByteBuffer (safe to convert into byte[])
     */
-   void serverSend(Receiver receiver, Delivery delivery, String address, int messageFormat, ByteBuf messageEncoded) throws Exception;
+   void serverSend(Receiver receiver,
+                   Delivery delivery,
+                   String address,
+                   int messageFormat,
+                   ByteBuf messageEncoded) throws Exception;
 
 }

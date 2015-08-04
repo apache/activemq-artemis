@@ -50,30 +50,28 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public class OutgoingConnectionTestJTA extends ActiveMQRATestBase
-{
+public class OutgoingConnectionTestJTA extends ActiveMQRATestBase {
+
    protected ActiveMQResourceAdapter resourceAdapter;
    protected ActiveMQRAConnectionFactory qraConnectionFactory;
    protected ActiveMQRAManagedConnectionFactory mcf;
    ActiveMQRAConnectionManager qraConnectionManager = new ActiveMQRAConnectionManager();
 
    @Override
-   public boolean useSecurity()
-   {
+   public boolean useSecurity() {
       return true;
    }
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       useDummyTransactionManager();
       super.setUp();
-      ((ActiveMQSecurityManagerImpl)server.getSecurityManager()).getConfiguration().addUser("testuser", "testpassword");
-      ((ActiveMQSecurityManagerImpl)server.getSecurityManager()).getConfiguration().addUser("guest", "guest");
-      ((ActiveMQSecurityManagerImpl)server.getSecurityManager()).getConfiguration().setDefaultUser("guest");
-      ((ActiveMQSecurityManagerImpl)server.getSecurityManager()).getConfiguration().addRole("testuser", "arole");
-      ((ActiveMQSecurityManagerImpl)server.getSecurityManager()).getConfiguration().addRole("guest", "arole");
+      ((ActiveMQSecurityManagerImpl) server.getSecurityManager()).getConfiguration().addUser("testuser", "testpassword");
+      ((ActiveMQSecurityManagerImpl) server.getSecurityManager()).getConfiguration().addUser("guest", "guest");
+      ((ActiveMQSecurityManagerImpl) server.getSecurityManager()).getConfiguration().setDefaultUser("guest");
+      ((ActiveMQSecurityManagerImpl) server.getSecurityManager()).getConfiguration().addRole("testuser", "arole");
+      ((ActiveMQSecurityManagerImpl) server.getSecurityManager()).getConfiguration().addRole("guest", "arole");
       Role role = new Role("arole", true, true, true, true, true, true, true);
       Set<Role> roles = new HashSet<Role>();
       roles.add(role);
@@ -92,11 +90,9 @@ public class OutgoingConnectionTestJTA extends ActiveMQRATestBase
 
    @Override
    @After
-   public void tearDown() throws Exception
-   {
+   public void tearDown() throws Exception {
       ((DummyTransactionManager) ServiceUtils.getTransactionManager()).tx = null;
-      if (resourceAdapter != null)
-      {
+      if (resourceAdapter != null) {
          resourceAdapter.stop();
       }
 
@@ -105,8 +101,7 @@ public class OutgoingConnectionTestJTA extends ActiveMQRATestBase
    }
 
    @Test
-   public void testSimpleMessageSendAndReceiveTransacted() throws Exception
-   {
+   public void testSimpleMessageSendAndReceiveTransacted() throws Exception {
       setDummyTX();
       setupDLQ(10);
       resourceAdapter = newResourceAdapter();
@@ -134,75 +129,59 @@ public class OutgoingConnectionTestJTA extends ActiveMQRATestBase
       s.commit();
    }
 
-   public void testQueuSessionAckMode(boolean inTx) throws Exception
-   {
-      if (inTx)
-      {
+   public void testQueuSessionAckMode(boolean inTx) throws Exception {
+      if (inTx) {
          setDummyTX();
       }
       QueueConnection queueConnection = qraConnectionFactory.createQueueConnection();
 
       Session s = queueConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-      if (inTx)
-      {
+      if (inTx) {
          assertEquals(Session.SESSION_TRANSACTED, s.getAcknowledgeMode());
       }
-      else
-      {
+      else {
          assertEquals(Session.AUTO_ACKNOWLEDGE, s.getAcknowledgeMode());
       }
       s.close();
 
       s = queueConnection.createSession(false, Session.DUPS_OK_ACKNOWLEDGE);
-      if (inTx)
-      {
+      if (inTx) {
          assertEquals(Session.SESSION_TRANSACTED, s.getAcknowledgeMode());
       }
-      else
-      {
+      else {
          assertEquals(Session.DUPS_OK_ACKNOWLEDGE, s.getAcknowledgeMode());
       }
       s.close();
 
       //exception should be thrown if ack mode is SESSION_TRANSACTED or
       //CLIENT_ACKNOWLEDGE when in a JTA else ackmode should bee ignored
-      try
-      {
+      try {
          s = queueConnection.createSession(false, Session.SESSION_TRANSACTED);
-         if (inTx)
-         {
+         if (inTx) {
             assertEquals(s.getAcknowledgeMode(), Session.SESSION_TRANSACTED);
          }
-         else
-         {
+         else {
             fail("didn't get expected exception creating session with SESSION_TRANSACTED mode ");
          }
          s.close();
       }
-      catch (JMSException e)
-      {
-         if (inTx)
-         {
+      catch (JMSException e) {
+         if (inTx) {
             fail("shouldn't throw exception " + e);
          }
       }
 
-      try
-      {
+      try {
          s = queueConnection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
-         if (inTx)
-         {
+         if (inTx) {
             assertEquals(s.getAcknowledgeMode(), Session.SESSION_TRANSACTED);
          }
-         else
-         {
+         else {
             fail("didn't get expected exception creating session with CLIENT_ACKNOWLEDGE mode");
          }
       }
-      catch (JMSException e)
-      {
-         if (inTx)
-         {
+      catch (JMSException e) {
+         if (inTx) {
             fail("shouldn't throw exception " + e);
          }
       }
@@ -210,16 +189,14 @@ public class OutgoingConnectionTestJTA extends ActiveMQRATestBase
    }
 
    @Test
-   public void testSimpleSendNoXAJMSContext() throws Exception
-   {
+   public void testSimpleSendNoXAJMSContext() throws Exception {
       Queue q = ActiveMQJMSClient.createQueue(MDBQUEUE);
 
       try (ClientSessionFactory sf = locator.createSessionFactory();
            ClientSession session = sf.createSession();
            ClientConsumer consVerify = session.createConsumer("jms.queue." + MDBQUEUE);
            JMSContext jmsctx = qraConnectionFactory.createContext();
-      )
-      {
+      ) {
          session.start();
          // These next 4 lines could be written in a single line however it makes difficult for debugging
          JMSProducer producer = jmsctx.createProducer();
@@ -234,20 +211,17 @@ public class OutgoingConnectionTestJTA extends ActiveMQRATestBase
    }
 
    @Test
-   public void testQueueSessionAckModeJTA() throws Exception
-   {
+   public void testQueueSessionAckModeJTA() throws Exception {
       testQueuSessionAckMode(true);
    }
 
    @Test
-   public void testSessionAckModeNoJTA() throws Exception
-   {
+   public void testSessionAckModeNoJTA() throws Exception {
       testQueuSessionAckMode(false);
    }
 
    @Test
-   public void testSimpleMessageSendAndReceive() throws Exception
-   {
+   public void testSimpleMessageSendAndReceive() throws Exception {
       QueueConnection queueConnection = qraConnectionFactory.createQueueConnection();
       Session s = queueConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       Queue q = ActiveMQJMSClient.createQueue(MDBQUEUE);
@@ -262,15 +236,13 @@ public class OutgoingConnectionTestJTA extends ActiveMQRATestBase
    }
 
    @Test
-   public void testSimpleSendNoXAJMS1() throws Exception
-   {
+   public void testSimpleSendNoXAJMS1() throws Exception {
       Queue q = ActiveMQJMSClient.createQueue(MDBQUEUE);
       try (ClientSessionFactory sf = locator.createSessionFactory();
            ClientSession session = sf.createSession();
            ClientConsumer consVerify = session.createConsumer("jms.queue." + MDBQUEUE);
            Connection conn = qraConnectionFactory.createConnection();
-      )
-      {
+      ) {
          Session jmsSess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
          session.start();
          MessageProducer producer = jmsSess.createProducer(q);
@@ -284,8 +256,8 @@ public class OutgoingConnectionTestJTA extends ActiveMQRATestBase
          assertEquals("hello", msg.getStringProperty("strvalue"));
       }
    }
-   private void setDummyTX()
-   {
+
+   private void setDummyTX() {
       ((DummyTransactionManager) ServiceUtils.getTransactionManager()).tx = new DummyTransaction();
    }
 }

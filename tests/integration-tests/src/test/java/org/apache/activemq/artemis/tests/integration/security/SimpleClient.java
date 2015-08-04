@@ -30,15 +30,11 @@ import org.apache.activemq.artemis.tests.util.RandomUtil;
 /**
  * Code to be run in an external VM, via main()
  */
-final class SimpleClient
-{
+final class SimpleClient {
 
-   public static void main(final String[] args) throws Exception
-   {
-      try
-      {
-         if (args.length != 1)
-         {
+   public static void main(final String[] args) throws Exception {
+      try {
+         if (args.length != 1) {
             throw new Exception("require 1 argument: connector factory class name");
          }
          String connectorFactoryClassName = args[0];
@@ -47,8 +43,7 @@ final class SimpleClient
          String messageText = RandomUtil.randomString();
 
          ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(connectorFactoryClassName));
-         try
-         {
+         try {
             ClientSessionFactory sf = locator.createSessionFactory();
             ClientSession session = sf.createSession(false, true, true);
 
@@ -56,25 +51,19 @@ final class SimpleClient
             ClientProducer producer = session.createProducer(queueName);
             ClientConsumer consumer = session.createConsumer(queueName);
 
-            ClientMessage message = session.createMessage(ActiveMQTextMessage.TYPE,
-                                                          false,
-                                                          0,
-                                                          System.currentTimeMillis(),
-                                                          (byte) 1);
+            ClientMessage message = session.createMessage(ActiveMQTextMessage.TYPE, false, 0, System.currentTimeMillis(), (byte) 1);
             message.getBodyBuffer().writeString(messageText);
             producer.send(message);
 
             session.start();
 
             ClientMessage receivedMsg = consumer.receive(5000);
-            if (receivedMsg == null)
-            {
+            if (receivedMsg == null) {
                throw new Exception("did not receive the message");
             }
 
             String text = receivedMsg.getBodyBuffer().readString();
-            if (text == null || !text.equals(messageText))
-            {
+            if (text == null || !text.equals(messageText)) {
                throw new Exception("received " + text + ", was expecting " + messageText);
             }
 
@@ -85,18 +74,15 @@ final class SimpleClient
             sf.close();
             System.out.println("OK");
          }
-         finally
-         {
+         finally {
             locator.close();
          }
       }
-      catch (Throwable t)
-      {
+      catch (Throwable t) {
 
          String allStack = t.getMessage() + "|";
          StackTraceElement[] stackTrace = t.getStackTrace();
-         for (StackTraceElement stackTraceElement : stackTrace)
-         {
+         for (StackTraceElement stackTraceElement : stackTrace) {
             allStack += stackTraceElement.toString() + "|";
          }
          // System.out.println(t.getClass().getName());

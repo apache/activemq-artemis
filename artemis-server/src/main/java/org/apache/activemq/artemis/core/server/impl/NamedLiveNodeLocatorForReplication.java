@@ -33,8 +33,8 @@ import org.apache.activemq.artemis.core.server.cluster.qourum.SharedNothingBacku
  *
  * @see org.apache.activemq.artemis.core.server.cluster.ha.HAPolicy#getScaleDownGroupName()
  */
-public class NamedLiveNodeLocatorForReplication extends LiveNodeLocator
-{
+public class NamedLiveNodeLocatorForReplication extends LiveNodeLocator {
+
    private final Lock lock = new ReentrantLock();
    private final Condition condition = lock.newCondition();
    private final String backupGroupName;
@@ -42,99 +42,77 @@ public class NamedLiveNodeLocatorForReplication extends LiveNodeLocator
 
    private String nodeID;
 
-   public NamedLiveNodeLocatorForReplication(String backupGroupName, SharedNothingBackupQuorum quorumManager)
-   {
+   public NamedLiveNodeLocatorForReplication(String backupGroupName, SharedNothingBackupQuorum quorumManager) {
       super(quorumManager);
       this.backupGroupName = backupGroupName;
    }
 
    @Override
-   public void locateNode() throws ActiveMQException
-   {
+   public void locateNode() throws ActiveMQException {
       locateNode(-1L);
    }
 
    @Override
-   public void locateNode(long timeout) throws ActiveMQException
-   {
-      try
-      {
+   public void locateNode(long timeout) throws ActiveMQException {
+      try {
          lock.lock();
-         if (liveConfiguration == null)
-         {
-            try
-            {
-               if (timeout != -1L)
-               {
+         if (liveConfiguration == null) {
+            try {
+               if (timeout != -1L) {
                   condition.await(timeout, TimeUnit.MILLISECONDS);
                }
-               else
-               {
+               else {
                   condition.await();
                }
             }
-            catch (InterruptedException e)
-            {
+            catch (InterruptedException e) {
                //ignore
             }
          }
       }
-      finally
-      {
+      finally {
          lock.unlock();
       }
    }
 
    @Override
-   public void nodeUP(TopologyMember topologyMember, boolean last)
-   {
-      try
-      {
+   public void nodeUP(TopologyMember topologyMember, boolean last) {
+      try {
          lock.lock();
-         if (backupGroupName.equals(topologyMember.getBackupGroupName()) && topologyMember.getLive() != null)
-         {
-            liveConfiguration =
-               new Pair<TransportConfiguration, TransportConfiguration>(topologyMember.getLive(),
-                                                                        topologyMember.getBackup());
+         if (backupGroupName.equals(topologyMember.getBackupGroupName()) && topologyMember.getLive() != null) {
+            liveConfiguration = new Pair<TransportConfiguration, TransportConfiguration>(topologyMember.getLive(), topologyMember.getBackup());
             nodeID = topologyMember.getNodeId();
             condition.signal();
          }
       }
-      finally
-      {
+      finally {
          lock.unlock();
       }
    }
 
    @Override
-   public void nodeDown(long eventUID, String nodeID)
-   {
+   public void nodeDown(long eventUID, String nodeID) {
       //no op
    }
 
    @Override
-   public String getNodeID()
-   {
+   public String getNodeID() {
       return nodeID;
    }
 
    @Override
-   public Pair<TransportConfiguration, TransportConfiguration> getLiveConfiguration()
-   {
+   public Pair<TransportConfiguration, TransportConfiguration> getLiveConfiguration() {
       return liveConfiguration;
    }
 
    @Override
-   public void notifyRegistrationFailed(boolean alreadyReplicating)
-   {
-      try
-      {
+   public void notifyRegistrationFailed(boolean alreadyReplicating) {
+      try {
          lock.lock();
          liveConfiguration = null;
          super.notifyRegistrationFailed(alreadyReplicating);
       }
-      finally
-      {
+      finally {
          lock.unlock();
       }
    }

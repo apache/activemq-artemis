@@ -16,12 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
-public class ReplicatedPagingFailoverTest extends PagingFailoverTest
-{
+public class ReplicatedPagingFailoverTest extends PagingFailoverTest {
 
    @Override
-   protected void createConfigs() throws Exception
-   {
+   protected void createConfigs() throws Exception {
       createReplicatedConfigs();
    }
 }

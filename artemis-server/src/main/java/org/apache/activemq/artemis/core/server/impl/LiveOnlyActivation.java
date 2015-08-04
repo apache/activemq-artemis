@@ -37,8 +37,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 
-public class LiveOnlyActivation extends Activation
-{
+public class LiveOnlyActivation extends Activation {
+
    //this is how we act when we initially start as live
    private LiveOnlyPolicy liveOnlyPolicy;
 
@@ -48,97 +48,75 @@ public class LiveOnlyActivation extends Activation
 
    private ClientSessionFactoryInternal scaleDownClientSessionFactory;
 
-   public LiveOnlyActivation(ActiveMQServerImpl server, LiveOnlyPolicy liveOnlyPolicy)
-   {
+   public LiveOnlyActivation(ActiveMQServerImpl server, LiveOnlyPolicy liveOnlyPolicy) {
       this.activeMQServer = server;
       this.liveOnlyPolicy = liveOnlyPolicy;
    }
 
-   public void run()
-   {
-      try
-      {
+   public void run() {
+      try {
          activeMQServer.initialisePart1(false);
 
          activeMQServer.initialisePart2(false);
 
          activeMQServer.completeActivation();
 
-         if (activeMQServer.getIdentity() != null)
-         {
+         if (activeMQServer.getIdentity() != null) {
             ActiveMQServerLogger.LOGGER.serverIsLive(activeMQServer.getIdentity());
          }
-         else
-         {
+         else {
             ActiveMQServerLogger.LOGGER.serverIsLive();
          }
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          ActiveMQServerLogger.LOGGER.initializationError(e);
       }
    }
 
    @Override
-   public void close(boolean permanently, boolean restarting) throws Exception
-   {
-      if (scaleDownServerLocator != null)
-      {
+   public void close(boolean permanently, boolean restarting) throws Exception {
+      if (scaleDownServerLocator != null) {
          scaleDownServerLocator.close();
          scaleDownServerLocator = null;
       }
    }
 
-   public void freezeConnections(RemotingService remotingService)
-   {
+   public void freezeConnections(RemotingService remotingService) {
       // connect to the scale-down target first so that when we freeze/disconnect the clients we can tell them where
       // we're sending the messages
-      if (liveOnlyPolicy.getScaleDownPolicy() != null && liveOnlyPolicy.getScaleDownPolicy().isEnabled())
-      {
+      if (liveOnlyPolicy.getScaleDownPolicy() != null && liveOnlyPolicy.getScaleDownPolicy().isEnabled()) {
          connectToScaleDownTarget(liveOnlyPolicy.getScaleDownPolicy());
       }
 
       TransportConfiguration tc = scaleDownClientSessionFactory == null ? null : scaleDownClientSessionFactory.getConnectorConfiguration();
       String nodeID = tc == null ? null : scaleDownClientSessionFactory.getServerLocator().getTopology().getMember(tc).getNodeId();
-      if (remotingService != null)
-      {
+      if (remotingService != null) {
          remotingService.freeze(nodeID, null);
       }
    }
 
    @Override
-   public void postConnectionFreeze()
-   {
-      if (liveOnlyPolicy.getScaleDownPolicy() != null
-            && liveOnlyPolicy.getScaleDownPolicy().isEnabled()
-            && scaleDownClientSessionFactory != null)
-      {
-         try
-         {
+   public void postConnectionFreeze() {
+      if (liveOnlyPolicy.getScaleDownPolicy() != null && liveOnlyPolicy.getScaleDownPolicy().isEnabled() && scaleDownClientSessionFactory != null) {
+         try {
             scaleDown();
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             ActiveMQServerLogger.LOGGER.failedToScaleDown(e);
          }
-         finally
-         {
+         finally {
             scaleDownClientSessionFactory.close();
             scaleDownServerLocator.close();
          }
       }
    }
 
-   public void connectToScaleDownTarget(ScaleDownPolicy scaleDownPolicy)
-   {
-      try
-      {
+   public void connectToScaleDownTarget(ScaleDownPolicy scaleDownPolicy) {
+      try {
          scaleDownServerLocator = ScaleDownPolicy.getScaleDownConnector(scaleDownPolicy, activeMQServer);
          //use a Node Locator to connect to the cluster
          scaleDownServerLocator.setProtocolManagerFactory(ActiveMQServerSideProtocolManagerFactory.getInstance());
-         LiveNodeLocator nodeLocator = scaleDownPolicy.getGroupName() == null ?
-               new AnyLiveNodeLocatorForScaleDown(activeMQServer) :
-               new NamedLiveNodeLocatorForScaleDown(scaleDownPolicy.getGroupName(), activeMQServer);
+         LiveNodeLocator nodeLocator = scaleDownPolicy.getGroupName() == null ? new AnyLiveNodeLocatorForScaleDown(activeMQServer) : new NamedLiveNodeLocatorForScaleDown(scaleDownPolicy.getGroupName(), activeMQServer);
          scaleDownServerLocator.addClusterTopologyListener(nodeLocator);
 
          nodeLocator.connectToCluster(scaleDownServerLocator);
@@ -146,59 +124,44 @@ public class LiveOnlyActivation extends Activation
          // should the timeout be configurable?
          nodeLocator.locateNode(ActiveMQClient.DEFAULT_DISCOVERY_INITIAL_WAIT_TIMEOUT);
          ClientSessionFactoryInternal clientSessionFactory = null;
-         while (clientSessionFactory == null)
-         {
+         while (clientSessionFactory == null) {
             Pair<TransportConfiguration, TransportConfiguration> possibleLive = null;
-            try
-            {
+            try {
                possibleLive = nodeLocator.getLiveConfiguration();
                if (possibleLive == null)  // we've tried every connector
                   break;
                clientSessionFactory = (ClientSessionFactoryInternal) scaleDownServerLocator.createSessionFactory(possibleLive.getA(), 0, false);
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                ActiveMQServerLogger.LOGGER.trace("Failed to connect to " + possibleLive.getA());
                nodeLocator.notifyRegistrationFailed(false);
-               if (clientSessionFactory != null)
-               {
+               if (clientSessionFactory != null) {
                   clientSessionFactory.close();
                }
                clientSessionFactory = null;
                // should I try the backup (i.e. getB()) from possibleLive?
             }
          }
-         if (clientSessionFactory != null)
-         {
+         if (clientSessionFactory != null) {
             scaleDownClientSessionFactory = clientSessionFactory;
          }
-         else
-         {
+         else {
             throw new ActiveMQException("Unable to connect to server for scale-down");
          }
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          ActiveMQServerLogger.LOGGER.failedToScaleDown(e);
       }
    }
 
-
-   public long scaleDown() throws Exception
-   {
-      ScaleDownHandler scaleDownHandler = new ScaleDownHandler(activeMQServer.getPagingManager(),
-            activeMQServer.getPostOffice(),
-            activeMQServer.getNodeManager(),
-            activeMQServer.getClusterManager().getClusterController(),
-            activeMQServer.getStorageManager());
+   public long scaleDown() throws Exception {
+      ScaleDownHandler scaleDownHandler = new ScaleDownHandler(activeMQServer.getPagingManager(), activeMQServer.getPostOffice(), activeMQServer.getNodeManager(), activeMQServer.getClusterManager().getClusterController(), activeMQServer.getStorageManager());
       ConcurrentMap<SimpleString, DuplicateIDCache> duplicateIDCaches = ((PostOfficeImpl) activeMQServer.getPostOffice()).getDuplicateIDCaches();
       Map<SimpleString, List<Pair<byte[], Long>>> duplicateIDMap = new HashMap<>();
-      for (SimpleString address : duplicateIDCaches.keySet())
-      {
+      for (SimpleString address : duplicateIDCaches.keySet()) {
          DuplicateIDCache duplicateIDCache = activeMQServer.getPostOffice().getDuplicateIDCache(address);
          duplicateIDMap.put(address, duplicateIDCache.getMap());
       }
-      return scaleDownHandler.scaleDown(scaleDownClientSessionFactory, activeMQServer.getResourceManager(), duplicateIDMap,
-            activeMQServer.getManagementService().getManagementAddress(), null);
+      return scaleDownHandler.scaleDown(scaleDownClientSessionFactory, activeMQServer.getResourceManager(), duplicateIDMap, activeMQServer.getManagementService().getManagementAddress(), null);
    }
 }

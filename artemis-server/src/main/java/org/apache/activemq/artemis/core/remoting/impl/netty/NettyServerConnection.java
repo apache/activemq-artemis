@@ -23,16 +23,18 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.buffers.impl.ChannelBufferWrapper;
 import org.apache.activemq.artemis.spi.core.remoting.ConnectionLifeCycleListener;
 
-public class NettyServerConnection extends NettyConnection
-{
-   public NettyServerConnection(Map<String, Object> configuration, Channel channel, ConnectionLifeCycleListener listener, boolean batchingEnabled, boolean directDeliver)
-   {
+public class NettyServerConnection extends NettyConnection {
+
+   public NettyServerConnection(Map<String, Object> configuration,
+                                Channel channel,
+                                ConnectionLifeCycleListener listener,
+                                boolean batchingEnabled,
+                                boolean directDeliver) {
       super(configuration, channel, listener, batchingEnabled, directDeliver);
    }
 
    @Override
-   public ActiveMQBuffer createTransportBuffer(int size)
-   {
+   public ActiveMQBuffer createTransportBuffer(int size) {
       return new ChannelBufferWrapper(channel.alloc().directBuffer(size), true);
    }
 }

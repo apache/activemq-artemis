@@ -16,29 +16,28 @@
  */
 package org.apache.activemq.filter;
 
-
 /**
- * 
- * 
+ *
+ *
  */
 public class DummyPolicyEntry extends DestinationMapEntry<String> {
 
-    private String description;
+   private String description;
 
-    public String getDescription() {
-        return description;
-    }
+   public String getDescription() {
+      return description;
+   }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
+   public void setDescription(String description) {
+      this.description = description;
+   }
 
-    public Comparable<String> getValue() {
-        return description;
-    }
+   public Comparable<String> getValue() {
+      return description;
+   }
 
-    protected String getValuePropertyName() {
-        return "description";
-    }
+   protected String getValuePropertyName() {
+      return "description";
+   }
 
 }

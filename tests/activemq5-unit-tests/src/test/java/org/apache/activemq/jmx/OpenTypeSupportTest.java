@@ -25,6 +25,7 @@ import javax.jms.Session;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.management.openmbean.CompositeData;
+
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.broker.jmx.CompositeDataConstants;
@@ -37,79 +38,81 @@ import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import static org.junit.Assert.assertEquals;
 
 public class OpenTypeSupportTest {
-    private static final Logger LOG = LoggerFactory.getLogger(OpenTypeSupportTest.class);
 
-    private static BrokerService brokerService;
-    private static String TESTQUEUE = "testQueue";
-    private static ActiveMQConnectionFactory connectionFactory;
-    private static String BYTESMESSAGE_TEXT = "This is a short text";
-    private static String BROKER_ADDRESS = "tcp://localhost:0";
-    private static ActiveMQQueue queue = new ActiveMQQueue(TESTQUEUE);
+   private static final Logger LOG = LoggerFactory.getLogger(OpenTypeSupportTest.class);
 
-    private String connectionUri;
+   private static BrokerService brokerService;
+   private static String TESTQUEUE = "testQueue";
+   private static ActiveMQConnectionFactory connectionFactory;
+   private static String BYTESMESSAGE_TEXT = "This is a short text";
+   private static String BROKER_ADDRESS = "tcp://localhost:0";
+   private static ActiveMQQueue queue = new ActiveMQQueue(TESTQUEUE);
 
-    @Before
-    public void setUp() throws Exception {
-        brokerService = new BrokerService();
-        brokerService.setPersistent(false);
-        brokerService.setUseJmx(true);
-        connectionUri = brokerService.addConnector(BROKER_ADDRESS).getPublishableConnectString();
-        brokerService.start();
-        connectionFactory = new ActiveMQConnectionFactory(connectionUri);
-        sendMessage();
-    }
+   private String connectionUri;
 
-    @After
-    public void tearDown() throws Exception {
-        brokerService.stop();
-        brokerService.waitUntilStopped();
-    }
+   @Before
+   public void setUp() throws Exception {
+      brokerService = new BrokerService();
+      brokerService.setPersistent(false);
+      brokerService.setUseJmx(true);
+      connectionUri = brokerService.addConnector(BROKER_ADDRESS).getPublishableConnectString();
+      brokerService.start();
+      connectionFactory = new ActiveMQConnectionFactory(connectionUri);
+      sendMessage();
+   }
 
-    private static void sendMessage() throws JMSException {
-        Connection conn = connectionFactory.createConnection();
-        try {
-            conn.start();
-            Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-            Destination queue = session.createQueue(TESTQUEUE);
-            BytesMessage toSend = session.createBytesMessage();
-            toSend.writeBytes(BYTESMESSAGE_TEXT.getBytes());
-            MessageProducer producer = session.createProducer(queue);
-            producer.send(queue, toSend);
-        } finally {
-            conn.close();
-        }
-    }
+   @After
+   public void tearDown() throws Exception {
+      brokerService.stop();
+      brokerService.waitUntilStopped();
+   }
 
-    @Test
-    public void bytesMessagePreview() throws Exception {
-        QueueViewMBean queue = getProxyToQueueViewMBean();
-        assertEquals(extractText(queue.browse()[0]), extractText(queue.browse()[0]));
-    }
+   private static void sendMessage() throws JMSException {
+      Connection conn = connectionFactory.createConnection();
+      try {
+         conn.start();
+         Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         Destination queue = session.createQueue(TESTQUEUE);
+         BytesMessage toSend = session.createBytesMessage();
+         toSend.writeBytes(BYTESMESSAGE_TEXT.getBytes());
+         MessageProducer producer = session.createProducer(queue);
+         producer.send(queue, toSend);
+      }
+      finally {
+         conn.close();
+      }
+   }
 
-    @Test
-    public void testBrowseByteMessageFails() throws Exception {
-        ActiveMQBytesMessage bm = new ActiveMQBytesMessage();
-        bm.writeBytes("123456".getBytes());
-        Object result = OpenTypeSupport.convert(bm);
-        LOG.info("result : " + result);
-    }
+   @Test
+   public void bytesMessagePreview() throws Exception {
+      QueueViewMBean queue = getProxyToQueueViewMBean();
+      assertEquals(extractText(queue.browse()[0]), extractText(queue.browse()[0]));
+   }
 
-    private String extractText(CompositeData message) {
-        Byte content[] = (Byte[]) message.get(CompositeDataConstants.BODY_PREVIEW);
-        byte out[] = new byte[content.length];
-        for (int i = 0; i < content.length; i++) {
-            out[i] = content[i];
-        }
-        return new String(out);
-    }
+   @Test
+   public void testBrowseByteMessageFails() throws Exception {
+      ActiveMQBytesMessage bm = new ActiveMQBytesMessage();
+      bm.writeBytes("123456".getBytes());
+      Object result = OpenTypeSupport.convert(bm);
+      LOG.info("result : " + result);
+   }
 
-    private QueueViewMBean getProxyToQueueViewMBean() throws MalformedObjectNameException, JMSException {
-        final ObjectName queueViewMBeanName = new ObjectName("org.apache.activemq:type=Broker,brokerName=localhost,destinationType=Queue,destinationName=" + queue.getQueueName());
-        QueueViewMBean proxy = (QueueViewMBean)
-            brokerService.getManagementContext().newProxyInstance(queueViewMBeanName, QueueViewMBean.class, true);
-        return proxy;
-    }
+   private String extractText(CompositeData message) {
+      Byte content[] = (Byte[]) message.get(CompositeDataConstants.BODY_PREVIEW);
+      byte out[] = new byte[content.length];
+      for (int i = 0; i < content.length; i++) {
+         out[i] = content[i];
+      }
+      return new String(out);
+   }
+
+   private QueueViewMBean getProxyToQueueViewMBean() throws MalformedObjectNameException, JMSException {
+      final ObjectName queueViewMBeanName = new ObjectName("org.apache.activemq:type=Broker,brokerName=localhost,destinationType=Queue,destinationName=" + queue.getQueueName());
+      QueueViewMBean proxy = (QueueViewMBean) brokerService.getManagementContext().newProxyInstance(queueViewMBeanName, QueueViewMBean.class, true);
+      return proxy;
+   }
 }

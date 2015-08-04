@@ -32,8 +32,7 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import java.util.List;
 
-public class TextMessageTest extends JMSTestBase
-{
+public class TextMessageTest extends JMSTestBase {
 
    // Constants -----------------------------------------------------
 
@@ -48,8 +47,7 @@ public class TextMessageTest extends JMSTestBase
    // Public --------------------------------------------------------
 
    @Test
-   public void testSendReceiveNullBody() throws Exception
-   {
+   public void testSendReceiveNullBody() throws Exception {
       conn = cf.createConnection();
 
       Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -81,60 +79,50 @@ public class TextMessageTest extends JMSTestBase
    }
 
    @Test
-   public void testSendReceiveWithBody0() throws Exception
-   {
+   public void testSendReceiveWithBody0() throws Exception {
       testSendReceiveWithBody(0);
    }
 
    @Test
-   public void testSendReceiveWithBody1() throws Exception
-   {
+   public void testSendReceiveWithBody1() throws Exception {
       testSendReceiveWithBody(1);
    }
 
    @Test
-   public void testSendReceiveWithBody9() throws Exception
-   {
+   public void testSendReceiveWithBody9() throws Exception {
       testSendReceiveWithBody(9);
    }
 
    @Test
-   public void testSendReceiveWithBody20() throws Exception
-   {
+   public void testSendReceiveWithBody20() throws Exception {
       testSendReceiveWithBody(20);
    }
 
    @Test
-   public void testSendReceiveWithBody10000() throws Exception
-   {
+   public void testSendReceiveWithBody10000() throws Exception {
       testSendReceiveWithBody(10000);
    }
 
    @Test
-   public void testSendReceiveWithBody0xffff() throws Exception
-   {
+   public void testSendReceiveWithBody0xffff() throws Exception {
       testSendReceiveWithBody(0xffff);
    }
 
    @Test
-   public void testSendReceiveWithBody0xffffplus1() throws Exception
-   {
+   public void testSendReceiveWithBody0xffffplus1() throws Exception {
       testSendReceiveWithBody(0xffff + 1);
    }
 
    @Test
-   public void testSendReceiveWithBody0xfffftimes2() throws Exception
-   {
+   public void testSendReceiveWithBody0xfffftimes2() throws Exception {
       testSendReceiveWithBody(2 * 0xffff);
    }
 
-   private void testSendReceiveWithBody(final int bodyLength) throws Exception
-   {
+   private void testSendReceiveWithBody(final int bodyLength) throws Exception {
       conn = cf.createConnection();
       char[] chrs = new char[bodyLength];
 
-      for (int i = 0; i < bodyLength; i++)
-      {
+      for (int i = 0; i < bodyLength; i++) {
          chrs[i] = RandomUtil.randomChar();
       }
       String str = new String(chrs);
@@ -184,55 +172,19 @@ public class TextMessageTest extends JMSTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
       queue = createQueue("queue1");
    }
 
    @Override
    protected void createCF(final List<TransportConfiguration> connectorConfigs,
-                           final String... jndiBindings) throws Exception
-   {
+                           final String... jndiBindings) throws Exception {
       int retryInterval = 1000;
       double retryIntervalMultiplier = 1.0;
       int reconnectAttempts = -1;
       int callTimeout = 30000;
 
-      jmsServer.createConnectionFactory("ManualReconnectionToSingleServerTest",
-                                        false,
-                                        JMSFactoryType.CF,
-                                        registerConnectors(server, connectorConfigs),
-                                        null,
-                                        ActiveMQClient.DEFAULT_CLIENT_FAILURE_CHECK_PERIOD,
-                                        ActiveMQClient.DEFAULT_CONNECTION_TTL,
-                                        callTimeout,
-                                        ActiveMQClient.DEFAULT_CALL_FAILOVER_TIMEOUT,
-                                        true,
-                                        ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE,
-                                        ActiveMQClient.DEFAULT_COMPRESS_LARGE_MESSAGES,
-                                        ActiveMQClient.DEFAULT_CONSUMER_WINDOW_SIZE,
-                                        ActiveMQClient.DEFAULT_CONSUMER_MAX_RATE,
-                                        ActiveMQClient.DEFAULT_CONFIRMATION_WINDOW_SIZE,
-                                        ActiveMQClient.DEFAULT_PRODUCER_WINDOW_SIZE,
-                                        ActiveMQClient.DEFAULT_PRODUCER_MAX_RATE,
-                                        ActiveMQClient.DEFAULT_BLOCK_ON_ACKNOWLEDGE,
-                                        ActiveMQClient.DEFAULT_BLOCK_ON_DURABLE_SEND,
-                                        ActiveMQClient.DEFAULT_BLOCK_ON_NON_DURABLE_SEND,
-                                        ActiveMQClient.DEFAULT_AUTO_GROUP,
-                                        ActiveMQClient.DEFAULT_PRE_ACKNOWLEDGE,
-                                        ActiveMQClient.DEFAULT_CONNECTION_LOAD_BALANCING_POLICY_CLASS_NAME,
-                                        ActiveMQClient.DEFAULT_ACK_BATCH_SIZE,
-                                        ActiveMQClient.DEFAULT_ACK_BATCH_SIZE,
-                                        ActiveMQClient.DEFAULT_USE_GLOBAL_POOLS,
-                                        ActiveMQClient.DEFAULT_SCHEDULED_THREAD_POOL_MAX_SIZE,
-                                        ActiveMQClient.DEFAULT_THREAD_POOL_MAX_SIZE,
-                                        retryInterval,
-                                        retryIntervalMultiplier,
-                                        ActiveMQClient.DEFAULT_MAX_RETRY_INTERVAL,
-                                        reconnectAttempts,
-                                        ActiveMQClient.DEFAULT_FAILOVER_ON_INITIAL_CONNECTION,
-                                        null,
-                                        jndiBindings);
+      jmsServer.createConnectionFactory("ManualReconnectionToSingleServerTest", false, JMSFactoryType.CF, registerConnectors(server, connectorConfigs), null, ActiveMQClient.DEFAULT_CLIENT_FAILURE_CHECK_PERIOD, ActiveMQClient.DEFAULT_CONNECTION_TTL, callTimeout, ActiveMQClient.DEFAULT_CALL_FAILOVER_TIMEOUT, true, ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE, ActiveMQClient.DEFAULT_COMPRESS_LARGE_MESSAGES, ActiveMQClient.DEFAULT_CONSUMER_WINDOW_SIZE, ActiveMQClient.DEFAULT_CONSUMER_MAX_RATE, ActiveMQClient.DEFAULT_CONFIRMATION_WINDOW_SIZE, ActiveMQClient.DEFAULT_PRODUCER_WINDOW_SIZE, ActiveMQClient.DEFAULT_PRODUCER_MAX_RATE, ActiveMQClient.DEFAULT_BLOCK_ON_ACKNOWLEDGE, ActiveMQClient.DEFAULT_BLOCK_ON_DURABLE_SEND, ActiveMQClient.DEFAULT_BLOCK_ON_NON_DURABLE_SEND, ActiveMQClient.DEFAULT_AUTO_GROUP, ActiveMQClient.DEFAULT_PRE_ACKNOWLEDGE, ActiveMQClient.DEFAULT_CONNECTION_LOAD_BALANCING_POLICY_CLASS_NAME, ActiveMQClient.DEFAULT_ACK_BATCH_SIZE, ActiveMQClient.DEFAULT_ACK_BATCH_SIZE, ActiveMQClient.DEFAULT_USE_GLOBAL_POOLS, ActiveMQClient.DEFAULT_SCHEDULED_THREAD_POOL_MAX_SIZE, ActiveMQClient.DEFAULT_THREAD_POOL_MAX_SIZE, retryInterval, retryIntervalMultiplier, ActiveMQClient.DEFAULT_MAX_RETRY_INTERVAL, reconnectAttempts, ActiveMQClient.DEFAULT_FAILOVER_ON_INITIAL_CONNECTION, null, jndiBindings);
    }
 }

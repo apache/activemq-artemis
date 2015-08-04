@@ -31,8 +31,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-public class RefsOperation extends TransactionOperationAbstract
-{
+public class RefsOperation extends TransactionOperationAbstract {
+
    private final StorageManager storageManager;
    private Queue queue;
    List<MessageReference> refsToAck = new ArrayList<MessageReference>();
@@ -45,25 +45,20 @@ public class RefsOperation extends TransactionOperationAbstract
     */
    protected boolean ignoreRedeliveryCheck = false;
 
-   public RefsOperation(Queue queue, StorageManager storageManager)
-   {
+   public RefsOperation(Queue queue, StorageManager storageManager) {
       this.queue = queue;
       this.storageManager = storageManager;
    }
 
    // once turned on, we shouldn't turn it off, that's why no parameters
-   public void setIgnoreRedeliveryCheck()
-   {
+   public void setIgnoreRedeliveryCheck() {
       ignoreRedeliveryCheck = true;
    }
 
-   synchronized void addAck(final MessageReference ref)
-   {
+   synchronized void addAck(final MessageReference ref) {
       refsToAck.add(ref);
-      if (ref.isPaged())
-      {
-         if (pagedMessagesToPostACK == null)
-         {
+      if (ref.isPaged()) {
+         if (pagedMessagesToPostACK == null) {
             pagedMessagesToPostACK = new ArrayList<ServerMessage>();
          }
          pagedMessagesToPostACK.add(ref.getMessage());
@@ -71,8 +66,7 @@ public class RefsOperation extends TransactionOperationAbstract
    }
 
    @Override
-   public void afterRollback(final Transaction tx)
-   {
+   public void afterRollback(final Transaction tx) {
       Map<QueueImpl, LinkedList<MessageReference>> queueMap = new HashMap<QueueImpl, LinkedList<MessageReference>>();
 
       long timeBase = System.currentTimeMillis();
@@ -81,27 +75,21 @@ public class RefsOperation extends TransactionOperationAbstract
       // previous state persisted.
       List<MessageReference> ackedRefs = new ArrayList<>();
 
-      for (MessageReference ref : refsToAck)
-      {
+      for (MessageReference ref : refsToAck) {
          ref.setConsumerId(null);
 
-         if (ActiveMQServerLogger.LOGGER.isTraceEnabled())
-         {
+         if (ActiveMQServerLogger.LOGGER.isTraceEnabled()) {
             ActiveMQServerLogger.LOGGER.trace("rolling back " + ref);
          }
-         try
-         {
-            if (ref.isAlreadyAcked())
-            {
+         try {
+            if (ref.isAlreadyAcked()) {
                ackedRefs.add(ref);
             }
             // if ignore redelivery check, we just perform redelivery straight
-            if (ref.getQueue().checkRedelivery(ref, timeBase, ignoreRedeliveryCheck))
-            {
+            if (ref.getQueue().checkRedelivery(ref, timeBase, ignoreRedeliveryCheck)) {
                LinkedList<MessageReference> toCancel = queueMap.get(ref.getQueue());
 
-               if (toCancel == null)
-               {
+               if (toCancel == null) {
                   toCancel = new LinkedList<MessageReference>();
 
                   queueMap.put((QueueImpl) ref.getQueue(), toCancel);
@@ -110,40 +98,32 @@ public class RefsOperation extends TransactionOperationAbstract
                toCancel.addFirst(ref);
             }
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             ActiveMQServerLogger.LOGGER.errorCheckingDLQ(e);
          }
       }
 
-      for (Map.Entry<QueueImpl, LinkedList<MessageReference>> entry : queueMap.entrySet())
-      {
+      for (Map.Entry<QueueImpl, LinkedList<MessageReference>> entry : queueMap.entrySet()) {
          LinkedList<MessageReference> refs = entry.getValue();
 
          QueueImpl queue = entry.getKey();
 
-         synchronized (queue)
-         {
+         synchronized (queue) {
             queue.postRollback(refs);
          }
       }
 
-      if (!ackedRefs.isEmpty())
-      {
+      if (!ackedRefs.isEmpty()) {
          //since pre acked refs have no previous state we need to actually create this by storing the message and the
          //message references
-         try
-         {
+         try {
             Transaction ackedTX = new TransactionImpl(storageManager);
-            for (MessageReference ref : ackedRefs)
-            {
+            for (MessageReference ref : ackedRefs) {
                ServerMessage message = ref.getMessage();
-               if (message.isDurable())
-               {
+               if (message.isDurable()) {
                   int durableRefCount = message.incrementDurableRefCount();
 
-                  if (durableRefCount == 1)
-                  {
+                  if (durableRefCount == 1) {
                      storageManager.storeMessageTransactional(ackedTX.getID(), message);
                   }
                   Queue queue = ref.getQueue();
@@ -157,34 +137,26 @@ public class RefsOperation extends TransactionOperationAbstract
             }
             ackedTX.commit(true);
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             e.printStackTrace();
          }
       }
    }
 
    @Override
-   public void afterCommit(final Transaction tx)
-   {
-      for (MessageReference ref : refsToAck)
-      {
-         synchronized (ref.getQueue())
-         {
+   public void afterCommit(final Transaction tx) {
+      for (MessageReference ref : refsToAck) {
+         synchronized (ref.getQueue()) {
             queue.postAcknowledge(ref);
          }
       }
 
-      if (pagedMessagesToPostACK != null)
-      {
-         for (ServerMessage msg : pagedMessagesToPostACK)
-         {
-            try
-            {
+      if (pagedMessagesToPostACK != null) {
+         for (ServerMessage msg : pagedMessagesToPostACK) {
+            try {
                msg.decrementRefCount();
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
             }
          }
@@ -192,21 +164,17 @@ public class RefsOperation extends TransactionOperationAbstract
    }
 
    @Override
-   public synchronized List<MessageReference> getRelatedMessageReferences()
-   {
+   public synchronized List<MessageReference> getRelatedMessageReferences() {
       List<MessageReference> listRet = new LinkedList<MessageReference>();
       listRet.addAll(listRet);
       return listRet;
    }
 
    @Override
-   public synchronized List<MessageReference> getListOnConsumer(long consumerID)
-   {
+   public synchronized List<MessageReference> getListOnConsumer(long consumerID) {
       List<MessageReference> list = new LinkedList<MessageReference>();
-      for (MessageReference ref : refsToAck)
-      {
-         if (ref.getConsumerId() != null && ref.getConsumerId().equals(consumerID))
-         {
+      for (MessageReference ref : refsToAck) {
+         if (ref.getConsumerId() != null && ref.getConsumerId().equals(consumerID)) {
             list.add(ref);
          }
       }
@@ -214,8 +182,7 @@ public class RefsOperation extends TransactionOperationAbstract
       return list;
    }
 
-   public List<MessageReference> getReferencesToAcknowledge()
-   {
+   public List<MessageReference> getReferencesToAcknowledge() {
       return refsToAck;
    }
 

@@ -43,25 +43,19 @@ import org.junit.Test;
 import java.util.Collection;
 import java.util.concurrent.TimeUnit;
 
-public class DivertTest extends ActiveMQTestBase
-{
+public class DivertTest extends ActiveMQTestBase {
+
    private static final int TIMEOUT = 500;
 
    @Test
-   public void testSingleNonExclusiveDivert() throws Exception
-   {
+   public void testSingleNonExclusiveDivert() throws Exception {
       final String testAddress = "testAddress";
 
       final String forwardAddress = "forwardAddress";
 
-      DivertConfiguration divertConf = new DivertConfiguration()
-         .setName("divert1")
-         .setRoutingName("divert1")
-         .setAddress(testAddress)
-         .setForwardingAddress(forwardAddress);
+      DivertConfiguration divertConf = new DivertConfiguration().setName("divert1").setRoutingName("divert1").setAddress(testAddress).setForwardingAddress(forwardAddress);
 
-      Configuration config = createDefaultInVMConfig()
-              .addDivertConfiguration(divertConf);
+      Configuration config = createDefaultInVMConfig().addDivertConfiguration(divertConf);
 
       ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(config, false));
 
@@ -93,8 +87,7 @@ public class DivertTest extends ActiveMQTestBase
 
       final SimpleString propKey = new SimpleString("testkey");
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session.createMessage(false);
 
          message.putIntProperty(propKey, i);
@@ -102,8 +95,7 @@ public class DivertTest extends ActiveMQTestBase
          producer.send(message);
       }
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = consumer1.receive(DivertTest.TIMEOUT);
 
          Assert.assertNotNull(message);
@@ -115,8 +107,7 @@ public class DivertTest extends ActiveMQTestBase
 
       Assert.assertNull(consumer1.receiveImmediate());
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = consumer2.receive(DivertTest.TIMEOUT);
 
          Assert.assertNotNull(message);
@@ -129,29 +120,19 @@ public class DivertTest extends ActiveMQTestBase
       Assert.assertNull(consumer2.receiveImmediate());
    }
 
-
    @Test
-   public void testSingleDivertWithExpiry() throws Exception
-   {
+   public void testSingleDivertWithExpiry() throws Exception {
       final String testAddress = "testAddress";
 
       final String forwardAddress = "forwardAddress";
 
       final String expiryAddress = "expiryAddress";
 
-      AddressSettings expirySettings = new AddressSettings()
-              .setExpiryAddress(new SimpleString(expiryAddress));
+      AddressSettings expirySettings = new AddressSettings().setExpiryAddress(new SimpleString(expiryAddress));
 
-      DivertConfiguration divertConf = new DivertConfiguration()
-         .setName("divert1")
-         .setRoutingName("divert1")
-         .setAddress(testAddress)
-         .setForwardingAddress(forwardAddress);
+      DivertConfiguration divertConf = new DivertConfiguration().setName("divert1").setRoutingName("divert1").setAddress(testAddress).setForwardingAddress(forwardAddress);
 
-      Configuration config = createDefaultInVMConfig()
-              .addDivertConfiguration(divertConf)
-              .clearAddressesSettings()
-              .addAddressesSetting("#", expirySettings);
+      Configuration config = createDefaultInVMConfig().addDivertConfiguration(divertConf).clearAddressesSettings().addAddressesSetting("#", expirySettings);
 
       ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(config, true));
 
@@ -185,8 +166,7 @@ public class DivertTest extends ActiveMQTestBase
 
       final SimpleString propKey = new SimpleString("testkey");
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session.createMessage(true);
 
          message.putIntProperty(propKey, i);
@@ -197,21 +177,18 @@ public class DivertTest extends ActiveMQTestBase
       }
       session.commit();
 
-
       // this context is validating if these messages are routed correctly
       {
          int count1 = 0;
          ClientMessage message = null;
-         while ((message = consumer1.receiveImmediate()) != null)
-         {
+         while ((message = consumer1.receiveImmediate()) != null) {
             message.acknowledge();
             count1++;
          }
 
          int count2 = 0;
          message = null;
-         while ((message = consumer2.receiveImmediate()) != null)
-         {
+         while ((message = consumer2.receiveImmediate()) != null) {
             message.acknowledge();
             count2++;
          }
@@ -231,22 +208,18 @@ public class DivertTest extends ActiveMQTestBase
       int countOriginal2 = 0;
       ClientConsumer consumerExpiry = session.createConsumer(expiryAddress);
 
-      for (int i = 0; i < numMessages * 2; i++)
-      {
+      for (int i = 0; i < numMessages * 2; i++) {
          ClientMessage message = consumerExpiry.receive(5000);
          System.out.println("Received message " + message);
          assertNotNull(message);
 
-         if (message.getStringProperty(MessageImpl.HDR_ORIGINAL_QUEUE).equals("queue1"))
-         {
+         if (message.getStringProperty(MessageImpl.HDR_ORIGINAL_QUEUE).equals("queue1")) {
             countOriginal1++;
          }
-         else if (message.getStringProperty(MessageImpl.HDR_ORIGINAL_QUEUE).equals("queue2"))
-         {
+         else if (message.getStringProperty(MessageImpl.HDR_ORIGINAL_QUEUE).equals("queue2")) {
             countOriginal2++;
          }
-         else
-         {
+         else {
             System.out.println("message not part of any expired queue" + message);
          }
       }
@@ -256,20 +229,14 @@ public class DivertTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testSingleNonExclusiveDivert2() throws Exception
-   {
+   public void testSingleNonExclusiveDivert2() throws Exception {
       final String testAddress = "testAddress";
 
       final String forwardAddress = "forwardAddress";
 
-      DivertConfiguration divertConf = new DivertConfiguration()
-         .setName("divert1")
-         .setRoutingName("divert1")
-         .setAddress(testAddress)
-         .setForwardingAddress(forwardAddress);
+      DivertConfiguration divertConf = new DivertConfiguration().setName("divert1").setRoutingName("divert1").setAddress(testAddress).setForwardingAddress(forwardAddress);
 
-      Configuration config = createDefaultInVMConfig()
-              .addDivertConfiguration(divertConf);
+      Configuration config = createDefaultInVMConfig().addDivertConfiguration(divertConf);
 
       ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(config, false));
 
@@ -313,8 +280,7 @@ public class DivertTest extends ActiveMQTestBase
 
       final SimpleString propKey = new SimpleString("testkey");
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session.createMessage(false);
 
          message.putIntProperty(propKey, i);
@@ -322,8 +288,7 @@ public class DivertTest extends ActiveMQTestBase
          producer.send(message);
       }
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = consumer1.receive(DivertTest.TIMEOUT);
 
          Assert.assertNotNull(message);
@@ -335,8 +300,7 @@ public class DivertTest extends ActiveMQTestBase
 
       Assert.assertNull(consumer1.receiveImmediate());
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = consumer2.receive(DivertTest.TIMEOUT);
 
          Assert.assertNotNull(message);
@@ -348,8 +312,7 @@ public class DivertTest extends ActiveMQTestBase
 
       Assert.assertNull(consumer2.receiveImmediate());
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = consumer3.receive(DivertTest.TIMEOUT);
 
          Assert.assertNotNull(message);
@@ -361,8 +324,7 @@ public class DivertTest extends ActiveMQTestBase
 
       Assert.assertNull(consumer3.receiveImmediate());
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = consumer4.receive(DivertTest.TIMEOUT);
 
          Assert.assertNotNull(message);
@@ -376,20 +338,14 @@ public class DivertTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testSingleNonExclusiveDivert3() throws Exception
-   {
+   public void testSingleNonExclusiveDivert3() throws Exception {
       final String testAddress = "testAddress";
 
       final String forwardAddress = "forwardAddress";
 
-      DivertConfiguration divertConf = new DivertConfiguration()
-         .setName("divert1")
-         .setRoutingName("divert1")
-         .setAddress(testAddress)
-         .setForwardingAddress(forwardAddress);
+      DivertConfiguration divertConf = new DivertConfiguration().setName("divert1").setRoutingName("divert1").setAddress(testAddress).setForwardingAddress(forwardAddress);
 
-      Configuration config = createDefaultInVMConfig()
-              .addDivertConfiguration(divertConf);
+      Configuration config = createDefaultInVMConfig().addDivertConfiguration(divertConf);
 
       ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(config, false));
 
@@ -414,8 +370,7 @@ public class DivertTest extends ActiveMQTestBase
 
       final SimpleString propKey = new SimpleString("testkey");
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session.createMessage(false);
 
          message.putIntProperty(propKey, i);
@@ -423,8 +378,7 @@ public class DivertTest extends ActiveMQTestBase
          producer.send(message);
       }
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = consumer1.receive(DivertTest.TIMEOUT);
 
          Assert.assertNotNull(message);
@@ -438,21 +392,14 @@ public class DivertTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testSingleExclusiveDivert() throws Exception
-   {
+   public void testSingleExclusiveDivert() throws Exception {
       final String testAddress = "testAddress";
 
       final String forwardAddress = "forwardAddress";
 
-      DivertConfiguration divertConf = new DivertConfiguration()
-         .setName("divert1")
-         .setRoutingName("divert1")
-         .setAddress(testAddress)
-         .setForwardingAddress(forwardAddress)
-         .setExclusive(true);
+      DivertConfiguration divertConf = new DivertConfiguration().setName("divert1").setRoutingName("divert1").setAddress(testAddress).setForwardingAddress(forwardAddress).setExclusive(true);
 
-      Configuration config = createDefaultInVMConfig()
-              .addDivertConfiguration(divertConf);
+      Configuration config = createDefaultInVMConfig().addDivertConfiguration(divertConf);
 
       ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(config, false));
 
@@ -493,8 +440,7 @@ public class DivertTest extends ActiveMQTestBase
 
       final SimpleString propKey = new SimpleString("testkey");
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session.createMessage(false);
 
          message.putIntProperty(propKey, i);
@@ -502,8 +448,7 @@ public class DivertTest extends ActiveMQTestBase
          producer.send(message);
       }
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = consumer1.receive(DivertTest.TIMEOUT);
 
          Assert.assertNotNull(message);
@@ -523,36 +468,20 @@ public class DivertTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testMultipleNonExclusiveDivert() throws Exception
-   {
+   public void testMultipleNonExclusiveDivert() throws Exception {
       final String testAddress = "testAddress";
 
       final String forwardAddress1 = "forwardAddress1";
       final String forwardAddress2 = "forwardAddress2";
       final String forwardAddress3 = "forwardAddress3";
 
-      DivertConfiguration divertConf1 = new DivertConfiguration()
-         .setName("divert1")
-         .setRoutingName("divert1")
-         .setAddress(testAddress)
-         .setForwardingAddress(forwardAddress1);
+      DivertConfiguration divertConf1 = new DivertConfiguration().setName("divert1").setRoutingName("divert1").setAddress(testAddress).setForwardingAddress(forwardAddress1);
 
-      DivertConfiguration divertConf2 = new DivertConfiguration()
-         .setName("divert2")
-         .setRoutingName("divert2")
-         .setAddress(testAddress)
-         .setForwardingAddress(forwardAddress2);
+      DivertConfiguration divertConf2 = new DivertConfiguration().setName("divert2").setRoutingName("divert2").setAddress(testAddress).setForwardingAddress(forwardAddress2);
 
-      DivertConfiguration divertConf3 = new DivertConfiguration()
-         .setName("divert3")
-         .setRoutingName("divert3")
-         .setAddress(testAddress)
-         .setForwardingAddress(forwardAddress3);
+      DivertConfiguration divertConf3 = new DivertConfiguration().setName("divert3").setRoutingName("divert3").setAddress(testAddress).setForwardingAddress(forwardAddress3);
 
-      Configuration config = createDefaultInVMConfig()
-              .addDivertConfiguration(divertConf1)
-              .addDivertConfiguration(divertConf2)
-              .addDivertConfiguration(divertConf3);
+      Configuration config = createDefaultInVMConfig().addDivertConfiguration(divertConf1).addDivertConfiguration(divertConf2).addDivertConfiguration(divertConf3);
 
       ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(config, false));
 
@@ -595,8 +524,7 @@ public class DivertTest extends ActiveMQTestBase
 
       final SimpleString propKey = new SimpleString("testkey");
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session.createMessage(false);
 
          message.putIntProperty(propKey, i);
@@ -604,8 +532,7 @@ public class DivertTest extends ActiveMQTestBase
          producer.send(message);
       }
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = consumer1.receive(DivertTest.TIMEOUT);
 
          Assert.assertNotNull(message);
@@ -617,8 +544,7 @@ public class DivertTest extends ActiveMQTestBase
 
       Assert.assertNull(consumer1.receiveImmediate());
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = consumer2.receive(DivertTest.TIMEOUT);
 
          Assert.assertNotNull(message);
@@ -630,8 +556,7 @@ public class DivertTest extends ActiveMQTestBase
 
       Assert.assertNull(consumer2.receiveImmediate());
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = consumer3.receive(DivertTest.TIMEOUT);
 
          Assert.assertNotNull(message);
@@ -643,8 +568,7 @@ public class DivertTest extends ActiveMQTestBase
 
       Assert.assertNull(consumer3.receiveImmediate());
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = consumer4.receive(DivertTest.TIMEOUT);
 
          Assert.assertNotNull(message);
@@ -658,39 +582,20 @@ public class DivertTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testMultipleExclusiveDivert() throws Exception
-   {
+   public void testMultipleExclusiveDivert() throws Exception {
       final String testAddress = "testAddress";
 
       final String forwardAddress1 = "forwardAddress1";
       final String forwardAddress2 = "forwardAddress2";
       final String forwardAddress3 = "forwardAddress3";
 
-      DivertConfiguration divertConf1 = new DivertConfiguration()
-         .setName("divert1")
-         .setRoutingName("divert1")
-         .setAddress(testAddress)
-         .setForwardingAddress(forwardAddress1)
-         .setExclusive(true);
+      DivertConfiguration divertConf1 = new DivertConfiguration().setName("divert1").setRoutingName("divert1").setAddress(testAddress).setForwardingAddress(forwardAddress1).setExclusive(true);
 
-      DivertConfiguration divertConf2 = new DivertConfiguration()
-         .setName("divert2")
-         .setRoutingName("divert2")
-         .setAddress(testAddress)
-         .setForwardingAddress(forwardAddress2)
-         .setExclusive(true);
+      DivertConfiguration divertConf2 = new DivertConfiguration().setName("divert2").setRoutingName("divert2").setAddress(testAddress).setForwardingAddress(forwardAddress2).setExclusive(true);
 
-      DivertConfiguration divertConf3 = new DivertConfiguration()
-         .setName("divert3")
-         .setRoutingName("divert3")
-         .setAddress(testAddress)
-         .setForwardingAddress(forwardAddress3)
-         .setExclusive(true);
+      DivertConfiguration divertConf3 = new DivertConfiguration().setName("divert3").setRoutingName("divert3").setAddress(testAddress).setForwardingAddress(forwardAddress3).setExclusive(true);
 
-      Configuration config = createDefaultInVMConfig()
-              .addDivertConfiguration(divertConf1)
-              .addDivertConfiguration(divertConf2)
-              .addDivertConfiguration(divertConf3);
+      Configuration config = createDefaultInVMConfig().addDivertConfiguration(divertConf1).addDivertConfiguration(divertConf2).addDivertConfiguration(divertConf3);
 
       ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(config, false));
 
@@ -734,8 +639,7 @@ public class DivertTest extends ActiveMQTestBase
 
       final SimpleString propKey = new SimpleString("testkey");
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session.createMessage(false);
 
          message.putIntProperty(propKey, i);
@@ -743,8 +647,7 @@ public class DivertTest extends ActiveMQTestBase
          producer.send(message);
       }
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = consumer1.receive(DivertTest.TIMEOUT);
 
          Assert.assertNotNull(message);
@@ -756,8 +659,7 @@ public class DivertTest extends ActiveMQTestBase
 
       Assert.assertNull(consumer1.receiveImmediate());
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = consumer2.receive(DivertTest.TIMEOUT);
 
          Assert.assertNotNull(message);
@@ -769,8 +671,7 @@ public class DivertTest extends ActiveMQTestBase
 
       Assert.assertNull(consumer2.receiveImmediate());
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = consumer3.receive(DivertTest.TIMEOUT);
 
          Assert.assertNotNull(message);
@@ -786,38 +687,20 @@ public class DivertTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testMixExclusiveAndNonExclusiveDiverts() throws Exception
-   {
+   public void testMixExclusiveAndNonExclusiveDiverts() throws Exception {
       final String testAddress = "testAddress";
 
       final String forwardAddress1 = "forwardAddress1";
       final String forwardAddress2 = "forwardAddress2";
       final String forwardAddress3 = "forwardAddress3";
 
-      DivertConfiguration divertConf1 = new DivertConfiguration()
-         .setName("divert1")
-         .setRoutingName("divert1")
-         .setAddress(testAddress)
-         .setForwardingAddress(forwardAddress1)
-         .setExclusive(true);
+      DivertConfiguration divertConf1 = new DivertConfiguration().setName("divert1").setRoutingName("divert1").setAddress(testAddress).setForwardingAddress(forwardAddress1).setExclusive(true);
 
-      DivertConfiguration divertConf2 = new DivertConfiguration()
-         .setName("divert2")
-         .setRoutingName("divert2")
-         .setAddress(testAddress)
-         .setForwardingAddress(forwardAddress2)
-         .setExclusive(true);
+      DivertConfiguration divertConf2 = new DivertConfiguration().setName("divert2").setRoutingName("divert2").setAddress(testAddress).setForwardingAddress(forwardAddress2).setExclusive(true);
 
-      DivertConfiguration divertConf3 = new DivertConfiguration()
-         .setName("divert3")
-         .setRoutingName("divert3")
-         .setAddress(testAddress)
-         .setForwardingAddress(forwardAddress3);
+      DivertConfiguration divertConf3 = new DivertConfiguration().setName("divert3").setRoutingName("divert3").setAddress(testAddress).setForwardingAddress(forwardAddress3);
 
-      Configuration config = createDefaultInVMConfig()
-              .addDivertConfiguration(divertConf1)
-              .addDivertConfiguration(divertConf2)
-              .addDivertConfiguration(divertConf3);
+      Configuration config = createDefaultInVMConfig().addDivertConfiguration(divertConf1).addDivertConfiguration(divertConf2).addDivertConfiguration(divertConf3);
 
       ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(config, false));
 
@@ -860,8 +743,7 @@ public class DivertTest extends ActiveMQTestBase
 
       final SimpleString propKey = new SimpleString("testkey");
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session.createMessage(false);
 
          message.putIntProperty(propKey, i);
@@ -869,8 +751,7 @@ public class DivertTest extends ActiveMQTestBase
          producer.send(message);
       }
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = consumer1.receive(DivertTest.TIMEOUT);
 
          Assert.assertNotNull(message);
@@ -882,8 +763,7 @@ public class DivertTest extends ActiveMQTestBase
 
       Assert.assertNull(consumer1.receiveImmediate());
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = consumer2.receive(DivertTest.TIMEOUT);
 
          Assert.assertNotNull(message);
@@ -902,8 +782,7 @@ public class DivertTest extends ActiveMQTestBase
 
    // If no exclusive diverts match then non exclusive ones should be called
    @Test
-   public void testSingleExclusiveNonMatchingAndNonExclusiveDiverts() throws Exception
-   {
+   public void testSingleExclusiveNonMatchingAndNonExclusiveDiverts() throws Exception {
       final String testAddress = "testAddress";
 
       final String forwardAddress1 = "forwardAddress1";
@@ -912,30 +791,13 @@ public class DivertTest extends ActiveMQTestBase
 
       final String filter = "animal='antelope'";
 
-      DivertConfiguration divertConf1 = new DivertConfiguration()
-         .setName("divert1")
-         .setRoutingName("divert1")
-         .setAddress(testAddress)
-         .setForwardingAddress(forwardAddress1)
-         .setExclusive(true)
-         .setFilterString(filter);
+      DivertConfiguration divertConf1 = new DivertConfiguration().setName("divert1").setRoutingName("divert1").setAddress(testAddress).setForwardingAddress(forwardAddress1).setExclusive(true).setFilterString(filter);
 
-      DivertConfiguration divertConf2 = new DivertConfiguration()
-         .setName("divert2")
-         .setRoutingName("divert2")
-         .setAddress(testAddress)
-         .setForwardingAddress(forwardAddress2);
+      DivertConfiguration divertConf2 = new DivertConfiguration().setName("divert2").setRoutingName("divert2").setAddress(testAddress).setForwardingAddress(forwardAddress2);
 
-      DivertConfiguration divertConf3 = new DivertConfiguration()
-         .setName("divert3")
-         .setRoutingName("divert3")
-         .setAddress(testAddress)
-         .setForwardingAddress(forwardAddress3);
+      DivertConfiguration divertConf3 = new DivertConfiguration().setName("divert3").setRoutingName("divert3").setAddress(testAddress).setForwardingAddress(forwardAddress3);
 
-      Configuration config = createDefaultInVMConfig()
-              .addDivertConfiguration(divertConf1)
-              .addDivertConfiguration(divertConf2)
-              .addDivertConfiguration(divertConf3);
+      Configuration config = createDefaultInVMConfig().addDivertConfiguration(divertConf1).addDivertConfiguration(divertConf2).addDivertConfiguration(divertConf3);
 
       ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(config, false));
 
@@ -979,8 +841,7 @@ public class DivertTest extends ActiveMQTestBase
 
       final SimpleString propKey = new SimpleString("testkey");
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session.createMessage(false);
 
          message.putStringProperty(new SimpleString("animal"), new SimpleString("giraffe"));
@@ -1003,8 +864,7 @@ public class DivertTest extends ActiveMQTestBase
 
       Assert.assertNull(consumer1.receiveImmediate());
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = consumer2.receive(DivertTest.TIMEOUT);
 
          Assert.assertNotNull(message);
@@ -1016,8 +876,7 @@ public class DivertTest extends ActiveMQTestBase
 
       Assert.assertNull(consumer2.receiveImmediate());
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = consumer3.receive(DivertTest.TIMEOUT);
 
          Assert.assertNotNull(message);
@@ -1029,8 +888,7 @@ public class DivertTest extends ActiveMQTestBase
 
       Assert.assertNull(consumer3.receiveImmediate());
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = consumer4.receive(DivertTest.TIMEOUT);
 
          Assert.assertNotNull(message);
@@ -1042,8 +900,7 @@ public class DivertTest extends ActiveMQTestBase
 
       Assert.assertNull(consumer4.receiveImmediate());
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session.createMessage(false);
 
          message.putStringProperty(new SimpleString("animal"), new SimpleString("antelope"));
@@ -1053,8 +910,7 @@ public class DivertTest extends ActiveMQTestBase
          producer.send(message);
       }
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = consumer1.receive(DivertTest.TIMEOUT);
 
          Assert.assertNotNull(message);
@@ -1074,36 +930,20 @@ public class DivertTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testRoundRobinDiverts() throws Exception
-   {
+   public void testRoundRobinDiverts() throws Exception {
       final String testAddress = "testAddress";
 
       final String forwardAddress1 = "forwardAddress1";
       final String forwardAddress2 = "forwardAddress2";
       final String forwardAddress3 = "forwardAddress3";
 
-      DivertConfiguration divertConf1 = new DivertConfiguration()
-         .setName("divert1")
-         .setRoutingName("thename")
-         .setAddress(testAddress)
-         .setForwardingAddress(forwardAddress1);
+      DivertConfiguration divertConf1 = new DivertConfiguration().setName("divert1").setRoutingName("thename").setAddress(testAddress).setForwardingAddress(forwardAddress1);
 
-      DivertConfiguration divertConf2 = new DivertConfiguration()
-         .setName("divert2")
-         .setRoutingName("thename")
-         .setAddress(testAddress)
-         .setForwardingAddress(forwardAddress2);
+      DivertConfiguration divertConf2 = new DivertConfiguration().setName("divert2").setRoutingName("thename").setAddress(testAddress).setForwardingAddress(forwardAddress2);
 
-      DivertConfiguration divertConf3 = new DivertConfiguration()
-         .setName("divert3")
-         .setRoutingName("thename")
-         .setAddress(testAddress)
-         .setForwardingAddress(forwardAddress3);
+      DivertConfiguration divertConf3 = new DivertConfiguration().setName("divert3").setRoutingName("thename").setAddress(testAddress).setForwardingAddress(forwardAddress3);
 
-      Configuration config = createDefaultInVMConfig()
-              .addDivertConfiguration(divertConf1)
-              .addDivertConfiguration(divertConf2)
-              .addDivertConfiguration(divertConf3);
+      Configuration config = createDefaultInVMConfig().addDivertConfiguration(divertConf1).addDivertConfiguration(divertConf2).addDivertConfiguration(divertConf3);
 
       ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(config, false));
 
@@ -1147,8 +987,7 @@ public class DivertTest extends ActiveMQTestBase
 
       final SimpleString propKey = new SimpleString("testkey");
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session.createMessage(false);
 
          message.putIntProperty(propKey, i);
@@ -1156,8 +995,7 @@ public class DivertTest extends ActiveMQTestBase
          producer.send(message);
       }
 
-      for (int i = 0; i < numMessages; )
-      {
+      for (int i = 0; i < numMessages; ) {
          ClientMessage message = consumer1.receive(DivertTest.TIMEOUT);
 
          Assert.assertNotNull(message);
@@ -1168,8 +1006,7 @@ public class DivertTest extends ActiveMQTestBase
 
          i++;
 
-         if (i == numMessages)
-         {
+         if (i == numMessages) {
             break;
          }
 
@@ -1183,8 +1020,7 @@ public class DivertTest extends ActiveMQTestBase
 
          i++;
 
-         if (i == numMessages)
-         {
+         if (i == numMessages) {
             break;
          }
 
@@ -1203,8 +1039,7 @@ public class DivertTest extends ActiveMQTestBase
       Assert.assertNull(consumer2.receiveImmediate());
       Assert.assertNull(consumer3.receiveImmediate());
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = consumer4.receive(DivertTest.TIMEOUT);
 
          Assert.assertNotNull(message);
@@ -1218,36 +1053,20 @@ public class DivertTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testDeployDivertsSameUniqueName() throws Exception
-   {
+   public void testDeployDivertsSameUniqueName() throws Exception {
       final String testAddress = "testAddress";
 
       final String forwardAddress1 = "forwardAddress1";
       final String forwardAddress2 = "forwardAddress2";
       final String forwardAddress3 = "forwardAddress3";
 
-      DivertConfiguration divertConf1 = new DivertConfiguration()
-         .setName("divert1")
-         .setRoutingName("thename1")
-         .setAddress(testAddress)
-         .setForwardingAddress(forwardAddress1);
+      DivertConfiguration divertConf1 = new DivertConfiguration().setName("divert1").setRoutingName("thename1").setAddress(testAddress).setForwardingAddress(forwardAddress1);
 
-      DivertConfiguration divertConf2 = new DivertConfiguration()
-         .setName("divert1")
-         .setRoutingName("thename2")
-         .setAddress(testAddress)
-         .setForwardingAddress(forwardAddress2);
+      DivertConfiguration divertConf2 = new DivertConfiguration().setName("divert1").setRoutingName("thename2").setAddress(testAddress).setForwardingAddress(forwardAddress2);
 
-      DivertConfiguration divertConf3 = new DivertConfiguration()
-         .setName("divert2")
-         .setRoutingName("thename3")
-         .setAddress(testAddress)
-         .setForwardingAddress(forwardAddress3);
+      DivertConfiguration divertConf3 = new DivertConfiguration().setName("divert2").setRoutingName("thename3").setAddress(testAddress).setForwardingAddress(forwardAddress3);
 
-      Configuration config = createDefaultInVMConfig()
-              .addDivertConfiguration(divertConf1)
-              .addDivertConfiguration(divertConf2)
-              .addDivertConfiguration(divertConf3);
+      Configuration config = createDefaultInVMConfig().addDivertConfiguration(divertConf1).addDivertConfiguration(divertConf2).addDivertConfiguration(divertConf3);
 
       ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(config, false));
 
@@ -1293,8 +1112,7 @@ public class DivertTest extends ActiveMQTestBase
 
       final SimpleString propKey = new SimpleString("testkey");
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session.createMessage(false);
 
          message.putIntProperty(propKey, i);
@@ -1302,8 +1120,7 @@ public class DivertTest extends ActiveMQTestBase
          producer.send(message);
       }
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = consumer1.receive(DivertTest.TIMEOUT);
 
          Assert.assertNotNull(message);
@@ -1317,8 +1134,7 @@ public class DivertTest extends ActiveMQTestBase
 
       Assert.assertNull(consumer2.receiveImmediate());
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = consumer3.receive(DivertTest.TIMEOUT);
 
          Assert.assertNotNull(message);
@@ -1330,8 +1146,7 @@ public class DivertTest extends ActiveMQTestBase
 
       Assert.assertNull(consumer3.receiveImmediate());
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = consumer4.receive(DivertTest.TIMEOUT);
 
          Assert.assertNotNull(message);
@@ -1345,17 +1160,14 @@ public class DivertTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testInjectedTransformer() throws Exception
-   {
+   public void testInjectedTransformer() throws Exception {
       final SimpleString ADDRESS = new SimpleString("myAddress");
       final String DIVERT = "myDivert";
 
       ServiceRegistryImpl serviceRegistry = new ServiceRegistryImpl();
-      Transformer transformer = new Transformer()
-      {
+      Transformer transformer = new Transformer() {
          @Override
-         public ServerMessage transform(ServerMessage message)
-         {
+         public ServerMessage transform(ServerMessage message) {
             return null;
          }
       };
@@ -1365,17 +1177,12 @@ public class DivertTest extends ActiveMQTestBase
       server.start();
       server.waitForActivation(100, TimeUnit.MILLISECONDS);
       server.deployQueue(ADDRESS, SimpleString.toSimpleString("myQueue"), null, false, false);
-      server.deployDivert(new DivertConfiguration()
-                                  .setName(DIVERT)
-                                  .setAddress(ADDRESS.toString())
-                                  .setForwardingAddress(ADDRESS.toString()));
+      server.deployDivert(new DivertConfiguration().setName(DIVERT).setAddress(ADDRESS.toString()).setForwardingAddress(ADDRESS.toString()));
       Collection<Binding> bindings = server.getPostOffice().getBindingsForAddress(ADDRESS).getBindings();
       Divert divert = null;
-      for (Binding binding : bindings)
-      {
-         if (binding instanceof DivertBinding)
-         {
-            divert = ((DivertBinding)binding).getDivert();
+      for (Binding binding : bindings) {
+         if (binding instanceof DivertBinding) {
+            divert = ((DivertBinding) binding).getDivert();
          }
       }
       assertNotNull(divert);

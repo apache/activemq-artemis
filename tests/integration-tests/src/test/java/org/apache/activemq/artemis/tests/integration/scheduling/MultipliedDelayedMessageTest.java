@@ -31,8 +31,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class MultipliedDelayedMessageTest extends ActiveMQTestBase
-{
+public class MultipliedDelayedMessageTest extends ActiveMQTestBase {
+
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
    private ActiveMQServer server;
@@ -49,8 +49,7 @@ public class MultipliedDelayedMessageTest extends ActiveMQTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
       initServer();
    }
@@ -58,25 +57,20 @@ public class MultipliedDelayedMessageTest extends ActiveMQTestBase
    /**
     * @throws Exception
     */
-   protected void initServer() throws Exception
-   {
+   protected void initServer() throws Exception {
       server = createServer(true, createDefaultInVMConfig());
       server.start();
 
       // Create settings to enable multiplied redelivery delay
       AddressSettings addressSettings = server.getAddressSettingsRepository().getMatch("*");
-      AddressSettings newAddressSettings = new AddressSettings()
-              .setRedeliveryDelay(DELAY)
-              .setRedeliveryMultiplier(MULTIPLIER)
-              .setMaxRedeliveryDelay(MAX_DELAY);
+      AddressSettings newAddressSettings = new AddressSettings().setRedeliveryDelay(DELAY).setRedeliveryMultiplier(MULTIPLIER).setMaxRedeliveryDelay(MAX_DELAY);
       newAddressSettings.merge(addressSettings);
       server.getAddressSettingsRepository().addMatch(queueName, newAddressSettings);
       locator = createInVMNonHALocator();
    }
 
    @Test
-   public void testMultipliedDelayedRedeliveryOnClose() throws Exception
-   {
+   public void testMultipliedDelayedRedeliveryOnClose() throws Exception {
       ClientSessionFactory sessionFactory = createSessionFactory(locator);
 
       // Session for creating the queue
@@ -99,8 +93,7 @@ public class MultipliedDelayedMessageTest extends ActiveMQTestBase
       tm = consumer.receive(500);
       Assert.assertNotNull(tm);
 
-      for (int i = 1; i <= 6; i++)
-      {
+      for (int i = 1; i <= 6; i++) {
          // Ack the message, but rollback the session to trigger redelivery with increasing delivery count
          long start = System.currentTimeMillis();
          tm.acknowledge();
@@ -122,21 +115,21 @@ public class MultipliedDelayedMessageTest extends ActiveMQTestBase
 
    // Private -------------------------------------------------------
 
-   private ClientMessage createDurableMessage(final ClientSession session, final String body)
-   {
+   private ClientMessage createDurableMessage(final ClientSession session, final String body) {
       ClientMessage message = session.createMessage(ActiveMQTextMessage.TYPE, true, 0, System.currentTimeMillis(), (byte) 1);
       message.getBodyBuffer().writeString(body);
       return message;
    }
 
    // This is based on org.apache.activemq.artemis.core.server.impl.QueueImpl.calculateRedeliveryDelay()
-   private long calculateExpectedDelay(final long redeliveryDelay, final long maxRedeliveryDelay, final double redeliveryMultiplier, final int deliveryCount)
-   {
+   private long calculateExpectedDelay(final long redeliveryDelay,
+                                       final long maxRedeliveryDelay,
+                                       final double redeliveryMultiplier,
+                                       final int deliveryCount) {
       int tmpDeliveryCount = deliveryCount > 0 ? deliveryCount - 1 : 0;
       long delay = (long) (redeliveryDelay * (Math.pow(redeliveryMultiplier, tmpDeliveryCount)));
 
-      if (delay > maxRedeliveryDelay)
-      {
+      if (delay > maxRedeliveryDelay) {
          delay = maxRedeliveryDelay;
       }
 

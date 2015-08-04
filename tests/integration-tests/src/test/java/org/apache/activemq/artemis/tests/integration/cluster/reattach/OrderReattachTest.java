@@ -42,8 +42,7 @@ import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 
-public class OrderReattachTest extends ActiveMQTestBase
-{
+public class OrderReattachTest extends ActiveMQTestBase {
    // Constants -----------------------------------------------------
 
    final SimpleString ADDRESS = new SimpleString("address");
@@ -60,21 +59,15 @@ public class OrderReattachTest extends ActiveMQTestBase
    // Public --------------------------------------------------------
 
    @Test
-   public void testOrderOnSendInVM() throws Throwable
-   {
+   public void testOrderOnSendInVM() throws Throwable {
       doTestOrderOnSend(false);
    }
 
-   public void doTestOrderOnSend(final boolean isNetty) throws Throwable
-   {
+   public void doTestOrderOnSend(final boolean isNetty) throws Throwable {
       server = createServer(false, isNetty);
 
       server.start();
-      ServerLocator locator = createFactory(isNetty)
-              .setReconnectAttempts(-1)
-              .setConfirmationWindowSize(1024 * 1024)
-              .setBlockOnNonDurableSend(false)
-              .setBlockOnAcknowledge(false);
+      ServerLocator locator = createFactory(isNetty).setReconnectAttempts(-1).setConfirmationWindowSize(1024 * 1024).setBlockOnNonDurableSend(false).setBlockOnAcknowledge(false);
 
       ClientSessionFactory sf = createSessionFactory(locator);
 
@@ -84,47 +77,37 @@ public class OrderReattachTest extends ActiveMQTestBase
 
       final CountDownLatch ready = new CountDownLatch(1);
 
-
       // this test will use a queue. Whenever the test wants a failure.. it can just send TRUE to failureQueue
       // This Thread will be reading the queue
-      Thread failer = new Thread()
-      {
+      Thread failer = new Thread() {
          @Override
-         public void run()
-         {
+         public void run() {
             ready.countDown();
-            while (true)
-            {
-               try
-               {
+            while (true) {
+               try {
                   Boolean poll = false;
-                  try
-                  {
+                  try {
                      poll = failureQueue.poll(60, TimeUnit.SECONDS);
                   }
-                  catch (InterruptedException e)
-                  {
+                  catch (InterruptedException e) {
                      e.printStackTrace();
                      break;
                   }
 
                   Thread.sleep(1);
 
-                  final RemotingConnectionImpl conn = (RemotingConnectionImpl)((ClientSessionInternal)session).getConnection();
+                  final RemotingConnectionImpl conn = (RemotingConnectionImpl) ((ClientSessionInternal) session).getConnection();
 
                   // True means... fail session
-                  if (poll)
-                  {
+                  if (poll) {
                      conn.fail(new ActiveMQNotConnectedException("poop"));
                   }
-                  else
-                  {
+                  else {
                      // false means... finish thread
                      break;
                   }
                }
-               catch (Exception e)
-               {
+               catch (Exception e) {
                   e.printStackTrace();
                }
             }
@@ -135,35 +118,27 @@ public class OrderReattachTest extends ActiveMQTestBase
 
       ready.await();
 
-      try
-      {
+      try {
          doSend2(1, sf, failureQueue);
       }
-      finally
-      {
-         try
-         {
+      finally {
+         try {
             session.close();
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             e.printStackTrace();
          }
 
-         try
-         {
+         try {
             locator.close();
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             //
          }
-         try
-         {
+         try {
             sf.close();
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             e.printStackTrace();
          }
 
@@ -174,8 +149,9 @@ public class OrderReattachTest extends ActiveMQTestBase
 
    }
 
-   public void doSend2(final int order, final ClientSessionFactory sf, final LinkedBlockingDeque<Boolean> failureQueue) throws Exception
-   {
+   public void doSend2(final int order,
+                       final ClientSessionFactory sf,
+                       final LinkedBlockingDeque<Boolean> failureQueue) throws Exception {
       ClientSession s = sf.createSession(false, false, false);
 
       final int numMessages = 500;
@@ -185,8 +161,7 @@ public class OrderReattachTest extends ActiveMQTestBase
       Set<ClientConsumer> consumers = new HashSet<ClientConsumer>();
       Set<ClientSession> sessions = new HashSet<ClientSession>();
 
-      for (int i = 0; i < numSessions; i++)
-      {
+      for (int i = 0; i < numSessions; i++) {
          SimpleString subName = new SimpleString("sub" + i);
 
          // failureQueue.push(true);
@@ -206,45 +181,35 @@ public class OrderReattachTest extends ActiveMQTestBase
 
       ClientProducer producer = sessSend.createProducer(ADDRESS);
 
-      for (int i = 0; i < numMessages; i++)
-      {
-         ClientMessage message = sessSend.createMessage(ActiveMQTextMessage.TYPE,
-                                                        false,
-                                                        0,
-                                                        System.currentTimeMillis(),
-                                                        (byte)1);
+      for (int i = 0; i < numMessages; i++) {
+         ClientMessage message = sessSend.createMessage(ActiveMQTextMessage.TYPE, false, 0, System.currentTimeMillis(), (byte) 1);
 
-         if (i % 10 == 0)
-         {
+         if (i % 10 == 0) {
             // failureQueue.push(true);
          }
          message.putIntProperty(new SimpleString("count"), i);
          producer.send(message);
       }
 
-      for (ClientSession session : sessions)
-      {
+      for (ClientSession session : sessions) {
          session.start();
       }
 
-      class MyHandler implements MessageHandler
-      {
+      class MyHandler implements MessageHandler {
+
          final CountDownLatch latch = new CountDownLatch(1);
 
          int count;
 
          Exception failure;
 
-         public void onMessage(final ClientMessage message)
-         {
-            if (count >= numMessages)
-            {
+         public void onMessage(final ClientMessage message) {
+            if (count >= numMessages) {
                failure = new Exception("too many messages");
                latch.countDown();
             }
 
-            if (message.getIntProperty("count") != count)
-            {
+            if (message.getIntProperty("count") != count) {
                failure = new Exception("counter " + count + " was not as expected (" + message.getIntProperty("count") + ")");
                log.warn("Failure on receiving message ", failure);
                failure.printStackTrace();
@@ -253,13 +218,11 @@ public class OrderReattachTest extends ActiveMQTestBase
 
             count++;
 
-            if (count % 100 == 0)
-            {
+            if (count % 100 == 0) {
                failureQueue.push(true);
             }
 
-            if (count == numMessages)
-            {
+            if (count == numMessages) {
                latch.countDown();
             }
          }
@@ -267,8 +230,7 @@ public class OrderReattachTest extends ActiveMQTestBase
 
       Set<MyHandler> handlers = new HashSet<MyHandler>();
 
-      for (ClientConsumer consumer : consumers)
-      {
+      for (ClientConsumer consumer : consumers) {
          MyHandler handler = new MyHandler();
 
          consumer.setMessageHandler(handler);
@@ -276,14 +238,12 @@ public class OrderReattachTest extends ActiveMQTestBase
          handlers.add(handler);
       }
 
-      for (MyHandler handler : handlers)
-      {
+      for (MyHandler handler : handlers) {
          boolean ok = handler.latch.await(60000, TimeUnit.MILLISECONDS);
 
          Assert.assertTrue(ok);
 
-         if (handler.failure != null)
-         {
+         if (handler.failure != null) {
             throw handler.failure;
          }
       }
@@ -292,14 +252,12 @@ public class OrderReattachTest extends ActiveMQTestBase
 
       sessSend.close();
 
-      for (ClientSession session : sessions)
-      {
+      for (ClientSession session : sessions) {
          // failureQueue.push(true);
          session.close();
       }
 
-      for (int i = 0; i < numSessions; i++)
-      {
+      for (int i = 0; i < numSessions; i++) {
 
          failureQueue.push(true);
 

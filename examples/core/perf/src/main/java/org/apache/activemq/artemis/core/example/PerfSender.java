@@ -18,33 +18,28 @@ package org.apache.activemq.artemis.core.example;
 
 import java.util.logging.Logger;
 
-public class PerfSender extends PerfBase
-{
+public class PerfSender extends PerfBase {
+
    private static final Logger log = Logger.getLogger(PerfSender.class.getName());
 
-   public static void main(final String[] args)
-   {
-      try
-      {
+   public static void main(final String[] args) {
+      try {
          String fileName = PerfBase.getPerfFileName(args);
 
          PerfParams params = PerfBase.getParams(fileName);
 
          new PerfSender(params).run();
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          e.printStackTrace();
       }
    }
 
-   private PerfSender(final PerfParams perfParams)
-   {
+   private PerfSender(final PerfParams perfParams) {
       super(perfParams);
    }
 
-   public void run() throws Exception
-   {
+   public void run() throws Exception {
       runSender();
    }
 

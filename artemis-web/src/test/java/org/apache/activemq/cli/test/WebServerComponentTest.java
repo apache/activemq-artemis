@@ -44,22 +44,21 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class WebServerComponentTest extends Assert
-{
+public class WebServerComponentTest extends Assert {
+
    static final String URL = System.getProperty("url", "http://localhost:8161/WebServerComponentTest.txt");
    private Bootstrap bootstrap;
    private EventLoopGroup group;
 
    @Before
-   public void setupNetty() throws URISyntaxException
-   {
+   public void setupNetty() throws URISyntaxException {
       // Configure the client.
       group = new NioEventLoopGroup();
       bootstrap = new Bootstrap();
    }
+
    @Test
-   public void simpleServer() throws Exception
-   {
+   public void simpleServer() throws Exception {
       WebServerDTO webServerDTO = new WebServerDTO();
       webServerDTO.bind = "http://localhost:8161";
       webServerDTO.path = "webapps";
@@ -70,11 +69,9 @@ public class WebServerComponentTest extends Assert
       // Make the connection attempt.
       CountDownLatch latch = new CountDownLatch(1);
       final ClientHandler clientHandler = new ClientHandler(latch);
-      bootstrap.group(group).channel(NioSocketChannel.class).handler(new ChannelInitializer()
-      {
+      bootstrap.group(group).channel(NioSocketChannel.class).handler(new ChannelInitializer() {
          @Override
-         protected void initChannel(Channel ch) throws Exception
-         {
+         protected void initChannel(Channel ch) throws Exception {
             ch.pipeline().addLast(new HttpClientCodec());
             ch.pipeline().addLast(clientHandler);
          }
@@ -85,7 +82,6 @@ public class WebServerComponentTest extends Assert
       // Prepare the HTTP request.
       HttpRequest request = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, uri.getRawPath());
       request.headers().set(HttpHeaders.Names.HOST, "localhost");
-
 
       // Send the HTTP request.
       ch.writeAndFlush(request);
@@ -98,29 +94,25 @@ public class WebServerComponentTest extends Assert
       Assert.assertFalse(webServerComponent.isStarted());
    }
 
-   class ClientHandler extends SimpleChannelInboundHandler<HttpObject>
-   {
+   class ClientHandler extends SimpleChannelInboundHandler<HttpObject> {
+
       private CountDownLatch latch;
       private String body;
 
-      public ClientHandler(CountDownLatch latch)
-      {
+      public ClientHandler(CountDownLatch latch) {
          this.latch = latch;
       }
 
       @Override
-      public void channelRead0(ChannelHandlerContext ctx, HttpObject msg)
-      {
-         if (msg instanceof HttpContent)
-         {
+      public void channelRead0(ChannelHandlerContext ctx, HttpObject msg) {
+         if (msg instanceof HttpContent) {
             HttpContent content = (HttpContent) msg;
             body = content.content().toString(CharsetUtil.UTF_8);
             latch.countDown();
          }
       }
 
-      public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause)
-      {
+      public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
          cause.printStackTrace();
          ctx.close();
       }

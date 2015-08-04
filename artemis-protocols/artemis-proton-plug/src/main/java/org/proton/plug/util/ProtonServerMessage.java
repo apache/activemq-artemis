@@ -35,8 +35,8 @@ import org.apache.qpid.proton.message.ProtonJMessage;
 /**
  * This is a serverMessage that won't deal with the body
  */
-public class ProtonServerMessage implements ProtonJMessage
-{
+public class ProtonServerMessage implements ProtonJMessage {
+
    private Header header;
    private DeliveryAnnotations deliveryAnnotations;
    private MessageAnnotations messageAnnotations;
@@ -58,18 +58,15 @@ public class ProtonServerMessage implements ProtonJMessage
    private static final int PROPERTIES = 0x073;
    private static final int APPLICATION_PROPERTIES = 0x074;
 
-
    /**
     * This will decode a ByteBuffer tha represents the entire message.
     * Set the limits around the parameter.
     *
     * @param buffer a limited buffer for the message
     */
-   public void decode(ByteBuffer buffer)
-   {
+   public void decode(ByteBuffer buffer) {
 
       DecoderImpl decoder = CodecCache.getDecoder();
-
 
       header = null;
       deliveryAnnotations = null;
@@ -79,519 +76,425 @@ public class ProtonServerMessage implements ProtonJMessage
       rawBody = null;
 
       decoder.setByteBuffer(buffer);
-      try
-      {
+      try {
          int type = readType(buffer, decoder);
-         if (type == HEADER_TYPE)
-         {
+         if (type == HEADER_TYPE) {
             header = (Header) readSection(buffer, decoder);
             type = readType(buffer, decoder);
 
          }
 
-         if (type == DELIVERY_ANNOTATIONS)
-         {
+         if (type == DELIVERY_ANNOTATIONS) {
             deliveryAnnotations = (DeliveryAnnotations) readSection(buffer, decoder);
             type = readType(buffer, decoder);
 
          }
 
-         if (type == MESSAGE_ANNOTATIONS)
-         {
+         if (type == MESSAGE_ANNOTATIONS) {
             messageAnnotations = (MessageAnnotations) readSection(buffer, decoder);
             type = readType(buffer, decoder);
          }
 
-         if (type == PROPERTIES)
-         {
+         if (type == PROPERTIES) {
             properties = (Properties) readSection(buffer, decoder);
             type = readType(buffer, decoder);
 
          }
 
-         if (type == APPLICATION_PROPERTIES)
-         {
+         if (type == APPLICATION_PROPERTIES) {
             applicationProperties = (ApplicationProperties) readSection(buffer, decoder);
             type = readType(buffer, decoder);
          }
 
-         if (type != EOF)
-         {
+         if (type != EOF) {
             rawBody = new byte[buffer.limit() - buffer.position()];
             buffer.get(rawBody);
          }
       }
-      finally
-      {
+      finally {
          decoder.setByteBuffer(null);
       }
 
    }
 
-
-   public void encode(ByteBuffer buffer)
-   {
+   public void encode(ByteBuffer buffer) {
       WritableBuffer writableBuffer = new WritableBuffer.ByteBufferWrapper(buffer);
       encode(writableBuffer);
    }
 
-   public int encode(WritableBuffer writableBuffer)
-   {
+   public int encode(WritableBuffer writableBuffer) {
       final int firstPosition = writableBuffer.position();
 
       EncoderImpl encoder = CodecCache.getEncoder();
       encoder.setByteBuffer(writableBuffer);
 
-      try
-      {
-         if (header != null)
-         {
+      try {
+         if (header != null) {
             encoder.writeObject(header);
          }
-         if (deliveryAnnotations != null)
-         {
+         if (deliveryAnnotations != null) {
             encoder.writeObject(deliveryAnnotations);
          }
-         if (messageAnnotations != null)
-         {
+         if (messageAnnotations != null) {
             encoder.writeObject(messageAnnotations);
          }
-         if (properties != null)
-         {
+         if (properties != null) {
             encoder.writeObject(properties);
          }
-         if (applicationProperties != null)
-         {
+         if (applicationProperties != null) {
             encoder.writeObject(applicationProperties);
          }
 
          // It should write either the parsed one or the rawBody
-         if (parsedBody != null)
-         {
+         if (parsedBody != null) {
             encoder.writeObject(parsedBody);
-            if (parsedFooter != null)
-            {
+            if (parsedFooter != null) {
                encoder.writeObject(parsedFooter);
             }
          }
-         else if (rawBody != null)
-         {
+         else if (rawBody != null) {
             writableBuffer.put(rawBody, 0, rawBody.length);
          }
 
          return writableBuffer.position() - firstPosition;
       }
-      finally
-      {
+      finally {
          encoder.setByteBuffer((WritableBuffer) null);
       }
    }
 
-
-   private int readType(ByteBuffer buffer, DecoderImpl decoder)
-   {
+   private int readType(ByteBuffer buffer, DecoderImpl decoder) {
 
       int pos = buffer.position();
 
-      if (!buffer.hasRemaining())
-      {
+      if (!buffer.hasRemaining()) {
          return EOF;
       }
-      try
-      {
-         if (buffer.get() != 0)
-         {
+      try {
+         if (buffer.get() != 0) {
             return EOF;
          }
-         else
-         {
+         else {
             return ((Number) decoder.readObject()).intValue();
          }
       }
-      finally
-      {
+      finally {
          buffer.position(pos);
       }
    }
 
-
-   private Section readSection(ByteBuffer buffer, DecoderImpl decoder)
-   {
-      if (buffer.hasRemaining())
-      {
+   private Section readSection(ByteBuffer buffer, DecoderImpl decoder) {
+      if (buffer.hasRemaining()) {
          return (Section) decoder.readObject();
       }
-      else
-      {
+      else {
          return null;
       }
    }
 
-
    // At the moment we only need encode implemented!!!
    @Override
-   public boolean isDurable()
-   {
+   public boolean isDurable() {
       return false;
    }
 
    @Override
-   public long getDeliveryCount()
-   {
+   public long getDeliveryCount() {
       return 0;
    }
 
    @Override
-   public short getPriority()
-   {
+   public short getPriority() {
       return 0;
    }
 
    @Override
-   public boolean isFirstAcquirer()
-   {
+   public boolean isFirstAcquirer() {
       return false;
    }
 
    @Override
-   public long getTtl()
-   {
+   public long getTtl() {
       return 0;
    }
 
    @Override
-   public void setDurable(boolean durable)
-   {
+   public void setDurable(boolean durable) {
 
    }
 
    @Override
-   public void setTtl(long ttl)
-   {
+   public void setTtl(long ttl) {
 
    }
 
    @Override
-   public void setDeliveryCount(long deliveryCount)
-   {
+   public void setDeliveryCount(long deliveryCount) {
 
    }
 
    @Override
-   public void setFirstAcquirer(boolean firstAcquirer)
-   {
+   public void setFirstAcquirer(boolean firstAcquirer) {
 
    }
 
    @Override
-   public void setPriority(short priority)
-   {
+   public void setPriority(short priority) {
 
    }
 
    @Override
-   public Object getMessageId()
-   {
+   public Object getMessageId() {
       return null;
    }
 
    @Override
-   public long getGroupSequence()
-   {
+   public long getGroupSequence() {
       return 0;
    }
 
    @Override
-   public String getReplyToGroupId()
-   {
+   public String getReplyToGroupId() {
       return null;
    }
 
    @Override
-   public long getCreationTime()
-   {
+   public long getCreationTime() {
       return 0;
    }
 
    @Override
-   public String getAddress()
-   {
+   public String getAddress() {
       return null;
    }
 
    @Override
-   public byte[] getUserId()
-   {
+   public byte[] getUserId() {
       return new byte[0];
    }
 
    @Override
-   public String getReplyTo()
-   {
+   public String getReplyTo() {
       return null;
    }
 
    @Override
-   public String getGroupId()
-   {
+   public String getGroupId() {
       return null;
    }
 
    @Override
-   public String getContentType()
-   {
+   public String getContentType() {
       return null;
    }
 
    @Override
-   public long getExpiryTime()
-   {
+   public long getExpiryTime() {
       return 0;
    }
 
    @Override
-   public Object getCorrelationId()
-   {
+   public Object getCorrelationId() {
       return null;
    }
 
    @Override
-   public String getContentEncoding()
-   {
+   public String getContentEncoding() {
       return null;
    }
 
    @Override
-   public String getSubject()
-   {
+   public String getSubject() {
       return null;
    }
 
    @Override
-   public void setGroupSequence(long groupSequence)
-   {
+   public void setGroupSequence(long groupSequence) {
 
    }
 
    @Override
-   public void setUserId(byte[] userId)
-   {
+   public void setUserId(byte[] userId) {
 
    }
 
    @Override
-   public void setCreationTime(long creationTime)
-   {
+   public void setCreationTime(long creationTime) {
 
    }
 
    @Override
-   public void setSubject(String subject)
-   {
+   public void setSubject(String subject) {
 
    }
 
    @Override
-   public void setGroupId(String groupId)
-   {
+   public void setGroupId(String groupId) {
 
    }
 
    @Override
-   public void setAddress(String to)
-   {
+   public void setAddress(String to) {
 
    }
 
    @Override
-   public void setExpiryTime(long absoluteExpiryTime)
-   {
+   public void setExpiryTime(long absoluteExpiryTime) {
 
    }
 
    @Override
-   public void setReplyToGroupId(String replyToGroupId)
-   {
+   public void setReplyToGroupId(String replyToGroupId) {
 
    }
 
    @Override
-   public void setContentEncoding(String contentEncoding)
-   {
+   public void setContentEncoding(String contentEncoding) {
 
    }
 
    @Override
-   public void setContentType(String contentType)
-   {
+   public void setContentType(String contentType) {
 
    }
 
    @Override
-   public void setReplyTo(String replyTo)
-   {
+   public void setReplyTo(String replyTo) {
 
    }
 
    @Override
-   public void setCorrelationId(Object correlationId)
-   {
+   public void setCorrelationId(Object correlationId) {
 
    }
 
    @Override
-   public void setMessageId(Object messageId)
-   {
+   public void setMessageId(Object messageId) {
 
    }
 
    @Override
-   public Header getHeader()
-   {
+   public Header getHeader() {
       return null;
    }
 
    @Override
-   public DeliveryAnnotations getDeliveryAnnotations()
-   {
+   public DeliveryAnnotations getDeliveryAnnotations() {
       return null;
    }
 
    @Override
-   public MessageAnnotations getMessageAnnotations()
-   {
+   public MessageAnnotations getMessageAnnotations() {
       return null;
    }
 
    @Override
-   public Properties getProperties()
-   {
+   public Properties getProperties() {
       return null;
    }
 
    @Override
-   public ApplicationProperties getApplicationProperties()
-   {
+   public ApplicationProperties getApplicationProperties() {
       return null;
    }
 
    @Override
-   public Section getBody()
-   {
+   public Section getBody() {
       return null;
    }
 
    @Override
-   public Footer getFooter()
-   {
+   public Footer getFooter() {
       return null;
    }
 
    @Override
-   public void setHeader(Header header)
-   {
+   public void setHeader(Header header) {
 
    }
 
    @Override
-   public void setDeliveryAnnotations(DeliveryAnnotations deliveryAnnotations)
-   {
+   public void setDeliveryAnnotations(DeliveryAnnotations deliveryAnnotations) {
 
    }
 
    @Override
-   public void setMessageAnnotations(MessageAnnotations messageAnnotations)
-   {
+   public void setMessageAnnotations(MessageAnnotations messageAnnotations) {
 
    }
 
    @Override
-   public void setProperties(Properties properties)
-   {
+   public void setProperties(Properties properties) {
 
    }
 
    @Override
-   public void setApplicationProperties(ApplicationProperties applicationProperties)
-   {
+   public void setApplicationProperties(ApplicationProperties applicationProperties) {
 
    }
 
    @Override
-   public void setBody(Section body)
-   {
+   public void setBody(Section body) {
 
    }
 
    @Override
-   public void setFooter(Footer footer)
-   {
+   public void setFooter(Footer footer) {
 
    }
 
    @Override
-   public int decode(byte[] data, int offset, int length)
-   {
+   public int decode(byte[] data, int offset, int length) {
       return 0;
    }
 
    @Override
-   public int encode(byte[] data, int offset, int length)
-   {
+   public int encode(byte[] data, int offset, int length) {
       return 0;
    }
 
    @Override
-   public void load(Object data)
-   {
+   public void load(Object data) {
 
    }
 
    @Override
-   public Object save()
-   {
+   public Object save() {
       return null;
    }
 
    @Override
-   public String toAMQPFormat(Object value)
-   {
+   public String toAMQPFormat(Object value) {
       return null;
    }
 
    @Override
-   public Object parseAMQPFormat(String value)
-   {
+   public Object parseAMQPFormat(String value) {
       return null;
    }
 
    @Override
-   public void setMessageFormat(MessageFormat format)
-   {
+   public void setMessageFormat(MessageFormat format) {
 
    }
 
    @Override
-   public MessageFormat getMessageFormat()
-   {
+   public MessageFormat getMessageFormat() {
       return null;
    }
 
    @Override
-   public void clear()
-   {
+   public void clear() {
 
    }
 
    @Override
-   public MessageError getError()
-   {
+   public MessageError getError() {
       return null;
    }
 
    @Override
-   public int encode2(byte[] data, int offset, int length)
-   {
+   public int encode2(byte[] data, int offset, int length) {
       return 0;
    }
 }

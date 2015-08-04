@@ -27,22 +27,20 @@ import javax.naming.InitialContext;
 /**
  * A simple JMS Queue example that creates a producer and consumer on a queue and sends then receives a message.
  */
-public class AerogearExample
-{
-   public static void main(final String[] args) throws Exception
-   {
+public class AerogearExample {
+
+   public static void main(final String[] args) throws Exception {
       Connection connection = null;
       InitialContext initialContext = null;
-      try
-      {
+      try {
          // Step 1. Create an initial context to perform the JNDI lookup.
          initialContext = new InitialContext();
 
          // Step 2. Perfom a lookup on the queue
-         Queue queue = (Queue)initialContext.lookup("queue/exampleQueue");
+         Queue queue = (Queue) initialContext.lookup("queue/exampleQueue");
 
          // Step 3. Perform a lookup on the Connection Factory
-         ConnectionFactory cf = (ConnectionFactory)initialContext.lookup("ConnectionFactory");
+         ConnectionFactory cf = (ConnectionFactory) initialContext.lookup("ConnectionFactory");
 
          // Step 4.Create a JMS Connection
          connection = cf.createConnection();
@@ -66,15 +64,12 @@ public class AerogearExample
 
          System.in.read();
       }
-      finally
-      {
+      finally {
          // Step 12. Be sure to close our JMS resources!
-         if (initialContext != null)
-         {
+         if (initialContext != null) {
             initialContext.close();
          }
-         if (connection != null)
-         {
+         if (connection != null) {
             connection.close();
          }
       }

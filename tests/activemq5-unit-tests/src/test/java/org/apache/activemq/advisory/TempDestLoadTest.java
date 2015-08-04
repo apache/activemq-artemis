@@ -34,82 +34,79 @@ import org.slf4j.LoggerFactory;
  */
 public class TempDestLoadTest extends EmbeddedBrokerTestSupport {
 
-    private static final Logger LOG = LoggerFactory.getLogger(TempDestLoadTest.class);
+   private static final Logger LOG = LoggerFactory.getLogger(TempDestLoadTest.class);
 
-    protected int consumerCounter;
-    private Connection connection;
-    private Session session;
-    private static final int MESSAGE_COUNT = 2000;
+   protected int consumerCounter;
+   private Connection connection;
+   private Session session;
+   private static final int MESSAGE_COUNT = 2000;
 
-    public void testLoadTempAdvisoryQueues() throws Exception {
+   public void testLoadTempAdvisoryQueues() throws Exception {
 
-        for (int i = 0; i < MESSAGE_COUNT; i++) {
-            TemporaryQueue tempQueue = session.createTemporaryQueue();
-            MessageConsumer consumer = session.createConsumer(tempQueue);
-            MessageProducer producer = session.createProducer(tempQueue);
-            consumer.close();
-            producer.close();
-            tempQueue.delete();
-        }
+      for (int i = 0; i < MESSAGE_COUNT; i++) {
+         TemporaryQueue tempQueue = session.createTemporaryQueue();
+         MessageConsumer consumer = session.createConsumer(tempQueue);
+         MessageProducer producer = session.createProducer(tempQueue);
+         consumer.close();
+         producer.close();
+         tempQueue.delete();
+      }
 
-        AdvisoryBroker ab = (AdvisoryBroker) broker.getBroker().getAdaptor(
-                AdvisoryBroker.class);
+      AdvisoryBroker ab = (AdvisoryBroker) broker.getBroker().getAdaptor(AdvisoryBroker.class);
 
-        assertTrue(ab.getAdvisoryDestinations().size() == 0);
-        assertTrue(ab.getAdvisoryConsumers().size() == 0);
-        assertTrue(ab.getAdvisoryProducers().size() == 0);
+      assertTrue(ab.getAdvisoryDestinations().size() == 0);
+      assertTrue(ab.getAdvisoryConsumers().size() == 0);
+      assertTrue(ab.getAdvisoryProducers().size() == 0);
 
-        RegionBroker rb = (RegionBroker) broker.getBroker().getAdaptor(RegionBroker.class);
+      RegionBroker rb = (RegionBroker) broker.getBroker().getAdaptor(RegionBroker.class);
 
-        for (Destination dest : rb.getDestinationMap().values()) {
-            LOG.debug("Destination: {}", dest);
-        }
+      for (Destination dest : rb.getDestinationMap().values()) {
+         LOG.debug("Destination: {}", dest);
+      }
 
-        // there should be at least 2 destinations - advisories -
-        // 1 for the connection + 1 generic ones
-        assertTrue("Should be at least 2 destinations", rb.getDestinationMap().size() > 2);
-    }
+      // there should be at least 2 destinations - advisories -
+      // 1 for the connection + 1 generic ones
+      assertTrue("Should be at least 2 destinations", rb.getDestinationMap().size() > 2);
+   }
 
-    public void testLoadTempAdvisoryTopics() throws Exception {
-        for (int i = 0; i < MESSAGE_COUNT; i++) {
-            TemporaryTopic tempTopic =  session.createTemporaryTopic();
-            MessageConsumer consumer = session.createConsumer(tempTopic);
-            MessageProducer producer = session.createProducer(tempTopic);
-            consumer.close();
-            producer.close();
-            tempTopic.delete();
-        }
+   public void testLoadTempAdvisoryTopics() throws Exception {
+      for (int i = 0; i < MESSAGE_COUNT; i++) {
+         TemporaryTopic tempTopic = session.createTemporaryTopic();
+         MessageConsumer consumer = session.createConsumer(tempTopic);
+         MessageProducer producer = session.createProducer(tempTopic);
+         consumer.close();
+         producer.close();
+         tempTopic.delete();
+      }
 
-        AdvisoryBroker ab = (AdvisoryBroker) broker.getBroker().getAdaptor(
-                AdvisoryBroker.class);
-        assertTrue(ab.getAdvisoryDestinations().size() == 0);
-        assertTrue(ab.getAdvisoryConsumers().size() == 0);
-        assertTrue(ab.getAdvisoryProducers().size() == 0);
-        RegionBroker rb = (RegionBroker) broker.getBroker().getAdaptor(
-                RegionBroker.class);
+      AdvisoryBroker ab = (AdvisoryBroker) broker.getBroker().getAdaptor(AdvisoryBroker.class);
+      assertTrue(ab.getAdvisoryDestinations().size() == 0);
+      assertTrue(ab.getAdvisoryConsumers().size() == 0);
+      assertTrue(ab.getAdvisoryProducers().size() == 0);
+      RegionBroker rb = (RegionBroker) broker.getBroker().getAdaptor(RegionBroker.class);
 
-        for (Destination dest : rb.getDestinationMap().values()) {
-            LOG.debug("Destination: {}", dest);
-        }
+      for (Destination dest : rb.getDestinationMap().values()) {
+         LOG.debug("Destination: {}", dest);
+      }
 
-        // there should be at least 2 destinations - advisories -
-        // 1 for the connection + 1 generic ones
-        assertTrue("Should be at least 2 destinations", rb.getDestinationMap().size() > 2);
-    }
+      // there should be at least 2 destinations - advisories -
+      // 1 for the connection + 1 generic ones
+      assertTrue("Should be at least 2 destinations", rb.getDestinationMap().size() > 2);
+   }
 
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
-        connection = createConnection();
-        connection.start();
-        session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-    }
+   @Override
+   protected void setUp() throws Exception {
+      super.setUp();
+      connection = createConnection();
+      connection.start();
+      session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+   }
 
-    @Override
-    protected void tearDown() throws Exception {
-        if (connection != null) {
-            connection.close();
-        }
-        super.tearDown();
-    }
+   @Override
+   protected void tearDown() throws Exception {
+      if (connection != null) {
+         connection.close();
+      }
+      super.tearDown();
+   }
 }

@@ -22,8 +22,7 @@ import org.apache.activemq.artemis.core.message.impl.MessageInternal;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.utils.DataConstants;
 
-public class SessionSendMessage extends MessagePacket
-{
+public class SessionSendMessage extends MessagePacket {
 
    private boolean requiresResponse;
 
@@ -37,40 +36,35 @@ public class SessionSendMessage extends MessagePacket
     */
    private final transient SendAcknowledgementHandler handler;
 
-   public SessionSendMessage(final MessageInternal message, final boolean requiresResponse,
-                             final SendAcknowledgementHandler handler)
-   {
+   public SessionSendMessage(final MessageInternal message,
+                             final boolean requiresResponse,
+                             final SendAcknowledgementHandler handler) {
       super(SESS_SEND, message);
       this.handler = handler;
       this.requiresResponse = requiresResponse;
    }
 
-   public SessionSendMessage(final MessageInternal message)
-   {
+   public SessionSendMessage(final MessageInternal message) {
       super(SESS_SEND, message);
       this.handler = null;
    }
 
    // Public --------------------------------------------------------
 
-   public boolean isRequiresResponse()
-   {
+   public boolean isRequiresResponse() {
       return requiresResponse;
    }
 
-   public SendAcknowledgementHandler getHandler()
-   {
+   public SendAcknowledgementHandler getHandler() {
       return handler;
    }
 
    @Override
-   public ActiveMQBuffer encode(final RemotingConnection connection)
-   {
+   public ActiveMQBuffer encode(final RemotingConnection connection) {
       ActiveMQBuffer buffer = message.getEncodedBuffer();
 
       // Sanity check
-      if (buffer.writerIndex() != message.getEndOfMessagePosition())
-      {
+      if (buffer.writerIndex() != message.getEndOfMessagePosition()) {
          throw new IllegalStateException("Wrong encode position");
       }
 
@@ -94,8 +88,7 @@ public class SessionSendMessage extends MessagePacket
    }
 
    @Override
-   public void decodeRest(final ActiveMQBuffer buffer)
-   {
+   public void decodeRest(final ActiveMQBuffer buffer) {
       // Buffer comes in after having read standard headers and positioned at Beginning of body part
 
       message.decodeFromBuffer(buffer);
@@ -109,8 +102,7 @@ public class SessionSendMessage extends MessagePacket
    }
 
    @Override
-   public int hashCode()
-   {
+   public int hashCode() {
       final int prime = 31;
       int result = super.hashCode();
       result = prime * result + (requiresResponse ? 1231 : 1237);
@@ -118,8 +110,7 @@ public class SessionSendMessage extends MessagePacket
    }
 
    @Override
-   public boolean equals(Object obj)
-   {
+   public boolean equals(Object obj) {
       if (this == obj)
          return true;
       if (!super.equals(obj))

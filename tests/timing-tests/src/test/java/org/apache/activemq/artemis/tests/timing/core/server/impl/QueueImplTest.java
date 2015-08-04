@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.timing.core.server.impl;
+
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Before;
 import org.junit.After;
@@ -38,8 +39,8 @@ import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.impl.QueueImpl;
 import org.apache.activemq.artemis.tests.unit.core.server.impl.fakes.FakeConsumer;
 
-public class QueueImplTest extends ActiveMQTestBase
-{
+public class QueueImplTest extends ActiveMQTestBase {
+
    private static final SimpleString queue1 = new SimpleString("queue1");
 
    private static final long TIMEOUT = 10000;
@@ -50,8 +51,7 @@ public class QueueImplTest extends ActiveMQTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       scheduledExecutor = new ScheduledThreadPoolExecutor(1);
@@ -59,8 +59,7 @@ public class QueueImplTest extends ActiveMQTestBase
 
    @Override
    @After
-   public void tearDown() throws Exception
-   {
+   public void tearDown() throws Exception {
       scheduledExecutor.shutdownNow();
 
       super.tearDown();
@@ -69,21 +68,8 @@ public class QueueImplTest extends ActiveMQTestBase
    // The tests ----------------------------------------------------------------
 
    @Test
-   public void testScheduledNoConsumer() throws Exception
-   {
-      QueueImpl queue = new QueueImpl(1,
-                                  new SimpleString("address1"),
-                                  new SimpleString("queue1"),
-                                  null,
-                                  null,
-                                  false,
-                                  true,
-                                  false,
-                                  scheduledExecutor,
-                                  null,
-                                  null,
-                                  null,
-                                  Executors.newSingleThreadExecutor());
+   public void testScheduledNoConsumer() throws Exception {
+      QueueImpl queue = new QueueImpl(1, new SimpleString("address1"), new SimpleString("queue1"), null, null, false, true, false, scheduledExecutor, null, null, null, Executors.newSingleThreadExecutor());
 
       // Send one scheduled
 
@@ -147,24 +133,10 @@ public class QueueImplTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testScheduled() throws Exception
-   {
-      QueueImpl queue = new QueueImpl(1,
-                                  new SimpleString("address1"),
-                                  new SimpleString("queue1"),
-                                  null,
-                                  null,
-                                  false,
-                                  true,
-                                  false,
-                                  scheduledExecutor,
-                                  null,
-                                  null,
-                                  null,
-                                  Executors.newSingleThreadExecutor());
+   public void testScheduled() throws Exception {
+      QueueImpl queue = new QueueImpl(1, new SimpleString("address1"), new SimpleString("queue1"), null, null, false, true, false, scheduledExecutor, null, null, null, Executors.newSingleThreadExecutor());
 
       FakeConsumer consumer = null;
-
 
       // Send one scheduled
 
@@ -207,7 +179,6 @@ public class QueueImplTest extends ActiveMQTestBase
 
       queue.deliverNow();
 
-
       List<MessageReference> refs = new ArrayList<MessageReference>();
 
       refs.add(ref2);
@@ -248,36 +219,20 @@ public class QueueImplTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testDeliveryScheduled() throws Exception
-   {
+   public void testDeliveryScheduled() throws Exception {
       final CountDownLatch countDownLatch = new CountDownLatch(1);
-      Consumer consumer = new FakeConsumer()
-      {
+      Consumer consumer = new FakeConsumer() {
          @Override
-         public synchronized HandleStatus handle(final MessageReference reference)
-         {
+         public synchronized HandleStatus handle(final MessageReference reference) {
             countDownLatch.countDown();
             return HandleStatus.HANDLED;
          }
 
          @Override
-         public void disconnect()
-         {
+         public void disconnect() {
          }
       };
-      QueueImpl queue = new QueueImpl(1,
-                                  new SimpleString("address1"),
-                                  QueueImplTest.queue1,
-                                  null,
-                                  null,
-                                  false,
-                                  true,
-                                  false,
-                                  scheduledExecutor,
-                                  null,
-                                  null,
-                                  null,
-                                  Executors.newSingleThreadExecutor());
+      QueueImpl queue = new QueueImpl(1, new SimpleString("address1"), QueueImplTest.queue1, null, null, false, true, false, scheduledExecutor, null, null, null, Executors.newSingleThreadExecutor());
       MessageReference messageReference = generateReference(queue, 1);
       queue.addConsumer(consumer);
       messageReference.setScheduledDeliveryTime(System.currentTimeMillis() + 2000);

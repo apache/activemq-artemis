@@ -23,42 +23,34 @@ import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 
-
 /**
  * {@inheritDoc}
  */
-public class ActiveMQJMSConnectionFactory extends ActiveMQConnectionFactory implements TopicConnectionFactory, QueueConnectionFactory
-{
+public class ActiveMQJMSConnectionFactory extends ActiveMQConnectionFactory implements TopicConnectionFactory, QueueConnectionFactory {
 
    private static final long serialVersionUID = -2810634789345348326L;
 
-   public ActiveMQJMSConnectionFactory()
-   {
+   public ActiveMQJMSConnectionFactory() {
       super();
    }
 
-   public ActiveMQJMSConnectionFactory(String uri)
-   {
+   public ActiveMQJMSConnectionFactory(String uri) {
       super(uri);
    }
 
-   public ActiveMQJMSConnectionFactory(String uri, String user, String password)
-   {
+   public ActiveMQJMSConnectionFactory(String uri, String user, String password) {
       super(uri, user, password);
    }
 
-   public ActiveMQJMSConnectionFactory(ServerLocator serverLocator)
-   {
+   public ActiveMQJMSConnectionFactory(ServerLocator serverLocator) {
       super(serverLocator);
    }
 
-   public ActiveMQJMSConnectionFactory(boolean ha, final DiscoveryGroupConfiguration groupConfiguration)
-   {
+   public ActiveMQJMSConnectionFactory(boolean ha, final DiscoveryGroupConfiguration groupConfiguration) {
       super(ha, groupConfiguration);
    }
 
-   public ActiveMQJMSConnectionFactory(boolean ha, TransportConfiguration... initialConnectors)
-   {
+   public ActiveMQJMSConnectionFactory(boolean ha, TransportConfiguration... initialConnectors) {
       super(ha, initialConnectors);
    }
 }

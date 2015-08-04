@@ -44,8 +44,8 @@ import org.apache.activemq.artemis.utils.TypedProperties;
 /**
  * A Local Grouping handler. All the Remote handlers will talk with us
  */
-public final class LocalGroupingHandler extends GroupHandlingAbstract
-{
+public final class LocalGroupingHandler extends GroupHandlingAbstract {
+
    private final ConcurrentMap<SimpleString, GroupBinding> map = new ConcurrentHashMap<SimpleString, GroupBinding>();
 
    private final ConcurrentMap<SimpleString, List<GroupBinding>> groupMap = new ConcurrentHashMap<SimpleString, List<GroupBinding>>();
@@ -87,8 +87,7 @@ public final class LocalGroupingHandler extends GroupHandlingAbstract
                                final StorageManager storageManager,
                                final long timeout,
                                final long groupTimeout,
-                               long reaperPeriod)
-   {
+                               long reaperPeriod) {
       super(executorFactory.getExecutor(), managementService, address);
       this.reaperPeriod = reaperPeriod;
       this.scheduledExecutor = scheduledExecutor;
@@ -98,30 +97,24 @@ public final class LocalGroupingHandler extends GroupHandlingAbstract
       this.groupTimeout = groupTimeout;
    }
 
-   public SimpleString getName()
-   {
+   public SimpleString getName() {
       return name;
    }
 
-   public Response propose(final Proposal proposal) throws Exception
-   {
+   public Response propose(final Proposal proposal) throws Exception {
       OperationContext originalCtx = storageManager.getContext();
 
-      try
-      {
+      try {
          // the waitCompletion cannot be done inside an ordered executor or we would starve when the thread pool is full
          storageManager.setContext(storageManager.newSingleThreadContext());
 
-         if (proposal.getClusterName() == null)
-         {
+         if (proposal.getClusterName() == null) {
             GroupBinding original = map.get(proposal.getGroupId());
-            if (original != null)
-            {
+            if (original != null) {
                original.use();
                return new Response(proposal.getGroupId(), original.getClusterName());
             }
-            else
-            {
+            else {
                return null;
             }
          }
@@ -130,65 +123,54 @@ public final class LocalGroupingHandler extends GroupHandlingAbstract
 
          GroupBinding groupBinding = null;
          lock.lock();
-         try
-         {
+         try {
             groupBinding = map.get(proposal.getGroupId());
-            if (groupBinding != null)
-            {
+            if (groupBinding != null) {
                groupBinding.use();
                // Returning with an alternate cluster name, as it's been already grouped
                return new Response(groupBinding.getGroupId(), proposal.getClusterName(), groupBinding.getClusterName());
             }
-            else
-            {
+            else {
                addRecord = true;
                groupBinding = new GroupBinding(proposal.getGroupId(), proposal.getClusterName());
                groupBinding.setId(storageManager.generateID());
                List<GroupBinding> newList = new ArrayList<GroupBinding>();
                List<GroupBinding> oldList = groupMap.putIfAbsent(groupBinding.getClusterName(), newList);
-               if (oldList != null)
-               {
+               if (oldList != null) {
                   newList = oldList;
                }
                newList.add(groupBinding);
                map.put(groupBinding.getGroupId(), groupBinding);
             }
          }
-         finally
-         {
+         finally {
             lock.unlock();
          }
          // Storing the record outside of any locks
-         if (addRecord)
-         {
+         if (addRecord) {
             storageManager.addGrouping(groupBinding);
          }
          return new Response(groupBinding.getGroupId(), groupBinding.getClusterName());
       }
-      finally
-      {
+      finally {
          storageManager.setContext(originalCtx);
       }
    }
 
-   public void resendPending() throws Exception
-   {
+   public void resendPending() throws Exception {
       // this only make sense on RemoteGroupingHandler.
       // this is a no-op on the local one
    }
 
-   public void proposed(final Response response) throws Exception
-   {
+   public void proposed(final Response response) throws Exception {
    }
 
    @Override
-   public void remove(SimpleString groupid, SimpleString clusterName, int distance) throws Exception
-   {
+   public void remove(SimpleString groupid, SimpleString clusterName, int distance) throws Exception {
       remove(groupid, clusterName);
    }
 
-   public void sendProposalResponse(final Response response, final int distance) throws Exception
-   {
+   public void sendProposalResponse(final Response response, final int distance) throws Exception {
       TypedProperties props = new TypedProperties();
       props.putSimpleStringProperty(ManagementHelper.HDR_PROPOSAL_GROUP_ID, response.getGroupId());
       props.putSimpleStringProperty(ManagementHelper.HDR_PROPOSAL_VALUE, response.getClusterName());
@@ -200,58 +182,47 @@ public final class LocalGroupingHandler extends GroupHandlingAbstract
       managementService.sendNotification(notification);
    }
 
-   public Response receive(final Proposal proposal, final int distance) throws Exception
-   {
+   public Response receive(final Proposal proposal, final int distance) throws Exception {
       ActiveMQServerLogger.LOGGER.trace("received proposal " + proposal);
       return propose(proposal);
    }
 
-   public void addGroupBinding(final GroupBinding groupBinding)
-   {
+   public void addGroupBinding(final GroupBinding groupBinding) {
       map.put(groupBinding.getGroupId(), groupBinding);
       List<GroupBinding> newList = new ArrayList<GroupBinding>();
       List<GroupBinding> oldList = groupMap.putIfAbsent(groupBinding.getClusterName(), newList);
-      if (oldList != null)
-      {
+      if (oldList != null) {
          newList = oldList;
       }
       newList.add(groupBinding);
    }
 
-   public Response getProposal(final SimpleString fullID, final boolean touchTime)
-   {
+   public Response getProposal(final SimpleString fullID, final boolean touchTime) {
       GroupBinding original = map.get(fullID);
 
-      if (original != null)
-      {
-         if (touchTime)
-         {
+      if (original != null) {
+         if (touchTime) {
             original.use();
          }
          return new Response(fullID, original.getClusterName());
       }
-      else
-      {
+      else {
          return null;
       }
    }
 
    @Override
-   public void remove(SimpleString groupid, SimpleString clusterName)
-   {
+   public void remove(SimpleString groupid, SimpleString clusterName) {
       GroupBinding groupBinding = map.remove(groupid);
       List<GroupBinding> groupBindings = groupMap.get(clusterName);
-      if (groupBindings != null && groupBinding != null)
-      {
+      if (groupBindings != null && groupBinding != null) {
          groupBindings.remove(groupBinding);
-         try
-         {
+         try {
             long tx = storageManager.generateID();
             storageManager.deleteGrouping(tx, groupBinding);
             storageManager.commitBindings(tx);
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             // nothing we can do being log
             ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
          }
@@ -259,24 +230,19 @@ public final class LocalGroupingHandler extends GroupHandlingAbstract
    }
 
    @Override
-   public void awaitBindings() throws Exception
-   {
+   public void awaitBindings() throws Exception {
       lock.lock();
-      try
-      {
-         if (groupMap.size() > 0)
-         {
+      try {
+         if (groupMap.size() > 0) {
             waitingForBindings = true;
 
             //make a copy of the bindings added so far from the cluster via onNotification()
             List<SimpleString> bindingsAlreadyAdded;
-            if (expectedBindings == null)
-            {
+            if (expectedBindings == null) {
                bindingsAlreadyAdded = Collections.emptyList();
                expectedBindings = new LinkedList<SimpleString>();
             }
-            else
-            {
+            else {
                bindingsAlreadyAdded = new ArrayList<SimpleString>(expectedBindings);
                //clear the bindings
                expectedBindings.clear();
@@ -287,170 +253,132 @@ public final class LocalGroupingHandler extends GroupHandlingAbstract
             //received via onNotification
             expectedBindings.removeAll(bindingsAlreadyAdded);
 
-            if (expectedBindings.size() > 0)
-            {
+            if (expectedBindings.size() > 0) {
                ActiveMQServerLogger.LOGGER.debug("Waiting remote group bindings to arrive before starting the server. timeout=" + timeout + " milliseconds");
                //now we wait here for the rest to be received in onNotification, it will signal once all have been received.
                //if we arent signaled then bindingsAdded still has some groupids we need to remove.
-               if (!awaitCondition.await(timeout, TimeUnit.MILLISECONDS))
-               {
+               if (!awaitCondition.await(timeout, TimeUnit.MILLISECONDS)) {
                   ActiveMQServerLogger.LOGGER.remoteGroupCoordinatorsNotStarted();
                }
 
             }
          }
       }
-      finally
-      {
+      finally {
          expectedBindings = null;
          waitingForBindings = false;
          lock.unlock();
       }
    }
 
-   public void onNotification(final Notification notification)
-   {
-      if (!(notification.getType() instanceof CoreNotificationType)) return;
+   public void onNotification(final Notification notification) {
+      if (!(notification.getType() instanceof CoreNotificationType))
+         return;
 
-      if (notification.getType() == CoreNotificationType.BINDING_REMOVED)
-      {
-         SimpleString clusterName = notification.getProperties()
-            .getSimpleStringProperty(ManagementHelper.HDR_CLUSTER_NAME);
+      if (notification.getType() == CoreNotificationType.BINDING_REMOVED) {
+         SimpleString clusterName = notification.getProperties().getSimpleStringProperty(ManagementHelper.HDR_CLUSTER_NAME);
          removeGrouping(clusterName);
       }
-      else if (notification.getType() == CoreNotificationType.BINDING_ADDED)
-      {
-         SimpleString clusterName = notification.getProperties()
-            .getSimpleStringProperty(ManagementHelper.HDR_CLUSTER_NAME);
-         try
-         {
+      else if (notification.getType() == CoreNotificationType.BINDING_ADDED) {
+         SimpleString clusterName = notification.getProperties().getSimpleStringProperty(ManagementHelper.HDR_CLUSTER_NAME);
+         try {
             lock.lock();
 
-            if (expectedBindings != null)
-            {
-               if (waitingForBindings)
-               {
-                  if (expectedBindings.remove(clusterName))
-                  {
+            if (expectedBindings != null) {
+               if (waitingForBindings) {
+                  if (expectedBindings.remove(clusterName)) {
                      ActiveMQServerLogger.LOGGER.debug("OnNotification for waitForbindings::Removed clusterName=" + clusterName + " from lis succesffully");
                   }
-                  else
-                  {
+                  else {
                      ActiveMQServerLogger.LOGGER.debug("OnNotification for waitForbindings::Couldn't remove clusterName=" + clusterName + " as it wasn't on the original list");
                   }
                }
-               else
-               {
+               else {
                   expectedBindings.add(clusterName);
                   ActiveMQServerLogger.LOGGER.debug("Notification for waitForbindings::Adding previously known item clusterName=" + clusterName);
                }
 
-               if (ActiveMQServerLogger.LOGGER.isDebugEnabled())
-               {
-                  for (SimpleString stillWaiting : expectedBindings)
-                  {
+               if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
+                  for (SimpleString stillWaiting : expectedBindings) {
                      ActiveMQServerLogger.LOGGER.debug("Notification for waitForbindings::Still waiting for clusterName=" + stillWaiting);
                   }
                }
 
-               if (expectedBindings.size() == 0)
-               {
+               if (expectedBindings.size() == 0) {
                   awaitCondition.signal();
                }
             }
          }
-         finally
-         {
+         finally {
             lock.unlock();
          }
       }
    }
 
-   public synchronized void start() throws Exception
-   {
+   public synchronized void start() throws Exception {
       if (started)
          return;
 
-      if (expectedBindings == null)
-      {
+      if (expectedBindings == null) {
          // just in case the component is restarted
          expectedBindings = new LinkedList<SimpleString>();
       }
 
-      if (reaperPeriod > 0 && groupTimeout > 0)
-      {
-         if (reaperFuture != null)
-         {
+      if (reaperPeriod > 0 && groupTimeout > 0) {
+         if (reaperFuture != null) {
             reaperFuture.cancel(true);
             reaperFuture = null;
          }
 
-         reaperFuture = scheduledExecutor.scheduleAtFixedRate(new GroupReaperScheduler(), reaperPeriod,
-                                                              reaperPeriod, TimeUnit.MILLISECONDS);
+         reaperFuture = scheduledExecutor.scheduleAtFixedRate(new GroupReaperScheduler(), reaperPeriod, reaperPeriod, TimeUnit.MILLISECONDS);
       }
       started = true;
    }
 
-   public synchronized void stop() throws Exception
-   {
+   public synchronized void stop() throws Exception {
       started = false;
-      if (reaperFuture != null)
-      {
+      if (reaperFuture != null) {
          reaperFuture.cancel(true);
          reaperFuture = null;
       }
    }
 
-   public boolean isStarted()
-   {
+   public boolean isStarted() {
       return started;
    }
 
-   private void removeGrouping(final SimpleString clusterName)
-   {
+   private void removeGrouping(final SimpleString clusterName) {
       final List<GroupBinding> list = groupMap.remove(clusterName);
-      if (list != null)
-      {
-         executor.execute(new Runnable()
-         {
+      if (list != null) {
+         executor.execute(new Runnable() {
             @Override
-            public void run()
-            {
+            public void run() {
                long txID = -1;
 
-               for (GroupBinding val : list)
-               {
-                  if (val != null)
-                  {
+               for (GroupBinding val : list) {
+                  if (val != null) {
                      fireUnproposed(val.getGroupId());
                      map.remove(val.getGroupId());
 
                      sendUnproposal(val.getGroupId(), clusterName, 0);
 
-                     try
-                     {
-                        if (txID < 0)
-                        {
+                     try {
+                        if (txID < 0) {
                            txID = storageManager.generateID();
                         }
                         storageManager.deleteGrouping(txID, val);
                      }
-                     catch (Exception e)
-                     {
+                     catch (Exception e) {
                         ActiveMQServerLogger.LOGGER.unableToDeleteGroupBindings(e, val.getGroupId());
                      }
                   }
                }
 
-
-               if (txID >= 0)
-               {
-                  try
-                  {
+               if (txID >= 0) {
+                  try {
                      storageManager.commitBindings(txID);
                   }
-                  catch (Exception e)
-                  {
+                  catch (Exception e) {
                      ActiveMQServerLogger.LOGGER.unableToDeleteGroupBindings(e, SimpleString.toSimpleString("TX:" + txID));
                   }
                }
@@ -460,33 +388,28 @@ public final class LocalGroupingHandler extends GroupHandlingAbstract
       }
    }
 
-   private final class GroupReaperScheduler implements Runnable
-   {
+   private final class GroupReaperScheduler implements Runnable {
+
       final GroupIdReaper reaper = new GroupIdReaper();
 
-      public void run()
-      {
+      public void run() {
          executor.execute(reaper);
       }
 
    }
 
-   private final class GroupIdReaper implements Runnable
-   {
-      public void run()
-      {
+   private final class GroupIdReaper implements Runnable {
+
+      public void run() {
          // The reaper thread should be finished case the PostOffice is gone
          // This is to avoid leaks on PostOffice between stops and starts
-         if (isStarted())
-         {
+         if (isStarted()) {
             long txID = -1;
 
             int expiredGroups = 0;
 
-            for (GroupBinding groupBinding : map.values())
-            {
-               if ((groupBinding.getTimeUsed() + groupTimeout) < System.currentTimeMillis())
-               {
+            for (GroupBinding groupBinding : map.values()) {
+               if ((groupBinding.getTimeUsed() + groupTimeout) < System.currentTimeMillis()) {
                   map.remove(groupBinding.getGroupId());
                   List<GroupBinding> groupBindings = groupMap.get(groupBinding.getClusterName());
 
@@ -497,36 +420,29 @@ public final class LocalGroupingHandler extends GroupHandlingAbstract
                   sendUnproposal(groupBinding.getGroupId(), groupBinding.getClusterName(), 0);
 
                   expiredGroups++;
-                  try
-                  {
-                     if (txID < 0)
-                     {
+                  try {
+                     if (txID < 0) {
                         txID = storageManager.generateID();
                      }
                      storageManager.deleteGrouping(txID, groupBinding);
 
-                     if (expiredGroups >= 1000 && txID >= 0)
-                     {
+                     if (expiredGroups >= 1000 && txID >= 0) {
                         expiredGroups = 0;
                         txID = -1;
                         storageManager.commitBindings(txID);
                      }
                   }
-                  catch (Exception e)
-                  {
+                  catch (Exception e) {
                      ActiveMQServerLogger.LOGGER.unableToDeleteGroupBindings(e, groupBinding.getGroupId());
                   }
                }
             }
 
-            if (txID >= 0)
-            {
-               try
-               {
+            if (txID >= 0) {
+               try {
                   storageManager.commitBindings(txID);
                }
-               catch (Exception e)
-               {
+               catch (Exception e) {
                   ActiveMQServerLogger.LOGGER.unableToDeleteGroupBindings(e, SimpleString.toSimpleString("TX:" + txID));
                }
             }

@@ -28,11 +28,10 @@ import org.junit.Test;
 
 import static org.jgroups.util.Util.assertTrue;
 
-public class ServiceUtilsTest
-{
+public class ServiceUtilsTest {
+
    @Test
-   public void testSetActiveMQXAResourceWrapperFactorySetsDefaultImplWhenNoOther() throws Exception
-   {
+   public void testSetActiveMQXAResourceWrapperFactorySetsDefaultImplWhenNoOther() throws Exception {
       List<ActiveMQXAResourceWrapperFactory> factories = new ArrayList<ActiveMQXAResourceWrapperFactory>();
 
       Method method = ServiceUtils.class.getDeclaredMethod("setActiveMQXAResourceWrapperFactory", Iterable.class);
@@ -45,8 +44,7 @@ public class ServiceUtilsTest
    }
 
    @Test
-   public void testSetActiveMQXAResourceWrapperFactorySetsExtensionImplWhenSupplied() throws Exception
-   {
+   public void testSetActiveMQXAResourceWrapperFactorySetsExtensionImplWhenSupplied() throws Exception {
       List<ActiveMQXAResourceWrapperFactory> factories = new ArrayList<ActiveMQXAResourceWrapperFactory>();
       factories.add(new MockActiveMQResourceWrapperFactory());
 

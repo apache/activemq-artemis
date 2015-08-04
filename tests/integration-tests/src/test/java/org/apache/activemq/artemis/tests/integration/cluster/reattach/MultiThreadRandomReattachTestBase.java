@@ -42,8 +42,8 @@ import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReattachSupportTestBase
-{
+public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReattachSupportTestBase {
+
    private final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
    // Constants -----------------------------------------------------
@@ -66,13 +66,10 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
    // Public --------------------------------------------------------
 
    @Test
-   public void testA() throws Exception
-   {
-      runTestMultipleThreads(new RunnableT()
-      {
+   public void testA() throws Exception {
+      runTestMultipleThreads(new RunnableT() {
          @Override
-         public void run(final ClientSessionFactory sf, final int threadNum) throws Exception
-         {
+         public void run(final ClientSessionFactory sf, final int threadNum) throws Exception {
             doTestA(sf, threadNum);
          }
       }, NUM_THREADS, false);
@@ -80,143 +77,110 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
    }
 
    @Test
-   public void testB() throws Exception
-   {
-      runTestMultipleThreads(new RunnableT()
-      {
+   public void testB() throws Exception {
+      runTestMultipleThreads(new RunnableT() {
          @Override
-         public void run(final ClientSessionFactory sf, final int threadNum) throws Exception
-         {
+         public void run(final ClientSessionFactory sf, final int threadNum) throws Exception {
             doTestB(sf, threadNum);
          }
       }, NUM_THREADS, false);
    }
 
    @Test
-   public void testC() throws Exception
-   {
-      runTestMultipleThreads(new RunnableT()
-      {
+   public void testC() throws Exception {
+      runTestMultipleThreads(new RunnableT() {
          @Override
-         public void run(final ClientSessionFactory sf, final int threadNum) throws Exception
-         {
+         public void run(final ClientSessionFactory sf, final int threadNum) throws Exception {
             doTestC(sf, threadNum);
          }
       }, NUM_THREADS, false);
    }
 
    @Test
-   public void testD() throws Exception
-   {
-      runTestMultipleThreads(new RunnableT()
-      {
+   public void testD() throws Exception {
+      runTestMultipleThreads(new RunnableT() {
          @Override
-         public void run(final ClientSessionFactory sf, final int threadNum) throws Exception
-         {
+         public void run(final ClientSessionFactory sf, final int threadNum) throws Exception {
             doTestD(sf, threadNum);
          }
       }, NUM_THREADS, false);
    }
 
    @Test
-   public void testE() throws Exception
-   {
-      runTestMultipleThreads(new RunnableT()
-      {
+   public void testE() throws Exception {
+      runTestMultipleThreads(new RunnableT() {
          @Override
-         public void run(final ClientSessionFactory sf, final int threadNum) throws Exception
-         {
+         public void run(final ClientSessionFactory sf, final int threadNum) throws Exception {
             doTestE(sf, threadNum);
          }
       }, NUM_THREADS, false);
    }
 
    @Test
-   public void testF() throws Exception
-   {
-      runTestMultipleThreads(new RunnableT()
-      {
+   public void testF() throws Exception {
+      runTestMultipleThreads(new RunnableT() {
          @Override
-         public void run(final ClientSessionFactory sf, final int threadNum) throws Exception
-         {
+         public void run(final ClientSessionFactory sf, final int threadNum) throws Exception {
             doTestF(sf, threadNum);
          }
       }, NUM_THREADS, false);
    }
 
    @Test
-   public void testG() throws Exception
-   {
-      runTestMultipleThreads(new RunnableT()
-      {
+   public void testG() throws Exception {
+      runTestMultipleThreads(new RunnableT() {
          @Override
-         public void run(final ClientSessionFactory sf, final int threadNum) throws Exception
-         {
+         public void run(final ClientSessionFactory sf, final int threadNum) throws Exception {
             doTestG(sf, threadNum);
          }
       }, NUM_THREADS, false);
    }
 
    @Test
-   public void testH() throws Exception
-   {
-      runTestMultipleThreads(new RunnableT()
-      {
+   public void testH() throws Exception {
+      runTestMultipleThreads(new RunnableT() {
          @Override
-         public void run(final ClientSessionFactory sf, final int threadNum) throws Exception
-         {
+         public void run(final ClientSessionFactory sf, final int threadNum) throws Exception {
             doTestH(sf, threadNum);
          }
       }, NUM_THREADS, false);
    }
 
    @Test
-   public void testI() throws Exception
-   {
-      runTestMultipleThreads(new RunnableT()
-      {
+   public void testI() throws Exception {
+      runTestMultipleThreads(new RunnableT() {
          @Override
-         public void run(final ClientSessionFactory sf, final int threadNum) throws Exception
-         {
+         public void run(final ClientSessionFactory sf, final int threadNum) throws Exception {
             doTestI(sf, threadNum);
          }
       }, NUM_THREADS, false);
    }
 
    @Test
-   public void testJ() throws Exception
-   {
-      runTestMultipleThreads(new RunnableT()
-      {
+   public void testJ() throws Exception {
+      runTestMultipleThreads(new RunnableT() {
          @Override
-         public void run(final ClientSessionFactory sf, final int threadNum) throws Exception
-         {
+         public void run(final ClientSessionFactory sf, final int threadNum) throws Exception {
             doTestJ(sf, threadNum);
          }
       }, NUM_THREADS, false);
    }
 
    @Test
-   public void testK() throws Exception
-   {
-      runTestMultipleThreads(new RunnableT()
-      {
+   public void testK() throws Exception {
+      runTestMultipleThreads(new RunnableT() {
          @Override
-         public void run(final ClientSessionFactory sf, final int threadNum) throws Exception
-         {
+         public void run(final ClientSessionFactory sf, final int threadNum) throws Exception {
             doTestK(sf, threadNum);
          }
       }, NUM_THREADS, false);
    }
 
    @Test
-   public void testL() throws Exception
-   {
-      runTestMultipleThreads(new RunnableT()
-      {
+   public void testL() throws Exception {
+      runTestMultipleThreads(new RunnableT() {
          @Override
-         public void run(final ClientSessionFactory sf, final int threadNum) throws Exception
-         {
+         public void run(final ClientSessionFactory sf, final int threadNum) throws Exception {
             doTestL(sf);
          }
       }, NUM_THREADS, true, 10);
@@ -234,13 +198,10 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
    // }
 
    @Test
-   public void testN() throws Exception
-   {
-      runTestMultipleThreads(new RunnableT()
-      {
+   public void testN() throws Exception {
+      runTestMultipleThreads(new RunnableT() {
          @Override
-         public void run(final ClientSessionFactory sf, final int threadNum) throws Exception
-         {
+         public void run(final ClientSessionFactory sf, final int threadNum) throws Exception {
             doTestN(sf, threadNum);
          }
       }, NUM_THREADS, false);
@@ -248,13 +209,10 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
 
    // Added do replicate HORNETQ-264
    @Test
-   public void testO() throws Exception
-   {
-      runTestMultipleThreads(new RunnableT()
-      {
+   public void testO() throws Exception {
+      runTestMultipleThreads(new RunnableT() {
          @Override
-         public void run(final ClientSessionFactory sf, final int threadNum) throws Exception
-         {
+         public void run(final ClientSessionFactory sf, final int threadNum) throws Exception {
             doTestO(sf, threadNum);
          }
       }, NUM_THREADS, false);
@@ -271,16 +229,14 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
 
    protected abstract boolean checkSize(ClientMessage message);
 
-   protected ClientSession createAutoCommitSession(final ClientSessionFactory sf) throws Exception
-   {
+   protected ClientSession createAutoCommitSession(final ClientSessionFactory sf) throws Exception {
       ClientSession session = sf.createSession(false, true, true);
       session.addMetaData("someData", RandomUtil.randomString());
       session.addMetaData("someData2", RandomUtil.randomString());
       return session;
    }
 
-   protected ClientSession createTransactionalSession(final ClientSessionFactory sf) throws Exception
-   {
+   protected ClientSession createTransactionalSession(final ClientSessionFactory sf) throws Exception {
       ClientSession session = sf.createSession(false, false, false);
       session.addMetaData("someData", RandomUtil.randomString());
       session.addMetaData("someData2", RandomUtil.randomString());
@@ -288,8 +244,9 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
       return session;
    }
 
-   protected void doTestA(final ClientSessionFactory sf, final int threadNum, final ClientSession session2) throws Exception
-   {
+   protected void doTestA(final ClientSessionFactory sf,
+                          final int threadNum,
+                          final ClientSession session2) throws Exception {
       SimpleString subName = new SimpleString("sub" + threadNum);
 
       ClientSession session = addClientSession(sf.createSession(false, true, true));
@@ -312,15 +269,13 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
 
       boolean ok = handler.latch.await(LATCH_WAIT, TimeUnit.MILLISECONDS);
 
-      if (!ok)
-      {
+      if (!ok) {
          throw new Exception("Timed out waiting for messages on handler " + System.identityHashCode(handler) +
-                             " threadnum " +
-                             threadNum);
+                                " threadnum " +
+                                threadNum);
       }
 
-      if (handler.failure != null)
-      {
+      if (handler.failure != null) {
          throw new Exception("Handler failed: " + handler.failure);
       }
 
@@ -333,8 +288,7 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
       session.close();
    }
 
-   protected void doTestA(final ClientSessionFactory sf, final int threadNum) throws Exception
-   {
+   protected void doTestA(final ClientSessionFactory sf, final int threadNum) throws Exception {
       long start = System.currentTimeMillis();
 
       ClientSession s = sf.createSession(false, false, false);
@@ -346,8 +300,7 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
       Set<ClientConsumer> consumers = new HashSet<ClientConsumer>();
       Set<ClientSession> sessions = new HashSet<ClientSession>();
 
-      for (int i = 0; i < numSessions; i++)
-      {
+      for (int i = 0; i < numSessions; i++) {
          SimpleString subName = new SimpleString(threadNum + "sub" + i);
 
          ClientSession sessConsume = createAutoCommitSession(sf);
@@ -372,8 +325,7 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
 
       Set<MyHandler> handlers = new HashSet<MyHandler>();
 
-      for (ClientConsumer consumer : consumers)
-      {
+      for (ClientConsumer consumer : consumers) {
          MyHandler handler = new MyHandler(threadNum, numMessages);
 
          consumer.setMessageHandler(handler);
@@ -381,32 +333,27 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
          handlers.add(handler);
       }
 
-      for (MyHandler handler : handlers)
-      {
+      for (MyHandler handler : handlers) {
          boolean ok = handler.latch.await(LATCH_WAIT, TimeUnit.MILLISECONDS);
 
-         if (!ok)
-         {
+         if (!ok) {
             throw new Exception("Timed out waiting for messages on handler " + System.identityHashCode(handler) +
-                                " threadnum " +
-                                threadNum);
+                                   " threadnum " +
+                                   threadNum);
          }
 
-         if (handler.failure != null)
-         {
+         if (handler.failure != null) {
             throw new Exception("Handler failed: " + handler.failure);
          }
       }
 
       sessSend.close();
 
-      for (ClientSession session : sessions)
-      {
+      for (ClientSession session : sessions) {
          session.close();
       }
 
-      for (int i = 0; i < numSessions; i++)
-      {
+      for (int i = 0; i < numSessions; i++) {
          SimpleString subName = new SimpleString(threadNum + "sub" + i);
 
          s.deleteQueue(subName);
@@ -419,8 +366,7 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
       log.info("duration " + (end - start));
    }
 
-   protected void doTestB(final ClientSessionFactory sf, final int threadNum) throws Exception
-   {
+   protected void doTestB(final ClientSessionFactory sf, final int threadNum) throws Exception {
       long start = System.currentTimeMillis();
 
       ClientSession s = sf.createSession(false, false, false);
@@ -432,8 +378,7 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
       Set<ClientConsumer> consumers = new HashSet<ClientConsumer>();
       Set<ClientSession> sessions = new HashSet<ClientSession>();
 
-      for (int i = 0; i < numSessions; i++)
-      {
+      for (int i = 0; i < numSessions; i++) {
          SimpleString subName = new SimpleString(threadNum + "sub" + i);
 
          ClientSession sessConsume = createAutoCommitSession(sf);
@@ -454,15 +399,13 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
 
       sendMessages(sessSend, producer, numMessages, threadNum);
 
-      for (ClientSession session : sessions)
-      {
+      for (ClientSession session : sessions) {
          session.start();
       }
 
       Set<MyHandler> handlers = new HashSet<MyHandler>();
 
-      for (ClientConsumer consumer : consumers)
-      {
+      for (ClientConsumer consumer : consumers) {
          MyHandler handler = new MyHandler(threadNum, numMessages);
 
          consumer.setMessageHandler(handler);
@@ -470,32 +413,27 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
          handlers.add(handler);
       }
 
-      for (MyHandler handler : handlers)
-      {
+      for (MyHandler handler : handlers) {
          boolean ok = handler.latch.await(LATCH_WAIT, TimeUnit.MILLISECONDS);
 
-         if (!ok)
-         {
+         if (!ok) {
             throw new Exception("Timed out waiting for messages on handler " + System.identityHashCode(handler) +
-                                " threadnum " +
-                                threadNum);
+                                   " threadnum " +
+                                   threadNum);
          }
 
-         if (handler.failure != null)
-         {
+         if (handler.failure != null) {
             throw new Exception("Handler failed: " + handler.failure);
          }
       }
 
       sessSend.close();
 
-      for (ClientSession session : sessions)
-      {
+      for (ClientSession session : sessions) {
          session.close();
       }
 
-      for (int i = 0; i < numSessions; i++)
-      {
+      for (int i = 0; i < numSessions; i++) {
          SimpleString subName = new SimpleString(threadNum + "sub" + i);
 
          s.deleteQueue(subName);
@@ -509,13 +447,11 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
 
    }
 
-   protected void doTestC(final ClientSessionFactory sf, final int threadNum) throws Exception
-   {
+   protected void doTestC(final ClientSessionFactory sf, final int threadNum) throws Exception {
       long start = System.currentTimeMillis();
 
       ClientSession s = sf.createSession(false, false, false);
       s.addMetaData("some-data", RandomUtil.randomString());
-
 
       final int numMessages = 100;
 
@@ -524,8 +460,7 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
       Set<ClientConsumer> consumers = new HashSet<ClientConsumer>();
       Set<ClientSession> sessions = new HashSet<ClientSession>();
 
-      for (int i = 0; i < numSessions; i++)
-      {
+      for (int i = 0; i < numSessions; i++) {
          SimpleString subName = new SimpleString(threadNum + "sub" + i);
 
          ClientSession sessConsume = createTransactionalSession(sf);
@@ -544,7 +479,6 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
       ClientSession sessSend = sf.createSession(false, false, false);
       sessSend.addMetaData("some-data", RandomUtil.randomString());
 
-
       ClientProducer producer = sessSend.createProducer(MultiThreadRandomReattachTestBase.ADDRESS);
 
       sendMessages(sessSend, producer, numMessages, threadNum);
@@ -557,8 +491,7 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
 
       Set<MyHandler> handlers = new HashSet<MyHandler>();
 
-      for (ClientConsumer consumer : consumers)
-      {
+      for (ClientConsumer consumer : consumers) {
          MyHandler handler = new MyHandler(threadNum, numMessages);
 
          consumer.setMessageHandler(handler);
@@ -566,50 +499,42 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
          handlers.add(handler);
       }
 
-      for (MyHandler handler : handlers)
-      {
+      for (MyHandler handler : handlers) {
          boolean ok = handler.latch.await(LATCH_WAIT, TimeUnit.MILLISECONDS);
 
-         if (!ok)
-         {
+         if (!ok) {
             throw new Exception("Timed out waiting for messages on handler " + System.identityHashCode(handler) +
-                                " threadnum " +
-                                threadNum);
+                                   " threadnum " +
+                                   threadNum);
          }
 
-         if (handler.failure != null)
-         {
+         if (handler.failure != null) {
             throw new Exception("Handler failed: " + handler.failure);
          }
 
          handler.reset();
       }
 
-      for (ClientSession session : sessions)
-      {
+      for (ClientSession session : sessions) {
          session.rollback();
       }
 
-      for (MyHandler handler : handlers)
-      {
+      for (MyHandler handler : handlers) {
          boolean ok = handler.latch.await(LATCH_WAIT, TimeUnit.MILLISECONDS);
 
          Assert.assertTrue(ok);
       }
 
-      for (ClientSession session : sessions)
-      {
+      for (ClientSession session : sessions) {
          session.commit();
       }
 
       sessSend.close();
-      for (ClientSession session : sessions)
-      {
+      for (ClientSession session : sessions) {
          session.close();
       }
 
-      for (int i = 0; i < numSessions; i++)
-      {
+      for (int i = 0; i < numSessions; i++) {
          SimpleString subName = new SimpleString(threadNum + "sub" + i);
 
          s.deleteQueue(subName);
@@ -622,13 +547,11 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
       log.info("duration " + (end - start));
    }
 
-   protected void doTestD(final ClientSessionFactory sf, final int threadNum) throws Exception
-   {
+   protected void doTestD(final ClientSessionFactory sf, final int threadNum) throws Exception {
       long start = System.currentTimeMillis();
 
       ClientSession s = sf.createSession(false, false, false);
       s.addMetaData("some-data", RandomUtil.randomString());
-
 
       final int numMessages = 100;
 
@@ -637,8 +560,7 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
       Set<ClientConsumer> consumers = new HashSet<ClientConsumer>();
       Set<ClientSession> sessions = new HashSet<ClientSession>();
 
-      for (int i = 0; i < numSessions; i++)
-      {
+      for (int i = 0; i < numSessions; i++) {
          SimpleString subName = new SimpleString(threadNum + " sub" + i);
 
          ClientSession sessConsume = sf.createSession(false, false, false);
@@ -656,7 +578,6 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
       ClientSession sessSend = sf.createSession(false, false, false);
       sessSend.addMetaData("some-data", RandomUtil.randomString());
 
-
       ClientProducer producer = sessSend.createProducer(MultiThreadRandomReattachTestBase.ADDRESS);
 
       sendMessages(sessSend, producer, numMessages, threadNum);
@@ -667,15 +588,13 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
 
       sessSend.commit();
 
-      for (ClientSession session : sessions)
-      {
+      for (ClientSession session : sessions) {
          session.start();
       }
 
       Set<MyHandler> handlers = new HashSet<MyHandler>();
 
-      for (ClientConsumer consumer : consumers)
-      {
+      for (ClientConsumer consumer : consumers) {
          MyHandler handler = new MyHandler(threadNum, numMessages);
 
          consumer.setMessageHandler(handler);
@@ -683,19 +602,16 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
          handlers.add(handler);
       }
 
-      for (MyHandler handler : handlers)
-      {
+      for (MyHandler handler : handlers) {
          boolean ok = handler.latch.await(LATCH_WAIT, TimeUnit.MILLISECONDS);
 
-         if (!ok)
-         {
+         if (!ok) {
             throw new Exception("Timed out waiting for messages on handler " + System.identityHashCode(handler) +
-                                " threadnum " +
-                                threadNum);
+                                   " threadnum " +
+                                   threadNum);
          }
 
-         if (handler.failure != null)
-         {
+         if (handler.failure != null) {
             throw new Exception("Handler failed: " + handler.failure);
          }
       }
@@ -703,19 +619,16 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
       handlers.clear();
 
       // Set handlers to null
-      for (ClientConsumer consumer : consumers)
-      {
+      for (ClientConsumer consumer : consumers) {
          consumer.setMessageHandler(null);
       }
 
-      for (ClientSession session : sessions)
-      {
+      for (ClientSession session : sessions) {
          session.rollback();
       }
 
       // New handlers
-      for (ClientConsumer consumer : consumers)
-      {
+      for (ClientConsumer consumer : consumers) {
          MyHandler handler = new MyHandler(threadNum, numMessages);
 
          consumer.setMessageHandler(handler);
@@ -723,36 +636,30 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
          handlers.add(handler);
       }
 
-      for (MyHandler handler : handlers)
-      {
+      for (MyHandler handler : handlers) {
          boolean ok = handler.latch.await(LATCH_WAIT, TimeUnit.MILLISECONDS);
 
-         if (!ok)
-         {
+         if (!ok) {
             throw new Exception("Timed out waiting for messages on handler " + System.identityHashCode(handler) +
-                                " threadnum " +
-                                threadNum);
+                                   " threadnum " +
+                                   threadNum);
          }
 
-         if (handler.failure != null)
-         {
+         if (handler.failure != null) {
             throw new Exception("Handler failed on rollback: " + handler.failure);
          }
       }
 
-      for (ClientSession session : sessions)
-      {
+      for (ClientSession session : sessions) {
          session.commit();
       }
 
       sessSend.close();
-      for (ClientSession session : sessions)
-      {
+      for (ClientSession session : sessions) {
          session.close();
       }
 
-      for (int i = 0; i < numSessions; i++)
-      {
+      for (int i = 0; i < numSessions; i++) {
          SimpleString subName = new SimpleString(threadNum + " sub" + i);
 
          s.deleteQueue(subName);
@@ -767,13 +674,11 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
 
    // Now with synchronous receive()
 
-   protected void doTestE(final ClientSessionFactory sf, final int threadNum) throws Exception
-   {
+   protected void doTestE(final ClientSessionFactory sf, final int threadNum) throws Exception {
       long start = System.currentTimeMillis();
 
       ClientSession s = sf.createSession(false, false, false);
       s.addMetaData("some-data", RandomUtil.randomString());
-
 
       final int numMessages = 100;
 
@@ -782,13 +687,11 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
       Set<ClientConsumer> consumers = new HashSet<ClientConsumer>();
       Set<ClientSession> sessions = new HashSet<ClientSession>();
 
-      for (int i = 0; i < numSessions; i++)
-      {
+      for (int i = 0; i < numSessions; i++) {
          SimpleString subName = new SimpleString(threadNum + "sub" + i);
 
          ClientSession sessConsume = sf.createSession(false, true, true);
          sessConsume.addMetaData("some-data", RandomUtil.randomString());
-
 
          sessConsume.start();
 
@@ -811,13 +714,11 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
       consumeMessages(consumers, numMessages, threadNum);
 
       sessSend.close();
-      for (ClientSession session : sessions)
-      {
+      for (ClientSession session : sessions) {
          session.close();
       }
 
-      for (int i = 0; i < numSessions; i++)
-      {
+      for (int i = 0; i < numSessions; i++) {
          SimpleString subName = new SimpleString(threadNum + "sub" + i);
 
          s.deleteQueue(subName);
@@ -830,13 +731,11 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
       log.info("duration " + (end - start));
    }
 
-   protected void doTestF(final ClientSessionFactory sf, final int threadNum) throws Exception
-   {
+   protected void doTestF(final ClientSessionFactory sf, final int threadNum) throws Exception {
       long start = System.currentTimeMillis();
 
       ClientSession s = sf.createSession(false, false, false);
       s.addMetaData("data", RandomUtil.randomString());
-
 
       final int numMessages = 100;
 
@@ -845,8 +744,7 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
       Set<ClientConsumer> consumers = new HashSet<ClientConsumer>();
       Set<ClientSession> sessions = new HashSet<ClientSession>();
 
-      for (int i = 0; i < numSessions; i++)
-      {
+      for (int i = 0; i < numSessions; i++) {
          SimpleString subName = new SimpleString(threadNum + "sub" + i);
 
          ClientSession sessConsume = sf.createSession(false, true, true);
@@ -868,21 +766,18 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
 
       sendMessages(sessSend, producer, numMessages, threadNum);
 
-      for (ClientSession session : sessions)
-      {
+      for (ClientSession session : sessions) {
          session.start();
       }
 
       consumeMessages(consumers, numMessages, threadNum);
 
       sessSend.close();
-      for (ClientSession session : sessions)
-      {
+      for (ClientSession session : sessions) {
          session.close();
       }
 
-      for (int i = 0; i < numSessions; i++)
-      {
+      for (int i = 0; i < numSessions; i++) {
          SimpleString subName = new SimpleString(threadNum + "sub" + i);
 
          s.deleteQueue(subName);
@@ -895,8 +790,7 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
       log.info("duration " + (end - start));
    }
 
-   protected void doTestG(final ClientSessionFactory sf, final int threadNum) throws Exception
-   {
+   protected void doTestG(final ClientSessionFactory sf, final int threadNum) throws Exception {
       long start = System.currentTimeMillis();
 
       ClientSession s = sf.createSession(false, false, false);
@@ -909,13 +803,11 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
       Set<ClientConsumer> consumers = new HashSet<ClientConsumer>();
       Set<ClientSession> sessions = new HashSet<ClientSession>();
 
-      for (int i = 0; i < numSessions; i++)
-      {
+      for (int i = 0; i < numSessions; i++) {
          SimpleString subName = new SimpleString(threadNum + "sub" + i);
 
          ClientSession sessConsume = sf.createSession(false, false, false);
          sessConsume.addMetaData("data", RandomUtil.randomString());
-
 
          sessConsume.start();
 
@@ -931,7 +823,6 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
       ClientSession sessSend = sf.createSession(false, false, false);
       sessSend.addMetaData("data", RandomUtil.randomString());
 
-
       ClientProducer producer = sessSend.createProducer(MultiThreadRandomReattachTestBase.ADDRESS);
 
       sendMessages(sessSend, producer, numMessages, threadNum);
@@ -944,26 +835,22 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
 
       consumeMessages(consumers, numMessages, threadNum);
 
-      for (ClientSession session : sessions)
-      {
+      for (ClientSession session : sessions) {
          session.rollback();
       }
 
       consumeMessages(consumers, numMessages, threadNum);
 
-      for (ClientSession session : sessions)
-      {
+      for (ClientSession session : sessions) {
          session.commit();
       }
 
       sessSend.close();
-      for (ClientSession session : sessions)
-      {
+      for (ClientSession session : sessions) {
          session.close();
       }
 
-      for (int i = 0; i < numSessions; i++)
-      {
+      for (int i = 0; i < numSessions; i++) {
          SimpleString subName = new SimpleString(threadNum + "sub" + i);
 
          s.deleteQueue(subName);
@@ -976,13 +863,11 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
       log.info("duration " + (end - start));
    }
 
-   protected void doTestH(final ClientSessionFactory sf, final int threadNum) throws Exception
-   {
+   protected void doTestH(final ClientSessionFactory sf, final int threadNum) throws Exception {
       long start = System.currentTimeMillis();
 
       ClientSession s = sf.createSession(false, false, false);
       s.addMetaData("data", RandomUtil.randomString());
-
 
       final int numMessages = 100;
 
@@ -991,13 +876,11 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
       Set<ClientConsumer> consumers = new HashSet<ClientConsumer>();
       Set<ClientSession> sessions = new HashSet<ClientSession>();
 
-      for (int i = 0; i < numSessions; i++)
-      {
+      for (int i = 0; i < numSessions; i++) {
          SimpleString subName = new SimpleString(threadNum + "sub" + i);
 
          ClientSession sessConsume = sf.createSession(false, false, false);
          sessConsume.addMetaData("data", RandomUtil.randomString());
-
 
          sessConsume.createQueue(MultiThreadRandomReattachTestBase.ADDRESS, subName, null, false);
 
@@ -1021,33 +904,28 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
 
       sessSend.commit();
 
-      for (ClientSession session : sessions)
-      {
+      for (ClientSession session : sessions) {
          session.start();
       }
 
       consumeMessages(consumers, numMessages, threadNum);
 
-      for (ClientSession session : sessions)
-      {
+      for (ClientSession session : sessions) {
          session.rollback();
       }
 
       consumeMessages(consumers, numMessages, threadNum);
 
-      for (ClientSession session : sessions)
-      {
+      for (ClientSession session : sessions) {
          session.commit();
       }
 
       sessSend.close();
-      for (ClientSession session : sessions)
-      {
+      for (ClientSession session : sessions) {
          session.close();
       }
 
-      for (int i = 0; i < numSessions; i++)
-      {
+      for (int i = 0; i < numSessions; i++) {
          SimpleString subName = new SimpleString(threadNum + "sub" + i);
 
          s.deleteQueue(subName);
@@ -1060,20 +938,14 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
       log.info("duration " + (end - start));
    }
 
-   protected void doTestI(final ClientSessionFactory sf, final int threadNum) throws Exception
-   {
+   protected void doTestI(final ClientSessionFactory sf, final int threadNum) throws Exception {
       ClientSession sessCreate = sf.createSession(false, true, true);
       sessCreate.addMetaData("data", RandomUtil.randomString());
 
-
-      sessCreate.createQueue(MultiThreadRandomReattachTestBase.ADDRESS,
-                             new SimpleString(threadNum + MultiThreadRandomReattachTestBase.ADDRESS.toString()),
-                             null,
-                             false);
+      sessCreate.createQueue(MultiThreadRandomReattachTestBase.ADDRESS, new SimpleString(threadNum + MultiThreadRandomReattachTestBase.ADDRESS.toString()), null, false);
 
       ClientSession sess = sf.createSession(false, true, true);
       sess.addMetaData("data", RandomUtil.randomString());
-
 
       sess.start();
 
@@ -1081,7 +953,7 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
 
       ClientProducer producer = sess.createProducer(MultiThreadRandomReattachTestBase.ADDRESS);
 
-      ClientMessage message = sess.createMessage(ActiveMQTextMessage.TYPE, false, 0, System.currentTimeMillis(), (byte)1);
+      ClientMessage message = sess.createMessage(ActiveMQTextMessage.TYPE, false, 0, System.currentTimeMillis(), (byte) 1);
       producer.send(message);
 
       ClientMessage message2 = consumer.receive(MultiThreadRandomReattachTestBase.RECEIVE_TIMEOUT);
@@ -1097,16 +969,11 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
       sessCreate.close();
    }
 
-   protected void doTestJ(final ClientSessionFactory sf, final int threadNum) throws Exception
-   {
+   protected void doTestJ(final ClientSessionFactory sf, final int threadNum) throws Exception {
       ClientSession sessCreate = sf.createSession(false, true, true);
       sessCreate.addMetaData("data", RandomUtil.randomString());
 
-
-      sessCreate.createQueue(MultiThreadRandomReattachTestBase.ADDRESS,
-                             new SimpleString(threadNum + MultiThreadRandomReattachTestBase.ADDRESS.toString()),
-                             null,
-                             false);
+      sessCreate.createQueue(MultiThreadRandomReattachTestBase.ADDRESS, new SimpleString(threadNum + MultiThreadRandomReattachTestBase.ADDRESS.toString()), null, false);
 
       ClientSession sess = sf.createSession(false, true, true);
       sess.addMetaData("data", RandomUtil.randomString());
@@ -1117,7 +984,7 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
 
       ClientProducer producer = sess.createProducer(MultiThreadRandomReattachTestBase.ADDRESS);
 
-      ClientMessage message = sess.createMessage(ActiveMQTextMessage.TYPE, false, 0, System.currentTimeMillis(), (byte)1);
+      ClientMessage message = sess.createMessage(ActiveMQTextMessage.TYPE, false, 0, System.currentTimeMillis(), (byte) 1);
       producer.send(message);
 
       ClientMessage message2 = consumer.receive(MultiThreadRandomReattachTestBase.RECEIVE_TIMEOUT);
@@ -1133,20 +1000,15 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
       sessCreate.close();
    }
 
-   protected void doTestK(final ClientSessionFactory sf, final int threadNum) throws Exception
-   {
+   protected void doTestK(final ClientSessionFactory sf, final int threadNum) throws Exception {
       ClientSession s = sf.createSession(false, false, false);
       s.addMetaData("data", RandomUtil.randomString());
 
-      s.createQueue(MultiThreadRandomReattachTestBase.ADDRESS,
-                    new SimpleString(threadNum + MultiThreadRandomReattachTestBase.ADDRESS.toString()),
-                    null,
-                    false);
+      s.createQueue(MultiThreadRandomReattachTestBase.ADDRESS, new SimpleString(threadNum + MultiThreadRandomReattachTestBase.ADDRESS.toString()), null, false);
 
       final int numConsumers = 100;
 
-      for (int i = 0; i < numConsumers; i++)
-      {
+      for (int i = 0; i < numConsumers; i++) {
          ClientConsumer consumer = s.createConsumer(new SimpleString(threadNum + MultiThreadRandomReattachTestBase.ADDRESS.toString()));
 
          consumer.close();
@@ -1160,12 +1022,10 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
    /*
     * This test tests failure during create connection
     */
-   protected void doTestL(final ClientSessionFactory sf) throws Exception
-   {
+   protected void doTestL(final ClientSessionFactory sf) throws Exception {
       final int numSessions = 100;
 
-      for (int i = 0; i < numSessions; i++)
-      {
+      for (int i = 0; i < numSessions; i++) {
          ClientSession session = sf.createSession(false, false, false);
 
          session.addMetaData("data", RandomUtil.randomString());
@@ -1174,14 +1034,10 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
       }
    }
 
-   protected void doTestN(final ClientSessionFactory sf, final int threadNum) throws Exception
-   {
+   protected void doTestN(final ClientSessionFactory sf, final int threadNum) throws Exception {
       ClientSession sessCreate = sf.createSession(false, true, true);
 
-      sessCreate.createQueue(MultiThreadRandomReattachTestBase.ADDRESS,
-                             new SimpleString(threadNum + MultiThreadRandomReattachTestBase.ADDRESS.toString()),
-                             null,
-                             false);
+      sessCreate.createQueue(MultiThreadRandomReattachTestBase.ADDRESS, new SimpleString(threadNum + MultiThreadRandomReattachTestBase.ADDRESS.toString()), null, false);
 
       ClientSession sess = sf.createSession(false, true, true);
       sess.addMetaData("data", RandomUtil.randomString());
@@ -1196,7 +1052,7 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
 
       ClientProducer producer = sess.createProducer(MultiThreadRandomReattachTestBase.ADDRESS);
 
-      ClientMessage message = sess.createMessage(ActiveMQTextMessage.TYPE, false, 0, System.currentTimeMillis(), (byte)1);
+      ClientMessage message = sess.createMessage(ActiveMQTextMessage.TYPE, false, 0, System.currentTimeMillis(), (byte) 1);
       producer.send(message);
 
       sess.start();
@@ -1218,14 +1074,10 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
       sessCreate.close();
    }
 
-   protected void doTestO(final ClientSessionFactory sf, final int threadNum) throws Exception
-   {
+   protected void doTestO(final ClientSessionFactory sf, final int threadNum) throws Exception {
       ClientSession sessCreate = sf.createSession(false, true, true);
 
-      sessCreate.createQueue(MultiThreadRandomReattachTestBase.ADDRESS,
-                             new SimpleString(threadNum + MultiThreadRandomReattachTestBase.ADDRESS.toString()),
-                             null,
-                             false);
+      sessCreate.createQueue(MultiThreadRandomReattachTestBase.ADDRESS, new SimpleString(threadNum + MultiThreadRandomReattachTestBase.ADDRESS.toString()), null, false);
 
       ClientSession sess = sf.createSession(false, true, true);
 
@@ -1233,8 +1085,7 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
 
       ClientConsumer consumer = sess.createConsumer(new SimpleString(threadNum + MultiThreadRandomReattachTestBase.ADDRESS.toString()));
 
-      for (int i = 0; i < 100; i++)
-      {
+      for (int i = 0; i < 100; i++) {
          Assert.assertNull(consumer.receiveImmediate());
       }
 
@@ -1245,18 +1096,15 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
       sessCreate.close();
    }
 
-   protected int getLatchWait()
-   {
+   protected int getLatchWait() {
       return 60000;
    }
 
-   protected int getNumIterations()
-   {
+   protected int getNumIterations() {
       return 2;
    }
 
-   protected int getNumThreads()
-   {
+   protected int getNumThreads() {
       return 10;
    }
 
@@ -1264,16 +1112,14 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
 
    private void runTestMultipleThreads(final RunnableT runnable,
                                        final int numThreads,
-                                       final boolean failOnCreateConnection) throws Exception
-   {
+                                       final boolean failOnCreateConnection) throws Exception {
       runTestMultipleThreads(runnable, numThreads, failOnCreateConnection, 1000);
    }
 
    private void runTestMultipleThreads(final RunnableT runnable,
                                        final int numThreads,
                                        final boolean failOnCreateConnection,
-                                       final long failDelay) throws Exception
-   {
+                                       final long failDelay) throws Exception {
 
       runMultipleThreadsFailoverTest(runnable, numThreads, getNumIterations(), failOnCreateConnection, failDelay);
    }
@@ -1282,17 +1128,13 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
     * @return
     */
    @Override
-   protected ServerLocator createLocator() throws Exception
-   {
-      ServerLocator locator = createInVMNonHALocator()
-              .setReconnectAttempts(-1)
-              .setConfirmationWindowSize(1024 * 1024);
+   protected ServerLocator createLocator() throws Exception {
+      ServerLocator locator = createInVMNonHALocator().setReconnectAttempts(-1).setConfirmationWindowSize(1024 * 1024);
       return locator;
    }
 
    @Override
-   protected void stop() throws Exception
-   {
+   protected void stop() throws Exception {
       ActiveMQTestBase.stopComponent(server);
 
       System.gc();
@@ -1303,15 +1145,9 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
    private void sendMessages(final ClientSession sessSend,
                              final ClientProducer producer,
                              final int numMessages,
-                             final int threadNum) throws Exception
-   {
-      for (int i = 0; i < numMessages; i++)
-      {
-         ClientMessage message = sessSend.createMessage(ActiveMQBytesMessage.TYPE,
-                                                        false,
-                                                        0,
-                                                        System.currentTimeMillis(),
-                                                        (byte)1);
+                             final int threadNum) throws Exception {
+      for (int i = 0; i < numMessages; i++) {
+         ClientMessage message = sessSend.createMessage(ActiveMQBytesMessage.TYPE, false, 0, System.currentTimeMillis(), (byte) 1);
          message.putIntProperty(new SimpleString("threadnum"), threadNum);
          message.putIntProperty(new SimpleString("count"), i);
          setBody(message);
@@ -1319,19 +1155,17 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
       }
    }
 
-   private void consumeMessages(final Set<ClientConsumer> consumers, final int numMessages, final int threadNum) throws Exception
-   {
+   private void consumeMessages(final Set<ClientConsumer> consumers,
+                                final int numMessages,
+                                final int threadNum) throws Exception {
       // We make sure the messages arrive in the order they were sent from a particular producer
       Map<ClientConsumer, Map<Integer, Integer>> counts = new HashMap<ClientConsumer, Map<Integer, Integer>>();
 
-      for (int i = 0; i < numMessages; i++)
-      {
-         for (ClientConsumer consumer : consumers)
-         {
+      for (int i = 0; i < numMessages; i++) {
+         for (ClientConsumer consumer : consumers) {
             Map<Integer, Integer> consumerCounts = counts.get(consumer);
 
-            if (consumerCounts == null)
-            {
+            if (consumerCounts == null) {
                consumerCounts = new HashMap<Integer, Integer>();
                counts.put(consumer, consumerCounts);
             }
@@ -1340,25 +1174,22 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
 
             Assert.assertNotNull(msg);
 
-            int tn = (Integer)msg.getObjectProperty(new SimpleString("threadnum"));
-            int cnt = (Integer)msg.getObjectProperty(new SimpleString("count"));
+            int tn = (Integer) msg.getObjectProperty(new SimpleString("threadnum"));
+            int cnt = (Integer) msg.getObjectProperty(new SimpleString("count"));
 
             Integer c = consumerCounts.get(tn);
-            if (c == null)
-            {
+            if (c == null) {
                c = new Integer(cnt);
             }
 
-            if (tn == threadNum && cnt != c.intValue())
-            {
+            if (tn == threadNum && cnt != c.intValue()) {
                throw new Exception("Invalid count, expected " + tn + ": " + c + " got " + cnt);
             }
 
             c++;
 
             // Wrap
-            if (c == numMessages)
-            {
+            if (c == numMessages) {
                c = 0;
             }
 
@@ -1371,8 +1202,8 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
 
    // Inner classes -------------------------------------------------
 
-   private class MyHandler implements MessageHandler
-   {
+   private class MyHandler implements MessageHandler {
+
       CountDownLatch latch = new CountDownLatch(1);
 
       private final Map<Integer, Integer> counts = new HashMap<Integer, Integer>();
@@ -1385,8 +1216,7 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
 
       volatile boolean done;
 
-      synchronized void reset()
-      {
+      synchronized void reset() {
          counts.clear();
 
          done = false;
@@ -1396,63 +1226,53 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
          latch = new CountDownLatch(1);
       }
 
-      MyHandler(final int threadNum, final int numMessages)
-      {
+      MyHandler(final int threadNum, final int numMessages) {
          tn = threadNum;
 
          this.numMessages = numMessages;
       }
 
-      public synchronized void onMessage(final ClientMessage message)
-      {
-         try
-         {
+      public synchronized void onMessage(final ClientMessage message) {
+         try {
             message.acknowledge();
          }
-         catch (ActiveMQException me)
-         {
+         catch (ActiveMQException me) {
             log.error("Failed to process", me);
          }
 
-         if (done)
-         {
+         if (done) {
             return;
          }
 
-         int threadNum = (Integer)message.getObjectProperty(new SimpleString("threadnum"));
-         int cnt = (Integer)message.getObjectProperty(new SimpleString("count"));
+         int threadNum = (Integer) message.getObjectProperty(new SimpleString("threadnum"));
+         int cnt = (Integer) message.getObjectProperty(new SimpleString("count"));
 
          Integer c = counts.get(threadNum);
-         if (c == null)
-         {
+         if (c == null) {
             c = new Integer(cnt);
          }
 
-         if (tn == threadNum && cnt != c.intValue())
-         {
+         if (tn == threadNum && cnt != c.intValue()) {
             failure = "Invalid count, expected " + threadNum + ":" + c + " got " + cnt;
             log.error(failure);
 
             latch.countDown();
          }
 
-         if (!checkSize(message))
-         {
+         if (!checkSize(message)) {
             failure = "Invalid size on message";
             log.error(failure);
             latch.countDown();
          }
 
-         if (tn == threadNum && c == numMessages - 1)
-         {
+         if (tn == threadNum && c == numMessages - 1) {
             done = true;
             latch.countDown();
          }
 
          c++;
          // Wrap around at numMessages
-         if (c == numMessages)
-         {
+         if (c == numMessages) {
             c = 0;
          }
 

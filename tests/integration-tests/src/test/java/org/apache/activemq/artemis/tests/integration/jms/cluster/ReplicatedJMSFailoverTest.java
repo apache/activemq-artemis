@@ -24,26 +24,16 @@ import org.apache.activemq.artemis.core.remoting.impl.invm.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
 
-public class ReplicatedJMSFailoverTest extends JMSFailoverTest
-{
+public class ReplicatedJMSFailoverTest extends JMSFailoverTest {
 
    /**
     * @throws Exception
     */
    @Override
-   protected void startServers() throws Exception
-   {
+   protected void startServers() throws Exception {
       backupParams.put(TransportConstants.SERVER_ID_PROP_NAME, 1);
 
-      backupConf = createBasicConfig()
-         .setJournalType(getDefaultJournalType())
-         .addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY, backupParams))
-         .setBindingsDirectory(getBindingsDir(0, true))
-         .setJournalMinFiles(2)
-         .setJournalDirectory(getJournalDir(0, true))
-         .setPagingDirectory(getPageDir(0, true))
-         .setLargeMessagesDirectory(getLargeMessagesDir(0, true))
-         .setHAPolicyConfiguration(new ReplicaPolicyConfiguration());
+      backupConf = createBasicConfig().setJournalType(getDefaultJournalType()).addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY, backupParams)).setBindingsDirectory(getBindingsDir(0, true)).setJournalMinFiles(2).setJournalDirectory(getJournalDir(0, true)).setPagingDirectory(getPageDir(0, true)).setLargeMessagesDirectory(getLargeMessagesDir(0, true)).setHAPolicyConfiguration(new ReplicaPolicyConfiguration());
 
       backupServer = addServer(ActiveMQServers.newActiveMQServer(backupConf, true));
 
@@ -53,16 +43,7 @@ public class ReplicatedJMSFailoverTest extends JMSFailoverTest
 
       backupJMSServer.start();
 
-      liveConf = createBasicConfig()
-         .setJournalType(getDefaultJournalType())
-         .addConnectorConfiguration("toBackup", new TransportConfiguration(INVM_CONNECTOR_FACTORY, backupParams))
-         .addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY))
-         .setBindingsDirectory(getBindingsDir(0, false))
-         .setJournalMinFiles(2)
-         .setJournalDirectory(getJournalDir(0, false))
-         .setPagingDirectory(getPageDir(0, false))
-         .setLargeMessagesDirectory(getLargeMessagesDir(0, false))
-         .setHAPolicyConfiguration(new ReplicatedPolicyConfiguration());
+      liveConf = createBasicConfig().setJournalType(getDefaultJournalType()).addConnectorConfiguration("toBackup", new TransportConfiguration(INVM_CONNECTOR_FACTORY, backupParams)).addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY)).setBindingsDirectory(getBindingsDir(0, false)).setJournalMinFiles(2).setJournalDirectory(getJournalDir(0, false)).setPagingDirectory(getPageDir(0, false)).setLargeMessagesDirectory(getLargeMessagesDir(0, false)).setHAPolicyConfiguration(new ReplicatedPolicyConfiguration());
 
       liveServer = addServer(ActiveMQServers.newActiveMQServer(liveConf, true));
 

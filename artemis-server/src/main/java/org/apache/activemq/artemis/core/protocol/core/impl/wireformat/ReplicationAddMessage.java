@@ -23,11 +23,13 @@ import org.apache.activemq.artemis.core.journal.EncodingSupport;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.core.replication.ReplicationManager.ADD_OPERATION_TYPE;
 
-public final class ReplicationAddMessage extends PacketImpl
-{
+public final class ReplicationAddMessage extends PacketImpl {
+
    private long id;
 
-   /** 0 - BindingsImpl, 1 - MessagesJournal */
+   /**
+    * 0 - BindingsImpl, 1 - MessagesJournal
+    */
    private byte journalID;
 
    private ADD_OPERATION_TYPE operation;
@@ -38,14 +40,15 @@ public final class ReplicationAddMessage extends PacketImpl
 
    private byte[] recordData;
 
-   public ReplicationAddMessage()
-   {
+   public ReplicationAddMessage() {
       super(PacketImpl.REPLICATION_APPEND);
    }
 
-   public ReplicationAddMessage(final byte journalID, final ADD_OPERATION_TYPE operation, final long id,
-                                final byte journalRecordType, final EncodingSupport encodingData)
-   {
+   public ReplicationAddMessage(final byte journalID,
+                                final ADD_OPERATION_TYPE operation,
+                                final long id,
+                                final byte journalRecordType,
+                                final EncodingSupport encodingData) {
       this();
       this.journalID = journalID;
       this.operation = operation;
@@ -57,8 +60,7 @@ public final class ReplicationAddMessage extends PacketImpl
    // Public --------------------------------------------------------
 
    @Override
-   public void encodeRest(final ActiveMQBuffer buffer)
-   {
+   public void encodeRest(final ActiveMQBuffer buffer) {
       buffer.writeByte(journalID);
 
       buffer.writeBoolean(operation.toBoolean());
@@ -69,8 +71,7 @@ public final class ReplicationAddMessage extends PacketImpl
    }
 
    @Override
-   public void decodeRest(final ActiveMQBuffer buffer)
-   {
+   public void decodeRest(final ActiveMQBuffer buffer) {
       journalID = buffer.readByte();
       operation = ADD_OPERATION_TYPE.toOperation(buffer.readBoolean());
       id = buffer.readLong();
@@ -83,47 +84,41 @@ public final class ReplicationAddMessage extends PacketImpl
    /**
     * @return the id
     */
-   public long getId()
-   {
+   public long getId() {
       return id;
    }
 
    /**
     * @return the journalID
     */
-   public byte getJournalID()
-   {
+   public byte getJournalID() {
       return journalID;
    }
 
-   public ADD_OPERATION_TYPE getRecord()
-   {
+   public ADD_OPERATION_TYPE getRecord() {
       return operation;
    }
 
    /**
     * @return the recordType
     */
-   public byte getJournalRecordType()
-   {
+   public byte getJournalRecordType() {
       return journalRecordType;
    }
 
    /**
     * @return the recordData
     */
-   public byte[] getRecordData()
-   {
+   public byte[] getRecordData() {
       return recordData;
    }
 
    @Override
-   public int hashCode()
-   {
+   public int hashCode() {
       final int prime = 31;
       int result = super.hashCode();
       result = prime * result + ((encodingData == null) ? 0 : encodingData.hashCode());
-      result = prime * result + (int)(id ^ (id >>> 32));
+      result = prime * result + (int) (id ^ (id >>> 32));
       result = prime * result + journalID;
       result = prime * result + journalRecordType;
       result = prime * result + ((operation == null) ? 0 : operation.hashCode());
@@ -132,17 +127,15 @@ public final class ReplicationAddMessage extends PacketImpl
    }
 
    @Override
-   public boolean equals(Object obj)
-   {
+   public boolean equals(Object obj) {
       if (this == obj)
          return true;
       if (!super.equals(obj))
          return false;
       if (!(obj instanceof ReplicationAddMessage))
          return false;
-      ReplicationAddMessage other = (ReplicationAddMessage)obj;
-      if (encodingData == null)
-      {
+      ReplicationAddMessage other = (ReplicationAddMessage) obj;
+      if (encodingData == null) {
          if (other.encodingData != null)
             return false;
       }

@@ -35,55 +35,54 @@ import org.junit.Test;
 
 public class AMQ4213Test {
 
-    private static BrokerService brokerService;
-    private static String BROKER_ADDRESS = "tcp://localhost:0";
-    private static String TEST_QUEUE = "testQueue";
-    private static ActiveMQQueue queue = new ActiveMQQueue(TEST_QUEUE);
+   private static BrokerService brokerService;
+   private static String BROKER_ADDRESS = "tcp://localhost:0";
+   private static String TEST_QUEUE = "testQueue";
+   private static ActiveMQQueue queue = new ActiveMQQueue(TEST_QUEUE);
 
-    private String connectionUri;
+   private String connectionUri;
 
-    @SuppressWarnings("unchecked")
-    @Before
-    public void setUp() throws Exception {
-        brokerService = new BrokerService();
-        brokerService.setPersistent(false);
-        brokerService.setUseJmx(true);
-        brokerService.setDeleteAllMessagesOnStartup(true);
-        connectionUri = brokerService.addConnector(BROKER_ADDRESS).getPublishableConnectString();
+   @SuppressWarnings("unchecked")
+   @Before
+   public void setUp() throws Exception {
+      brokerService = new BrokerService();
+      brokerService.setPersistent(false);
+      brokerService.setUseJmx(true);
+      brokerService.setDeleteAllMessagesOnStartup(true);
+      connectionUri = brokerService.addConnector(BROKER_ADDRESS).getPublishableConnectString();
 
-        brokerService.setPlugins(new BrokerPlugin[]{
-            new BrokerPluginSupport() {
+      brokerService.setPlugins(new BrokerPlugin[]{new BrokerPluginSupport() {
 
-                @Override
-                public void addProducer(ConnectionContext context, ProducerInfo info) throws Exception {
-                    throw new javax.jms.JMSSecurityException(connectionUri);
-                }
-            }
-        });
+         @Override
+         public void addProducer(ConnectionContext context, ProducerInfo info) throws Exception {
+            throw new javax.jms.JMSSecurityException(connectionUri);
+         }
+      }});
 
-        brokerService.start();
-        brokerService.waitUntilStarted();
-    }
+      brokerService.start();
+      brokerService.waitUntilStarted();
+   }
 
-    @After
-    public void tearDown() throws Exception {
-        brokerService.stop();
-        brokerService.waitUntilStopped();
-    }
+   @After
+   public void tearDown() throws Exception {
+      brokerService.stop();
+      brokerService.waitUntilStopped();
+   }
 
-    @Test
-    public void testExceptionOnProducerCreateThrows() throws Exception {
-        ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(connectionUri);
-        ActiveMQConnection connection = (ActiveMQConnection) factory.createConnection();
+   @Test
+   public void testExceptionOnProducerCreateThrows() throws Exception {
+      ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(connectionUri);
+      ActiveMQConnection connection = (ActiveMQConnection) factory.createConnection();
 
-        Session session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
+      Session session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
 
-        connection.start();
+      connection.start();
 
-        try {
-            session.createProducer(queue);
-            fail("Should not be able to create this producer.");
-        } catch (JMSException ex) {
-        }
-    }
+      try {
+         session.createProducer(queue);
+         fail("Should not be able to create this producer.");
+      }
+      catch (JMSException ex) {
+      }
+   }
 }

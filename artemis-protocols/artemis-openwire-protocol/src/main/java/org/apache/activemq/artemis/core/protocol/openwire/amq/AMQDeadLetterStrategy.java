@@ -19,12 +19,12 @@ package org.apache.activemq.artemis.core.protocol.openwire.amq;
 import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.command.Message;
 
-public interface AMQDeadLetterStrategy
-{
+public interface AMQDeadLetterStrategy {
 
    /**
     * Allow pluggable strategy for deciding if message should be sent to a dead letter queue
     * for example, you might not want to ignore expired or non-persistent messages
+    *
     * @param message
     * @return true if message should be sent to a dead letter queue
     */

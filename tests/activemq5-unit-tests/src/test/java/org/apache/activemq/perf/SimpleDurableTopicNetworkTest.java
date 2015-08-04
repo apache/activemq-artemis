@@ -21,25 +21,26 @@ import javax.jms.DeliveryMode;
 import javax.jms.Destination;
 import javax.jms.JMSException;
 
-
 public class SimpleDurableTopicNetworkTest extends SimpleNetworkTest {
-    
-    protected void setUp() throws Exception {
-        numberofProducers=1;
-        numberOfConsumers=1;
-        sampleCount=1000;
-        playloadSize = 1024;
-        super.setUp();
-    }
-    
-    
-    protected PerfProducer createProducer(ConnectionFactory fac, Destination dest, int number, byte payload[]) throws JMSException {
-        PerfProducer pp = new PerfProducer(fac, dest, payload);
-        pp.setDeliveryMode(DeliveryMode.PERSISTENT);
-        return pp;
-    }
 
-    protected PerfConsumer createConsumer(ConnectionFactory fac, Destination dest, int number) throws JMSException {
-        return new PerfConsumer(fac, dest, "subs:" + number);
-    }
+   protected void setUp() throws Exception {
+      numberofProducers = 1;
+      numberOfConsumers = 1;
+      sampleCount = 1000;
+      playloadSize = 1024;
+      super.setUp();
+   }
+
+   protected PerfProducer createProducer(ConnectionFactory fac,
+                                         Destination dest,
+                                         int number,
+                                         byte payload[]) throws JMSException {
+      PerfProducer pp = new PerfProducer(fac, dest, payload);
+      pp.setDeliveryMode(DeliveryMode.PERSISTENT);
+      return pp;
+   }
+
+   protected PerfConsumer createConsumer(ConnectionFactory fac, Destination dest, int number) throws JMSException {
+      return new PerfConsumer(fac, dest, "subs:" + number);
+   }
 }

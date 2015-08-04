@@ -22,18 +22,14 @@ import org.apache.activemq.artemis.core.protocol.core.Packet;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 
-public class DelayInterceptor3 implements Interceptor
-{
+public class DelayInterceptor3 implements Interceptor {
 
-   public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException
-   {
-      if (packet.getType() == PacketImpl.SESS_COMMIT)
-      {
+   public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException {
+      if (packet.getType() == PacketImpl.SESS_COMMIT) {
          // lose the commit
          return false;
       }
-      else
-      {
+      else {
          return true;
       }
    }

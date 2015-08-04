@@ -16,11 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
-public class NettyProducerFlowControlTest extends ProducerFlowControlTest
-{
+public class NettyProducerFlowControlTest extends ProducerFlowControlTest {
+
    @Override
-   protected boolean isNetty()
-   {
+   protected boolean isNetty() {
       return true;
    }
 

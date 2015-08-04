@@ -39,89 +39,90 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class RetroactiveConsumerTestWithSimpleMessageListTest extends EmbeddedBrokerTestSupport {
-    private static final Logger LOG = LoggerFactory.getLogger(RetroactiveConsumerTestWithSimpleMessageListTest.class);
 
-    protected int messageCount = 20;
-    protected Connection connection;
-    protected Session session;
+   private static final Logger LOG = LoggerFactory.getLogger(RetroactiveConsumerTestWithSimpleMessageListTest.class);
 
-    public void testSendThenConsume() throws Exception {
+   protected int messageCount = 20;
+   protected Connection connection;
+   protected Session session;
 
-        // lets some messages
-        connection = createConnection();
-        session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        MessageProducer producer = createProducer();
-        for (int i = 0; i < messageCount; i++) {
-            TextMessage message = session.createTextMessage("Message: " + i + " sent at: " + new Date());
-            sendMessage(producer, message);
-        }
-        producer.close();
-        session.close();
-        connection.close();
+   public void testSendThenConsume() throws Exception {
 
-        connection = createConnection();
-        connection.start();
-        session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      // lets some messages
+      connection = createConnection();
+      session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      MessageProducer producer = createProducer();
+      for (int i = 0; i < messageCount; i++) {
+         TextMessage message = session.createTextMessage("Message: " + i + " sent at: " + new Date());
+         sendMessage(producer, message);
+      }
+      producer.close();
+      session.close();
+      connection.close();
 
-        MessageConsumer consumer = createConsumer();
-        MessageIdList listener = new MessageIdList();
-        consumer.setMessageListener(listener);
-        listener.waitForMessagesToArrive(messageCount);
-        listener.assertMessagesReceived(messageCount);
+      connection = createConnection();
+      connection.start();
+      session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-    }
+      MessageConsumer consumer = createConsumer();
+      MessageIdList listener = new MessageIdList();
+      consumer.setMessageListener(listener);
+      listener.waitForMessagesToArrive(messageCount);
+      listener.assertMessagesReceived(messageCount);
 
-    @Override
-    protected void setUp() throws Exception {
-        useTopic = true;
-        bindAddress = "vm://localhost";
-        super.setUp();
-    }
+   }
 
-    @Override
-    protected void tearDown() throws Exception {
-        if (session != null) {
-            session.close();
-            session = null;
-        }
-        if (connection != null) {
-            connection.close();
-        }
-        super.tearDown();
-    }
+   @Override
+   protected void setUp() throws Exception {
+      useTopic = true;
+      bindAddress = "vm://localhost";
+      super.setUp();
+   }
 
-    @Override
-    protected ConnectionFactory createConnectionFactory() throws Exception {
-        ActiveMQConnectionFactory answer = new ActiveMQConnectionFactory(bindAddress);
-        answer.setUseRetroactiveConsumer(true);
-        return answer;
-    }
+   @Override
+   protected void tearDown() throws Exception {
+      if (session != null) {
+         session.close();
+         session = null;
+      }
+      if (connection != null) {
+         connection.close();
+      }
+      super.tearDown();
+   }
 
-    @Override
-    protected BrokerService createBroker() throws Exception {
-        String uri = getBrokerXml();
-        LOG.info("Loading broker configuration from the classpath with URI: " + uri);
-        return BrokerFactory.createBroker(new URI("xbean:" + uri));
-    }
+   @Override
+   protected ConnectionFactory createConnectionFactory() throws Exception {
+      ActiveMQConnectionFactory answer = new ActiveMQConnectionFactory(bindAddress);
+      answer.setUseRetroactiveConsumer(true);
+      return answer;
+   }
 
-    @Override
-    protected void startBroker() throws Exception {
-        // broker already started by XBean
-    }
+   @Override
+   protected BrokerService createBroker() throws Exception {
+      String uri = getBrokerXml();
+      LOG.info("Loading broker configuration from the classpath with URI: " + uri);
+      return BrokerFactory.createBroker(new URI("xbean:" + uri));
+   }
 
-    protected String getBrokerXml() {
-        return "org/apache/activemq/test/retroactive/activemq-fixed-buffer.xml";
-    }
+   @Override
+   protected void startBroker() throws Exception {
+      // broker already started by XBean
+   }
 
-    protected MessageProducer createProducer() throws JMSException {
-        return session.createProducer(destination);
-    }
+   protected String getBrokerXml() {
+      return "org/apache/activemq/test/retroactive/activemq-fixed-buffer.xml";
+   }
 
-    protected void sendMessage(MessageProducer producer, TextMessage message) throws JMSException {
-        producer.send(message);
-    }
+   protected MessageProducer createProducer() throws JMSException {
+      return session.createProducer(destination);
+   }
 
-    protected MessageConsumer createConsumer() throws JMSException {
-        return session.createConsumer(destination);
-    }
+   protected void sendMessage(MessageProducer producer, TextMessage message) throws JMSException {
+      producer.send(message);
+   }
+
+   protected MessageConsumer createConsumer() throws JMSException {
+      return session.createConsumer(destination);
+   }
 }

@@ -23,8 +23,8 @@ import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.utils.FutureLatch;
 
-public interface ClientConsumerInternal extends ClientConsumer
-{
+public interface ClientConsumerInternal extends ClientConsumer {
+
    SimpleString getQueueName();
 
    SimpleString getFilterString();
@@ -44,8 +44,8 @@ public interface ClientConsumerInternal extends ClientConsumer
    /**
     * To be called by things like MDBs during shutdown of the server
     *
-    * @throws ActiveMQException
     * @param future
+    * @throws ActiveMQException
     */
    Thread prepareForClose(FutureLatch future) throws ActiveMQException;
 

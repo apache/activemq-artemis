@@ -16,9 +16,7 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
-
-public class SessionUniqueAddMetaDataMessage extends SessionAddMetaDataMessageV2
-{
+public class SessionUniqueAddMetaDataMessage extends SessionAddMetaDataMessageV2 {
 
    // Constants -----------------------------------------------------
 
@@ -28,14 +26,11 @@ public class SessionUniqueAddMetaDataMessage extends SessionAddMetaDataMessageV2
 
    // Constructors --------------------------------------------------
 
-   public SessionUniqueAddMetaDataMessage()
-   {
+   public SessionUniqueAddMetaDataMessage() {
       super(SESS_UNIQUE_ADD_METADATA);
    }
 
-
-   public SessionUniqueAddMetaDataMessage(String key, String data)
-   {
+   public SessionUniqueAddMetaDataMessage(String key, String data) {
       super(SESS_UNIQUE_ADD_METADATA, key, data);
    }
 

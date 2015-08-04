@@ -28,63 +28,54 @@ import java.io.NotSerializableException;
 import java.net.URI;
 import java.util.Map;
 
-public class JGroupsServerLocatorSchema extends AbstractServerLocatorSchema
-{
+public class JGroupsServerLocatorSchema extends AbstractServerLocatorSchema {
+
    @Override
-   public String getSchemaName()
-   {
+   public String getSchemaName() {
       return SchemaConstants.JGROUPS;
    }
 
    @Override
-   protected ServerLocator internalNewObject(URI uri, Map<String, String> query, String name) throws Exception
-   {
+   protected ServerLocator internalNewObject(URI uri, Map<String, String> query, String name) throws Exception {
       ConnectionOptions options = newConnectionOptions(uri, query);
 
       DiscoveryGroupConfiguration dcConfig = getDiscoveryGroupConfiguration(uri, query, name);
 
-      if (options.isHa())
-      {
+      if (options.isHa()) {
          return ActiveMQClient.createServerLocatorWithHA(dcConfig);
       }
-      else
-      {
+      else {
          return ActiveMQClient.createServerLocatorWithoutHA(dcConfig);
       }
    }
 
    @Override
-   protected URI internalNewURI(ServerLocator bean) throws Exception
-   {
+   protected URI internalNewURI(ServerLocator bean) throws Exception {
       DiscoveryGroupConfiguration dgc = bean.getDiscoveryGroupConfiguration();
-      BroadcastEndpointFactory endpoint =  dgc.getBroadcastEndpointFactory();
+      BroadcastEndpointFactory endpoint = dgc.getBroadcastEndpointFactory();
       String auth;
-      if (endpoint instanceof JGroupsFileBroadcastEndpointFactory)
-      {
+      if (endpoint instanceof JGroupsFileBroadcastEndpointFactory) {
          auth = ((JGroupsFileBroadcastEndpointFactory) endpoint).getChannelName();
       }
-      else if (endpoint instanceof JGroupsPropertiesBroadcastEndpointFactory)
-      {
+      else if (endpoint instanceof JGroupsPropertiesBroadcastEndpointFactory) {
          auth = ((JGroupsPropertiesBroadcastEndpointFactory) endpoint).getChannelName();
       }
-      else
-      {
+      else {
          throw new NotSerializableException(endpoint + "not serializable");
       }
       String query = getData(null, bean, dgc, endpoint);
       dgc.setBroadcastEndpointFactory(endpoint);
-      return new URI(SchemaConstants.JGROUPS, null,  auth, -1, null, query, null);
+      return new URI(SchemaConstants.JGROUPS, null, auth, -1, null, query, null);
    }
 
-   public static DiscoveryGroupConfiguration getDiscoveryGroupConfiguration(URI uri, Map<String, String> query, String name) throws Exception
-   {
+   public static DiscoveryGroupConfiguration getDiscoveryGroupConfiguration(URI uri,
+                                                                            Map<String, String> query,
+                                                                            String name) throws Exception {
       BroadcastEndpointFactory endpointFactory;
-      if (query.containsKey("file"))
-      {
+      if (query.containsKey("file")) {
          endpointFactory = new JGroupsFileBroadcastEndpointFactory().setChannelName(uri.getAuthority());
       }
-      else
-      {
+      else {
          endpointFactory = new JGroupsPropertiesBroadcastEndpointFactory().setChannelName(uri.getAuthority());
       }
 

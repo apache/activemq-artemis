@@ -36,8 +36,7 @@ import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
 import org.apache.activemq.artemis.utils.Base64;
 
 @Command(name = "encode", description = "Encode a set of journal files into an internal encoded data format")
-public class EncodeJournal extends Configurable implements Action
-{
+public class EncodeJournal extends Configurable implements Action {
 
    @Option(name = "--directory", description = "The journal folder (default the journal folder from broker.xml)")
    public String directory;
@@ -51,59 +50,48 @@ public class EncodeJournal extends Configurable implements Action
    @Option(name = "--file-size", description = "The journal size (default 10485760)")
    public int size = 10485760;
 
-
-   public Object execute(ActionContext context) throws Exception
-   {
+   public Object execute(ActionContext context) throws Exception {
       super.execute(context);
-      try
-      {
-         if (directory == null)
-         {
+      try {
+         if (directory == null) {
             directory = getFileConfiguration().getJournalDirectory();
          }
 
          exportJournal(directory, prefix, suffix, 2, size);
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          treatError(e, "data", "encode");
       }
 
       return null;
    }
 
-
    public static void exportJournal(final String directory,
                                     final String journalPrefix,
                                     final String journalSuffix,
                                     final int minFiles,
-                                    final int fileSize) throws Exception
-   {
-
+                                    final int fileSize) throws Exception {
 
       exportJournal(directory, journalPrefix, journalSuffix, minFiles, fileSize, System.out);
    }
+
    public static void exportJournal(final String directory,
                                     final String journalPrefix,
                                     final String journalSuffix,
                                     final int minFiles,
                                     final int fileSize,
-                                    final String fileName) throws Exception
-   {
+                                    final String fileName) throws Exception {
       FileOutputStream fileOutputStream = new FileOutputStream(fileName);
       BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(fileOutputStream);
       PrintStream out = new PrintStream(bufferedOutputStream);
-      try
-      {
+      try {
          exportJournal(directory, journalPrefix, journalSuffix, minFiles, fileSize, out);
       }
-      finally
-      {
+      finally {
          out.close();
          fileOutputStream.close();
       }
 
-
    }
 
    public static void exportJournal(final String directory,
@@ -111,16 +99,14 @@ public class EncodeJournal extends Configurable implements Action
                                     final String journalSuffix,
                                     final int minFiles,
                                     final int fileSize,
-                                    final PrintStream out) throws Exception
-   {
+                                    final PrintStream out) throws Exception {
       NIOSequentialFileFactory nio = new NIOSequentialFileFactory(new File(directory), null, 1);
 
       JournalImpl journal = new JournalImpl(fileSize, minFiles, 0, 0, nio, journalPrefix, journalSuffix, 1);
 
       List<JournalFile> files = journal.orderFiles();
 
-      for (JournalFile file : files)
-      {
+      for (JournalFile file : files) {
          out.println("#File," + file);
 
          exportJournalFile(out, nio, file);
@@ -135,28 +121,24 @@ public class EncodeJournal extends Configurable implements Action
     */
    public static void exportJournalFile(final PrintStream out,
                                         final SequentialFileFactory fileFactory,
-                                        final JournalFile file) throws Exception
-   {
-      JournalImpl.readJournalFile(fileFactory, file, new JournalReaderCallback()
-      {
+                                        final JournalFile file) throws Exception {
+      JournalImpl.readJournalFile(fileFactory, file, new JournalReaderCallback() {
 
-         public void onReadUpdateRecordTX(final long transactionID, final RecordInfo recordInfo) throws Exception
-         {
+         public void onReadUpdateRecordTX(final long transactionID, final RecordInfo recordInfo) throws Exception {
             out.println("operation@UpdateTX,txID@" + transactionID + "," + describeRecord(recordInfo));
          }
 
-         public void onReadUpdateRecord(final RecordInfo recordInfo) throws Exception
-         {
+         public void onReadUpdateRecord(final RecordInfo recordInfo) throws Exception {
             out.println("operation@Update," + describeRecord(recordInfo));
          }
 
-         public void onReadRollbackRecord(final long transactionID) throws Exception
-         {
+         public void onReadRollbackRecord(final long transactionID) throws Exception {
             out.println("operation@Rollback,txID@" + transactionID);
          }
 
-         public void onReadPrepareRecord(final long transactionID, final byte[] extraData, final int numberOfRecords) throws Exception
-         {
+         public void onReadPrepareRecord(final long transactionID,
+                                         final byte[] extraData,
+                                         final int numberOfRecords) throws Exception {
             out.println("operation@Prepare,txID@" + transactionID +
                            ",numberOfRecords@" +
                            numberOfRecords +
@@ -164,41 +146,34 @@ public class EncodeJournal extends Configurable implements Action
                            encode(extraData));
          }
 
-         public void onReadDeleteRecordTX(final long transactionID, final RecordInfo recordInfo) throws Exception
-         {
+         public void onReadDeleteRecordTX(final long transactionID, final RecordInfo recordInfo) throws Exception {
             out.println("operation@DeleteRecordTX,txID@" + transactionID +
                            "," +
                            describeRecord(recordInfo));
          }
 
-         public void onReadDeleteRecord(final long recordID) throws Exception
-         {
+         public void onReadDeleteRecord(final long recordID) throws Exception {
             out.println("operation@DeleteRecord,id@" + recordID);
          }
 
-         public void onReadCommitRecord(final long transactionID, final int numberOfRecords) throws Exception
-         {
+         public void onReadCommitRecord(final long transactionID, final int numberOfRecords) throws Exception {
             out.println("operation@Commit,txID@" + transactionID + ",numberOfRecords@" + numberOfRecords);
          }
 
-         public void onReadAddRecordTX(final long transactionID, final RecordInfo recordInfo) throws Exception
-         {
+         public void onReadAddRecordTX(final long transactionID, final RecordInfo recordInfo) throws Exception {
             out.println("operation@AddRecordTX,txID@" + transactionID + "," + describeRecord(recordInfo));
          }
 
-         public void onReadAddRecord(final RecordInfo recordInfo) throws Exception
-         {
+         public void onReadAddRecord(final RecordInfo recordInfo) throws Exception {
             out.println("operation@AddRecord," + describeRecord(recordInfo));
          }
 
-         public void markAsDataFile(final JournalFile file)
-         {
+         public void markAsDataFile(final JournalFile file) {
          }
       });
    }
 
-   private static String describeRecord(final RecordInfo recordInfo)
-   {
+   private static String describeRecord(final RecordInfo recordInfo) {
       return "id@" + recordInfo.id +
          ",userRecordType@" +
          recordInfo.userRecordType +
@@ -212,26 +187,20 @@ public class EncodeJournal extends Configurable implements Action
          encode(recordInfo.data);
    }
 
-   private static String encode(final byte[] data)
-   {
+   private static String encode(final byte[] data) {
       return Base64.encodeBytes(data, 0, data.length, Base64.DONT_BREAK_LINES | Base64.URL_SAFE);
    }
 
-
-   public void printUsage()
-   {
-      for (int i = 0; i < 10; i++)
-      {
+   public void printUsage() {
+      for (int i = 0; i < 10; i++) {
          System.err.println();
       }
       System.err.println("This method will export the journal at low level record.");
       System.err.println();
       System.err.println();
-      for (int i = 0; i < 10; i++)
-      {
+      for (int i = 0; i < 10; i++) {
          System.err.println();
       }
    }
-
 
 }

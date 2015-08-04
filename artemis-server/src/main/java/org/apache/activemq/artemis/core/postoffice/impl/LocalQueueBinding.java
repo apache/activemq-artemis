@@ -25,8 +25,8 @@ import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.RoutingContext;
 import org.apache.activemq.artemis.core.server.ServerMessage;
 
-public class LocalQueueBinding implements QueueBinding
-{
+public class LocalQueueBinding implements QueueBinding {
+
    private final SimpleString address;
 
    private final Queue queue;
@@ -37,8 +37,7 @@ public class LocalQueueBinding implements QueueBinding
 
    private final SimpleString clusterName;
 
-   public LocalQueueBinding(final SimpleString address, final Queue queue, final SimpleString nodeID)
-   {
+   public LocalQueueBinding(final SimpleString address, final Queue queue, final SimpleString nodeID) {
       this.address = address;
 
       this.queue = queue;
@@ -50,122 +49,102 @@ public class LocalQueueBinding implements QueueBinding
       clusterName = name.concat(nodeID);
    }
 
-   public long getID()
-   {
+   public long getID() {
       return queue.getID();
    }
 
-   public Filter getFilter()
-   {
+   public Filter getFilter() {
       return filter;
    }
 
-   public SimpleString getAddress()
-   {
+   public SimpleString getAddress() {
       return address;
    }
 
-   public Bindable getBindable()
-   {
+   public Bindable getBindable() {
       return queue;
    }
 
-   public Queue getQueue()
-   {
+   public Queue getQueue() {
       return queue;
    }
 
-   public SimpleString getRoutingName()
-   {
+   public SimpleString getRoutingName() {
       return name;
    }
 
-   public SimpleString getUniqueName()
-   {
+   public SimpleString getUniqueName() {
       return name;
    }
 
-   public SimpleString getClusterName()
-   {
+   public SimpleString getClusterName() {
       return clusterName;
    }
 
-   public boolean isExclusive()
-   {
+   public boolean isExclusive() {
       return false;
    }
 
-   public int getDistance()
-   {
+   public int getDistance() {
       return 0;
    }
 
-   public boolean isHighAcceptPriority(final ServerMessage message)
-   {
+   public boolean isHighAcceptPriority(final ServerMessage message) {
       // It's a high accept priority if the queue has at least one matching consumer
 
       return queue.hasMatchingConsumer(message);
    }
 
    @Override
-   public void unproposed(SimpleString groupID)
-   {
+   public void unproposed(SimpleString groupID) {
       queue.unproposed(groupID);
    }
 
-   public void route(final ServerMessage message, final RoutingContext context) throws Exception
-   {
+   public void route(final ServerMessage message, final RoutingContext context) throws Exception {
       queue.route(message, context);
    }
 
-   public void routeWithAck(ServerMessage message, RoutingContext context) throws Exception
-   {
+   public void routeWithAck(ServerMessage message, RoutingContext context) throws Exception {
       queue.routeWithAck(message, context);
    }
 
-   public boolean isQueueBinding()
-   {
+   public boolean isQueueBinding() {
       return true;
    }
 
-   public int consumerCount()
-   {
+   public int consumerCount() {
       return queue.getConsumerCount();
    }
 
-   public BindingType getType()
-   {
+   public BindingType getType() {
       return BindingType.LOCAL_QUEUE;
    }
 
-   public void close() throws Exception
-   {
+   public void close() throws Exception {
       queue.close();
    }
 
    @Override
-   public String toString()
-   {
+   public String toString() {
       return "LocalQueueBinding [address=" + address +
-             ", queue=" +
-             queue +
-             ", filter=" +
-             filter +
-             ", name=" +
-             name +
-             ", clusterName=" +
-             clusterName +
-             "]";
+         ", queue=" +
+         queue +
+         ", filter=" +
+         filter +
+         ", name=" +
+         name +
+         ", clusterName=" +
+         clusterName +
+         "]";
    }
 
    @Override
-   public String toManagementString()
-   {
+   public String toManagementString() {
       return this.getClass().getSimpleName() + " [address=" + address + ", queue=" + queue + "]";
    }
+
    @Override
-   public boolean isConnected()
-   {
+   public boolean isConnected() {
       return true;
    }
 }

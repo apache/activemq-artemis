@@ -53,8 +53,7 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 
-public abstract class FailoverTestBase extends ActiveMQTestBase
-{
+public abstract class FailoverTestBase extends ActiveMQTestBase {
    // Constants -----------------------------------------------------
 
    protected static final SimpleString ADDRESS = new SimpleString("FailoverTestAddress");
@@ -84,8 +83,7 @@ public abstract class FailoverTestBase extends ActiveMQTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
       createConfigs();
 
@@ -93,42 +91,36 @@ public abstract class FailoverTestBase extends ActiveMQTestBase
       liveServer.start();
       waitForServerToStart(liveServer.getServer());
 
-      if (backupServer != null)
-      {
+      if (backupServer != null) {
          setBackupIdentity();
-         if (startBackupServer)
-         {
+         if (startBackupServer) {
             backupServer.start();
             waitForBackup();
          }
       }
    }
 
-   protected void waitForBackup()
-   {
+   protected void waitForBackup() {
       waitForRemoteBackupSynchronization(backupServer.getServer());
    }
 
-   protected void setBackupIdentity()
-   {
-      backupServer.setIdentity(this.getClass()
-                                  .getSimpleName() + "/backupServers");
+   protected void setBackupIdentity() {
+      backupServer.setIdentity(this.getClass().getSimpleName() + "/backupServers");
    }
 
-   protected void setLiveIdentity()
-   {
+   protected void setLiveIdentity() {
       liveServer.setIdentity(this.getClass().getSimpleName() + "/liveServer");
    }
 
-   protected TestableServer createTestableServer(Configuration config)
-   {
-      boolean isBackup = config.getHAPolicyConfiguration() instanceof ReplicaPolicyConfiguration ||
-         config.getHAPolicyConfiguration() instanceof SharedStoreSlavePolicyConfiguration;
+   protected TestableServer createTestableServer(Configuration config) {
+      boolean isBackup = config.getHAPolicyConfiguration() instanceof ReplicaPolicyConfiguration || config.getHAPolicyConfiguration() instanceof SharedStoreSlavePolicyConfiguration;
       return new SameProcessActiveMQServer(createInVMFailoverServer(true, config, nodeManager, isBackup ? 2 : 1));
    }
 
-   protected TestableServer createColocatedTestableServer(Configuration config, NodeManager liveNodeManager,NodeManager backupNodeManager, int id)
-   {
+   protected TestableServer createColocatedTestableServer(Configuration config,
+                                                          NodeManager liveNodeManager,
+                                                          NodeManager backupNodeManager,
+                                                          int id) {
       return new SameProcessActiveMQServer(createColocatedInVMFailoverServer(true, config, liveNodeManager, backupNodeManager, id));
    }
 
@@ -138,14 +130,11 @@ public abstract class FailoverTestBase extends ActiveMQTestBase
     * @param i
     * @param message
     */
-   protected static void setLargeMessageBody(final int i, final ClientMessage message)
-   {
-      try
-      {
+   protected static void setLargeMessageBody(final int i, final ClientMessage message) {
+      try {
          message.setBodyInputStream(ActiveMQTestBase.createFakeLargeStream(LARGE_MESSAGE_SIZE));
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          throw new RuntimeException(e);
       }
    }
@@ -156,47 +145,30 @@ public abstract class FailoverTestBase extends ActiveMQTestBase
     * @param i
     * @param message
     */
-   protected static void assertLargeMessageBody(final int i, final ClientMessage message)
-   {
+   protected static void assertLargeMessageBody(final int i, final ClientMessage message) {
       ActiveMQBuffer buffer = message.getBodyBuffer();
 
-      for (int j = 0; j < LARGE_MESSAGE_SIZE; j++)
-      {
+      for (int j = 0; j < LARGE_MESSAGE_SIZE; j++) {
          Assert.assertTrue("msg " + i + ", expecting " + LARGE_MESSAGE_SIZE + " bytes, got " + j, buffer.readable());
          Assert.assertEquals("equal at " + j, ActiveMQTestBase.getSamplebyte(j), buffer.readByte());
       }
    }
 
-   protected void createConfigs() throws Exception
-   {
+   protected void createConfigs() throws Exception {
       nodeManager = new InVMNodeManager(false);
       TransportConfiguration liveConnector = getConnectorTransportConfiguration(true);
       TransportConfiguration backupConnector = getConnectorTransportConfiguration(false);
 
-      backupConfig = super.createDefaultInVMConfig()
-         .clearAcceptorConfigurations()
-         .addAcceptorConfiguration(getAcceptorTransportConfiguration(false))
-         .setHAPolicyConfiguration(new SharedStoreSlavePolicyConfiguration()
-                                      .setFailbackDelay(1000))
-         .addConnectorConfiguration(liveConnector.getName(), liveConnector)
-         .addConnectorConfiguration(backupConnector.getName(), backupConnector)
-         .addClusterConfiguration(basicClusterConnectionConfig(backupConnector.getName(), liveConnector.getName()));
+      backupConfig = super.createDefaultInVMConfig().clearAcceptorConfigurations().addAcceptorConfiguration(getAcceptorTransportConfiguration(false)).setHAPolicyConfiguration(new SharedStoreSlavePolicyConfiguration().setFailbackDelay(1000)).addConnectorConfiguration(liveConnector.getName(), liveConnector).addConnectorConfiguration(backupConnector.getName(), backupConnector).addClusterConfiguration(basicClusterConnectionConfig(backupConnector.getName(), liveConnector.getName()));
 
       backupServer = createTestableServer(backupConfig);
 
-      liveConfig = super.createDefaultInVMConfig()
-         .clearAcceptorConfigurations()
-         .addAcceptorConfiguration(getAcceptorTransportConfiguration(true))
-         .setHAPolicyConfiguration(new SharedStoreMasterPolicyConfiguration()
-                                      .setFailbackDelay(1000))
-         .addClusterConfiguration(basicClusterConnectionConfig(liveConnector.getName()))
-         .addConnectorConfiguration(liveConnector.getName(), liveConnector);
+      liveConfig = super.createDefaultInVMConfig().clearAcceptorConfigurations().addAcceptorConfiguration(getAcceptorTransportConfiguration(true)).setHAPolicyConfiguration(new SharedStoreMasterPolicyConfiguration().setFailbackDelay(1000)).addClusterConfiguration(basicClusterConnectionConfig(liveConnector.getName())).addConnectorConfiguration(liveConnector.getName(), liveConnector);
 
       liveServer = createTestableServer(liveConfig);
    }
 
-   protected void createReplicatedConfigs() throws Exception
-   {
+   protected void createReplicatedConfigs() throws Exception {
       final TransportConfiguration liveConnector = getConnectorTransportConfiguration(true);
       final TransportConfiguration backupConnector = getConnectorTransportConfiguration(false);
       final TransportConfiguration backupAcceptor = getAcceptorTransportConfiguration(false);
@@ -206,37 +178,26 @@ public abstract class FailoverTestBase extends ActiveMQTestBase
 
       ReplicatedBackupUtils.configureReplicationPair(backupConfig, backupConnector, backupAcceptor, liveConfig, liveConnector, null);
 
-      backupConfig.setBindingsDirectory(getBindingsDir(0, true))
-         .setJournalDirectory(getJournalDir(0, true))
-         .setPagingDirectory(getPageDir(0, true))
-         .setLargeMessagesDirectory(getLargeMessagesDir(0, true))
-         .setSecurityEnabled(false);
+      backupConfig.setBindingsDirectory(getBindingsDir(0, true)).setJournalDirectory(getJournalDir(0, true)).setPagingDirectory(getPageDir(0, true)).setLargeMessagesDirectory(getLargeMessagesDir(0, true)).setSecurityEnabled(false);
 
       setupHAPolicyConfiguration();
       nodeManager = new InVMNodeManager(true, backupConfig.getJournalLocation());
 
       backupServer = createTestableServer(backupConfig);
 
-      liveConfig.clearAcceptorConfigurations()
-         .addAcceptorConfiguration(getAcceptorTransportConfiguration(true));
+      liveConfig.clearAcceptorConfigurations().addAcceptorConfiguration(getAcceptorTransportConfiguration(true));
 
       liveServer = createTestableServer(liveConfig);
    }
 
-   protected void setupHAPolicyConfiguration()
-   {
-      ((ReplicaPolicyConfiguration) backupConfig.getHAPolicyConfiguration())
-         .setMaxSavedReplicatedJournalsSize(0)
-         .setAllowFailBack(true)
-         .setFailbackDelay(5000);
+   protected void setupHAPolicyConfiguration() {
+      ((ReplicaPolicyConfiguration) backupConfig.getHAPolicyConfiguration()).setMaxSavedReplicatedJournalsSize(0).setAllowFailBack(true).setFailbackDelay(5000);
    }
 
-   protected final void adaptLiveConfigForReplicatedFailBack(TestableServer server)
-   {
+   protected final void adaptLiveConfigForReplicatedFailBack(TestableServer server) {
       Configuration configuration = server.getServer().getConfiguration();
       final TransportConfiguration backupConnector = getConnectorTransportConfiguration(false);
-      if (server.getServer().getHAPolicy().isSharedStore())
-      {
+      if (server.getServer().getHAPolicy().isSharedStore()) {
          ClusterConnectionConfiguration cc = configuration.getClusterConfigurations().get(0);
          Assert.assertNotNull("cluster connection configuration", cc);
          Assert.assertNotNull("static connectors", cc.getStaticConnectors());
@@ -251,8 +212,7 @@ public abstract class FailoverTestBase extends ActiveMQTestBase
 
    @Override
    @After
-   public void tearDown() throws Exception
-   {
+   public void tearDown() throws Exception {
       logAndSystemOut("#test tearDown");
 
       InVMConnector.failOnCreateConnection = false;
@@ -266,29 +226,24 @@ public abstract class FailoverTestBase extends ActiveMQTestBase
 
       nodeManager = null;
 
-      try
-      {
+      try {
          ServerSocket serverSocket = new ServerSocket(61616);
          serverSocket.close();
       }
-      catch (IOException e)
-      {
+      catch (IOException e) {
          throw e;
       }
-      try
-      {
+      try {
          ServerSocket serverSocket = new ServerSocket(61617);
          serverSocket.close();
       }
-      catch (IOException e)
-      {
+      catch (IOException e) {
          throw e;
       }
    }
 
-   protected ClientSessionFactoryInternal
-   createSessionFactoryAndWaitForTopology(ServerLocator locator, int topologyMembers) throws Exception
-   {
+   protected ClientSessionFactoryInternal createSessionFactoryAndWaitForTopology(ServerLocator locator,
+                                                                                 int topologyMembers) throws Exception {
       CountDownLatch countDownLatch = new CountDownLatch(topologyMembers);
 
       locator.addClusterTopologyListener(new LatchClusterTopologyListener(countDownLatch));
@@ -307,15 +262,12 @@ public abstract class FailoverTestBase extends ActiveMQTestBase
     * @param seconds
     * @throws Exception
     */
-   protected void waitForBackup(ClientSessionFactoryInternal sessionFactory, int seconds) throws Exception
-   {
+   protected void waitForBackup(ClientSessionFactoryInternal sessionFactory, int seconds) throws Exception {
       final ActiveMQServerImpl actualServer = (ActiveMQServerImpl) backupServer.getServer();
-      if (actualServer.getHAPolicy().isSharedStore())
-      {
+      if (actualServer.getHAPolicy().isSharedStore()) {
          waitForServerToStart(actualServer);
       }
-      else
-      {
+      else {
          waitForRemoteBackup(sessionFactory, seconds, true, actualServer);
       }
    }
@@ -324,20 +276,15 @@ public abstract class FailoverTestBase extends ActiveMQTestBase
 
    protected abstract TransportConfiguration getConnectorTransportConfiguration(final boolean live);
 
-   protected ServerLocatorInternal getServerLocator() throws Exception
-   {
-      return (ServerLocatorInternal) addServerLocator(ActiveMQClient.createServerLocatorWithHA(getConnectorTransportConfiguration(true), getConnectorTransportConfiguration(false)))
-              .setRetryInterval(50);
+   protected ServerLocatorInternal getServerLocator() throws Exception {
+      return (ServerLocatorInternal) addServerLocator(ActiveMQClient.createServerLocatorWithHA(getConnectorTransportConfiguration(true), getConnectorTransportConfiguration(false))).setRetryInterval(50);
    }
 
-
-   protected void crash(final ClientSession... sessions) throws Exception
-   {
+   protected void crash(final ClientSession... sessions) throws Exception {
       liveServer.crash(sessions);
    }
 
-   protected void crash(final boolean waitFailure, final ClientSession... sessions) throws Exception
-   {
+   protected void crash(final boolean waitFailure, final ClientSession... sessions) throws Exception {
       liveServer.crash(waitFailure, sessions);
    }
 
@@ -345,35 +292,30 @@ public abstract class FailoverTestBase extends ActiveMQTestBase
 
    // Inner classes -------------------------------------------------
 
-   public static final class LatchClusterTopologyListener implements ClusterTopologyListener
-   {
+   public static final class LatchClusterTopologyListener implements ClusterTopologyListener {
+
       final CountDownLatch latch;
       List<String> liveNode = new ArrayList<String>();
       List<String> backupNode = new ArrayList<String>();
 
-      public LatchClusterTopologyListener(CountDownLatch latch)
-      {
+      public LatchClusterTopologyListener(CountDownLatch latch) {
          this.latch = latch;
       }
 
       @Override
-      public void nodeUP(TopologyMember topologyMember, boolean last)
-      {
-         if (topologyMember.getLive() != null && !liveNode.contains(topologyMember.getLive().getName()))
-         {
+      public void nodeUP(TopologyMember topologyMember, boolean last) {
+         if (topologyMember.getLive() != null && !liveNode.contains(topologyMember.getLive().getName())) {
             liveNode.add(topologyMember.getLive().getName());
             latch.countDown();
          }
-         if (topologyMember.getBackup() != null && !backupNode.contains(topologyMember.getBackup().getName()))
-         {
+         if (topologyMember.getBackup() != null && !backupNode.contains(topologyMember.getBackup().getName())) {
             backupNode.add(topologyMember.getBackup().getName());
             latch.countDown();
          }
       }
 
       @Override
-      public void nodeDown(final long uniqueEventID, String nodeID)
-      {
+      public void nodeDown(final long uniqueEventID, String nodeID) {
          //To change body of implemented methods use File | Settings | File Templates.
       }
    }

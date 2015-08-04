@@ -30,120 +30,125 @@ import junit.framework.TestCase;
  */
 public class BooleanStreamTest extends TestCase {
 
-    protected OpenWireFormat openWireformat;
-    protected int endOfStreamMarker = 0x12345678;
-    int numberOfBytes = 8 * 200;
+   protected OpenWireFormat openWireformat;
+   protected int endOfStreamMarker = 0x12345678;
+   int numberOfBytes = 8 * 200;
 
-    interface BooleanValueSet {
-        boolean getBooleanValueFor(int index, int count);
-    }
+   interface BooleanValueSet {
 
-    public void testBooleanMarshallingUsingAllTrue() throws Exception {
-        testBooleanStream(numberOfBytes, new BooleanValueSet() {
-            @Override
-            public boolean getBooleanValueFor(int index, int count) {
-                return true;
-            }
-        });
-    }
+      boolean getBooleanValueFor(int index, int count);
+   }
 
-    public void testBooleanMarshallingUsingAllFalse() throws Exception {
-        testBooleanStream(numberOfBytes, new BooleanValueSet() {
-            @Override
-            public boolean getBooleanValueFor(int index, int count) {
-                return false;
-            }
-        });
-    }
+   public void testBooleanMarshallingUsingAllTrue() throws Exception {
+      testBooleanStream(numberOfBytes, new BooleanValueSet() {
+         @Override
+         public boolean getBooleanValueFor(int index, int count) {
+            return true;
+         }
+      });
+   }
 
-    public void testBooleanMarshallingUsingOddAlternateTrueFalse() throws Exception {
-        testBooleanStream(numberOfBytes, new BooleanValueSet() {
-            @Override
-            public boolean getBooleanValueFor(int index, int count) {
-                return (index & 1) == 0;
-            }
-        });
-    }
+   public void testBooleanMarshallingUsingAllFalse() throws Exception {
+      testBooleanStream(numberOfBytes, new BooleanValueSet() {
+         @Override
+         public boolean getBooleanValueFor(int index, int count) {
+            return false;
+         }
+      });
+   }
 
-    public void testBooleanMarshallingUsingEvenAlternateTrueFalse() throws Exception {
-        testBooleanStream(numberOfBytes, new BooleanValueSet() {
-            @Override
-            public boolean getBooleanValueFor(int index, int count) {
-                return (index & 1) != 0;
-            }
-        });
-    }
+   public void testBooleanMarshallingUsingOddAlternateTrueFalse() throws Exception {
+      testBooleanStream(numberOfBytes, new BooleanValueSet() {
+         @Override
+         public boolean getBooleanValueFor(int index, int count) {
+            return (index & 1) == 0;
+         }
+      });
+   }
 
-    protected void testBooleanStream(int numberOfBytes, BooleanValueSet valueSet) throws Exception {
-        for (int i = 0; i < numberOfBytes; i++) {
-            try {
-                assertMarshalBooleans(i, valueSet);
-            } catch (Throwable e) {
-                throw (AssertionFailedError)new AssertionFailedError("Iteration failed at: " + i).initCause(e);
-            }
-        }
-    }
+   public void testBooleanMarshallingUsingEvenAlternateTrueFalse() throws Exception {
+      testBooleanStream(numberOfBytes, new BooleanValueSet() {
+         @Override
+         public boolean getBooleanValueFor(int index, int count) {
+            return (index & 1) != 0;
+         }
+      });
+   }
 
-    protected void assertMarshalBooleans(int count, BooleanValueSet valueSet) throws Exception {
-        BooleanStream bs = new BooleanStream();
-        for (int i = 0; i < count; i++) {
-            bs.writeBoolean(valueSet.getBooleanValueFor(i, count));
-        }
-        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-        DataOutputStream ds = new DataOutputStream(buffer);
-        bs.marshal(ds);
-        ds.writeInt(endOfStreamMarker);
+   protected void testBooleanStream(int numberOfBytes, BooleanValueSet valueSet) throws Exception {
+      for (int i = 0; i < numberOfBytes; i++) {
+         try {
+            assertMarshalBooleans(i, valueSet);
+         }
+         catch (Throwable e) {
+            throw (AssertionFailedError) new AssertionFailedError("Iteration failed at: " + i).initCause(e);
+         }
+      }
+   }
 
-        // now lets read from the stream
-        ds.close();
+   protected void assertMarshalBooleans(int count, BooleanValueSet valueSet) throws Exception {
+      BooleanStream bs = new BooleanStream();
+      for (int i = 0; i < count; i++) {
+         bs.writeBoolean(valueSet.getBooleanValueFor(i, count));
+      }
+      ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+      DataOutputStream ds = new DataOutputStream(buffer);
+      bs.marshal(ds);
+      ds.writeInt(endOfStreamMarker);
 
-        ByteArrayInputStream in = new ByteArrayInputStream(buffer.toByteArray());
-        DataInputStream dis = new DataInputStream(in);
-        bs = new BooleanStream();
-        try {
-            bs.unmarshal(dis);
-        } catch (Exception e) {
+      // now lets read from the stream
+      ds.close();
+
+      ByteArrayInputStream in = new ByteArrayInputStream(buffer.toByteArray());
+      DataInputStream dis = new DataInputStream(in);
+      bs = new BooleanStream();
+      try {
+         bs.unmarshal(dis);
+      }
+      catch (Exception e) {
+         e.printStackTrace();
+         fail("Failed to unmarshal: " + count + " booleans: " + e);
+      }
+
+      for (int i = 0; i < count; i++) {
+         boolean expected = valueSet.getBooleanValueFor(i, count);
+         // /System.out.println("Unmarshaling value: " + i + " = " + expected
+         // + " out of: " + count);
+
+         try {
+            boolean actual = bs.readBoolean();
+            assertEquals("value of object: " + i + " was: " + actual, expected, actual);
+         }
+         catch (IOException e) {
             e.printStackTrace();
-            fail("Failed to unmarshal: " + count + " booleans: " + e);
-        }
+            fail("Failed to parse boolean: " + i + " out of: " + count + " due to: " + e);
+         }
+      }
+      int marker = dis.readInt();
+      assertEquals("Marker int when unmarshalling: " + count + " booleans", Integer.toHexString(endOfStreamMarker), Integer.toHexString(marker));
 
-        for (int i = 0; i < count; i++) {
-            boolean expected = valueSet.getBooleanValueFor(i, count);
-            // /System.out.println("Unmarshaling value: " + i + " = " + expected
-            // + " out of: " + count);
+      // lets try read and we should get an exception
+      try {
+         dis.readByte();
+         fail("Should have reached the end of the stream");
+      }
+      catch (IOException e) {
+         // worked!
+      }
+   }
 
-            try {
-                boolean actual = bs.readBoolean();
-                assertEquals("value of object: " + i + " was: " + actual, expected, actual);
-            } catch (IOException e) {
-                e.printStackTrace();
-                fail("Failed to parse boolean: " + i + " out of: " + count + " due to: " + e);
-            }
-        }
-        int marker = dis.readInt();
-        assertEquals("Marker int when unmarshalling: " + count + " booleans", Integer.toHexString(endOfStreamMarker), Integer.toHexString(marker));
+   @Override
+   protected void setUp() throws Exception {
+      super.setUp();
+      openWireformat = createOpenWireFormat();
+   }
 
-        // lets try read and we should get an exception
-        try {
-            dis.readByte();
-            fail("Should have reached the end of the stream");
-        } catch (IOException e) {
-            // worked!
-        }
-    }
-
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
-        openWireformat = createOpenWireFormat();
-    }
-
-    protected OpenWireFormat createOpenWireFormat() {
-        OpenWireFormat wf = new OpenWireFormat();
-        wf.setCacheEnabled(true);
-        wf.setStackTraceEnabled(false);
-        wf.setVersion(1);
-        return wf;
-    }
+   protected OpenWireFormat createOpenWireFormat() {
+      OpenWireFormat wf = new OpenWireFormat();
+      wf.setCacheEnabled(true);
+      wf.setStackTraceEnabled(false);
+      wf.setVersion(1);
+      return wf;
+   }
 
 }
