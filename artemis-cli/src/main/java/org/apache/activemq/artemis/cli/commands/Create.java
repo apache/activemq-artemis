@@ -146,8 +146,8 @@ public class Create extends InputAbstract {
    @Option(name = "--require-login", description = "This will configure security to require user / password, opposite of --allow-anonymous")
    Boolean requireLogin = null;
 
-   @Option(name = "--no-sync-test", description = "Disable the calculation for the buffer")
-   boolean noSyncTest;
+   @Option(name = "--no-auto-tune", description = "Disable auto tuning on the journal.")
+   boolean noAutoTune;
 
    @Option(name = "--user", description = "The username (Default: input)")
    String user;
@@ -563,7 +563,7 @@ public class Create extends InputAbstract {
          filters.put("${bootstrap-web-settings}", applyFilters(readTextFile(ETC_BOOTSTRAP_WEB_SETTINGS_TXT), filters));
       }
 
-      performSyncCalc(filters, aio, dataFolder);
+      performAutoTune(filters, aio, dataFolder);
 
       write(ETC_BOOTSTRAP_XML, filters, false);
       write(ETC_BROKER_XML, filters, false);
@@ -615,15 +615,15 @@ public class Create extends InputAbstract {
       return null;
    }
 
-   private void performSyncCalc(HashMap<String, String> filters, boolean aio, File dataFolder) {
-      if (noSyncTest) {
+   private void performAutoTune(HashMap<String, String> filters, boolean aio, File dataFolder) {
+      if (noAutoTune) {
          filters.put("${journal-buffer.settings}", "");
       }
       else {
          try {
             int writes = 250;
             System.out.println("");
-            System.out.println("Performing write sync calculation...");
+            System.out.println("Auto tuning journal ...");
 
             long time = SyncCalculation.syncTest(dataFolder, 4096, writes, 5, verbose, aio);
             long nanoseconds = SyncCalculation.toNanos(time, writes);
